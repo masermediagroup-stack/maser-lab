@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "rule/no-transition-all",
+      "check": "No transition: all or transition-all in lab/src",
+      "automated": "partial",
+      "eslintRule": "lab-custom/no-transition-all"
+    },
+    {
+      "id": "rule/reduced-motion-required",
+      "check": "prefers-reduced-motion handled for movement",
+      "automated": false
+    },
+    {
+      "id": "rule/ui-duration-cap",
+      "check": "UI durations <= 300ms unless documented",
+      "automated": false
+    },
+    {
+      "id": "rule/gpu-properties-only",
+      "check": "No layout property animation for feedback",
+      "automated": false
+    },
+    {
+      "id": "rule/demo-all-states",
+      "check": "PROJECT.md states reachable from demo",
+      "automated": false
+    }
+  ]
+}
