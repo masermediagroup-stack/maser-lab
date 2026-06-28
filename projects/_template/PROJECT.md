@@ -1,7 +1,7 @@
 # Project: {title}
 
 **Slug:** `{slug}`  
-**Category:** navigation | inputs | feedback | display | scroll | marketing | layout  
+**Category:** navigation | inputs | feedback | display | scroll | hero-section | marketing | layout  
 **Status:** draft | building | review | ready | transferred  
 **Created:** YYYY-MM-DD
 
@@ -53,7 +53,7 @@ List every reachable state the demo must expose:
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] Motion review: no open P0/P1 findings
 - [ ] `prefers-reduced-motion` verified in browser
-- [ ] Component exported from `lab/src/components/projects/{slug}/index.ts`
+- [ ] Component exported from `lab/src/components/projects/{category}/{slug}/index.ts`
 
 ## Open decisions
 

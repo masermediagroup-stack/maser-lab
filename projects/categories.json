@@ -27,9 +27,14 @@
       "description": "Scroll-linked reveals, parallax, and timeline-driven sections"
     },
     {
+      "id": "hero-section",
+      "label": "Hero Section",
+      "description": "Landing-page heroes, headers, and above-the-fold brand blocks"
+    },
+    {
       "id": "marketing",
       "label": "Marketing",
-      "description": "Hero blocks, CTAs, brand moments, and landing-page sections"
+      "description": "CTAs, social proof, brand moments, and landing-page sections"
     },
     {
       "id": "layout",

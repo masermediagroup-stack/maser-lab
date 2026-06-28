@@ -41,7 +41,7 @@ Canonical patterns for this lab. Prefer these before inventing new motion.
 ## Portfolio export shape
 
 ```tsx
-// lab/src/components/projects/{slug}/index.ts
+// lab/src/components/projects/{category}/{slug}/index.ts
 export { ComponentName, type ComponentNameProps } from "./component-name";
 ```
 

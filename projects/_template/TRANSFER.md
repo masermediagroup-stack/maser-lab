@@ -5,7 +5,7 @@ Fill when status → `ready` or `transferred`.
 ## Export
 
 ```tsx
-import { ComponentName } from "@/components/projects/{slug}";
+import { ComponentName } from "@/components/projects/{category}/{slug}";
 ```
 
 ## Dependencies
@@ -20,7 +20,7 @@ import { ComponentName } from "@/components/projects/{slug}";
 
 ## Porting steps
 
-1. Copy `lab/src/components/projects/{slug}/` to portfolio repo
+1. Copy `lab/src/components/projects/{category}/{slug}/` to portfolio repo
 2. Install dependencies listed above
 3. Adjust import paths / theme tokens
 4. 

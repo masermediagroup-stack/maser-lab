@@ -11,6 +11,7 @@ export type ProjectCategoryId =
   | "feedback"
   | "display"
   | "scroll"
+  | "hero-section"
   | "marketing"
   | "layout";
 

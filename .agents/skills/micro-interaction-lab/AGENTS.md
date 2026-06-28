@@ -5,7 +5,7 @@
 1. Read this file (`AGENTS.md`)
 2. Read `SKILL.md` and resolve **request mode**
 3. Load routed references from `references/` (see SKILL.md routing table)
-4. Load project context from `projects/{slug}/PROJECT.md` when a slug is in scope
+4. Load project context from `projects/{category}/{slug}/PROJECT.md` when a slug is in scope
 5. Chain to domain skills only when SKILL.md routes you there — do not duplicate their content
 
 ## Validation before closing work
