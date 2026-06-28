@@ -7,6 +7,13 @@
       "status": "review",
       "category": "navigation",
       "description": "Glass hanging-tab nav with swing motion and desktop bubble indicator"
+    },
+    {
+      "slug": "navigation-glass-blue-morph",
+      "title": "Navigation Glass Blue Morph",
+      "status": "building",
+      "category": "navigation",
+      "description": "Frosted bottom tab bar with morphing blue glow — Prism demo"
     }
   ]
 }
