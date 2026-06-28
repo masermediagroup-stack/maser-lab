@@ -20,7 +20,7 @@ Update `projects/registry.json` when status changes.
 
 1. Copy `projects/_template/` → `projects/{slug}/`
 2. Fill `PROJECT.md` (brief, states, acceptance criteria)
-3. Add slug to `registry.json` with `status: "draft"`
+3. Add slug to `registry.json` with `status: "draft"` and a valid `category` from `categories.json`
 4. Create `lab/src/components/projects/{slug}/`
 5. Add or extend `lab/src/app/demos/[slug]/page.tsx`
 6. Set status to `building` when implementation starts
@@ -52,3 +52,4 @@ Every demo route must include:
 | Component | `lab/src/components/projects/{slug}/` |
 | Demo | `lab/src/app/demos/[slug]/page.tsx` |
 | Registry | `projects/registry.json` |
+| Categories | `projects/categories.json` |

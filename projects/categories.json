@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "navigation",
+      "label": "Navigation",
+      "description": "Menus, tabs, breadcrumbs, and wayfinding chrome"
+    },
+    {
+      "id": "inputs",
+      "label": "Inputs",
+      "description": "Buttons, toggles, sliders, and form controls"
+    },
+    {
+      "id": "feedback",
+      "label": "Feedback",
+      "description": "Loaders, toasts, success/error states, and status indicators"
+    },
+    {
+      "id": "display",
+      "label": "Display",
+      "description": "Cards, lists, badges, and data presentation with motion"
+    },
+    {
+      "id": "scroll",
+      "label": "Scroll",
+      "description": "Scroll-linked reveals, parallax, and timeline-driven sections"
+    },
+    {
+      "id": "marketing",
+      "label": "Marketing",
+      "description": "Hero blocks, CTAs, brand moments, and landing-page sections"
+    },
+    {
+      "id": "layout",
+      "label": "Layout",
+      "description": "Modals, drawers, panels, and structural page chrome"
+    }
+  ]
+}

@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { categoryById } from "@/lib/categories-registry";
+import { groupProjectsByCategory } from "@/lib/group-projects-by-category";
 import { projectsRegistry } from "@/lib/projects-registry";
 
 export default function Home() {
   const active = projectsRegistry.projects.filter(
     (p) => p.status !== "transferred",
   );
+  const groups = groupProjectsByCategory(active, categoryById);
 
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
@@ -26,7 +29,7 @@ export default function Home() {
           </p>
         </header>
 
-        <section className="flex flex-col gap-4">
+        <section className="flex flex-col gap-6">
           <h2 className="text-sm font-medium uppercase tracking-widest text-zinc-500">
             Projects
           </h2>
@@ -46,21 +49,40 @@ export default function Home() {
               </p>
             </div>
           ) : (
-            <ul className="flex flex-col gap-2">
-              {active.map((project) => (
-                <li key={project.slug}>
-                  <Link
-                    href={`/demos/${project.slug}`}
-                    className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/80"
-                  >
-                    <span className="font-medium">{project.title}</span>
-                    <span className="text-sm capitalize text-zinc-500">
-                      {project.status}
-                    </span>
-                  </Link>
-                </li>
+            <div className="flex flex-col gap-8">
+              {groups.map((group) => (
+                <div key={group.id} className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1">
+                    <h3 className="text-base font-medium">{group.label}</h3>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      {group.description}
+                    </p>
+                  </div>
+                  <ul className="flex flex-col gap-2">
+                    {group.projects.map((project) => (
+                      <li key={project.slug}>
+                        <Link
+                          href={`/demos/${project.slug}`}
+                          className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/80"
+                        >
+                          <div className="flex min-w-0 flex-col gap-0.5">
+                            <span className="font-medium">{project.title}</span>
+                            {project.description ? (
+                              <span className="truncate text-sm text-zinc-500">
+                                {project.description}
+                              </span>
+                            ) : null}
+                          </div>
+                          <span className="ml-4 shrink-0 text-sm capitalize text-zinc-500">
+                            {project.status}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </section>
 

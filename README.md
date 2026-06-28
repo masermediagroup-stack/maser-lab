@@ -36,7 +36,7 @@ Shape → Implement → Review / Motion-review → Harden → Transfer
 ```bash
 cp -r projects/_template projects/my-slug
 # Edit projects/my-slug/PROJECT.md
-# Add entry to projects/registry.json
+# Add entry to projects/registry.json (with category)
 # Implement in lab/src/components/projects/my-slug/
 # Register demo in lab/src/components/projects/registry.ts
 ```
@@ -75,6 +75,8 @@ npx skills check && npx skills update
 playground/
 ├── AGENTS.md                 # Agent entry point
 ├── projects/                 # Specs & registry
+│   ├── categories.json       # Canonical component categories
+│   └── registry.json         # Project index (includes category)
 ├── lab/                      # Next.js build shell
 ├── .agents/skills/           # Agent skills
 └── tooling/                  # ESLint rules, evals

@@ -54,7 +54,7 @@ Name target project slug (if any), demo route, and mode.
 
 ### 2. Load project context
 
-If a slug exists, read `projects/{slug}/PROJECT.md` and `projects/registry.json`.
+If a slug exists, read `projects/{slug}/PROJECT.md`, `projects/registry.json`, and note its `category` from `projects/categories.json`.
 
 ### 3. Model the interaction decision
 
@@ -102,7 +102,7 @@ Inventory: default, hover, focus, active/pressed, loading, success, error, disab
 ### 7. Implement (Implement / Harden modes)
 
 1. Copy `projects/_template/` → `projects/{slug}/` if new
-2. Add entry to `projects/registry.json`
+2. Add entry to `projects/registry.json` with a valid `category` from `projects/categories.json`
 3. Implement under `lab/src/components/projects/{slug}/`
 4. Wire demo at `lab/src/app/demos/[slug]/page.tsx`
 5. Run `npm run lint` and `npm run build` in `lab/`

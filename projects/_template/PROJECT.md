@@ -1,6 +1,7 @@
 # Project: {title}
 
 **Slug:** `{slug}`  
+**Category:** navigation | inputs | feedback | display | scroll | marketing | layout  
 **Status:** draft | building | review | ready | transferred  
 **Created:** YYYY-MM-DD
 
