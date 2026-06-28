@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "projects": [
+    {
+      "slug": "plotline-tab-nav",
+      "title": "Plotline Tab Navigation",
+      "status": "review",
+      "description": "Glass hanging-tab nav with swing motion and desktop bubble indicator"
+    }
+  ]
+}

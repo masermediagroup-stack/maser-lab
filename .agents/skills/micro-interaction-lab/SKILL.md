@@ -1,0 +1,138 @@
+---
+name: micro-interaction-lab
+description: >-
+  Single entry point for building, reviewing, and transferring micro-interactions
+  and web components in this playground repo. Use when shaping, implementing,
+  auditing, polishing, or porting UI feedback, motion, toggles, buttons, loaders,
+  gestures, scroll effects, or demo pages. Trigger on micro-interaction, animation,
+  motion, component lab, playground, demo, portfolio transfer, or production-ready
+  UI requests. Not for backend-only work, telemetry, or docs with no shipped UI.
+---
+
+# Micro-Interaction Lab
+
+Make motion **correct for the user, the component, and the craft bar** — not merely present. Working animation is not enough: choose purposeful feedback, cover reachable states, respect accessibility, and verify the rendered result.
+
+## Operating contract
+
+- **Start with the job, not the keyframes.** Who triggers it, how often, what state changes, what must the user understand?
+- **Define outcome before output.** Current behavior, desired feel, success signal, non-goals — before picking a library.
+- **Use evidence, not taste.** Trace decisions to `references/rules.md`, routed skills, project acceptance criteria, or verified adjacent demos.
+- **Separate facts from decisions.** Mark assumptions and open product choices explicitly.
+- **Choose the smallest coherent intervention.** Prefer fixing timing, origin, or easing before adding new motion.
+- **Verify the real surface.** Never claim visual or motion quality from code alone — run the demo in `lab/`.
+
+## Request modes
+
+Resolve mode from the user's verb before acting.
+
+| Mode | Typical request | Required behavior |
+| --- | --- | --- |
+| **Shape** | "Design this interaction", brief without settled motion | Frame problem, compare alternatives, define states and acceptance criteria. Do not edit unless asked. |
+| **Implement** | "Build", "add", "create demo" | Implement smallest end-to-end change: spec → component → demo route → registry update. |
+| **Review** | "Audit", "critique", "what's wrong?" | Inspect source and rendered demo; report prioritized findings. Do not edit unless asked. |
+| **Motion-review** | "Review animations", "motion pass" | Load `review-animations` skill; motion-only scope. |
+| **Harden** | "Polish", "production-ready", edge cases | Preserve direction; fix states, a11y, reduced motion, responsive, performance. |
+| **Transfer** | "Ready for portfolio", "extract component" | Verify acceptance criteria; document API, dependencies, and porting notes. |
+
+When intent is ambiguous, use the narrowest mode. A demo URL identifies scope; it does not alone authorize edits.
+
+## Decision authority
+
+1. User's explicit goal and constraints
+2. Project `PROJECT.md` acceptance criteria
+3. This skill's `references/` and stable rule IDs
+4. Routed skills (see below)
+5. Verified adjacent demos in `lab/src/components/projects/`
+6. General motion heuristics
+
+## Workflow
+
+### 1. Set scope and mode
+
+Name target project slug (if any), demo route, and mode.
+
+### 2. Load project context
+
+If a slug exists, read `projects/{slug}/PROJECT.md` and `projects/registry.json`.
+
+### 3. Model the interaction decision
+
+For Shape, Implement, Harden, or full Review, read `references/motion-judgment.md` and write a compact brief:
+
+- User / trigger frequency
+- State change
+- Success signal
+- Non-goals
+- Reversibility and a11y requirements
+
+### 4. Map states
+
+Inventory: default, hover, focus, active/pressed, loading, success, error, disabled, empty, reduced-motion. Only include states the component can enter.
+
+### 5. Load routed references
+
+| Need | Load |
+| --- | --- |
+| Why this motion exists | `references/motion-judgment.md` |
+| Project lifecycle & transfer | `references/project-lifecycle.md` |
+| Craft, hierarchy, demo layout | `references/interface-quality.md` |
+| Stable rules with IDs | `references/rules.md` |
+| Reusable patterns | `references/patterns.md` |
+| Which external skill owns what | `references/skill-routing.md` |
+| Missing standards | `references/coverage-gaps.md` |
+| Shipped examples | `exemplars/` |
+
+### 6. Route to domain skills (do not duplicate)
+
+| Need | Skill |
+| --- | --- |
+| Disney principles, small UI feedback | `micro-interactions` |
+| Motion presets, Tailwind/Framer snippets | `animation-micro-interaction-pack` |
+| Springs, gestures, component patterns | `ui-animation` |
+| Aggressive motion code review | `review-animations` |
+| GSAP / Framer scroll | `gsap-framer-scroll-animation` |
+| CSS/motion graphics catalog | `hyperframes-animation` |
+| shadcn/ui components | `shadcn` |
+| Web a11y & interface guidelines | `web-design-guidelines` |
+| React/Next performance | `vercel-react-best-practices` |
+| Full-flow verification | `verification` |
+| Find/install more skills | `find-skills` |
+
+### 7. Implement (Implement / Harden modes)
+
+1. Copy `projects/_template/` → `projects/{slug}/` if new
+2. Add entry to `projects/registry.json`
+3. Implement under `lab/src/components/projects/{slug}/`
+4. Wire demo at `lab/src/app/demos/[slug]/page.tsx`
+5. Run `npm run lint` and `npm run build` in `lab/`
+
+### 8. Verify
+
+1. Confirm acceptance criteria in `PROJECT.md`
+2. Run lint and build in `lab/`
+3. Render demo — exercise all listed states
+4. Toggle `prefers-reduced-motion` in devtools
+5. Test keyboard focus and pointer/touch
+6. Run Motion-review or `review-animations` for material motion changes
+
+## Review output
+
+Lead with findings by user impact:
+
+- **P0:** blocks primary task, severe a11y failure, or harmful motion (vestibular, seizure risk)
+- **P1:** misleading feedback, missing critical state, >300ms on high-frequency action, layout thrash
+- **P2:** weak craft, inconsistent easing, wrong transform-origin, missing reduced-motion variant
+- **P3:** minor polish
+
+For each finding: location, verification status, rule ID or source, user consequence, smallest fix.
+
+## Lab standards
+
+- Every interactive element provides feedback within 50–300ms unless high-frequency (then reduce or delete motion)
+- Animate `transform` and `opacity` only unless justified
+- Honor `prefers-reduced-motion` — reduce movement, keep state clarity
+- Gate hover motion behind `@media (hover: hover) and (pointer: fine)`
+- Popovers and anchored surfaces animate from trigger origin, not center
+- No decorative motion without structural or state purpose
+- Demo pages show all states side-by-side or via controls — not only the happy path

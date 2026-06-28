@@ -49,6 +49,24 @@
       "skillPath": "skills/ui-animation/SKILL.md",
       "computedHash": "18ec6f18ffdb4af97eb4ab1451fe39927bcd8e3f0eb13f46b4d6270d2a773f91"
     },
+    "vercel-agent": {
+      "source": "vercel-labs/vercel-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/vercel-agent/SKILL.md",
+      "computedHash": "9365350432d52dbe4548f9788ebb115e11b9602a25e5d256987ec46d852c137a"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "computedHash": "ca7b0c0c6e5f2750043f7f0cd72d16ac4e2abc48f9b5500d047a4b77a2506212"
+    },
+    "verification": {
+      "source": "vercel-labs/vercel-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/verification/SKILL.md",
+      "computedHash": "3ce08bac4515127bf090ded58ae0601456329999b4cf520742c406ff05ef7697"
+    },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
