@@ -18,10 +18,10 @@ Update `projects/registry.json` when status changes.
 
 ## New project checklist
 
-1. Copy `projects/_template/` → `projects/{slug}/`
+1. Copy `projects/_template/` files → `projects/{category}/{slug}/`
 2. Fill `PROJECT.md` (brief, states, acceptance criteria)
-3. Add slug to `registry.json` with `status: "draft"`
-4. Create `lab/src/components/projects/{slug}/`
+3. Add slug to `registry.json` with `status: "draft"` and a valid `category` from `categories.json`
+4. Create `lab/src/components/projects/{category}/{slug}/`
 5. Add or extend `lab/src/app/demos/[slug]/page.tsx`
 6. Set status to `building` when implementation starts
 
@@ -47,8 +47,9 @@ Every demo route must include:
 
 | Artifact | Path |
 | --- | --- |
-| Spec | `projects/{slug}/PROJECT.md` |
-| Transfer notes | `projects/{slug}/TRANSFER.md` |
-| Component | `lab/src/components/projects/{slug}/` |
+| Spec | `projects/{category}/{slug}/PROJECT.md` |
+| Transfer notes | `projects/{category}/{slug}/TRANSFER.md` |
+| Component | `lab/src/components/projects/{category}/{slug}/` |
 | Demo | `lab/src/app/demos/[slug]/page.tsx` |
 | Registry | `projects/registry.json` |
+| Categories | `projects/categories.json` |

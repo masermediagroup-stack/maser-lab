@@ -23,7 +23,7 @@ This repo follows Vercel's [product-design for agents](https://vercel.com/blog/t
 | Entry & triggers | `AGENTS.md` |
 | Workflow & modes | `.agents/skills/micro-interaction-lab/SKILL.md` |
 | Rules & patterns | `.agents/skills/micro-interaction-lab/references/` |
-| Project specs | `projects/{slug}/PROJECT.md` |
+| Project specs | `projects/{category}/{slug}/PROJECT.md` |
 | Deterministic checks | `tooling/eslint/` + `npm run lint` in `lab/` |
 | Eval fixtures | `tooling/scripts/evals/` |
 
@@ -34,10 +34,13 @@ Shape → Implement → Review / Motion-review → Harden → Transfer
 ### New project
 
 ```bash
-cp -r projects/_template projects/my-slug
-# Edit projects/my-slug/PROJECT.md
-# Add entry to projects/registry.json
-# Implement in lab/src/components/projects/my-slug/
+mkdir -p projects/{category}/{slug}
+cp projects/_template/PROJECT.md projects/{category}/{slug}/
+cp projects/_template/TRANSFER.md projects/{category}/{slug}/
+mkdir -p lab/src/components/projects/{category}/{slug}
+# Edit projects/{category}/{slug}/PROJECT.md
+# Add entry to projects/registry.json (with category)
+# Implement in lab/src/components/projects/{category}/{slug}/
 # Register demo in lab/src/components/projects/registry.ts
 ```
 
@@ -75,7 +78,12 @@ npx skills check && npx skills update
 playground/
 ├── AGENTS.md                 # Agent entry point
 ├── projects/                 # Specs & registry
+│   ├── categories.json       # Canonical component categories
+│   ├── registry.json         # Project index (includes category)
+│   ├── navigation/{slug}/    # Example: navigation/plotline-tab-nav/
+│   └── hero-section/{slug}/  # Example: hero-section/my-hero/
 ├── lab/                      # Next.js build shell
+│   └── src/components/projects/{category}/{slug}/
 ├── .agents/skills/           # Agent skills
 └── tooling/                  # ESLint rules, evals
 ```

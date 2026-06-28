@@ -122,7 +122,7 @@ Stable IDs for traceable findings. Format: `rule/{id}`
 
 ## rule/project-isolation
 
-**Scope:** `lab/src/components/projects/{slug}/`
+**Scope:** `lab/src/components/projects/{category}/{slug}/`
 
 **Rule:** No cross-imports between project slugs.
 

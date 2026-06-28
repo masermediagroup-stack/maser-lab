@@ -1,4 +1,4 @@
-import { PlotlineTabNavDemo } from "@/components/projects/plotline-tab-nav";
+import { PlotlineTabNavDemo } from "@/components/projects/navigation/plotline-tab-nav";
 
 export default function PlotlineTabNavDemoPage() {
   return <PlotlineTabNavDemo />;

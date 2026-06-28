@@ -16,7 +16,7 @@ Standards for demo pages and component presentation in this repo.
 
 ## Component isolation
 
-- Components under `lab/src/components/projects/{slug}/` must not import from other project slugs
+- Components under `lab/src/components/projects/{category}/{slug}/` must not import from other project slugs
 - Shared primitives live in `lab/src/components/ui/` (when added)
 
 ## Responsive

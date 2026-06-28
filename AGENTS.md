@@ -20,7 +20,10 @@ This repository is a **micro-interaction lab**: build, review, and polish UI com
 playground/
 ├── AGENTS.md                          ← you are here
 ├── projects/                          ← specs, acceptance criteria, lifecycle
+│   ├── categories.json                ← canonical component categories
 │   ├── registry.json                  ← index of all projects
+│   ├── navigation/{slug}/             ← example category folder
+│   ├── hero-section/{slug}/
 │   └── _template/                     ← copy to start a new project
 ├── lab/                               ← Next.js app for building & previewing
 │   └── src/app/demos/[slug]/          ← one demo route per project
@@ -30,8 +33,8 @@ playground/
 
 ## Operating contract
 
-1. **Start a project from the template** — copy `projects/_template/` to `projects/{slug}/`, fill in `PROJECT.md`, add the slug to `projects/registry.json`.
-2. **Implement in `lab/`** — component code lives under `lab/src/components/projects/{slug}/`; demo page at `lab/src/app/demos/[slug]/page.tsx` or a dedicated route.
+1. **Start a project from the template** — copy `projects/_template/` to `projects/{category}/{slug}/`, fill in `PROJECT.md`, add the slug to `projects/registry.json` with a valid `category` from `projects/categories.json`.
+2. **Implement in `lab/`** — component code lives under `lab/src/components/projects/{category}/{slug}/`; demo page at `lab/src/app/demos/[slug]/page.tsx` or a dedicated route.
 3. **Use request modes** from `micro-interaction-lab` — Shape, Implement, Review, Motion-review, Harden, Transfer. Do not mix modes without stating the switch.
 4. **Verify rendered output** — run `npm run dev` in `lab/`, exercise states, check `prefers-reduced-motion`, keyboard, and touch. Source inspection alone is not enough for motion work.
 5. **Review before transfer** — a project moves to `status: "ready"` only after motion review passes and acceptance criteria in `PROJECT.md` are met.

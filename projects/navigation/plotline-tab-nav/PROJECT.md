@@ -1,6 +1,7 @@
 # Project: Plotline Tab Navigation
 
 **Slug:** `plotline-tab-nav`  
+**Category:** navigation  
 **Status:** review  
 **Created:** 2026-06-27
 
