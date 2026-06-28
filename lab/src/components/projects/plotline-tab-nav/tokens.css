@@ -1,0 +1,50 @@
+/* Plotline brand tokens — scoped to plotline-tab-nav */
+.plotline-nav {
+  --pl-pink-light: #f5b8d4;
+  --pl-pink-dark: #9b1b5c;
+  --pl-pink-muted: #d484ad;
+  --pl-glass-bg: rgba(14, 10, 18, 0.78);
+  --pl-glass-bg-strong: rgba(8, 5, 12, 0.92);
+  --pl-glass-border: rgba(245, 184, 212, 0.14);
+  --pl-glass-highlight: rgba(255, 255, 255, 0.06);
+  --pl-scrim: rgba(0, 0, 0, 0.58);
+  --pl-blur: 20px;
+  --pl-blur-strong: 28px;
+  --pl-radius-tab: 28px;
+  --pl-radius-panel: 32px;
+  --pl-radius-bubble: 999px;
+  --pl-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --pl-ease-spring: cubic-bezier(0.34, 1.25, 0.64, 1);
+  --pl-motion-open: 0.32s;
+  --pl-motion-close: 0.22s;
+  --pl-text: #f4eef2;
+  --pl-text-muted: rgba(244, 238, 242, 0.62);
+}
+
+.plotline-nav[data-reduced-motion="true"] {
+  --pl-motion-open: 0.01ms;
+  --pl-motion-close: 0.01ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plotline-nav:not([data-reduced-motion="false"]) {
+    --pl-motion-open: 0.01ms;
+    --pl-motion-close: 0.01ms;
+  }
+}
+
+.plotline-glass {
+  background: var(--pl-glass-bg);
+  border: 1px solid var(--pl-glass-border);
+  box-shadow:
+    0 0 0 1px var(--pl-glass-highlight) inset,
+    0 24px 48px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(var(--pl-blur));
+  -webkit-backdrop-filter: blur(var(--pl-blur));
+}
+
+.plotline-glass-strong {
+  background: var(--pl-glass-bg-strong);
+  backdrop-filter: blur(var(--pl-blur-strong));
+  -webkit-backdrop-filter: blur(var(--pl-blur-strong));
+}
