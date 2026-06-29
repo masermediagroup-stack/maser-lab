@@ -5,6 +5,12 @@
 **Status:** draft | building | review | ready | transferred  
 **Created:** YYYY-MM-DD
 
+## Design reference
+
+- Figma: _URL or "none"_
+- Other: _Dribbble, screenshot, etc._
+- Design spec: `FIGMA.md` in this folder (copy from `projects/_template/FIGMA.md`)
+
 ## Brief
 
 ### User / trigger

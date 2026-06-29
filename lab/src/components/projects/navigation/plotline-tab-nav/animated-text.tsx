@@ -9,7 +9,11 @@ type AnimatedTextProps = {
   reveal?: boolean;
   revealDelay?: number;
   className?: string;
+  /** When true, label uses active tab text color. */
+  active?: boolean;
 };
+
+const ACTIVE_TEXT_COLOR = "var(--pl-tab-active-text)";
 
 const variantClass: Record<NonNullable<AnimatedTextProps["variant"]>, string> =
   {
@@ -18,86 +22,34 @@ const variantClass: Record<NonNullable<AnimatedTextProps["variant"]>, string> =
     body: "inline-block",
   };
 
-function AnimatedString({
-  text,
-  className,
-  reduced,
-}: {
-  text: string;
-  className: string;
-  reduced: boolean;
-}) {
-  return (
-    <motion.span className={`inline-flex ${className}`}>
-      {text.split("").map((char, index) => (
-        <motion.span
-          key={`${char}-${index}`}
-          className="inline-block"
-          whileHover={
-            reduced
-              ? undefined
-              : {
-                  y: -3,
-                  color: "var(--pl-pink-light)",
-                  transition: {
-                    delay: index * 0.015,
-                    duration: 0.12,
-                  },
-                }
-          }
-        >
-          {char === " " ? "\u00A0" : char}
-        </motion.span>
-      ))}
-    </motion.span>
-  );
-}
-
 export function AnimatedText({
   children,
   variant = "label",
   reveal = false,
   revealDelay = 0,
   className = "",
+  active = false,
 }: AnimatedTextProps) {
   const reduced = useReducedMotion() ?? false;
   const baseClass = `${variantClass[variant]} ${className}`;
 
-  if (typeof children !== "string") {
-    return (
-      <motion.span
-        className={baseClass}
-        whileHover={
-          reduced ? undefined : { y: -1, color: "var(--pl-pink-light)" }
-        }
-        transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
-      >
-        {children}
-      </motion.span>
-    );
-  }
-
   const content = (
-    <AnimatedString text={children} className={baseClass} reduced={reduced} />
+    <span
+      className={baseClass}
+      style={active ? { color: ACTIVE_TEXT_COLOR } : undefined}
+    >
+      {children}
+    </span>
   );
 
   if (!reveal) {
-    return (
-      <motion.span
-        className={baseClass}
-        whileHover={
-          reduced ? undefined : { y: variant === "heading" ? -2 : -1 }
-        }
-        transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
-      >
-        {content}
-      </motion.span>
-    );
+    return content;
   }
 
   return (
     <motion.span
       className={baseClass}
+      style={active ? { color: ACTIVE_TEXT_COLOR } : undefined}
       initial={reduced ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -106,7 +58,7 @@ export function AnimatedText({
         ease: [0.22, 1, 0.36, 1],
       }}
     >
-      {content}
+      {children}
     </motion.span>
   );
 }

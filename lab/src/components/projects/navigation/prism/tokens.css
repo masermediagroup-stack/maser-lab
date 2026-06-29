@@ -1,0 +1,108 @@
+/* Prism liquid glass top nav — Figma node 12:274 */
+.prism-nav {
+  --font-figtree: var(--font-geist-sans), system-ui, sans-serif;
+
+  --prism-bg: #0a1628;
+  --prism-text: #ffffff;
+  --prism-text-active: #1b1b1b;
+  --prism-text-muted: rgba(255, 255, 255, 0.92);
+
+  --prism-glass-bg: rgba(255, 255, 255, 0.12);
+  --prism-glass-border: rgba(255, 255, 255, 0.1);
+  --prism-glass-radial: radial-gradient(
+    ellipse 1024px 88px at 50% 50%,
+    rgba(190, 255, 242, 0.62) 0%,
+    rgba(152, 152, 152, 0) 100%
+  );
+  --prism-glass-overlay-opacity: 0.2;
+
+  --prism-selector-from: #befff2;
+  --prism-selector-to: #defff8;
+  --prism-selector-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+
+  --prism-profile-icon-glass: rgba(255, 255, 255, 0.2);
+  --prism-blur: 20px;
+  --prism-radius-pill: 999px;
+  --prism-nav-height: 88px;
+  --prism-nav-max-width: 1024px;
+
+  --prism-spring-duration: 0.42s;
+  --prism-spring-bounce: 0.2;
+  --prism-pill-motion-blur: 6px;
+  --prism-press-scale: 0.97;
+  --prism-hover-duration: 150ms;
+}
+
+.prism-nav[data-reduced-motion="true"] {
+  --prism-spring-duration: 0s;
+  --prism-spring-bounce: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prism-nav:not([data-reduced-motion="false"]) {
+    --prism-spring-duration: 0s;
+    --prism-spring-bounce: 0;
+  }
+}
+
+.prism-glass-bar {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--prism-glass-bg);
+  border: 0.833px solid var(--prism-glass-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(var(--prism-blur));
+  -webkit-backdrop-filter: blur(var(--prism-blur));
+}
+
+.prism-glass-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--prism-glass-radial);
+  opacity: var(--prism-glass-overlay-opacity);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.prism-selector-pill {
+  background: linear-gradient(
+    180deg,
+    var(--prism-selector-from) 0%,
+    var(--prism-selector-to) 100%
+  );
+  box-shadow: var(--prism-selector-shadow);
+}
+
+.prism-nav-link {
+  transition: color var(--prism-hover-duration) ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .prism-nav-link:not([aria-selected="true"]):hover {
+    color: #ffffff;
+  }
+
+  .prism-profile-btn.prism-profile-glass:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.prism-profile-btn {
+  border: 0.833px solid transparent;
+}
+
+.prism-profile-glass {
+  background: rgba(0, 0, 0, 0.004);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.prism-profile-btn.prism-selector-pill {
+  box-shadow: none;
+}

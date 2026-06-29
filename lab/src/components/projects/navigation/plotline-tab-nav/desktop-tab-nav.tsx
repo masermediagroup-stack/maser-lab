@@ -1,164 +1,286 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  type Transition,
+} from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatedText } from "./animated-text";
-import { NAV_ITEMS, type NavItemId } from "./constants";
+import { CENTER_NAV_ITEMS, SIGN_IN_ITEM, type NavItemId } from "./constants";
+import { MagneticTabButton } from "./magnetic-tab-button";
 import { PlotlineLogo } from "./plotline-logo";
+import { SignInTabLabel } from "./sign-in-tab-label";
+import type { PlotlineTabNavPlacement } from "./tab-nav";
 
 type BubbleRect = {
   left: number;
+  top: number;
   width: number;
   height: number;
 };
 
+/** Peak blur during bubble spring — matches `--pl-bubble-motion-blur` in tokens.css */
+const BUBBLE_MOTION_BLUR_PX = 5;
+
+const BUBBLE_SPRING: Transition = {
+  type: "spring",
+  stiffness: 420,
+  damping: 32,
+  mass: 0.8,
+};
+
+const BUBBLE_MOTION_BLUR_FILTER: Transition = {
+  duration: 0.38,
+  times: [0, 0.3, 1],
+  ease: [0.22, 1, 0.36, 1],
+};
+
+const INSTANT: Transition = { duration: 0 };
+
+function bubbleMotionBlurFilter(active: boolean): string | string[] {
+  return active
+    ? [`blur(0px)`, `blur(${BUBBLE_MOTION_BLUR_PX}px)`, `blur(0px)`]
+    : "blur(0px)";
+}
+
 type DesktopTabNavProps = {
   activeId: NavItemId;
   onNavigate: (id: NavItemId) => void;
+  startFreeActive?: boolean;
+  onStartFree?: () => void;
   forceReducedMotion?: boolean;
+  idPrefix?: string;
+  placement?: PlotlineTabNavPlacement;
 };
 
 export function DesktopTabNav({
   activeId,
   onNavigate,
+  startFreeActive = false,
+  onStartFree,
   forceReducedMotion,
+  idPrefix,
+  placement = "fixed-top",
 }: DesktopTabNavProps) {
   const prefersReduced = useReducedMotion();
   const reduced = forceReducedMotion ?? prefersReduced ?? false;
-  const navRef = useRef<HTMLDivElement>(null);
+  const visualActiveId = startFreeActive ? null : activeId;
+  const barRef = useRef<HTMLDivElement>(null);
   const linkRefs = useRef<Partial<Record<NavItemId, HTMLButtonElement>>>({});
+  const prevVisualActiveIdRef = useRef<NavItemId | null>(null);
+  const isFirstMeasureRef = useRef(true);
+  const [signInHovered, setSignInHovered] = useState(false);
+  const [bubbleSize, setBubbleSize] = useState({ width: 88, height: 36 });
   const [bubble, setBubble] = useState<BubbleRect>({
     left: 0,
+    top: 0,
     width: 0,
     height: 36,
   });
-  const [hoveredId, setHoveredId] = useState<NavItemId | null>(null);
+  const [bubbleAnimates, setBubbleAnimates] = useState(false);
 
   const measureBubble = useCallback((id: NavItemId) => {
-    const nav = navRef.current;
+    const container = barRef.current;
     const link = linkRefs.current[id];
-    if (!nav || !link) return;
+    if (!container || !link) return;
 
-    const navRect = nav.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
     const linkRect = link.getBoundingClientRect();
+    const width = linkRect.width;
+    const height = linkRect.height;
+
+    if (width > 0 && height > 0) {
+      setBubbleSize({ width, height });
+    }
+
     setBubble({
-      left: linkRect.left - navRect.left,
-      width: linkRect.width,
-      height: linkRect.height,
+      left: linkRect.left - containerRect.left,
+      top: linkRect.top - containerRect.top,
+      width,
+      height,
     });
   }, []);
 
   useEffect(() => {
-    measureBubble(activeId);
-  }, [activeId, measureBubble]);
+    const prev = prevVisualActiveIdRef.current;
+    const tabChanged = prev !== visualActiveId;
+
+    setBubbleAnimates(!isFirstMeasureRef.current && tabChanged);
+    isFirstMeasureRef.current = false;
+
+    if (visualActiveId) {
+      measureBubble(visualActiveId);
+    } else {
+      setBubble((current) => ({ ...current, width: 0 }));
+    }
+    prevVisualActiveIdRef.current = visualActiveId;
+  }, [visualActiveId, measureBubble]);
 
   useEffect(() => {
-    const handleResize = () => measureBubble(hoveredId ?? activeId);
+    const handleResize = () => {
+      setBubbleAnimates(false);
+      if (visualActiveId) {
+        measureBubble(visualActiveId);
+      }
+    };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [activeId, hoveredId, measureBubble]);
+  }, [visualActiveId, measureBubble]);
 
-  const bubbleTarget = hoveredId ?? activeId;
+  const headerClass =
+    placement === "fixed-top"
+      ? "fixed inset-x-0 top-0 z-50 hidden justify-center px-6 pt-5 md:flex"
+      : "relative z-10 hidden w-full justify-center px-6 md:flex";
 
-  useEffect(() => {
-    measureBubble(bubbleTarget);
-  }, [bubbleTarget, measureBubble]);
+  const shouldBubbleMotionBlur =
+    bubbleAnimates && !reduced && visualActiveId !== null;
+
+  const baseWidth = bubbleSize.width;
+  const baseHeight = bubbleSize.height;
+  const scaleX = bubble.width > 0 ? bubble.width / baseWidth : 1;
+  const scaleY = bubble.height > 0 ? bubble.height / baseHeight : 1;
+  const signInActive = visualActiveId === SIGN_IN_ITEM.id;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 hidden justify-center px-6 pt-5 md:flex">
+    <header className={headerClass}>
       <div
-        className="plotline-glass flex w-full max-w-5xl items-center gap-4 rounded-[var(--pl-radius-tab)] px-4 py-2.5 md:px-5"
-        style={{ borderBottomLeftRadius: "var(--pl-radius-tab)", borderBottomRightRadius: "var(--pl-radius-tab)" }}
+        ref={barRef}
+        className="plotline-glass relative grid w-full max-w-5xl grid-cols-[auto_1fr_auto_auto] items-center gap-3 rounded-[var(--pl-radius-tab)] px-4 py-2.5 md:gap-4 md:px-5"
+        style={{
+          borderBottomLeftRadius: "var(--pl-radius-tab)",
+          borderBottomRightRadius: "var(--pl-radius-tab)",
+        }}
       >
+        {visualActiveId && bubble.width > 0 ? (
+          <motion.div
+            className="plotline-glass-strong pointer-events-none absolute left-0 top-0 rounded-[var(--pl-radius-bubble)] border border-[var(--pl-glass-border)]"
+            style={{
+              width: baseWidth,
+              height: baseHeight,
+              transformOrigin: "left top",
+              boxShadow:
+                "0 0 24px rgba(155, 27, 92, 0.35), inset 0 1px 0 rgba(245, 184, 212, 0.12)",
+            }}
+            initial={false}
+            animate={{
+              x: bubble.left,
+              y: bubble.top,
+              scaleX,
+              scaleY,
+              opacity: 1,
+              filter: bubbleMotionBlurFilter(shouldBubbleMotionBlur),
+            }}
+            transition={
+              reduced || !bubbleAnimates
+                ? INSTANT
+                : {
+                    x: BUBBLE_SPRING,
+                    y: BUBBLE_SPRING,
+                    scaleX: BUBBLE_SPRING,
+                    scaleY: BUBBLE_SPRING,
+                    opacity: { duration: 0.15 },
+                    filter: shouldBubbleMotionBlur
+                      ? BUBBLE_MOTION_BLUR_FILTER
+                      : INSTANT,
+                  }
+            }
+            aria-hidden
+          />
+        ) : null}
+
         <button
           type="button"
           onClick={() => onNavigate("features")}
-          className="flex shrink-0 items-center gap-2.5 rounded-xl px-1 py-1 transition-opacity hover:opacity-90"
+          className="plotline-brand relative z-10 flex shrink-0 items-center gap-2.5 rounded-xl px-1 py-1"
           aria-label="Plotline home"
         >
-          <PlotlineLogo size={32} />
-          <AnimatedText variant="heading" className="text-base font-semibold text-[var(--pl-text)]">
+          <PlotlineLogo size={32} className="plotline-brand-logomark" />
+          <AnimatedText
+            variant="heading"
+            className="plotline-brand-label text-base font-semibold text-[var(--pl-text)]"
+          >
             Plotline
           </AnimatedText>
         </button>
 
-        <nav
-          ref={navRef}
-          className="relative mx-auto hidden items-center md:flex"
-          aria-label="Primary"
-        >
-          <motion.div
-            className="plotline-glass-strong pointer-events-none absolute top-1/2 -translate-y-1/2 rounded-[var(--pl-radius-bubble)] border border-[var(--pl-glass-border)]"
-            animate={{
-              left: bubble.left,
-              width: bubble.width,
-              height: bubble.height,
-            }}
-            transition={
-              reduced
-                ? { duration: 0 }
-                : {
-                    type: "spring",
-                    stiffness: 420,
-                    damping: 32,
-                    mass: 0.8,
-                  }
-            }
-            style={{
-              boxShadow:
-                "0 0 24px rgba(155, 27, 92, 0.35), inset 0 1px 0 rgba(245, 184, 212, 0.12)",
-            }}
-            aria-hidden
-          />
-
-          {NAV_ITEMS.map((item) => {
-            const isActive = item.id === activeId;
-            return (
-              <button
-                key={item.id}
-                ref={(node) => {
-                  linkRefs.current[item.id] = node ?? undefined;
-                }}
-                type="button"
-                onClick={() => onNavigate(item.id)}
-                onMouseEnter={() => setHoveredId(item.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                onFocus={() => setHoveredId(item.id)}
-                onBlur={() => setHoveredId(null)}
-                aria-current={isActive ? "page" : undefined}
-                className="relative z-10 px-4 py-2 text-sm font-medium text-[var(--pl-text-muted)] transition-colors hover:text-[var(--pl-pink-light)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)]"
-              >
-                <AnimatedText
-                  className={
+        <div className="relative z-10 flex min-h-10 items-center justify-center">
+          <nav
+            className="relative flex items-center"
+            aria-label="Primary"
+          >
+            {CENTER_NAV_ITEMS.map((item) => {
+              const isActive = item.id === visualActiveId;
+              return (
+                <MagneticTabButton
+                  key={item.id}
+                  ref={(node) => {
+                    linkRefs.current[item.id] = node ?? undefined;
+                  }}
+                  reduced={reduced}
+                  type="button"
+                  onClick={() => onNavigate(item.id)}
+                  id={idPrefix ? `${idPrefix}-tab-${item.id}` : undefined}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`relative px-4 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)] ${
                     isActive
-                      ? "text-[var(--pl-pink-light)]"
-                      : "text-[var(--pl-text-muted)]"
-                  }
+                      ? "text-[var(--pl-tab-active-text)]"
+                      : "text-[var(--pl-text-muted)] hover:text-[var(--pl-pink-light)]"
+                  }`}
                 >
-                  {item.label}
-                </AnimatedText>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="ml-auto hidden items-center gap-2 md:flex">
-          <button
-            type="button"
-            className="rounded-full px-4 py-2 text-sm font-medium text-[var(--pl-text-muted)] transition-colors hover:text-[var(--pl-pink-light)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)]"
-          >
-            <AnimatedText>Sign in</AnimatedText>
-          </button>
-          <motion.button
-            type="button"
-            whileHover={reduced ? undefined : { scale: 1.03, y: -1 }}
-            whileTap={reduced ? undefined : { scale: 0.98 }}
-            transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-full bg-[var(--pl-pink-dark)] px-5 py-2 text-sm font-semibold text-[var(--pl-pink-light)] shadow-[0_8px_24px_rgba(155,27,92,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)]"
-          >
-            <AnimatedText>Start free</AnimatedText>
-          </motion.button>
+                  <AnimatedText active={isActive}>{item.label}</AnimatedText>
+                </MagneticTabButton>
+              );
+            })}
+          </nav>
         </div>
+
+        <MagneticTabButton
+          ref={(node) => {
+            linkRefs.current[SIGN_IN_ITEM.id] = node ?? undefined;
+          }}
+          reduced={reduced}
+          type="button"
+          onClick={() => onNavigate(SIGN_IN_ITEM.id)}
+          onMouseEnter={() => setSignInHovered(true)}
+          onMouseLeave={() => setSignInHovered(false)}
+          id={idPrefix ? `${idPrefix}-tab-${SIGN_IN_ITEM.id}` : undefined}
+          aria-current={signInActive ? "page" : undefined}
+          className={`plotline-sign-in-btn relative z-10 flex shrink-0 items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)] ${
+            signInActive
+              ? "plotline-sign-in-btn--active min-w-[5.5rem] text-[var(--pl-tab-active-text)]"
+              : "text-[var(--pl-text-muted)] hover:text-[var(--pl-pink-light)]"
+          }`}
+        >
+          <SignInTabLabel
+            active={signInActive}
+            reduced={reduced}
+            hovered={signInHovered}
+            layout="desktop"
+          />
+        </MagneticTabButton>
+
+        <motion.button
+          type="button"
+          onClick={onStartFree}
+          aria-pressed={startFreeActive}
+          whileHover={reduced ? undefined : { scale: 1.03, y: -1 }}
+          whileTap={reduced ? undefined : { scale: 0.98 }}
+          transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+          className={`relative z-10 shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)] ${
+            startFreeActive
+              ? "plotline-start-free--active"
+              : "bg-[var(--pl-pink-dark)] text-[var(--pl-pink-light)] shadow-[0_8px_24px_rgba(155,27,92,0.45)] hover:text-[var(--pl-pink-light)]"
+          }`}
+        >
+          <AnimatedText
+            className={
+              startFreeActive ? "text-[var(--pl-pink-dark)]" : undefined
+            }
+          >
+            Start free
+          </AnimatedText>
+        </motion.button>
       </div>
     </header>
   );

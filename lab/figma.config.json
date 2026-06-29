@@ -1,0 +1,15 @@
+{
+  "codeConnect": {
+    "include": [
+      "src/components/projects/**/*.figma.ts",
+      "src/components/projects/**/*.figma.tsx"
+    ],
+    "parser": "react",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "importPaths": {
+      "src/components/projects/**": "@/components/projects"
+    }
+  }
+}

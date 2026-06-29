@@ -1,0 +1,93 @@
+.summitpath-signup {
+  --summitpath-signup-bg: #fdfcf9;
+  --summitpath-signup-text: #17261d;
+  --summitpath-signup-text-muted: rgba(23, 38, 29, 0.6);
+  --summitpath-signup-label: #799886;
+  --summitpath-signup-input-border: #17666d;
+  --summitpath-signup-input-border-idle: #17666d;
+  --summitpath-signup-input-bg: #ffffff;
+  --summitpath-signup-input-placeholder: rgba(23, 38, 29, 0.45);
+  --summitpath-signup-success: #1f7a46;
+  --summitpath-signup-error: #b42318;
+  --summitpath-signup-cta-from: #799886;
+  --summitpath-signup-cta-to: #176d3b;
+  --summitpath-signup-cta-text: #fefefe;
+  --summitpath-signup-card-shadow: 0 30px 60px rgba(8, 18, 12, 0.16);
+  --summitpath-signup-social-shadow:
+    0 7px 20px rgba(0, 0, 0, 0.08),
+    0 3px 4px rgba(0, 0, 0, 0.17);
+  --summitpath-signup-social-shadow-mobile:
+    0 0 1.5px rgba(0, 0, 0, 0.08),
+    0 2px 1.5px rgba(0, 0, 0, 0.17);
+  --summitpath-signup-focus-ring: 0 0 0 3px rgba(23, 109, 59, 0.25);
+  --summitpath-signup-duration-fast: 120ms;
+  --summitpath-signup-duration-base: 220ms;
+  --summitpath-signup-press-scale: 0.98;
+  --summitpath-font: var(--font-instrument-sans), "Instrument Sans", system-ui, sans-serif;
+
+  font-family: var(--summitpath-font);
+}
+
+.summitpath-signup[data-reduced-motion="true"] {
+  --summitpath-signup-duration-fast: 0ms;
+  --summitpath-signup-duration-base: 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .summitpath-signup:not([data-reduced-motion="false"]) {
+    --summitpath-signup-duration-fast: 0ms;
+    --summitpath-signup-duration-base: 0ms;
+  }
+}
+
+.summitpath-signup-field-input {
+  transition:
+    border-color var(--summitpath-signup-duration-fast) ease,
+    box-shadow var(--summitpath-signup-duration-fast) ease,
+    background-color var(--summitpath-signup-duration-fast) ease;
+}
+
+.summitpath-signup-field-input::placeholder {
+  color: var(--summitpath-signup-input-placeholder);
+}
+
+.summitpath-signup-field-input:focus-visible {
+  outline: none;
+  border-color: var(--summitpath-signup-input-border);
+  box-shadow: var(--summitpath-signup-focus-ring);
+}
+
+.summitpath-signup-social {
+  box-shadow: var(--summitpath-signup-social-shadow);
+  transition:
+    transform var(--summitpath-signup-duration-fast) ease,
+    box-shadow var(--summitpath-signup-duration-fast) ease;
+}
+
+.summitpath-signup .w-\[452px\] .summitpath-signup-social {
+  box-shadow: var(--summitpath-signup-social-shadow-mobile);
+}
+
+.summitpath-signup-social:focus-visible,
+.summitpath-signup-cta:focus-visible {
+  outline: none;
+  box-shadow: var(--summitpath-signup-focus-ring);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .summitpath-signup-social:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.summitpath-signup-viewport-frame {
+  border: 1px solid var(--lab-border-strong, rgba(255, 255, 255, 0.14));
+  border-radius: var(--lab-radius-md, 10px);
+  box-shadow: var(--lab-shadow-elevated, 0 16px 48px rgba(0, 0, 0, 0.45));
+  overflow: hidden;
+  background: #fff;
+}
+
+.summitpath-signup-viewport-scaler {
+  transform-origin: top center;
+}

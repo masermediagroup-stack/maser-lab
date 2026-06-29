@@ -8,6 +8,7 @@ export type ProjectStatus =
 export type ProjectCategoryId =
   | "navigation"
   | "inputs"
+  | "sign-up"
   | "feedback"
   | "display"
   | "scroll"
