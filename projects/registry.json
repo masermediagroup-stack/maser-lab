@@ -9,11 +9,18 @@
       "description": "Glass hanging-tab nav with swing motion and desktop bubble indicator"
     },
     {
-      "slug": "navigation-glass-blue-morph",
-      "title": "Navigation Glass Blue Morph",
+      "slug": "prism",
+      "title": "Prism",
       "status": "building",
       "category": "navigation",
-      "description": "Frosted bottom tab bar with morphing blue glow — Prism demo"
+      "description": "Liquid glass top nav with teal selector pill and portfolio motion craft"
+    },
+    {
+      "slug": "summitpath-sign-up",
+      "title": "SummitPath - Sign Up",
+      "status": "review",
+      "category": "sign-up",
+      "description": "Figma 1:1 sign-up section — desktop 1920×1080 + mobile 452×1168 with motion"
     }
   ]
 }

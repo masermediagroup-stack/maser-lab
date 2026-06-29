@@ -98,6 +98,7 @@ Inventory: default, hover, focus, active/pressed, loading, success, error, disab
 | React/Next performance | `vercel-react-best-practices` |
 | Full-flow verification | `verification` |
 | Find/install more skills | `find-skills` |
+| Figma design refs, tokens, sync | `figma-design-workflow` |
 
 ### 7. Implement (Implement / Harden modes)
 

@@ -12,6 +12,11 @@
       "description": "Buttons, toggles, sliders, and form controls"
     },
     {
+      "id": "sign-up",
+      "label": "Sign-Up",
+      "description": "Sign-up flows, onboarding forms, and conversion sections"
+    },
+    {
       "id": "feedback",
       "label": "Feedback",
       "description": "Loaders, toasts, success/error states, and status indicators"

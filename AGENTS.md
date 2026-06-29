@@ -7,6 +7,7 @@ This repository is a **micro-interaction lab**: build, review, and polish UI com
 | Task | Load first |
 | --- | --- |
 | Shaping, building, reviewing, or polishing any UI/motion work | `.agents/skills/micro-interaction-lab/SKILL.md` |
+| Figma reference, design-to-code, code-to-Figma, Code Connect | `.agents/skills/figma-design-workflow/SKILL.md` |
 | Discovering or installing more skills | `.agents/skills/find-skills/SKILL.md` |
 | End-to-end verification after implementation | `.agents/skills/verification/SKILL.md` |
 | React/Next.js performance or patterns | `.agents/skills/vercel-react-best-practices/SKILL.md` |
@@ -33,7 +34,7 @@ playground/
 
 ## Operating contract
 
-1. **Start a project from the template** — copy `projects/_template/` to `projects/{category}/{slug}/`, fill in `PROJECT.md`, add the slug to `projects/registry.json` with a valid `category` from `projects/categories.json`.
+1. **Start a project from the template** — copy `projects/_template/` to `projects/{category}/{slug}/`, fill in `PROJECT.md` and `FIGMA.md` (if design references exist), add the slug to `projects/registry.json` with a valid `category` from `projects/categories.json`.
 2. **Implement in `lab/`** — component code lives under `lab/src/components/projects/{category}/{slug}/`; demo page at `lab/src/app/demos/[slug]/page.tsx` or a dedicated route.
 3. **Use request modes** from `micro-interaction-lab` — Shape, Implement, Review, Motion-review, Harden, Transfer. Do not mix modes without stating the switch.
 4. **Verify rendered output** — run `npm run dev` in `lab/`, exercise states, check `prefers-reduced-motion`, keyboard, and touch. Source inspection alone is not enough for motion work.

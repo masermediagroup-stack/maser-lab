@@ -24,12 +24,14 @@ This repo follows Vercel's [product-design for agents](https://vercel.com/blog/t
 | Workflow & modes | `.agents/skills/micro-interaction-lab/SKILL.md` |
 | Rules & patterns | `.agents/skills/micro-interaction-lab/references/` |
 | Project specs | `projects/{category}/{slug}/PROJECT.md` |
+| Figma / design sync | `projects/{category}/{slug}/FIGMA.md` + `figma-design-workflow` skill |
 | Deterministic checks | `tooling/eslint/` + `npm run lint` in `lab/` |
 | Eval fixtures | `tooling/scripts/evals/` |
 
 ### Request modes
 
-Shape → Implement → Review / Motion-review → Harden → Transfer
+Shape → Implement → Review / Motion-review → Harden → Transfer  
+With Figma: **design → code** (Shape/Implement) and **code → Figma** (after demo stable) — see `figma-design-workflow` skill.
 
 ### New project
 
@@ -62,6 +64,7 @@ Cloud agents auto-discover skills under `.agents/skills/`.
 | `gsap-framer-scroll-animation` | Scroll/timeline animations |
 | `hyperframes-animation` | CSS/motion graphics catalog |
 | `shadcn` | UI component composition |
+| **`figma-design-workflow`** | **Figma ↔ lab integration (tokens, Code Connect, sync)** |
 | `vercel-agent` | Vercel Agent platform guidance |
 
 ### Add or update skills
@@ -90,4 +93,62 @@ playground/
 
 ## Quality gates
 
-Before portfolio transfer: lint + build pass, all `PROJECT.md` states demoed, motion review clean, reduced-motion verified.
+Before portfolio transfer: lint + build pass, all `PROJECT.md` states demoed, motion review clean, reduced-motion verified. Full checklist: `project-lifecycle.md` → Transfer checklist; per-slug steps in `TRANSFER.md`.
+
+## Figma integration
+
+Design ↔ code sync for lab projects. Load `.agents/skills/figma-design-workflow/SKILL.md` when working with Figma.
+
+### MCP setup (Cursor)
+
+Use **both** servers for the full workflow:
+
+| Server | URL | Purpose |
+| --- | --- | --- |
+| **Remote** (Figma plugin) | `https://mcp.figma.com/mcp` | Write to canvas (`use_figma`), capture localhost UI (`generate_figma_design`) |
+| **Desktop** (optional) | `http://127.0.0.1:3845/mcp` | Read current selection without pasting URLs |
+
+**Install remote (recommended):** In agent chat run `/add-plugin figma` and authenticate with Figma.
+
+**Install desktop (optional):**
+
+1. Open **Figma desktop** → your design file → **Shift+D** (Dev Mode).
+2. Inspect panel → **MCP server** → **Enable desktop MCP server**.
+3. **Cursor → Settings → MCP → Add server:**
+
+```json
+{
+  "mcpServers": {
+    "figma-desktop": {
+      "url": "http://127.0.0.1:3845/mcp"
+    }
+  }
+}
+```
+
+Keep Figma desktop open while using the desktop server.
+
+### Team playground file
+
+Primary Figma file for this repo:
+
+**[web-component-and-interaction-playground](https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/web-component-and-interaction-playground)**
+
+| Field | Value |
+| --- | --- |
+| `fileKey` | `f2TLFWW5Eg8aqczRjuZ403` |
+
+**Access requirement:** The Figma account connected to Cursor MCP must have **Editor** access on this file. Share the file with the authenticated account (check via Figma MCP `whoami`) before asking the agent to push components.
+
+### Push lab demo → Figma
+
+1. `cd lab && npm run dev`
+2. Open demo: `/demos/{slug}` or `/demos/{slug}/capture` (nav-only, no chrome)
+3. Paste the **Figma file URL** (and optional `node-id`) in chat
+4. Agent uses `use_figma` to build frames + prototype interactions, or `generate_figma_design` for pixel capture
+
+Per-project design notes live in `projects/{category}/{slug}/FIGMA.md`.
+
+### Prototype pattern (glass nav)
+
+For tab morph interactions, the agent builds **one frame per active tab** and wires **On click → Navigate to → Smart animate** between frames. Present from the Gallery (default) frame in Figma.

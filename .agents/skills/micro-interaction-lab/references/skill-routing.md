@@ -16,6 +16,11 @@ Do not duplicate content from these skills — load and apply them.
 | `vercel-react-best-practices` | vercel-labs/agent-skills | React/Next performance |
 | `verification` | vercel-labs/vercel-plugin | End-to-end flow check after implementation |
 | `vercel-agent` | vercel-labs/vercel-plugin | Vercel Agent platform configuration |
+| `figma-design-workflow` | playground (local) | Figma refs, tokens, design↔code sync, Code Connect paths |
+| `figma-use` | Figma MCP plugin | Read/write Figma nodes — load before every `use_figma` call |
+| `figma-generate-design` | Figma MCP plugin | Push lab demos / pages to Figma from code |
+| `figma-code-connect` | Figma MCP plugin | `.figma.ts` mappings for published team components |
+| `figma-generate-library` | Figma MCP plugin | Variables, components, design system in Figma |
 
 ## Search for more
 

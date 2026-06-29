@@ -1,0 +1,57 @@
+/* Maser-Lab shell tokens — gallery, demo chrome, controls only */
+.maser-lab {
+  --lab-bg: #0a0a0b;
+  --lab-bg-elevated: #111113;
+  --lab-surface: #18181b;
+  --lab-surface-soft: #1f1f23;
+  --lab-border: rgba(255, 255, 255, 0.08);
+  --lab-border-strong: rgba(255, 255, 255, 0.14);
+  --lab-text-primary: #f8f8f8;
+  --lab-text-secondary: rgba(248, 248, 248, 0.72);
+  --lab-text-muted: rgba(248, 248, 248, 0.48);
+  --lab-accent-primary: #10a4ff;
+  --lab-accent-secondary: #0097f5;
+  --lab-accent-soft: #0065a3;
+  --lab-glow: 0 0 24px rgba(16, 164, 255, 0.18);
+  --lab-radius-sm: 6px;
+  --lab-radius-md: 10px;
+  --lab-radius-lg: 14px;
+  --lab-radius-xl: 20px;
+  --lab-shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --lab-shadow-elevated: 0 16px 48px rgba(0, 0, 0, 0.45);
+  --lab-motion-fast: 120ms;
+  --lab-motion-standard: 220ms;
+  --lab-motion-slow: 420ms;
+  --lab-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --lab-ease-expressive: cubic-bezier(0.34, 1.2, 0.64, 1);
+
+  background-color: var(--lab-bg);
+  color: var(--lab-text-primary);
+}
+
+.maser-lab .lab-card {
+  background: var(--lab-surface);
+  border: 1px solid var(--lab-border);
+  border-radius: var(--lab-radius-lg);
+  box-shadow: var(--lab-shadow-soft);
+  transition:
+    border-color var(--lab-motion-fast) var(--lab-ease-standard),
+    box-shadow var(--lab-motion-standard) var(--lab-ease-standard);
+}
+
+.maser-lab .lab-card:hover {
+  border-color: rgba(16, 164, 255, 0.35);
+  box-shadow: var(--lab-glow), var(--lab-shadow-elevated);
+}
+
+.maser-lab .lab-accent-text {
+  color: var(--lab-accent-primary);
+}
+
+.maser-lab .lab-muted {
+  color: var(--lab-text-muted);
+}
+
+.maser-lab .lab-secondary {
+  color: var(--lab-text-secondary);
+}
