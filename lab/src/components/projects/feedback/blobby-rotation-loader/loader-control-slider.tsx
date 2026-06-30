@@ -9,6 +9,7 @@ type LoaderControlSliderProps = {
   min: number;
   max: number;
   step?: number;
+  formatValue?: (value: number) => string;
   onChange: (value: number) => void;
   className?: string;
 };
@@ -19,15 +20,19 @@ export function LoaderControlSlider({
   min,
   max,
   step = 1,
+  formatValue,
   onChange,
   className,
 }: LoaderControlSliderProps) {
   const percent = max === min ? 0 : ((value - min) / (max - min)) * 100;
+  const display =
+    formatValue?.(value) ??
+    (Number.isInteger(step) ? String(value) : value.toFixed(1));
 
   return (
     <div className={cn("blobby-loader-slider", className)}>
       <label className="blobby-loader-slider__label" htmlFor={`slider-${label}`}>
-        {label} : {Number.isInteger(step) ? value : value.toFixed(1)}
+        {label} : {display}
       </label>
       <div
         className="blobby-loader-slider__track-wrap"

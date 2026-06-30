@@ -12,12 +12,12 @@ export type BlobbyRotationLoaderProps = {
   blur?: number;
   corner?: number;
   power?: number;
+  tail?: number;
   chromaticAberration?: number;
   colors?: BlobbyLoaderColors;
-  size?: number;
+  drawSize?: number;
   speed?: number;
   paused?: boolean;
-  reducedMotion?: boolean;
   className?: string;
   "aria-label"?: string;
 };
@@ -26,12 +26,12 @@ export function BlobbyRotationLoader({
   blur = LOADER_DEFAULTS.blur,
   corner = LOADER_DEFAULTS.corner,
   power = LOADER_DEFAULTS.power,
+  tail = LOADER_DEFAULTS.tail,
   chromaticAberration = LOADER_DEFAULTS.chromaticAberration,
   colors,
-  size = LOADER_DEFAULTS.size,
-  speed = LOADER_DEFAULTS.speed,
+  drawSize = LOADER_DEFAULTS.drawSize,
+  speed = 0.5,
   paused = false,
-  reducedMotion = false,
   className,
   "aria-label": ariaLabel = "Loading",
 }: BlobbyRotationLoaderProps) {
@@ -43,14 +43,14 @@ export function BlobbyRotationLoader({
       blur,
       corner,
       power,
+      tail,
       chromaticAberration,
-      size,
+      drawSize,
       rotation: 0,
       colors,
     },
     speed,
     paused,
-    reducedMotion,
   );
 
   return (

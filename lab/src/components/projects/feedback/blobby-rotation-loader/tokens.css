@@ -4,10 +4,13 @@
   --blobby-track: #2a2a2a;
   --blobby-fill: #f5c518;
   --blobby-thumb: #ffffff;
-  --blobby-panel: rgba(0, 0, 0, 0.92);
+  --blobby-panel: rgba(0, 0, 0, 0.96);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 100dvh;
   background: var(--blobby-bg);
   color: var(--blobby-text);
-  min-height: 100dvh;
+  overflow: hidden;
 }
 
 .blobby-rotation-demo__header {
@@ -65,30 +68,23 @@
 
 .blobby-rotation-demo__stage {
   display: flex;
-  min-height: 100dvh;
+  min-height: 0;
   align-items: center;
   justify-content: center;
-  padding: 72px 24px 320px;
+  padding: 64px 12px 16px;
+  overflow: visible;
 }
 
 .blobby-rotation-demo__controls {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
+  z-index: 40;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px 20px max(28px, env(safe-area-inset-bottom));
+  gap: 16px;
+  max-height: min(52dvh, 520px);
+  overflow-y: auto;
+  padding: 16px 20px max(20px, env(safe-area-inset-bottom));
   background: var(--blobby-panel);
-}
-
-.blobby-rotation-demo__top-bar {
-  position: fixed;
-  top: max(12px, env(safe-area-inset-top));
-  right: 16px;
-  z-index: 51;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .blobby-rotation-demo__colors {
@@ -163,8 +159,10 @@
 
 .blobby-loader-canvas {
   display: block;
-  max-width: min(70vw, 320px);
+  width: min(92vw, 440px);
   height: auto;
+  max-height: calc(100dvh - 380px);
+  object-fit: contain;
 }
 
 .blobby-loader-slider {
@@ -223,4 +221,16 @@
 .blobby-loader-slider:has(.blobby-loader-slider__input:focus-visible) .blobby-loader-slider__track-wrap {
   outline: 2px solid var(--blobby-fill);
   outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .blobby-loader-canvas {
+    width: min(70vw, 480px);
+    max-height: calc(100dvh - 420px);
+  }
+
+  .blobby-rotation-demo__controls {
+    gap: 18px;
+    padding-inline: 32px;
+  }
 }

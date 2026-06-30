@@ -6,7 +6,14 @@ import {
   type BlobbyLoaderColors,
   type DrawLoaderOptions,
 } from "./constants";
-import { getStrokeWidth, sampleSuperellipseArc, traceArcPath } from "./shape-path";
+import {
+  buildRibbonPolygon,
+  computeCanvasLayout,
+  getStrokeWidth,
+  sampleSuperellipseArc,
+  traceArcPath,
+  tracePolygonPath,
+} from "./shape-path";
 
 function resolveColors(colors?: BlobbyLoaderColors) {
   return {
@@ -16,28 +23,40 @@ function resolveColors(colors?: BlobbyLoaderColors) {
   };
 }
 
-function drawStrokeLayer(
+function drawShapeLayer(
   ctx: CanvasRenderingContext2D,
   options: DrawLoaderOptions,
+  layout: ReturnType<typeof computeCanvasLayout>,
   offsetX: number,
   offsetY: number,
   color: string,
   alpha: number,
+  mode: "fill" | "stroke",
 ) {
-  const { power, corner, size, rotation } = options;
-  const points = sampleSuperellipseArc({ power, corner, size });
-  const strokeWidth = getStrokeWidth({ power, corner, size });
+  const { power, corner, tail, drawSize, rotation } = options;
+  const shapeParams = { power, corner, tail, drawSize };
+  const points = sampleSuperellipseArc(shapeParams);
+  const strokeWidth = getStrokeWidth(shapeParams);
 
   ctx.save();
-  ctx.translate(size / 2 + offsetX, size / 2 + offsetY);
+  ctx.translate(layout.center + offsetX, layout.center + offsetY);
   ctx.rotate(rotation);
+  ctx.fillStyle = color;
   ctx.strokeStyle = color;
   ctx.globalAlpha = alpha;
-  ctx.lineWidth = strokeWidth;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  traceArcPath(ctx, points);
-  ctx.stroke();
+
+  if (tail > 0 || mode === "fill") {
+    const polygon = buildRibbonPolygon(points, strokeWidth, tail);
+    tracePolygonPath(ctx, polygon);
+    ctx.fill();
+  } else {
+    ctx.lineWidth = strokeWidth;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    traceArcPath(ctx, points);
+    ctx.stroke();
+  }
+
   ctx.restore();
 }
 
@@ -45,15 +64,18 @@ export function drawBlobbyLoader(
   ctx: CanvasRenderingContext2D,
   options: DrawLoaderOptions,
 ) {
-  const { blur, chromaticAberration, size } = options;
+  const { blur, chromaticAberration } = options;
   const colors = resolveColors(options.colors);
+  const layout = computeCanvasLayout(options);
   const dpr = window.devicePixelRatio || 1;
+  const { canvasSize } = layout;
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, size, size);
+  ctx.clearRect(0, 0, canvasSize, canvasSize);
 
   const aberration = chromaticAberration * 0.85;
   const blurPx = blur;
+  const drawMode = options.tail > 0 ? "fill" : "stroke";
 
   ctx.save();
   if (blurPx > 0) {
@@ -61,28 +83,23 @@ export function drawBlobbyLoader(
   }
 
   if (aberration > 0) {
-    drawStrokeLayer(ctx, options, -aberration, aberration * 0.35, colors.warm, 0.85);
-    drawStrokeLayer(ctx, options, aberration, -aberration * 0.35, colors.cool, 0.85);
-    drawStrokeLayer(ctx, options, 0, 0, colors.core, 1);
+    drawShapeLayer(ctx, options, layout, -aberration, aberration * 0.35, colors.warm, 0.85, drawMode);
+    drawShapeLayer(ctx, options, layout, aberration, -aberration * 0.35, colors.cool, 0.85, drawMode);
+    drawShapeLayer(ctx, options, layout, 0, 0, colors.core, 1, drawMode);
   } else {
-    drawStrokeLayer(ctx, options, 0, 0, colors.core, 1);
+    drawShapeLayer(ctx, options, layout, 0, 0, colors.core, 1, drawMode);
   }
 
   ctx.restore();
-}
 
-export type LoaderAnimationRefs = {
-  rotationRef: React.RefObject<number>;
-  rafRef: React.RefObject<number | null>;
-  lastTimeRef: React.RefObject<number | null>;
-};
+  return layout;
+}
 
 export function useLoaderAnimationLoop(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   options: DrawLoaderOptions,
   speed: number,
   paused: boolean,
-  reducedMotion: boolean,
 ) {
   const rotationRef = useRef(0);
   const rafRef = useRef<number | null>(null);
@@ -100,26 +117,24 @@ export function useLoaderAnimationLoop(
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const effectiveSpeed = reducedMotion ? speed * 0.05 : speed;
-
     const tick = (time: number) => {
       if (lastTimeRef.current !== null && !paused) {
         const delta = (time - lastTimeRef.current) / 1000;
-        rotationRef.current += delta * effectiveSpeed * Math.PI * 2;
+        rotationRef.current += delta * speed * Math.PI * 2;
       }
       lastTimeRef.current = time;
 
-      const dpr = window.devicePixelRatio || 1;
-      const { size } = optionsRef.current;
-      canvas.width = size * dpr;
-      canvas.height = size * dpr;
-      canvas.style.width = `${size}px`;
-      canvas.style.height = `${size}px`;
-
-      drawBlobbyLoader(ctx, {
+      const currentOptions: DrawLoaderOptions = {
         ...optionsRef.current,
         rotation: rotationRef.current,
-      });
+      };
+
+      const layout = computeCanvasLayout(currentOptions);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = layout.canvasSize * dpr;
+      canvas.height = layout.canvasSize * dpr;
+
+      drawBlobbyLoader(ctx, currentOptions);
 
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -132,5 +147,5 @@ export function useLoaderAnimationLoop(
       }
       lastTimeRef.current = null;
     };
-  }, [canvasRef, speed, paused, reducedMotion]);
+  }, [canvasRef, speed, paused]);
 }

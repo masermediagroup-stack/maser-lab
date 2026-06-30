@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { ReducedMotionToggle } from "@/components/lab/demo-chrome";
+import { useCallback, useState } from "react";
 import { BlobbyRotationLoader } from "./blobby-rotation-loader";
 import { LoaderControlSlider } from "./loader-control-slider";
 import {
@@ -10,6 +9,7 @@ import {
   LOADER_COLOR_DEFAULTS,
   LOADER_DEFAULTS,
   LOADER_PARAM_RANGES,
+  speedSliderToRps,
   type BlobbyLoaderColors,
 } from "./constants";
 import "./tokens.css";
@@ -18,7 +18,9 @@ type LoaderParams = {
   blur: number;
   corner: number;
   power: number;
+  tail: number;
   chromaticAberration: number;
+  speed: number;
 };
 
 export function BlobbyRotationDemo() {
@@ -26,7 +28,9 @@ export function BlobbyRotationDemo() {
     blur: LOADER_DEFAULTS.blur,
     corner: LOADER_DEFAULTS.corner,
     power: LOADER_DEFAULTS.power,
+    tail: LOADER_DEFAULTS.tail,
     chromaticAberration: LOADER_DEFAULTS.chromaticAberration,
+    speed: LOADER_DEFAULTS.speed,
   });
   const [colors, setColors] = useState<BlobbyLoaderColors>({
     core: LOADER_COLOR_DEFAULTS.core,
@@ -34,20 +38,6 @@ export function BlobbyRotationDemo() {
     aberrationCool: LOADER_COLOR_DEFAULTS.aberrationCool,
   });
   const [showColors, setShowColors] = useState(false);
-  const [forceReducedMotion, setForceReducedMotion] = useState(false);
-  const [systemReducedMotion, setSystemReducedMotion] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  });
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const handler = (e: MediaQueryListEvent) => setSystemReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  const reducedMotion = forceReducedMotion || systemReducedMotion;
 
   const updateParam = useCallback(
     <K extends keyof LoaderParams>(key: K, value: LoaderParams[K]) => {
@@ -56,15 +46,14 @@ export function BlobbyRotationDemo() {
     [],
   );
 
-  const applyPreset = useCallback((preset: LoaderParams) => {
-    setParams(preset);
+  const applyPreset = useCallback((preset: Omit<LoaderParams, "speed">) => {
+    setParams((prev) => ({ ...prev, ...preset }));
   }, []);
 
+  const speedRps = speedSliderToRps(params.speed);
+
   return (
-    <div
-      className="blobby-rotation-demo"
-      data-reduced-motion={reducedMotion ? "true" : undefined}
-    >
+    <div className="blobby-rotation-demo">
       <div className="blobby-rotation-demo__back">
         <Link href="/" className="blobby-rotation-demo__back-link" aria-label="Back to lab">
           ‹
@@ -75,23 +64,16 @@ export function BlobbyRotationDemo() {
         <h1 className="blobby-rotation-demo__title">Blobby Rotation</h1>
       </header>
 
-      <div className="blobby-rotation-demo__top-bar">
-        <ReducedMotionToggle
-          enabled={forceReducedMotion}
-          onToggle={() => setForceReducedMotion((v) => !v)}
-        />
-      </div>
-
       <div className="blobby-rotation-demo__stage">
         <BlobbyRotationLoader
           blur={params.blur}
           corner={params.corner}
           power={params.power}
+          tail={params.tail}
           chromaticAberration={params.chromaticAberration}
           colors={colors}
-          size={LOADER_DEFAULTS.size}
-          speed={LOADER_DEFAULTS.speed}
-          reducedMotion={reducedMotion}
+          drawSize={LOADER_DEFAULTS.drawSize}
+          speed={speedRps}
         />
       </div>
 
@@ -148,6 +130,21 @@ export function BlobbyRotationDemo() {
           min={LOADER_PARAM_RANGES.chromaticAberration.min}
           max={LOADER_PARAM_RANGES.chromaticAberration.max}
           onChange={(v) => updateParam("chromaticAberration", v)}
+        />
+        <LoaderControlSlider
+          label="Tail"
+          value={params.tail}
+          min={LOADER_PARAM_RANGES.tail.min}
+          max={LOADER_PARAM_RANGES.tail.max}
+          onChange={(v) => updateParam("tail", v)}
+        />
+        <LoaderControlSlider
+          label="Speed"
+          value={params.speed}
+          min={LOADER_PARAM_RANGES.speed.min}
+          max={LOADER_PARAM_RANGES.speed.max}
+          formatValue={() => speedRps.toFixed(1)}
+          onChange={(v) => updateParam("speed", v)}
         />
 
         <div className="blobby-rotation-demo__colors">
