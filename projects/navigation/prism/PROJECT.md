@@ -2,7 +2,7 @@
 
 **Slug:** `prism`  
 **Category:** navigation  
-**Status:** building  
+**Status:** review  
 **Created:** 2026-06-28
 
 ## Design reference
@@ -19,24 +19,35 @@ Demo brand label **Prism**. Teal selector pill on glass bar.
 Portfolio demo — occasional tab switching with emphasis on visual craft.
 
 ### Job
-Centered liquid-glass top nav: **Prism** brand label beside logo, four category links, Profile control, sliding teal selector pill.
+Centered liquid-glass top nav: **Prism** brand label beside logo, four category links, Profile control, sliding teal selector pill. On viewports below `md`, collapse to a compact glass bar with menu panel.
 
 ### Desired outcome
-Pointer clicks feel liquid/springy; keyboard navigation snaps instantly; Profile only activates its own gradient when selected.
+Pointer clicks feel liquid/springy; keyboard navigation snaps instantly; Profile only activates its own gradient when selected; mobile menu opens with glass panel, scrim, and closes on navigate or Escape.
 
 ### Non-goals
-Routing, auth, scroll-spy, mobile bottom nav, theme toggle, CTA.
+Routing, auth, scroll-spy, theme toggle, CTA.
+
+## Layout
+
+| Viewport | Pattern |
+| --- | --- |
+| Desktop (`md+`) | Full horizontal glass bar — brand, four tabs with sliding pill, Profile |
+| Mobile (`<md`) | Compact glass bar — brand + menu toggle; panel lists all destinations |
 
 ## States
 
 - [x] default (Gallery active)
-- [x] tab switch / liquid pill slide (pointer)
-- [x] keyboard nav — instant pill snap
+- [x] tab switch / liquid pill slide (pointer, desktop)
+- [x] keyboard nav — instant pill snap (desktop)
 - [x] hover on links (pointer-only)
 - [x] press feedback (:active scale)
 - [x] Profile selected — teal gradient on Profile only
 - [x] prefers-reduced-motion
 - [x] demo reduced-motion override
+- [x] mobile collapsed bar
+- [x] mobile menu expanded (panel + scrim)
+- [x] mobile navigate — closes panel
+- [x] mobile Escape / overlay dismiss
 
 ## Motion decisions
 
@@ -50,20 +61,26 @@ Routing, auth, scroll-spy, mobile bottom nav, theme toggle, CTA.
 | Press feedback | `scale(0.97)`, 120ms ease-out | micro-interaction-lab button press pattern |
 | Link hover | 150ms color, pointer-gated | No sticky hover on touch |
 | Profile swap | Instant shell + 150ms label color | No border fade; pill unmounts when Profile active |
-| Reduced motion | Instant pill + no whileTap | Keep state clarity |
+| Mobile panel | scaleY + opacity from top; staggered links | Matches Plotline mobile pattern; glass preserved |
+| Mobile menu icon | Animated hamburger → X | Standard affordance |
+| Reduced motion | Instant pill + no whileTap + instant panel | Keep state clarity |
 
 ## Acceptance criteria
 
 - [x] Demo at `/demos/prism`
 - [x] `npm run lint` and `npm run build` pass in `lab/`
-- [x] Figma nav layout integrated (`12:274`)
+- [x] Figma nav layout integrated (`12:274`) on desktop
+- [x] Mobile layout at 320px — compact bar + menu panel
+- [x] Touch targets ≥44px on mobile controls
 - [ ] `prefers-reduced-motion` verified in browser
 - [x] Component exported from `index.ts`
 
 ## Motion verification checklist
 
-- [ ] Click between categories — liquid spring on transform pill
-- [ ] Arrow keys — instant pill jump
+- [ ] Click between categories — liquid spring on transform pill (desktop)
+- [ ] Arrow keys — instant pill jump (desktop)
 - [ ] Profile on/off — instant pill hide; Profile gradient only when Profile selected
 - [ ] Reduced-motion toggle — all movement snaps
 - [ ] Touch / coarse pointer — no sticky link hover
+- [ ] Mobile menu open/close — panel + scrim; navigate closes panel
+- [ ] Mobile 320px — bar readable, no horizontal overflow

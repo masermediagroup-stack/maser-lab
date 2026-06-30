@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
-  DemoBackButton,
   DemoControlBar,
+  DemoLabBrand,
   DemoViewportFrame,
   LabButton,
   ReducedMotionToggle,
@@ -34,16 +33,7 @@ export function SummitPathSignUpDemo({ minimal = false }: SummitPathSignUpDemoPr
     <div className="maser-lab min-h-screen" data-reduced-motion={forceReducedMotion ? "true" : undefined}>
       {!minimal ? (
         <DemoControlBar className="left-4 right-4 top-4 justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <DemoBackButton />
-            <Image
-              src="/brand/masermedia-logo-bold-blue.png"
-              alt="MaserMedia"
-              width={120}
-              height={28}
-              className="hidden h-7 w-auto sm:block"
-            />
-          </div>
+          <DemoLabBrand />
           <div className="flex flex-wrap items-center gap-2">
             <ViewportModeToggle mode={viewportMode} onChange={setViewportMode} />
             <LabButton
