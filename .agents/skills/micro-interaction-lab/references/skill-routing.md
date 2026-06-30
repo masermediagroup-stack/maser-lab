@@ -21,6 +21,19 @@ Do not duplicate content from these skills — load and apply them.
 | `figma-generate-design` | Figma MCP plugin | Push lab demos / pages to Figma from code |
 | `figma-code-connect` | Figma MCP plugin | `.figma.ts` mappings for published team components |
 | `figma-generate-library` | Figma MCP plugin | Variables, components, design system in Figma |
+| `maser-lab-threejs` | playground (local) | Three.js workflow, agents, quality gates |
+| `threejs-fundamentals` | cloudai-x/threejs-skills | Scene, camera, renderer, resize |
+| `threejs-geometry` | cloudai-x/threejs-skills | Meshes, BufferGeometry, instancing |
+| `threejs-materials` | cloudai-x/threejs-skills | PBR, ShaderMaterial decisions |
+| `threejs-lighting` | cloudai-x/threejs-skills | Lights, shadows, IBL |
+| `threejs-textures` | cloudai-x/threejs-skills | Textures, env maps, performance |
+| `threejs-animation` | cloudai-x/threejs-skills | Mixers, procedural motion |
+| `threejs-loaders` | cloudai-x/threejs-skills | GLTF/GLB, async loading |
+| `threejs-shaders` | cloudai-x/threejs-skills | GLSL, uniforms, effects |
+| `threejs-postprocessing` | cloudai-x/threejs-skills | EffectComposer, bloom, DOF |
+| `threejs-interaction` | cloudai-x/threejs-skills | Raycasting, controls, pointer |
+
+Install bundle: `npx skills add cloudai-x/threejs-skills -y`. Verify APIs against [threejs.org/docs](https://threejs.org/docs/).
 
 ## Search for more
 

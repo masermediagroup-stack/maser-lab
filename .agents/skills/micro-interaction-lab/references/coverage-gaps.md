@@ -4,7 +4,7 @@ Areas without a lab standard yet. Agents should flag new gaps here; humans accep
 
 | Gap | Notes |
 | --- | --- |
-| 3D / WebGL micro-interactions | Use `hyperframes-animation` adapters; no lab-specific rule set |
+| 3D / WebGL micro-interactions | Covered by `maser-lab-threejs` + CloudAI-X `threejs-*` skills; HyperFrames for seek-driven only — see `.agents/skills/maser-lab-threejs/references/threejs-notes.md` |
 | Sound / haptic feedback | Out of scope unless project spec requires |
 | Page transitions (route-level) | No canonical pattern; decide per portfolio target |
 | Shared `lab/src/components/ui/` primitives | Not bootstrapped; shadcn install pending |
