@@ -60,3 +60,13 @@ Before marking a project ready for portfolio transfer:
 ## Branch naming (Cloud Agents)
 
 Use `cursor/webdesign<descriptive-name>-8c1a` for feature branches.
+
+## Cursor Cloud specific instructions
+
+The only app is the Next.js 16 / React 19 lab in `lab/`. Dependencies are installed automatically on startup (`npm ci --prefix lab`). Standard commands are documented in `lab/README.md` and `lab/AGENTS.md` (`npm run dev`, `npm run lint`, `npm run build`), all run from `lab/`.
+
+Non-obvious caveats:
+
+- **Only one `next dev` per directory.** Next.js 16 refuses a second `next dev` in `lab/` even on a different port — it aborts with "Another next dev server is already running." To serve a second instance (e.g. for Playwright, which targets `http://localhost:3001`), build first and use the production server instead: `npm run build` then `npm run start -- -p 3001`.
+- **Playwright e2e** (`lab/e2e/`, run with `npx playwright test`) has no `webServer` config, so it needs a server already listening on port 3001 (see above). Browsers are not installed by the update script; run `npx playwright install chromium` once before running e2e.
+- The current `lab/e2e/summitpath-sign-up.spec.ts` selectors are stale relative to the component: the spec queries `[aria-label="SummitPath sign-up section"]` but `signup-form.tsx` renders `"SummitPath sign-up desktop"` / `"...mobile"`, so all 6 tests currently fail. This is a pre-existing app/test mismatch, not an environment issue — the dev/build/lint pipeline and demo routes work.
