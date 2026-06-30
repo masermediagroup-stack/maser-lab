@@ -33,7 +33,7 @@ function getArcGeometry(params: ShapeParams) {
 
 export function sampleSuperellipseArc(params: ShapeParams): Point[] {
   const { n, radius, sweep, startAngle } = getArcGeometry(params);
-  const segments = Math.max(24, Math.round(48 + (params.corner / 100) * 32));
+  const segments = Math.max(32, Math.round(64 + (params.corner / 100) * 32));
   const points: Point[] = [];
 
   for (let i = 0; i <= segments; i++) {
@@ -63,25 +63,9 @@ function computeNormal(points: Point[], index: number): Point {
   return { x: -dy / len, y: dx / len };
 }
 
-function computeTangent(points: Point[], index: number): Point {
-  let dx: number;
-  let dy: number;
-
-  if (index === 0) {
-    dx = points[1].x - points[0].x;
-    dy = points[1].y - points[0].y;
-  } else {
-    dx = points[index].x - points[index - 1].x;
-    dy = points[index].y - points[index - 1].y;
-  }
-
-  const len = Math.hypot(dx, dy) || 1;
-  return { x: dx / len, y: dy / len };
-}
-
 /**
- * Taper stroke width only at the path END (tail tip).
- * The start of the arc keeps full width — like a brush with one blunt end.
+ * Surfboard-pin taper at the path END only (index → total).
+ * Start end always stays full width. Taper zone grows with tail slider.
  */
 function widthAtPoint(
   index: number,
@@ -94,37 +78,51 @@ function widthAtPoint(
   const tailNorm = tail / 100;
   const t = index / (total - 1);
 
-  // Only the last segment of the arc tapers — not the whole curve
-  const taperZone = 0.07 + tailNorm * 0.16;
-  const taperStart = 1 - taperZone;
+  // At tail=100 ~50% of arc tapers; at tail=10 only the tip region
+  const taperLength = 0.05 + tailNorm * 0.48;
+  const taperStart = 1 - taperLength;
 
-  if (t <= taperStart) {
+  if (t < taperStart) {
     return strokeWidth;
   }
 
-  const localT = (t - taperStart) / taperZone;
-  const profile = 1 - Math.pow(localT, 1.4);
+  const localT = (t - taperStart) / taperLength;
+  const eased = 0.5 * (1 + Math.cos(localT * Math.PI));
+  const minRatio = 0.08;
+  const ratio = minRatio + (1 - minRatio) * eased;
 
-  return strokeWidth * Math.max(0.015, profile * tailNorm);
+  return strokeWidth * ratio;
 }
 
-/** Semicircular cap at the blunt (start) end of the stroke. */
-function roundCapArc(
+/** Semicircle on the blunt (start) side between left and right rail points. */
+function bluntEndCap(
   center: Point,
-  tangent: Point,
-  normal: Point,
-  halfWidth: number,
-  segments = 10,
+  left: Point,
+  right: Point,
+  segments = 14,
 ): Point[] {
-  const arc: Point[] = [];
+  const angleLeft = Math.atan2(left.y - center.y, left.x - center.x);
+  const angleRight = Math.atan2(right.y - center.y, right.x - center.x);
+  const radius = Math.hypot(left.x - center.x, left.y - center.y);
 
+  let start = angleRight;
+  let end = angleLeft;
+
+  let sweep = end - start;
+  if (sweep <= 0) sweep += Math.PI * 2;
+  if (sweep > Math.PI) {
+    start = angleLeft;
+    end = angleRight;
+    sweep = end - start;
+    if (sweep <= 0) sweep += Math.PI * 2;
+  }
+
+  const arc: Point[] = [];
   for (let i = 0; i <= segments; i++) {
-    const angle = Math.PI + (Math.PI * i) / segments;
-    const ox = tangent.x * Math.cos(angle) + normal.x * Math.sin(angle);
-    const oy = tangent.y * Math.cos(angle) + normal.y * Math.sin(angle);
+    const a = start + (sweep * i) / segments;
     arc.push({
-      x: center.x + ox * halfWidth,
-      y: center.y + oy * halfWidth,
+      x: center.x + Math.cos(a) * radius,
+      y: center.y + Math.sin(a) * radius,
     });
   }
 
@@ -136,11 +134,14 @@ export function buildRibbonPolygon(
   strokeWidth: number,
   tail: number,
 ): Point[] {
+  const n = points.length;
+  if (n < 2) return [];
+
   const left: Point[] = [];
   const right: Point[] = [];
 
-  for (let i = 0; i < points.length; i++) {
-    const width = widthAtPoint(i, points.length, strokeWidth, tail);
+  for (let i = 0; i < n; i++) {
+    const width = widthAtPoint(i, n, strokeWidth, tail);
     const halfW = width / 2;
     const normal = computeNormal(points, i);
 
@@ -155,15 +156,25 @@ export function buildRibbonPolygon(
   }
 
   if (tail <= 0) {
-    return [...left, ...right.reverse()];
+    const startCap = bluntEndCap(points[0], left[0], right[0]);
+    const endCap = bluntEndCap(points[n - 1], right[n - 1], left[n - 1]);
+    return [
+      ...startCap,
+      ...left.slice(1),
+      ...endCap.slice(1),
+      ...right.slice(1, n - 1).reverse(),
+    ];
   }
 
-  const bluntHalf = strokeWidth / 2;
-  const tangent0 = computeTangent(points, 0);
-  const normal0 = computeNormal(points, 0);
-  const cap = roundCapArc(points[0], tangent0, normal0, bluntHalf);
+  const tip = points[n - 1];
+  const startCap = bluntEndCap(points[0], right[0], left[0]);
 
-  return [...cap, ...left.slice(1), ...right.reverse().slice(1)];
+  return [
+    ...startCap,
+    ...left.slice(1),
+    tip,
+    ...right.slice(1, n - 1).reverse(),
+  ];
 }
 
 export function tracePolygonPath(
