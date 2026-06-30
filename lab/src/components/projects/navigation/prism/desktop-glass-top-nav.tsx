@@ -233,12 +233,14 @@ export function DesktopGlassTopNav({
         <button
           type="button"
           onClick={() => onNavigate("home")}
-          className="prism-brand relative z-10 flex shrink-0 items-center gap-3.5 rounded-[var(--prism-radius-pill)] px-1 py-1 text-[var(--prism-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--prism-selector-from)]"
+          className="prism-brand relative z-10 shrink-0 rounded-[var(--prism-radius-pill)] px-1 py-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--prism-selector-from)]"
           aria-label={`${BRAND_NAME} home`}
         >
-          <PrismLogo className="h-8 w-8 shrink-0" />
-          <span className="text-[19px] font-medium tracking-[0.025em]">
-            {BRAND_NAME}
+          <span className="prism-brand-mark inline-flex items-center gap-3.5 text-[var(--prism-text)]">
+            <PrismLogo className="h-8 w-8 shrink-0" />
+            <span className="text-[19px] font-medium tracking-[0.025em]">
+              {BRAND_NAME}
+            </span>
           </span>
         </button>
 
