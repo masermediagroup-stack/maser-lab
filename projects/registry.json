@@ -23,6 +23,13 @@
       "description": "Figma 1:1 sign-up section — desktop 1920×1080 + mobile 452×1168 with motion"
     },
     {
+      "slug": "svg-3d-rotator",
+      "title": "SVG 3D Rotator",
+      "status": "building",
+      "category": "display",
+      "description": "Premium pseudo-3D extruded SVG rotator with gradient card, lighting, and full prop API"
+    },
+    {
       "slug": "blobby-rotation-loader",
       "title": "Blobby Rotation Loader",
       "status": "building",
