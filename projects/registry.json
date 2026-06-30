@@ -21,6 +21,13 @@
       "status": "review",
       "category": "sign-up",
       "description": "Figma 1:1 sign-up section — desktop 1920×1080 + mobile 452×1168 with motion"
+    },
+    {
+      "slug": "blobby-rotation-loader",
+      "title": "Blobby Rotation Loader",
+      "status": "building",
+      "category": "feedback",
+      "description": "Morphable rotating superellipse loader with blur, corner, power, and chromatic aberration controls"
     }
   ]
 }
