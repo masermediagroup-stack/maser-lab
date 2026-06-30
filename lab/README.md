@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Maser-Lab
 
-## Getting Started
+Next.js shell for building and previewing micro-interactions and Three.js systems (Tyler Vea / MaserMedia).
 
-First, run the development server:
+**Agent instructions:** see repository root [`../AGENTS.md`](../AGENTS.md).
+
+| Work type | Load first |
+| --- | --- |
+| UI / motion micro-interactions | [`.agents/skills/micro-interaction-lab/SKILL.md`](../.agents/skills/micro-interaction-lab/SKILL.md) |
+| Three.js / shaders / 3D | [`.agents/skills/maser-lab-threejs/SKILL.md`](../.agents/skills/maser-lab-threejs/SKILL.md) |
+
+## Quick start
 
 ```bash
+npm install   # first time only
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) for the Maser-Lab gallery. Each project demo lives at `/demos/{slug}`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+```
 
-## Learn More
+## Three.js
 
-To learn more about Next.js, take a look at the following resources:
+Shared utilities: `src/three/`  
+First 3D project: `npm install three @types/three`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Workflow: `.agents/skills/maser-lab-threejs/references/workflow.md`  
+Knowledge base: `.agents/skills/maser-lab-threejs/references/threejs-notes.md`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Shell tokens
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Maser-Lab gallery chrome: `src/styles/maser-lab-tokens.css` (`.maser-lab` scope).  
+Per-project tokens: `src/components/projects/{category}/{slug}/tokens.css`.

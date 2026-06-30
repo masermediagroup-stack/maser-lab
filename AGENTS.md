@@ -7,6 +7,7 @@ This repository is a **micro-interaction lab**: build, review, and polish UI com
 | Task | Load first |
 | --- | --- |
 | Shaping, building, reviewing, or polishing any UI/motion work | `.agents/skills/micro-interaction-lab/SKILL.md` |
+| Three.js, shaders, 3D, WebGL/WebGPU, scroll/pointer 3D | `.agents/skills/maser-lab-threejs/SKILL.md` |
 | Figma reference, design-to-code, code-to-Figma, Code Connect | `.agents/skills/figma-design-workflow/SKILL.md` |
 | Discovering or installing more skills | `.agents/skills/find-skills/SKILL.md` |
 | End-to-end verification after implementation | `.agents/skills/verification/SKILL.md` |
@@ -56,6 +57,15 @@ Before marking a project ready for portfolio transfer:
 - [ ] Motion review completed (`review-animations` or lab Review mode)
 - [ ] `prefers-reduced-motion` honored
 - [ ] No P0/P1 findings open from review
+
+### Three.js / 3D projects (additional gates)
+
+See `.agents/skills/maser-lab-threejs/references/quality-gates.md`.
+
+- [ ] Official [Three.js docs](https://threejs.org/docs/) checked for APIs used
+- [ ] WebGL fallback implemented or documented
+- [ ] Mobile simplification considered
+- [ ] Geometry/material/texture disposal on unmount
 
 ## Branch naming (Cloud Agents)
 

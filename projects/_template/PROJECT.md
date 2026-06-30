@@ -49,9 +49,28 @@ List every reachable state the demo must expose:
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | CSS / WAAPI / Framer / GSAP | |
+| Library | CSS / WAAPI / Framer / GSAP / Three.js | |
 | Duration | ms | |
 | Easing | | |
+
+## Three.js / 3D (optional)
+
+Skip if not a 3D project. Load `.agents/skills/maser-lab-threejs/SKILL.md`.
+
+| Field | Value |
+| --- | --- |
+| Target type | shader background / 3D hero / environment / particles / GLTF / scroll scene / other |
+| Renderer | WebGL / WebGPU / none |
+| Decorative? | yes — page works without canvas / no — 3D required |
+| Fallback | static image / CSS / simplified scene |
+| Mobile strategy | full / simplified / static fallback |
+| Reduced motion | static / paused / minimal |
+| Research docs checked | [threejs.org/docs/...](https://threejs.org/docs/) |
+| CloudAI-X skills used | threejs-* |
+
+## Client & portfolio adaptation (optional)
+
+See `.agents/skills/maser-lab-threejs/references/client-portfolio.md`.
 
 ## Acceptance criteria
 
