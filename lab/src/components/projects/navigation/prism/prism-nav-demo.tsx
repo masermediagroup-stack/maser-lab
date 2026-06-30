@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { useCallback, useId, useState } from "react";
 import {
-  DemoBackButton,
   DemoControlBar,
+  DemoLabBrand,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
 import { type NavItemId } from "./constants";
@@ -28,7 +28,7 @@ export function PrismNavDemo({ minimal = false }: PrismNavDemoProps) {
 
   return (
     <div
-      className="prism-nav relative min-h-screen overflow-hidden"
+      className="maser-lab prism-nav relative min-h-screen overflow-hidden"
       data-reduced-motion={forceReducedMotion ? "true" : undefined}
     >
       <div className="pointer-events-none fixed inset-0" aria-hidden>
@@ -44,8 +44,8 @@ export function PrismNavDemo({ minimal = false }: PrismNavDemoProps) {
       </div>
 
       {!minimal ? (
-        <DemoControlBar className="left-6 right-6 top-6 justify-between">
-          <DemoBackButton />
+        <DemoControlBar className="left-4 right-4 top-4 justify-between gap-2">
+          <DemoLabBrand />
           <ReducedMotionToggle
             enabled={forceReducedMotion}
             onToggle={() => setForceReducedMotion((v) => !v)}

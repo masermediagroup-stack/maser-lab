@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,25 @@ export function DemoBackButton({ className }: DemoBackButtonProps) {
     <Link href="/" className={className}>
       <LabButton variant="ghost">← Lab</LabButton>
     </Link>
+  );
+}
+
+type DemoLabBrandProps = {
+  className?: string;
+};
+
+export function DemoLabBrand({ className }: DemoLabBrandProps) {
+  return (
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+      <DemoBackButton />
+      <Image
+        src="/brand/masermedia-logo-bold-blue.png"
+        alt="MaserMedia"
+        width={120}
+        height={28}
+        className="hidden h-7 w-auto sm:block"
+      />
+    </div>
   );
 }
 
@@ -123,10 +143,37 @@ type DemoControlBarProps = {
 };
 
 export function DemoControlBar({ className, children }: DemoControlBarProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const syncOffset = () => {
+      const bottom = node.getBoundingClientRect().bottom;
+      document.documentElement.style.setProperty(
+        "--lab-control-bar-bottom",
+        `${bottom + 12}px`,
+      );
+    };
+
+    syncOffset();
+    const observer = new ResizeObserver(syncOffset);
+    observer.observe(node);
+    window.addEventListener("resize", syncOffset);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", syncOffset);
+      document.documentElement.style.removeProperty("--lab-control-bar-bottom");
+    };
+  }, []);
+
   return (
     <div
+      ref={ref}
       className={cn(
-        "fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[rgba(10,10,11,0.88)] p-2 backdrop-blur-md",
+        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[rgba(10,10,11,0.88)] p-2 backdrop-blur-md",
         className,
       )}
     >

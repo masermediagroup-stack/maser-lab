@@ -35,6 +35,8 @@ export const NAV_ITEMS = [...CATEGORY_ITEMS, PROFILE_ITEM];
 
 export const BRAND_NAME = "Prism";
 
+export type PrismNavPlacement = "fixed-top" | "inline" | "center";
+
 export function isCategoryId(id: NavItemId): id is CategoryId {
   return id !== "profile";
 }
