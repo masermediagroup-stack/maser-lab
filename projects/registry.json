@@ -30,6 +30,13 @@
       "description": "Morphable rotating superellipse loader with blur, corner, power, and chromatic aberration controls"
     },
     {
+      "slug": "liquid-monochrome",
+      "title": "Liquid Monochrome Reveal",
+      "status": "building",
+      "category": "scroll",
+      "description": "Scroll-pinned liquid ink reveal with FBM turbulence and luminance grayscale — reusable on images, heroes, cards, and sections"
+    },
+    {
       "slug": "makeyourday-calendar",
       "title": "MakeYourDay Calendar",
       "status": "review",
