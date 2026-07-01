@@ -1,0 +1,910 @@
+.makeyourday-calendar {
+  --myd-bg: #050505;
+  --myd-panel: #090b0f;
+  --myd-panel-soft: #10141c;
+  --myd-line: #252832;
+  --myd-line-soft: #3b4357;
+  --myd-text: #f5f7ff;
+  --myd-muted: #8e98b5;
+  --myd-faint: #59637d;
+  --myd-blue: #3f7cff;
+  --myd-violet: #a257ff;
+  --myd-mint: #54e6b1;
+  --myd-warn: #ff7a9d;
+  --myd-border: rgba(105, 122, 168, 0.34);
+  --myd-border-strong: rgba(140, 173, 255, 0.78);
+  --myd-radius: 8px;
+  color-scheme: dark;
+  min-height: 100vh;
+}
+
+.myd-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background: #000;
+  color: var(--myd-text);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  overflow: hidden;
+  -webkit-tap-highlight-color: rgba(63, 124, 255, 0.22);
+}
+
+.myd-background {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% -15%, rgba(63, 124, 255, 0.08), transparent 30rem),
+    radial-gradient(circle at 18% 88%, rgba(84, 230, 177, 0.035), transparent 24rem),
+    #000;
+}
+
+.myd-grid-layer {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.075) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(circle at center, #000 0%, rgba(0, 0, 0, 0.68) 42%, transparent 78%);
+  opacity: 0.34;
+}
+
+.myd-light-rays {
+  position: absolute;
+  inset: -16% -12% 0;
+  background:
+    conic-gradient(from 196deg at 48% -8%, transparent 0deg, rgba(63, 124, 255, 0.16) 9deg, transparent 18deg, transparent 29deg, rgba(162, 87, 255, 0.11) 38deg, transparent 52deg, transparent 360deg),
+    conic-gradient(from 168deg at 58% -12%, transparent 0deg, rgba(84, 230, 177, 0.07) 7deg, transparent 17deg, transparent 34deg, rgba(63, 124, 255, 0.08) 48deg, transparent 64deg, transparent 360deg);
+  filter: blur(18px);
+  opacity: 0.5;
+  transform-origin: top center;
+  animation: myd-rays-drift 9s ease-in-out infinite alternate;
+}
+
+.myd-light-rays::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 34rem);
+  mix-blend-mode: screen;
+}
+
+.myd-stage {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(12rem, 20rem) minmax(38rem, 1fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  width: min(86rem, 100%);
+  margin: 0 auto;
+  padding: calc(var(--lab-control-bar-bottom, 0px) + 3rem) 2rem 3rem;
+}
+
+.myd-header {
+  display: grid;
+  gap: 1rem;
+  align-content: center;
+}
+
+.myd-header h1 {
+  margin: 0;
+  max-width: 11ch;
+  font-size: clamp(2.45rem, 4.8vw, 4.75rem);
+  font-weight: 720;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.myd-header p:last-child {
+  margin: 0;
+  max-width: 22rem;
+  color: var(--myd-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.myd-app-surface {
+  display: grid;
+  grid-template-columns: minmax(34rem, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.myd-month-stack {
+  display: grid;
+  gap: 0.62rem;
+}
+
+.myd-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.myd-month-button {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3ch minmax(12rem, 1fr) minmax(7rem, max-content);
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  min-height: 2.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  text-align: left;
+  transform-origin: left center;
+  transition: transform 160ms ease-out;
+}
+
+.myd-month-number {
+  color: var(--myd-faint);
+  font: 700 0.7rem/1 "Courier New", monospace;
+  letter-spacing: 0.08em;
+  transition: color 160ms ease-out;
+}
+
+.myd-stem,
+.myd-wave {
+  grid-column: 2;
+  grid-row: 1;
+  height: 2px;
+  border-radius: 999px;
+}
+
+.myd-stem {
+  background: var(--myd-line);
+  transition: background-color 180ms ease-out, box-shadow 180ms ease-out;
+}
+
+.myd-wave {
+  width: 0;
+  background: linear-gradient(90deg, var(--myd-blue), var(--myd-violet));
+  box-shadow: 0 0 0 rgba(63, 124, 255, 0);
+  transition: width 220ms ease-out, box-shadow 220ms ease-out;
+}
+
+.myd-month-name {
+  display: inline-flex;
+  min-width: 7.8rem;
+  white-space: nowrap;
+  color: #d8e1ff;
+  font-size: 0.7rem;
+  font-weight: 760;
+  line-height: 1;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(0.22rem);
+  transition: opacity 160ms ease-out, transform 180ms ease-out;
+}
+
+.myd-month-name span {
+  opacity: 0;
+  transform: translateY(0.65rem);
+  transition: opacity 180ms ease-out, transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.myd-event-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-left: 0.6rem;
+  border-radius: 999px;
+  background: var(--myd-mint);
+  box-shadow: 0 0 12px rgba(84, 230, 177, 0.7);
+}
+
+.myd-day-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  opacity: 0;
+  transform: translateX(-0.25rem);
+  pointer-events: none;
+  transition: opacity 160ms ease-out, transform 180ms ease-out;
+}
+
+.myd-day-dial {
+  position: relative;
+  width: 2.85rem;
+  height: 1.7rem;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--myd-text);
+  cursor: ns-resize;
+}
+
+.myd-day-track {
+  position: absolute;
+  inset: -1.7rem 0 auto;
+}
+
+.myd-day-track span {
+  display: block;
+  height: 1.7rem;
+  font: 700 0.72rem/1.7rem "Courier New", monospace;
+  text-align: center;
+}
+
+.myd-step-buttons {
+  display: inline-flex;
+  border: 1px solid var(--myd-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.myd-step-buttons button,
+.myd-open-panel,
+.myd-date-summary button,
+.myd-panel button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 2.4rem;
+  min-height: 2.4rem;
+  border: 1px solid var(--myd-border);
+  border-radius: 4px;
+  background: rgba(12, 15, 22, 0.72);
+  color: var(--myd-text);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color 140ms ease-out, transform 140ms ease-out, background-color 140ms ease-out, box-shadow 140ms ease-out;
+}
+
+.myd-step-buttons button {
+  min-width: 2rem;
+  min-height: 1.7rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.myd-step-buttons button + button {
+  border-left: 1px solid var(--myd-border);
+}
+
+.myd-open-panel {
+  min-width: 2.1rem;
+  min-height: 1.7rem;
+  color: var(--myd-blue);
+}
+
+.myd-line[data-active="true"] .myd-month-button {
+  transform: scaleY(1.04);
+}
+
+.myd-line[data-active="true"] .myd-month-number {
+  color: var(--myd-blue);
+}
+
+.myd-line[data-active="true"] .myd-stem {
+  background: var(--myd-blue);
+  box-shadow: 0 0 16px rgba(63, 124, 255, 0.48);
+}
+
+.myd-line[data-active="true"] .myd-wave {
+  width: 100%;
+  box-shadow: 0 0 20px rgba(162, 87, 255, 0.44);
+}
+
+.myd-line[data-active="true"] .myd-month-name,
+.myd-line[data-active="true"] .myd-month-name span,
+.myd-line[data-active="true"] .myd-day-controls {
+  opacity: 1;
+  transform: translate(0);
+  pointer-events: auto;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .myd-month-button:hover {
+    transform: scaleY(1.08);
+  }
+
+  .myd-month-button:hover .myd-stem {
+    background: var(--myd-line-soft);
+  }
+
+  .myd-step-buttons button:hover,
+  .myd-open-panel:hover,
+  .myd-date-summary button:hover,
+  .myd-panel button:hover {
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .myd-events-button:hover {
+    background: linear-gradient(135deg, var(--myd-blue), var(--myd-violet));
+    box-shadow: 0 0 18px rgba(63, 124, 255, 0.42), 0 0 26px rgba(162, 87, 255, 0.28);
+    color: #ffffff;
+  }
+
+  .myd-events-button:hover .myd-events-orb {
+    background: linear-gradient(135deg, var(--myd-blue), var(--myd-violet));
+    box-shadow: none;
+    color: #ffffff;
+  }
+}
+
+.myd-month-button:focus-visible,
+.myd-day-dial:focus-visible,
+.myd-step-buttons button:focus-visible,
+.myd-open-panel:focus-visible,
+.myd-date-summary button:focus-visible,
+.myd-panel button:focus-visible,
+.myd-event-form input:focus-visible,
+.myd-event-form textarea:focus-visible {
+  outline: 2px solid rgba(84, 230, 177, 0.82);
+  outline-offset: 3px;
+}
+
+.myd-date-summary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.myd-date-summary .myd-events-button {
+  border: 0;
+  min-height: 2.9rem;
+  padding: 0.32rem 1rem 0.32rem 0.35rem;
+  color: var(--myd-text);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.myd-events-orb {
+  display: inline-grid;
+  place-items: center;
+  width: 2.16rem;
+  height: 2.16rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(63, 124, 255, 0.1);
+  color: var(--myd-blue);
+  transition: color 140ms ease-out, background-color 140ms ease-out, box-shadow 140ms ease-out;
+}
+
+.myd-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: start center;
+  padding: calc(var(--lab-control-bar-bottom, 0px) + 0.9rem) 1.2rem 1.2rem;
+  background: rgba(0, 0, 0, 0.74);
+  backdrop-filter: blur(12px);
+  animation: myd-fade-in 180ms ease-out both;
+}
+
+.myd-panel {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+  width: min(34rem, 100%);
+  max-height: min(40rem, calc(100dvh - var(--lab-control-bar-bottom, 0px) - 2.1rem));
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid transparent;
+  border-radius: var(--myd-radius);
+  background:
+    linear-gradient(var(--myd-panel), var(--myd-panel)) padding-box,
+    linear-gradient(135deg, rgba(63, 124, 255, 0.9), rgba(162, 87, 255, 0.82), rgba(84, 230, 177, 0.62)) border-box;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45), 0 0 34px rgba(63, 124, 255, 0.2);
+  padding: 0.8rem;
+  animation: myd-panel-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.myd-panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--myd-border);
+  border-radius: 6px;
+  padding: 0.6rem 0.7rem;
+}
+
+.myd-panel-head div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.12rem 0.75rem;
+  align-items: center;
+}
+
+.myd-panel-head span {
+  grid-column: 2;
+  color: var(--myd-text);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.myd-panel-head strong {
+  grid-row: 1 / 3;
+  color: var(--myd-text);
+  font: 760 2rem/1 "Courier New", monospace;
+}
+
+.myd-panel-head p {
+  grid-column: 2;
+  margin: 0;
+  color: var(--myd-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.myd-panel-head button {
+  min-width: 2.35rem;
+  min-height: 2.35rem;
+}
+
+.myd-notice,
+.myd-form-error {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  border: 1px solid rgba(84, 230, 177, 0.28);
+  border-radius: 4px;
+  background: rgba(84, 230, 177, 0.08);
+  color: #baf8dd;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+.myd-form-error {
+  border-color: rgba(255, 122, 157, 0.36);
+  background: rgba(255, 122, 157, 0.08);
+  color: #ffc2d1;
+}
+
+.myd-menu-view {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.myd-menu-view button {
+  justify-content: flex-start;
+  min-height: 4.5rem;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.myd-menu-view span {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.myd-menu-view strong,
+.myd-list-view strong {
+  font-size: 0.8rem;
+  font-weight: 820;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.myd-menu-view small,
+.myd-list-view small {
+  color: var(--myd-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.myd-panel-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.myd-panel-row button {
+  min-height: 2.1rem;
+  padding: 0 0.72rem;
+  font-size: 0.72rem;
+  font-weight: 760;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.myd-list-view {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.myd-list-view > p {
+  margin: 0;
+  color: var(--myd-muted);
+  font-size: 0.75rem;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.myd-list-view[data-delete-mode="true"] > p {
+  color: #ffafc3;
+}
+
+.myd-list-view ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.myd-list-view li button {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr auto;
+  justify-items: start;
+  width: 100%;
+  min-height: 3.3rem;
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+}
+
+.myd-list-view li span {
+  color: var(--myd-muted);
+  font: 760 0.72rem/1 "Courier New", monospace;
+}
+
+.myd-list-view[data-delete-mode="true"] li button {
+  background: rgba(255, 122, 157, 0.06);
+}
+
+.myd-empty-state {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 4.5rem;
+  border: 1px dashed var(--myd-border);
+  border-radius: 6px;
+  color: var(--myd-muted);
+  padding: 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 740;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.myd-detail-view,
+.myd-event-form {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.myd-detail-view > button {
+  justify-self: start;
+  min-height: 2.35rem;
+  padding: 0 0.72rem;
+  font-size: 0.72rem;
+  font-weight: 760;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.myd-detail-view h2 {
+  margin: 0;
+  color: var(--myd-text);
+  font-size: 1.55rem;
+  font-weight: 760;
+  line-height: 1.1;
+}
+
+.myd-detail-view dl {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.myd-detail-view dl div,
+.myd-event-form label,
+.myd-event-form fieldset {
+  display: grid;
+  gap: 0.28rem;
+  border: 1px solid var(--myd-border);
+  border-radius: 6px;
+  padding: 0.52rem 0.62rem;
+}
+
+.myd-detail-view dt,
+.myd-event-form span,
+.myd-event-form legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--myd-muted);
+  font-size: 0.68rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.myd-detail-view dd {
+  margin: 0;
+  color: var(--myd-text);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.myd-event-form input,
+.myd-event-form textarea {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--myd-text);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  outline: 0;
+}
+
+.myd-event-form input:focus-visible,
+.myd-event-form textarea:focus-visible {
+  outline: 0;
+}
+
+.myd-event-form input {
+  min-height: 1.35rem;
+}
+
+.myd-event-form textarea {
+  min-height: 1.45rem;
+  max-height: 7rem;
+  resize: vertical;
+}
+
+.myd-form-field {
+  min-height: 3.15rem;
+  align-content: start;
+}
+
+.myd-form-field:focus-within {
+  min-height: 4.4rem;
+  background: rgba(5, 5, 5, 0.78);
+}
+
+.myd-description-field {
+  min-height: 3.4rem;
+}
+
+.myd-description-field:focus-within {
+  min-height: 7.2rem;
+}
+
+.myd-description-field:focus-within textarea {
+  min-height: 5.2rem;
+}
+
+.myd-event-form fieldset {
+  margin: 0;
+}
+
+.myd-time-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.myd-time-picker > span {
+  color: var(--myd-muted);
+  font: 800 0.9rem/1 "Courier New", monospace;
+}
+
+.myd-time-wheel {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--myd-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.myd-time-wheel button,
+.myd-ampm button {
+  min-width: 2rem;
+  min-height: 2rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.myd-time-wheel button + output,
+.myd-time-wheel output + button,
+.myd-ampm button + button {
+  border-left: 1px solid var(--myd-border);
+}
+
+.myd-time-wheel output {
+  min-width: 2.4rem;
+  color: var(--myd-text);
+  font: 800 0.78rem/2rem "Courier New", monospace;
+  text-align: center;
+}
+
+.myd-ampm {
+  display: inline-flex;
+  border: 1px solid var(--myd-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.myd-ampm button {
+  padding: 0 0.6rem;
+  color: var(--myd-muted);
+  font-size: 0.68rem;
+  font-weight: 820;
+}
+
+.myd-ampm button[data-active="true"] {
+  background: rgba(63, 124, 255, 0.16);
+  color: var(--myd-text);
+}
+
+.myd-form-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.myd-form-actions button {
+  min-height: 2.2rem;
+  padding: 0 1rem;
+  font-size: 0.72rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@keyframes myd-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes myd-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem) scale(0.98);
+  }
+}
+
+@keyframes myd-rays-drift {
+  from {
+    opacity: 0.5;
+    transform: translateX(-1.5%) skewX(-2deg);
+  }
+
+  to {
+    opacity: 0.72;
+    transform: translateX(1.5%) skewX(2deg);
+  }
+}
+
+@media (max-width: 860px) {
+  .myd-stage {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-inline: 1rem;
+  }
+
+  .myd-header h1 {
+    max-width: none;
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .myd-header p:last-child {
+    max-width: 16rem;
+    font-size: 0.74rem;
+    line-height: 1.3;
+  }
+
+  .myd-app-surface {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .myd-date-summary {
+    position: sticky;
+    top: max(calc(var(--lab-control-bar-bottom, 0px) + 0.75rem), 8.6rem);
+    z-index: 20;
+    justify-content: flex-start;
+    padding-block: 0.2rem;
+    background: linear-gradient(180deg, rgba(5, 5, 5, 0.96), rgba(5, 5, 5, 0.82));
+  }
+
+  .myd-events-button {
+    width: fit-content;
+    min-height: 2.55rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .myd-stage {
+    align-content: start;
+    padding: max(calc(var(--lab-control-bar-bottom, 0px) + 1.2rem), 10rem) 1rem 1.25rem;
+  }
+
+  .myd-header {
+    gap: 0.65rem;
+  }
+
+  .myd-header h1 {
+    font-size: clamp(1.9rem, 10vw, 2.5rem);
+  }
+
+  .myd-month-button {
+    grid-template-columns: 3ch minmax(0, 1fr);
+    gap: 0.65rem;
+    min-height: 1.45rem;
+  }
+
+  .myd-month-name {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    font-size: 0.72rem;
+  }
+
+  .myd-month-stack {
+    gap: 0.08rem;
+  }
+
+  .myd-line {
+    grid-template-columns: 1fr;
+    gap: 0.18rem;
+  }
+
+  .myd-day-controls {
+    display: none;
+    justify-self: end;
+    margin-top: -0.25rem;
+  }
+
+  .myd-line[data-active="true"] .myd-day-controls {
+    display: inline-flex;
+  }
+
+  .myd-list-view li button {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .myd-shell *,
+  .myd-shell *::before,
+  .myd-shell *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .myd-light-rays {
+    animation: none;
+  }
+}
+
+.myd-shell[data-reduced-motion="true"] *,
+.myd-shell[data-reduced-motion="true"] *::before,
+.myd-shell[data-reduced-motion="true"] *::after {
+  animation-duration: 1ms !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+
+.myd-shell[data-reduced-motion="true"] .myd-light-rays {
+  animation: none !important;
+}

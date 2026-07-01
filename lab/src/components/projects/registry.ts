@@ -3,9 +3,11 @@ import { BlobbyRotationDemo } from "./feedback/blobby-rotation-loader";
 import { PlotlineTabNavDemo } from "./navigation/plotline-tab-nav/plotline-tab-nav-demo";
 import { PrismNavDemo } from "./navigation/prism/prism-nav-demo";
 import { SummitPathSignUpDemo } from "./sign-up/summitpath-sign-up";
+import { MakeYourDayCalendarDemo } from "./web-apps/makeyourday-calendar";
 
 export const demoRegistry: Record<string, ComponentType> = {
   "blobby-rotation-loader": BlobbyRotationDemo,
+  "makeyourday-calendar": MakeYourDayCalendarDemo,
   "plotline-tab-nav": PlotlineTabNavDemo,
   prism: PrismNavDemo,
   "summitpath-sign-up": SummitPathSignUpDemo,
