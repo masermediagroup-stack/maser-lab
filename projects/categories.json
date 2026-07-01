@@ -45,6 +45,11 @@
       "id": "layout",
       "label": "Layout",
       "description": "Modals, drawers, panels, and structural page chrome"
+    },
+    {
+      "id": "web-apps",
+      "label": "Web Apps",
+      "description": "Complete interactive app surfaces, workflows, and product UI systems"
     }
   ]
 }

@@ -28,6 +28,13 @@
       "status": "building",
       "category": "feedback",
       "description": "Morphable rotating superellipse loader with blur, corner, power, and chromatic aberration controls"
+    },
+    {
+      "slug": "makeyourday-calendar",
+      "title": "MakeYourDay Calendar",
+      "status": "review",
+      "category": "web-apps",
+      "description": "Save-date calendar app with a vertical month selector, day dial, event storage, and modal event flows"
     }
   ]
 }

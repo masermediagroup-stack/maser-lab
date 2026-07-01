@@ -14,7 +14,8 @@ export type ProjectCategoryId =
   | "scroll"
   | "hero-section"
   | "marketing"
-  | "layout";
+  | "layout"
+  | "web-apps";
 
 export type ProjectEntry = {
   slug: string;
