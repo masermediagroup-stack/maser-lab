@@ -1007,6 +1007,12 @@ export function MakeYourDayCalendarApp({
                     <TimeWheel
                       label="Minute"
                       value={pad2(time.minute)}
+                      editable
+                      min={0}
+                      max={59}
+                      onEditableChange={(minute) =>
+                        setTime((current) => ({ ...current, minute }))
+                      }
                       onDown={() => stepTime("minute", -5)}
                       onUp={() => stepTime("minute", 5)}
                     />
@@ -1101,6 +1107,10 @@ type TimeWheelProps = {
   value: string;
   onUp: () => void;
   onDown: () => void;
+  editable?: boolean;
+  min?: number;
+  max?: number;
+  onEditableChange?: (value: number) => void;
 };
 
 type MenuActionsProps = {
@@ -1134,13 +1144,71 @@ function MenuActions({
   );
 }
 
-function TimeWheel({ label, value, onUp, onDown }: TimeWheelProps) {
+function TimeWheel({
+  label,
+  value,
+  onUp,
+  onDown,
+  editable = false,
+  min = 0,
+  max = 99,
+  onEditableChange,
+}: TimeWheelProps) {
+  const [draft, setDraft] = useState(value);
+  const [isEditing, setIsEditing] = useState(false);
+
+  function commitDraft() {
+    if (!editable) {
+      return;
+    }
+
+    if (draft === "") {
+      setDraft(value);
+      setIsEditing(false);
+      return;
+    }
+
+    const parsed = Number.parseInt(draft, 10);
+    if (!Number.isNaN(parsed)) {
+      onEditableChange?.(Math.min(max, Math.max(min, parsed)));
+    }
+
+    setIsEditing(false);
+  }
+
   return (
     <div className="myd-time-wheel">
       <button type="button" onClick={onDown} aria-label={`Decrease ${label}`}>
         <ChevronLeft size={13} />
       </button>
-      <output aria-label={label}>{value}</output>
+      {editable ? (
+        <input
+          type="text"
+          inputMode="numeric"
+          autoComplete="off"
+          className="myd-time-wheel-input"
+          aria-label={label}
+          value={isEditing ? draft : value}
+          maxLength={2}
+          onFocus={(event) => {
+            setDraft(value);
+            setIsEditing(true);
+            event.currentTarget.select();
+          }}
+          onChange={(event) => {
+            setDraft(event.target.value.replace(/\D/g, "").slice(0, 2));
+          }}
+          onBlur={commitDraft}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              commitDraft();
+            }
+          }}
+        />
+      ) : (
+        <output aria-label={label}>{value}</output>
+      )}
       <button type="button" onClick={onUp} aria-label={`Increase ${label}`}>
         <ChevronRight size={13} />
       </button>

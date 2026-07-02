@@ -1209,11 +1209,14 @@
 
 .myd-time-wheel button + output,
 .myd-time-wheel output + button,
+.myd-time-wheel button + .myd-time-wheel-input,
+.myd-time-wheel .myd-time-wheel-input + button,
 .myd-ampm button + button {
   border-left: 1px solid var(--myd-border);
 }
 
-.myd-time-wheel output {
+.myd-time-wheel output,
+.myd-time-wheel-input {
   min-width: 2.4rem;
   color: var(--myd-text);
   font-family: var(--myd-font-sans);
@@ -1221,6 +1224,26 @@
   font-weight: var(--myd-weight-bold);
   line-height: 2rem;
   text-align: center;
+}
+
+.myd-time-wheel-input {
+  width: 2.4rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  appearance: textfield;
+}
+
+.myd-time-wheel-input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--myd-border-focus);
+}
+
+.myd-time-wheel-input::-webkit-outer-spin-button,
+.myd-time-wheel-input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
 }
 
 .myd-ampm {
