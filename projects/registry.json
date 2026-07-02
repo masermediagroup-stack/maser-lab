@@ -37,6 +37,13 @@
       "description": "Scroll-pinned liquid ink reveal with FBM turbulence and luminance grayscale — reusable on images, heroes, cards, and sections"
     },
     {
+      "slug": "text-animation-lab",
+      "title": "Text Animation Lab",
+      "status": "building",
+      "category": "display",
+      "description": "Monochrome shadcn/ui playground for 10 reusable text animation effects with live controls and code export"
+    },
+    {
       "slug": "makeyourday-calendar",
       "title": "MakeYourDay Calendar",
       "status": "review",
