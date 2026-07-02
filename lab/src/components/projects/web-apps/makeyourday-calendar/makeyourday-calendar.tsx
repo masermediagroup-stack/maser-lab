@@ -633,13 +633,12 @@ export function MakeYourDayCalendarApp({
           >
             <header className="myd-panel-head">
               {mode === "calendar" ? (
-                <div>
+                <div className="myd-panel-head-meta myd-panel-head-meta-calendar">
                   <span>{new Date().getFullYear()}</span>
-                  <strong>{MONTHS[selectedMonth].short}</strong>
                   <p>{MONTHS[selectedMonth].name}</p>
                 </div>
               ) : (
-                <div>
+                <div className="myd-panel-head-meta">
                   <span>{selectedMeta.weekday}</span>
                   <strong>{selectedMeta.dayLabel}</strong>
                   <p>{selectedMeta.month}</p>

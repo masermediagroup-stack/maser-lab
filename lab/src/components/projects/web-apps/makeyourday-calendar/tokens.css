@@ -573,11 +573,20 @@
   gap: 0.35rem;
 }
 
-.myd-panel-head div {
+.myd-panel-head-meta {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.12rem 0.75rem;
   align-items: center;
+}
+
+.myd-panel-head-meta-calendar {
+  grid-template-columns: 1fr;
+}
+
+.myd-panel-head-meta-calendar span,
+.myd-panel-head-meta-calendar p {
+  grid-column: 1;
 }
 
 .myd-panel-head span {
