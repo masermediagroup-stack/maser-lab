@@ -445,9 +445,8 @@
 
 .myd-step-buttons {
   display: inline-flex;
-  border: 1px solid var(--myd-border);
-  border-radius: var(--myd-radius-sm);
-  overflow: hidden;
+  gap: 0.2rem;
+  overflow: visible;
 }
 
 .myd-step-buttons button,
@@ -477,17 +476,16 @@
   min-width: 2rem;
   min-height: 1.7rem;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--myd-radius-sm);
   background: transparent;
-}
-
-.myd-step-buttons button + button {
-  border-left: 1px solid var(--myd-border);
 }
 
 .myd-open-panel {
   min-width: 2.1rem;
   min-height: 1.7rem;
+  border: 0;
+  border-radius: var(--myd-radius-sm);
+  background: transparent;
   color: var(--myd-blue);
 }
 
