@@ -1186,7 +1186,7 @@ function TimeWheel({
           type="text"
           inputMode="numeric"
           autoComplete="off"
-          className="myd-time-wheel-input"
+          className="myd-time-wheel-value myd-time-wheel-input"
           aria-label={label}
           value={isEditing ? draft : value}
           maxLength={2}
@@ -1207,7 +1207,9 @@ function TimeWheel({
           }}
         />
       ) : (
-        <output aria-label={label}>{value}</output>
+        <output className="myd-time-wheel-value" aria-label={label}>
+          {value}
+        </output>
       )}
       <button type="button" onClick={onUp} aria-label={`Increase ${label}`}>
         <ChevronRight size={13} />
