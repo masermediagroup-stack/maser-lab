@@ -7,7 +7,7 @@ Turn research and design direction into clean, modular, maintainable Three.js im
 ## When to use
 
 - After Research agent sign-off
-- Implement mode in `maser-lab-threejs` or `micro-interaction-lab`
+- Implement mode in `maser-lab-threejs` or `maser-lab-web`
 - Wiring demo routes and registry entries
 
 ## Inputs

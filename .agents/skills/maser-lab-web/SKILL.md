@@ -1,17 +1,21 @@
 ---
-name: micro-interaction-lab
+name: maser-lab-web
 description: >-
-  Single entry point for building, reviewing, and transferring micro-interactions
-  and web components in this playground repo. Use when shaping, implementing,
-  auditing, polishing, or porting UI feedback, motion, toggles, buttons, loaders,
-  gestures, scroll effects, or demo pages. Trigger on micro-interaction, animation,
-  motion, component lab, playground, demo, portfolio transfer, or production-ready
-  UI requests. Not for backend-only work, telemetry, or docs with no shipped UI.
+  Primary workflow skill for all web UI in Maser-Lab — page sections, components,
+  forms, navigation, heroes, sign-up flows, scroll reveals, loaders, and
+  micro-interactions. Use when shaping, implementing, auditing, polishing, or
+  porting any client-facing web surface in this playground repo. Trigger on web
+  section, component, form, nav, hero, sign-up, scroll reveal, animation, motion,
+  lab demo, portfolio transfer, or production-ready UI requests. Not for
+  backend-only work, pure 3D/WebGL (use maser-lab-threejs), telemetry, or docs
+  with no shipped UI.
 ---
 
-# Micro-Interaction Lab
+# Maser-Lab Web
 
-Make motion **correct for the user, the component, and the craft bar** — not merely present. Working animation is not enough: choose purposeful feedback, cover reachable states, respect accessibility, and verify the rendered result.
+Primary workflow for **all client-facing web UI** in Maser-Lab — sections, components, forms, navigation, reveals, and motion. Use `maser-lab-threejs` when the deliverable is canvas/WebGL/Three.js.
+
+Build web UI that is **correct for the user, the surface, and the craft bar** — not merely present. Cover reachable states, respect accessibility, verify the rendered result, and treat motion as one quality dimension alongside layout, typography, and interaction — not the only one.
 
 ## Operating contract
 

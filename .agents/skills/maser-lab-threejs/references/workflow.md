@@ -30,7 +30,7 @@ Every Three.js, shader, 3D, or advanced interaction project follows these steps.
 
 - Root `AGENTS.md`
 - `maser-lab-threejs/SKILL.md`
-- `micro-interaction-lab` if hybrid UI + 3D
+- `maser-lab-web` if hybrid UI + 3D
 - Existing project `PROJECT.md` and `tokens.css`
 - `references/threejs-notes.md`
 

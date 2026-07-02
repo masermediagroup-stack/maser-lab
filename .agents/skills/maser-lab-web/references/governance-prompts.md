@@ -4,7 +4,7 @@ Adapted from [Teaching agents product design at Vercel](https://vercel.com/blog/
 
 ## Collector prompt
 
-You are the collector. Gather messages, links, demo URLs, PR comments, and Figma frames related to micro-interaction or motion decisions in this repo.
+You are the collector. Gather messages, links, demo URLs, PR comments, and Figma frames related to web UI, layout, interaction, or motion decisions in this repo.
 
 Write **raw artifacts only**. Do not score candidates or propose rules.
 

@@ -72,28 +72,33 @@
 }
 
 .myd-stage {
+  box-sizing: border-box;
   position: relative;
   z-index: 1;
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(12rem, 20rem) minmax(38rem, 1fr);
-  gap: clamp(1.5rem, 4vw, 3.5rem);
-  align-items: center;
-  width: min(86rem, 100%);
+  grid-template-columns: minmax(0, 1fr) minmax(40rem, 44rem) minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 4rem);
+  align-content: center;
+  align-items: start;
+  width: min(100rem, 100%);
   margin: 0 auto;
   padding: calc(var(--lab-control-bar-bottom, 0px) + 3rem) 2rem 3rem;
 }
 
 .myd-header {
+  grid-column: 1;
   display: grid;
   gap: 1rem;
   align-content: center;
+  justify-self: end;
+  width: min(100%, 22rem);
 }
 
 .myd-header h1 {
   margin: 0;
-  max-width: 11ch;
-  font-size: clamp(2.45rem, 4.8vw, 4.75rem);
+  max-width: 100%;
+  font-size: clamp(2rem, 2.15vw, 2.8rem);
   font-weight: 720;
   line-height: 0.98;
   letter-spacing: 0;
@@ -108,10 +113,12 @@
 }
 
 .myd-app-surface {
+  grid-column: 2;
   display: grid;
   grid-template-columns: minmax(34rem, 1fr);
   gap: 0.75rem;
   align-items: start;
+  width: 100%;
 }
 
 .myd-month-stack {
@@ -122,14 +129,14 @@
 .myd-line {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.75rem;
+  gap: 0.45rem;
   align-items: center;
 }
 
 .myd-month-button {
   position: relative;
   display: grid;
-  grid-template-columns: 3ch minmax(12rem, 1fr) minmax(7rem, max-content);
+  grid-template-columns: 3ch minmax(12rem, 1fr) 7rem;
   align-items: center;
   gap: 1rem;
   width: 100%;
@@ -156,30 +163,35 @@
 .myd-wave {
   grid-column: 2;
   grid-row: 1;
+  width: 100%;
   height: 2px;
   border-radius: 999px;
+  transition: height 160ms ease-out;
 }
 
 .myd-stem {
   background: var(--myd-line);
-  transition: background-color 180ms ease-out, box-shadow 180ms ease-out;
+  transition: height 160ms ease-out, background-color 180ms ease-out, box-shadow 180ms ease-out;
 }
 
 .myd-wave {
-  width: 0;
+  opacity: 0;
   background: linear-gradient(90deg, var(--myd-blue), var(--myd-violet));
   box-shadow: 0 0 0 rgba(63, 124, 255, 0);
-  transition: width 220ms ease-out, box-shadow 220ms ease-out;
+  transition: height 160ms ease-out, opacity 160ms ease-out, box-shadow 220ms ease-out;
 }
 
 .myd-month-name {
   display: inline-flex;
-  min-width: 7.8rem;
+  min-width: 0;
+  width: 7rem;
   white-space: nowrap;
   color: #d8e1ff;
+  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.7rem;
   font-weight: 760;
   line-height: 1;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0;
   transform: translateY(0.22rem);
@@ -212,26 +224,42 @@
 }
 
 .myd-day-dial {
+  --myd-day-slot: 1.7rem;
   position: relative;
   width: 2.85rem;
-  height: 1.7rem;
+  height: var(--myd-day-slot);
   overflow: hidden;
   border: 1px solid transparent;
   border-radius: 4px;
   background: transparent;
   color: var(--myd-text);
   cursor: ns-resize;
+  user-select: none;
 }
 
 .myd-day-track {
   position: absolute;
-  inset: -1.7rem 0 auto;
+  inset: calc(var(--myd-day-slot) * -1) 0 auto;
+  will-change: transform;
+}
+
+.myd-day-track[data-spin="next"] {
+  animation: myd-day-wheel-next 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.myd-day-track[data-spin="prev"] {
+  animation: myd-day-wheel-prev 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .myd-day-track span {
   display: block;
-  height: 1.7rem;
-  font: 700 0.72rem/1.7rem "Courier New", monospace;
+  height: var(--myd-day-slot);
+  color: #d8e1ff;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  line-height: var(--myd-day-slot);
   text-align: center;
 }
 
@@ -279,21 +307,19 @@
   color: var(--myd-blue);
 }
 
-.myd-line[data-active="true"] .myd-month-button {
-  transform: scaleY(1.04);
-}
-
 .myd-line[data-active="true"] .myd-month-number {
   color: var(--myd-blue);
 }
 
 .myd-line[data-active="true"] .myd-stem {
+  height: 2.3px;
   background: var(--myd-blue);
   box-shadow: 0 0 16px rgba(63, 124, 255, 0.48);
 }
 
 .myd-line[data-active="true"] .myd-wave {
-  width: 100%;
+  height: 2.3px;
+  opacity: 1;
   box-shadow: 0 0 20px rgba(162, 87, 255, 0.44);
 }
 
@@ -306,12 +332,9 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .myd-month-button:hover {
-    transform: scaleY(1.08);
-  }
-
   .myd-month-button:hover .myd-stem {
-    background: var(--myd-line-soft);
+    background: rgba(245, 247, 255, 0.88);
+    box-shadow: 0 0 14px rgba(245, 247, 255, 0.24);
   }
 
   .myd-step-buttons button:hover,
@@ -329,8 +352,9 @@
   }
 
   .myd-events-button:hover .myd-events-orb {
-    background: linear-gradient(135deg, var(--myd-blue), var(--myd-violet));
+    background: transparent;
     box-shadow: none;
+    transform: scale(0.92);
     color: #ffffff;
   }
 }
@@ -343,7 +367,7 @@
 .myd-panel button:focus-visible,
 .myd-event-form input:focus-visible,
 .myd-event-form textarea:focus-visible {
-  outline: 2px solid rgba(84, 230, 177, 0.82);
+  outline: 2px solid rgba(140, 173, 255, 0.78);
   outline-offset: 3px;
 }
 
@@ -400,7 +424,7 @@
   border-radius: var(--myd-radius);
   background:
     linear-gradient(var(--myd-panel), var(--myd-panel)) padding-box,
-    linear-gradient(135deg, rgba(63, 124, 255, 0.9), rgba(162, 87, 255, 0.82), rgba(84, 230, 177, 0.62)) border-box;
+    linear-gradient(135deg, rgba(63, 124, 255, 0.9), rgba(162, 87, 255, 0.82), rgba(140, 173, 255, 0.54)) border-box;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45), 0 0 34px rgba(63, 124, 255, 0.2);
   padding: 0.8rem;
   animation: myd-panel-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -488,6 +512,7 @@
 .myd-menu-view span {
   display: grid;
   gap: 0.25rem;
+  min-width: 0;
 }
 
 .myd-menu-view strong,
@@ -496,6 +521,7 @@
   font-weight: 820;
   letter-spacing: 0.07em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .myd-menu-view small,
@@ -505,6 +531,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .myd-panel-row {
@@ -558,6 +585,11 @@
   text-align: left;
 }
 
+.myd-list-view li button > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .myd-list-view li span {
   color: var(--myd-muted);
   font: 760 0.72rem/1 "Courier New", monospace;
@@ -565,6 +597,44 @@
 
 .myd-list-view[data-delete-mode="true"] li button {
   background: rgba(255, 122, 157, 0.06);
+}
+
+.myd-delete-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  border: 1px solid rgba(255, 122, 157, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 122, 157, 0.08);
+  padding: 0.55rem;
+}
+
+.myd-delete-confirm p {
+  flex: 1 1 10rem;
+  margin: 0;
+  color: #ffc2d1;
+  font-size: 0.74rem;
+  font-weight: 780;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.myd-delete-confirm button {
+  min-height: 2.25rem;
+  padding: 0 0.72rem;
+  font-size: 0.7rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.myd-delete-confirm .myd-danger-button {
+  border-color: rgba(255, 122, 157, 0.58);
+  background: rgba(255, 122, 157, 0.14);
+  color: #ffd3dd;
 }
 
 .myd-empty-state {
@@ -604,6 +674,7 @@
   font-size: 1.55rem;
   font-weight: 760;
   line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .myd-detail-view dl {
@@ -640,6 +711,7 @@
   color: var(--myd-text);
   font-size: 0.9rem;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .myd-event-form input,
@@ -655,7 +727,8 @@
 
 .myd-event-form input:focus-visible,
 .myd-event-form textarea:focus-visible {
-  outline: 0;
+  outline: 1px solid rgba(140, 173, 255, 0.62) !important;
+  outline-offset: 2px !important;
 }
 
 .myd-event-form input {
@@ -675,7 +748,9 @@
 
 .myd-form-field:focus-within {
   min-height: 4.4rem;
+  border-color: rgba(140, 173, 255, 0.44) !important;
   background: rgba(5, 5, 5, 0.78);
+  box-shadow: 0 0 0 1px rgba(140, 173, 255, 0.12) !important;
 }
 
 .myd-description-field {
@@ -794,11 +869,54 @@
   }
 }
 
-@media (max-width: 860px) {
+@keyframes myd-day-wheel-next {
+  from {
+    opacity: 0.72;
+    transform: translateY(var(--myd-day-slot));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes myd-day-wheel-prev {
+  from {
+    opacity: 0.72;
+    transform: translateY(calc(var(--myd-day-slot) * -1));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1180px) {
+  .myd-stage {
+    grid-template-columns: minmax(0, 1fr) 34rem minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 2rem);
+    width: min(78rem, 100%);
+  }
+
+  .myd-header h1 {
+    font-size: clamp(1.65rem, 2.2vw, 2rem);
+  }
+}
+
+@media (max-width: 1160px) {
   .myd-stage {
     grid-template-columns: 1fr;
     gap: 1rem;
     padding-inline: 1rem;
+  }
+
+  .myd-header,
+  .myd-app-surface {
+    grid-column: auto;
+    justify-self: stretch;
+    width: 100%;
   }
 
   .myd-header h1 {
@@ -876,6 +994,26 @@
 
   .myd-line[data-active="true"] .myd-day-controls {
     display: inline-flex;
+  }
+
+  .myd-day-dial,
+  .myd-open-panel,
+  .myd-step-buttons button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .myd-day-dial {
+    --myd-day-slot: 2.75rem;
+  }
+
+  .myd-day-track {
+    inset: -2.75rem 0 auto;
+  }
+
+  .myd-day-track span {
+    height: 2.75rem;
+    line-height: 2.75rem;
   }
 
   .myd-list-view li button {

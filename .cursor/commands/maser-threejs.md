@@ -29,4 +29,4 @@ Start or continue Three.js, shader, 3D, or advanced interaction work in Maser-La
 - `/loop-status` — progress check
 - `/find-skills` — discover capabilities
 
-For CSS/Framer-only micro-interactions, use `micro-interaction-lab` instead.
+For all other web UI (sections, components, forms, CSS/Framer motion), use `maser-lab-web` instead.
