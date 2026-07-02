@@ -132,3 +132,26 @@ This import does not add full monthly grid views, recurring events, reminders, a
 - Month grid / agenda views (listed as open decision)
 - Whether wave gradient should also use `135deg` for pixel parity with CTA (currently `90deg` by design for horizontal stem accent)
 - Portfolio transfer polish pass after human motion review sign-off
+
+## UX update — Events hub, calendar, and edit flow
+
+**Date:** 2026-07-02
+
+### Flow changes
+
+| Entry | Behavior |
+| --- | --- |
+| Top **Events** button | Opens **hub**: lists saved events for the selected day plus Add / Show / Delete actions |
+| Month **calendar icon** (next to day dial) | Opens full **month grid**; selecting a day opens the day **menu** (Add / Show / Delete) |
+| **Show events** list | Tap an event → detail view with **pencil edit** in panel header |
+| **Edit** | Opens form pre-filled; save updates the event |
+
+### Visual changes
+
+- Removed gradient border from event panel (borderless surface)
+- Panel header uses bottom separator only (no boxed border)
+- Menu rows use horizontal dividers instead of bordered cards
+
+### Copy
+
+- Replaced remaining “plan/plans” language with “event/events”
