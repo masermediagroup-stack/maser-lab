@@ -155,3 +155,42 @@ This import does not add full monthly grid views, recurring events, reminders, a
 ### Copy
 
 - Replaced remaining “plan/plans” language with “event/events”
+
+## Typography audit — uniform scale and weights
+
+**Date:** 2026-07-02
+
+### Issues found
+
+- **7 non-standard weights** in use: 720, 740, 760, 780, 800, 820 (browsers snap these unpredictably)
+- **15+ one-off font sizes** between 0.62rem and 1.55rem with no shared scale
+- Mixed `font:` shorthand and separate `font-size` / `font-weight` declarations
+- Inconsistent label hierarchy (some labels bolder than titles)
+
+### Token system applied
+
+| Token | Value | Role |
+| --- | --- | --- |
+| `--myd-text-2xs` | 0.6875rem (11px) | Micro labels, calendar weekdays |
+| `--myd-text-xs` | 0.75rem (12px) | Captions, meta, buttons |
+| `--myd-text-sm` | 0.8125rem (13px) | UI labels, menu titles |
+| `--myd-text-md` | 0.875rem (14px) | Body UI, detail values |
+| `--myd-text-lg` | 1rem (16px) | Form inputs |
+| `--myd-text-xl` | 1.5rem (24px) | Event detail title |
+| `--myd-text-2xl` | 2rem (32px) | Panel day number |
+| `--myd-text-display` | clamp | Hero h1 |
+
+| Weight token | Value | Role |
+| --- | --- | --- |
+| `--myd-weight-regular` | 400 | Body copy |
+| `--myd-weight-medium` | 500 | Secondary captions |
+| `--myd-weight-semibold` | 600 | Labels, UI controls, menu rows |
+| `--myd-weight-bold` | 700 | Titles, mono numerals, hero |
+
+### Convention
+
+- **Uppercase labels** → `semibold` (600) + `--myd-tracking-label`
+- **Body / form input** → `regular` (400) at `md` / `lg`
+- **Display numbers** (day, time) → `mono` + `bold` (700)
+- **Hero title** → `bold` (700) at display scale
+- Utility classes: `.myd-type-label`, `.myd-type-ui`, `.myd-type-caption`, `.myd-type-mono`, `.myd-type-body`
