@@ -26,7 +26,7 @@ import {
   useState,
 } from "react";
 import { MONTHS, SAMPLE_EVENT, STORAGE_KEY, WEEKDAYS } from "./constants";
-import type { CalendarEvent, EventStore, PanelMode, TimeState } from "./types";
+import type { CalendarEvent, EventStore, ListedEvent, PanelMode, TimeState } from "./types";
 
 type MakeYourDayCalendarAppProps = {
   forceReducedMotion?: boolean;
@@ -66,6 +66,29 @@ function selectedDateMeta(monthIndex: number, day: number) {
     month: MONTHS[monthIndex].name,
     short: MONTHS[monthIndex].short,
   };
+}
+
+function formatDateLabel(dateKeyValue: string) {
+  const [year, month, day] = dateKeyValue.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  return `${WEEKDAYS[date.getDay()]}, ${MONTHS[month - 1].short} ${pad2(day)}`;
+}
+
+function listAllEvents(store: EventStore): ListedEvent[] {
+  return Object.entries(store)
+    .flatMap(([key, items]) =>
+      items.map((event) => ({
+        dateKey: key,
+        event,
+        dateLabel: formatDateLabel(key),
+      })),
+    )
+    .sort(
+      (left, right) =>
+        left.dateKey.localeCompare(right.dateKey) ||
+        left.event.time.localeCompare(right.event.time),
+    );
 }
 
 function loadEvents(): EventStore {
@@ -133,6 +156,7 @@ export function MakeYourDayCalendarApp({
   const [mode, setMode] = useState<PanelMode>("hub");
   const [deleteMode, setDeleteMode] = useState(false);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
+  const [activeEventDateKey, setActiveEventDateKey] = useState<string | null>(null);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [detailReturnMode, setDetailReturnMode] = useState<PanelMode>("hub");
   const [panelFromCalendar, setPanelFromCalendar] = useState(false);
@@ -152,6 +176,7 @@ export function MakeYourDayCalendarApp({
   const [daySpin, setDaySpin] = useState<DaySpinState>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const firstMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const firstHubButtonRef = useRef<HTMLButtonElement>(null);
   const dayDragRef = useRef<{
     monthIndex: number;
     pointerId: number;
@@ -167,7 +192,13 @@ export function MakeYourDayCalendarApp({
     [selectedMonth, selectedDay],
   );
   const eventsForDay = events[selectedMeta.key] ?? [];
-  const activeEvent = eventsForDay.find((item) => item.id === activeEventId);
+  const allEvents = useMemo(() => listAllEvents(events), [events]);
+  const activeEventScopeKey = activeEventDateKey ?? selectedMeta.key;
+  const activeEvent = (events[activeEventScopeKey] ?? []).find(
+    (item) => item.id === activeEventId,
+  );
+  const hubFlowActive =
+    mode === "hub" || (detailReturnMode === "hub" && (mode === "detail" || mode === "form"));
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -191,12 +222,12 @@ export function MakeYourDayCalendarApp({
   }, [events, storageReady]);
 
   useEffect(() => {
-    if (!panelOpen || (mode !== "hub" && mode !== "menu")) {
+    if (!panelOpen || mode !== "hub") {
       return;
     }
 
     const timeout = window.setTimeout(
-      () => firstMenuButtonRef.current?.focus(),
+      () => firstHubButtonRef.current?.focus(),
       forceReducedMotion ? 0 : 220,
     );
 
@@ -333,8 +364,10 @@ export function MakeYourDayCalendarApp({
     setPanelOpen(true);
     setMode(nextMode);
     setPanelFromCalendar(false);
+    setDetailReturnMode(nextMode === "hub" ? "hub" : "menu");
     setDeleteMode(false);
     setActiveEventId(null);
+    setActiveEventDateKey(null);
     setEditingEventId(null);
     setPendingDeleteId(null);
     setFormError("");
@@ -351,6 +384,7 @@ export function MakeYourDayCalendarApp({
     setPanelFromCalendar(true);
     setDeleteMode(false);
     setActiveEventId(null);
+    setActiveEventDateKey(null);
     setEditingEventId(null);
     setPendingDeleteId(null);
     setFormError("");
@@ -361,6 +395,7 @@ export function MakeYourDayCalendarApp({
     setMode("calendar");
     setDeleteMode(false);
     setActiveEventId(null);
+    setActiveEventDateKey(null);
     setEditingEventId(null);
     setPendingDeleteId(null);
     setFormError("");
@@ -371,8 +406,10 @@ export function MakeYourDayCalendarApp({
     setPanelOpen(false);
     setMode("hub");
     setPanelFromCalendar(false);
+    setDetailReturnMode("hub");
     setDeleteMode(false);
     setActiveEventId(null);
+    setActiveEventDateKey(null);
     setEditingEventId(null);
     setPendingDeleteId(null);
     setFormError("");
@@ -407,6 +444,15 @@ export function MakeYourDayCalendarApp({
     setMode("form");
   }
 
+  function openHubEvent(item: ListedEvent) {
+    setActiveEventId(item.event.id);
+    setActiveEventDateKey(item.dateKey);
+    setDeleteMode(false);
+    setPendingDeleteId(null);
+    setDetailReturnMode("hub");
+    setMode("detail");
+  }
+
   function saveEvent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -425,7 +471,7 @@ export function MakeYourDayCalendarApp({
     if (editingEventId) {
       setEvents((current) => ({
         ...current,
-        [selectedMeta.key]: (current[selectedMeta.key] ?? []).map((item) =>
+        [activeEventScopeKey]: (current[activeEventScopeKey] ?? []).map((item) =>
           item.id === editingEventId ? { ...item, ...payload } : item,
         ),
       }));
@@ -464,25 +510,26 @@ export function MakeYourDayCalendarApp({
     setNotice("Sample event added.");
   }
 
-  function deleteEvent(id: string) {
+  function deleteEvent(id: string, scopeKey = activeEventScopeKey) {
     setEvents((current) => {
-      const nextForDay = (current[selectedMeta.key] ?? []).filter(
-        (item) => item.id !== id,
-      );
+      const nextForDay = (current[scopeKey] ?? []).filter((item) => item.id !== id);
       const next = { ...current };
 
       if (nextForDay.length > 0) {
-        next[selectedMeta.key] = nextForDay;
+        next[scopeKey] = nextForDay;
       } else {
-        delete next[selectedMeta.key];
+        delete next[scopeKey];
       }
 
       return next;
     });
     setActiveEventId(null);
+    setActiveEventDateKey(null);
     setPendingDeleteId(null);
     setDeleteMode(false);
-    setMode(panelFromCalendar ? "menu" : "hub");
+    setMode(
+      deleteMode ? (panelFromCalendar ? "menu" : "hub") : detailReturnMode,
+    );
     setNotice("Event deleted.");
   }
 
@@ -524,7 +571,7 @@ export function MakeYourDayCalendarApp({
               type="button"
               className="myd-events-button"
               onClick={() => openPanel("hub")}
-              aria-label={`Events for ${selectedMeta.month} ${selectedMeta.dayLabel}`}
+              aria-label="All events"
             >
               <span className="myd-events-orb" aria-hidden>
                 <CalendarDays size={16} />
@@ -640,16 +687,35 @@ export function MakeYourDayCalendarApp({
             aria-label={
               mode === "calendar"
                 ? `${MONTHS[selectedMonth].name} calendar`
-                : `Events for ${selectedMeta.month} ${selectedMeta.dayLabel}`
+                : hubFlowActive
+                  ? mode === "detail" && activeEvent
+                    ? activeEvent.title
+                    : "All events"
+                  : `Events for ${selectedMeta.month} ${selectedMeta.dayLabel}`
             }
             ref={dialogRef}
             onClick={(event) => event.stopPropagation()}
           >
-            <header className="myd-panel-head">
+            <header
+              className="myd-panel-head"
+              data-hub-flow={hubFlowActive ? "true" : undefined}
+            >
               {mode === "calendar" ? (
                 <div className="myd-panel-head-meta myd-panel-head-meta-calendar">
                   <span>{new Date().getFullYear()}</span>
                   <p>{MONTHS[selectedMonth].name}</p>
+                </div>
+              ) : hubFlowActive ? (
+                <div className="myd-panel-head-meta myd-panel-head-meta-hub">
+                  <strong>
+                    {mode === "form"
+                      ? editingEventId
+                        ? "Edit event"
+                        : "New event"
+                      : mode === "detail" && activeEvent
+                        ? activeEvent.title
+                        : "Events"}
+                  </strong>
                 </div>
               ) : (
                 <div className="myd-panel-head-meta">
@@ -669,13 +735,25 @@ export function MakeYourDayCalendarApp({
                   </button>
                 ) : null}
                 {mode === "detail" && activeEvent ? (
-                  <button
-                    type="button"
-                    onClick={() => startEditEvent(activeEvent)}
-                    aria-label={`Edit ${activeEvent.title}`}
-                  >
-                    <Pencil size={16} />
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => startEditEvent(activeEvent)}
+                      aria-label={`Edit ${activeEvent.title}`}
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPendingDeleteId(activeEvent.id);
+                        setNotice("");
+                      }}
+                      aria-label={`Delete ${activeEvent.title}`}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </>
                 ) : null}
                 <button type="button" onClick={closePanel} aria-label="Close event panel">
                   <X size={18} />
@@ -692,22 +770,19 @@ export function MakeYourDayCalendarApp({
 
             {mode === "hub" ? (
               <div className="myd-hub-view">
-                {eventsForDay.length > 0 ? (
+                {allEvents.length > 0 ? (
                   <ul className="myd-hub-list">
-                    {eventsForDay.map((item) => (
-                      <li key={item.id}>
+                    {allEvents.map((item, index) => (
+                      <li key={`${item.dateKey}-${item.event.id}`}>
                         <button
                           type="button"
-                          onClick={() => {
-                            setActiveEventId(item.id);
-                            setDeleteMode(false);
-                            setDetailReturnMode("hub");
-                            setMode("detail");
-                          }}
+                          ref={index === 0 ? firstHubButtonRef : undefined}
+                          onClick={() => openHubEvent(item)}
                         >
-                          <span>{item.time}</span>
-                          <strong>{item.title}</strong>
-                          <small>{item.location}</small>
+                          <span className="myd-hub-date">{item.dateLabel}</span>
+                          <span className="myd-hub-time">{item.event.time}</span>
+                          <strong>{item.event.title}</strong>
+                          <small>{item.event.location}</small>
                         </button>
                       </li>
                     ))}
@@ -715,23 +790,9 @@ export function MakeYourDayCalendarApp({
                 ) : (
                   <div className="myd-empty-state myd-empty-state-compact">
                     <CalendarDays size={20} />
-                    <span>No events yet for this day.</span>
+                    <span>No events saved yet.</span>
                   </div>
                 )}
-                <MenuActions
-                  firstButtonRef={firstMenuButtonRef}
-                  onAdd={startAddEvent}
-                  onShow={() => {
-                    setDeleteMode(false);
-                    setPendingDeleteId(null);
-                    setMode("list");
-                  }}
-                  onDelete={() => {
-                    setDeleteMode(true);
-                    setPendingDeleteId(null);
-                    setMode("list");
-                  }}
-                />
               </div>
             ) : null}
 
@@ -843,6 +904,7 @@ export function MakeYourDayCalendarApp({
                               }
 
                               setActiveEventId(item.id);
+                              setActiveEventDateKey(selectedMeta.key);
                               setDetailReturnMode("list");
                               setMode("detail");
                             }}
@@ -901,6 +963,15 @@ export function MakeYourDayCalendarApp({
                 </button>
                 <h2>{activeEvent.title}</h2>
                 <dl>
+                  {hubFlowActive ? (
+                    <div>
+                      <dt>
+                        <CalendarDays size={14} />
+                        Date
+                      </dt>
+                      <dd>{formatDateLabel(activeEventScopeKey)}</dd>
+                    </div>
+                  ) : null}
                   <div>
                     <dt>
                       <Clock3 size={14} />
@@ -920,6 +991,25 @@ export function MakeYourDayCalendarApp({
                     <dd>{activeEvent.description}</dd>
                   </div>
                 </dl>
+                {pendingDeleteId === activeEvent.id ? (
+                  <div
+                    className="myd-delete-confirm"
+                    role="group"
+                    aria-label={`Confirm delete ${activeEvent.title}`}
+                  >
+                    <p>Delete this event?</p>
+                    <button
+                      type="button"
+                      className="myd-danger-button"
+                      onClick={() => deleteEvent(activeEvent.id)}
+                    >
+                      Delete
+                    </button>
+                    <button type="button" onClick={() => setPendingDeleteId(null)}>
+                      Cancel
+                    </button>
+                  </div>
+                ) : null}
               </article>
             ) : null}
 
@@ -936,7 +1026,7 @@ export function MakeYourDayCalendarApp({
                         return;
                       }
 
-                      setMode(panelFromCalendar ? "menu" : "hub");
+                      setMode(panelFromCalendar ? "menu" : detailReturnMode);
                     }}
                   >
                     <ChevronLeft size={16} />
@@ -1042,7 +1132,11 @@ export function MakeYourDayCalendarApp({
                       setPendingDeleteId(null);
                       resetForm();
                       setMode(
-                        editingEventId ? "detail" : panelFromCalendar ? "menu" : "hub",
+                        editingEventId
+                          ? "detail"
+                          : panelFromCalendar
+                            ? "menu"
+                            : detailReturnMode,
                       );
                     }}
                   >

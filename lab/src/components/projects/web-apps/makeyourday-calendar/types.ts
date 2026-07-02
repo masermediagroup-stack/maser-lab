@@ -16,6 +16,12 @@ export type PanelMode =
   | "form"
   | "calendar";
 
+export type ListedEvent = {
+  dateKey: string;
+  event: CalendarEvent;
+  dateLabel: string;
+};
+
 export type TimeState = {
   hour: number;
   minute: number;
