@@ -185,12 +185,12 @@ This import does not add full monthly grid views, recurring events, reminders, a
 | `--myd-weight-regular` | 400 | Body copy |
 | `--myd-weight-medium` | 500 | Secondary captions |
 | `--myd-weight-semibold` | 600 | Labels, UI controls, menu rows |
-| `--myd-weight-bold` | 700 | Titles, mono numerals, hero |
+| `--myd-weight-bold` | 700 | Titles, numerals, hero |
 
 ### Convention
 
 - **Uppercase labels** → `semibold` (600) + `--myd-tracking-label`
 - **Body / form input** → `regular` (400) at `md` / `lg`
-- **Display numbers** (day, time) → `mono` + `bold` (700)
+- **Display numbers** (day, time) → `sans` + `semibold` / `bold`
 - **Hero title** → `bold` (700) at display scale
-- Utility classes: `.myd-type-label`, `.myd-type-ui`, `.myd-type-caption`, `.myd-type-mono`, `.myd-type-body`
+- Utility classes: `.myd-type-label`, `.myd-type-ui`, `.myd-type-caption`, `.myd-type-mono` (numeric styling, sans), `.myd-type-body`
