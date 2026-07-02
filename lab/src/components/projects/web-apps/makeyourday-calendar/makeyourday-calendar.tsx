@@ -135,6 +135,7 @@ export function MakeYourDayCalendarApp({
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [detailReturnMode, setDetailReturnMode] = useState<PanelMode>("hub");
+  const [panelFromCalendar, setPanelFromCalendar] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const [formError, setFormError] = useState("");
@@ -331,6 +332,7 @@ export function MakeYourDayCalendarApp({
   function openPanel(nextMode: PanelMode = "hub") {
     setPanelOpen(true);
     setMode(nextMode);
+    setPanelFromCalendar(false);
     setDeleteMode(false);
     setActiveEventId(null);
     setEditingEventId(null);
@@ -346,6 +348,17 @@ export function MakeYourDayCalendarApp({
     );
     setPanelOpen(true);
     setMode("menu");
+    setPanelFromCalendar(true);
+    setDeleteMode(false);
+    setActiveEventId(null);
+    setEditingEventId(null);
+    setPendingDeleteId(null);
+    setFormError("");
+    setNotice("");
+  }
+
+  function goBackToCalendar() {
+    setMode("calendar");
     setDeleteMode(false);
     setActiveEventId(null);
     setEditingEventId(null);
@@ -357,6 +370,7 @@ export function MakeYourDayCalendarApp({
   function closePanel() {
     setPanelOpen(false);
     setMode("hub");
+    setPanelFromCalendar(false);
     setDeleteMode(false);
     setActiveEventId(null);
     setEditingEventId(null);
@@ -468,7 +482,7 @@ export function MakeYourDayCalendarApp({
     setActiveEventId(null);
     setPendingDeleteId(null);
     setDeleteMode(false);
-    setMode("hub");
+    setMode(panelFromCalendar ? "menu" : "hub");
     setNotice("Event deleted.");
   }
 
@@ -645,6 +659,15 @@ export function MakeYourDayCalendarApp({
                 </div>
               )}
               <div className="myd-panel-head-actions">
+                {panelFromCalendar && mode !== "calendar" ? (
+                  <button
+                    type="button"
+                    onClick={goBackToCalendar}
+                    aria-label="Back to calendar"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                ) : null}
                 {mode === "detail" && activeEvent ? (
                   <button
                     type="button"
@@ -777,7 +800,7 @@ export function MakeYourDayCalendarApp({
                     type="button"
                     onClick={() => {
                       setPendingDeleteId(null);
-                      setMode("hub");
+                      setMode(panelFromCalendar ? "menu" : "hub");
                     }}
                   >
                     <ChevronLeft size={16} />
@@ -913,7 +936,7 @@ export function MakeYourDayCalendarApp({
                         return;
                       }
 
-                      setMode("hub");
+                      setMode(panelFromCalendar ? "menu" : "hub");
                     }}
                   >
                     <ChevronLeft size={16} />
@@ -1018,7 +1041,9 @@ export function MakeYourDayCalendarApp({
                     onClick={() => {
                       setPendingDeleteId(null);
                       resetForm();
-                      setMode(editingEventId ? "detail" : "hub");
+                      setMode(
+                        editingEventId ? "detail" : panelFromCalendar ? "menu" : "hub",
+                      );
                     }}
                   >
                     Cancel
