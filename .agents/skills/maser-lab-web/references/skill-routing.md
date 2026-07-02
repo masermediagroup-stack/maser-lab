@@ -1,6 +1,6 @@
 # Skill routing
 
-Do not duplicate content from these skills — load and apply them.
+Routes domain skills for **all 2D web UI** in Maser-Lab. Do not duplicate content from these skills — load and apply them.
 
 | Skill | Install source | When to load |
 | --- | --- | --- |
@@ -47,6 +47,6 @@ Browse: https://skills.sh/
 ## Priority when skills conflict
 
 1. `review-animations` craft bar for motion code review
-2. `micro-interaction-lab` rules and project acceptance criteria
+2. `maser-lab-web` rules and project acceptance criteria
 3. Domain skill (e.g. `ui-animation` for spring tuning)
 4. General heuristics

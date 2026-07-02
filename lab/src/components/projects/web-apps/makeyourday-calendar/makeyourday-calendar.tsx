@@ -16,6 +16,8 @@ import {
 import {
   type FormEvent,
   type KeyboardEvent,
+  type PointerEvent,
+  type WheelEvent,
   useEffect,
   useMemo,
   useRef,
@@ -28,7 +30,15 @@ type MakeYourDayCalendarAppProps = {
   forceReducedMotion?: boolean;
 };
 
+type DaySpinState = {
+  direction: "next" | "prev";
+  monthIndex: number;
+  token: number;
+} | null;
+
 const initialDays = MONTHS.map(() => 1);
+const DAY_DRAG_STEP = 18;
+const DAY_WHEEL_STEP = 24;
 
 function pad2(value: number) {
   return String(value).padStart(2, "0");
@@ -89,6 +99,7 @@ export function MakeYourDayCalendarApp({
   const [mode, setMode] = useState<PanelMode>("menu");
   const [deleteMode, setDeleteMode] = useState(false);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const [formError, setFormError] = useState("");
   const [formValues, setFormValues] = useState({
@@ -101,8 +112,17 @@ export function MakeYourDayCalendarApp({
     minute: 0,
     meridiem: "AM",
   });
+  const [daySpin, setDaySpin] = useState<DaySpinState>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const firstMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const dayDragRef = useRef<{
+    monthIndex: number;
+    pointerId: number;
+    lastY: number;
+    remainder: number;
+  } | null>(null);
+  const dayWheelRemainderRef = useRef(0);
+  const daySpinTokenRef = useRef(0);
 
   const selectedDay = daysByMonth[selectedMonth] ?? 1;
   const selectedMeta = useMemo(
@@ -162,6 +182,16 @@ export function MakeYourDayCalendarApp({
   });
 
   function updateDay(monthIndex: number, delta: number) {
+    if (delta === 0) {
+      return;
+    }
+
+    daySpinTokenRef.current += 1;
+    setDaySpin({
+      direction: delta > 0 ? "next" : "prev",
+      monthIndex,
+      token: daySpinTokenRef.current,
+    });
     setDaysByMonth((current) =>
       current.map((day, index) => {
         if (index !== monthIndex) {
@@ -172,6 +202,7 @@ export function MakeYourDayCalendarApp({
       }),
     );
     setSelectedMonth(monthIndex);
+    setPendingDeleteId(null);
     setNotice("");
   }
 
@@ -190,11 +221,83 @@ export function MakeYourDayCalendarApp({
     }
   }
 
+  function selectMonth(monthIndex: number) {
+    setSelectedMonth(monthIndex);
+    setPendingDeleteId(null);
+    setNotice("");
+    setDaySpin(null);
+  }
+
+  function handleDayWheel(
+    event: WheelEvent<HTMLButtonElement>,
+    monthIndex: number,
+  ) {
+    if (Math.abs(event.deltaY) < Math.abs(event.deltaX)) {
+      return;
+    }
+
+    dayWheelRemainderRef.current += event.deltaY;
+
+    const steps = Math.trunc(dayWheelRemainderRef.current / DAY_WHEEL_STEP);
+    if (steps === 0) {
+      return;
+    }
+
+    const direction = Math.sign(steps);
+    dayWheelRemainderRef.current -= direction * DAY_WHEEL_STEP;
+    updateDay(monthIndex, direction);
+  }
+
+  function handleDayPointerDown(
+    event: PointerEvent<HTMLButtonElement>,
+    monthIndex: number,
+  ) {
+    event.preventDefault();
+    event.currentTarget.focus();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dayDragRef.current = {
+      monthIndex,
+      pointerId: event.pointerId,
+      lastY: event.clientY,
+      remainder: 0,
+    };
+    selectMonth(monthIndex);
+  }
+
+  function handleDayPointerMove(event: PointerEvent<HTMLButtonElement>) {
+    const drag = dayDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const delta = drag.lastY - event.clientY;
+    drag.lastY = event.clientY;
+    drag.remainder += delta;
+
+    const steps = Math.trunc(drag.remainder / DAY_DRAG_STEP);
+    if (steps === 0) {
+      return;
+    }
+
+    const direction = Math.sign(steps);
+    drag.remainder -= direction * DAY_DRAG_STEP;
+    updateDay(drag.monthIndex, direction);
+  }
+
+  function handleDayPointerEnd(event: PointerEvent<HTMLButtonElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    dayDragRef.current = null;
+  }
+
   function openPanel(nextMode: PanelMode = "menu") {
     setPanelOpen(true);
     setMode(nextMode);
     setDeleteMode(false);
     setActiveEventId(null);
+    setPendingDeleteId(null);
     setFormError("");
     setNotice("");
   }
@@ -204,6 +307,7 @@ export function MakeYourDayCalendarApp({
     setMode("menu");
     setDeleteMode(false);
     setActiveEventId(null);
+    setPendingDeleteId(null);
     setFormError("");
   }
 
@@ -272,6 +376,7 @@ export function MakeYourDayCalendarApp({
       return next;
     });
     setActiveEventId(null);
+    setPendingDeleteId(null);
     setMode("list");
     setNotice("Event deleted.");
   }
@@ -327,6 +432,8 @@ export function MakeYourDayCalendarApp({
             {MONTHS.map((month, monthIndex) => {
               const active = selectedMonth === monthIndex;
               const day = daysByMonth[monthIndex] ?? 1;
+              const spin =
+                active && daySpin?.monthIndex === monthIndex ? daySpin : null;
               const hasEventsForSelectedDate =
                 active && (events[dateKey(monthIndex, day)]?.length ?? 0) > 0;
 
@@ -343,6 +450,7 @@ export function MakeYourDayCalendarApp({
                     aria-checked={active}
                     onClick={() => {
                       setSelectedMonth(monthIndex);
+                      setPendingDeleteId(null);
                       setNotice("");
                     }}
                   >
@@ -364,16 +472,28 @@ export function MakeYourDayCalendarApp({
                     <button
                       type="button"
                       className="myd-day-dial"
-                      aria-label={`${month.name} day ${day}. Use arrow keys to adjust.`}
+                      aria-label={`${month.name} day ${day}. Use arrow keys, mouse wheel, or drag to adjust.`}
                       aria-valuemin={1}
                       aria-valuemax={month.days}
                       aria-valuenow={day}
                       role="spinbutton"
                       tabIndex={active ? 0 : -1}
-                      onClick={() => setSelectedMonth(monthIndex)}
+                      onClick={() => selectMonth(monthIndex)}
                       onKeyDown={(event) => handleDayKeyDown(event, monthIndex)}
+                      onWheel={(event) => handleDayWheel(event, monthIndex)}
+                      onPointerDown={(event) => handleDayPointerDown(event, monthIndex)}
+                      onPointerMove={handleDayPointerMove}
+                      onPointerUp={handleDayPointerEnd}
+                      onPointerCancel={handleDayPointerEnd}
+                      onLostPointerCapture={() => {
+                        dayDragRef.current = null;
+                      }}
                     >
-                      <span className="myd-day-track">
+                      <span
+                        className="myd-day-track"
+                        data-spin={spin?.direction}
+                        key={`${month.name}-${day}-${spin?.token ?? "idle"}`}
+                      >
                         <span>{pad2(wrapDay(day - 1, month.days))}</span>
                         <span>{pad2(day)}</span>
                         <span>{pad2(wrapDay(day + 1, month.days))}</span>
@@ -454,6 +574,7 @@ export function MakeYourDayCalendarApp({
                   type="button"
                   onClick={() => {
                     setDeleteMode(false);
+                    setPendingDeleteId(null);
                     setMode("list");
                   }}
                 >
@@ -467,6 +588,7 @@ export function MakeYourDayCalendarApp({
                   type="button"
                   onClick={() => {
                     setDeleteMode(true);
+                    setPendingDeleteId(null);
                     setMode("list");
                   }}
                 >
@@ -482,38 +604,86 @@ export function MakeYourDayCalendarApp({
             {mode === "list" ? (
               <div className="myd-list-view" data-delete-mode={deleteMode ? "true" : undefined}>
                 <div className="myd-panel-row">
-                  <button type="button" onClick={() => setMode("menu")}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPendingDeleteId(null);
+                      setMode("menu");
+                    }}
+                  >
                     <ChevronLeft size={16} />
                     Options
                   </button>
-                  <button type="button" onClick={seedSampleEvent}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPendingDeleteId(null);
+                      seedSampleEvent();
+                    }}
+                  >
                     <Plus size={16} />
                     Sample
                   </button>
                 </div>
-                <p>{deleteMode ? "Select an event to delete." : "What needs to be done today."}</p>
+                <p>
+                  {deleteMode
+                    ? "Select an event, then confirm deletion."
+                    : "What needs to be done today."}
+                </p>
                 {eventsForDay.length > 0 ? (
                   <ul>
-                    {eventsForDay.map((item) => (
-                      <li key={item.id}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (deleteMode) {
-                              deleteEvent(item.id);
-                              return;
-                            }
+                    {eventsForDay.map((item) => {
+                      const deletePending = pendingDeleteId === item.id;
 
-                            setActiveEventId(item.id);
-                            setMode("detail");
-                          }}
-                        >
-                          <span>{item.time}</span>
-                          <strong>{item.title}</strong>
-                          <small>{item.location}</small>
-                        </button>
-                      </li>
-                    ))}
+                      return (
+                        <li key={item.id}>
+                          <button
+                            type="button"
+                            aria-controls={
+                              deletePending ? `delete-confirm-${item.id}` : undefined
+                            }
+                            aria-expanded={deletePending ? true : undefined}
+                            onClick={() => {
+                              if (deleteMode) {
+                                setPendingDeleteId(item.id);
+                                setNotice("");
+                                return;
+                              }
+
+                              setActiveEventId(item.id);
+                              setMode("detail");
+                            }}
+                          >
+                            <span>{item.time}</span>
+                            <strong>{item.title}</strong>
+                            <small>{item.location}</small>
+                          </button>
+                          {deletePending ? (
+                            <div
+                              className="myd-delete-confirm"
+                              id={`delete-confirm-${item.id}`}
+                              role="group"
+                              aria-label={`Confirm delete ${item.title}`}
+                            >
+                              <p>Delete this event?</p>
+                              <button
+                                type="button"
+                                className="myd-danger-button"
+                                onClick={() => deleteEvent(item.id)}
+                              >
+                                Delete
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setPendingDeleteId(null)}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : null}
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : (
                   <div className="myd-empty-state">
@@ -526,7 +696,13 @@ export function MakeYourDayCalendarApp({
 
             {mode === "detail" && activeEvent ? (
               <article className="myd-detail-view">
-                <button type="button" onClick={() => setMode("list")}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPendingDeleteId(null);
+                    setMode("list");
+                  }}
+                >
                   <ChevronLeft size={16} />
                   Back to list
                 </button>
@@ -557,7 +733,13 @@ export function MakeYourDayCalendarApp({
             {mode === "form" ? (
               <form className="myd-event-form" onSubmit={saveEvent}>
                 <div className="myd-panel-row">
-                  <button type="button" onClick={() => setMode("menu")}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPendingDeleteId(null);
+                      setMode("menu");
+                    }}
+                  >
                     <ChevronLeft size={16} />
                     Options
                   </button>
@@ -655,7 +837,13 @@ export function MakeYourDayCalendarApp({
                 ) : null}
                 <div className="myd-form-actions">
                   <button type="submit">Save</button>
-                  <button type="button" onClick={() => setMode("menu")}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPendingDeleteId(null);
+                      setMode("menu");
+                    }}
+                  >
                     Cancel
                   </button>
                 </div>

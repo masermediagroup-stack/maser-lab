@@ -10,7 +10,7 @@ draft → building → review → ready → transferred
 | --- | --- |
 | `draft` | Spec only; no demo or incomplete |
 | `building` | Active implementation in `lab/` |
-| `review` | Demo exists; motion/a11y review in progress |
+| `review` | Demo exists; quality review in progress (layout, a11y, motion as applicable) |
 | `ready` | Acceptance criteria met; approved for portfolio |
 | `transferred` | Copied to portfolio; archived here |
 

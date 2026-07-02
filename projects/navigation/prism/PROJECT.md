@@ -58,7 +58,7 @@ Routing, auth, scroll-spy, theme toggle, CTA.
 | Pill (pointer) | `spring` duration 0.42, bounce 0.2 | Liquid / wet glass personality |
 | Pill (keyboard) | `duration: 0` | Never animate keyboard-initiated nav |
 | Pill movement | `transform` only (x, y, scaleX, scaleY) | GPU-only; no width/height animation |
-| Press feedback | `scale(0.97)`, 120ms ease-out | micro-interaction-lab button press pattern |
+| Press feedback | `scale(0.97)`, 120ms ease-out | maser-lab-web button press pattern |
 | Link hover | 150ms color, pointer-gated | No sticky hover on touch |
 | Profile swap | Instant shell + 150ms label color | No border fade; pill unmounts when Profile active |
 | Mobile panel | scaleY + opacity from top; staggered links | Matches Plotline mobile pattern; glass preserved |

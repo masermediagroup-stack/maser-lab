@@ -1,7 +1,7 @@
 # Project: {title}
 
 **Slug:** `{slug}`  
-**Category:** navigation | inputs | feedback | display | scroll | hero-section | marketing | layout  
+**Category:** navigation | sign-up | inputs | feedback | display | scroll | hero-section | marketing | layout  
 **Status:** draft | building | review | ready | transferred  
 **Created:** YYYY-MM-DD
 

@@ -1,18 +1,34 @@
 # Playground — Agent Instructions
 
-This repository is a **micro-interaction lab**: build, review, and polish UI components and motion before transferring them to a portfolio.
+**Maser-Lab** is Maser Media's internal **web testing lab**: build, review, and harden anything you ship on a website or web app before transferring it to portfolio or client codebases.
+
+## What belongs here
+
+This is not a micro-interaction-only sandbox. Treat the lab as the staging ground for **all client-facing web UI**.
+
+| In scope | Examples |
+| --- | --- |
+| **Page sections** | Heroes, sign-up flows, feature grids, pricing, footers |
+| **Components & chrome** | Navigation, tabs, modals, cards, forms, inputs, toasts |
+| **Motion & interaction** | Hover/press feedback, loaders, toggles, scroll reveals, page transitions |
+| **Layout & structure** | Drawers, panels, page shells, responsive breakpoints |
+| **3D / WebGL** | Shader backgrounds, 3D heroes, scroll-driven scenes, particles |
+
+Pick a **category** from `projects/categories.json` that matches the primary job of the work (e.g. `sign-up` for a registration section, `scroll` for reveal-driven blocks, `navigation` for menus).
 
 ## When to load skills
 
 | Task | Load first |
 | --- | --- |
-| Shaping, building, reviewing, or polishing any UI/motion work | `.agents/skills/micro-interaction-lab/SKILL.md` |
+| Any web UI in the lab — sections, components, forms, motion, reveals | `.agents/skills/maser-lab-web/SKILL.md` |
 | Three.js, shaders, 3D, WebGL/WebGPU, scroll/pointer 3D | `.agents/skills/maser-lab-threejs/SKILL.md` |
 | Figma reference, design-to-code, code-to-Figma, Code Connect | `.agents/skills/figma-design-workflow/SKILL.md` |
 | Discovering or installing more skills | `.agents/skills/find-skills/SKILL.md` |
 | End-to-end verification after implementation | `.agents/skills/verification/SKILL.md` |
 | React/Next.js performance or patterns | `.agents/skills/vercel-react-best-practices/SKILL.md` |
 | Accessibility and web interface audit | `.agents/skills/web-design-guidelines/SKILL.md` |
+
+> **Note:** `maser-lab-web` is the primary **workflow and quality gate** for all web UI in this repo. Use `maser-lab-threejs` when the deliverable is canvas/WebGL/Three.js.
 
 **Always report** which skill(s) and reference files you loaded in your work plan or review output.
 
@@ -22,9 +38,10 @@ This repository is a **micro-interaction lab**: build, review, and polish UI com
 playground/
 ├── AGENTS.md                          ← you are here
 ├── projects/                          ← specs, acceptance criteria, lifecycle
-│   ├── categories.json                ← canonical component categories
+│   ├── categories.json                ← canonical web UI categories
 │   ├── registry.json                  ← index of all projects
 │   ├── navigation/{slug}/             ← example category folder
+│   ├── sign-up/{slug}/
 │   ├── hero-section/{slug}/
 │   └── _template/                     ← copy to start a new project
 ├── lab/                               ← Next.js app for building & previewing
@@ -37,9 +54,9 @@ playground/
 
 1. **Start a project from the template** — copy `projects/_template/` to `projects/{category}/{slug}/`, fill in `PROJECT.md` and `FIGMA.md` (if design references exist), add the slug to `projects/registry.json` with a valid `category` from `projects/categories.json`.
 2. **Implement in `lab/`** — component code lives under `lab/src/components/projects/{category}/{slug}/`; demo page at `lab/src/app/demos/[slug]/page.tsx` or a dedicated route.
-3. **Use request modes** from `micro-interaction-lab` — Shape, Implement, Review, Motion-review, Harden, Transfer. Do not mix modes without stating the switch.
-4. **Verify rendered output** — run `npm run dev` in `lab/`, exercise states, check `prefers-reduced-motion`, keyboard, and touch. Source inspection alone is not enough for motion work.
-5. **Review before transfer** — a project moves to `status: "ready"` only after motion review passes and acceptance criteria in `PROJECT.md` are met.
+3. **Use request modes** from `maser-lab-web` — Shape, Implement, Review, Motion-review, Harden, Transfer. Do not mix modes without stating the switch.
+4. **Verify rendered output** — run `npm run dev` in `lab/`, exercise all states in `PROJECT.md`, check keyboard, touch, responsive breakpoints, and `prefers-reduced-motion` when motion is involved. Source inspection alone is not enough for visual or motion work.
+5. **Review before transfer** — a project moves to `status: "ready"` only after review passes and acceptance criteria in `PROJECT.md` are met.
 
 ## Skip these skills for
 
@@ -54,8 +71,8 @@ Before marking a project ready for portfolio transfer:
 - [ ] `npm run lint` passes in `lab/`
 - [ ] `npm run build` passes in `lab/`
 - [ ] Demo route renders all states listed in `PROJECT.md`
-- [ ] Motion review completed (`review-animations` or lab Review mode)
-- [ ] `prefers-reduced-motion` honored
+- [ ] Review completed (lab Review mode; Motion-review when motion is in scope)
+- [ ] `prefers-reduced-motion` honored when the UI animates
 - [ ] No P0/P1 findings open from review
 
 ### Three.js / 3D projects (additional gates)
