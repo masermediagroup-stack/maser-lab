@@ -1146,14 +1146,14 @@ function MenuActions({
         <Plus size={18} />
         <span>
           <strong>Add events</strong>
-          <small>Create a saved event for this day.</small>
+          <small>Create an event</small>
         </span>
       </button>
       <button type="button" onClick={onShow}>
         <List size={18} />
         <span>
           <strong>Show events</strong>
-          <small>Browse saved events for this day.</small>
+          <small>Saved events for this day</small>
         </span>
       </button>
     </div>
