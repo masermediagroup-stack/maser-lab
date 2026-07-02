@@ -545,7 +545,6 @@ export function MakeYourDayCalendarApp({
     >
       <div className="myd-background" aria-hidden>
         <div className="myd-grid-layer" />
-        <div className="myd-light-rays" />
       </div>
       <div className="myd-stage">
         <header className="myd-header">

@@ -59,7 +59,6 @@
   --myd-glow-stem-hover: rgba(245, 247, 255, 0.24);
   --myd-stem-hover: rgba(245, 247, 255, 0.88);
   --myd-tap-highlight: rgba(63, 124, 255, 0.22);
-  --myd-ray-white: rgba(255, 255, 255, 0.08);
 
   /* Gradients */
   --myd-gradient-accent: linear-gradient(135deg, var(--myd-blue), var(--myd-violet));
@@ -80,26 +79,6 @@
     circle at 18% 88%,
     rgba(84, 230, 177, 0.035),
     transparent 24rem
-  );
-  --myd-gradient-rays-a: conic-gradient(
-    from 196deg at 48% -8%,
-    transparent 0deg,
-    rgba(63, 124, 255, 0.16) 9deg,
-    transparent 18deg,
-    transparent 29deg,
-    rgba(162, 87, 255, 0.11) 38deg,
-    transparent 52deg,
-    transparent 360deg
-  );
-  --myd-gradient-rays-b: conic-gradient(
-    from 168deg at 58% -12%,
-    transparent 0deg,
-    rgba(84, 230, 177, 0.07) 7deg,
-    transparent 17deg,
-    transparent 34deg,
-    rgba(63, 124, 255, 0.08) 48deg,
-    transparent 64deg,
-    transparent 360deg
   );
 
   /* Hover & motion */
@@ -218,26 +197,6 @@
   background-size: 38px 38px;
   mask-image: radial-gradient(circle at center, var(--myd-bg-deep) 0%, rgba(0, 0, 0, 0.68) 42%, transparent 78%);
   opacity: 0.34;
-}
-
-.myd-light-rays {
-  position: absolute;
-  inset: -16% -12% 0;
-  background:
-    var(--myd-gradient-rays-a),
-    var(--myd-gradient-rays-b);
-  filter: blur(18px);
-  opacity: 0.5;
-  transform-origin: top center;
-  animation: myd-rays-drift 9s ease-in-out infinite alternate;
-}
-
-.myd-light-rays::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 0%, var(--myd-ray-white), transparent 34rem);
-  mix-blend-mode: screen;
 }
 
 .myd-stage {
@@ -1294,18 +1253,6 @@
   }
 }
 
-@keyframes myd-rays-drift {
-  from {
-    opacity: 0.5;
-    transform: translateX(-1.5%) skewX(-2deg);
-  }
-
-  to {
-    opacity: 0.72;
-    transform: translateX(1.5%) skewX(2deg);
-  }
-}
-
 @keyframes myd-day-wheel-next {
   from {
     opacity: 0.72;
@@ -1466,10 +1413,6 @@
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
-
-  .myd-light-rays {
-    animation: none;
-  }
 }
 
 .myd-shell[data-reduced-motion="true"] *,
@@ -1478,8 +1421,4 @@
   animation-duration: 1ms !important;
   transition-duration: 1ms !important;
   scroll-behavior: auto !important;
-}
-
-.myd-shell[data-reduced-motion="true"] .myd-light-rays {
-  animation: none !important;
 }
