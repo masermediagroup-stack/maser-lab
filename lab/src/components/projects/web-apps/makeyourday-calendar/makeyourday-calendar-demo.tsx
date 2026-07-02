@@ -20,7 +20,7 @@ export function MakeYourDayCalendarDemo({
 
   return (
     <div
-      className="maser-lab makeyourday-calendar min-h-screen bg-[#050505] text-white"
+      className="maser-lab makeyourday-calendar min-h-screen bg-[var(--myd-bg)] text-[var(--myd-text)]"
       data-reduced-motion={forceReducedMotion ? "true" : undefined}
     >
       {!minimal ? (
