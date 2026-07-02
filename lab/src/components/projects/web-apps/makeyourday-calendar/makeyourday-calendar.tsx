@@ -504,6 +504,17 @@ export function MakeYourDayCalendarApp({
     setNotice("Sample event added.");
   }
 
+  function fillSampleForm() {
+    setFormValues({
+      title: SAMPLE_EVENT.title,
+      location: SAMPLE_EVENT.location,
+      description: SAMPLE_EVENT.description,
+    });
+    setTime(parseTime(SAMPLE_EVENT.time));
+    setFormError("");
+    setNotice("");
+  }
+
   function deleteEvent(id: string, scopeKey = activeEventScopeKey) {
     setEvents((current) => {
       const nextForDay = (current[scopeKey] ?? []).filter((item) => item.id !== id);
@@ -975,6 +986,12 @@ export function MakeYourDayCalendarApp({
                     <ChevronLeft size={16} />
                     Back
                   </button>
+                  {!editingEventId ? (
+                    <button type="button" onClick={fillSampleForm}>
+                      <Plus size={16} />
+                      Sample
+                    </button>
+                  ) : null}
                 </div>
                 <label className="myd-form-field">
                   <span>Title</span>
