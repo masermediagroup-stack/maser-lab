@@ -492,7 +492,7 @@
 }
 
 .myd-line[data-active="true"] .myd-month-number {
-  color: var(--myd-blue);
+  color: var(--myd-text);
 }
 
 .myd-line[data-active="true"] .myd-stem {
