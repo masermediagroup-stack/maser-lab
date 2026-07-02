@@ -533,6 +533,7 @@
 
 .myd-date-summary .myd-events-button {
   border: 0;
+  background: transparent;
   min-height: 2.9rem;
   padding: 0.32rem 1rem 0.32rem 0.35rem;
   color: var(--myd-text);
@@ -540,6 +541,11 @@
   font-weight: var(--myd-weight-semibold);
   letter-spacing: var(--myd-tracking-label);
   text-transform: uppercase;
+  transition:
+    color var(--myd-duration-fast) var(--myd-ease-out),
+    transform var(--myd-duration-fast) var(--myd-ease-out),
+    background var(--myd-duration-fast) var(--myd-ease-out),
+    box-shadow var(--myd-duration-fast) var(--myd-ease-out);
 }
 
 .myd-events-orb {
