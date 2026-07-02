@@ -964,10 +964,6 @@
   text-transform: uppercase;
 }
 
-.myd-list-view[data-delete-mode="true"] > p {
-  color: var(--myd-warn-text-soft);
-}
-
 .myd-list-view ul {
   display: grid;
   gap: 0.5rem;
@@ -1005,10 +1001,6 @@
   font-size: var(--myd-text-xs);
   font-weight: var(--myd-weight-semibold);
   line-height: 1;
-}
-
-.myd-list-view[data-delete-mode="true"] li button {
-  background: var(--myd-warn-bg-soft);
 }
 
 .myd-delete-confirm {

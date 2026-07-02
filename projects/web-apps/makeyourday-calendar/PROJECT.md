@@ -142,8 +142,8 @@ This import does not add full monthly grid views, recurring events, reminders, a
 | Entry | Behavior |
 | --- | --- |
 | Top **Events** button | Opens **hub**: lists **all** saved events (no date header); tap an event → detail with edit/delete |
-| Month **calendar icon** (next to day dial) | Opens full **month grid**; selecting a day opens the day **menu** (Add / Show / Delete) |
-| **Show events** list | Tap an event → detail view with **pencil edit** in panel header |
+| Month **calendar icon** (next to day dial) | Opens full **month grid**; selecting a day opens the day **menu** (Add / Show events) |
+| **Show events** list | Tap an event → detail view with **edit** and **delete** in panel header |
 | **Edit** | Opens form pre-filled; save updates the event |
 
 ### Visual changes

@@ -154,7 +154,6 @@ export function MakeYourDayCalendarApp({
   const [storageReady, setStorageReady] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [mode, setMode] = useState<PanelMode>("hub");
-  const [deleteMode, setDeleteMode] = useState(false);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const [activeEventDateKey, setActiveEventDateKey] = useState<string | null>(null);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
@@ -365,7 +364,6 @@ export function MakeYourDayCalendarApp({
     setMode(nextMode);
     setPanelFromCalendar(false);
     setDetailReturnMode(nextMode === "hub" ? "hub" : "menu");
-    setDeleteMode(false);
     setActiveEventId(null);
     setActiveEventDateKey(null);
     setEditingEventId(null);
@@ -382,7 +380,6 @@ export function MakeYourDayCalendarApp({
     setPanelOpen(true);
     setMode("menu");
     setPanelFromCalendar(true);
-    setDeleteMode(false);
     setActiveEventId(null);
     setActiveEventDateKey(null);
     setEditingEventId(null);
@@ -393,7 +390,6 @@ export function MakeYourDayCalendarApp({
 
   function goBackToCalendar() {
     setMode("calendar");
-    setDeleteMode(false);
     setActiveEventId(null);
     setActiveEventDateKey(null);
     setEditingEventId(null);
@@ -407,7 +403,6 @@ export function MakeYourDayCalendarApp({
     setMode("hub");
     setPanelFromCalendar(false);
     setDetailReturnMode("hub");
-    setDeleteMode(false);
     setActiveEventId(null);
     setActiveEventDateKey(null);
     setEditingEventId(null);
@@ -447,7 +442,6 @@ export function MakeYourDayCalendarApp({
   function openHubEvent(item: ListedEvent) {
     setActiveEventId(item.event.id);
     setActiveEventDateKey(item.dateKey);
-    setDeleteMode(false);
     setPendingDeleteId(null);
     setDetailReturnMode("hub");
     setMode("detail");
@@ -526,10 +520,7 @@ export function MakeYourDayCalendarApp({
     setActiveEventId(null);
     setActiveEventDateKey(null);
     setPendingDeleteId(null);
-    setDeleteMode(false);
-    setMode(
-      deleteMode ? (panelFromCalendar ? "menu" : "hub") : detailReturnMode,
-    );
+    setMode(detailReturnMode);
     setNotice("Event deleted.");
   }
 
@@ -801,12 +792,6 @@ export function MakeYourDayCalendarApp({
                 firstButtonRef={firstMenuButtonRef}
                 onAdd={startAddEvent}
                 onShow={() => {
-                  setDeleteMode(false);
-                  setPendingDeleteId(null);
-                  setMode("list");
-                }}
-                onDelete={() => {
-                  setDeleteMode(true);
                   setPendingDeleteId(null);
                   setMode("list");
                 }}
@@ -855,7 +840,7 @@ export function MakeYourDayCalendarApp({
             ) : null}
 
             {mode === "list" ? (
-              <div className="myd-list-view" data-delete-mode={deleteMode ? "true" : undefined}>
+              <div className="myd-list-view">
                 <div className="myd-panel-row">
                   <button
                     type="button"
@@ -878,67 +863,26 @@ export function MakeYourDayCalendarApp({
                     Sample
                   </button>
                 </div>
-                <p>
-                  {deleteMode
-                    ? "Select an event, then confirm deletion."
-                    : "Saved events for this day."}
-                </p>
+                <p>Saved events for this day.</p>
                 {eventsForDay.length > 0 ? (
                   <ul>
-                    {eventsForDay.map((item) => {
-                      const deletePending = pendingDeleteId === item.id;
-
-                      return (
-                        <li key={item.id}>
-                          <button
-                            type="button"
-                            aria-controls={
-                              deletePending ? `delete-confirm-${item.id}` : undefined
-                            }
-                            aria-expanded={deletePending ? true : undefined}
-                            onClick={() => {
-                              if (deleteMode) {
-                                setPendingDeleteId(item.id);
-                                setNotice("");
-                                return;
-                              }
-
-                              setActiveEventId(item.id);
-                              setActiveEventDateKey(selectedMeta.key);
-                              setDetailReturnMode("list");
-                              setMode("detail");
-                            }}
-                          >
-                            <span>{item.time}</span>
-                            <strong>{item.title}</strong>
-                            <small>{item.location}</small>
-                          </button>
-                          {deletePending ? (
-                            <div
-                              className="myd-delete-confirm"
-                              id={`delete-confirm-${item.id}`}
-                              role="group"
-                              aria-label={`Confirm delete ${item.title}`}
-                            >
-                              <p>Delete this event?</p>
-                              <button
-                                type="button"
-                                className="myd-danger-button"
-                                onClick={() => deleteEvent(item.id)}
-                              >
-                                Delete
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setPendingDeleteId(null)}
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          ) : null}
-                        </li>
-                      );
-                    })}
+                    {eventsForDay.map((item) => (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveEventId(item.id);
+                            setActiveEventDateKey(selectedMeta.key);
+                            setDetailReturnMode("list");
+                            setMode("detail");
+                          }}
+                        >
+                          <span>{item.time}</span>
+                          <strong>{item.title}</strong>
+                          <small>{item.location}</small>
+                        </button>
+                      </li>
+                    ))}
                   </ul>
                 ) : (
                   <div className="myd-empty-state">
@@ -1163,14 +1107,12 @@ type MenuActionsProps = {
   firstButtonRef?: RefObject<HTMLButtonElement | null>;
   onAdd: () => void;
   onShow: () => void;
-  onDelete: () => void;
 };
 
 function MenuActions({
   firstButtonRef,
   onAdd,
   onShow,
-  onDelete,
 }: MenuActionsProps) {
   return (
     <div className="myd-menu-view">
@@ -1186,13 +1128,6 @@ function MenuActions({
         <span>
           <strong>Show events</strong>
           <small>Browse saved events for this day.</small>
-        </span>
-      </button>
-      <button type="button" onClick={onDelete}>
-        <Trash2 size={18} />
-        <span>
-          <strong>Delete an event</strong>
-          <small>Remove an event from this day.</small>
         </span>
       </button>
     </div>
