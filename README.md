@@ -1,6 +1,6 @@
 # Playground
 
-Web components and micro-interactions — built here, reviewed with agent skills, transferred to portfolio when ready.
+**Maser-Lab** — Maser Media's web testing facility. Build, review, and harden page sections, components, forms, navigation, scroll reveals, micro-interactions, and 3D web experiences here; transfer to portfolio or client codebases when ready.
 
 ## Quick start
 
@@ -14,15 +14,15 @@ Open [http://localhost:3000](http://localhost:3000) for the lab index. Each proj
 
 ## For agents
 
-**Start here:** [`AGENTS.md`](./AGENTS.md) → load [`.agents/skills/micro-interaction-lab/SKILL.md`](./.agents/skills/micro-interaction-lab/SKILL.md)
+**Start here:** [`AGENTS.md`](./AGENTS.md) → load [`.agents/skills/maser-lab-web/SKILL.md`](./.agents/skills/maser-lab-web/SKILL.md)
 
-This repo follows Vercel's [product-design for agents](https://vercel.com/blog/teaching-agents-product-design-at-vercel) pattern, adapted for motion and micro-interactions:
+This repo follows Vercel's [product-design for agents](https://vercel.com/blog/teaching-agents-product-design-at-vercel) pattern, adapted for **full-stack web UI** — not micro-interactions alone:
 
 | Layer | Location |
 | --- | --- |
-| Entry & triggers | `AGENTS.md` |
-| Workflow & modes | `.agents/skills/micro-interaction-lab/SKILL.md` |
-| Rules & patterns | `.agents/skills/micro-interaction-lab/references/` |
+| Entry & scope | `AGENTS.md` |
+| Workflow & modes | `.agents/skills/maser-lab-web/SKILL.md` |
+| Rules & patterns | `.agents/skills/maser-lab-web/references/` |
 | Project specs | `projects/{category}/{slug}/PROJECT.md` |
 | Figma / design sync | `projects/{category}/{slug}/FIGMA.md` + `figma-design-workflow` skill |
 | Deterministic checks | `tooling/eslint/` + `npm run lint` in `lab/` |
@@ -52,7 +52,8 @@ Cloud agents auto-discover skills under `.agents/skills/`.
 
 | Skill | Purpose |
 | --- | --- |
-| **`micro-interaction-lab`** | **Primary entry — workflow, rules, lifecycle** |
+| **`maser-lab-web`** | **Primary entry — workflow, rules, lifecycle for all web UI** |
+| **`maser-lab-threejs`** | **Three.js / WebGL / shader systems** |
 | `find-skills` | Discover and install skills from [skills.sh](https://skills.sh/) |
 | `verification` | End-to-end flow verification after implementation |
 | `vercel-react-best-practices` | React/Next.js performance |
@@ -70,7 +71,7 @@ Cloud agents auto-discover skills under `.agents/skills/`.
 ### Add or update skills
 
 ```bash
-npx skills find "micro interactions"
+npx skills find "scroll animation"
 npx skills add vercel-labs/vercel-plugin@verification -y
 npx skills check && npx skills update
 ```
@@ -81,9 +82,10 @@ npx skills check && npx skills update
 playground/
 ├── AGENTS.md                 # Agent entry point
 ├── projects/                 # Specs & registry
-│   ├── categories.json       # Canonical component categories
+│   ├── categories.json       # Canonical web UI categories
 │   ├── registry.json         # Project index (includes category)
 │   ├── navigation/{slug}/    # Example: navigation/plotline-tab-nav/
+│   ├── sign-up/{slug}/       # Example: sign-up/summitpath-sign-up/
 │   └── hero-section/{slug}/  # Example: hero-section/my-hero/
 ├── lab/                      # Next.js build shell
 │   └── src/components/projects/{category}/{slug}/
@@ -93,7 +95,7 @@ playground/
 
 ## Quality gates
 
-Before portfolio transfer: lint + build pass, all `PROJECT.md` states demoed, motion review clean, reduced-motion verified. Full checklist: `project-lifecycle.md` → Transfer checklist; per-slug steps in `TRANSFER.md`.
+Before portfolio transfer: lint + build pass, all `PROJECT.md` states demoed, review clean, reduced-motion verified when motion is in scope. Full checklist: `project-lifecycle.md` → Transfer checklist; per-slug steps in `TRANSFER.md`.
 
 ## Figma integration
 

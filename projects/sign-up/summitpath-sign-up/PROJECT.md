@@ -163,7 +163,7 @@ Copy `tokens.css`, decompose `signup-field.tsx` / `signup-social-buttons.tsx`, s
 
 | Skill | Use |
 | --- | --- |
-| `micro-interaction-lab` | Harden mode, QA gates, project lifecycle |
+| `maser-lab-web` | Harden mode, QA gates, project lifecycle |
 | `figma-design-workflow` | Design context, asset export, motion context |
 | `figma-implement-motion` | Hikelogo keyframes from `get_motion_context` |
 | `web-design-guidelines` | A11y patterns (labels, focus, live regions) |

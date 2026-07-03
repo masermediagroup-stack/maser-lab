@@ -21,7 +21,7 @@ const instrumentSans = Instrument_Sans({
 export const metadata: Metadata = {
   title: "Maser-Lab",
   description:
-    "Maser-Lab — senior design engineering lab for UI components, motion, and micro-interactions.",
+    "Maser-Lab — Maser Media web testing lab for sections, components, forms, navigation, reveals, and motion.",
 };
 
 export default function RootLayout({

@@ -28,6 +28,27 @@
       "status": "building",
       "category": "feedback",
       "description": "Morphable rotating superellipse loader with blur, corner, power, and chromatic aberration controls"
+    },
+    {
+      "slug": "liquid-monochrome",
+      "title": "Liquid Monochrome Reveal",
+      "status": "building",
+      "category": "scroll",
+      "description": "Scroll-pinned liquid ink reveal with FBM turbulence and luminance grayscale — reusable on images, heroes, cards, and sections"
+    },
+    {
+      "slug": "text-animation-lab",
+      "title": "Text Animation Lab",
+      "status": "building",
+      "category": "display",
+      "description": "Monochrome shadcn/ui playground for 10 reusable text animation effects with live controls and code export"
+    },
+    {
+      "slug": "makeyourday-calendar",
+      "title": "MakeYourDay Calendar",
+      "status": "review",
+      "category": "web-apps",
+      "description": "Save-date calendar app with a vertical month selector, day dial, event storage, and modal event flows"
     }
   ]
 }

@@ -2,7 +2,7 @@
 
 Fill when status → `ready` or `transferred`.
 
-Universal checklist: `.agents/skills/micro-interaction-lab/references/project-lifecycle.md` → **Transfer checklist**.
+Universal checklist: `.agents/skills/maser-lab-web/references/project-lifecycle.md` → **Transfer checklist**.
 
 ## Export
 

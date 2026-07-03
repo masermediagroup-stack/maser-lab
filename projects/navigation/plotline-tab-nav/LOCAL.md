@@ -23,7 +23,7 @@ npm run build
 ## Cursor IDE (local agent)
 
 1. Open this repo in **Cursor Desktop** (not Cloud Agent).
-2. Load the `micro-interaction-lab` skill for motion/a11y work.
+2. Load the `maser-lab-web` skill for any web UI work (sections, components, forms, motion, a11y).
 3. Use **local** terminal for `npm run dev` so you can exercise mobile panel, desktop bubble, and reduced-motion toggle.
 
 ## Component path

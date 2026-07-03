@@ -1,6 +1,6 @@
 # Maser-Lab Three.js Patterns
 
-Reusable patterns for 3D work. Complements `micro-interaction-lab/references/patterns.md`.
+Reusable patterns for 3D work. Complements `maser-lab-web/references/patterns.md`.
 
 ## Status
 
