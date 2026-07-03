@@ -24,7 +24,7 @@ const figtree = Figtree({
 });
 
 type MobileGlassTopNavProps = {
-  activeId: NavItemId;
+  activeId: NavItemId | null;
   onNavigate: (id: NavItemId) => void;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -178,17 +178,22 @@ export function MobileGlassTopNav({
             className="prism-glass-bar prism-mobile-shell w-full overflow-hidden"
           >
             <div className="relative z-10 flex h-[var(--prism-nav-height-mobile)] items-center justify-between px-4">
-              <button
+              <motion.button
                 type="button"
                 onClick={() => handleNavigate("home")}
+                whileTap={reduced ? undefined : { scale: 0.97 }}
+                transition={{
+                  duration: reduced ? 0 : 0.12,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
                 className="flex min-h-11 items-center gap-2.5 rounded-[var(--prism-radius-pill)] px-1 py-1 text-[var(--prism-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--prism-selector-from)]"
                 aria-label={`${BRAND_NAME} home`}
               >
                 <PrismLogo className="h-7 w-7 shrink-0" />
-                <span className="text-[17px] font-medium tracking-[0.02em]">
+                <span className="prism-brand-word text-[17px] font-medium tracking-[0.02em]">
                   {BRAND_NAME}
                 </span>
-              </button>
+              </motion.button>
 
               <button
                 ref={triggerRef}

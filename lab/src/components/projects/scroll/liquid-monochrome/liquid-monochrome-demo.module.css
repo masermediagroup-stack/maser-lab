@@ -55,6 +55,69 @@
   margin: 0;
 }
 
+.controls {
+  max-width: 72rem;
+  margin: 0 auto 3rem;
+  padding: 1.25rem clamp(1rem, 3vw, 2rem);
+  border-block: 1px solid var(--lm-border);
+}
+
+.controlHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.controlEyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--lm-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.controlHeader h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.controlValue {
+  min-width: 4rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--lm-border);
+  border-radius: 0.5rem;
+  color: var(--lm-fg);
+  background: rgba(255, 255, 255, 0.04);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.sliderLabel {
+  display: block;
+  margin-bottom: 0.65rem;
+  color: var(--lm-muted);
+  font-size: 0.8rem;
+}
+
+.slider {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--lm-fg);
+}
+
+.sliderMarks {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--lm-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
 .section {
   max-width: 72rem;
   margin: 0 auto;

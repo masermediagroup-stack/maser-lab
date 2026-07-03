@@ -3,7 +3,7 @@
 import { useCallback, useId, useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { buildLiquidClipPath } from "./clip-path";
+import { buildLiquidClipPath, buildLiquidEdgePath } from "./clip-path";
 import {
   FILTER_ID,
   LIQUID_MONOCHROME_DEFAULTS,
@@ -30,7 +30,10 @@ export function LiquidMonochrome({
   overscroll = LIQUID_MONOCHROME_DEFAULTS.overscroll,
   speed = LIQUID_MONOCHROME_DEFAULTS.speed,
   seed = LIQUID_MONOCHROME_DEFAULTS.seed,
-  start = LIQUID_MONOCHROME_DEFAULTS.start,
+  lockPosition = LIQUID_MONOCHROME_DEFAULTS.lockPosition,
+  liquidShader = LIQUID_MONOCHROME_DEFAULTS.liquidShader,
+  meniscusSize = LIQUID_MONOCHROME_DEFAULTS.meniscusSize,
+  start,
   end,
   duration = LIQUID_MONOCHROME_DEFAULTS.duration,
   blendMode = LIQUID_MONOCHROME_DEFAULTS.blendMode,
@@ -44,10 +47,15 @@ export function LiquidMonochrome({
   const triggerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const monoLayerRef = useRef<HTMLDivElement>(null);
+  const waterlineSvgRef = useRef<SVGSVGElement>(null);
+  const waterlinePathRef = useRef<SVGPathElement>(null);
   const sizeRef = useRef({ width: 0, height: 0 });
   const rafRef = useRef<number | null>(null);
+  const idleRafRef = useRef<number | null>(null);
 
   const softness = maskSoftness ?? edgeSoftness;
+  const clampedLockPosition = Math.min(100, Math.max(0, lockPosition));
+  const resolvedStart = start ?? `center ${clampedLockPosition}%`;
 
   const applyFrame = useCallback(
     (progress: number, phase: number) => {
@@ -57,7 +65,7 @@ export function LiquidMonochrome({
       const { width, height } = sizeRef.current;
       if (width <= 0 || height <= 0) return;
 
-      const clip = buildLiquidClipPath(progress, width, height, {
+      const clipOptions = {
         direction,
         turbulence,
         noiseScale,
@@ -66,11 +74,24 @@ export function LiquidMonochrome({
         segments: 80,
         seed,
         phase,
-      });
+      };
+
+      const clip = buildLiquidClipPath(progress, width, height, clipOptions);
+      const edgePath = buildLiquidEdgePath(progress, width, height, clipOptions);
 
       mono.style.clipPath = clip;
       mono.style.setProperty("-webkit-clip-path", clip);
       mono.style.opacity = String(intensity);
+
+      if (waterlineSvgRef.current && waterlinePathRef.current) {
+        waterlineSvgRef.current.setAttribute("viewBox", `0 0 ${width} ${height}`);
+        waterlinePathRef.current.setAttribute("d", edgePath);
+        waterlinePathRef.current.style.strokeWidth = `${Math.max(
+          1.25,
+          Math.min(3.5, height * meniscusSize * 0.16),
+        )}`;
+        waterlineSvgRef.current.style.opacity = "0";
+      }
     },
     [
       direction,
@@ -80,6 +101,7 @@ export function LiquidMonochrome({
       softness,
       seed,
       intensity,
+      meniscusSize,
     ],
   );
 
@@ -100,29 +122,66 @@ export function LiquidMonochrome({
     return () => ro.disconnect();
   }, [measure]);
 
-  useLiquidScroll(triggerRef, stageRef, monoLayerRef, {
-    pin: duration === "scroll" ? pin : false,
-    scrub,
-    pinDuration,
-    overscroll,
-    speed,
-    start,
-    end,
-    disabled: disabled || externalProgress !== undefined,
-    externalProgress,
-    onProgressChange,
-    onFrame: (p, phase) => {
-      if (rafRef.current !== null) return;
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = null;
-        applyFrame(p, phase);
-      });
+  const { progressRef, reducedMotionRef } = useLiquidScroll(
+    triggerRef,
+    stageRef,
+    monoLayerRef,
+    {
+      pin: duration === "scroll" ? pin : false,
+      scrub,
+      pinDuration,
+      overscroll,
+      speed,
+      lockPosition: clampedLockPosition,
+      start: resolvedStart,
+      end,
+      disabled: disabled || externalProgress !== undefined,
+      externalProgress,
+      onProgressChange,
+      onFrame: (p, phase) => {
+        if (rafRef.current !== null) return;
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = null;
+          applyFrame(p, phase);
+        });
+      },
     },
-  });
+  );
 
   useEffect(() => {
     applyFrame(externalProgress ?? 0, 0);
   }, [applyFrame, externalProgress]);
+
+  useEffect(() => {
+    if (disabled || externalProgress !== undefined || !liquidShader) return;
+
+    const tick = (now: number) => {
+      const progress = progressRef.current;
+
+      if (!reducedMotionRef.current && progress > 0.01 && progress < 0.99) {
+        const phase = progress * Math.PI * 4 + now * 0.00135;
+        applyFrame(progress, phase);
+      }
+
+      idleRafRef.current = requestAnimationFrame(tick);
+    };
+
+    idleRafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (idleRafRef.current !== null) {
+        cancelAnimationFrame(idleRafRef.current);
+        idleRafRef.current = null;
+      }
+    };
+  }, [
+    applyFrame,
+    disabled,
+    externalProgress,
+    liquidShader,
+    progressRef,
+    reducedMotionRef,
+  ]);
 
   return (
     <div
@@ -146,6 +205,13 @@ export function LiquidMonochrome({
             {children}
           </div>
         </div>
+        <svg
+          ref={waterlineSvgRef}
+          className={styles.waterlineLayer}
+          aria-hidden="true"
+        >
+          <path ref={waterlinePathRef} className={styles.waterlinePath} />
+        </svg>
       </div>
 
       <svg className={styles.filterSvg} aria-hidden="true">

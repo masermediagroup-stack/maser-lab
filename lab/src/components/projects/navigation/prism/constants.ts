@@ -18,25 +18,48 @@ export type NavItem = {
 export type CategoryItem = {
   id: CategoryId;
   label: string;
+  dropdownItems?: string[];
 };
 
-/** Center nav links — Profile lives in the right-side control */
+/** Center nav links - Profile lives in the right-side control */
 export const CATEGORY_ITEMS: CategoryItem[] = [
   { id: "home", label: "Home" },
-  { id: "explore", label: "Explore" },
-  { id: "library", label: "Library" },
+  {
+    id: "explore",
+    label: "Explore",
+    dropdownItems: [
+      "Featured Projects",
+      "Web Components",
+      "Motion Experiments",
+      "UI Systems",
+      "Interactive Labs",
+      "New Releases",
+    ],
+  },
+  {
+    id: "library",
+    label: "Library",
+    dropdownItems: [
+      "Components",
+      "Templates",
+      "Brand Systems",
+      "Shader Presets",
+      "Code Snippets",
+      "Documentation",
+    ],
+  },
   { id: "gallery", label: "Gallery" },
 ];
 
 export const PROFILE_ITEM: NavItem = { id: "profile", label: "Profile" };
 
-/** @deprecated use CATEGORY_ITEMS — kept for exports */
+/** @deprecated use CATEGORY_ITEMS - kept for exports */
 export const NAV_ITEMS = [...CATEGORY_ITEMS, PROFILE_ITEM];
 
 export const BRAND_NAME = "Prism";
 
 export type PrismNavPlacement = "fixed-top" | "inline" | "center";
 
-export function isCategoryId(id: NavItemId): id is CategoryId {
-  return id !== "profile";
+export function isCategoryId(id: NavItemId | null): id is CategoryId {
+  return id !== null && id !== "profile";
 }

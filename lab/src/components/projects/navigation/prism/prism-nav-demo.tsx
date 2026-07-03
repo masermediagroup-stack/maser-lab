@@ -19,7 +19,7 @@ type PrismNavDemoProps = {
 
 export function PrismNavDemo({ minimal = false }: PrismNavDemoProps) {
   const panelId = useId();
-  const [activeId, setActiveId] = useState<NavItemId>("gallery");
+  const [activeId, setActiveId] = useState<NavItemId | null>(null);
   const [forceReducedMotion, setForceReducedMotion] = useState(false);
 
   const handleNavigate = useCallback((id: NavItemId) => {
@@ -57,13 +57,13 @@ export function PrismNavDemo({ minimal = false }: PrismNavDemoProps) {
         <LiquidGlassTopNav
           activeId={activeId}
           onNavigate={handleNavigate}
-          forceReducedMotion={forceReducedMotion}
+          forceReducedMotion={forceReducedMotion || undefined}
           idPrefix={panelId}
           placement="center"
         />
       </div>
 
-      {!minimal ? (
+      {!minimal && activeId ? (
         <p
           id={`${panelId}-panel-${activeId}`}
           role="tabpanel"

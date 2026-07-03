@@ -36,6 +36,12 @@ export type LiquidMonochromeProps = {
   speed?: number;
   /** Unique seed for noise pattern */
   seed?: number;
+  /** Viewport lock line, where 0 is top, 50 is center, and 100 is bottom */
+  lockPosition?: number;
+  /** Legacy name; enables idle liquid edge motion */
+  liquidShader?: boolean;
+  /** Legacy tuning hook for the hidden SVG geometry path */
+  meniscusSize?: number;
   /** ScrollTrigger start position */
   start?: string;
   /** ScrollTrigger end position override */
@@ -60,6 +66,7 @@ export type LiquidScrollOptions = Pick<
   | "pinDuration"
   | "overscroll"
   | "speed"
+  | "lockPosition"
   | "start"
   | "end"
   | "duration"
