@@ -9,6 +9,7 @@ lab/out/
 
 # Debug
 npm-debug.log*
+.codex-dev-server.*.log
 .DS_Store
 *.pem
 
