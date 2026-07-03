@@ -98,57 +98,21 @@
 }
 
 .prism-brand-mark {
-  --prism-brand-y: 0px;
   display: inline-flex;
-  transform: translateY(var(--prism-brand-y)) scale(1);
+  transform: scale(1);
   transform-origin: left center;
   backface-visibility: hidden;
   transition: transform var(--prism-hover-duration)
     cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.prism-brand-mark-desktop {
-  --prism-brand-y: 4px;
-}
-
-.prism-brand-word {
-  position: relative;
-  display: inline-block;
-}
-
-.prism-brand-word::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -4px;
-  height: 1px;
-  border-radius: 999px;
-  background: currentColor;
-  opacity: 0;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition:
-    transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 90ms ease-out;
-}
-
 .prism-nav[data-reduced-motion="true"] .prism-brand-mark {
-  transition: none;
-}
-
-.prism-nav[data-reduced-motion="true"] .prism-brand-word::after {
   transition: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .prism-brand:hover .prism-brand-mark {
-    transform: translateY(var(--prism-brand-y)) scale(var(--prism-brand-hover-scale));
-  }
-
-  .prism-brand:hover .prism-brand-word::after {
-    opacity: 0.9;
-    transform: scaleX(1);
+    transform: scale(var(--prism-brand-hover-scale));
   }
 
   .prism-nav-link:not([aria-selected="true"]):hover {

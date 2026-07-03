@@ -472,15 +472,13 @@ export function DesktopGlassTopNav({
         <motion.button
           type="button"
           onClick={() => onNavigate("home")}
-          whileTap={reduced ? undefined : { scale: 0.97 }}
-          transition={tapTransition(reduced)}
           className="prism-brand relative z-10 shrink-0 rounded-[var(--prism-radius-pill)] px-1 py-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--prism-selector-from)]"
           aria-label={`${BRAND_NAME} home`}
           variants={logoEnter(reduced)}
         >
-          <span className="prism-brand-mark prism-brand-mark-desktop inline-flex items-center gap-3.5 text-[var(--prism-text)]">
+          <span className="prism-brand-mark inline-flex items-center gap-3.5 text-[var(--prism-text)]">
             <PrismLogo className="h-8 w-8 shrink-0" />
-            <span className="prism-brand-word text-[19px] font-medium tracking-[0.025em]">
+            <span className="text-[19px] font-medium tracking-[0.025em]">
               {BRAND_NAME}
             </span>
           </span>
