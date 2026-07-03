@@ -64,3 +64,133 @@ This import does not add full monthly grid views, recurring events, reminders, a
 
 - Whether the next iteration should add month grid views, agenda view, or both.
 - Whether event persistence should stay localStorage-only or move to a backend-backed save flow.
+
+## Design QA Pass — Hover, Color, and Gradient Consistency
+
+**Date:** 2026-07-02  
+**Mode:** Harden (design polish)  
+**Scope:** `makeyourday-calendar` demo + shared lab chrome used on this route
+
+### What was inspected
+
+- Hover, focus, and active states across month lines, day dial, panel buttons, event CTA, form fields, and lab demo chrome
+- Color usage in `tokens.css` and `makeyourday-calendar-demo.tsx`
+- Gradient usage for background rays, wave accent, panel border, primary CTA hover, and mobile scrim
+- Motion timing on interactive controls
+- Responsive sticky summary bar and reduced-motion behavior
+
+### Hover border issues found
+
+| Location | Finding | Action |
+| --- | --- | --- |
+| MakeYourDay app controls | No hover border flashes on cards, buttons, or month lines — hovers used color, glow, transform, and gradient | Kept intentional treatments |
+| Lab `LabButton` ghost variant | Generic accent border flash on hover (`hover:border-accent`) | Replaced with subtle background tint + text color shift; border stays stable |
+| Form `focus-within` fields | Border + 1px ring on focus (not hover) | Kept for accessibility; values moved to tokens |
+
+### Color inconsistencies found
+
+- Near-duplicate blacks: `#050505`, `#000`, and multiple `rgba(5,5,5,…)` scrim values
+- Near-duplicate text whites: `#f5f7ff`, `#d8e1ff`, `#ffffff` used interchangeably
+- Repeated accent rgba glow values hardcoded instead of shared tokens
+- Success/warn semantic colors scattered as one-off rgba/hex values
+- Demo wrapper hardcoded `bg-[#050505]` instead of project token
+
+### Gradient inconsistencies found
+
+- Accent gradient used at both `90deg` (wave) and `135deg` (CTA hover) without documented roles
+- Panel border gradient used a third stop not referenced elsewhere
+- Background, ray, and scrim gradients duplicated inline rather than tokenized
+
+### What was changed
+
+- Expanded `tokens.css` with background, text, border, semantic, glow, gradient, hover, motion, and radius token groups
+- Replaced scattered hardcoded colors/gradients with token references across the MakeYourDay stylesheet
+- Unified secondary control hover: lift + surface tint + shadow (no border change)
+- Unified primary CTA hover via `--myd-gradient-accent` and shared glow tokens
+- Added danger-button hover using warn tokens (background shift, no border flash)
+- Pointed demo wrapper at `--myd-bg` / `--myd-text`
+- Removed generic lab ghost-button hover border treatment
+
+### Tokens reused or created
+
+**Created:** `--myd-bg-deep`, `--myd-text-soft`, `--myd-text-inverse`, `--myd-surface`, `--myd-overlay`, `--myd-scrim-*`, `--myd-focus-surface`, `--myd-grid`, `--myd-border-focus*`, `--myd-success-*`, `--myd-warn-*`, `--myd-glow-*`, `--myd-gradient-*`, `--myd-hover-*`, `--myd-duration-*`, `--myd-ease-*`, `--myd-radius-sm/md`
+
+**Reused:** `--myd-bg`, `--myd-text`, `--myd-blue`, `--myd-violet`, `--myd-mint`, `--myd-warn`, `--myd-border`, `--myd-border-strong`, `--myd-muted`, `--myd-faint`, `--myd-line*`, `--myd-panel*`
+
+### Skills and commands used
+
+- `maser-lab-web` (Harden mode)
+- `web-design-guidelines` (visual/a11y review framing)
+- `/find-skills` — confirmed existing lab skills sufficient; no new skill install required
+
+### Loops run
+
+- None — single focused pass; no multi-pattern iteration loop needed
+
+### Still needs review
+
+- Month grid / agenda views (listed as open decision)
+- Whether wave gradient should also use `135deg` for pixel parity with CTA (currently `90deg` by design for horizontal stem accent)
+- Portfolio transfer polish pass after human motion review sign-off
+
+## UX update — Events hub, calendar, and edit flow
+
+**Date:** 2026-07-02
+
+### Flow changes
+
+| Entry | Behavior |
+| --- | --- |
+| Top **Events** button | Opens **hub**: lists **all** saved events (no date header); tap an event → detail with edit/delete |
+| Month **calendar icon** (next to day dial) | Opens full **month grid**; selecting a day opens the day **menu** (Add / Show events) |
+| **Show events** list | Tap an event → detail view with **edit** and **delete** in panel header |
+| **Edit** | Opens form pre-filled; save updates the event |
+
+### Visual changes
+
+- Removed gradient border from event panel (borderless surface)
+- Panel header uses bottom separator only (no boxed border)
+- Menu rows use horizontal dividers instead of bordered cards
+
+### Copy
+
+- Replaced remaining “plan/plans” language with “event/events”
+
+## Typography audit — uniform scale and weights
+
+**Date:** 2026-07-02
+
+### Issues found
+
+- **7 non-standard weights** in use: 720, 740, 760, 780, 800, 820 (browsers snap these unpredictably)
+- **15+ one-off font sizes** between 0.62rem and 1.55rem with no shared scale
+- Mixed `font:` shorthand and separate `font-size` / `font-weight` declarations
+- Inconsistent label hierarchy (some labels bolder than titles)
+
+### Token system applied
+
+| Token | Value | Role |
+| --- | --- | --- |
+| `--myd-text-2xs` | 0.6875rem (11px) | Micro labels, calendar weekdays |
+| `--myd-text-xs` | 0.75rem (12px) | Captions, meta, buttons |
+| `--myd-text-sm` | 0.8125rem (13px) | UI labels, menu titles |
+| `--myd-text-md` | 0.875rem (14px) | Body UI, detail values |
+| `--myd-text-lg` | 1rem (16px) | Form inputs |
+| `--myd-text-xl` | 1.5rem (24px) | Event detail title |
+| `--myd-text-2xl` | 2rem (32px) | Panel day number |
+| `--myd-text-display` | clamp | Hero h1 |
+
+| Weight token | Value | Role |
+| --- | --- | --- |
+| `--myd-weight-regular` | 400 | Body copy |
+| `--myd-weight-medium` | 500 | Secondary captions |
+| `--myd-weight-semibold` | 600 | Labels, UI controls, menu rows |
+| `--myd-weight-bold` | 700 | Titles, numerals, hero |
+
+### Convention
+
+- **Uppercase labels** → `semibold` (600) + `--myd-tracking-label`
+- **Body / form input** → `regular` (400) at `md` / `lg`
+- **Display numbers** (day, time) → `sans` + `semibold` / `bold`
+- **Hero title** → `bold` (700) at display scale
+- Utility classes: `.myd-type-label`, `.myd-type-ui`, `.myd-type-caption`, `.myd-type-mono` (numeric styling, sans), `.myd-type-body`
