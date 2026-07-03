@@ -1,12 +1,12 @@
 # Maser-Lab
 
-Next.js shell for building and previewing micro-interactions and Three.js systems (Tyler Vea / MaserMedia).
+Next.js shell for building and previewing **all Maser Media web UI** — page sections, components, forms, navigation, scroll reveals, micro-interactions, and Three.js systems.
 
 **Agent instructions:** see repository root [`../AGENTS.md`](../AGENTS.md).
 
 | Work type | Load first |
 | --- | --- |
-| UI / motion micro-interactions | [`.agents/skills/micro-interaction-lab/SKILL.md`](../.agents/skills/micro-interaction-lab/SKILL.md) |
+| Web UI — sections, components, forms, motion, reveals | [`.agents/skills/maser-lab-web/SKILL.md`](../.agents/skills/maser-lab-web/SKILL.md) |
 | Three.js / shaders / 3D | [`.agents/skills/maser-lab-threejs/SKILL.md`](../.agents/skills/maser-lab-threejs/SKILL.md) |
 
 ## Quick start

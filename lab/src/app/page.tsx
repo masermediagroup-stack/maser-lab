@@ -32,11 +32,12 @@ export default function Home() {
               Senior design engineering
             </p>
             <h1 className="text-4xl font-semibold tracking-tight text-[var(--lab-text-primary)] md:text-5xl">
-              Micro-interaction lab
+              Web testing lab
             </h1>
             <p className="max-w-2xl text-lg leading-relaxed text-[var(--lab-text-secondary)]">
-              Build, review, and polish UI components and motion before transferring
-              to portfolio or client deliverables. Specs live in{" "}
+              Build, review, and harden page sections, components, forms, navigation,
+              scroll reveals, and motion before transferring to portfolio or client
+              deliverables. Specs live in{" "}
               <code className="rounded-md border border-[var(--lab-border)] bg-[var(--lab-surface)] px-2 py-1 font-mono text-sm text-[var(--lab-accent-primary)]">
                 projects/
               </code>
@@ -117,7 +118,7 @@ export default function Home() {
             <code className="rounded border border-[var(--lab-border)] bg-[var(--lab-surface)] px-2 py-1">
               AGENTS.md
             </code>{" "}
-            → micro-interaction-lab
+            → maser-lab-web
           </p>
         </section>
       </div>

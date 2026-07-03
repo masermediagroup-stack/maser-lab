@@ -23,7 +23,7 @@ npm run build
 ## Cursor IDE (local agent)
 
 1. Open this repo in **Cursor Desktop** (not Cloud Agent).
-2. Load the `micro-interaction-lab` skill for motion/a11y work.
+2. Load the `maser-lab-web` skill for web UI workflow, motion, and a11y work.
 3. Use a **local** terminal for `npm run dev` so you can exercise all states in `PROJECT.md`.
 
 ## Component path
@@ -37,4 +37,4 @@ npm run build
 ## Transfer
 
 - Per-project notes: `projects/web-apps/makeyourday-calendar/TRANSFER.md`
-- Universal checklist: `.agents/skills/micro-interaction-lab/references/project-lifecycle.md` (Transfer checklist)
+- Universal checklist: `.agents/skills/maser-lab-web/references/project-lifecycle.md` (Transfer checklist)

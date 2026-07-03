@@ -1,11 +1,11 @@
 ---
 name: figma-design-workflow
 description: >-
-  Integrates Figma into the playground micro-interaction lab — design references,
-  design-to-code, code-to-design, tokens, and Code Connect. Use when shaping UI from
-  Figma, syncing demos to Figma, mapping components with Code Connect, or when
-  PROJECT.md lists a Figma URL. Load alongside micro-interaction-lab for any project
-  with design references.
+  Integrates Figma into Maser-Lab — design references, design-to-code, code-to-design,
+  tokens, and Code Connect for any web UI project (sections, components, forms, nav).
+  Use when shaping UI from Figma, syncing demos to Figma, mapping components with
+  Code Connect, or when PROJECT.md lists a Figma URL. Load alongside
+  maser-lab-web for any project with design references.
 ---
 
 # Figma Design Workflow (Playground)
@@ -16,7 +16,7 @@ Bridge **Figma design** and the **lab build loop** without breaking the existing
 
 | Task | Load |
 | --- | --- |
-| New project with a Figma or Dribbble reference | This skill + `micro-interaction-lab` |
+| New project with a Figma or Dribbble reference | This skill + `maser-lab-web` |
 | Implement from a Figma URL | This skill + Figma MCP `get_design_context` |
 | Push a finished demo to Figma | `figma-generate-design` + `figma-use` |
 | Map lab component ↔ Figma component | `figma-code-connect` |

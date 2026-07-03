@@ -8,7 +8,19 @@ export type CalendarEvent = {
 
 export type EventStore = Record<string, CalendarEvent[]>;
 
-export type PanelMode = "menu" | "list" | "detail" | "form";
+export type PanelMode =
+  | "hub"
+  | "menu"
+  | "list"
+  | "detail"
+  | "form"
+  | "calendar";
+
+export type ListedEvent = {
+  dateKey: string;
+  event: CalendarEvent;
+  dateLabel: string;
+};
 
 export type TimeState = {
   hour: number;

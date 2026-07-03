@@ -1,8 +1,8 @@
 # Transfer: MakeYourDay Calendar
 
-Fill when status → `ready` or `transferred`.
+Fill when status -> `ready` or `transferred`.
 
-Universal checklist: `.agents/skills/micro-interaction-lab/references/project-lifecycle.md` → **Transfer checklist**.
+Universal checklist: `.agents/skills/maser-lab-web/references/project-lifecycle.md` -> **Transfer checklist**.
 
 ## Export
 
@@ -35,10 +35,10 @@ List files to copy from `lab/public/`:
 3. Install dependencies listed above
 4. Adjust import paths / theme tokens
 5. Add showcase page; wire props to portfolio router
-6. Preview deploy on Vercel → QA → production deploy
-7. Set registry status → `transferred`
+6. Preview deploy on Vercel -> QA -> production deploy
+7. Set registry status -> `transferred`
 
 ## Notes
 
-- Live URL (after deploy): 
+- Live URL (after deploy):
 - Imported from `/Users/tylervea/Documents/makeyourday-main`.

@@ -1,4 +1,6 @@
-# micro-interaction-lab — Skill Governance
+# maser-lab-web — Skill Governance
+
+**Scope:** Primary workflow for **all web UI** in Maser-Lab — page sections, components, forms, navigation, scroll reveals, and micro-interactions. Route 3D/WebGL to `maser-lab-threejs`.
 
 ## Load order
 

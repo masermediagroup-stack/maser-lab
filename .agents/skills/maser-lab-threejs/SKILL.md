@@ -5,8 +5,7 @@ description: >-
   particle systems, scroll-driven 3D, and advanced interaction work. Use when
   researching, implementing, or reviewing 3D web experiences for Tyler Vea /
   MaserMedia client and portfolio work. Chain to CloudAI-X threejs skills and
-  official threejs.org docs. Not for CSS-only micro-interactions — use
-  micro-interaction-lab instead.
+  official threejs.org docs. Not for CSS-only web UI — use maser-lab-web instead.
 ---
 
 # Maser-Lab Three.js
@@ -41,7 +40,7 @@ If CloudAI-X skills, tutorials, or local patterns conflict with official Three.j
 5. Run **Research** agent before implementation on new effect types
 6. Chain CloudAI-X skills (do not duplicate their content)
 
-## Request modes (extends micro-interaction-lab)
+## Request modes (extends maser-lab-web)
 
 | Mode | Use when |
 | --- | --- |
@@ -52,7 +51,7 @@ If CloudAI-X skills, tutorials, or local patterns conflict with official Three.j
 | **Harden** | Performance, fallbacks, mobile, reduced-motion |
 | **Transfer** | Portfolio/client reuse documentation |
 
-Declare mode at start. For non-3D UI motion, switch to `micro-interaction-lab`.
+Declare mode at start. For non-3D UI motion, switch to `maser-lab-web`.
 
 ## Routed skills
 
@@ -70,7 +69,7 @@ Declare mode at start. For non-3D UI motion, switch to `micro-interaction-lab`.
 | EffectComposer, bloom | `threejs-postprocessing` |
 | Raycasting, controls | `threejs-interaction` |
 | Seek-driven timelines | `hyperframes-animation` adapters/three.md |
-| Micro-interaction lifecycle | `micro-interaction-lab` |
+| Web UI lifecycle | `maser-lab-web` |
 | Find/install skills | `find-skills` |
 | Figma ↔ code | `figma-design-workflow` |
 | A11y audit | `web-design-guidelines` |
