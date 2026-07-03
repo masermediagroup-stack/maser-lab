@@ -88,13 +88,21 @@
   transition: color var(--prism-hover-duration) ease;
 }
 
-.prism-brand {
+.prism-brand-mark {
+  display: inline-flex;
+  transform: scale(1);
   transform-origin: left center;
-  transition: transform var(--prism-hover-duration) ease;
+  backface-visibility: hidden;
+  transition: transform var(--prism-hover-duration)
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.prism-nav[data-reduced-motion="true"] .prism-brand-mark {
+  transition: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .prism-brand:hover {
+  .prism-brand:hover .prism-brand-mark {
     transform: scale(var(--prism-brand-hover-scale));
   }
 
