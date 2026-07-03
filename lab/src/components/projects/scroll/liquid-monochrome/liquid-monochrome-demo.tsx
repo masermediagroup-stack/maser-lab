@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LiquidMonochrome } from "./LiquidMonochrome";
@@ -8,6 +8,10 @@ import styles from "./liquid-monochrome-demo.module.css";
 
 const DEMO_IMAGE =
   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1600&q=80";
+
+type ExampleProps = {
+  lockPosition: number;
+};
 
 function DemoHeader() {
   return (
@@ -20,14 +24,54 @@ function DemoHeader() {
         <h1 className={styles.title}>Liquid Monochrome</h1>
         <p className={styles.subtitle}>
           Scroll-pinned, scrub-driven liquid ink reveal. Luminance grayscale with
-          turbulent organic edges — fully reversible.
+          a smooth waterline edge — fully reversible.
         </p>
       </div>
     </header>
   );
 }
 
-function HeroExample() {
+function DemoControls({
+  lockPosition,
+  onLockPositionChange,
+}: {
+  lockPosition: number;
+  onLockPositionChange: (value: number) => void;
+}) {
+  return (
+    <section className={styles.controls} aria-label="Liquid monochrome controls">
+      <div className={styles.controlHeader}>
+        <div>
+          <p className={styles.controlEyebrow}>Scroll lock</p>
+          <h2>Viewport pin line</h2>
+        </div>
+        <output htmlFor="lock-position" className={styles.controlValue}>
+          {lockPosition}%
+        </output>
+      </div>
+      <label className={styles.sliderLabel} htmlFor="lock-position">
+        Lock position
+      </label>
+      <input
+        id="lock-position"
+        className={styles.slider}
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        value={lockPosition}
+        onChange={(event) => onLockPositionChange(Number(event.target.value))}
+      />
+      <div className={styles.sliderMarks} aria-hidden="true">
+        <span>Top</span>
+        <span>Center</span>
+        <span>Bottom</span>
+      </div>
+    </section>
+  );
+}
+
+function HeroExample({ lockPosition }: ExampleProps) {
   return (
     <section className={styles.section}>
       <div className={styles.sectionLabel}>Hero section</div>
@@ -39,6 +83,7 @@ function HeroExample() {
         noiseScale={0.28}
         liquidStrength={1.1}
         edgeSoftness={0.5}
+        lockPosition={lockPosition}
       >
         <div className={styles.hero}>
           <div className={styles.heroCopy}>
@@ -69,7 +114,7 @@ function HeroExample() {
   );
 }
 
-function ImageExample() {
+function ImageExample({ lockPosition }: ExampleProps) {
   return (
     <section className={styles.section}>
       <div className={styles.sectionLabel}>Image</div>
@@ -80,6 +125,7 @@ function ImageExample() {
         direction="bottom-to-top"
         turbulence={0.7}
         noiseScale={0.35}
+        lockPosition={lockPosition}
       >
         <div className={styles.imageFrame}>
           <Image
@@ -106,8 +152,8 @@ const CARDS = [
     hue: "var(--lm-card-a)",
   },
   {
-    title: "FBM turbulence",
-    body: "Layered noise creates viscosity and irregular wave height.",
+    title: "Waterline wave",
+    body: "Layered sine waves keep the monochrome boundary fluid without smoke.",
     hue: "var(--lm-card-b)",
   },
   {
@@ -117,7 +163,7 @@ const CARDS = [
   },
 ];
 
-function CardGridExample() {
+function CardGridExample({ lockPosition }: ExampleProps) {
   return (
     <section className={styles.section}>
       <div className={styles.sectionLabel}>Card grid</div>
@@ -128,6 +174,7 @@ function CardGridExample() {
         turbulence={0.5}
         noiseScale={0.4}
         liquidStrength={0.9}
+        lockPosition={lockPosition}
       >
         <div className={styles.cardGrid}>
           {CARDS.map((card) => (
@@ -146,7 +193,7 @@ function CardGridExample() {
   );
 }
 
-function FullWidthExample() {
+function FullWidthExample({ lockPosition }: ExampleProps) {
   return (
     <section className={styles.section}>
       <div className={styles.sectionLabel}>Full-width section</div>
@@ -158,6 +205,7 @@ function FullWidthExample() {
         turbulence={0.58}
         noiseScale={0.3}
         edgeSoftness={0.55}
+        lockPosition={lockPosition}
       >
         <div className={styles.fullWidth}>
           <div className={styles.fullWidthInner}>
@@ -201,7 +249,7 @@ function Benchmarks() {
           <ul>
             <li>GSAP ScrollTrigger — pin/scrub</li>
             <li>SVG luminance matrix — not desaturate</li>
-            <li>FBM noise — organic edge</li>
+            <li>Sine wave waterline — no smoke field</li>
           </ul>
         </div>
       </div>
@@ -210,16 +258,22 @@ function Benchmarks() {
 }
 
 export function LiquidMonochromeDemo() {
+  const [lockPosition, setLockPosition] = useState(50);
+
   return (
     <div className={styles.demo}>
       <DemoHeader />
-      <HeroExample />
+      <DemoControls
+        lockPosition={lockPosition}
+        onLockPositionChange={setLockPosition}
+      />
+      <HeroExample lockPosition={lockPosition} />
       <div className={styles.spacer} />
-      <ImageExample />
+      <ImageExample lockPosition={lockPosition} />
       <div className={styles.spacer} />
-      <CardGridExample />
+      <CardGridExample lockPosition={lockPosition} />
       <div className={styles.spacer} />
-      <FullWidthExample />
+      <FullWidthExample lockPosition={lockPosition} />
       <Benchmarks />
       <footer className={styles.footer}>
         <p>Scroll through each section to experience the liquid reveal.</p>

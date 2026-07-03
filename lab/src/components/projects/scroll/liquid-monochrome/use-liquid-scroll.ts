@@ -10,6 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export type UseLiquidScrollResult = {
   progressRef: RefObject<number>;
+  reducedMotionRef: RefObject<boolean>;
 };
 
 export function useLiquidScroll(
@@ -22,6 +23,7 @@ export function useLiquidScroll(
   },
 ): UseLiquidScrollResult {
   const progressRef = useRef(0);
+  const reducedMotionRef = useRef(false);
   const [reducedMotion, setReducedMotion] = useState(() =>
     typeof window !== "undefined"
       ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -30,7 +32,9 @@ export function useLiquidScroll(
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    reducedMotionRef.current = mq.matches;
     const onChange = () => {
+      reducedMotionRef.current = mq.matches;
       setReducedMotion(mq.matches);
       ScrollTrigger.refresh();
     };
@@ -97,14 +101,20 @@ export function useLiquidScroll(
         options.pinDuration,
         options.overscroll,
         options.speed,
+        options.lockPosition,
         options.start,
         options.end,
         options.disabled,
         options.externalProgress,
         reducedMotion,
       ],
+      revertOnUpdate: true,
     },
   );
 
-  return { progressRef };
+  useEffect(() => {
+    reducedMotionRef.current = reducedMotion;
+  }, [reducedMotion]);
+
+  return { progressRef, reducedMotionRef };
 }

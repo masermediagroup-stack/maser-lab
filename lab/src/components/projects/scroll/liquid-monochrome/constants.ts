@@ -16,7 +16,9 @@ export const LIQUID_MONOCHROME_DEFAULTS: Required<
     | "overscroll"
     | "speed"
     | "seed"
-    | "start"
+    | "lockPosition"
+    | "liquidShader"
+    | "meniscusSize"
     | "duration"
     | "blendMode"
     | "disabled"
@@ -35,7 +37,9 @@ export const LIQUID_MONOCHROME_DEFAULTS: Required<
   overscroll: 0,
   speed: 1,
   seed: 7,
-  start: "top top",
+  lockPosition: 50,
+  liquidShader: true,
+  meniscusSize: 0.018,
   duration: "scroll",
   blendMode: "normal",
   disabled: false,

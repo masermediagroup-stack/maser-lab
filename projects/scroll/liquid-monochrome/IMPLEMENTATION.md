@@ -2,63 +2,65 @@
 
 ## Architecture
 
-```
+```text
 LiquidMonochrome (trigger)
-└── stage (pinned by ScrollTrigger)
-    ├── colorLayer — full-color children
-    └── monoLayer — duplicate children + luminance filter + clip-path
+`-- stage (pinned by ScrollTrigger)
+    |-- colorLayer - full-color children
+    |-- monoLayer - duplicate children + luminance filter + clip-path
+    `-- waterlineLayer - transparent SVG path generated from the same edge points
 ```
 
-## Scroll binding
+## Scroll Binding
 
 `useLiquidScroll` creates a GSAP `ScrollTrigger` with:
 
 - `pin: stage` when `pin` is true
-- `scrub: 0.45` for smooth scroll coupling (no easing curve on animation)
+- `scrub: 0.45` for smooth scroll coupling
+- `start: center {lockPosition}%` unless an explicit `start` override is provided
 - `end: +={pinDuration * speed + overscroll}vh`
+- `revertOnUpdate: true` so the viewport lock slider rebuilds pin geometry when it changes
 
-Progress 0→1 maps directly to clip-path fill. **No timeline playback.**
+Progress `0 -> 1` maps directly to the clipped monochrome fill. There is no autoplay reveal timeline; the only continuous animation is the small boundary phase drift while the fill is partially visible.
 
 ## Grayscale
 
-SVG filter with ITU-R BT.709 luminance matrix:
+SVG filter with ITU-R BT.709 luminance weights:
 
+```text
+R' = G' = B' = 0.2126*R + 0.7152*G + 0.0722*B
 ```
-R' = G' = B' = 0.2126·R + 0.7152·G + 0.0722·B
-```
 
-This preserves perceptual contrast vs `saturate(0)` or `grayscale(1)`.
+This preserves perceptual contrast better than plain `grayscale(1)`.
 
-## Liquid edge
+## Waterline Edge
 
-`buildLiquidClipPath()` samples FBM noise along the reveal front:
+`buildLiquidClipPath()` now samples smooth sine waves along the reveal front:
 
 1. Base fill line from scroll progress
-2. Three octaves of noise at varying scales
-3. Polygon clip from edge corners through noisy samples
+2. Two low-frequency sine waves for water-like motion
+3. Polygon clip from edge corners through the wave samples
 
-Updates batched via `requestAnimationFrame` in `onUpdate`.
+The boundary is intentionally not FBM/noise-driven, because that reads as smoke.
 
-## Performance notes
+## Hidden SVG Geometry
+
+`buildLiquidEdgePath()` returns an SVG path from the same wave points used by `buildLiquidClipPath()`. `LiquidMonochrome` draws that path as a stage-level SVG sibling above the clipped monochrome layer.
+
+The path is transparent. It does not draw a visible white stroke, interior fog, particles, bubbles, smoke, dots, or veins.
+
+While the user is stationary on a partial reveal, `LiquidMonochrome` advances the shared wave phase with `requestAnimationFrame()` and reapplies both the clip polygon and SVG path. That keeps the real monochrome boundary moving like a liquid surface instead of sliding a separate decoration over a static mask.
+
+## Performance Notes
 
 - `will-change: clip-path` on mono layer
 - `contain: layout paint style` on stage
 - `ResizeObserver` for dimension sync
-- No `toDataURL` or canvas readback per frame
+- Idle boundary frames only update when progress is between hidden and complete
+- No canvas or WebGL work
 
-## Porting to another project
+## Porting
 
-1. Copy `lab/src/components/projects/scroll/liquid-monochrome/` folder
-2. Install `gsap` and `@gsap/react`
-3. Call `gsap.registerPlugin(ScrollTrigger)` once in app
-4. Wrap any content with `<LiquidMonochrome>`
-
-## Tradeoffs vs alternatives
-
-| Approach | Pros | Cons |
-| --- | --- | --- |
-| **Chosen: clip-path + FBM** | Works with any DOM, GPU path | Duplicates children |
-| WebGL shader | Best fluid sim | Hard to wrap arbitrary React trees |
-| SVG feTurbulence mask | Native filter noise | Hard to scrub fill level precisely |
-| CSS scroll-driven | No JS | No pin, limited noise control |
-| Framer useScroll | React-native | Weaker pin/scrub than GSAP |
+1. Copy `lab/src/components/projects/scroll/liquid-monochrome/`.
+2. Install `gsap` and `@gsap/react`.
+3. Wrap any content with `<LiquidMonochrome>`.
+4. Use `lockPosition` to place the pinned element at the desired viewport line.

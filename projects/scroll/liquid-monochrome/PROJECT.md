@@ -17,29 +17,29 @@
 Visitors scrolling through hero, image, card, or feature sections on marketing/product pages.
 
 ### Job
-Create a premium, scroll-scrubbed liquid ink reveal that converts content to cinematic monochrome — pinned until complete, fully reversible.
+Create a premium, scroll-scrubbed liquid ink reveal that converts content to cinematic monochrome - pinned until complete, fully reversible.
 
 ### Current behavior
-Greenfield — no prior implementation.
+Greenfield - no prior implementation.
 
 ### Desired outcome
-Organic turbulent liquid edge rising over content; luminance-based grayscale; 60fps; reusable `<LiquidMonochrome>` wrapper.
+Smooth liquid mask rising over content; luminance-based grayscale; no visible stroke or smoke; 60fps; reusable `<LiquidMonochrome>` wrapper.
 
 ### Success signal
 - Section pins on enter
-- Scroll scrubs reveal 0→100% with no autoplay
+- Scroll scrubs reveal 0->100% with no autoplay
 - Reverse scroll restores color identically
 - Reduced motion: instant state change, no pin
 
 ### Non-goals
-- WebGL shader path (future enhancement)
+- Full DOM-to-texture rasterization.
 - Lenis integration (optional future)
 - Autoplay or timeline playback
 
 ## States
 
 - [x] default (scroll scrub)
-- [ ] hover (N/A — scroll-driven)
+- [ ] hover (N/A - scroll-driven)
 - [ ] focus (children retain focus)
 - [ ] active / pressed
 - [ ] loading
@@ -54,7 +54,9 @@ Organic turbulent liquid edge rising over content; luminance-based grayscale; 60
 | --- | --- | --- |
 | Library | GSAP ScrollTrigger | Industry standard for pin + scrub |
 | Grayscale | SVG feColorMatrix BT.709 | Perceptual luminance, not desaturate |
-| Liquid edge | FBM noise + clip-path polygon | GPU-friendly, works with any children |
+| Liquid edge | Sine wave + clip-path polygon | Actual DOM mask, works with any children |
+| Liquid formation | Transparent SVG path from shared edge geometry | Keeps the animated mask boundary liquid without a visible white stroke, dots, smoke, or offset |
+| Lock line | `center {lockPosition}%` | Slider-controllable pin line from top to bottom of viewport |
 | Duration | Scroll-linked | User controls pace |
 
 ## Acceptance criteria
@@ -63,8 +65,10 @@ Organic turbulent liquid edge rising over content; luminance-based grayscale; 60
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] Motion review: scroll pin, scrub, reverse verified in browser
 - [ ] `prefers-reduced-motion` verified
+- [ ] Lock-position slider verified at top, center, and bottom viewport lines
+- [ ] Transparent SVG geometry stays aligned with the monochrome boundary
 - [x] Component exported from `lab/src/components/projects/scroll/liquid-monochrome/index.ts`
 
 ## Open decisions
 
-- WebGL shader variant for even higher fidelity edges (documented in FUTURE.md)
+- Image-only shader texture mode remains optional future work for higher fidelity rasterized media.

@@ -9,7 +9,7 @@ import "./tokens.css";
 export type { PrismNavPlacement };
 
 type LiquidGlassTopNavProps = {
-  activeId: NavItemId;
+  activeId: NavItemId | null;
   onNavigate: (id: NavItemId) => void;
   forceReducedMotion?: boolean;
   className?: string;
