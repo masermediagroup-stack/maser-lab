@@ -58,9 +58,9 @@ export function LabButton({
       type={type}
       onClick={onClick}
       className={cn(
-        "rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-colors",
+        "rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-[color,background-color,box-shadow,transform] duration-150",
         variant === "ghost" &&
-          "border-[var(--lab-border)] bg-[var(--lab-surface)] text-[var(--lab-text-primary)] hover:border-[var(--lab-accent-primary)] hover:text-[var(--lab-accent-primary)]",
+          "border-[var(--lab-border)] bg-[var(--lab-surface)] text-[var(--lab-text-primary)] hover:bg-[rgba(16,164,255,0.08)] hover:text-[var(--lab-accent-primary)]",
         variant === "accent" &&
           "border-[var(--lab-accent-primary)] bg-[rgba(16,164,255,0.12)] text-[var(--lab-accent-primary)]",
         variant === "outline" &&

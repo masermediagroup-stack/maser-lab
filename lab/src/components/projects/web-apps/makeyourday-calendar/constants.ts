@@ -26,7 +26,7 @@ export const WEEKDAYS = [
 export const STORAGE_KEY = "makeyourday-calendar-events-v2";
 
 export const SAMPLE_EVENT = {
-  title: "Portfolio planning",
+  title: "Portfolio event review",
   time: "09:00 AM",
   location: "Studio",
   description: "Sketch calendar view ideas and list the first UX upgrades.",

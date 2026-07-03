@@ -1,0 +1,51 @@
+.trigger {
+  position: relative;
+  width: 100%;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  contain: layout paint style;
+  will-change: clip-path;
+}
+
+.colorLayer {
+  position: relative;
+  width: 100%;
+  z-index: 0;
+}
+
+.monoLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+  -webkit-clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+  will-change: clip-path, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.monoContent {
+  width: 100%;
+  height: 100%;
+  transform: translateZ(0);
+}
+
+.filterSvg {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monoLayer {
+    transition: clip-path 0.01ms;
+  }
+}

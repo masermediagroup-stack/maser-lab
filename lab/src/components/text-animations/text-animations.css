@@ -1,0 +1,126 @@
+@keyframes tal-letter-flip {
+  from {
+    opacity: 0;
+    transform: var(--tal-flip-from, rotateX(90deg));
+  }
+  to {
+    opacity: 1;
+    transform: rotateX(0) rotateY(0) rotateZ(0);
+  }
+}
+
+@keyframes tal-poured {
+  from {
+    opacity: 0;
+    filter: blur(var(--tal-pour-blur, 6px));
+    transform: translate(var(--tal-pour-x, 0), var(--tal-pour-y, -30px)) rotate(-8deg);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0, 0) rotate(0);
+  }
+}
+
+@keyframes tal-stroke-fill {
+  0% {
+    color: transparent;
+    text-shadow: none;
+  }
+  40% {
+    color: transparent;
+    text-shadow: none;
+  }
+  70% {
+    color: white;
+    text-shadow: none;
+  }
+  100% {
+    color: white;
+    text-shadow: 0 0 var(--tal-glow-radius, 12px)
+      rgba(255, 255, 255, var(--tal-glow-intensity, 0.6));
+  }
+}
+
+@keyframes tal-random-fade {
+  from {
+    opacity: 0;
+    filter: blur(var(--tal-fade-blur, 4px));
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes tal-directional-flip {
+  from {
+    opacity: 0;
+    transform: var(--tal-flip-transform);
+  }
+  to {
+    opacity: 1;
+    transform: rotateX(0) rotateY(0) translate(0, 0);
+  }
+}
+
+@keyframes tal-glide {
+  from {
+    opacity: 0;
+    filter: blur(var(--tal-glide-blur, 4px));
+    transform: var(--tal-glide-from);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes tal-scale {
+  from {
+    opacity: 0;
+    transform: scale(var(--tal-scale-start, 0.5));
+  }
+  to {
+    opacity: 1;
+    transform: scale(var(--tal-scale-end, 1));
+  }
+}
+
+.tal-animate-letter-flip {
+  animation-name: tal-letter-flip;
+  animation-fill-mode: both;
+}
+
+.tal-animate-poured {
+  animation-name: tal-poured;
+  animation-fill-mode: both;
+}
+
+.tal-animate-stroke-fill {
+  animation-name: tal-stroke-fill;
+  animation-fill-mode: forwards;
+}
+
+.tal-animate-random-fade {
+  animation-name: tal-random-fade;
+  animation-fill-mode: both;
+}
+
+.tal-animate-directional-flip {
+  animation-name: tal-directional-flip;
+  animation-fill-mode: both;
+}
+
+.tal-animate-glide {
+  animation-name: tal-glide;
+  animation-fill-mode: both;
+}
+
+.tal-animate-scale {
+  animation-name: tal-scale;
+  animation-fill-mode: both;
+}
