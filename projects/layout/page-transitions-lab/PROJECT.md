@@ -3,13 +3,21 @@
 **Slug:** `page-transitions-lab`  
 **Category:** layout  
 **Status:** building  
-**Created:** 2026-07-07
+**Created:** 2026-07-07  
+**Updated:** 2026-07-08
 
 ## Design reference
 
 - Figma: none
 - Other: Client shopping-site route transitions, product browsing, collection switching, cart/checkout movement
+- Lab UI pattern: matches `text-animation-lab` monochrome gallery → detail workspace
 - Design spec: `FIGMA.md`
+
+## Skills loaded
+
+- `maser-lab-web` (Implement / Harden) — gallery/detail chrome, motion judgment, one-shot transition rules
+- `maser-lab-threejs` (Implement) — curtain-fall WebGL scene, disposal, orthographic overlay
+- References: `interface-quality.md`, `build-standards.md`, `lab-patterns-threejs.md`
 
 ## Brief
 
@@ -20,62 +28,72 @@ Website visitors moving between pages in a client-facing shopping site. Trigger 
 Make page-to-page changes feel intentional and spatial without hiding content, delaying purchase decisions, or creating router-specific lock-in.
 
 ### Current behavior
-Greenfield lab project. Maser-Lab has individual UI demos, but no reusable workspace for comparing route transition patterns with controls and export notes.
+Lab workspace with selectable transitions. Early CSS used reversible `transition` + `data-phase` toggles, which caused reverse/repeat glitches when the phase returned to idle.
 
 ### Desired outcome
-A gallery where we can preview transition concepts one by one, tune practical motion settings, and export starter code for an external website.
+A Maser-Lab-aligned gallery where each transition plays as a **one-shot** animation, settles on the destination page, can be tuned, and exports starter code — including a Three.js curtain-fall reveal.
 
 ### Success signal
-Each transition can be selected, replayed, tuned, understood from notes, and exported without lab-only dependencies beyond documented React/CSS patterns.
+Each transition can be selected, replayed without reverse bounce, tuned, understood from notes, and exported. Curtain Fall responds to a live curtain-count slider.
 
 ### Non-goals
 - Full app router integration for a specific client stack
-- Real page data fetching
-- 3D/WebGL transitions
+- Real page data fetching / html2canvas of live DOM
 - Replacing each target site's navigation logic
 
 ## States
 
-- [x] default preview
-- [x] transition in progress
-- [x] previous page
-- [x] next page
-- [x] selected transition
+- [x] gallery default
+- [x] detail selected
+- [x] transition rest (settled current page)
+- [x] transition running (one-shot)
+- [x] previous / next page swap on complete
 - [x] tuned settings
 - [x] code export drawer
 - [x] prefers-reduced-motion
+- [x] WebGL unavailable (curtain falls back via reduced CSS path / empty canvas shell)
 
 ## Motion decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | CSS custom properties + React state | Keeps exported code portable for client projects before router-specific integration. |
-| Duration | 240-900ms control, 520ms default | Lets us test fast commercial navigation and slower editorial transitions. |
-| Easing | `cubic-bezier(0.22, 1, 0.36, 1)` default | Decelerated route entry reads responsive without spring bounce. |
-| Properties | `transform`, `opacity`, `clip-path`, `filter` where noted | Prioritizes compositor-friendly motion; filter is reserved for specific concepts and documented. |
+| Engine (CSS) | `@keyframes` + `animation-fill-mode: forwards` | Prevents reverse playback when status returns to rest. |
+| Engine (3D) | Three.js orthographic planes + CanvasTexture | Destination page painted to canvas; UV strips fall as curtains. |
+| State model | `rest` → `running` → swap page → `rest` | Incoming layer mounts only while running; remount via `playKey`. |
+| Duration | 240–1600ms by effect | Commercial nav vs editorial / curtain reveals. |
+| Easing | `cubic-bezier(0.22, 1, 0.36, 1)` / ease-out cubic | Decelerated entry without spring bounce. |
+| Properties | `transform`, `opacity`, `clip-path`, `filter` (CSS); mesh `position.y` (Three) | Compositor-friendly; filter reserved for soft crossfade. |
 
-## First five transition concepts
+## Transition concepts
 
-| Order | Concept | Shopping-site use | Implementation direction | Risk to test |
-| --- | --- | --- | --- | --- |
-| 1 | Editorial Wipe | Collection to product detail | A full-bleed brand panel wipes across, then reveals the next page. | Can feel heavy if duration exceeds 600ms. |
-| 2 | Product Shelf Slide | Category grid to neighboring category | Old page slides left as new page enters from right with slight depth. | Must preserve reading direction and avoid carousel confusion. |
-| 3 | Spotlight Iris | Campaign landing to featured product | Circular reveal grows from the clicked product/CTA region. | Needs fallback origin when no click target exists. |
-| 4 | Receipt Lift | Cart to checkout | Checkout panel rises over cart content like a receipt or order sheet. | Should feel transactional, not modal-blocking. |
-| 5 | Soft Crossfade Blur | Utility pages, search, account | Fast opacity/blur bridge between unrelated layouts. | Filter cost and reduced-motion behavior need checking. |
+| Order | Concept | Engine | Shopping-site use |
+| --- | --- | --- | --- |
+| 1 | Editorial Wipe | CSS | Collection → product detail |
+| 2 | Product Shelf Slide | CSS | Category → category |
+| 3 | Spotlight Iris | CSS | Campaign → featured product |
+| 4 | Receipt Lift | CSS | Cart → checkout |
+| 5 | Soft Crossfade Blur | CSS | Utility ↔ utility |
+| 6 | Curtain Fall | Three.js | Branded handoff; destination painted on falling strips |
 
 ## Acceptance criteria
 
-- [x] Demo route `/demos/page-transitions-lab` renders a selectable transition workspace
-- [x] Sliders expose duration, intensity, stagger, and corner radius where applicable
-- [x] A replay control exercises the selected transition without editing code
-- [x] Export drawer shows dependencies, current settings, and starter code
-- [x] First five transition concepts are documented in this spec and visible in the demo
+- [x] Demo route `/demos/page-transitions-lab` renders gallery + detail workspace
+- [x] UI matches Maser-Lab monochrome pattern (text-animation-lab)
+- [x] Five CSS transitions play one-shot without reverse/repeat glitches
+- [x] Curtain Fall uses Three.js with live curtain-count slider (3–16)
+- [x] Replay / reset / export controls work
+- [x] `prefers-reduced-motion` collapses travel / curtain physics
 - [x] `npm run lint` and `npm run build` pass in `lab/`
-- [x] `prefers-reduced-motion` verified in browser
 - [x] Component exported from `lab/src/components/projects/layout/page-transitions-lab/index.ts`
+
+## Research notes (Curtain Fall)
+
+- Official docs checked: `WebGLRenderer`, `OrthographicCamera`, `PlaneGeometry`, `CanvasTexture`, `MeshBasicMaterial`, texture disposal
+- Destination content is painted via 2D canvas (no html2canvas dependency) so the lab stays portable
+- Shared material + per-strip UV remap avoids cloning textures per curtain
+- Disposal on unmount: geometries, material, texture, renderer, rAF, resize listener
 
 ## Open decisions
 
 - Which client router should get the first production adapter: Next.js App Router, Remix, Shopify Hydrogen, or a plain React shell?
-- Should transition origin be captured from click targets in the first coded effect, or stay viewport-based until the pattern proves useful?
+- Should production Curtain Fall capture real route DOM (html2canvas / View Transitions API) instead of a painted stand-in?
