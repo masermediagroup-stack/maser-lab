@@ -86,7 +86,6 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
   };
 
   const handlePlay = () => {
-    // Keep the stage in view on mobile while the transition plays.
     if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
       document
         .getElementById("ptl-stage-anchor")
@@ -101,20 +100,19 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
         <Button
           variant="ghost"
           size="sm"
-          className="text-neutral-300 hover:bg-white/5 hover:text-white"
+          className="text-white hover:bg-[var(--ptl-blue)]/10 hover:text-[var(--ptl-blue)]"
           onClick={onBack}
         >
           <ArrowLeft className="size-4" />
-          Back to all transitions
+          All transitions
         </Button>
 
         <div className="mt-4 space-y-2">
-          <p className="text-xs tracking-[0.14em] text-neutral-500 uppercase">
+          <p className="text-xs tracking-[0.14em] text-[var(--ptl-blue)] uppercase">
             {definition.eyebrow}
-            {definition.engine === "three" ? " · Three.js" : " · CSS"}
+            {definition.engine === "three" ? " · 3D" : " · CSS"}
           </p>
           <h1 className="ptl-detail__title">{definition.title}</h1>
-          <p className="ptl-detail__description">{definition.description}</p>
         </div>
       </div>
 
@@ -135,7 +133,7 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
           <div className="ptl-detail__actions">
             <Button
               variant="outline"
-              className="border-white/15 bg-transparent text-white hover:bg-white/5"
+              className="border-[var(--ptl-blue)]/35 bg-transparent text-white hover:border-[var(--ptl-blue)] hover:bg-[var(--ptl-blue)]/10"
               onClick={handlePlay}
               disabled={status === "running"}
             >
@@ -144,24 +142,24 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
             </Button>
             <Button
               variant="outline"
-              className="border-white/15 bg-transparent text-white hover:bg-white/5"
+              className="border-[var(--ptl-blue)]/35 bg-transparent text-white hover:border-[var(--ptl-blue)] hover:bg-[var(--ptl-blue)]/10"
               onClick={handleReset}
             >
               <RotateCcw className="size-4" />
               Reset
             </Button>
             <Button
-              className="bg-white text-black hover:bg-neutral-200"
+              className="bg-[var(--ptl-blue)] text-white hover:bg-[var(--ptl-blue-deep)]"
               onClick={() => setExportOpen(true)}
             >
               <Code2 className="size-4" />
-              Export code
+              Export
             </Button>
           </div>
         </div>
 
         <aside className="ptl-detail__panel" aria-label="Transition controls">
-          <p className="mb-4 text-xs font-medium tracking-[0.14em] text-neutral-400 uppercase">
+          <p className="mb-4 text-xs font-medium tracking-[0.14em] text-[var(--ptl-blue)] uppercase">
             Controls
           </p>
           {definition.controls.map((control) => (
@@ -176,30 +174,13 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
               onChange={(value) => updateSetting(control.key, value)}
             />
           ))}
-          <div className="ptl-reduced-note">
-            <strong>Reduced motion</strong>
-            <p>
-              {reducedMotion
-                ? "System preference is active — previews collapse to a short opacity bridge."
-                : "A reduced-motion branch removes large travel, blur, and curtain physics."}
-            </p>
-          </div>
+          {reducedMotion ? (
+            <div className="ptl-reduced-note">
+              <strong>Reduced motion on</strong>
+              <p>Previews use a short opacity bridge.</p>
+            </div>
+          ) : null}
         </aside>
-
-        <div className="ptl-notes">
-          <article>
-            <span>Use case</span>
-            <p>{definition.useCase}</p>
-          </article>
-          <article>
-            <span>Mechanics</span>
-            <p>{definition.mechanics}</p>
-          </article>
-          <article>
-            <span>Risk to test</span>
-            <p>{definition.risk}</p>
-          </article>
-        </div>
       </div>
 
       <CodeExportDrawer

@@ -21,14 +21,7 @@ export function DemoPageCard({
       <div className="ptl-product-visual" aria-hidden="true">
         <span />
       </div>
-      <div>
-        <p>{sample.title}</p>
-        <ul>
-          {sample.items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </div>
+      <p>{sample.title}</p>
     </article>
   );
 }

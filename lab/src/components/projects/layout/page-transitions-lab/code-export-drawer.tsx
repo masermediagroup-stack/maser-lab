@@ -44,52 +44,51 @@ export function CodeExportDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full border-white/10 bg-neutral-950 text-white sm:max-w-2xl"
+        className="w-full border-[var(--ptl-blue)]/25 bg-black text-white sm:max-w-2xl"
       >
         <SheetHeader>
           <SheetTitle className="text-white">{definition.title}</SheetTitle>
-          <SheetDescription className="text-neutral-400">
-            Starter code for extracting this route transition into a client
-            project. Lab chrome is excluded.
+          <SheetDescription className="text-white">
+            Current settings + starter code.
           </SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-5">
           <section className="space-y-2">
-            <h3 className="text-xs font-medium tracking-[0.14em] text-neutral-400 uppercase">
-              Current settings
+            <h3 className="text-xs font-medium tracking-[0.14em] text-[var(--ptl-blue)] uppercase">
+              Settings
             </h3>
-            <pre className="overflow-x-auto rounded-lg border border-white/10 bg-black p-3 text-xs text-neutral-300">
+            <pre className="overflow-x-auto rounded-lg border border-[var(--ptl-blue)]/20 bg-[#02060a] p-3 text-xs text-white/80">
               {generateSettingsSummary(settings)}
             </pre>
           </section>
 
           <section className="space-y-2">
-            <h3 className="text-xs font-medium tracking-[0.14em] text-neutral-400 uppercase">
+            <h3 className="text-xs font-medium tracking-[0.14em] text-[var(--ptl-blue)] uppercase">
               Dependencies
             </h3>
-            <p className="text-sm text-neutral-300">
+            <p className="text-sm text-white/70">
               {definition.dependencies.join(", ")}
             </p>
           </section>
 
           <section className="space-y-2">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-xs font-medium tracking-[0.14em] text-neutral-400 uppercase">
-                Component starter
+              <h3 className="text-xs font-medium tracking-[0.14em] text-[var(--ptl-blue)] uppercase">
+                Code
               </h3>
               <Button
                 variant="outline"
                 size="sm"
-                className="border-white/15 bg-transparent text-white hover:bg-white/5"
+                className="border-[var(--ptl-blue)]/40 bg-transparent text-white hover:bg-[var(--ptl-blue)]/10"
                 onClick={handleCopy}
               >
                 <Copy className="size-4" />
                 {copied ? "Copied" : "Copy"}
               </Button>
             </div>
-            <ScrollArea className="h-[min(52vh,520px)] rounded-lg border border-white/10">
-              <pre className="p-4 text-xs leading-relaxed whitespace-pre-wrap text-neutral-200">
+            <ScrollArea className="h-[min(52vh,520px)] rounded-lg border border-[var(--ptl-blue)]/20">
+              <pre className="p-4 text-xs leading-relaxed whitespace-pre-wrap text-white/85">
                 {code}
               </pre>
             </ScrollArea>

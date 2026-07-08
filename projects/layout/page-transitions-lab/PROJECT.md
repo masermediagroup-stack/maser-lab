@@ -10,7 +10,7 @@
 
 - Figma: none
 - Other: Client shopping-site route transitions, product browsing, collection switching, cart/checkout movement
-- Lab UI pattern: matches `text-animation-lab` monochrome gallery → detail workspace
+- Lab UI pattern: matches `text-animation-lab` gallery → detail workspace; Maser blue / white only
 - Design spec: `FIGMA.md`
 
 ## Skills loaded
@@ -34,7 +34,7 @@ Lab workspace with selectable transitions. Early CSS used reversible `transition
 A Maser-Lab-aligned gallery where each transition plays as a **one-shot** animation, settles on the destination page, can be tuned, and exports starter code — including a Three.js curtain-fall reveal.
 
 ### Success signal
-Each transition can be selected, replayed without reverse bounce, tuned, understood from notes, and exported. Curtain Fall responds to a live curtain-count slider.
+Each transition can be selected, replayed without reverse bounce, tuned, and exported. Curtain Fall responds to a live curtain-count slider. Preview chrome stays Maser blue / white with no fluff copy.
 
 ### Non-goals
 - Full app router integration for a specific client stack

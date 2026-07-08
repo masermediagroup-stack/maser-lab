@@ -27,10 +27,6 @@ export type TransitionDefinition = {
   id: TransitionId;
   title: string;
   eyebrow: string;
-  description: string;
-  useCase: string;
-  mechanics: string;
-  risk: string;
   engine: "css" | "three";
   dependencies: string[];
   defaults: TransitionSettings;
@@ -45,6 +41,5 @@ export type PageSample = {
   label: string;
   title: string;
   kicker: string;
-  items: string[];
   accent: string;
 };

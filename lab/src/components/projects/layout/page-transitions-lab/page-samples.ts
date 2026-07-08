@@ -1,35 +1,33 @@
 import type { PageSample } from "./types";
 
+/** Preview pages — Maser blue / white only. */
 export const pageSamples: PageSample[] = [
   {
     id: "collection",
-    path: "/shop/spring-objects",
+    path: "/shop/spring",
     label: "Collection",
-    title: "Spring Objects",
-    kicker: "New arrivals",
-    items: ["Stoneware Set", "Linen Overshirt", "Oak Tray"],
-    accent: "#8fa896",
+    title: "Spring",
+    kicker: "New",
+    accent: "#10a4ff",
   },
   {
     id: "product",
-    path: "/shop/ceramic-pour-set",
+    path: "/shop/pour-set",
     label: "Product",
-    title: "Ceramic Pour Set",
-    kicker: "Featured piece",
-    items: ["Matte glaze", "Ships in 2 days", "$84"],
-    accent: "#c4a574",
+    title: "Pour Set",
+    kicker: "Featured",
+    accent: "#10a4ff",
   },
   {
     id: "cart",
     path: "/cart",
     label: "Cart",
-    title: "Your bag",
-    kicker: "2 items",
-    items: ["Pour Set × 1", "Oak Tray × 1", "Subtotal $142"],
-    accent: "#9a8f7a",
+    title: "Bag",
+    kicker: "Ready",
+    accent: "#0097f5",
   },
 ];
 
-export function getNeighborPage(index: number): number {
+export function getNeighborPage(index: number) {
   return (index + 1) % pageSamples.length;
 }

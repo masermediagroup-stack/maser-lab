@@ -25,10 +25,7 @@ export function PageTransitionsLab() {
   return (
     <div className="page-transitions-lab min-h-screen bg-black text-white">
       <div className="page-transitions-lab__chrome">
-        <Link
-          href="/"
-          className="text-xs tracking-wide text-neutral-500 transition-colors hover:text-neutral-300"
-        >
+        <Link href="/" className="text-xs tracking-wide">
           ← Maser-Lab
         </Link>
       </div>

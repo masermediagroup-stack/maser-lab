@@ -1,7 +1,7 @@
 import type { PageSample } from "./types";
 
 /**
- * Paint a destination-page stand-in onto a canvas for curtain textures.
+ * Paint a destination-page stand-in — Maser blue / white only.
  * Safe on tiny / zero-size surfaces (mobile layout, display:none hosts).
  */
 export function paintPageTexture(
@@ -10,17 +10,17 @@ export function paintPageTexture(
   width: number,
   height: number,
 ) {
+  const blue = sample.accent || "#10a4ff";
   const safeW = Math.max(1, Math.floor(width));
   const safeH = Math.max(1, Math.floor(height));
   if (safeW < 8 || safeH < 8) {
-    // Too small to paint a readable card — fill a solid so callers still get a texture.
     const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 2);
     canvas.width = Math.max(1, Math.floor(safeW * dpr));
     canvas.height = Math.max(1, Math.floor(safeH * dpr));
     const tiny = canvas.getContext("2d");
     if (!tiny) return;
     tiny.setTransform(dpr, 0, 0, dpr, 0, 0);
-    tiny.fillStyle = "#0a0a0a";
+    tiny.fillStyle = "#02060a";
     tiny.fillRect(0, 0, safeW, safeH);
     return;
   }
@@ -35,24 +35,24 @@ export function paintPageTexture(
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, safeW, safeH);
 
-  ctx.fillStyle = "#0a0a0a";
+  ctx.fillStyle = "#02060a";
   ctx.fillRect(0, 0, safeW, safeH);
 
   const pad = Math.max(10, Math.min(22, safeW * 0.05));
   const cardW = Math.max(48, Math.min(420, safeW * 0.78));
-  const cardH = Math.max(64, Math.min(360, safeH * 0.78));
+  const cardH = Math.max(64, Math.min(320, safeH * 0.72));
   const cardX = (safeW - cardW) / 2;
   const cardY = (safeH - cardH) / 2;
   const radius = Math.max(0, Math.min(16, cardW / 8, cardH / 8));
 
   roundRect(ctx, cardX, cardY, cardW, cardH, radius);
-  ctx.fillStyle = "#111111";
+  ctx.fillStyle = "#05080c";
   ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.strokeStyle = "rgba(16,164,255,0.35)";
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  ctx.fillStyle = "rgba(255,255,255,0.45)";
+  ctx.fillStyle = blue;
   ctx.font = `600 ${Math.max(9, Math.min(11, cardW * 0.035))}px ui-sans-serif, system-ui, sans-serif`;
   ctx.fillText(sample.label.toUpperCase(), cardX + pad, cardY + pad + 10);
   ctx.textAlign = "right";
@@ -62,7 +62,7 @@ export function paintPageTexture(
   const visualX = cardX + pad;
   const visualY = cardY + pad + 22;
   const visualW = Math.max(8, cardW - pad * 2);
-  const visualH = Math.max(8, cardH * 0.42);
+  const visualH = Math.max(8, cardH * 0.48);
   roundRect(ctx, visualX, visualY, visualW, visualH, Math.min(12, visualW / 6, visualH / 6));
   const gradient = ctx.createLinearGradient(
     visualX,
@@ -70,9 +70,9 @@ export function paintPageTexture(
     visualX + visualW,
     visualY + visualH,
   );
-  gradient.addColorStop(0, "#1a1a1a");
-  gradient.addColorStop(0.55, sample.accent);
-  gradient.addColorStop(1, "#2a2a2a");
+  gradient.addColorStop(0, "#00365a");
+  gradient.addColorStop(0.55, blue);
+  gradient.addColorStop(1, "#0065a3");
   ctx.fillStyle = gradient;
   ctx.fill();
 
@@ -88,7 +88,7 @@ export function paintPageTexture(
     0,
     Math.PI * 2,
   );
-  ctx.fillStyle = "rgba(255,255,255,0.88)";
+  ctx.fillStyle = "#ffffff";
   ctx.fill();
 
   ctx.fillStyle = "#ffffff";
@@ -98,18 +98,10 @@ export function paintPageTexture(
     ctx,
     sample.title,
     cardX + pad,
-    visualY + visualH + titleSize + 8,
+    visualY + visualH + titleSize + 10,
     Math.max(8, cardW - pad * 2),
     titleSize * 1.15,
   );
-
-  ctx.fillStyle = "rgba(255,255,255,0.5)";
-  ctx.font = `600 ${Math.max(8, Math.min(11, cardW * 0.03))}px ui-sans-serif, system-ui, sans-serif`;
-  const itemY = cardY + cardH - pad;
-  const itemWidth = Math.max(8, (cardW - pad * 2) / sample.items.length);
-  sample.items.forEach((item, index) => {
-    ctx.fillText(item.toUpperCase(), cardX + pad + itemWidth * index, itemY);
-  });
 }
 
 function roundRect(
