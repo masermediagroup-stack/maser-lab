@@ -173,13 +173,16 @@ export function TransitionStage({
 
         {isThree && running ? (
           <>
-            <div
-              key={`outgoing-curtain-${playKey}`}
-              className="ptl-route-page ptl-route-page--outgoing"
-            >
-              <DemoPageCard sample={fromSample} variant="outgoing" />
-            </div>
-            <div className="ptl-curtain-dim" aria-hidden="true" />
+            {/* Keep the from-page fully opaque until cover seals, then
+                drop it so the out-phase reveals the destination only. */}
+            {!pathCovered ? (
+              <div
+                key={`outgoing-curtain-${playKey}`}
+                className="ptl-route-page ptl-route-page--outgoing"
+              >
+                <DemoPageCard sample={fromSample} variant="outgoing" />
+              </div>
+            ) : null}
             {/* CSS strips only when Three isn't driving — both at once
                 reads as a double curtain set, especially with gradients. */}
             {!useThreeOverlay ? (

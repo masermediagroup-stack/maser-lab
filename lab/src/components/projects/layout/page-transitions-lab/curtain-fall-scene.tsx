@@ -66,8 +66,10 @@ export function CurtainFallScene({
 
     const worldHeight = 2.08;
     const worldWidth = aspect * 2;
+    // Abut strips — any intentional overlap reads as stepped seams
+    // once gradients + stagger put neighbors at different Y.
     const stripWidth = worldWidth / curtains;
-    const overlap = stripWidth * 0.12;
+    const overlap = 0;
 
     const dropStart = reducedMotion ? 0 : worldHeight * 1.15;
     const dropEnd = reducedMotion ? 0 : -worldHeight * 1.15;

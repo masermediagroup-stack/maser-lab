@@ -477,8 +477,8 @@
   flex: 1 1 0;
   align-self: stretch;
   min-width: 0;
-  /* Overlap neighbors so no seam lets the page poke through */
-  margin-inline: -2px;
+  /* No neighbor overlap — staggered gradients make overlaps look stepped */
+  margin-inline: 0;
   min-height: 100%;
   height: 100%;
   border: 0;
@@ -782,12 +782,15 @@
   display: none;
 }
 
-/* Curtain Fall — cover strips own motion; outgoing dims under them */
+/* Curtain Fall — outgoing stays fully opaque until JS removes it
+   after cover seals; no early dim/fade that shows the destination. */
 .ptl-stage[data-status="running"][data-transition="curtain-fall"] .ptl-route-page--outgoing {
-  animation: ptl-hold-dim var(--ptl-total) ease-out forwards;
+  animation: none;
+  opacity: 1;
 }
 
-.ptl-stage[data-transition="curtain-fall"] .ptl-transition-cover {
+.ptl-stage[data-transition="curtain-fall"] .ptl-transition-cover,
+.ptl-stage[data-transition="curtain-fall"] .ptl-curtain-dim {
   display: none;
 }
 
