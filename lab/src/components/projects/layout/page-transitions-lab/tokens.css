@@ -178,7 +178,9 @@
 
 .ptl-detail__panel {
   min-width: 0;
-  overflow: hidden;
+  max-height: min(70vh, 720px);
+  overflow-x: hidden;
+  overflow-y: auto;
   border: 1px solid var(--ptl-border);
   border-radius: 1rem;
   background: var(--ptl-panel);
@@ -335,9 +337,27 @@
   animation: ptl-dim-in calc(var(--ptl-duration) * 0.35) ease-out forwards;
 }
 
-.ptl-curtain-canvas {
+.ptl-curtain-fallback {
   z-index: 4;
+  display: flex;
   pointer-events: none;
+  overflow: hidden;
+}
+
+.ptl-curtain-fallback span {
+  flex: 1;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 40%),
+    #141414;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  transform: translateY(-110%);
+  animation: ptl-css-curtain-fall var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes ptl-css-curtain-fall {
+  to {
+    transform: translateY(0);
+  }
 }
 
 /* ── Page card ───────────────────────────────────────── */

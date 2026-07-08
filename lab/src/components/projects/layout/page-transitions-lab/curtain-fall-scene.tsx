@@ -84,9 +84,11 @@ export function CurtainFallScene({
     const worldHeight = 2;
     const worldWidth = aspect * 2;
     const stripWidth = worldWidth / curtains;
+    // Keep drop distance short enough that strips enter the frame early
+    // (orthographic y spans [-1, 1]; overshooting too far looks like a blank stage).
     const dropStart = reducedMotion
       ? 0
-      : 1 + worldHeight * (0.35 + settings.intensity / 200);
+      : worldHeight * (0.55 + settings.intensity / 250);
 
     const meshes: THREE.Mesh[] = [];
     const geometries: THREE.PlaneGeometry[] = [];
@@ -96,8 +98,15 @@ export function CurtainFallScene({
       depthWrite: false,
     });
 
+    const gap = stripWidth * 0.02;
+
     for (let i = 0; i < curtains; i++) {
-      const geometry = makeStripGeometry(stripWidth, worldHeight, i, curtains);
+      const geometry = makeStripGeometry(
+        Math.max(stripWidth - gap, stripWidth * 0.92),
+        worldHeight,
+        i,
+        curtains,
+      );
       geometries.push(geometry);
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.x = -aspect + stripWidth * i + stripWidth / 2;

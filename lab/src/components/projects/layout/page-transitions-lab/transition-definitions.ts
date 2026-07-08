@@ -153,9 +153,9 @@ export const transitionDefinitions: TransitionDefinition[] = [
       "Vertical curtains drop one by one across the screen. Each strip carries the destination page texture, then settles into the full next view.",
     useCase:
       "Use for campaign landings, lookbook handoffs, or branded route changes where the next page should arrive as a physical reveal.",
-    mechanics:
-      "html2canvas-style capture of the destination page is mapped onto staggered Three.js planes that fall from above. Curtain count is live-tunable.",
-    risk: "Requires WebGL; falls back to a CSS strip cascade when unavailable. Capture cost rises with curtain count.",
+      mechanics:
+        "Destination page is painted to a canvas texture and mapped onto staggered Three.js planes that fall from above. Curtain count is live-tunable.",
+      risk: "Requires WebGL; falls back to a CSS strip cascade when unavailable.",
     engine: "three",
     dependencies: ["React", "three", "WebGL"],
     defaults: {
