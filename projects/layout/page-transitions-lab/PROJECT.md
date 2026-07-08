@@ -80,7 +80,9 @@ Each transition can be selected, replayed without reverse bounce, tuned, underst
 - [x] Demo route `/demos/page-transitions-lab` renders gallery + detail workspace
 - [x] UI matches Maser-Lab monochrome pattern (text-animation-lab)
 - [x] Five CSS transitions play one-shot without reverse/repeat glitches
-- [x] Curtain Fall uses Three.js with live curtain-count slider (3–16)
+- [x] Curtain Fall uses destination-painted strips (CSS) + Three.js overlay on desktop
+- [x] Curtain Fall visible on mobile while playing (no blank stage)
+- [x] Mobile layout: stage → actions → controls → notes; full page scrollable
 - [x] Replay / reset / export controls work
 - [x] `prefers-reduced-motion` collapses travel / curtain physics
 - [x] `npm run lint` and `npm run build` pass in `lab/`

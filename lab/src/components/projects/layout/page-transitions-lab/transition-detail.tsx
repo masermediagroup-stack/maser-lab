@@ -56,7 +56,6 @@ function SettingSlider({
 }
 
 export function TransitionDetail({ definition, onBack }: TransitionDetailProps) {
-  // Parent remounts this component with key={definition.id} so defaults reset cleanly.
   const [settings, setSettings] = useState<TransitionSettings>(definition.defaults);
   const [pageIndex, setPageIndex] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
@@ -86,9 +85,19 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
     setSettings((current) => ({ ...current, [key]: value }));
   };
 
+  const handlePlay = () => {
+    // Keep the stage in view on mobile while the transition plays.
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
+      document
+        .getElementById("ptl-stage-anchor")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    play();
+  };
+
   return (
     <div className="ptl-detail">
-      <div>
+      <div className="ptl-detail__intro">
         <Button
           variant="ghost"
           size="sm"
@@ -110,22 +119,24 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
       </div>
 
       <div className="ptl-detail__layout">
-        <div>
-          <TransitionStage
-            selectedId={definition.id}
-            settings={settings}
-            status={status}
-            playKey={playKey}
-            fromSample={fromSample}
-            toSample={toSample}
-            reducedMotion={reducedMotion}
-          />
+        <div className="ptl-detail__main">
+          <div id="ptl-stage-anchor" className="ptl-detail__stage-wrap">
+            <TransitionStage
+              selectedId={definition.id}
+              settings={settings}
+              status={status}
+              playKey={playKey}
+              fromSample={fromSample}
+              toSample={toSample}
+              reducedMotion={reducedMotion}
+            />
+          </div>
 
           <div className="ptl-detail__actions">
             <Button
               variant="outline"
               className="border-white/15 bg-transparent text-white hover:bg-white/5"
-              onClick={play}
+              onClick={handlePlay}
               disabled={status === "running"}
             >
               <RotateCw className="size-4" />
@@ -146,21 +157,6 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
               <Code2 className="size-4" />
               Export code
             </Button>
-          </div>
-
-          <div className="ptl-notes">
-            <article>
-              <span>Use case</span>
-              <p>{definition.useCase}</p>
-            </article>
-            <article>
-              <span>Mechanics</span>
-              <p>{definition.mechanics}</p>
-            </article>
-            <article>
-              <span>Risk to test</span>
-              <p>{definition.risk}</p>
-            </article>
           </div>
         </div>
 
@@ -189,6 +185,21 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
             </p>
           </div>
         </aside>
+
+        <div className="ptl-notes">
+          <article>
+            <span>Use case</span>
+            <p>{definition.useCase}</p>
+          </article>
+          <article>
+            <span>Mechanics</span>
+            <p>{definition.mechanics}</p>
+          </article>
+          <article>
+            <span>Risk to test</span>
+            <p>{definition.risk}</p>
+          </article>
+        </div>
       </div>
 
       <CodeExportDrawer

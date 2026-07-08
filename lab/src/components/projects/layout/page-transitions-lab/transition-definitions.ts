@@ -148,14 +148,14 @@ export const transitionDefinitions: TransitionDefinition[] = [
   {
     id: "curtain-fall",
     title: "Curtain Fall",
-    eyebrow: "Three.js · Destination reveal",
+    eyebrow: "Destination reveal",
     description:
       "Vertical curtains drop one by one across the screen. Each strip carries the destination page texture, then settles into the full next view.",
     useCase:
       "Use for campaign landings, lookbook handoffs, or branded route changes where the next page should arrive as a physical reveal.",
       mechanics:
-        "Destination page is painted to a canvas texture and mapped onto staggered Three.js planes that fall from above. Curtain count is live-tunable.",
-      risk: "Requires WebGL; falls back to a CSS strip cascade when unavailable.",
+        "Destination page is painted onto staggered strips that fall from above. Desktop can overlay Three.js planes; mobile uses the painted CSS path so the reveal stays visible. Curtain count is live-tunable.",
+      risk: "Desktop Three.js path needs WebGL. Mobile always uses the CSS strip cascade so play never blanks.",
     engine: "three",
     dependencies: ["React", "three", "WebGL"],
     defaults: {

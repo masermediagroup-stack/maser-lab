@@ -136,7 +136,7 @@
 .ptl-detail {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 1.5rem 1.25rem 3rem;
+  padding: 1.5rem 1.25rem calc(3rem + env(safe-area-inset-bottom, 0px));
 }
 
 .ptl-detail__title {
@@ -153,8 +153,8 @@
 
 .ptl-detail__layout {
   display: grid;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
   min-width: 0;
 }
 
@@ -162,10 +162,34 @@
   min-width: 0;
 }
 
+.ptl-detail__main {
+  min-width: 0;
+}
+
+.ptl-detail__stage-wrap {
+  scroll-margin-top: 4.5rem;
+}
+
 @media (min-width: 1024px) {
   .ptl-detail__layout {
     grid-template-columns: minmax(0, 1fr) 320px;
     align-items: start;
+    gap: 1.5rem;
+  }
+
+  .ptl-detail__main {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .ptl-detail__panel {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .ptl-notes {
+    grid-column: 1;
+    grid-row: 2;
   }
 }
 
@@ -178,25 +202,47 @@
 
 .ptl-detail__panel {
   min-width: 0;
-  max-height: min(70vh, 720px);
-  overflow-x: hidden;
-  overflow-y: auto;
   border: 1px solid var(--ptl-border);
   border-radius: 1rem;
   background: var(--ptl-panel);
   padding: 1.25rem;
 }
 
+@media (min-width: 1024px) {
+  .ptl-detail__panel {
+    max-height: min(70vh, 720px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: sticky;
+    top: 4.5rem;
+  }
+}
+
+/* Mobile: controls sit directly under actions so Curtains slider is reachable */
 @media (max-width: 1023px) {
+  .ptl-detail__main {
+    order: 1;
+  }
+
   .ptl-detail__panel {
     order: 2;
+  }
+
+  .ptl-notes {
+    order: 3;
+  }
+
+  .ptl-detail__intro .ptl-detail__description {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
 
 .ptl-notes {
   display: grid;
   gap: 0.85rem;
-  margin-top: 1.25rem;
 }
 
 .ptl-notes article span {
@@ -293,7 +339,7 @@
 
 .ptl-route-frame {
   position: relative;
-  min-height: clamp(420px, 52vw, 600px);
+  min-height: clamp(320px, 58vw, 600px);
   overflow: hidden;
   isolation: isolate;
   background:
@@ -304,7 +350,8 @@
 .ptl-route-page,
 .ptl-transition-cover,
 .ptl-curtain-canvas,
-.ptl-curtain-dim {
+.ptl-curtain-dim,
+.ptl-curtain-fallback {
   position: absolute;
   inset: 0;
 }
@@ -345,18 +392,38 @@
 }
 
 .ptl-curtain-fallback span {
-  flex: 1;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 40%),
-    #141414;
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
-  transform: translateY(-110%);
-  animation: ptl-css-curtain-fall var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  flex: 1 1 0;
+  min-width: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #141414;
+  background-repeat: no-repeat;
+  transform: translate3d(0, -110%, 0);
+  animation-name: ptl-css-curtain-fall;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: forwards;
+  will-change: transform;
+}
+
+.ptl-curtain-fallback--destination span {
+  background-color: #0a0a0a;
+}
+
+.ptl-curtain-canvas {
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* On narrow viewports prefer the painted CSS curtains — Three overlay can
+   miss the play window while the chunk loads, and soft-shadows the strips. */
+@media (max-width: 1023px) {
+  .ptl-curtain-canvas {
+    display: none;
+  }
 }
 
 @keyframes ptl-css-curtain-fall {
   to {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -658,16 +725,44 @@
 }
 
 @media (max-width: 640px) {
+  .ptl-detail {
+    padding-inline: 1rem;
+    padding-top: 1rem;
+  }
+
   .ptl-route-frame {
-    min-height: 480px;
+    min-height: min(52vh, 420px);
   }
 
   .ptl-page-card {
-    min-height: 300px;
+    width: min(360px, 100%);
+    min-height: 260px;
+    padding: 16px;
   }
 
-  .ptl-detail__actions,
+  .ptl-page-card p {
+    font-size: clamp(1.25rem, 7vw, 1.85rem);
+  }
+
+  .ptl-product-visual {
+    margin-block: 14px;
+  }
+
+  .ptl-detail__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+
+  .ptl-detail__actions button:last-child {
+    grid-column: 1 / -1;
+  }
+
   .ptl-detail__actions button {
-    width: 100%;
+    min-height: 44px;
+  }
+
+  .ptl-gallery {
+    padding: 1.25rem 1rem 2.5rem;
   }
 }

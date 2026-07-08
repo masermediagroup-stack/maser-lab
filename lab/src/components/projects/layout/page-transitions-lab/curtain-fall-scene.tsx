@@ -7,7 +7,6 @@ import { paintPageTexture } from "./paint-page-texture";
 import type { PageSample, TransitionSettings } from "./types";
 
 type CurtainFallSceneProps = {
-  fromSample: PageSample;
   toSample: PageSample;
   settings: TransitionSettings;
   playKey: number;
@@ -53,8 +52,11 @@ export function CurtainFallScene({
     const container = containerRef.current;
     if (!container || !running) return;
 
-    const width = container.clientWidth || 1;
-    const height = container.clientHeight || 1;
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    // Skip when host is hidden / zero-sized (e.g. mobile CSS display:none).
+    if (width < 8 || height < 8) return;
+
     const curtains = Math.max(3, Math.min(16, Math.round(settings.curtains)));
 
     const renderer = new THREE.WebGLRenderer(createRendererOptions());
