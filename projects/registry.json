@@ -41,7 +41,7 @@
       "title": "Text Animation Lab",
       "status": "building",
       "category": "display",
-      "description": "Monochrome shadcn/ui playground for 10 reusable text animation effects with live controls and code export"
+      "description": "Monochrome shadcn/ui workspace for reusable text animation effects with live controls and code export"
     },
     {
       "slug": "page-transitions-lab",

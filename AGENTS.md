@@ -1,4 +1,4 @@
-# Playground — Agent Instructions
+# Maser-Lab — Agent Instructions
 
 **Maser-Lab** is Maser Media's internal **web testing lab**: build, review, and harden anything you ship on a website or web app before transferring it to portfolio or client codebases.
 
@@ -35,7 +35,7 @@ Pick a **category** from `projects/categories.json` that matches the primary job
 ## Repository layout
 
 ```text
-playground/
+maser-lab/
 ├── AGENTS.md                          ← you are here
 ├── projects/                          ← specs, acceptance criteria, lifecycle
 │   ├── categories.json                ← canonical web UI categories

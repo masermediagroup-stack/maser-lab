@@ -10,7 +10,7 @@
 | Field | Value |
 | --- | --- |
 | `fileKey` | `f2TLFWW5Eg8aqczRjuZ403` |
-| File URL | https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/web-component-and-interaction-playground |
+| File URL | https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/Maser-Lab-web-component-and-interaction-file |
 | Page | `0:1` — Glass Nav - Blue and Black |
 | Primary frame | `12:273` — Prism Nav Glass with Teal |
 | Nav component | `12:274` — PrismGlassNavigation |

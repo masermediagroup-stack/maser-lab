@@ -20,7 +20,7 @@ Website visitors moving between pages in a client-facing shopping site. Trigger 
 Make page-to-page changes feel intentional and spatial without hiding content, delaying purchase decisions, or creating router-specific lock-in.
 
 ### Current behavior
-Greenfield lab project. The playground has individual UI demos, but no reusable workspace for comparing route transition patterns with controls and export notes.
+Greenfield lab project. Maser-Lab has individual UI demos, but no reusable workspace for comparing route transition patterns with controls and export notes.
 
 ### Desired outcome
 A gallery where we can preview transition concepts one by one, tune practical motion settings, and export starter code for an external website.

@@ -37,7 +37,7 @@ SummitPath sign-up is a portfolio-grade, client-adaptable registration section r
 | Social icons | `40:777`, `40:778` | — | `summitpath-google-icon.png`, `summitpath-apple-icon.png` |
 | Hikelogo layer | `45:17` | — | `summitpath-hikelogo-layer.png` |
 
-**Figma file:** [web-component-and-interaction-playground](https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/web-component-and-interaction-playground)
+**Figma file:** [Maser-Lab web component and interaction file](https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/Maser-Lab-web-component-and-interaction-file)
 
 **Demo route:** `/demos/summitpath-sign-up`
 

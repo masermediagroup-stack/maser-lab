@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Black-and-white shadcn/ui text animation playground for Maser-Lab. Preview 11 reusable text animation effects, tune settings on a detail page, replay/reset animations, and export production-ready component usage snippets.
+Black-and-white shadcn/ui text animation workspace for Maser-Lab. Preview 11 reusable text animation effects, tune settings on a detail page, replay/reset animations, and export production-ready component usage snippets.
 
 Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/CTA blocks, and internal animation systems.
 

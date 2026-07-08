@@ -1,4 +1,4 @@
-# Playground
+# Maser-Lab
 
 **Maser-Lab** — Maser Media's web testing facility. Build, review, and harden page sections, components, forms, navigation, scroll reveals, micro-interactions, and 3D web experiences here; transfer to portfolio or client codebases when ready.
 
@@ -79,7 +79,7 @@ npx skills check && npx skills update
 ## Repository layout
 
 ```text
-playground/
+maser-lab/
 ├── AGENTS.md                 # Agent entry point
 ├── projects/                 # Specs & registry
 │   ├── categories.json       # Canonical web UI categories
@@ -96,6 +96,21 @@ playground/
 ## Quality gates
 
 Before portfolio transfer: lint + build pass, all `PROJECT.md` states demoed, review clean, reduced-motion verified when motion is in scope. Full checklist: `project-lifecycle.md` → Transfer checklist; per-slug steps in `TRANSFER.md`.
+
+## Vercel deployment
+
+Deploy the `lab/` app as the online Maser-Lab.
+
+| Setting | Value |
+| --- | --- |
+| Project name | `maser-lab` |
+| Framework preset | Next.js |
+| Root directory | `lab` |
+| Install command | `npm ci` |
+| Build command | `npm run build` |
+| Output directory | Leave default |
+
+Keep the repository root as the source of project specs, skills, and transfer notes; Vercel should build only the Next.js app in `lab/`.
 
 ## Figma integration
 
@@ -130,11 +145,11 @@ Use **both** servers for the full workflow:
 
 Keep Figma desktop open while using the desktop server.
 
-### Team playground file
+### Team Maser-Lab Figma File
 
 Primary Figma file for this repo:
 
-**[web-component-and-interaction-playground](https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/web-component-and-interaction-playground)**
+**[Maser-Lab web component and interaction file](https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/Maser-Lab-web-component-and-interaction-file)**
 
 | Field | Value |
 | --- | --- |

@@ -8,7 +8,7 @@
 ## Design reference
 
 - [Liquid glass navigation](https://dribbble.com/shots/26155046-Liquid-glass-navigation) - layout + liquid glass
-- [Figma playground file](https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/web-component-and-interaction-playground) - node `12:274` PrismGlassNavigation
+- [Maser-Lab Figma file](https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/Maser-Lab-web-component-and-interaction-file) - node `12:274` PrismGlassNavigation
 - Landscape background demo - portfolio showcase
 
 Demo brand label **Prism**. Teal selector pill on glass bar.
