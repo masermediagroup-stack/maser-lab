@@ -105,12 +105,12 @@ Deploy the `lab/` app as the online Maser-Lab.
 | --- | --- |
 | Project name | `maser-lab` |
 | Framework preset | Next.js |
-| Root directory | `lab` |
+| Root directory | Repository root |
 | Install command | `npm ci` |
-| Build command | `npm run build` |
-| Output directory | Leave default |
+| Build command | `npm run build --workspace maser-lab` |
+| Output directory | `lab/.next` |
 
-Keep the repository root as the source of project specs, skills, and transfer notes; Vercel should build only the Next.js app in `lab/`.
+Keep the repository root as the deployment context because the Next.js app imports project specs from `projects/`. The root `package.json` is a workspace wrapper for the `lab/` app so Vercel can detect Next.js while still building the lab workspace.
 
 ## Figma integration
 
