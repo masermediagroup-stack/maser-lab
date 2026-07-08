@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { createRendererOptions } from "@/three/utils/renderer";
-import { paintCurtainTexture } from "./curtain-style";
+import { applyStripUVs, paintCurtainTexture } from "./curtain-style";
 import type { TransitionSettings } from "./types";
 
 type CurtainFallSceneProps = {
@@ -72,11 +72,17 @@ export function CurtainFallScene({
     const dropStart = reducedMotion ? 0 : worldHeight * 1.15;
     const dropEnd = reducedMotion ? 0 : -worldHeight * 1.15;
 
+    // Horizontal: one wide texture so A→B spans the whole stage.
+    // Vertical/solid: a single strip-sized texture is enough.
+    const texW =
+      settings.curtainGradient === "horizontal"
+        ? Math.max(64, curtains * 32)
+        : 64;
     const paintCanvas = paintCurtainTexture(
       settings.curtainColorA,
       settings.curtainColorB,
       settings.curtainGradient,
-      64,
+      texW,
       256,
     );
     const texture = new THREE.CanvasTexture(paintCanvas);
@@ -92,7 +98,15 @@ export function CurtainFallScene({
     });
 
     for (let i = 0; i < curtains; i++) {
-      const geometry = new THREE.PlaneGeometry(stripWidth + overlap, worldHeight, 1, 1);
+      const geometry = new THREE.PlaneGeometry(
+        stripWidth + overlap,
+        worldHeight,
+        1,
+        1,
+      );
+      if (settings.curtainGradient === "horizontal") {
+        applyStripUVs(geometry, i, curtains);
+      }
       geometries.push(geometry);
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.x = -aspect + stripWidth * i + stripWidth / 2;

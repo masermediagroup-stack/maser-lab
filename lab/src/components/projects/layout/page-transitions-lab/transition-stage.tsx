@@ -180,19 +180,22 @@ export function TransitionStage({
               <DemoPageCard sample={fromSample} variant="outgoing" />
             </div>
             <div className="ptl-curtain-dim" aria-hidden="true" />
-            <DestinationCurtains
-              key={`dest-curtains-${playKey}`}
-              count={settings.curtains}
-              staggerMs={settings.stagger}
-              durationMs={settings.duration}
-              holdMs={hold}
-              playKey={playKey}
-              reducedMotion={reducedMotion}
-              colorA={settings.curtainColorA}
-              colorB={settings.curtainColorB}
-              gradient={settings.curtainGradient}
-            />
-            {useThreeOverlay ? (
+            {/* CSS strips only when Three isn't driving — both at once
+                reads as a double curtain set, especially with gradients. */}
+            {!useThreeOverlay ? (
+              <DestinationCurtains
+                key={`dest-curtains-${playKey}`}
+                count={settings.curtains}
+                staggerMs={settings.stagger}
+                durationMs={settings.duration}
+                holdMs={hold}
+                playKey={playKey}
+                reducedMotion={reducedMotion}
+                colorA={settings.curtainColorA}
+                colorB={settings.curtainColorB}
+                gradient={settings.curtainGradient}
+              />
+            ) : (
               <CurtainFallScene
                 key={`curtain-gl-${playKey}`}
                 settings={settings}
@@ -201,7 +204,7 @@ export function TransitionStage({
                 running
                 holdMs={hold}
               />
-            ) : null}
+            )}
           </>
         ) : null}
       </div>

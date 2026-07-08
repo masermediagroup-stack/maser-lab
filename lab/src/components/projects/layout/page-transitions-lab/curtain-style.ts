@@ -2,6 +2,7 @@
  * Shared curtain fill helpers — CSS background + Three.js canvas texture.
  */
 
+import type { BufferAttribute, BufferGeometry } from "three";
 import type { CurtainGradientMode } from "./types";
 
 const HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -32,7 +33,33 @@ export function curtainCssBackground(
   return `linear-gradient(180deg, ${a} 0%, ${b} 100%)`;
 }
 
-/** Paint a small canvas used as a Three.js strip texture. */
+/**
+ * Per-strip CSS fill. Horizontal gradients span the full curtain row
+ * (background-size / position), so strips don't each repeat A→B.
+ */
+export function curtainStripCssStyle(
+  colorA: string,
+  colorB: string,
+  mode: CurtainGradientMode,
+  index: number,
+  count: number,
+): {
+  background: string;
+  backgroundSize?: string;
+  backgroundPosition?: string;
+} {
+  const fill = curtainCssBackground(colorA, colorB, mode);
+  if (mode !== "horizontal" || count <= 1) {
+    return { background: fill };
+  }
+  return {
+    background: fill,
+    backgroundSize: `${count * 100}% 100%`,
+    backgroundPosition: `${-index * 100}% 0`,
+  };
+}
+
+/** Paint a canvas used as a Three.js strip texture (full stage width for horizontal). */
 export function paintCurtainTexture(
   colorA: string,
   colorB: string,
@@ -63,6 +90,22 @@ export function paintCurtainTexture(
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   return canvas;
+}
+
+/** Remap plane UVs so strip `index` samples a slice of a shared texture. */
+export function applyStripUVs(
+  geometry: BufferGeometry,
+  index: number,
+  count: number,
+) {
+  const uv = geometry.attributes.uv as BufferAttribute;
+  const u0 = index / count;
+  const span = 1 / count;
+  for (let i = 0; i < uv.count; i++) {
+    const u = uv.getX(i);
+    uv.setX(i, u0 + u * span);
+  }
+  uv.needsUpdate = true;
 }
 
 export function hexToCssNumber(hex: string): number {

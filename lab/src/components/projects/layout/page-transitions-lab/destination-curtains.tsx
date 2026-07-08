@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { curtainCssBackground } from "./curtain-style";
+import { curtainStripCssStyle } from "./curtain-style";
 import type { CurtainGradientMode } from "./types";
 
 type DestinationCurtainsProps = {
@@ -35,18 +35,24 @@ export function DestinationCurtains({
   const inMs = reducedMotion ? 140 : durationMs;
   const outMs = reducedMotion ? 140 : durationMs;
   const hold = reducedMotion ? 0 : holdMs;
-  const fill = curtainCssBackground(colorA, colorB, gradient);
 
   return (
     <div className="ptl-curtain-fallback" aria-hidden="true">
       {Array.from({ length: strips }, (_, index) => {
         const delay = reducedMotion ? 0 : index * staggerMs;
+        const fill = curtainStripCssStyle(
+          colorA,
+          colorB,
+          gradient,
+          index,
+          strips,
+        );
         return (
           <span
             key={`${playKey}-${index}`}
             style={
               {
-                background: fill,
+                ...fill,
                 "--ptl-curtain-in": `${inMs}ms`,
                 "--ptl-curtain-out": `${outMs}ms`,
                 "--ptl-curtain-hold": `${hold}ms`,
