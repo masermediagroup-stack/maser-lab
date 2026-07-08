@@ -85,6 +85,11 @@
   display: grid;
   gap: 1.5rem;
   margin-top: 1.5rem;
+  min-width: 0;
+}
+
+.tal-detail__layout > * {
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {
@@ -96,6 +101,7 @@
 
 .tal-detail__preview {
   display: flex;
+  min-width: 0;
   min-height: 280px;
   align-items: center;
   justify-content: center;
@@ -122,6 +128,8 @@
 }
 
 .tal-detail__panel {
+  min-width: 0;
+  overflow: hidden;
   border: 1px solid var(--tal-border);
   border-radius: 1rem;
   background: #0a0a0a;
@@ -136,4 +144,11 @@
 
 .tal-controls section:last-child hr {
   display: none;
+}
+
+.tal-controls input,
+.tal-controls textarea,
+.tal-controls button {
+  min-width: 0;
+  max-width: 100%;
 }

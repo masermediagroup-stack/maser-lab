@@ -2,6 +2,7 @@ import { EASE_OPTIONS } from "@/components/text-animations/shared";
 import {
   CursorAsciiReveal,
   DirectionalLetterFlip,
+  GlyphScanReveal,
   GlideTextAnimation,
   LetterFlipFrame,
   PouredTextAnimation,
@@ -14,6 +15,8 @@ import {
 import type { AnimationDefinition, AnimationSettings } from "./types";
 
 export const DEFAULT_PREVIEW_TEXT = "Maser Media";
+const DEFAULT_GLYPH_SVG =
+  '<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><path d="M32 96c18-42 56-64 96-48 20 8 23 34 4 47-22 15-53 5-63-18M36 114c30 20 72 17 96-8" fill="none" stroke="white" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 const textControl = {
   type: "text" as const,
@@ -236,6 +239,72 @@ export const animationRegistry: AnimationDefinition[] = [
       { type: "switch", key: "pressMode", label: "Press mode", group: "interaction" },
     ],
     component: CursorAsciiReveal as AnimationDefinition["component"],
+  },
+  {
+    id: "glyph-scan-reveal",
+    title: "Glyph Scan Reveal",
+    description: "A scanner reconstructs text or SVG masks from a low-contrast symbol field.",
+    defaultText: "Maser",
+    defaultSettings: {
+      sourceMode: "text",
+      svgSource: DEFAULT_GLYPH_SVG,
+      cellSize: 14,
+      fontFamily: "\"Geist Pixel\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+      fontWeight: "400",
+      foregroundIntensity: 1,
+      backgroundDensity: 0.62,
+      scanDirection: "left-to-right",
+      scanSpeed: 1700,
+      decay: 0.68,
+      jitter: 0.8,
+      symbolSet: "mixed",
+    },
+    controls: [
+      textControl,
+      {
+        type: "select",
+        key: "sourceMode",
+        label: "Source mode",
+        group: "content",
+        options: [
+          { value: "text", label: "Text" },
+          { value: "svg", label: "SVG / path" },
+        ],
+      },
+      { type: "text", key: "svgSource", label: "SVG source", group: "content", multiline: true },
+      { type: "slider", key: "cellSize", label: "Cell size", group: "style", min: 8, max: 24, step: 1 },
+      { type: "text", key: "fontFamily", label: "Font family", group: "style" },
+      { type: "text", key: "fontWeight", label: "Font weight", group: "style" },
+      { type: "slider", key: "foregroundIntensity", label: "Foreground intensity", group: "style", min: 0.2, max: 1.4, step: 0.05 },
+      { type: "slider", key: "backgroundDensity", label: "Background density", group: "style", min: 0.1, max: 1, step: 0.05 },
+      {
+        type: "select",
+        key: "scanDirection",
+        label: "Scan direction",
+        group: "motion",
+        options: [
+          { value: "left-to-right", label: "Left to right" },
+          { value: "right-to-left", label: "Right to left" },
+          { value: "top-to-bottom", label: "Top to bottom" },
+          { value: "bottom-to-top", label: "Bottom to top" },
+        ],
+      },
+      { type: "slider", key: "scanSpeed", label: "Scan speed (ms)", group: "motion", min: 700, max: 4000, step: 50 },
+      { type: "slider", key: "decay", label: "Decay", group: "motion", min: 0.1, max: 1.5, step: 0.05 },
+      { type: "slider", key: "jitter", label: "Jitter", group: "motion", min: 0, max: 2, step: 0.1 },
+      {
+        type: "select",
+        key: "symbolSet",
+        label: "Symbol set",
+        group: "motion",
+        options: [
+          { value: "mixed", label: "Mixed" },
+          { value: "blocks", label: "Blocks" },
+          { value: "geometry", label: "Geometry" },
+        ],
+      },
+    ],
+    component: GlyphScanReveal as AnimationDefinition["component"],
   },
   {
     id: "glide-text",

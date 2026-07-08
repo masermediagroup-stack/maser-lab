@@ -6,6 +6,7 @@ import { SummitPathSignUpDemo } from "./sign-up/summitpath-sign-up";
 import { MakeYourDayCalendarDemo } from "./web-apps/makeyourday-calendar";
 import { LiquidMonochromeDemo } from "./scroll/liquid-monochrome";
 import { TextAnimationLabDemo } from "./display/text-animation-lab";
+import { PageTransitionsLabDemo } from "./layout/page-transitions-lab";
 
 export const demoRegistry: Record<string, ComponentType> = {
   "liquid-monochrome": LiquidMonochromeDemo,
@@ -13,6 +14,7 @@ export const demoRegistry: Record<string, ComponentType> = {
   "makeyourday-calendar": MakeYourDayCalendarDemo,
   "plotline-tab-nav": PlotlineTabNavDemo,
   prism: PrismNavDemo,
+  "page-transitions-lab": PageTransitionsLabDemo,
   "summitpath-sign-up": SummitPathSignUpDemo,
   "text-animation-lab": TextAnimationLabDemo,
 };

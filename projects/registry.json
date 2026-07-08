@@ -44,6 +44,13 @@
       "description": "Monochrome shadcn/ui playground for 10 reusable text animation effects with live controls and code export"
     },
     {
+      "slug": "page-transitions-lab",
+      "title": "Page Transitions Lab",
+      "status": "building",
+      "category": "layout",
+      "description": "Workspace for comparing page-to-page website transitions with live sliders, replay controls, and code export"
+    },
+    {
       "slug": "makeyourday-calendar",
       "title": "MakeYourDay Calendar",
       "status": "review",
