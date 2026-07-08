@@ -1,4 +1,5 @@
 import type { TransitionDefinition, TransitionId } from "./types";
+import { defaultCurtainLook } from "./types";
 
 const sharedControls = [
   {
@@ -34,6 +35,10 @@ const sharedControls = [
   },
 ];
 
+const sharedDefaults = {
+  ...defaultCurtainLook,
+};
+
 export const transitionDefinitions: TransitionDefinition[] = [
   {
     id: "editorial-wipe",
@@ -42,6 +47,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
     engine: "css",
     dependencies: ["React", "CSS custom properties"],
     defaults: {
+      ...sharedDefaults,
       duration: 560,
       intensity: 72,
       stagger: 80,
@@ -57,6 +63,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
     engine: "css",
     dependencies: ["React", "CSS custom properties"],
     defaults: {
+      ...sharedDefaults,
       duration: 460,
       intensity: 52,
       stagger: 40,
@@ -72,6 +79,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
     engine: "css",
     dependencies: ["React", "CSS clip-path"],
     defaults: {
+      ...sharedDefaults,
       duration: 620,
       intensity: 76,
       stagger: 60,
@@ -87,6 +95,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
     engine: "css",
     dependencies: ["React", "CSS custom properties"],
     defaults: {
+      ...sharedDefaults,
       duration: 520,
       intensity: 64,
       stagger: 30,
@@ -102,6 +111,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
     engine: "css",
     dependencies: ["React", "CSS filter"],
     defaults: {
+      ...sharedDefaults,
       duration: 320,
       intensity: 28,
       stagger: 0,
@@ -122,6 +132,9 @@ export const transitionDefinitions: TransitionDefinition[] = [
       stagger: 70,
       radius: 0,
       curtains: 8,
+      curtainColorA: "#071018",
+      curtainColorB: "#10a4ff",
+      curtainGradient: "vertical",
     },
     controls: [
       {
@@ -153,6 +166,26 @@ export const transitionDefinitions: TransitionDefinition[] = [
         min: 20,
         max: 100,
         step: 2,
+      },
+      {
+        type: "color",
+        key: "curtainColorA",
+        label: "Color A",
+      },
+      {
+        type: "color",
+        key: "curtainColorB",
+        label: "Color B",
+      },
+      {
+        type: "select",
+        key: "curtainGradient",
+        label: "Fill",
+        options: [
+          { value: "solid", label: "Solid (A)" },
+          { value: "vertical", label: "Vertical gradient" },
+          { value: "horizontal", label: "Horizontal gradient" },
+        ],
       },
     ],
   },

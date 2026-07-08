@@ -152,6 +152,9 @@ export function TransitionStage({
               holdMs={hold}
               playKey={playKey}
               reducedMotion={reducedMotion}
+              colorA={settings.curtainColorA}
+              colorB={settings.curtainColorB}
+              gradient={settings.curtainGradient}
             />
             {useThreeOverlay ? (
               <CurtainFallScene

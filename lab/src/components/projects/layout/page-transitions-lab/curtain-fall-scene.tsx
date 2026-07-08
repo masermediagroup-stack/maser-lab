@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { createRendererOptions } from "@/three/utils/renderer";
+import { paintCurtainTexture } from "./curtain-style";
 import type { TransitionSettings } from "./types";
 
 type CurtainFallSceneProps = {
@@ -24,6 +25,7 @@ function easeInCubic(t: number) {
 /**
  * Opaque curtains: fall in to cover, hold, then fall out downward.
  * Destination page is the DOM layer underneath — not painted on the mesh.
+ * Strip fill uses Color A / B + solid or gradient mode from settings.
  */
 export function CurtainFallScene({
   settings,
@@ -65,16 +67,26 @@ export function CurtainFallScene({
     const worldHeight = 2.08;
     const worldWidth = aspect * 2;
     const stripWidth = worldWidth / curtains;
-    // Overlap strips so no seam lets the page poke through.
     const overlap = stripWidth * 0.12;
 
     const dropStart = reducedMotion ? 0 : worldHeight * 1.15;
     const dropEnd = reducedMotion ? 0 : -worldHeight * 1.15;
 
+    const paintCanvas = paintCurtainTexture(
+      settings.curtainColorA,
+      settings.curtainColorB,
+      settings.curtainGradient,
+      64,
+      256,
+    );
+    const texture = new THREE.CanvasTexture(paintCanvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+
     const meshes: THREE.Mesh[] = [];
     const geometries: THREE.PlaneGeometry[] = [];
     const material = new THREE.MeshBasicMaterial({
-      color: 0x071018,
+      map: texture,
       transparent: false,
       depthWrite: false,
     });
@@ -144,6 +156,7 @@ export function CurtainFallScene({
       for (const mesh of meshes) scene.remove(mesh);
       for (const geometry of geometries) geometry.dispose();
       material.dispose();
+      texture.dispose();
       renderer.dispose();
       if (renderer.domElement.parentElement === container) {
         container.removeChild(renderer.domElement);
@@ -154,6 +167,9 @@ export function CurtainFallScene({
     settings.duration,
     settings.stagger,
     settings.intensity,
+    settings.curtainColorA,
+    settings.curtainColorB,
+    settings.curtainGradient,
     playKey,
     reducedMotion,
     running,

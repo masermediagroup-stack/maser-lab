@@ -10,6 +10,12 @@ export function generateSettingsSummary(settings: TransitionSettings) {
     .join("\n");
 }
 
+function curtainFillSnippet(settings: TransitionSettings) {
+  return `curtainColorA: "${settings.curtainColorA}",
+  curtainColorB: "${settings.curtainColorB}",
+  curtainGradient: "${settings.curtainGradient}", // solid | vertical | horizontal`;
+}
+
 export function generateTransitionCode(
   definition: TransitionDefinition,
   settings: TransitionSettings,
@@ -25,6 +31,7 @@ const settings = {
   duration: ${settings.duration},
   stagger: ${settings.stagger},
   intensity: ${settings.intensity},
+  ${curtainFillSnippet(settings)}
 };
 
 /**
@@ -46,6 +53,7 @@ export async function playCurtainFall({ container }: { container: HTMLElement })
   const count = settings.curtains;
   const width = 2 / count;
   const meshes: THREE.Mesh[] = [];
+  // Paint Color A / B onto a canvas (solid or gradient), then map to strips.
   const material = new THREE.MeshBasicMaterial({ color: 0x071018 });
 
   for (let i = 0; i < count; i++) {

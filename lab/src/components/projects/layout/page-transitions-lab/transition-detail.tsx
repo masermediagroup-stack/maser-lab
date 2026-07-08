@@ -5,10 +5,16 @@ import { ArrowLeft, Code2, RotateCcw, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { CodeExportDrawer } from "./code-export-drawer";
+import { sanitizeHex } from "./curtain-style";
 import { usePrefersReducedMotion, useTransitionRunner } from "./hooks";
 import { getNeighborPage, pageSamples } from "./page-samples";
 import { TransitionStage } from "./transition-stage";
-import type { TransitionDefinition, TransitionSettings } from "./types";
+import type {
+  ControlDefinition,
+  CurtainGradientMode,
+  TransitionDefinition,
+  TransitionSettings,
+} from "./types";
 
 type TransitionDetailProps = {
   definition: TransitionDefinition;
@@ -55,6 +61,130 @@ function SettingSlider({
   );
 }
 
+function ColorControl({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const safe = sanitizeHex(value, "#071018");
+  return (
+    <label className="ptl-control ptl-control--color">
+      <span>
+        <span>{label}</span>
+        <strong className="font-mono text-[0.75rem] tracking-normal normal-case">
+          {safe}
+        </strong>
+      </span>
+      <span className="ptl-color-row">
+        <input
+          type="color"
+          aria-label={label}
+          value={safe}
+          onChange={(event) => onChange(event.target.value)}
+          className="ptl-color-swatch"
+        />
+        <input
+          type="text"
+          aria-label={`${label} hex`}
+          spellCheck={false}
+          autoComplete="off"
+          value={safe}
+          onChange={(event) => {
+            const next = event.target.value;
+            if (next.startsWith("#") && (next.length === 4 || next.length === 7)) {
+              onChange(sanitizeHex(next, safe));
+            }
+          }}
+          className="ptl-color-hex"
+        />
+      </span>
+    </label>
+  );
+}
+
+function SelectControl({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: CurtainGradientMode;
+  options: { value: CurtainGradientMode; label: string }[];
+  onChange: (value: CurtainGradientMode) => void;
+}) {
+  return (
+    <label className="ptl-control ptl-control--select">
+      <span>
+        <span>{label}</span>
+      </span>
+      <select
+        aria-label={label}
+        value={value}
+        onChange={(event) => onChange(event.target.value as CurtainGradientMode)}
+        className="ptl-select"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ControlField({
+  control,
+  settings,
+  onNumber,
+  onColor,
+  onSelect,
+}: {
+  control: ControlDefinition;
+  settings: TransitionSettings;
+  onNumber: (key: keyof TransitionSettings, value: number) => void;
+  onColor: (key: "curtainColorA" | "curtainColorB", value: string) => void;
+  onSelect: (value: CurtainGradientMode) => void;
+}) {
+  if (control.type === "color") {
+    return (
+      <ColorControl
+        label={control.label}
+        value={settings[control.key]}
+        onChange={(value) => onColor(control.key, value)}
+      />
+    );
+  }
+
+  if (control.type === "select") {
+    return (
+      <SelectControl
+        label={control.label}
+        value={settings.curtainGradient}
+        options={control.options}
+        onChange={onSelect}
+      />
+    );
+  }
+
+  return (
+    <SettingSlider
+      label={control.label}
+      value={settings[control.key]}
+      min={control.min}
+      max={control.max}
+      step={control.step}
+      suffix={control.suffix}
+      onChange={(value) => onNumber(control.key, value)}
+    />
+  );
+}
+
 export function TransitionDetail({ definition, onBack }: TransitionDetailProps) {
   const [settings, setSettings] = useState<TransitionSettings>(definition.defaults);
   const [pageIndex, setPageIndex] = useState(0);
@@ -81,8 +211,16 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
     setPageIndex(0);
   };
 
-  const updateSetting = (key: keyof TransitionSettings, value: number) => {
+  const updateNumber = (key: keyof TransitionSettings, value: number) => {
     setSettings((current) => ({ ...current, [key]: value }));
+  };
+
+  const updateColor = (key: "curtainColorA" | "curtainColorB", value: string) => {
+    setSettings((current) => ({ ...current, [key]: sanitizeHex(value, current[key]) }));
+  };
+
+  const updateGradient = (value: CurtainGradientMode) => {
+    setSettings((current) => ({ ...current, curtainGradient: value }));
   };
 
   const handlePlay = () => {
@@ -164,15 +302,13 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
             Controls
           </p>
           {definition.controls.map((control) => (
-            <SettingSlider
+            <ControlField
               key={control.key}
-              label={control.label}
-              value={settings[control.key]}
-              min={control.min}
-              max={control.max}
-              step={control.step}
-              suffix={control.suffix}
-              onChange={(value) => updateSetting(control.key, value)}
+              control={control}
+              settings={settings}
+              onNumber={updateNumber}
+              onColor={updateColor}
+              onSelect={updateGradient}
             />
           ))}
           {reducedMotion ? (
