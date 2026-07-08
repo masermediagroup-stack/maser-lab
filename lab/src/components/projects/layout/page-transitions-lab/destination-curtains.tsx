@@ -33,24 +33,54 @@ export function DestinationCurtains({
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
+    let cancelled = false;
+    let objectUrl: string | null = null;
 
     const paint = () => {
-      const { width, height } = host.getBoundingClientRect();
-      if (width < 8 || height < 8) return;
+      const width = Math.max(host.clientWidth, host.offsetWidth);
+      const height = Math.max(host.clientHeight, host.offsetHeight);
+      if (width < 8 || height < 8) return false;
       try {
         const canvas = document.createElement("canvas");
         paintPageTexture(canvas, sample, width, height);
-        setBgUrl(canvas.toDataURL("image/jpeg", 0.92));
+        canvas.toBlob(
+          (blob) => {
+            if (cancelled || !blob) return;
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+            objectUrl = URL.createObjectURL(blob);
+            setBgUrl(objectUrl);
+          },
+          "image/jpeg",
+          0.92,
+        );
+        return true;
       } catch {
-        // Keep strips visible with solid fallback background.
         setBgUrl(null);
+        return true;
       }
     };
 
-    paint();
-    const observer = new ResizeObserver(() => paint());
+    // Wait a frame so explicit frame height has resolved before measuring.
+    const raf = window.requestAnimationFrame(() => {
+      if (!paint()) {
+        // Retry once after layout settles (Safari min-height edge cases).
+        window.requestAnimationFrame(() => {
+          paint();
+        });
+      }
+    });
+
+    const observer = new ResizeObserver(() => {
+      paint();
+    });
     observer.observe(host);
-    return () => observer.disconnect();
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(raf);
+      observer.disconnect();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
   }, [sample, playKey]);
 
   return (
