@@ -43,7 +43,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
   {
     id: "editorial-wipe",
     title: "Editorial Wipe",
-    eyebrow: "Collection → Product",
+    eyebrow: "Landing → Article",
     engine: "css",
     dependencies: ["React", "CSS custom properties"],
     defaults: {
@@ -59,7 +59,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
   {
     id: "product-shelf-slide",
     title: "Product Shelf Slide",
-    eyebrow: "Category → Category",
+    eyebrow: "Section → Section",
     engine: "css",
     dependencies: ["React", "CSS custom properties"],
     defaults: {
@@ -75,7 +75,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
   {
     id: "spotlight-iris",
     title: "Spotlight Iris",
-    eyebrow: "Campaign → Feature",
+    eyebrow: "Home → Feature",
     engine: "css",
     dependencies: ["React", "CSS clip-path"],
     defaults: {
@@ -91,7 +91,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
   {
     id: "receipt-lift",
     title: "Receipt Lift",
-    eyebrow: "Cart → Checkout",
+    eyebrow: "Index → Story",
     engine: "css",
     dependencies: ["React", "CSS custom properties"],
     defaults: {
@@ -107,7 +107,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
   {
     id: "soft-crossfade-blur",
     title: "Soft Crossfade Blur",
-    eyebrow: "Utility → Utility",
+    eyebrow: "Page → Page",
     engine: "css",
     dependencies: ["React", "CSS filter"],
     defaults: {
@@ -123,7 +123,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
   {
     id: "curtain-fall",
     title: "Curtain Fall",
-    eyebrow: "Destination reveal",
+    eyebrow: "Landing → Article",
     engine: "three",
     dependencies: ["React", "three", "WebGL"],
     defaults: {

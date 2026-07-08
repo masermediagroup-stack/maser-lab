@@ -65,12 +65,14 @@ export type TransitionDefinition = {
 
 export type PreviewStatus = "rest" | "running";
 
+export type PageKind = "landing" | "article";
+
 export type PageSample = {
   id: string;
+  kind: PageKind;
   path: string;
-  label: string;
+  brand: string;
   title: string;
-  kicker: string;
   accent: string;
 };
 

@@ -9,7 +9,7 @@
 ## Design reference
 
 - Figma: none
-- Other: Client shopping-site route transitions, product browsing, collection switching, cart/checkout movement
+- Other: Generic site route transitions (landing → article wireframe previews)
 - Lab UI pattern: matches `text-animation-lab` gallery → detail workspace; Maser blue / white only
 - Design spec: `FIGMA.md`
 
@@ -22,10 +22,10 @@
 ## Brief
 
 ### User / trigger
-Website visitors moving between pages in a client-facing shopping site. Trigger frequency is occasional to tens per session, depending on browsing depth.
+Website visitors moving between pages (landing → article). Trigger frequency is occasional to tens per session.
 
 ### Job
-Make page-to-page changes feel intentional and spatial without hiding content, delaying purchase decisions, or creating router-specific lock-in.
+Make page-to-page changes feel intentional and spatial without hiding content or creating router-specific lock-in.
 
 ### Current behavior
 Lab workspace with selectable transitions. Early CSS used reversible `transition` + `data-phase` toggles, which caused reverse/repeat glitches when the phase returned to idle.
@@ -66,14 +66,18 @@ Each transition can be selected, replayed without reverse bounce, tuned, and exp
 
 ## Transition concepts
 
-| Order | Concept | Engine | Shopping-site use |
+| Order | Concept | Engine | Preview use |
 | --- | --- | --- | --- |
-| 1 | Editorial Wipe | CSS | Collection → product detail |
-| 2 | Product Shelf Slide | CSS | Category → category |
-| 3 | Spotlight Iris | CSS | Campaign → featured product |
-| 4 | Receipt Lift | CSS | Cart → checkout |
-| 5 | Soft Crossfade Blur | CSS | Utility ↔ utility |
-| 6 | Curtain Fall | Three.js | Branded handoff; destination painted on falling strips |
+| 1 | Editorial Wipe | CSS | Landing → article |
+| 2 | Product Shelf Slide | CSS | Landing → article |
+| 3 | Spotlight Iris | CSS | Landing → article |
+| 4 | Receipt Lift | CSS | Landing → article |
+| 5 | Soft Crossfade Blur | CSS | Landing → article |
+| 6 | Curtain Fall | Three.js | Landing → article; strips cover then fall out |
+
+### Preview chrome
+- Fake browser bar path stays on the **from** route until the cover phase fully seals the viewport, then swaps to the **to** path
+- Stage content is a wireframe landing page (nav + hero) → wireframe article page (nav + journal body)
 
 ## Acceptance criteria
 

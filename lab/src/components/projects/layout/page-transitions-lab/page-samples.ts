@@ -1,30 +1,22 @@
 import type { PageSample } from "./types";
 
-/** Preview pages — Maser blue / white only. */
+/** Preview pages — landing wireframe → article wireframe. */
 export const pageSamples: PageSample[] = [
   {
-    id: "collection",
-    path: "/shop/spring",
-    label: "Collection",
-    title: "Spring",
-    kicker: "New",
+    id: "landing",
+    kind: "landing",
+    path: "/",
+    brand: "Northline",
+    title: "Build quieter digital products",
     accent: "#10a4ff",
   },
   {
-    id: "product",
-    path: "/shop/pour-set",
-    label: "Product",
-    title: "Pour Set",
-    kicker: "Featured",
+    id: "article",
+    kind: "article",
+    path: "/journal/route-transitions",
+    brand: "Northline",
+    title: "How route transitions should feel",
     accent: "#10a4ff",
-  },
-  {
-    id: "cart",
-    path: "/cart",
-    label: "Cart",
-    title: "Bag",
-    kicker: "Ready",
-    accent: "#0097f5",
   },
 ];
 

@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from "react";
 import dynamic from "next/dynamic";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { isWebGLAvailable } from "@/three/utils/capabilities";
 import { DemoPageCard } from "./demo-page-card";
 import { DestinationCurtains } from "./destination-curtains";
@@ -67,8 +67,16 @@ export function TransitionStage({
   const webgl = useWebGLSupport();
   const narrow = useIsNarrowViewport();
   const running = status === "running";
-  // Desktop-only Three overlay. Mobile uses CSS cover strips.
   const useThreeOverlay = isThree && webgl && !narrow;
+
+  const [pathPlayKey, setPathPlayKey] = useState(playKey);
+  const [pathCovered, setPathCovered] = useState(false);
+
+  // Reset cover flag when a new play starts (render-time state adjust).
+  if (pathPlayKey !== playKey) {
+    setPathPlayKey(playKey);
+    setPathCovered(false);
+  }
 
   useEffect(() => {
     if (!useThreeOverlay) return;
@@ -77,8 +85,36 @@ export function TransitionStage({
 
   const phaseMs = reducedMotion ? 140 : settings.duration;
   const hold = reducedMotion ? 0 : holdMs;
-  // Total CSS timeline = in + hold + out (cover / page layers share this clock).
   const totalMs = phaseMs * 2 + hold;
+
+  // Swap the browser-bar path only once the cover phase has sealed the stage
+  // (after in duration + curtain stagger), not at play start.
+  useEffect(() => {
+    if (!running) return;
+
+    const staggerTail =
+      isThree && settings.curtains > 1
+        ? settings.stagger * (settings.curtains - 1)
+        : 0;
+    const coverCompleteMs = reducedMotion ? 90 : phaseMs + staggerTail;
+
+    const timer = window.setTimeout(() => {
+      setPathCovered(true);
+    }, coverCompleteMs);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    running,
+    playKey,
+    isThree,
+    settings.curtains,
+    settings.stagger,
+    phaseMs,
+    reducedMotion,
+  ]);
+
+  const barPath =
+    running && pathCovered ? toSample.path : fromSample.path;
 
   const style = {
     "--ptl-duration": `${phaseMs}ms`,
@@ -106,7 +142,7 @@ export function TransitionStage({
         <span />
         <span />
         <span />
-        <p>{running ? toSample.path : fromSample.path}</p>
+        <p>{barPath}</p>
       </div>
 
       <div className="ptl-route-frame">
