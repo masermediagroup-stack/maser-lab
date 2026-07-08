@@ -119,6 +119,21 @@ export type CursorAsciiRevealSettings = {
   pressMode: boolean;
 };
 
+export type GlyphScanRevealSettings = {
+  sourceMode: "text" | "svg";
+  svgSource: string;
+  cellSize: number;
+  fontFamily: string;
+  fontWeight: string;
+  foregroundIntensity: number;
+  backgroundDensity: number;
+  scanDirection: "left-to-right" | "right-to-left" | "top-to-bottom" | "bottom-to-top";
+  scanSpeed: number;
+  decay: number;
+  jitter: number;
+  symbolSet: "blocks" | "geometry" | "mixed";
+};
+
 export type GlideTextSettings = {
   direction: "left" | "right" | "top" | "bottom" | "diagonal";
   glideDistance: number;

@@ -16,7 +16,7 @@ export function AnimationGallery({ playKey, onEnter }: AnimationGalleryProps) {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="tal-gallery__title">Text Animation Lab</h1>
           <Badge variant="outline" className="border-white/15 text-neutral-300">
-            10 reusable Maser-Lab text effects
+            11 reusable Maser-Lab text effects
           </Badge>
         </div>
         <p className="tal-gallery__description">

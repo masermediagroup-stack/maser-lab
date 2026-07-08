@@ -7,14 +7,14 @@
 
 ## Purpose
 
-Black-and-white shadcn/ui text animation playground for Maser-Lab. Preview 10 reusable text animation effects, tune settings on a detail page, replay/reset animations, and export production-ready component usage snippets.
+Black-and-white shadcn/ui text animation playground for Maser-Lab. Preview 11 reusable text animation effects, tune settings on a detail page, replay/reset animations, and export production-ready component usage snippets.
 
 Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/CTA blocks, and internal animation systems.
 
 ## Gallery behavior
 
 - Route: `/demos/text-animation-lab`
-- Shows all 10 animations in a responsive grid (1 / 2 / 3 columns)
+- Shows all 11 animations in a responsive grid (1 / 2 / 3 columns)
 - Each card includes title, live preview with **Maser Media**, short description, and **Enter Animation**
 - Gallery cards do not include controls or code export
 - Previews auto-replay on an interval for continuous gallery motion
@@ -33,7 +33,7 @@ Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/
 - **Copy code** writes the snippet to clipboard
 - Export excludes lab chrome — only the animation component import/usage
 
-## Animations (10)
+## Animations (11)
 
 | # | ID | Title | Approach |
 | --- | --- | --- | --- |
@@ -44,9 +44,10 @@ Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/
 | 5 | `random-letter-fade` | Random Letter Fade In | CSS keyframes + seeded order |
 | 6 | `directional-letter-flip` | Directional Letter Flip | CSS 3D transforms |
 | 7 | `cursor-ascii-reveal` | Cursor ASCII Reveal | Pointer events + opacity reveal |
-| 8 | `glide-text` | Glide Text | CSS translate keyframes |
-| 9 | `scale-anchor` | Scale Anchor Text | CSS scale keyframes + transform-origin |
-| 10 | `scroll-line-reveal` | GSAP Scroll Line Reveal | GSAP ScrollTrigger |
+| 8 | `glyph-scan-reveal` | Glyph Scan Reveal | Canvas mask sampling + scan reconstruction |
+| 9 | `glide-text` | Glide Text | CSS translate keyframes |
+| 10 | `scale-anchor` | Scale Anchor Text | CSS scale keyframes + transform-origin |
+| 11 | `scroll-line-reveal` | GSAP Scroll Line Reveal | GSAP ScrollTrigger |
 
 ## Controls by animation
 
@@ -71,13 +72,18 @@ Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/
 ### 7. Cursor ASCII Reveal
 - Text, reveal radius/softness/speed, ASCII density, noise, hover mode, press mode
 
-### 8. Glide Text
+### 8. Glyph Scan Reveal
+- Text, source mode (text/SVG), SVG source, cell size, font family/weight, foreground intensity, background density, scan direction, scan speed, decay, jitter, symbol set
+- Text mode defaults to Google Fonts `Geist Pixel`, waits for the webfont before drawing, then rasterizes editable text into an offscreen mask
+- SVG mode rasterizes inline SVG, SVG fragments, or path data into the mask; SVG source is never mounted into the DOM
+
+### 9. Glide Text
 - Text, direction, glide distance, speed, stagger, blur, ease
 
-### 9. Scale Anchor
+### 10. Scale Anchor
 - Text, scale start/end, speed, stagger, ease, anchor point (9 options)
 
-### 10. Scroll Line Reveal
+### 11. Scroll Line Reveal
 - Text (multiline), scroll start/end, scrub, line stagger, reveal direction, blur, opacity fade, pin section
 
 ## shadcn/ui components used
@@ -92,7 +98,7 @@ Button, Card, Slider, Switch, Select, Input, Textarea, Sheet, Badge, Label, Sepa
 ## Files created
 
 ```text
-lab/src/components/text-animations/          # 10 animation components + shared CSS
+lab/src/components/text-animations/          # 11 animation components + shared CSS
 lab/src/components/projects/display/text-animation-lab/
   TextAnimationLab.tsx
   AnimationGallery.tsx
@@ -124,6 +130,7 @@ projects/display/text-animation-lab/PROJECT.md
 - Gallery auto-replay every 8s
 - Replay increments `playKey` to restart CSS/JS animations
 - ASCII reveal supports hover (desktop) and press/drag (touch)
+- Glyph scan reveal plays once, settles on the reconstructed mask, replays only from `playKey`, supports text and SVG mask sources, and falls back to a static final mask for reduced motion
 - Scroll reveal uses embedded scroll container in gallery cards
 
 ## Accessibility notes
@@ -162,9 +169,10 @@ Copy animation components from `lab/src/components/text-animations/` into target
 
 ## Acceptance criteria
 
-- [x] Gallery shows all 10 effects with "Maser Media"
+- [x] Gallery shows all 11 effects with "Maser Media" / per-effect defaults
 - [x] Each card has title + Enter Animation
 - [x] Detail page: preview, text input, controls, replay, reset, export drawer
+- [x] Glyph Scan Reveal supports text mode, SVG mode, replay, and export-safe SVG props
 - [x] shadcn/ui monochrome interface
 - [x] Responsive layout
 - [ ] `npm run lint` passes

@@ -1,7 +1,10 @@
 import type { AnimationDefinition, AnimationSettings } from "./types";
 
 function formatProp(key: string, value: string | number | boolean): string {
-  if (typeof value === "string") return `  ${key}="${value.replace(/"/g, '\\"')}"`;
+  if (typeof value === "string") {
+    if (/[\n\r<>{}]/.test(value)) return `  ${key}={${JSON.stringify(value)}}`;
+    return `  ${key}="${value.replace(/"/g, '\\"')}"`;
+  }
   if (typeof value === "boolean") return `  ${key}={${value}}`;
   return `  ${key}={${value}}`;
 }
@@ -21,6 +24,7 @@ const COMPONENT_IMPORTS: Record<string, string> = {
   "random-letter-fade": "RandomLetterFadeAnimation",
   "directional-letter-flip": "DirectionalLetterFlip",
   "cursor-ascii-reveal": "CursorAsciiReveal",
+  "glyph-scan-reveal": "GlyphScanReveal",
   "glide-text": "GlideTextAnimation",
   "scale-anchor": "ScaleAnchorTextAnimation",
   "scroll-line-reveal": "ScrollLineRevealAnimation",
@@ -33,6 +37,7 @@ export function generateExportCode(
 ): string {
   const componentName = COMPONENT_IMPORTS[definition.id] ?? "AnimationComponent";
   const props = buildProps(settings);
+  const textProp = formatProp("text", text);
   const deps = definition.dependencies?.length
     ? `\n// Dependencies: ${definition.dependencies.join(", ")}\n`
     : "";
@@ -42,7 +47,7 @@ export function generateExportCode(
 export function HeroTitle() {
   return (
     <${componentName}
-      text="${text.replace(/"/g, '\\"')}"
+${textProp}
 ${props}
     />
   );
