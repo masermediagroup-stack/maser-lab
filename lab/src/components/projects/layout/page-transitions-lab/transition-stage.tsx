@@ -27,6 +27,7 @@ type TransitionStageProps = {
   fromSample: PageSample;
   toSample: PageSample;
   reducedMotion: boolean;
+  holdMs: number;
 };
 
 function useWebGLSupport() {
@@ -60,27 +61,35 @@ export function TransitionStage({
   fromSample,
   toSample,
   reducedMotion,
+  holdMs,
 }: TransitionStageProps) {
   const isThree = selectedId === "curtain-fall";
   const webgl = useWebGLSupport();
   const narrow = useIsNarrowViewport();
   const running = status === "running";
-  // Desktop-only Three overlay. Mobile uses destination-painted CSS strips so
-  // a display:none / 0×0 WebGL host cannot crash the page mid-play.
+  // Desktop-only Three overlay. Mobile uses CSS cover strips.
   const useThreeOverlay = isThree && webgl && !narrow;
 
-  // Warm the Three.js chunk on desktop as soon as Curtain Fall is open.
   useEffect(() => {
     if (!useThreeOverlay) return;
     void import("./curtain-fall-scene");
   }, [useThreeOverlay]);
 
+  const phaseMs = reducedMotion ? 140 : settings.duration;
+  const hold = reducedMotion ? 0 : holdMs;
+  // Total CSS timeline = in + hold + out (cover / page layers share this clock).
+  const totalMs = phaseMs * 2 + hold;
+
   const style = {
-    "--ptl-duration": `${reducedMotion ? 140 : settings.duration}ms`,
+    "--ptl-duration": `${phaseMs}ms`,
+    "--ptl-total": `${totalMs}ms`,
+    "--ptl-hold": `${hold}ms`,
     "--ptl-intensity": settings.intensity,
     "--ptl-stagger": `${reducedMotion ? 0 : settings.stagger}ms`,
     "--ptl-radius": `${settings.radius}px`,
     "--ptl-curtains": settings.curtains,
+    "--ptl-in-end": phaseMs / Math.max(totalMs, 1),
+    "--ptl-hold-end": (phaseMs + hold) / Math.max(totalMs, 1),
   } as CSSProperties;
 
   return (
@@ -101,16 +110,20 @@ export function TransitionStage({
       </div>
 
       <div className="ptl-route-frame">
+        {/* Destination sits under cover layers so out-phase reveals it. */}
         <div className="ptl-route-page ptl-route-page--current">
-          <DemoPageCard sample={fromSample} variant="outgoing" />
+          <DemoPageCard
+            sample={running ? toSample : fromSample}
+            variant={running ? "incoming" : "outgoing"}
+          />
         </div>
 
         {running && !isThree ? (
           <div
-            key={`incoming-${playKey}`}
-            className="ptl-route-page ptl-route-page--incoming"
+            key={`outgoing-${playKey}`}
+            className="ptl-route-page ptl-route-page--outgoing"
           >
-            <DemoPageCard sample={toSample} variant="incoming" />
+            <DemoPageCard sample={fromSample} variant="outgoing" />
           </div>
         ) : null}
 
@@ -122,28 +135,32 @@ export function TransitionStage({
           />
         ) : null}
 
-        {/* Curtain Fall: destination-painted CSS strips are the reliable
-            visible path (especially mobile). Three.js overlays when ready. */}
         {isThree && running ? (
           <>
+            <div
+              key={`outgoing-curtain-${playKey}`}
+              className="ptl-route-page ptl-route-page--outgoing"
+            >
+              <DemoPageCard sample={fromSample} variant="outgoing" />
+            </div>
             <div className="ptl-curtain-dim" aria-hidden="true" />
             <DestinationCurtains
               key={`dest-curtains-${playKey}`}
-              sample={toSample}
               count={settings.curtains}
               staggerMs={settings.stagger}
               durationMs={settings.duration}
+              holdMs={hold}
               playKey={playKey}
               reducedMotion={reducedMotion}
             />
             {useThreeOverlay ? (
               <CurtainFallScene
                 key={`curtain-gl-${playKey}`}
-                toSample={toSample}
                 settings={settings}
                 playKey={playKey}
                 reducedMotion={reducedMotion}
                 running
+                holdMs={hold}
               />
             ) : null}
           </>

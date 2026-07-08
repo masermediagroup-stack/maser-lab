@@ -16,7 +16,7 @@ export function generateTransitionCode(
 ) {
   if (definition.engine === "three") {
     return `// ${definition.title}
-// Three.js curtain-fall route transition starter.
+// Curtain Fall: opaque strips fall in to cover, hold, then fall out to reveal.
 
 import * as THREE from "three";
 
@@ -28,43 +28,28 @@ const settings = {
 };
 
 /**
- * 1. Capture or paint the destination page into a CanvasTexture.
- * 2. Build \`settings.curtains\` vertical planes with UV slices of that texture.
- * 3. Drop each plane from above with staggered ease-out.
- * 4. On complete, unmount the overlay and show the real next route.
+ * 1. Mount the destination route underneath the overlay (hidden by curtains).
+ * 2. Build \`settings.curtains\` overlapping opaque vertical planes.
+ * 3. Phase IN: drop each plane from above with stagger until the stage is covered.
+ * 4. Phase OUT: drop each plane downward off-screen to reveal the destination.
+ * 5. Dispose the overlay on complete.
  *
  * See lab/src/components/projects/layout/page-transitions-lab/curtain-fall-scene.tsx
- * for the full Maser-Lab implementation (disposal, resize, reduced-motion).
  */
 
-export async function playCurtainFall({
-  container,
-  destinationCanvas,
-}: {
-  container: HTMLElement;
-  destinationCanvas: HTMLCanvasElement;
-}) {
+export async function playCurtainFall({ container }: { container: HTMLElement }) {
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
   camera.position.z = 1;
 
-  const texture = new THREE.CanvasTexture(destinationCanvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-
   const count = settings.curtains;
   const width = 2 / count;
   const meshes: THREE.Mesh[] = [];
+  const material = new THREE.MeshBasicMaterial({ color: 0x071018 });
 
   for (let i = 0; i < count; i++) {
-    const geometry = new THREE.PlaneGeometry(width, 2);
-    const material = new THREE.MeshBasicMaterial({ map: texture.clone() });
-    // UV offset/repeat so each curtain shows its vertical strip
-    material.map!.wrapS = THREE.ClampToEdgeWrapping;
-    material.map!.repeat.set(1 / count, 1);
-    material.map!.offset.set(i / count, 0);
-    material.map!.needsUpdate = true;
-
+    const geometry = new THREE.PlaneGeometry(width * 1.08, 2.1);
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.x = -1 + width * i + width / 2;
     mesh.position.y = 2.2; // start above
@@ -73,7 +58,7 @@ export async function playCurtainFall({
   }
 
   container.appendChild(renderer.domElement);
-  // animate y -> 0 with stagger, then dispose
+  // animate y: 2.2 -> 0 (in), hold, then 0 -> -2.2 (out), then dispose
   return { renderer, scene, meshes, settings };
 }`;
   }

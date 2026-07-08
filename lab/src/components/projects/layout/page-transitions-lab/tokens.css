@@ -11,13 +11,19 @@
   --ptl-blue-soft: #0065a3;
   --ptl-blue-glow: rgba(16, 164, 255, 0.22);
   --ptl-duration: 560ms;
+  --ptl-total: 1200ms;
+  --ptl-hold: 100ms;
   --ptl-intensity: 70;
   --ptl-stagger: 60ms;
   --ptl-radius: 12px;
   --ptl-curtains: 8;
+  --ptl-in-end: 0.45;
+  --ptl-hold-end: 0.55;
   --ptl-page-accent: var(--ptl-blue);
   color: var(--ptl-fg);
   background: var(--ptl-bg);
+  /* Safe areas for mobile browser chrome / notches */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .page-transitions-lab__chrome {
@@ -360,12 +366,18 @@
 .ptl-route-page {
   display: grid;
   place-items: center;
-  padding: clamp(18px, 4vw, 46px);
+  padding: clamp(12px, 3.5vw, 46px);
+  box-sizing: border-box;
   will-change: transform, opacity, filter, clip-path;
 }
 
 .ptl-route-page--current {
   z-index: 1;
+}
+
+.ptl-route-page--outgoing {
+  z-index: 2;
+  pointer-events: none;
 }
 
 .ptl-route-page--incoming {
@@ -374,21 +386,24 @@
 }
 
 .ptl-transition-cover {
-  z-index: 3;
+  z-index: 4;
   pointer-events: none;
   background: var(--ptl-blue);
+  transform: translate3d(-105%, 0, 0);
 }
 
 .ptl-curtain-dim {
   z-index: 5;
-  background: rgba(0, 10, 20, 0.45);
-  animation: ptl-dim-in calc(var(--ptl-duration) * 0.35) ease-out forwards;
+  background: rgba(0, 10, 20, 0.55);
+  opacity: 0;
+  animation: ptl-dim-cycle var(--ptl-total) ease-out forwards;
 }
 
 .ptl-curtain-fallback {
   z-index: 6;
   display: flex;
   align-items: stretch;
+  gap: 0;
   pointer-events: none;
   overflow: hidden;
   overflow: clip;
@@ -399,21 +414,17 @@
   flex: 1 1 0;
   align-self: stretch;
   min-width: 0;
+  /* Overlap neighbors so no seam lets the page poke through */
+  margin-inline: -2px;
   min-height: 100%;
   height: 100%;
-  border-left: 1px solid rgba(16, 164, 255, 0.18);
+  border: 0;
   background-color: #071018;
-  background-repeat: no-repeat;
-  background-size: auto 100%;
   transform: translate3d(0, -110%, 0);
-  animation-name: ptl-css-curtain-fall;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  animation-fill-mode: forwards;
+  animation-name: ptl-css-curtain-in, ptl-css-curtain-out;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1), cubic-bezier(0.55, 0, 1, 0.45);
+  animation-fill-mode: forwards, forwards;
   will-change: transform;
-}
-
-.ptl-curtain-fallback--destination span {
-  background-color: #02060a;
 }
 
 .ptl-curtain-canvas {
@@ -421,17 +432,29 @@
   pointer-events: none;
 }
 
-/* On narrow viewports prefer the painted CSS curtains — Three overlay can
-   miss the play window while the chunk loads, and soft-shadows the strips. */
+/* On narrow viewports prefer CSS cover strips — Three overlay can
+   miss the play window while the chunk loads. */
 @media (max-width: 1023px) {
   .ptl-curtain-canvas {
     display: none;
   }
 }
 
-@keyframes ptl-css-curtain-fall {
+@keyframes ptl-css-curtain-in {
+  from {
+    transform: translate3d(0, -110%, 0);
+  }
   to {
     transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes ptl-css-curtain-out {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 110%, 0);
   }
 }
 
@@ -441,8 +464,12 @@
   display: grid;
   align-content: space-between;
   width: min(440px, 100%);
-  min-height: 300px;
+  max-width: 100%;
+  min-height: min(280px, 100%);
+  max-height: 100%;
   padding: 22px;
+  box-sizing: border-box;
+  overflow: hidden;
   border: 1px solid rgba(16, 164, 255, 0.28);
   border-radius: max(12px, calc(var(--ptl-radius) * 0.85));
   background: #05080c;
@@ -458,6 +485,7 @@
   gap: 10px;
   margin: 0;
   padding: 0;
+  min-width: 0;
   color: var(--ptl-blue);
   font-size: 0.72rem;
   font-weight: 600;
@@ -465,11 +493,19 @@
   text-transform: uppercase;
 }
 
+.ptl-page-card__header span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .ptl-product-visual {
   display: grid;
   place-items: center;
   aspect-ratio: 1 / 0.72;
-  margin-block: 20px;
+  max-height: 42%;
+  margin-block: 16px;
   border-radius: max(10px, calc(var(--ptl-radius) * 0.65));
   background:
     radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.95) 0 16%, transparent 17%),
@@ -488,71 +524,65 @@
 
 .ptl-page-card p {
   margin: 0;
-  font-size: clamp(1.55rem, 3.5vw, 2.6rem);
+  min-width: 0;
+  font-size: clamp(1.35rem, 3.5vw, 2.4rem);
   font-weight: 700;
-  line-height: 0.96;
+  line-height: 1.05;
   letter-spacing: -0.02em;
   color: #ffffff;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 /* ═══════════════════════════════════════════════════════
-   ONE-SHOT KEYFRAMES
-   Critical: animations use `forwards` and only run while
-   data-status="running". On complete, JS swaps the current
-   page and returns to rest — never reverse a CSS transition.
+   IN → OUT KEYFRAMES
+   Timeline uses --ptl-total (in + hold + out). Cover/outgoing
+   exit during the first half; destination is already mounted
+   underneath and is revealed on the out phase.
    ═══════════════════════════════════════════════════════ */
 
-/* Editorial Wipe */
-.ptl-stage[data-status="running"][data-transition="editorial-wipe"] .ptl-route-page--current {
-  animation: ptl-hold-dim var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.ptl-stage[data-status="running"][data-transition="editorial-wipe"] .ptl-route-page--incoming {
-  opacity: 0;
-  animation: ptl-fade-in var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: var(--ptl-stagger);
+/* Editorial Wipe — cover sweeps in, then out */
+.ptl-stage[data-status="running"][data-transition="editorial-wipe"] .ptl-route-page--outgoing {
+  animation: ptl-hold-dim var(--ptl-total) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .ptl-stage[data-status="running"][data-transition="editorial-wipe"] .ptl-transition-cover {
-  animation: ptl-wipe var(--ptl-duration) cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  animation: ptl-wipe-in-out var(--ptl-total) cubic-bezier(0.76, 0, 0.24, 1) forwards;
 }
 
-/* Product Shelf Slide */
+/* Product Shelf Slide — page exits, destination enters */
+.ptl-stage[data-status="running"][data-transition="product-shelf-slide"] .ptl-route-page--outgoing {
+  animation: ptl-shelf-out var(--ptl-total) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 .ptl-stage[data-status="running"][data-transition="product-shelf-slide"] .ptl-route-page--current {
-  animation: ptl-shelf-out var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.ptl-stage[data-status="running"][data-transition="product-shelf-slide"] .ptl-route-page--incoming {
-  animation: ptl-shelf-in var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: var(--ptl-stagger);
+  animation: ptl-shelf-in var(--ptl-total) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .ptl-stage[data-transition="product-shelf-slide"] .ptl-transition-cover {
   display: none;
 }
 
-/* Spotlight Iris */
-.ptl-stage[data-status="running"][data-transition="spotlight-iris"] .ptl-route-page--current {
-  animation: ptl-hold-dim var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+/* Spotlight Iris — circle opens onto destination */
+.ptl-stage[data-status="running"][data-transition="spotlight-iris"] .ptl-route-page--outgoing {
+  animation: ptl-hold-dim var(--ptl-total) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.ptl-stage[data-status="running"][data-transition="spotlight-iris"] .ptl-route-page--incoming {
-  animation: ptl-iris-in var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: var(--ptl-stagger);
+.ptl-stage[data-status="running"][data-transition="spotlight-iris"] .ptl-route-page--current {
+  animation: ptl-iris-in-out var(--ptl-total) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .ptl-stage[data-transition="spotlight-iris"] .ptl-transition-cover {
   display: none;
 }
 
-/* Receipt Lift */
-.ptl-stage[data-status="running"][data-transition="receipt-lift"] .ptl-route-page--current {
-  animation: ptl-receipt-back var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+/* Receipt Lift — next page rises in after cover */
+.ptl-stage[data-status="running"][data-transition="receipt-lift"] .ptl-route-page--outgoing {
+  animation: ptl-receipt-back var(--ptl-total) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.ptl-stage[data-status="running"][data-transition="receipt-lift"] .ptl-route-page--incoming {
-  animation: ptl-receipt-up var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: var(--ptl-stagger);
+.ptl-stage[data-status="running"][data-transition="receipt-lift"] .ptl-route-page--current {
+  animation: ptl-receipt-up var(--ptl-total) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .ptl-stage[data-transition="receipt-lift"] .ptl-transition-cover {
@@ -560,35 +590,41 @@
 }
 
 /* Soft Crossfade Blur */
-.ptl-stage[data-status="running"][data-transition="soft-crossfade-blur"] .ptl-route-page--current {
-  animation: ptl-blur-out var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.ptl-stage[data-status="running"][data-transition="soft-crossfade-blur"] .ptl-route-page--outgoing {
+  animation: ptl-blur-out var(--ptl-total) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.ptl-stage[data-status="running"][data-transition="soft-crossfade-blur"] .ptl-route-page--incoming {
-  animation: ptl-blur-in var(--ptl-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: var(--ptl-stagger);
+.ptl-stage[data-status="running"][data-transition="soft-crossfade-blur"] .ptl-route-page--current {
+  animation: ptl-blur-in var(--ptl-total) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .ptl-stage[data-transition="soft-crossfade-blur"] .ptl-transition-cover {
   display: none;
 }
 
-/* Curtain Fall — Three.js owns motion; CSS only dims */
+/* Curtain Fall — cover strips own motion; outgoing dims under them */
+.ptl-stage[data-status="running"][data-transition="curtain-fall"] .ptl-route-page--outgoing {
+  animation: ptl-hold-dim var(--ptl-total) ease-out forwards;
+}
+
 .ptl-stage[data-transition="curtain-fall"] .ptl-transition-cover {
   display: none;
 }
 
-/* ── Keyframes ───────────────────────────────────────── */
+/* ── Keyframes (percentages ≈ in 0–45, hold 45–55, out 55–100) ── */
 
-@keyframes ptl-wipe {
+@keyframes ptl-wipe-in-out {
   0% {
-    transform: translateX(-105%);
+    transform: translate3d(-105%, 0, 0);
   }
-  45% {
-    transform: translateX(0%);
+  40% {
+    transform: translate3d(0, 0, 0);
+  }
+  55% {
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translateX(105%);
+    transform: translate3d(105%, 0, 0);
   }
 }
 
@@ -597,18 +633,13 @@
     opacity: 1;
     transform: scale(1);
   }
-  100% {
-    opacity: 0.28;
+  45% {
+    opacity: 0.2;
     transform: scale(0.97);
   }
-}
-
-@keyframes ptl-fade-in {
-  0% {
-    opacity: 0;
-  }
   100% {
-    opacity: 1;
+    opacity: 0;
+    transform: scale(0.96);
   }
 }
 
@@ -617,6 +648,10 @@
     opacity: 1;
     transform: translateX(0) scale(1);
   }
+  45% {
+    opacity: 0;
+    transform: translateX(calc(var(--ptl-intensity) * -0.55%)) scale(0.96);
+  }
   100% {
     opacity: 0;
     transform: translateX(calc(var(--ptl-intensity) * -0.55%)) scale(0.96);
@@ -624,7 +659,8 @@
 }
 
 @keyframes ptl-shelf-in {
-  0% {
+  0%,
+  45% {
     opacity: 0;
     transform: translateX(calc(var(--ptl-intensity) * 0.55%)) scale(0.98);
   }
@@ -634,8 +670,9 @@
   }
 }
 
-@keyframes ptl-iris-in {
-  0% {
+@keyframes ptl-iris-in-out {
+  0%,
+  40% {
     opacity: 1;
     clip-path: circle(0% at 68% 38%);
   }
@@ -650,16 +687,21 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-  100% {
-    opacity: 0.22;
+  45% {
+    opacity: 0.15;
     transform: translateY(-3%) scale(0.94);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4%) scale(0.93);
   }
 }
 
 @keyframes ptl-receipt-up {
-  0% {
+  0%,
+  45% {
     opacity: 1;
-    transform: translateY(calc(18% + var(--ptl-intensity) * 0.3%));
+    transform: translateY(calc(22% + var(--ptl-intensity) * 0.3%));
   }
   100% {
     opacity: 1;
@@ -672,6 +714,10 @@
     opacity: 1;
     filter: blur(0);
   }
+  45% {
+    opacity: 0;
+    filter: blur(calc(var(--ptl-intensity) * 0.1px));
+  }
   100% {
     opacity: 0;
     filter: blur(calc(var(--ptl-intensity) * 0.1px));
@@ -679,7 +725,8 @@
 }
 
 @keyframes ptl-blur-in {
-  0% {
+  0%,
+  45% {
     opacity: 0;
     filter: blur(calc(var(--ptl-intensity) * 0.12px));
   }
@@ -689,12 +736,18 @@
   }
 }
 
-@keyframes ptl-dim-in {
-  from {
+@keyframes ptl-dim-cycle {
+  0% {
     opacity: 0;
   }
-  to {
+  20% {
     opacity: 1;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 
@@ -707,19 +760,21 @@
     opacity: 0.7;
   }
 
-  .ptl-stage[data-status="running"] .ptl-route-page--current {
+  .ptl-stage[data-status="running"] .ptl-route-page--outgoing {
     animation: ptl-fade-out-fast 140ms ease-out forwards !important;
   }
 
-  .ptl-stage[data-status="running"] .ptl-route-page--incoming {
-    animation: ptl-fade-in 140ms ease-out forwards !important;
-    animation-delay: 0ms !important;
+  .ptl-stage[data-status="running"] .ptl-route-page--current {
+    animation: ptl-fade-in-fast 140ms ease-out 80ms forwards !important;
     clip-path: none !important;
     filter: none !important;
     transform: none !important;
   }
 
-  .ptl-stage[data-status="running"] .ptl-transition-cover {
+  .ptl-stage[data-status="running"] .ptl-transition-cover,
+  .ptl-stage[data-status="running"] .ptl-curtain-fallback,
+  .ptl-stage[data-status="running"] .ptl-curtain-canvas,
+  .ptl-stage[data-status="running"] .ptl-curtain-dim {
     display: none !important;
   }
 }
@@ -730,28 +785,70 @@
   }
 }
 
+@keyframes ptl-fade-in-fast {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @media (max-width: 640px) {
   .ptl-detail {
     padding-inline: 1rem;
     padding-top: 1rem;
+    /* Keep controls clear of Safari/Chrome bottom chrome */
+    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ptl-detail__panel {
+    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ptl-control > span {
+    gap: 8px;
+    font-size: 0.8rem;
+  }
+
+  .ptl-control strong {
+    flex-shrink: 0;
   }
 
   .ptl-route-frame {
-    --ptl-frame-height: min(52vh, 420px);
+    --ptl-frame-height: min(48vh, 380px);
+  }
+
+  .ptl-route-page {
+    padding: 12px;
   }
 
   .ptl-page-card {
-    width: min(360px, 100%);
-    min-height: 260px;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    height: auto;
+    max-height: 100%;
+    margin-inline: auto;
     padding: 16px;
+    align-self: center;
+  }
+
+  .ptl-page-card__header {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
   }
 
   .ptl-page-card p {
-    font-size: clamp(1.25rem, 7vw, 1.85rem);
+    font-size: clamp(1.2rem, 6vw, 1.7rem);
+    line-height: 1.12;
   }
 
   .ptl-product-visual {
-    margin-block: 14px;
+    width: 100%;
+    margin-block: 12px;
+    max-height: none;
+    aspect-ratio: 1 / 0.68;
   }
 
   .ptl-detail__actions {
@@ -766,9 +863,10 @@
 
   .ptl-detail__actions button {
     min-height: 44px;
+    touch-action: manipulation;
   }
 
   .ptl-gallery {
-    padding: 1.25rem 1rem 2.5rem;
+    padding: 1.25rem 1rem calc(2.5rem + env(safe-area-inset-bottom, 0px));
   }
 }

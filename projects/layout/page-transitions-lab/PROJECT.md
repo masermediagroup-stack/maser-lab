@@ -31,7 +31,7 @@ Make page-to-page changes feel intentional and spatial without hiding content, d
 Lab workspace with selectable transitions. Early CSS used reversible `transition` + `data-phase` toggles, which caused reverse/repeat glitches when the phase returned to idle.
 
 ### Desired outcome
-A Maser-Lab-aligned gallery where each transition plays as a **one-shot** animation, settles on the destination page, can be tuned, and exports starter code — including a Three.js curtain-fall reveal.
+A Maser-Lab-aligned gallery where each transition plays as a **one-shot in → out** animation (cover/exit, then reveal destination), settles on the destination page, can be tuned, and exports starter code — including Curtain Fall (strips fall in to cover, then fall out downward).
 
 ### Success signal
 Each transition can be selected, replayed without reverse bounce, tuned, and exported. Curtain Fall responds to a live curtain-count slider. Preview chrome stays Maser blue / white with no fluff copy.

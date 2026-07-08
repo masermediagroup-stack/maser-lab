@@ -65,7 +65,7 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
   const toIndex = getNeighborPage(pageIndex);
   const toSample = pageSamples[toIndex] ?? pageSamples[1]!;
 
-  const { status, playKey, play, cancel } = useTransitionRunner({
+  const { status, playKey, play, cancel, holdMs } = useTransitionRunner({
     settings,
     reducedMotion,
     curtainCount:
@@ -127,6 +127,7 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
               fromSample={fromSample}
               toSample={toSample}
               reducedMotion={reducedMotion}
+              holdMs={holdMs}
             />
           </div>
 

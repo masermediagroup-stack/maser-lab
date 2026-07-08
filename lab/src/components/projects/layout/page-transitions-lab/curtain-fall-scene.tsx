@@ -3,48 +3,34 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { createRendererOptions } from "@/three/utils/renderer";
-import { paintPageTexture } from "./paint-page-texture";
-import type { PageSample, TransitionSettings } from "./types";
+import type { TransitionSettings } from "./types";
 
 type CurtainFallSceneProps = {
-  toSample: PageSample;
   settings: TransitionSettings;
   playKey: number;
   reducedMotion: boolean;
   running: boolean;
+  holdMs: number;
 };
 
-function easeOutCubic(t: number) {
-  return 1 - (1 - t) ** 3;
+function easeInOutCubic(t: number) {
+  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
 
-function makeStripGeometry(stripWidth: number, worldHeight: number, index: number, count: number) {
-  const geometry = new THREE.PlaneGeometry(stripWidth * 1.02, worldHeight, 1, 1);
-  const uvs = geometry.attributes.uv;
-  if (!uvs) return geometry;
-
-  // Remap plane UVs to a vertical slice of the destination texture
-  const u0 = index / count;
-  const u1 = (index + 1) / count;
-  // PlaneGeometry UV order: (0,1), (1,1), (0,0), (1,0)
-  uvs.setXY(0, u0, 1);
-  uvs.setXY(1, u1, 1);
-  uvs.setXY(2, u0, 0);
-  uvs.setXY(3, u1, 0);
-  uvs.needsUpdate = true;
-  return geometry;
+function easeInCubic(t: number) {
+  return t * t * t;
 }
 
 /**
- * Vertical curtains fall one-by-one. Each strip shows a UV slice of the
- * destination page texture painted onto a canvas.
+ * Opaque curtains: fall in to cover, hold, then fall out downward.
+ * Destination page is the DOM layer underneath — not painted on the mesh.
  */
 export function CurtainFallScene({
-  toSample,
   settings,
   playKey,
   reducedMotion,
   running,
+  holdMs,
 }: CurtainFallSceneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +40,6 @@ export function CurtainFallScene({
 
     const width = container.clientWidth;
     const height = container.clientHeight;
-    // Skip when host is hidden / zero-sized (e.g. mobile CSS display:none).
     if (width < 8 || height < 8) return;
 
     const curtains = Math.max(3, Math.min(16, Math.round(settings.curtains)));
@@ -77,38 +62,25 @@ export function CurtainFallScene({
     const camera = new THREE.OrthographicCamera(-aspect, aspect, 1, -1, 0.1, 10);
     camera.position.z = 2;
 
-    const paintCanvas = document.createElement("canvas");
-    paintPageTexture(paintCanvas, toSample, width, height);
-    const texture = new THREE.CanvasTexture(paintCanvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.needsUpdate = true;
-
-    const worldHeight = 2;
+    const worldHeight = 2.08;
     const worldWidth = aspect * 2;
     const stripWidth = worldWidth / curtains;
-    // Keep drop distance short enough that strips enter the frame early
-    // (orthographic y spans [-1, 1]; overshooting too far looks like a blank stage).
-    const dropStart = reducedMotion
-      ? 0
-      : worldHeight * (0.55 + settings.intensity / 250);
+    // Overlap strips so no seam lets the page poke through.
+    const overlap = stripWidth * 0.12;
+
+    const dropStart = reducedMotion ? 0 : worldHeight * 1.15;
+    const dropEnd = reducedMotion ? 0 : -worldHeight * 1.15;
 
     const meshes: THREE.Mesh[] = [];
     const geometries: THREE.PlaneGeometry[] = [];
     const material = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
+      color: 0x071018,
+      transparent: false,
       depthWrite: false,
     });
 
-    const gap = stripWidth * 0.02;
-
     for (let i = 0; i < curtains; i++) {
-      const geometry = makeStripGeometry(
-        Math.max(stripWidth - gap, stripWidth * 0.92),
-        worldHeight,
-        i,
-        curtains,
-      );
+      const geometry = new THREE.PlaneGeometry(stripWidth + overlap, worldHeight, 1, 1);
       geometries.push(geometry);
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.x = -aspect + stripWidth * i + stripWidth / 2;
@@ -119,7 +91,9 @@ export function CurtainFallScene({
 
     let raf = 0;
     const start = performance.now();
-    const duration = reducedMotion ? 140 : settings.duration;
+    const inMs = reducedMotion ? 140 : settings.duration;
+    const outMs = reducedMotion ? 140 : settings.duration;
+    const hold = reducedMotion ? 0 : holdMs;
     const stagger = reducedMotion ? 0 : settings.stagger;
 
     const tick = (now: number) => {
@@ -128,12 +102,23 @@ export function CurtainFallScene({
       for (let i = 0; i < meshes.length; i++) {
         const mesh = meshes[i];
         if (!mesh) continue;
-        const localT = Math.min(
-          1,
-          Math.max(0, (now - start - i * stagger) / duration),
-        );
-        mesh.position.y = dropStart * (1 - easeOutCubic(localT));
-        if (localT < 1) allDone = false;
+        const local = now - start - i * stagger;
+        const inT = Math.min(1, Math.max(0, local / inMs));
+        const outLocal = local - inMs - hold;
+        const outT = Math.min(1, Math.max(0, outLocal / outMs));
+
+        if (local < inMs) {
+          mesh.position.y = dropStart + (0 - dropStart) * easeInOutCubic(inT);
+          allDone = false;
+        } else if (local < inMs + hold) {
+          mesh.position.y = 0;
+          allDone = false;
+        } else if (outT < 1) {
+          mesh.position.y = 0 + (dropEnd - 0) * easeInCubic(outT);
+          allDone = false;
+        } else {
+          mesh.position.y = dropEnd;
+        }
       }
 
       renderer.render(scene, camera);
@@ -156,19 +141,15 @@ export function CurtainFallScene({
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
-      for (const mesh of meshes) {
-        scene.remove(mesh);
-      }
+      for (const mesh of meshes) scene.remove(mesh);
       for (const geometry of geometries) geometry.dispose();
       material.dispose();
-      texture.dispose();
       renderer.dispose();
       if (renderer.domElement.parentElement === container) {
         container.removeChild(renderer.domElement);
       }
     };
   }, [
-    toSample,
     settings.curtains,
     settings.duration,
     settings.stagger,
@@ -176,6 +157,7 @@ export function CurtainFallScene({
     playKey,
     reducedMotion,
     running,
+    holdMs,
   ]);
 
   return (
