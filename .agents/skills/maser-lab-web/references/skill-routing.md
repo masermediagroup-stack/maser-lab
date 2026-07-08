@@ -16,12 +16,12 @@ Routes domain skills for **all 2D web UI** in Maser-Lab. Do not duplicate conten
 | `vercel-react-best-practices` | vercel-labs/agent-skills | React/Next performance |
 | `verification` | vercel-labs/vercel-plugin | End-to-end flow check after implementation |
 | `vercel-agent` | vercel-labs/vercel-plugin | Vercel Agent platform configuration |
-| `figma-design-workflow` | playground (local) | Figma refs, tokens, design↔code sync, Code Connect paths |
+| `figma-design-workflow` | Maser-Lab (local) | Figma refs, tokens, design↔code sync, Code Connect paths |
 | `figma-use` | Figma MCP plugin | Read/write Figma nodes — load before every `use_figma` call |
 | `figma-generate-design` | Figma MCP plugin | Push lab demos / pages to Figma from code |
 | `figma-code-connect` | Figma MCP plugin | `.figma.ts` mappings for published team components |
 | `figma-generate-library` | Figma MCP plugin | Variables, components, design system in Figma |
-| `maser-lab-threejs` | playground (local) | Three.js workflow, agents, quality gates |
+| `maser-lab-threejs` | Maser-Lab (local) | Three.js workflow, agents, quality gates |
 | `threejs-fundamentals` | cloudai-x/threejs-skills | Scene, camera, renderer, resize |
 | `threejs-geometry` | cloudai-x/threejs-skills | Meshes, BufferGeometry, instancing |
 | `threejs-materials` | cloudai-x/threejs-skills | PBR, ShaderMaterial decisions |

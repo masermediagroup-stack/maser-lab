@@ -4,7 +4,7 @@ description: >-
   Primary workflow skill for all web UI in Maser-Lab — page sections, components,
   forms, navigation, heroes, sign-up flows, scroll reveals, loaders, and
   micro-interactions. Use when shaping, implementing, auditing, polishing, or
-  porting any client-facing web surface in this playground repo. Trigger on web
+  porting any client-facing web surface in this Maser-Lab repo. Trigger on web
   section, component, form, nav, hero, sign-up, scroll reveal, animation, motion,
   lab demo, portfolio transfer, or production-ready UI requests. Not for
   backend-only work, pure 3D/WebGL (use maser-lab-threejs), telemetry, or docs

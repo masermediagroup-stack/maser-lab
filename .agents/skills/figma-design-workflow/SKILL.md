@@ -8,7 +8,7 @@ description: >-
   maser-lab-web for any project with design references.
 ---
 
-# Figma Design Workflow (Playground)
+# Figma Design Workflow (Maser-Lab)
 
 Bridge **Figma design** and the **lab build loop** without breaking the existing Shape → Implement → Review → Transfer lifecycle.
 

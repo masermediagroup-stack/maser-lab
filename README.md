@@ -145,9 +145,15 @@ Use **both** servers for the full workflow:
 
 Keep Figma desktop open while using the desktop server.
 
-### Team Maser-Lab Figma File
+### Figma Import Workflow
 
-Primary Figma file for this repo:
+The import workflow stays the same across Figma files and tabs:
+
+1. Paste the Figma file URL and optional `node-id` in chat.
+2. The agent reads the design context from that file.
+3. Per-project design notes live in `projects/{category}/{slug}/FIGMA.md`.
+
+Current team reference file:
 
 **[Maser-Lab web component and interaction file](https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/Maser-Lab-web-component-and-interaction-file)**
 
@@ -155,7 +161,7 @@ Primary Figma file for this repo:
 | --- | --- |
 | `fileKey` | `f2TLFWW5Eg8aqczRjuZ403` |
 
-**Access requirement:** The Figma account connected to Cursor MCP must have **Editor** access on this file. Share the file with the authenticated account (check via Figma MCP `whoami`) before asking the agent to push components.
+**Access requirement:** The Figma account connected to Cursor MCP must have access to the referenced file. Editor access is required before asking the agent to push components or generate frames into Figma.
 
 ### Push lab demo → Figma
 

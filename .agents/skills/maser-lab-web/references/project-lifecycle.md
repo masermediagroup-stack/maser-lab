@@ -38,7 +38,7 @@ Every demo route must include:
 
 Per-slug porting details: `projects/{category}/{slug}/TRANSFER.md`. Universal process below.
 
-### Phase 1 — Ready in playground
+### Phase 1 — Ready in Maser-Lab
 
 - [ ] `PROJECT.md` acceptance criteria all checked
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
@@ -79,7 +79,7 @@ lab/public/images/…  (if referenced)
 - [ ] Production deploy after preview sign-off
 - [ ] Smoke-test live production URL
 
-### Phase 5 — Close out in playground
+### Phase 5 — Close out in Maser-Lab
 
 - [ ] Registry status → `transferred`
 - [ ] Optional: note live portfolio URL in `TRANSFER.md` **Notes**
