@@ -1,5 +1,6 @@
 import type { TransitionDefinition, TransitionId } from "./types";
 import {
+  curtainDirectionOptions,
   curtainEdgeOptions,
   curtainOriginOptions,
   defaultCurtainLook,
@@ -144,7 +145,10 @@ export const transitionDefinitions: TransitionDefinition[] = [
       curtainGradient: "vertical",
       curtainFallIn: "left",
       curtainFallOut: "left",
-      curtainEdge: "flat",
+      curtainDirIn: "top",
+      curtainDirOut: "bottom",
+      curtainEdgeIn: "flat",
+      curtainEdgeOut: "flat",
     },
     controls: [
       {
@@ -199,20 +203,38 @@ export const transitionDefinitions: TransitionDefinition[] = [
       },
       {
         type: "select",
-        key: "curtainFallIn",
+        key: "curtainDirIn",
         label: "Fall in from",
+        options: curtainDirectionOptions,
+      },
+      {
+        type: "select",
+        key: "curtainFallIn",
+        label: "Fall in stagger",
         options: curtainOriginOptions,
+      },
+      {
+        type: "select",
+        key: "curtainEdgeIn",
+        label: "Fall in edge",
+        options: curtainEdgeOptions,
+      },
+      {
+        type: "select",
+        key: "curtainDirOut",
+        label: "Fall out toward",
+        options: curtainDirectionOptions,
       },
       {
         type: "select",
         key: "curtainFallOut",
-        label: "Fall out from",
+        label: "Fall out stagger",
         options: curtainOriginOptions,
       },
       {
         type: "select",
-        key: "curtainEdge",
-        label: "Edge shape",
+        key: "curtainEdgeOut",
+        label: "Fall out edge",
         options: curtainEdgeOptions,
       },
     ],

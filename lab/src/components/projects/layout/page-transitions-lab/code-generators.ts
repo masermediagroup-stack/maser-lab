@@ -22,7 +22,10 @@ function curtainFillSnippet(settings: TransitionSettings) {
   curtainGradient: "${settings.curtainGradient}", // solid | vertical | horizontal
   curtainFallIn: "${settings.curtainFallIn}", // left | right | center
   curtainFallOut: "${settings.curtainFallOut}", // left | right | center
-  curtainEdge: "${settings.curtainEdge}", // flat | curve | diamond | circle`;
+  curtainDirIn: "${settings.curtainDirIn}", // top | bottom
+  curtainDirOut: "${settings.curtainDirOut}", // top | bottom
+  curtainEdgeIn: "${settings.curtainEdgeIn}", // flat | curve | diamond | circle
+  curtainEdgeOut: "${settings.curtainEdgeOut}", // flat | curve | diamond | circle`;
 }
 
 function pixelWormholeSnippet(settings: TransitionSettings) {
@@ -87,9 +90,9 @@ const settings = {
 
 /**
  * 1. Mount the destination route underneath the overlay (hidden by curtains).
- * 2. Build \`settings.curtains\` opaque vertical planes (optional hem: flat | curve | diamond | circle).
- * 3. Phase IN: drop each plane from above with stagger (left | right | center).
- * 4. Phase OUT: drop each plane downward with its own origin stagger.
+ * 2. Build \`settings.curtains\` opaque vertical planes (hem: flat | curve | diamond | circle).
+ * 3. Phase IN: enter from top or bottom with stagger (left | right | center).
+ * 4. Phase OUT: exit toward top or bottom with its own origin / edge.
  * 5. Dispose the overlay on complete.
  *
  * See lab/src/components/projects/layout/page-transitions-lab/curtain-fall-scene.tsx

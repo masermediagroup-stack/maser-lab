@@ -12,7 +12,10 @@ export type CurtainGradientMode = "solid" | "vertical" | "horizontal";
 /** Which strip leads the stagger for a Curtain Fall phase. */
 export type CurtainOrigin = "left" | "right" | "center";
 
-/** Decorative shape on the leading (bottom) hem of each curtain strip. */
+/** Vertical side the curtains enter from / exit toward. */
+export type CurtainDirection = "top" | "bottom";
+
+/** Decorative shape on the leading hem of each curtain strip. */
 export type CurtainEdge = "flat" | "curve" | "diamond" | "circle";
 
 export type PixelColorMode = "preserve" | "solid" | "gradient" | "white";
@@ -33,8 +36,14 @@ export type TransitionSettings = {
   curtainFallIn: CurtainOrigin;
   /** Curtain Fall — which side leads the reveal (fall-out) stagger */
   curtainFallOut: CurtainOrigin;
-  /** Curtain Fall — bottom hem silhouette */
-  curtainEdge: CurtainEdge;
+  /** Curtain Fall — enter from top or bottom */
+  curtainDirIn: CurtainDirection;
+  /** Curtain Fall — exit toward top or bottom */
+  curtainDirOut: CurtainDirection;
+  /** Curtain Fall — leading hem silhouette during fall-in */
+  curtainEdgeIn: CurtainEdge;
+  /** Curtain Fall — leading hem silhouette during fall-out */
+  curtainEdgeOut: CurtainEdge;
   /** Pixel Wormhole — grid density across the stage */
   pixelDensity: number;
   /** Pixel Wormhole — how pixel colors are chosen */
@@ -84,7 +93,13 @@ export type SelectControlDefinition =
     }
   | {
       type: "select";
-      key: "curtainEdge";
+      key: "curtainDirIn" | "curtainDirOut";
+      label: string;
+      options: { value: CurtainDirection; label: string }[];
+    }
+  | {
+      type: "select";
+      key: "curtainEdgeIn" | "curtainEdgeOut";
       label: string;
       options: { value: CurtainEdge; label: string }[];
     }
@@ -130,13 +145,24 @@ export const defaultCurtainLook = {
   curtainGradient: "solid" as CurtainGradientMode,
   curtainFallIn: "left" as CurtainOrigin,
   curtainFallOut: "left" as CurtainOrigin,
-  curtainEdge: "flat" as CurtainEdge,
+  curtainDirIn: "top" as CurtainDirection,
+  curtainDirOut: "bottom" as CurtainDirection,
+  curtainEdgeIn: "flat" as CurtainEdge,
+  curtainEdgeOut: "flat" as CurtainEdge,
 };
 
 export const curtainOriginOptions: { value: CurtainOrigin; label: string }[] = [
   { value: "left", label: "Left → right" },
   { value: "right", label: "Right → left" },
   { value: "center", label: "Center → out" },
+];
+
+export const curtainDirectionOptions: {
+  value: CurtainDirection;
+  label: string;
+}[] = [
+  { value: "top", label: "Top" },
+  { value: "bottom", label: "Bottom" },
 ];
 
 export const curtainEdgeOptions: { value: CurtainEdge; label: string }[] = [

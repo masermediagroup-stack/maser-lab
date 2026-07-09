@@ -533,7 +533,7 @@
 
 .ptl-curtain-fallback span {
   flex: 1 1 0;
-  align-self: flex-start;
+  align-self: stretch;
   min-width: 0;
   /* No neighbor overlap — staggered gradients make overlaps look stepped */
   margin-inline: 0;
@@ -544,12 +544,9 @@
   background-color: #071018;
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  /* Shaped hems: taller + clip-path (inline); tips hang past cover, clipped by frame */
+  /* Direction + edge set inline (animation-name / clip-path) */
   transform: translate3d(0, -110%, 0);
-  animation-name: ptl-css-curtain-in, ptl-css-curtain-out;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1), cubic-bezier(0.55, 0, 1, 0.45);
-  animation-fill-mode: forwards, forwards;
-  will-change: transform;
+  will-change: transform, clip-path;
 }
 
 .ptl-curtain-canvas {
@@ -703,6 +700,55 @@
   }
 }
 
+@keyframes ptl-css-curtain-in-top {
+  from {
+    transform: translate3d(0, -110%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes ptl-css-curtain-in-bottom {
+  from {
+    transform: translate3d(0, 110%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes ptl-css-curtain-out-top {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -110%, 0);
+  }
+}
+
+@keyframes ptl-css-curtain-out-bottom {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 110%, 0);
+  }
+}
+
+/* Swap leading-hem clip at the global out-phase boundary */
+@keyframes ptl-css-curtain-edge-swap {
+  from {
+    clip-path: var(--ptl-curtain-clip-in, none);
+    -webkit-clip-path: var(--ptl-curtain-clip-in, none);
+  }
+  to {
+    clip-path: var(--ptl-curtain-clip-out, none);
+    -webkit-clip-path: var(--ptl-curtain-clip-out, none);
+  }
+}
+
+/* Legacy aliases (unused; kept for safety if any stale refs remain) */
 @keyframes ptl-css-curtain-in {
   from {
     transform: translate3d(0, -110%, 0);

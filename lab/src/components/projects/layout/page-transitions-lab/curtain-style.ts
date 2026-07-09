@@ -8,6 +8,7 @@ import {
   PlaneGeometry,
 } from "three";
 import type {
+  CurtainDirection,
   CurtainEdge,
   CurtainGradientMode,
   CurtainOrigin,
@@ -15,6 +16,22 @@ import type {
 
 /** How far decorative tips hang past the cover line, as a fraction of cover height. */
 export const CURTAIN_HEM_RATIO = 0.14;
+
+/** Leading hem side while entering from `dir`. */
+export function curtainLeadingSideIn(
+  dir: CurtainDirection,
+): "top" | "bottom" {
+  // From top → traveling down → bottom hem. From bottom → traveling up → top hem.
+  return dir === "top" ? "bottom" : "top";
+}
+
+/** Leading hem side while exiting toward `dir`. */
+export function curtainLeadingSideOut(
+  dir: CurtainDirection,
+): "top" | "bottom" {
+  // Toward top → traveling up → top hem. Toward bottom → traveling down → bottom hem.
+  return dir === "top" ? "top" : "bottom";
+}
 
 const HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
@@ -153,7 +170,7 @@ export function curtainMaxStaggerRank(
 }
 
 /**
- * Hang amount (0..1) along the strip width for a decorative bottom hem.
+ * Hang amount (0..1) along the strip width for a decorative hem.
  * 0 = valley (cover line), 1 = tip (maximum hang past the cover).
  */
 export function curtainEdgeProfile(edge: CurtainEdge, u: number): number {
@@ -168,47 +185,55 @@ export function curtainEdgeProfile(edge: CurtainEdge, u: number): number {
     const t = (x * teeth) % 1;
     return t < 0.5 ? t * 2 : (1 - t) * 2;
   }
-  // circle — scalloped semicircles
-  const scallops = 3;
-  const t = (x * scallops) % 1;
-  const nx = t * 2 - 1;
+  // circle — one beveled semicircle across the full strip width
+  const nx = x * 2 - 1;
   return Math.sqrt(Math.max(0, 1 - nx * nx));
 }
 
 /**
- * CSS clip-path for the leading (bottom) hem.
- * Pair with taller strip height so the solid body still seals the stage
- * while tips hang past (clipped by the route frame during hold).
+ * CSS clip-path for the leading hem on `side` (cut into the strip).
+ * Tips sit on the strip edge; valleys cut inward so height can stay 100%
+ * and the hold still seals. Used by the CSS fallback renderer.
  */
-export function curtainEdgeClipPath(edge: CurtainEdge): string | undefined {
+export function curtainEdgeClipPath(
+  edge: CurtainEdge,
+  side: "top" | "bottom" = "bottom",
+): string | undefined {
   if (edge === "flat") return undefined;
 
   const samples = 25;
-  const body = 100 / (1 + CURTAIN_HEM_RATIO);
-  const hem = 100 - body;
-  const bottom: string[] = [];
-  for (let i = samples; i >= 0; i--) {
-    const u = i / samples;
-    const y = body + hem * curtainEdgeProfile(edge, u);
-    bottom.push(`${(u * 100).toFixed(2)}% ${y.toFixed(2)}%`);
-  }
-  return `polygon(0% 0%, 100% 0%, ${bottom.join(", ")})`;
-}
+  const hem = CURTAIN_HEM_RATIO * 100;
 
-/** Extra strip height % so shaped tips hang below while the body still covers. */
-export function curtainEdgeHeightPercent(edge: CurtainEdge): number {
-  if (edge === "flat") return 100;
-  return 100 * (1 + CURTAIN_HEM_RATIO);
+  if (side === "bottom") {
+    const bottom: string[] = [];
+    for (let i = samples; i >= 0; i--) {
+      const u = i / samples;
+      // tip (1) → 100%; valley (0) → 100% - hem
+      const y = 100 - hem * (1 - curtainEdgeProfile(edge, u));
+      bottom.push(`${(u * 100).toFixed(2)}% ${y.toFixed(2)}%`);
+    }
+    return `polygon(0% 0%, 100% 0%, ${bottom.join(", ")})`;
+  }
+
+  const top: string[] = [];
+  for (let i = 0; i <= samples; i++) {
+    const u = i / samples;
+    // tip (1) → 0%; valley (0) → hem
+    const y = hem * (1 - curtainEdgeProfile(edge, u));
+    top.push(`${(u * 100).toFixed(2)}% ${y.toFixed(2)}%`);
+  }
+  return `polygon(${top.join(", ")}, 100% 100%, 0% 100%)`;
 }
 
 /**
- * Plane geometry with an optional decorative bottom hem.
+ * Plane geometry with an optional decorative hem on `side`.
  * Tips hang past the flat cover line; valleys stay on it so the hold seals.
  */
 export function createCurtainStripGeometry(
   width: number,
   height: number,
   edge: CurtainEdge,
+  side: "top" | "bottom" = "bottom",
   widthSegs = 32,
 ): PlaneGeometry {
   if (edge === "flat") {
@@ -224,10 +249,14 @@ export function createCurtainStripGeometry(
 
   for (let i = 0; i < pos.count; i++) {
     const y = pos.getY(i);
-    if (y > -halfH + eps) continue;
     const x = pos.getX(i);
     const u = (x + halfW) / Math.max(width, 1e-6);
-    pos.setY(i, y - hem * curtainEdgeProfile(edge, u));
+    const hang = hem * curtainEdgeProfile(edge, u);
+    if (side === "bottom" && y <= -halfH + eps) {
+      pos.setY(i, y - hang);
+    } else if (side === "top" && y >= halfH - eps) {
+      pos.setY(i, y + hang);
+    }
   }
   pos.needsUpdate = true;
   geometry.computeBoundingBox();

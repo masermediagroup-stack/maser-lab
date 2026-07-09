@@ -6,6 +6,8 @@ import { createRendererOptions } from "@/three/utils/renderer";
 import {
   applyStripUVs,
   createCurtainStripGeometry,
+  curtainLeadingSideIn,
+  curtainLeadingSideOut,
   curtainMaxStaggerRank,
   curtainStaggerRank,
   paintCurtainTexture,
@@ -29,9 +31,9 @@ function easeInCubic(t: number) {
 }
 
 /**
- * Opaque curtains: fall in to cover, hold, then fall out downward.
+ * Opaque curtains: enter to cover, hold, then exit to reveal.
+ * Direction, stagger origin, and edge shape are independent per phase.
  * Destination page is the DOM layer underneath — not painted on the mesh.
- * Strip fill uses Color A / B + solid or gradient mode from settings.
  */
 export function CurtainFallScene({
   settings,
@@ -77,8 +79,11 @@ export function CurtainFallScene({
     const stripWidth = worldWidth / curtains;
     const overlap = 0;
 
-    const dropStart = reducedMotion ? 0 : worldHeight * 1.15;
-    const dropEnd = reducedMotion ? 0 : -worldHeight * 1.15;
+    const travel = reducedMotion ? 0 : worldHeight * 1.15;
+    const dirIn = settings.curtainDirIn;
+    const dirOut = settings.curtainDirOut;
+    const inStart = dirIn === "top" ? travel : -travel;
+    const outEnd = dirOut === "top" ? travel : -travel;
 
     // Horizontal: one wide texture so A→B spans the whole stage.
     // Vertical/solid: a single strip-sized texture is enough.
@@ -98,29 +103,52 @@ export function CurtainFallScene({
     texture.needsUpdate = true;
 
     const meshes: THREE.Mesh[] = [];
-    const geometries: THREE.BufferGeometry[] = [];
+    const geometriesIn: THREE.BufferGeometry[] = [];
+    const geometriesOut: THREE.BufferGeometry[] = [];
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: false,
       depthWrite: false,
       side: THREE.DoubleSide,
     });
-    const edge = settings.curtainEdge;
+    const edgeIn = settings.curtainEdgeIn;
+    const edgeOut = settings.curtainEdgeOut;
+    const sideIn = curtainLeadingSideIn(dirIn);
+    const sideOut = curtainLeadingSideOut(dirOut);
+    const needsOutGeo =
+      edgeIn !== edgeOut || sideIn !== sideOut;
 
     for (let i = 0; i < curtains; i++) {
-      const geometry = createCurtainStripGeometry(
+      const geoIn = createCurtainStripGeometry(
         stripWidth + overlap,
         worldHeight,
-        edge,
-        edge === "flat" ? 1 : 32,
+        edgeIn,
+        sideIn,
+        edgeIn === "flat" ? 1 : 32,
       );
       if (settings.curtainGradient === "horizontal") {
-        applyStripUVs(geometry, i, curtains);
+        applyStripUVs(geoIn, i, curtains);
       }
-      geometries.push(geometry);
-      const mesh = new THREE.Mesh(geometry, material);
+      geometriesIn.push(geoIn);
+
+      let geoOut: THREE.BufferGeometry | null = null;
+      if (needsOutGeo) {
+        geoOut = createCurtainStripGeometry(
+          stripWidth + overlap,
+          worldHeight,
+          edgeOut,
+          sideOut,
+          edgeOut === "flat" ? 1 : 32,
+        );
+        if (settings.curtainGradient === "horizontal") {
+          applyStripUVs(geoOut, i, curtains);
+        }
+        geometriesOut.push(geoOut);
+      }
+
+      const mesh = new THREE.Mesh(geoIn, material);
       mesh.position.x = -aspect + stripWidth * i + stripWidth / 2;
-      mesh.position.y = dropStart;
+      mesh.position.y = inStart;
       scene.add(mesh);
       meshes.push(mesh);
     }
@@ -138,10 +166,20 @@ export function CurtainFallScene({
     // (e.g. in right→left, out left→right) no longer cancels the out wave.
     const outPhaseStart =
       curtainMaxStaggerRank(curtains, fallIn) * stagger + inMs + hold;
+    let swappedToOut = false;
 
     const tick = (now: number) => {
       let allDone = true;
       const elapsed = now - start;
+
+      if (needsOutGeo && !swappedToOut && elapsed >= outPhaseStart) {
+        for (let i = 0; i < meshes.length; i++) {
+          const mesh = meshes[i];
+          const geoOut = geometriesOut[i];
+          if (mesh && geoOut) mesh.geometry = geoOut;
+        }
+        swappedToOut = true;
+      }
 
       for (let i = 0; i < meshes.length; i++) {
         const mesh = meshes[i];
@@ -155,19 +193,19 @@ export function CurtainFallScene({
         const outT = Math.min(1, Math.max(0, outLocal / outMs));
 
         if (localIn < 0) {
-          mesh.position.y = dropStart;
+          mesh.position.y = inStart;
           allDone = false;
         } else if (localIn < inMs) {
-          mesh.position.y = dropStart + (0 - dropStart) * easeInOutCubic(inT);
+          mesh.position.y = inStart + (0 - inStart) * easeInOutCubic(inT);
           allDone = false;
         } else if (elapsed < outDelay) {
           mesh.position.y = 0;
           allDone = false;
         } else if (outT < 1) {
-          mesh.position.y = 0 + (dropEnd - 0) * easeInCubic(outT);
+          mesh.position.y = 0 + (outEnd - 0) * easeInCubic(outT);
           allDone = false;
         } else {
-          mesh.position.y = dropEnd;
+          mesh.position.y = outEnd;
         }
       }
 
@@ -192,7 +230,8 @@ export function CurtainFallScene({
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
       for (const mesh of meshes) scene.remove(mesh);
-      for (const geometry of geometries) geometry.dispose();
+      for (const geometry of geometriesIn) geometry.dispose();
+      for (const geometry of geometriesOut) geometry.dispose();
       material.dispose();
       texture.dispose();
       renderer.dispose();
@@ -210,7 +249,10 @@ export function CurtainFallScene({
     settings.curtainGradient,
     settings.curtainFallIn,
     settings.curtainFallOut,
-    settings.curtainEdge,
+    settings.curtainDirIn,
+    settings.curtainDirOut,
+    settings.curtainEdgeIn,
+    settings.curtainEdgeOut,
     playKey,
     reducedMotion,
     running,

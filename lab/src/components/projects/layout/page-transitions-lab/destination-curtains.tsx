@@ -3,12 +3,18 @@
 import type { CSSProperties } from "react";
 import {
   curtainEdgeClipPath,
-  curtainEdgeHeightPercent,
+  curtainLeadingSideIn,
+  curtainLeadingSideOut,
   curtainStaggerRank,
   curtainMaxStaggerRank,
   curtainStripCssStyle,
 } from "./curtain-style";
-import type { CurtainEdge, CurtainGradientMode, CurtainOrigin } from "./types";
+import type {
+  CurtainDirection,
+  CurtainEdge,
+  CurtainGradientMode,
+  CurtainOrigin,
+} from "./types";
 
 type DestinationCurtainsProps = {
   count: number;
@@ -22,15 +28,16 @@ type DestinationCurtainsProps = {
   gradient: CurtainGradientMode;
   fallIn: CurtainOrigin;
   fallOut: CurtainOrigin;
-  edge: CurtainEdge;
+  dirIn: CurtainDirection;
+  dirOut: CurtainDirection;
+  edgeIn: CurtainEdge;
+  edgeOut: CurtainEdge;
 };
 
 /**
- * Opaque cover strips: fall in to cover the stage, hold, then fall out
- * downward to reveal the destination page mounted underneath.
- * Fall-in / fall-out origins control which strip leads each phase.
- * Edge shapes decorate the leading (bottom) hem — tips hang past the
- * cover line so the hold still seals (clipped by the route frame).
+ * Opaque cover strips: enter to cover, hold, then exit to reveal.
+ * Direction (top/bottom), stagger origin, and edge shape are independent
+ * per phase. Edge silhouette swaps at the out-phase boundary.
  */
 export function DestinationCurtains({
   count,
@@ -44,7 +51,10 @@ export function DestinationCurtains({
   gradient,
   fallIn,
   fallOut,
-  edge,
+  dirIn,
+  dirOut,
+  edgeIn,
+  edgeOut,
 }: DestinationCurtainsProps) {
   const strips = Math.max(3, Math.min(16, Math.round(count)));
   const inMs = reducedMotion ? 140 : durationMs;
@@ -56,11 +66,21 @@ export function DestinationCurtains({
     ? 0
     : curtainMaxStaggerRank(strips, fallIn) * staggerMs;
   const outPhaseStart = inTail + inMs + hold;
-  const clipPath = curtainEdgeClipPath(edge);
-  const heightPct = curtainEdgeHeightPercent(edge);
+
+  const sideIn = curtainLeadingSideIn(dirIn);
+  const sideOut = curtainLeadingSideOut(dirOut);
+  const clipIn = curtainEdgeClipPath(edgeIn, sideIn);
+  const clipOut = curtainEdgeClipPath(edgeOut, sideOut);
 
   return (
-    <div className="ptl-curtain-fallback" aria-hidden="true" data-edge={edge}>
+    <div
+      className="ptl-curtain-fallback"
+      aria-hidden="true"
+      data-dir-in={dirIn}
+      data-dir-out={dirOut}
+      data-edge-in={edgeIn}
+      data-edge-out={edgeOut}
+    >
       {Array.from({ length: strips }, (_, index) => {
         const inRank = curtainStaggerRank(index, strips, fallIn);
         const outRank = curtainStaggerRank(index, strips, fallOut);
@@ -75,22 +95,37 @@ export function DestinationCurtains({
           index,
           strips,
         );
+        const inAnim =
+          dirIn === "top" ? "ptl-css-curtain-in-top" : "ptl-css-curtain-in-bottom";
+        const outAnim =
+          dirOut === "top"
+            ? "ptl-css-curtain-out-top"
+            : "ptl-css-curtain-out-bottom";
+        const startY = dirIn === "top" ? "-110%" : "110%";
         return (
           <span
             key={`${playKey}-${index}`}
-            data-edge={edge}
+            data-dir-in={dirIn}
+            data-dir-out={dirOut}
             style={
               {
                 ...fill,
-                height: `${heightPct}%`,
-                minHeight: `${heightPct}%`,
-                ...(clipPath ? { clipPath, WebkitClipPath: clipPath } : null),
+                transform: `translate3d(0, ${startY}, 0)`,
+                ...(clipIn
+                  ? { clipPath: clipIn, WebkitClipPath: clipIn }
+                  : { clipPath: "none", WebkitClipPath: "none" }),
+                "--ptl-curtain-clip-in": clipIn ?? "none",
+                "--ptl-curtain-clip-out": clipOut ?? "none",
                 "--ptl-curtain-in": `${inMs}ms`,
                 "--ptl-curtain-out": `${outMs}ms`,
                 "--ptl-curtain-hold": `${hold}ms`,
                 "--ptl-curtain-delay": `${inDelay}ms`,
-                animationDelay: `${inDelay}ms, ${outDelay}ms`,
-                animationDuration: `${inMs}ms, ${outMs}ms`,
+                animationName: `${inAnim}, ${outAnim}, ptl-css-curtain-edge-swap`,
+                animationDelay: `${inDelay}ms, ${outDelay}ms, ${outPhaseStart}ms`,
+                animationDuration: `${inMs}ms, ${outMs}ms, 1ms`,
+                animationTimingFunction:
+                  "cubic-bezier(0.22, 1, 0.36, 1), cubic-bezier(0.55, 0, 1, 0.45), step-end",
+                animationFillMode: "both, forwards, forwards",
               } as CSSProperties
             }
           />
