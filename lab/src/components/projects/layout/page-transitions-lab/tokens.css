@@ -533,7 +533,7 @@
 
 .ptl-curtain-fallback span {
   flex: 1 1 0;
-  align-self: stretch;
+  align-self: flex-start;
   min-width: 0;
   /* No neighbor overlap — staggered gradients make overlaps look stepped */
   margin-inline: 0;
@@ -544,6 +544,7 @@
   background-color: #071018;
   background-repeat: no-repeat;
   background-size: 100% 100%;
+  /* Shaped hems: taller + clip-path (inline); tips hang past cover, clipped by frame */
   transform: translate3d(0, -110%, 0);
   animation-name: ptl-css-curtain-in, ptl-css-curtain-out;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1), cubic-bezier(0.55, 0, 1, 0.45);

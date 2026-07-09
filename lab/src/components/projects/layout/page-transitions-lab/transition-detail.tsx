@@ -11,6 +11,7 @@ import { getNeighborPage, pageSamples } from "./page-samples";
 import { TransitionStage } from "./transition-stage";
 import type {
   ControlDefinition,
+  CurtainEdge,
   CurtainGradientMode,
   CurtainOrigin,
   PixelColorMode,
@@ -155,7 +156,12 @@ function ControlField({
     value: string,
   ) => void;
   onSelect: (
-    key: "curtainGradient" | "curtainFallIn" | "curtainFallOut" | "pixelColorMode",
+    key:
+      | "curtainGradient"
+      | "curtainFallIn"
+      | "curtainFallOut"
+      | "curtainEdge"
+      | "pixelColorMode",
     value: string,
   ) => void;
 }) {
@@ -243,6 +249,7 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
       | "curtainGradient"
       | "curtainFallIn"
       | "curtainFallOut"
+      | "curtainEdge"
       | "pixelColorMode",
     value: string,
   ) => {
@@ -255,6 +262,9 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
       }
       if (key === "curtainFallOut") {
         return { ...current, curtainFallOut: value as CurtainOrigin };
+      }
+      if (key === "curtainEdge") {
+        return { ...current, curtainEdge: value as CurtainEdge };
       }
       return { ...current, pixelColorMode: value as PixelColorMode };
     });

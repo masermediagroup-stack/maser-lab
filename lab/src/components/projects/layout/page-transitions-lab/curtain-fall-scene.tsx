@@ -3,7 +3,13 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { createRendererOptions } from "@/three/utils/renderer";
-import { applyStripUVs, curtainMaxStaggerRank, curtainStaggerRank, paintCurtainTexture } from "./curtain-style";
+import {
+  applyStripUVs,
+  createCurtainStripGeometry,
+  curtainMaxStaggerRank,
+  curtainStaggerRank,
+  paintCurtainTexture,
+} from "./curtain-style";
 import type { TransitionSettings } from "./types";
 
 type CurtainFallSceneProps = {
@@ -92,19 +98,21 @@ export function CurtainFallScene({
     texture.needsUpdate = true;
 
     const meshes: THREE.Mesh[] = [];
-    const geometries: THREE.PlaneGeometry[] = [];
+    const geometries: THREE.BufferGeometry[] = [];
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: false,
       depthWrite: false,
+      side: THREE.DoubleSide,
     });
+    const edge = settings.curtainEdge;
 
     for (let i = 0; i < curtains; i++) {
-      const geometry = new THREE.PlaneGeometry(
+      const geometry = createCurtainStripGeometry(
         stripWidth + overlap,
         worldHeight,
-        1,
-        1,
+        edge,
+        edge === "flat" ? 1 : 32,
       );
       if (settings.curtainGradient === "horizontal") {
         applyStripUVs(geometry, i, curtains);
@@ -202,6 +210,7 @@ export function CurtainFallScene({
     settings.curtainGradient,
     settings.curtainFallIn,
     settings.curtainFallOut,
+    settings.curtainEdge,
     playKey,
     reducedMotion,
     running,

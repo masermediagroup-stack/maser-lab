@@ -2,11 +2,13 @@
 
 import type { CSSProperties } from "react";
 import {
+  curtainEdgeClipPath,
+  curtainEdgeHeightPercent,
   curtainStaggerRank,
   curtainMaxStaggerRank,
   curtainStripCssStyle,
 } from "./curtain-style";
-import type { CurtainGradientMode, CurtainOrigin } from "./types";
+import type { CurtainEdge, CurtainGradientMode, CurtainOrigin } from "./types";
 
 type DestinationCurtainsProps = {
   count: number;
@@ -20,12 +22,15 @@ type DestinationCurtainsProps = {
   gradient: CurtainGradientMode;
   fallIn: CurtainOrigin;
   fallOut: CurtainOrigin;
+  edge: CurtainEdge;
 };
 
 /**
  * Opaque cover strips: fall in to cover the stage, hold, then fall out
  * downward to reveal the destination page mounted underneath.
  * Fall-in / fall-out origins control which strip leads each phase.
+ * Edge shapes decorate the leading (bottom) hem — tips hang past the
+ * cover line so the hold still seals (clipped by the route frame).
  */
 export function DestinationCurtains({
   count,
@@ -39,6 +44,7 @@ export function DestinationCurtains({
   gradient,
   fallIn,
   fallOut,
+  edge,
 }: DestinationCurtainsProps) {
   const strips = Math.max(3, Math.min(16, Math.round(count)));
   const inMs = reducedMotion ? 140 : durationMs;
@@ -50,9 +56,11 @@ export function DestinationCurtains({
     ? 0
     : curtainMaxStaggerRank(strips, fallIn) * staggerMs;
   const outPhaseStart = inTail + inMs + hold;
+  const clipPath = curtainEdgeClipPath(edge);
+  const heightPct = curtainEdgeHeightPercent(edge);
 
   return (
-    <div className="ptl-curtain-fallback" aria-hidden="true">
+    <div className="ptl-curtain-fallback" aria-hidden="true" data-edge={edge}>
       {Array.from({ length: strips }, (_, index) => {
         const inRank = curtainStaggerRank(index, strips, fallIn);
         const outRank = curtainStaggerRank(index, strips, fallOut);
@@ -70,9 +78,13 @@ export function DestinationCurtains({
         return (
           <span
             key={`${playKey}-${index}`}
+            data-edge={edge}
             style={
               {
                 ...fill,
+                height: `${heightPct}%`,
+                minHeight: `${heightPct}%`,
+                ...(clipPath ? { clipPath, WebkitClipPath: clipPath } : null),
                 "--ptl-curtain-in": `${inMs}ms`,
                 "--ptl-curtain-out": `${outMs}ms`,
                 "--ptl-curtain-hold": `${hold}ms`,

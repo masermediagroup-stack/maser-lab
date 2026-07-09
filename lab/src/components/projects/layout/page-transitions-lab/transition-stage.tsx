@@ -210,6 +210,7 @@ export function TransitionStage({
                 gradient={settings.curtainGradient}
                 fallIn={settings.curtainFallIn}
                 fallOut={settings.curtainFallOut}
+                edge={settings.curtainEdge}
               />
             ) : (
               <CurtainFallScene

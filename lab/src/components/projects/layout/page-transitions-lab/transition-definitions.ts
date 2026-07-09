@@ -1,5 +1,6 @@
 import type { TransitionDefinition, TransitionId } from "./types";
 import {
+  curtainEdgeOptions,
   curtainOriginOptions,
   defaultCurtainLook,
   defaultPixelLook,
@@ -143,6 +144,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
       curtainGradient: "vertical",
       curtainFallIn: "left",
       curtainFallOut: "left",
+      curtainEdge: "flat",
     },
     controls: [
       {
@@ -206,6 +208,12 @@ export const transitionDefinitions: TransitionDefinition[] = [
         key: "curtainFallOut",
         label: "Fall out from",
         options: curtainOriginOptions,
+      },
+      {
+        type: "select",
+        key: "curtainEdge",
+        label: "Edge shape",
+        options: curtainEdgeOptions,
       },
     ],
   },

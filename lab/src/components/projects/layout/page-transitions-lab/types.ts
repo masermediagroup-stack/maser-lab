@@ -12,6 +12,9 @@ export type CurtainGradientMode = "solid" | "vertical" | "horizontal";
 /** Which strip leads the stagger for a Curtain Fall phase. */
 export type CurtainOrigin = "left" | "right" | "center";
 
+/** Decorative shape on the leading (bottom) hem of each curtain strip. */
+export type CurtainEdge = "flat" | "curve" | "diamond" | "circle";
+
 export type PixelColorMode = "preserve" | "solid" | "gradient" | "white";
 
 export type TransitionSettings = {
@@ -30,6 +33,8 @@ export type TransitionSettings = {
   curtainFallIn: CurtainOrigin;
   /** Curtain Fall — which side leads the reveal (fall-out) stagger */
   curtainFallOut: CurtainOrigin;
+  /** Curtain Fall — bottom hem silhouette */
+  curtainEdge: CurtainEdge;
   /** Pixel Wormhole — grid density across the stage */
   pixelDensity: number;
   /** Pixel Wormhole — how pixel colors are chosen */
@@ -79,6 +84,12 @@ export type SelectControlDefinition =
     }
   | {
       type: "select";
+      key: "curtainEdge";
+      label: string;
+      options: { value: CurtainEdge; label: string }[];
+    }
+  | {
+      type: "select";
       key: "pixelColorMode";
       label: string;
       options: { value: PixelColorMode; label: string }[];
@@ -119,12 +130,20 @@ export const defaultCurtainLook = {
   curtainGradient: "solid" as CurtainGradientMode,
   curtainFallIn: "left" as CurtainOrigin,
   curtainFallOut: "left" as CurtainOrigin,
+  curtainEdge: "flat" as CurtainEdge,
 };
 
 export const curtainOriginOptions: { value: CurtainOrigin; label: string }[] = [
   { value: "left", label: "Left → right" },
   { value: "right", label: "Right → left" },
   { value: "center", label: "Center → out" },
+];
+
+export const curtainEdgeOptions: { value: CurtainEdge; label: string }[] = [
+  { value: "flat", label: "Flat" },
+  { value: "curve", label: "Flow curve" },
+  { value: "diamond", label: "Diamond" },
+  { value: "circle", label: "Circle" },
 ];
 
 export const defaultPixelLook = {
