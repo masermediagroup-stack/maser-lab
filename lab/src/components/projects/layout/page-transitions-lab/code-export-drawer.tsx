@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -44,22 +43,22 @@ export function CodeExportDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full border-[var(--ptl-blue)]/25 bg-black text-white sm:max-w-2xl"
+        className="ptl-export-sheet w-full gap-0 overflow-y-auto overscroll-contain border-[var(--ptl-blue)]/25 bg-black text-white sm:max-w-2xl"
       >
-        <SheetHeader>
+        <SheetHeader className="sticky top-0 z-10 border-b border-[var(--ptl-blue)]/15 bg-black/95 backdrop-blur-sm">
           <SheetTitle className="text-white">{definition.title}</SheetTitle>
           <SheetDescription className="text-white">
             Current settings + starter code.
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6 space-y-5">
+        <div className="space-y-5 px-4 pt-5 pb-[max(2.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))]">
           <section className="space-y-2">
             <h3 className="text-xs font-medium tracking-[0.14em] text-[var(--ptl-blue)] uppercase">
               Settings
             </h3>
             <pre className="overflow-x-auto rounded-lg border border-[var(--ptl-blue)]/20 bg-[#02060a] p-3 text-xs text-white/80">
-              {generateSettingsSummary(settings)}
+              {generateSettingsSummary(definition, settings)}
             </pre>
           </section>
 
@@ -87,11 +86,9 @@ export function CodeExportDrawer({
                 {copied ? "Copied" : "Copy"}
               </Button>
             </div>
-            <ScrollArea className="h-[min(52vh,520px)] rounded-lg border border-[var(--ptl-blue)]/20">
-              <pre className="p-4 text-xs leading-relaxed whitespace-pre-wrap text-white/85">
-                {code}
-              </pre>
-            </ScrollArea>
+            <pre className="overflow-x-auto rounded-lg border border-[var(--ptl-blue)]/20 bg-[#02060a] p-4 text-xs leading-relaxed whitespace-pre-wrap text-white/85">
+              {code}
+            </pre>
           </section>
         </div>
       </SheetContent>

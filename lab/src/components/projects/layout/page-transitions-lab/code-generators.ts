@@ -1,8 +1,14 @@
 import type { TransitionDefinition, TransitionSettings } from "./types";
 
-export function generateSettingsSummary(settings: TransitionSettings) {
-  return Object.entries(settings)
-    .map(([key, value]) => {
+export function generateSettingsSummary(
+  definition: TransitionDefinition,
+  settings: TransitionSettings,
+) {
+  // Only list controls for this transition — shared unused fields stay hidden.
+  return definition.controls
+    .map((control) => {
+      const key = control.key;
+      const value = settings[key];
       if (key === "duration" || key === "stagger") return `${key}: ${value}ms`;
       if (key === "radius") return `${key}: ${value}px`;
       return `${key}: ${value}`;

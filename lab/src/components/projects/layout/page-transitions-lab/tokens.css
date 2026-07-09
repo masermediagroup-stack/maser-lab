@@ -81,15 +81,18 @@
   }
 }
 
-.ptl-card-mini {
-  position: relative;
-  overflow: hidden;
-  min-height: 140px;
-  border-radius: 0.75rem;
-  border: 1px solid var(--ptl-border);
-  background:
-    radial-gradient(ellipse at 30% 20%, var(--ptl-blue-glow), transparent 55%),
-    linear-gradient(180deg, #071018 0%, #000 100%);
+.ptl-export-sheet {
+  /* Full-panel scroll so mobile browser chrome doesn't trap the code block */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  max-height: 100dvh;
+  max-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  .ptl-export-sheet {
+    max-height: 100dvh;
+  }
 }
 
 .ptl-card-mini__label {
