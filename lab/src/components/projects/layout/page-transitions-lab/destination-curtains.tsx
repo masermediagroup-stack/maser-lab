@@ -69,8 +69,6 @@ export function DestinationCurtains({
 
   const sideIn = curtainLeadingSideIn(dirIn);
   const sideOut = curtainLeadingSideOut(dirOut);
-  const clipIn = curtainEdgeClipPath(edgeIn, sideIn);
-  const clipOut = curtainEdgeClipPath(edgeOut, sideOut);
 
   return (
     <div
@@ -95,6 +93,9 @@ export function DestinationCurtains({
           index,
           strips,
         );
+        // Per-strip clip so flow-curve samples one continuous stage-wide wave.
+        const clipIn = curtainEdgeClipPath(edgeIn, sideIn, index, strips);
+        const clipOut = curtainEdgeClipPath(edgeOut, sideOut, index, strips);
         const inAnim =
           dirIn === "top" ? "ptl-css-curtain-in-top" : "ptl-css-curtain-in-bottom";
         const outAnim =

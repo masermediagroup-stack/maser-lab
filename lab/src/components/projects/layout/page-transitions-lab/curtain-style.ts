@@ -172,21 +172,39 @@ export function curtainMaxStaggerRank(
 /**
  * Hang amount (0..1) along the strip width for a decorative hem.
  * 0 = valley (cover line), 1 = tip (maximum hang past the cover).
+ *
+ * `u` is local 0..1 within the strip. Pass `stripIndex` + `stripCount` so
+ * flow-curve samples one continuous wave across the full curtain row
+ * (adjacent strips meet at the same Y on shared seams).
  */
-export function curtainEdgeProfile(edge: CurtainEdge, u: number): number {
-  const x = Math.min(1, Math.max(0, u));
+export function curtainEdgeProfile(
+  edge: CurtainEdge,
+  u: number,
+  stripIndex = 0,
+  stripCount = 1,
+): number {
+  const local = Math.min(1, Math.max(0, u));
+  const count = Math.max(1, stripCount);
+  const index = Math.min(count - 1, Math.max(0, stripIndex));
+  // Global 0..1 across the whole stage — used by continuous edges.
+  const globalU = (index + local) / count;
+
   if (edge === "flat") return 0;
   if (edge === "curve") {
-    // Soft flowing wave across the strip.
-    return 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(x * Math.PI * 2));
+    // One soft sine across the full row so strips read as a single flowing hem.
+    // Secondary harmonic keeps it organic without breaking seam continuity.
+    const wave =
+      0.72 * Math.sin(globalU * Math.PI * 2) +
+      0.28 * Math.sin(globalU * Math.PI * 4 + 0.6);
+    return 0.5 + 0.5 * wave;
   }
   if (edge === "diamond") {
     const teeth = 3;
-    const t = (x * teeth) % 1;
+    const t = (local * teeth) % 1;
     return t < 0.5 ? t * 2 : (1 - t) * 2;
   }
   // circle — one beveled semicircle across the full strip width
-  const nx = x * 2 - 1;
+  const nx = local * 2 - 1;
   return Math.sqrt(Math.max(0, 1 - nx * nx));
 }
 
@@ -194,14 +212,17 @@ export function curtainEdgeProfile(edge: CurtainEdge, u: number): number {
  * CSS clip-path for the leading hem on `side` (cut into the strip).
  * Tips sit on the strip edge; valleys cut inward so height can stay 100%
  * and the hold still seals. Used by the CSS fallback renderer.
+ * For `curve`, pass strip index/count so the wave is continuous across strips.
  */
 export function curtainEdgeClipPath(
   edge: CurtainEdge,
   side: "top" | "bottom" = "bottom",
+  stripIndex = 0,
+  stripCount = 1,
 ): string | undefined {
   if (edge === "flat") return undefined;
 
-  const samples = 25;
+  const samples = edge === "curve" ? 16 : 25;
   const hem = CURTAIN_HEM_RATIO * 100;
 
   if (side === "bottom") {
@@ -209,7 +230,9 @@ export function curtainEdgeClipPath(
     for (let i = samples; i >= 0; i--) {
       const u = i / samples;
       // tip (1) → 100%; valley (0) → 100% - hem
-      const y = 100 - hem * (1 - curtainEdgeProfile(edge, u));
+      const y =
+        100 -
+        hem * (1 - curtainEdgeProfile(edge, u, stripIndex, stripCount));
       bottom.push(`${(u * 100).toFixed(2)}% ${y.toFixed(2)}%`);
     }
     return `polygon(0% 0%, 100% 0%, ${bottom.join(", ")})`;
@@ -219,7 +242,7 @@ export function curtainEdgeClipPath(
   for (let i = 0; i <= samples; i++) {
     const u = i / samples;
     // tip (1) → 0%; valley (0) → hem
-    const y = hem * (1 - curtainEdgeProfile(edge, u));
+    const y = hem * (1 - curtainEdgeProfile(edge, u, stripIndex, stripCount));
     top.push(`${(u * 100).toFixed(2)}% ${y.toFixed(2)}%`);
   }
   return `polygon(${top.join(", ")}, 100% 100%, 0% 100%)`;
@@ -228,6 +251,7 @@ export function curtainEdgeClipPath(
 /**
  * Plane geometry with an optional decorative hem on `side`.
  * Tips hang past the flat cover line; valleys stay on it so the hold seals.
+ * For `curve`, pass strip index/count for a continuous stage-wide wave.
  */
 export function createCurtainStripGeometry(
   width: number,
@@ -235,6 +259,8 @@ export function createCurtainStripGeometry(
   edge: CurtainEdge,
   side: "top" | "bottom" = "bottom",
   widthSegs = 32,
+  stripIndex = 0,
+  stripCount = 1,
 ): PlaneGeometry {
   if (edge === "flat") {
     return new PlaneGeometry(width, height, 1, 1);
@@ -251,7 +277,8 @@ export function createCurtainStripGeometry(
     const y = pos.getY(i);
     const x = pos.getX(i);
     const u = (x + halfW) / Math.max(width, 1e-6);
-    const hang = hem * curtainEdgeProfile(edge, u);
+    const hang =
+      hem * curtainEdgeProfile(edge, u, stripIndex, stripCount);
     if (side === "bottom" && y <= -halfH + eps) {
       pos.setY(i, y - hang);
     } else if (side === "top" && y >= halfH - eps) {

@@ -125,6 +125,8 @@ export function CurtainFallScene({
         edgeIn,
         sideIn,
         edgeIn === "flat" ? 1 : 32,
+        i,
+        curtains,
       );
       if (settings.curtainGradient === "horizontal") {
         applyStripUVs(geoIn, i, curtains);
@@ -139,6 +141,8 @@ export function CurtainFallScene({
           edgeOut,
           sideOut,
           edgeOut === "flat" ? 1 : 32,
+          i,
+          curtains,
         );
         if (settings.curtainGradient === "horizontal") {
           applyStripUVs(geoOut, i, curtains);
