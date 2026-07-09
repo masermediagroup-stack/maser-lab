@@ -16,11 +16,53 @@ function curtainFillSnippet(settings: TransitionSettings) {
   curtainGradient: "${settings.curtainGradient}", // solid | vertical | horizontal`;
 }
 
+function pixelWormholeSnippet(settings: TransitionSettings) {
+  return `pixelDensity: ${settings.pixelDensity},
+  pixelColorMode: "${settings.pixelColorMode}", // preserve | solid | gradient | white
+  pixelColorA: "${settings.pixelColorA}",
+  pixelColorB: "${settings.pixelColorB}",`;
+}
+
 export function generateTransitionCode(
   definition: TransitionDefinition,
   settings: TransitionSettings,
 ) {
-  if (definition.engine === "three") {
+  if (definition.id === "pixel-wormhole") {
+    return `// ${definition.title}
+// Pixel Wormhole: page → glowing pixels (corners→center) → wormhole zoom →
+// destination pixels emit and reassemble.
+
+import * as THREE from "three";
+
+const settings = {
+  duration: ${settings.duration},
+  stagger: ${settings.stagger},
+  intensity: ${settings.intensity},
+  ${pixelWormholeSnippet(settings)}
+};
+
+/**
+ * 1. Sample from/to page colors onto a pixel grid (InstancedMesh planes).
+ * 2. Phase FLOAT: corners disintegrate first; pixels glow and drift.
+ * 3. Phase SUCK: spiral into a dark wormhole; camera zooms in.
+ * 4. Phase TUNNEL: brief hold inside the hole; swap destination colors.
+ * 5. Phase EMIT + ASSEMBLE: pixels exit the hole, settle, glow fades.
+ *
+ * See lab/src/components/projects/layout/page-transitions-lab/pixel-wormhole-scene.tsx
+ */
+
+export async function playPixelWormhole({ container }: { container: HTMLElement }) {
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.05, 20);
+  camera.position.z = 2.35;
+  // Build InstancedMesh pixel grid + wormhole rings, then animate phases.
+  container.appendChild(renderer.domElement);
+  return { renderer, scene, camera, settings };
+}`;
+  }
+
+  if (definition.id === "curtain-fall") {
     return `// ${definition.title}
 // Curtain Fall: opaque strips fall in to cover, hold, then fall out to reveal.
 
@@ -36,7 +78,7 @@ const settings = {
 
 /**
  * 1. Mount the destination route underneath the overlay (hidden by curtains).
- * 2. Build \`settings.curtains\` overlapping opaque vertical planes.
+ * 2. Build \`settings.curtains\` opaque vertical planes.
  * 3. Phase IN: drop each plane from above with stagger until the stage is covered.
  * 4. Phase OUT: drop each plane downward off-screen to reveal the destination.
  * 5. Dispose the overlay on complete.
@@ -53,20 +95,18 @@ export async function playCurtainFall({ container }: { container: HTMLElement })
   const count = settings.curtains;
   const width = 2 / count;
   const meshes: THREE.Mesh[] = [];
-  // Paint Color A / B onto a canvas (solid or gradient), then map to strips.
   const material = new THREE.MeshBasicMaterial({ color: 0x071018 });
 
   for (let i = 0; i < count; i++) {
     const geometry = new THREE.PlaneGeometry(width * 1.08, 2.1);
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.x = -1 + width * i + width / 2;
-    mesh.position.y = 2.2; // start above
+    mesh.position.y = 2.2;
     scene.add(mesh);
     meshes.push(mesh);
   }
 
   container.appendChild(renderer.domElement);
-  // animate y: 2.2 -> 0 (in), hold, then 0 -> -2.2 (out), then dispose
   return { renderer, scene, meshes, settings };
 }`;
   }

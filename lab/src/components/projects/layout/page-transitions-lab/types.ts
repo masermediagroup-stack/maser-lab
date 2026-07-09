@@ -4,9 +4,12 @@ export type TransitionId =
   | "spotlight-iris"
   | "receipt-lift"
   | "soft-crossfade-blur"
-  | "curtain-fall";
+  | "curtain-fall"
+  | "pixel-wormhole";
 
 export type CurtainGradientMode = "solid" | "vertical" | "horizontal";
+
+export type PixelColorMode = "preserve" | "solid" | "gradient" | "white";
 
 export type TransitionSettings = {
   duration: number;
@@ -20,13 +23,26 @@ export type TransitionSettings = {
   curtainColorB: string;
   /** Curtain Fall — fill style */
   curtainGradient: CurtainGradientMode;
+  /** Pixel Wormhole — grid density across the stage */
+  pixelDensity: number;
+  /** Pixel Wormhole — how pixel colors are chosen */
+  pixelColorMode: PixelColorMode;
+  /** Pixel Wormhole — solid / gradient start */
+  pixelColorA: string;
+  /** Pixel Wormhole — gradient end */
+  pixelColorB: string;
 };
 
 export type SliderControlDefinition = {
   type?: "slider";
   key: keyof Pick<
     TransitionSettings,
-    "duration" | "intensity" | "stagger" | "radius" | "curtains"
+    | "duration"
+    | "intensity"
+    | "stagger"
+    | "radius"
+    | "curtains"
+    | "pixelDensity"
   >;
   label: string;
   min: number;
@@ -37,16 +53,23 @@ export type SliderControlDefinition = {
 
 export type ColorControlDefinition = {
   type: "color";
-  key: "curtainColorA" | "curtainColorB";
+  key: "curtainColorA" | "curtainColorB" | "pixelColorA" | "pixelColorB";
   label: string;
 };
 
-export type SelectControlDefinition = {
-  type: "select";
-  key: "curtainGradient";
-  label: string;
-  options: { value: CurtainGradientMode; label: string }[];
-};
+export type SelectControlDefinition =
+  | {
+      type: "select";
+      key: "curtainGradient";
+      label: string;
+      options: { value: CurtainGradientMode; label: string }[];
+    }
+  | {
+      type: "select";
+      key: "pixelColorMode";
+      label: string;
+      options: { value: PixelColorMode; label: string }[];
+    };
 
 export type ControlDefinition =
   | SliderControlDefinition
@@ -76,9 +99,16 @@ export type PageSample = {
   accent: string;
 };
 
-/** Shared defaults for non-curtain transitions (color fields unused). */
+/** Shared defaults for unused curtain / pixel fields. */
 export const defaultCurtainLook = {
   curtainColorA: "#071018",
   curtainColorB: "#10a4ff",
   curtainGradient: "solid" as CurtainGradientMode,
+};
+
+export const defaultPixelLook = {
+  pixelDensity: 28,
+  pixelColorMode: "preserve" as PixelColorMode,
+  pixelColorA: "#10a4ff",
+  pixelColorB: "#ffffff",
 };

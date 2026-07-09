@@ -6,6 +6,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { isWebGLAvailable } from "@/three/utils/capabilities";
 import { DemoPageCard } from "./demo-page-card";
 import { DestinationCurtains } from "./destination-curtains";
+import { PixelWormholeFallback } from "./pixel-wormhole-fallback";
 import type {
   PageSample,
   PreviewStatus,
@@ -16,6 +17,12 @@ import type {
 const CurtainFallScene = dynamic(
   () =>
     import("./curtain-fall-scene").then((mod) => mod.CurtainFallScene),
+  { ssr: false },
+);
+
+const PixelWormholeScene = dynamic(
+  () =>
+    import("./pixel-wormhole-scene").then((mod) => mod.PixelWormholeScene),
   { ssr: false },
 );
 
@@ -63,16 +70,19 @@ export function TransitionStage({
   reducedMotion,
   holdMs,
 }: TransitionStageProps) {
-  const isThree = selectedId === "curtain-fall";
+  const isCurtain = selectedId === "curtain-fall";
+  const isWormhole = selectedId === "pixel-wormhole";
+  const isThree = isCurtain || isWormhole;
   const webgl = useWebGLSupport();
   const narrow = useIsNarrowViewport();
   const running = status === "running";
-  const useThreeOverlay = isThree && webgl && !narrow;
+  // Curtain Fall: CSS strips on narrow (chunk timing). Wormhole: same Three look everywhere.
+  const useThreeOverlay =
+    webgl && (isWormhole || (isCurtain && !narrow));
 
   const [pathPlayKey, setPathPlayKey] = useState(playKey);
   const [pathCovered, setPathCovered] = useState(false);
 
-  // Reset cover flag when a new play starts (render-time state adjust).
   if (pathPlayKey !== playKey) {
     setPathPlayKey(playKey);
     setPathCovered(false);
@@ -80,23 +90,29 @@ export function TransitionStage({
 
   useEffect(() => {
     if (!useThreeOverlay) return;
-    void import("./curtain-fall-scene");
-  }, [useThreeOverlay]);
+    if (isCurtain) void import("./curtain-fall-scene");
+    if (isWormhole) void import("./pixel-wormhole-scene");
+  }, [useThreeOverlay, isCurtain, isWormhole]);
 
   const phaseMs = reducedMotion ? 140 : settings.duration;
   const hold = reducedMotion ? 0 : holdMs;
-  const totalMs = phaseMs * 2 + hold;
+  // Wormhole has float + suck + tunnel + emit + assemble (~2.4× duration)
+  const wormholeExtra = isWormhole ? Math.round(phaseMs * 0.4) : 0;
+  const totalMs = phaseMs * 2 + hold + wormholeExtra;
 
-  // Swap the browser-bar path only once the cover phase has sealed the stage
-  // (after in duration + curtain stagger), not at play start.
   useEffect(() => {
     if (!running) return;
 
     const staggerTail =
-      isThree && settings.curtains > 1
+      isCurtain && settings.curtains > 1
         ? settings.stagger * (settings.curtains - 1)
         : 0;
-    const coverCompleteMs = reducedMotion ? 90 : phaseMs + staggerTail;
+    // Wormhole cover = after float + suck (≈ duration)
+    const coverCompleteMs = reducedMotion
+      ? 90
+      : isWormhole
+        ? phaseMs
+        : phaseMs + staggerTail;
 
     const timer = window.setTimeout(() => {
       setPathCovered(true);
@@ -106,7 +122,8 @@ export function TransitionStage({
   }, [
     running,
     playKey,
-    isThree,
+    isCurtain,
+    isWormhole,
     settings.curtains,
     settings.stagger,
     phaseMs,
@@ -146,7 +163,6 @@ export function TransitionStage({
       </div>
 
       <div className="ptl-route-frame">
-        {/* Destination sits under cover layers so out-phase reveals it. */}
         <div className="ptl-route-page ptl-route-page--current">
           <DemoPageCard
             sample={running ? toSample : fromSample}
@@ -171,10 +187,8 @@ export function TransitionStage({
           />
         ) : null}
 
-        {isThree && running ? (
+        {isCurtain && running ? (
           <>
-            {/* Keep the from-page fully opaque until cover seals, then
-                drop it so the out-phase reveals the destination only. */}
             {!pathCovered ? (
               <div
                 key={`outgoing-curtain-${playKey}`}
@@ -183,8 +197,6 @@ export function TransitionStage({
                 <DemoPageCard sample={fromSample} variant="outgoing" />
               </div>
             ) : null}
-            {/* CSS strips only when Three isn't driving — both at once
-                reads as a double curtain set, especially with gradients. */}
             {!useThreeOverlay ? (
               <DestinationCurtains
                 key={`dest-curtains-${playKey}`}
@@ -206,6 +218,42 @@ export function TransitionStage({
                 reducedMotion={reducedMotion}
                 running
                 holdMs={hold}
+              />
+            )}
+          </>
+        ) : null}
+
+        {isWormhole && running ? (
+          <>
+            {!pathCovered ? (
+              <div
+                key={`outgoing-wormhole-${playKey}`}
+                className="ptl-route-page ptl-route-page--outgoing"
+              >
+                <DemoPageCard sample={fromSample} variant="outgoing" />
+              </div>
+            ) : null}
+            {useThreeOverlay ? (
+              <PixelWormholeScene
+                key={`wormhole-gl-${playKey}`}
+                settings={settings}
+                playKey={playKey}
+                reducedMotion={reducedMotion}
+                running
+                holdMs={hold}
+                fromSample={fromSample}
+                toSample={toSample}
+              />
+            ) : (
+              <PixelWormholeFallback
+                key={`wormhole-css-${playKey}`}
+                durationMs={settings.duration}
+                holdMs={hold}
+                playKey={playKey}
+                reducedMotion={reducedMotion}
+                colorA={settings.pixelColorA}
+                colorB={settings.pixelColorB}
+                colorMode={settings.pixelColorMode}
               />
             )}
           </>

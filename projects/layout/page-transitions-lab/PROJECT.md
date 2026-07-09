@@ -74,10 +74,17 @@ Each transition can be selected, replayed without reverse bounce, tuned, and exp
 | 4 | Receipt Lift | CSS | Landing → article |
 | 5 | Soft Crossfade Blur | CSS | Landing → article |
 | 6 | Curtain Fall | Three.js | Landing → article; strips cover then fall out |
+| 7 | Pixel Wormhole | Three.js | Landing → article; pixels → wormhole → reassemble |
 
 ### Preview chrome
 - Fake browser bar path stays on the **from** route until the cover phase fully seals the viewport, then swaps to the **to** path
 - Stage content is a wireframe landing page (nav + hero) → wireframe article page (nav + journal body)
+
+### Pixel Wormhole
+- Corners → center glowing pixel dissolve, suck into dark hole with camera zoom, destination pixels emit and reassemble
+- Color modes: preserve page colors, solid A, gradient A→B, white glow
+- Same Three.js visualization on mobile and desktop when WebGL is available (CSS fallback only if WebGL is missing)
+- Curtain Fall is unchanged — separate transition entry
 
 ## Acceptance criteria
 

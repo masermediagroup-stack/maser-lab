@@ -17,6 +17,20 @@ type TransitionGalleryProps = {
 };
 
 function MiniPreview({ definition }: { definition: TransitionDefinition }) {
+  if (definition.id === "pixel-wormhole") {
+    return (
+      <div className="ptl-card-mini" aria-hidden="true">
+        <div className="ptl-card-mini__wormhole">
+          {Array.from({ length: 16 }, (_, i) => (
+            <i key={i} />
+          ))}
+          <em />
+        </div>
+        <span className="ptl-card-mini__label">3D</span>
+      </div>
+    );
+  }
+
   if (definition.engine === "three") {
     return (
       <div className="ptl-card-mini" aria-hidden="true">

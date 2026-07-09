@@ -26,12 +26,15 @@ export function useTransitionRunner({
   settings,
   reducedMotion,
   curtainCount,
+  wormholeExtra,
   onComplete,
 }: {
   settings: TransitionSettings;
   reducedMotion: boolean;
   /** When set, total wait includes staggered curtain in + out drops. */
   curtainCount?: number;
+  /** Pixel Wormhole needs extra time for tunnel + assemble phases. */
+  wormholeExtra?: boolean;
   onComplete?: () => void;
 }) {
   const [status, setStatus] = useState<PreviewStatus>("rest");
@@ -57,9 +60,12 @@ export function useTransitionRunner({
       : 0;
 
   // Cover (in) + hold + reveal (out). Curtains stagger on both phases.
+  // Wormhole: float+suck+tunnel+emit+assemble ≈ 2.4× duration.
   const totalMs = reducedMotion
     ? 200
-    : phaseMs * 2 + holdMs + staggerTail * 2 + 100;
+    : wormholeExtra
+      ? Math.round(phaseMs * 2.4) + holdMs + 120
+      : phaseMs * 2 + holdMs + staggerTail * 2 + 100;
 
   const play = () => {
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current);

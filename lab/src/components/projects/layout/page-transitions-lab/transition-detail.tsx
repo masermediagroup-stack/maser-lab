@@ -12,6 +12,7 @@ import { TransitionStage } from "./transition-stage";
 import type {
   ControlDefinition,
   CurtainGradientMode,
+  PixelColorMode,
   TransitionDefinition,
   TransitionSettings,
 } from "./types";
@@ -113,9 +114,9 @@ function SelectControl({
   onChange,
 }: {
   label: string;
-  value: CurtainGradientMode;
-  options: { value: CurtainGradientMode; label: string }[];
-  onChange: (value: CurtainGradientMode) => void;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
 }) {
   return (
     <label className="ptl-control ptl-control--select">
@@ -125,7 +126,7 @@ function SelectControl({
       <select
         aria-label={label}
         value={value}
-        onChange={(event) => onChange(event.target.value as CurtainGradientMode)}
+        onChange={(event) => onChange(event.target.value)}
         className="ptl-select"
       >
         {options.map((option) => (
@@ -148,8 +149,11 @@ function ControlField({
   control: ControlDefinition;
   settings: TransitionSettings;
   onNumber: (key: keyof TransitionSettings, value: number) => void;
-  onColor: (key: "curtainColorA" | "curtainColorB", value: string) => void;
-  onSelect: (value: CurtainGradientMode) => void;
+  onColor: (
+    key: "curtainColorA" | "curtainColorB" | "pixelColorA" | "pixelColorB",
+    value: string,
+  ) => void;
+  onSelect: (key: "curtainGradient" | "pixelColorMode", value: string) => void;
 }) {
   if (control.type === "color") {
     return (
@@ -165,9 +169,9 @@ function ControlField({
     return (
       <SelectControl
         label={control.label}
-        value={settings.curtainGradient}
+        value={settings[control.key]}
         options={control.options}
-        onChange={onSelect}
+        onChange={(value) => onSelect(control.key, value)}
       />
     );
   }
@@ -200,6 +204,7 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
     reducedMotion,
     curtainCount:
       definition.id === "curtain-fall" ? settings.curtains : undefined,
+    wormholeExtra: definition.id === "pixel-wormhole",
     onComplete: () => {
       setPageIndex(toIndex);
     },
@@ -215,12 +220,26 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
     setSettings((current) => ({ ...current, [key]: value }));
   };
 
-  const updateColor = (key: "curtainColorA" | "curtainColorB", value: string) => {
-    setSettings((current) => ({ ...current, [key]: sanitizeHex(value, current[key]) }));
+  const updateColor = (
+    key: "curtainColorA" | "curtainColorB" | "pixelColorA" | "pixelColorB",
+    value: string,
+  ) => {
+    setSettings((current) => ({
+      ...current,
+      [key]: sanitizeHex(value, current[key]),
+    }));
   };
 
-  const updateGradient = (value: CurtainGradientMode) => {
-    setSettings((current) => ({ ...current, curtainGradient: value }));
+  const updateSelect = (
+    key: "curtainGradient" | "pixelColorMode",
+    value: string,
+  ) => {
+    setSettings((current) => {
+      if (key === "curtainGradient") {
+        return { ...current, curtainGradient: value as CurtainGradientMode };
+      }
+      return { ...current, pixelColorMode: value as PixelColorMode };
+    });
   };
 
   const handlePlay = () => {
@@ -308,7 +327,7 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
               settings={settings}
               onNumber={updateNumber}
               onColor={updateColor}
-              onSelect={updateGradient}
+              onSelect={updateSelect}
             />
           ))}
           {reducedMotion ? (

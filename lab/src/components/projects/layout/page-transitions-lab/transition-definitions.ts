@@ -1,5 +1,5 @@
 import type { TransitionDefinition, TransitionId } from "./types";
-import { defaultCurtainLook } from "./types";
+import { defaultCurtainLook, defaultPixelLook } from "./types";
 
 const sharedControls = [
   {
@@ -37,6 +37,7 @@ const sharedControls = [
 
 const sharedDefaults = {
   ...defaultCurtainLook,
+  ...defaultPixelLook,
 };
 
 export const transitionDefinitions: TransitionDefinition[] = [
@@ -127,6 +128,7 @@ export const transitionDefinitions: TransitionDefinition[] = [
     engine: "three",
     dependencies: ["React", "three", "WebGL"],
     defaults: {
+      ...sharedDefaults,
       duration: 900,
       intensity: 70,
       stagger: 70,
@@ -186,6 +188,78 @@ export const transitionDefinitions: TransitionDefinition[] = [
           { value: "vertical", label: "Vertical gradient" },
           { value: "horizontal", label: "Horizontal gradient" },
         ],
+      },
+    ],
+  },
+  {
+    id: "pixel-wormhole",
+    title: "Pixel Wormhole",
+    eyebrow: "Landing → Article",
+    engine: "three",
+    dependencies: ["React", "three", "WebGL"],
+    defaults: {
+      ...sharedDefaults,
+      duration: 1100,
+      intensity: 72,
+      stagger: 90,
+      radius: 0,
+      curtains: 6,
+      pixelDensity: 28,
+      pixelColorMode: "preserve",
+      pixelColorA: "#10a4ff",
+      pixelColorB: "#ffffff",
+    },
+    controls: [
+      {
+        key: "duration",
+        label: "Duration",
+        min: 600,
+        max: 1800,
+        step: 20,
+        suffix: "ms",
+      },
+      {
+        key: "pixelDensity",
+        label: "Pixel density",
+        min: 14,
+        max: 42,
+        step: 1,
+      },
+      {
+        key: "stagger",
+        label: "Corner stagger",
+        min: 0,
+        max: 200,
+        step: 5,
+        suffix: "ms",
+      },
+      {
+        key: "intensity",
+        label: "Warp depth",
+        min: 20,
+        max: 100,
+        step: 2,
+      },
+      {
+        type: "select",
+        key: "pixelColorMode",
+        label: "Pixel color",
+        options: [
+          { value: "preserve", label: "Keep page colors" },
+          { value: "solid", label: "Solid (A)" },
+          { value: "gradient", label: "Gradient A → B" },
+          { value: "white", label: "White glow" },
+        ],
+      },
+      {
+        type: "color",
+        key: "pixelColorA",
+        label: "Color A",
+      },
+      {
+        type: "color",
+        key: "pixelColorB",
+        label: "Color B",
       },
     ],
   },
