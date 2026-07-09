@@ -12,6 +12,7 @@ import { TransitionStage } from "./transition-stage";
 import type {
   ControlDefinition,
   CurtainGradientMode,
+  CurtainOrigin,
   PixelColorMode,
   TransitionDefinition,
   TransitionSettings,
@@ -153,7 +154,10 @@ function ControlField({
     key: "curtainColorA" | "curtainColorB" | "pixelColorA" | "pixelColorB",
     value: string,
   ) => void;
-  onSelect: (key: "curtainGradient" | "pixelColorMode", value: string) => void;
+  onSelect: (
+    key: "curtainGradient" | "curtainFallIn" | "curtainFallOut" | "pixelColorMode",
+    value: string,
+  ) => void;
 }) {
   if (control.type === "color") {
     return (
@@ -204,6 +208,10 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
     reducedMotion,
     curtainCount:
       definition.id === "curtain-fall" ? settings.curtains : undefined,
+    curtainFallIn:
+      definition.id === "curtain-fall" ? settings.curtainFallIn : undefined,
+    curtainFallOut:
+      definition.id === "curtain-fall" ? settings.curtainFallOut : undefined,
     wormholeExtra: definition.id === "pixel-wormhole",
     onComplete: () => {
       setPageIndex(toIndex);
@@ -231,12 +239,22 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
   };
 
   const updateSelect = (
-    key: "curtainGradient" | "pixelColorMode",
+    key:
+      | "curtainGradient"
+      | "curtainFallIn"
+      | "curtainFallOut"
+      | "pixelColorMode",
     value: string,
   ) => {
     setSettings((current) => {
       if (key === "curtainGradient") {
         return { ...current, curtainGradient: value as CurtainGradientMode };
+      }
+      if (key === "curtainFallIn") {
+        return { ...current, curtainFallIn: value as CurtainOrigin };
+      }
+      if (key === "curtainFallOut") {
+        return { ...current, curtainFallOut: value as CurtainOrigin };
       }
       return { ...current, pixelColorMode: value as PixelColorMode };
     });

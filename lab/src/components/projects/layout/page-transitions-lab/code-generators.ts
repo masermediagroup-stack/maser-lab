@@ -19,7 +19,9 @@ export function generateSettingsSummary(
 function curtainFillSnippet(settings: TransitionSettings) {
   return `curtainColorA: "${settings.curtainColorA}",
   curtainColorB: "${settings.curtainColorB}",
-  curtainGradient: "${settings.curtainGradient}", // solid | vertical | horizontal`;
+  curtainGradient: "${settings.curtainGradient}", // solid | vertical | horizontal
+  curtainFallIn: "${settings.curtainFallIn}", // left | right | center
+  curtainFallOut: "${settings.curtainFallOut}", // left | right | center`;
 }
 
 function pixelWormholeSnippet(settings: TransitionSettings) {
@@ -85,8 +87,8 @@ const settings = {
 /**
  * 1. Mount the destination route underneath the overlay (hidden by curtains).
  * 2. Build \`settings.curtains\` opaque vertical planes.
- * 3. Phase IN: drop each plane from above with stagger until the stage is covered.
- * 4. Phase OUT: drop each plane downward off-screen to reveal the destination.
+ * 3. Phase IN: drop each plane from above with stagger (left | right | center).
+ * 4. Phase OUT: drop each plane downward with its own origin stagger.
  * 5. Dispose the overlay on complete.
  *
  * See lab/src/components/projects/layout/page-transitions-lab/curtain-fall-scene.tsx

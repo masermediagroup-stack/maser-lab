@@ -1,5 +1,9 @@
 import type { TransitionDefinition, TransitionId } from "./types";
-import { defaultCurtainLook, defaultPixelLook } from "./types";
+import {
+  curtainOriginOptions,
+  defaultCurtainLook,
+  defaultPixelLook,
+} from "./types";
 
 const sharedControls = [
   {
@@ -137,6 +141,8 @@ export const transitionDefinitions: TransitionDefinition[] = [
       curtainColorA: "#071018",
       curtainColorB: "#10a4ff",
       curtainGradient: "vertical",
+      curtainFallIn: "left",
+      curtainFallOut: "left",
     },
     controls: [
       {
@@ -188,6 +194,18 @@ export const transitionDefinitions: TransitionDefinition[] = [
           { value: "vertical", label: "Vertical gradient" },
           { value: "horizontal", label: "Horizontal gradient" },
         ],
+      },
+      {
+        type: "select",
+        key: "curtainFallIn",
+        label: "Fall in from",
+        options: curtainOriginOptions,
+      },
+      {
+        type: "select",
+        key: "curtainFallOut",
+        label: "Fall out from",
+        options: curtainOriginOptions,
       },
     ],
   },

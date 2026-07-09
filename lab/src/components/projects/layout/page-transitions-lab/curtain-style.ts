@@ -3,7 +3,7 @@
  */
 
 import type { BufferAttribute, BufferGeometry } from "three";
-import type { CurtainGradientMode } from "./types";
+import type { CurtainGradientMode, CurtainOrigin } from "./types";
 
 const HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
@@ -111,4 +111,32 @@ export function applyStripUVs(
 export function hexToCssNumber(hex: string): number {
   const clean = sanitizeHex(hex, "#071018").slice(1);
   return Number.parseInt(clean, 16);
+}
+
+/**
+ * Stagger rank for strip `index` under a fall-in / fall-out origin.
+ * Lower rank starts earlier. Center uses distance from the middle strip(s).
+ */
+export function curtainStaggerRank(
+  index: number,
+  count: number,
+  origin: CurtainOrigin,
+): number {
+  if (count <= 1) return 0;
+  if (origin === "right") return count - 1 - index;
+  if (origin === "center") {
+    const mid = (count - 1) / 2;
+    return Math.abs(index - mid);
+  }
+  return index;
+}
+
+/** Max stagger rank for a phase — used for cover / total timing. */
+export function curtainMaxStaggerRank(
+  count: number,
+  origin: CurtainOrigin,
+): number {
+  if (count <= 1) return 0;
+  if (origin === "center") return Math.floor((count - 1) / 2);
+  return count - 1;
 }

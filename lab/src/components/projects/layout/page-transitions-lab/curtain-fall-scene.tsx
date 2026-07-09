@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { createRendererOptions } from "@/three/utils/renderer";
-import { applyStripUVs, paintCurtainTexture } from "./curtain-style";
+import { applyStripUVs, curtainStaggerRank, paintCurtainTexture } from "./curtain-style";
 import type { TransitionSettings } from "./types";
 
 type CurtainFallSceneProps = {
@@ -123,6 +123,8 @@ export function CurtainFallScene({
     const outMs = reducedMotion ? 140 : settings.duration;
     const hold = reducedMotion ? 0 : holdMs;
     const stagger = reducedMotion ? 0 : settings.stagger;
+    const fallIn = settings.curtainFallIn;
+    const fallOut = settings.curtainFallOut;
 
     const tick = (now: number) => {
       let allDone = true;
@@ -130,15 +132,20 @@ export function CurtainFallScene({
       for (let i = 0; i < meshes.length; i++) {
         const mesh = meshes[i];
         if (!mesh) continue;
-        const local = now - start - i * stagger;
-        const inT = Math.min(1, Math.max(0, local / inMs));
-        const outLocal = local - inMs - hold;
+        const inDelay = curtainStaggerRank(i, curtains, fallIn) * stagger;
+        const outDelay = curtainStaggerRank(i, curtains, fallOut) * stagger;
+        const localIn = now - start - inDelay;
+        const inT = Math.min(1, Math.max(0, localIn / inMs));
+        const outLocal = now - start - inDelay - inMs - hold - outDelay;
         const outT = Math.min(1, Math.max(0, outLocal / outMs));
 
-        if (local < inMs) {
+        if (localIn < 0) {
+          mesh.position.y = dropStart;
+          allDone = false;
+        } else if (localIn < inMs) {
           mesh.position.y = dropStart + (0 - dropStart) * easeInOutCubic(inT);
           allDone = false;
-        } else if (local < inMs + hold) {
+        } else if (outLocal < 0) {
           mesh.position.y = 0;
           allDone = false;
         } else if (outT < 1) {
@@ -186,6 +193,8 @@ export function CurtainFallScene({
     settings.curtainColorA,
     settings.curtainColorB,
     settings.curtainGradient,
+    settings.curtainFallIn,
+    settings.curtainFallOut,
     playKey,
     reducedMotion,
     running,

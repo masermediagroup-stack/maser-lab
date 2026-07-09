@@ -6,6 +6,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { isWebGLAvailable } from "@/three/utils/capabilities";
 import { DemoPageCard } from "./demo-page-card";
 import { DestinationCurtains } from "./destination-curtains";
+import { curtainMaxStaggerRank } from "./curtain-style";
 import { PixelWormholeFallback } from "./pixel-wormhole-fallback";
 import type {
   PageSample,
@@ -103,16 +104,13 @@ export function TransitionStage({
   useEffect(() => {
     if (!running) return;
 
-    const staggerTail =
-      isCurtain && settings.curtains > 1
-        ? settings.stagger * (settings.curtains - 1)
-        : 0;
-    // Wormhole cover = after float + suck (≈ duration)
     const coverCompleteMs = reducedMotion
       ? 90
       : isWormhole
         ? phaseMs
-        : phaseMs + staggerTail;
+        : phaseMs +
+          settings.stagger *
+            curtainMaxStaggerRank(settings.curtains, settings.curtainFallIn);
 
     const timer = window.setTimeout(() => {
       setPathCovered(true);
@@ -126,6 +124,7 @@ export function TransitionStage({
     isWormhole,
     settings.curtains,
     settings.stagger,
+    settings.curtainFallIn,
     phaseMs,
     reducedMotion,
   ]);
@@ -209,6 +208,8 @@ export function TransitionStage({
                 colorA={settings.curtainColorA}
                 colorB={settings.curtainColorB}
                 gradient={settings.curtainGradient}
+                fallIn={settings.curtainFallIn}
+                fallOut={settings.curtainFallOut}
               />
             ) : (
               <CurtainFallScene

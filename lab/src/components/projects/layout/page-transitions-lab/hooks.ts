@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { PreviewStatus, TransitionSettings } from "./types";
+import { curtainMaxStaggerRank } from "./curtain-style";
+import type { CurtainOrigin, PreviewStatus, TransitionSettings } from "./types";
 
 export function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -26,6 +27,8 @@ export function useTransitionRunner({
   settings,
   reducedMotion,
   curtainCount,
+  curtainFallIn,
+  curtainFallOut,
   wormholeExtra,
   onComplete,
 }: {
@@ -33,6 +36,8 @@ export function useTransitionRunner({
   reducedMotion: boolean;
   /** When set, total wait includes staggered curtain in + out drops. */
   curtainCount?: number;
+  curtainFallIn?: CurtainOrigin;
+  curtainFallOut?: CurtainOrigin;
   /** Pixel Wormhole needs extra time for tunnel + assemble phases. */
   wormholeExtra?: boolean;
   onComplete?: () => void;
@@ -53,10 +58,19 @@ export function useTransitionRunner({
   }, []);
 
   const phaseMs = reducedMotion ? 140 : settings.duration;
-  const holdMs = reducedMotion ? 0 : Math.min(180, Math.round(settings.duration * 0.18));
-  const staggerTail =
+  const holdMs = reducedMotion
+    ? 0
+    : Math.min(180, Math.round(settings.duration * 0.18));
+
+  const inTail =
     curtainCount && curtainCount > 1
-      ? settings.stagger * (curtainCount - 1)
+      ? settings.stagger *
+        curtainMaxStaggerRank(curtainCount, curtainFallIn ?? "left")
+      : 0;
+  const outTail =
+    curtainCount && curtainCount > 1
+      ? settings.stagger *
+        curtainMaxStaggerRank(curtainCount, curtainFallOut ?? "left")
       : 0;
 
   // Cover (in) + hold + reveal (out). Curtains stagger on both phases.
@@ -65,7 +79,7 @@ export function useTransitionRunner({
     ? 200
     : wormholeExtra
       ? Math.round(phaseMs * 2.4) + holdMs + 120
-      : phaseMs * 2 + holdMs + staggerTail * 2 + 100;
+      : phaseMs * 2 + holdMs + inTail + outTail + 100;
 
   const play = () => {
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
