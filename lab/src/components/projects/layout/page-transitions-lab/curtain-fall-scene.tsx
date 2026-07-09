@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { createRendererOptions } from "@/three/utils/renderer";
-import { applyStripUVs, curtainStaggerRank, paintCurtainTexture } from "./curtain-style";
+import { applyStripUVs, curtainMaxStaggerRank, curtainStaggerRank, paintCurtainTexture } from "./curtain-style";
 import type { TransitionSettings } from "./types";
 
 type CurtainFallSceneProps = {
@@ -125,18 +125,25 @@ export function CurtainFallScene({
     const stagger = reducedMotion ? 0 : settings.stagger;
     const fallIn = settings.curtainFallIn;
     const fallOut = settings.curtainFallOut;
+    // Out phase is global: wait until every strip has finished falling in
+    // (+ hold), then stagger fall-out by its own origin. Mixing origins
+    // (e.g. in right→left, out left→right) no longer cancels the out wave.
+    const outPhaseStart =
+      curtainMaxStaggerRank(curtains, fallIn) * stagger + inMs + hold;
 
     const tick = (now: number) => {
       let allDone = true;
+      const elapsed = now - start;
 
       for (let i = 0; i < meshes.length; i++) {
         const mesh = meshes[i];
         if (!mesh) continue;
         const inDelay = curtainStaggerRank(i, curtains, fallIn) * stagger;
-        const outDelay = curtainStaggerRank(i, curtains, fallOut) * stagger;
-        const localIn = now - start - inDelay;
+        const outDelay =
+          outPhaseStart + curtainStaggerRank(i, curtains, fallOut) * stagger;
+        const localIn = elapsed - inDelay;
         const inT = Math.min(1, Math.max(0, localIn / inMs));
-        const outLocal = now - start - inDelay - inMs - hold - outDelay;
+        const outLocal = elapsed - outDelay;
         const outT = Math.min(1, Math.max(0, outLocal / outMs));
 
         if (localIn < 0) {
@@ -145,7 +152,7 @@ export function CurtainFallScene({
         } else if (localIn < inMs) {
           mesh.position.y = dropStart + (0 - dropStart) * easeInOutCubic(inT);
           allDone = false;
-        } else if (outLocal < 0) {
+        } else if (elapsed < outDelay) {
           mesh.position.y = 0;
           allDone = false;
         } else if (outT < 1) {

@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import {
   curtainStaggerRank,
+  curtainMaxStaggerRank,
   curtainStripCssStyle,
 } from "./curtain-style";
 import type { CurtainGradientMode, CurtainOrigin } from "./types";
@@ -43,6 +44,12 @@ export function DestinationCurtains({
   const inMs = reducedMotion ? 140 : durationMs;
   const outMs = reducedMotion ? 140 : durationMs;
   const hold = reducedMotion ? 0 : holdMs;
+  // Global cover boundary — out phase starts only after the last fall-in
+  // strip lands + hold. Keeps fall-in / fall-out origins independent.
+  const inTail = reducedMotion
+    ? 0
+    : curtainMaxStaggerRank(strips, fallIn) * staggerMs;
+  const outPhaseStart = inTail + inMs + hold;
 
   return (
     <div className="ptl-curtain-fallback" aria-hidden="true">
@@ -52,7 +59,7 @@ export function DestinationCurtains({
         const inDelay = reducedMotion ? 0 : inRank * staggerMs;
         const outDelay = reducedMotion
           ? 0
-          : inDelay + inMs + hold + outRank * staggerMs;
+          : outPhaseStart + outRank * staggerMs;
         const fill = curtainStripCssStyle(
           colorA,
           colorB,
