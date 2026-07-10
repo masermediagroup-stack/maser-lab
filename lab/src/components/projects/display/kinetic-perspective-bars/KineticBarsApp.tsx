@@ -58,6 +58,11 @@ export function KineticBarsApp() {
   const [params, setParams] = useState<KineticBarsParams>(DEFAULT_PARAMS);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const patchParams = useCallback((patch: Partial<KineticBarsParams>) => {
     setParams((prev) => ({ ...prev, ...patch }));
@@ -96,21 +101,25 @@ export function KineticBarsApp() {
       <p className="kinetic-bars-demo__sr">{SR_DESCRIPTION}</p>
 
       <div className="kinetic-bars-demo__stage" aria-hidden={false}>
-        <ThreeCanvas
-          fallback={
-            <div className="kinetic-bars-demo__fallback">
-              <StaticFallback
-                title="Kinetic sculpture unavailable"
-                description="WebGL is required for this motion study. A static description is provided for assistive technology."
-              />
-            </div>
-          }
-        >
-          <KineticBarsScene
-            params={framedParams}
-            reducedMotion={systemReduced}
-          />
-        </ThreeCanvas>
+        {mounted ? (
+          <ThreeCanvas
+            fallback={
+              <div className="kinetic-bars-demo__fallback">
+                <StaticFallback
+                  title="Kinetic sculpture unavailable"
+                  description="WebGL is required for this motion study. A static description is provided for assistive technology."
+                />
+              </div>
+            }
+          >
+            <KineticBarsScene
+              params={framedParams}
+              reducedMotion={systemReduced}
+            />
+          </ThreeCanvas>
+        ) : (
+          <div className="h-full w-full bg-[var(--kb-bg)]" aria-hidden />
+        )}
       </div>
 
       <div className="kinetic-bars-demo__chrome">
@@ -171,28 +180,31 @@ export function KineticBarsApp() {
         </div>
       </div>
 
-      <KineticBarsControls onChange={patchParams} onReset={handleReset} />
-
-      <Leva
-        hidden={!settingsOpen}
-        collapsed={narrow}
-        titleBar={{ title: "Kinetic Bars", filter: false }}
-        theme={{
-          sizes: { rootWidth: "300px" },
-          colors: {
-            elevation1: "#0c0c0e",
-            elevation2: "#121216",
-            elevation3: "#1a1a20",
-            accent1: "#c8c8d0",
-            accent2: "#a8a8b4",
-            accent3: "#888894",
-            highlight1: "#e8e8ec",
-            highlight2: "#c8c8d0",
-            highlight3: "#a0a0aa",
-            vivid1: "#d0d0d8",
-          },
-        }}
-      />
+      {mounted ? (
+        <>
+          <KineticBarsControls onChange={patchParams} onReset={handleReset} />
+          <Leva
+            hidden={!settingsOpen}
+            collapsed={narrow}
+            titleBar={{ title: "Kinetic Bars", filter: false }}
+            theme={{
+              sizes: { rootWidth: "300px" },
+              colors: {
+                elevation1: "#0c0c0e",
+                elevation2: "#121216",
+                elevation3: "#1a1a20",
+                accent1: "#c8c8d0",
+                accent2: "#a8a8b4",
+                accent3: "#888894",
+                highlight1: "#e8e8ec",
+                highlight2: "#c8c8d0",
+                highlight3: "#a0a0aa",
+                vivid1: "#d0d0d8",
+              },
+            }}
+          />
+        </>
+      ) : null}
 
       <ExportCodeDrawer
         open={exportOpen}
