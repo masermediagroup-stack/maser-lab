@@ -56,6 +56,13 @@
       "status": "review",
       "category": "web-apps",
       "description": "Save-date calendar app with a vertical month selector, day dial, event storage, and modal event flows"
+    },
+    {
+      "slug": "kinetic-perspective-bars",
+      "title": "Kinetic Perspective Bars",
+      "status": "building",
+      "category": "display",
+      "description": "Dark architectural kinetic sculpture — thin perspective slabs with a seamless elevation wave, pointer ripple, and motion modes"
     }
   ]
 }
