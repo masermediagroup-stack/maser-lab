@@ -56,6 +56,13 @@
       "status": "review",
       "category": "web-apps",
       "description": "Save-date calendar app with a vertical month selector, day dial, event storage, and modal event flows"
+    },
+    {
+      "slug": "service-showcase",
+      "title": "Service Showcase",
+      "status": "building",
+      "category": "marketing",
+      "description": "Premium B&W tabbed service browser with before/after comparison and lab tuning controls"
     }
   ]
 }

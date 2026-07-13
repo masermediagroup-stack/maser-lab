@@ -1,0 +1,57 @@
+.service-showcase {
+  --ss-bg: #ffffff;
+  --ss-fg: #0a0a0a;
+  --ss-fg-muted: #525252;
+  --ss-border: #ececec;
+  --ss-hover: #f5f5f5;
+  --ss-radius: 24px;
+  --ss-space-scale: 1;
+  --ss-tab-duration: 250ms;
+  --ss-panel-duration: 300ms;
+  --ss-font: var(--font-space-grotesk), var(--font-geist-sans), system-ui, sans-serif;
+  --ss-gap: calc(1.5rem * var(--ss-space-scale));
+  --ss-pad: calc(1.25rem * var(--ss-space-scale));
+  --ss-tab-pad-y: calc(0.625rem * var(--ss-space-scale));
+  --ss-tab-pad-x: calc(1.125rem * var(--ss-space-scale));
+  --ss-copy-gap: calc(1rem * var(--ss-space-scale));
+
+  background: var(--ss-bg);
+  color: var(--ss-fg);
+  font-family: var(--ss-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+.service-showcase[data-reduced-motion="true"] {
+  --ss-tab-duration: 0ms;
+  --ss-panel-duration: 0ms;
+}
+
+.service-showcase__tabs {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.service-showcase__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.service-showcase__tab:focus-visible {
+  outline: 2px solid var(--ss-fg);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .service-showcase__tab:not([aria-selected="true"]):hover {
+    background: var(--ss-hover);
+  }
+}
+
+.service-showcase__cta:focus-visible {
+  outline: 2px solid var(--ss-fg);
+  outline-offset: 3px;
+}
+
+.service-showcase__ba-handle:focus-visible {
+  outline: 2px solid var(--ss-fg);
+  outline-offset: 4px;
+}
