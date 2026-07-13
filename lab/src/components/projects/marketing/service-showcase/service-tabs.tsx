@@ -108,7 +108,7 @@ export function ServiceTabs({
               aria-controls={`${panelIdPrefix}-panel-${item.id}`}
               tabIndex={selected ? 0 : -1}
               className={cn(
-                "service-showcase__tab relative z-10 shrink-0 rounded-full",
+                "service-showcase__tab relative z-10 shrink-0 rounded-none",
                 "px-[var(--ss-tab-pad-x)] py-[var(--ss-tab-pad-y)]",
                 "text-sm font-medium tracking-[-0.01em] transition-colors",
                 "duration-[var(--ss-tab-duration)]",
@@ -119,7 +119,7 @@ export function ServiceTabs({
               {selected ? (
                 <motion.span
                   layoutId={SS_PILL_LAYOUT_ID}
-                  className="absolute inset-0 -z-10 rounded-full bg-[var(--ss-fg)]"
+                  className="absolute inset-0 -z-10 rounded-none bg-[var(--ss-fg)]"
                   transition={
                     reduce
                       ? { duration: 0 }

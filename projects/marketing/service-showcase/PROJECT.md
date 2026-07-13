@@ -48,8 +48,9 @@ Full landing page, brand photography, colored accents, site-wide navigation chro
 | Decision | Choice | Rationale |
 | --- | --- | --- |
 | Library | Framer Motion | Pill `layoutId`, AnimatePresence panel, spring feel |
-| Tab pill | ~250ms spring | Premium nav indicator |
-| Panel swap | 300ms fade + slight Y | Premium content transition |
+| Tab indicator | ~250ms spring, square | Active tab chrome (not pill) |
+| Media swap | Top→bottom swipe (~420ms) | Image / comparison enters from above, exits downward |
+| Copy swap | 300ms fade + slight Y | Text settles independently |
 | Comparison enter | Subtle whileInView | Polish without distraction |
 | Reduced motion | Skip translate / springs | Clarity without vestibular risk |
 

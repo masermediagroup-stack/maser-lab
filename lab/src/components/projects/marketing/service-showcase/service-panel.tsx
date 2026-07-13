@@ -38,6 +38,11 @@ export function ServicePanel({
   const reduce = reducedMotion || !!prefersReduced;
   const showComparison = shouldShowComparison(item, imageMode);
   const duration = reduce ? 0 : panelDurationMs / 1000;
+  const mediaDuration = reduce ? 0 : Math.max(duration, 0.42);
+  const mediaTransition = {
+    duration: mediaDuration,
+    ease: [0.22, 1, 0.36, 1] as const,
+  };
 
   return (
     <div
@@ -46,40 +51,30 @@ export function ServicePanel({
       aria-labelledby={`${panelIdPrefix}-tab-${item.id}`}
       className="pt-[var(--ss-gap)]"
     >
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={item.id}
-          className="grid grid-cols-1 items-center gap-[var(--ss-gap)] md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
-          initial={
-            reduce
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: 12 }
-          }
-          animate={{ opacity: 1, y: 0 }}
-          exit={
-            reduce
-              ? { opacity: 0, y: 0 }
-              : { opacity: 0, y: 8 }
-          }
-          transition={{
-            duration,
-            ease: [0.22, 1, 0.36, 1],
-          }}
+      <div className="grid grid-cols-1 items-center gap-[var(--ss-gap)] md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <div
+          className="relative aspect-[4/3] min-w-0 overflow-hidden border border-[var(--ss-border)] bg-[var(--ss-hover)]"
+          style={{ borderRadius: borderRadiusPx }}
         >
-          <div className="min-w-0">
-            {showComparison && item.comparison ? (
-              <BeforeAfterSlider
-                before={item.comparison.before}
-                after={item.comparison.after}
-                borderRadiusPx={borderRadiusPx}
-                reducedMotion={reduce}
-                priority={isFirstPaint}
-              />
-            ) : (
-              <div
-                className="relative aspect-[4/3] w-full overflow-hidden border border-[var(--ss-border)] bg-[var(--ss-hover)]"
-                style={{ borderRadius: borderRadiusPx }}
-              >
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={`media-${item.id}`}
+              className="absolute inset-0 will-change-transform"
+              initial={reduce ? { y: "0%" } : { y: "-100%" }}
+              animate={{ y: "0%" }}
+              exit={reduce ? { opacity: 0 } : { y: "100%" }}
+              transition={mediaTransition}
+            >
+              {showComparison && item.comparison ? (
+                <BeforeAfterSlider
+                  before={item.comparison.before}
+                  after={item.comparison.after}
+                  borderRadiusPx={0}
+                  reducedMotion={reduce}
+                  priority={isFirstPaint}
+                  className="!aspect-auto h-full w-full rounded-none border-0"
+                />
+              ) : (
                 <Image
                   src={item.image.src}
                   alt={item.image.alt}
@@ -88,11 +83,27 @@ export function ServicePanel({
                   priority={isFirstPaint}
                   className="object-cover"
                 />
-              </div>
-            )}
-          </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-          <div className="flex min-w-0 flex-col gap-[var(--ss-copy-gap)] md:pl-2">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={`copy-${item.id}`}
+            className="flex min-w-0 flex-col gap-[var(--ss-copy-gap)] md:pl-2"
+            initial={
+              reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }
+            }
+            animate={{ opacity: 1, y: 0 }}
+            exit={
+              reduce ? { opacity: 0, y: 0 } : { opacity: 0, y: 6 }
+            }
+            transition={{
+              duration,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
             <h3 className="text-balance text-[clamp(1.75rem,2.4vw,2.375rem)] font-semibold leading-[1.15] tracking-[-0.03em] text-[var(--ss-fg)]">
               {item.title}
             </h3>
@@ -110,9 +121,9 @@ export function ServicePanel({
                 </span>
               </Link>
             ) : null}
-          </div>
-        </motion.div>
-      </AnimatePresence>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
