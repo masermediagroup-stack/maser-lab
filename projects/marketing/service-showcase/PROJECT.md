@@ -55,13 +55,13 @@ Full landing page, brand photography, colored accents, site-wide navigation chro
 
 ## Acceptance criteria
 
-- [ ] Demo route `/demos/service-showcase` renders all states above
-- [ ] `npm run lint` and `npm run build` pass in `lab/`
+- [x] Demo route `/demos/service-showcase` renders all states above
+- [x] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] Motion review: no open P0/P1 findings
 - [ ] `prefers-reduced-motion` verified in browser
-- [ ] Component exported from `lab/src/components/projects/marketing/service-showcase/index.ts`
-- [ ] Lab controls: active tab, viewport, animations, image mode, duration, radius, spacing
-- [ ] Consumers can reuse by replacing/passing the `items` data array only
+- [x] Component exported from `lab/src/components/projects/marketing/service-showcase/index.ts`
+- [x] Lab controls: active tab, viewport, animations, image mode, duration, radius, spacing
+- [x] Consumers can reuse by replacing/passing the `items` data array only
 
 ## Open decisions
 
