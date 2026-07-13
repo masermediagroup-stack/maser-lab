@@ -7,6 +7,7 @@ import { MakeYourDayCalendarDemo } from "./web-apps/makeyourday-calendar";
 import { LiquidMonochromeDemo } from "./scroll/liquid-monochrome";
 import { TextAnimationLabDemo } from "./display/text-animation-lab";
 import { PageTransitionsLabDemo } from "./layout/page-transitions-lab";
+import { ServiceShowcaseDemo } from "./marketing/service-showcase";
 
 export const demoRegistry: Record<string, ComponentType> = {
   "liquid-monochrome": LiquidMonochromeDemo,
@@ -17,6 +18,7 @@ export const demoRegistry: Record<string, ComponentType> = {
   "page-transitions-lab": PageTransitionsLabDemo,
   "summitpath-sign-up": SummitPathSignUpDemo,
   "text-animation-lab": TextAnimationLabDemo,
+  "service-showcase": ServiceShowcaseDemo,
 };
 
 export function registerDemo(slug: string, component: ComponentType) {
