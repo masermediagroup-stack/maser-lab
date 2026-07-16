@@ -41,7 +41,7 @@
       "title": "Text Animation Lab",
       "status": "building",
       "category": "display",
-      "description": "Monochrome shadcn/ui workspace for reusable text animation effects with live controls and code export"
+      "description": "Monochrome text animation workspace — 16 effects with In/Out export, GSAP scroll reveal, and Three.js 3D flip"
     },
     {
       "slug": "page-transitions-lab",

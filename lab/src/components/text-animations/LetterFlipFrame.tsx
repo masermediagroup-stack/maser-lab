@@ -3,8 +3,10 @@
 import { useMemo } from "react";
 import {
   cn,
+  phaseDirection,
   splitChars,
   usePrefersReducedMotion,
+  type AnimationPhase,
   type BaseAnimationProps,
   type EaseOption,
 } from "./shared";
@@ -24,6 +26,7 @@ export function LetterFlipFrame({
   playKey = 0,
   compact = false,
   className,
+  phase = "in",
   flipSpeed = 600,
   stagger = 60,
   flipAxis = "x",
@@ -33,6 +36,7 @@ export function LetterFlipFrame({
 }: LetterFlipFrameProps) {
   const reduced = usePrefersReducedMotion();
   const chars = useMemo(() => splitChars(text), [text]);
+  const resolvedPhase: AnimationPhase = phase === "out" ? "out" : "in";
 
   const rotateFrom =
     flipAxis === "x" ? "rotateX(90deg)" : flipAxis === "y" ? "rotateY(90deg)" : "rotateZ(90deg)";
@@ -48,8 +52,11 @@ export function LetterFlipFrame({
       aria-label={text}
     >
       {chars.map((char, i) => {
+        const indexOrder = direction === "forward" ? i : chars.length - 1 - i;
         const delay =
-          direction === "forward" ? i * stagger : (chars.length - 1 - i) * stagger;
+          resolvedPhase === "out"
+            ? (chars.length - 1 - indexOrder) * stagger
+            : indexOrder * stagger;
         const display = char === " " ? "\u00A0" : char;
 
         if (reduced) {
@@ -62,12 +69,13 @@ export function LetterFlipFrame({
 
         return (
           <span
-            key={`${playKey}-${i}-${char}`}
+            key={`${playKey}-${resolvedPhase}-${i}-${char}`}
             className="tal-animate-letter-flip inline-block origin-center"
             style={{
               animationDuration: `${flipSpeed}ms`,
               animationTimingFunction: ease,
               animationDelay: `${delay}ms`,
+              animationDirection: phaseDirection(resolvedPhase),
               ["--tal-flip-from" as string]: rotateFrom,
             }}
           >

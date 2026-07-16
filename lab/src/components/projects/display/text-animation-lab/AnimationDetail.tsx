@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, Code2, RotateCcw, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { AnimationDefinition, AnimationSettings } from "./types";
@@ -28,6 +28,9 @@ export function AnimationDetail({ definition, onBack }: AnimationDetailProps) {
 
   const handleSettingChange = useCallback((key: string, value: string | number | boolean) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
+    if (key === "phase") {
+      setPlayKey((k) => k + 1);
+    }
   }, []);
 
   const handleReplay = () => setPlayKey((k) => k + 1);

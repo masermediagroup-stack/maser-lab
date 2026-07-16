@@ -12,49 +12,31 @@ import {
 } from "./shared";
 import "./text-animations.css";
 
-export type GlideTextAnimationProps = BaseAnimationProps & {
-  direction?: "left" | "right" | "top" | "bottom" | "diagonal";
-  glideDistance?: number;
+export type BlurFocusRevealProps = BaseAnimationProps & {
   speed?: number;
   stagger?: number;
-  blur?: number;
+  blurAmount?: number;
+  trackingStart?: number;
   ease?: EaseOption;
 };
 
-function getGlideFrom(
-  direction: "left" | "right" | "top" | "bottom" | "diagonal",
-  distance: number,
-): string {
-  switch (direction) {
-    case "left":
-      return `translateX(-${distance}px)`;
-    case "right":
-      return `translateX(${distance}px)`;
-    case "top":
-      return `translateY(-${distance}px)`;
-    case "bottom":
-      return `translateY(${distance}px)`;
-    case "diagonal":
-      return `translate(${distance * 0.7}px, ${distance * 0.7}px)`;
-  }
-}
-
-export function GlideTextAnimation({
+/**
+ * Soft blur + tracking tighten into crisp type — common hero / editorial entrance.
+ */
+export function BlurFocusRevealAnimation({
   text,
   playKey = 0,
   compact = false,
   className,
   phase = "in",
-  direction = "left",
-  glideDistance = 48,
-  speed = 650,
-  stagger = 120,
-  blur = 4,
+  speed = 900,
+  stagger = 80,
+  blurAmount = 16,
+  trackingStart = 0.12,
   ease = "cubic-bezier(0.22, 1, 0.36, 1)",
-}: GlideTextAnimationProps) {
+}: BlurFocusRevealProps) {
   const reduced = usePrefersReducedMotion();
   const words = useMemo(() => splitWords(text), [text]);
-  const glideFrom = getGlideFrom(direction, glideDistance);
   const resolvedPhase: AnimationPhase = phase === "out" ? "out" : "in";
 
   return (
@@ -67,6 +49,11 @@ export function GlideTextAnimation({
       aria-label={text}
     >
       {words.map((word, i) => {
+        const delay =
+          resolvedPhase === "out"
+            ? (words.length - 1 - i) * stagger
+            : i * stagger;
+
         if (reduced) {
           return (
             <span key={`${playKey}-${i}`} className="inline-block">
@@ -75,22 +62,17 @@ export function GlideTextAnimation({
           );
         }
 
-        const delay =
-          resolvedPhase === "out"
-            ? (words.length - 1 - i) * stagger
-            : i * stagger;
-
         return (
           <span
             key={`${playKey}-${resolvedPhase}-${i}-${word}`}
-            className="tal-animate-glide inline-block"
+            className="tal-animate-blur-focus inline-block"
             style={{
               animationDuration: `${speed}ms`,
               animationTimingFunction: ease,
               animationDelay: `${delay}ms`,
               animationDirection: phaseDirection(resolvedPhase),
-              ["--tal-glide-from" as string]: glideFrom,
-              ["--tal-glide-blur" as string]: `${blur}px`,
+              ["--tal-blur-amount" as string]: `${blurAmount}px`,
+              ["--tal-blur-tracking" as string]: `${trackingStart}em`,
             }}
           >
             {word}

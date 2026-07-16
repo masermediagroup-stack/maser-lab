@@ -18,30 +18,34 @@ export type ScrollLineRevealAnimationProps = BaseAnimationProps & {
   blur?: number;
   opacityFade?: boolean;
   pinSection?: boolean;
-  /** When true, uses internal scroll container for gallery preview */
+  /** When true, uses internal scroll container for gallery/detail preview */
   embedded?: boolean;
 };
 
 function getRevealOffset(direction: ScrollLineRevealAnimationProps["revealDirection"]) {
   switch (direction) {
     case "down":
-      return { y: -24 };
+      return { y: -28 };
     case "left":
-      return { x: 32 };
+      return { x: 40 };
     case "right":
-      return { x: -32 };
+      return { x: -40 };
     default:
-      return { y: 24 };
+      return { y: 28 };
   }
 }
 
+/**
+ * GSAP ScrollTrigger line reveal. In embedded mode, spacers keep lines
+ * below the fold so scrub triggers fire while scrolling the host.
+ */
 export function ScrollLineRevealAnimation({
   text,
   playKey = 0,
   compact = false,
   className,
   scrollStart = "top 80%",
-  scrollEnd = "top 30%",
+  scrollEnd = "top 25%",
   scrubAmount = 1,
   lineStagger = 0.12,
   revealDirection = "up",
@@ -51,62 +55,71 @@ export function ScrollLineRevealAnimation({
   embedded = false,
 }: ScrollLineRevealAnimationProps) {
   const reduced = usePrefersReducedMotion();
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const linesWrapRef = useRef<HTMLDivElement>(null);
   const lines = text.split("\n").filter(Boolean);
   const displayLines = lines.length > 0 ? lines : [text];
 
   useEffect(() => {
-    if (reduced || !sectionRef.current) return;
+    if (reduced || !rootRef.current || !linesWrapRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
+    const root = rootRef.current;
+    const linesWrap = linesWrapRef.current;
+    const scroller = embedded
+      ? (root.closest("[data-tal-scroll-host]") as HTMLElement | null)
+      : null;
+
     const ctx = gsap.context(() => {
       const offset = getRevealOffset(revealDirection);
-      const linesEls = sectionRef.current?.querySelectorAll("[data-tal-line]");
+      const lineEls = linesWrap.querySelectorAll<HTMLElement>("[data-tal-line]");
 
-      linesEls?.forEach((line, i) => {
-        gsap.fromTo(
-          line,
-          {
-            ...offset,
-            opacity: opacityFade ? 0 : 1,
-            filter: blur > 0 ? `blur(${blur}px)` : "none",
-          },
-          {
-            x: 0,
-            y: 0,
-            opacity: 1,
-            filter: "blur(0px)",
-            ease: "power2.out",
-            scrollTrigger: embedded
-              ? {
-                  trigger: sectionRef.current,
-                  scroller: sectionRef.current?.closest("[data-tal-scroll-host]") ?? undefined,
-                  start: scrollStart,
-                  end: scrollEnd,
-                  scrub: scrubAmount,
-                }
-              : {
-                  trigger: line,
-                  start: scrollStart,
-                  end: scrollEnd,
-                  scrub: scrubAmount,
-                },
-            delay: i * lineStagger,
-          },
-        );
+      if (lineEls.length === 0) return;
+
+      gsap.set(lineEls, {
+        ...offset,
+        opacity: opacityFade ? 0 : 1,
+        filter: blur > 0 ? `blur(${blur}px)` : "none",
       });
 
-      if (pinSection && sectionRef.current && !embedded) {
+      const tween = gsap.to(lineEls, {
+        x: 0,
+        y: 0,
+        opacity: 1,
+        filter: "blur(0px)",
+        ease: "none",
+        stagger: lineStagger,
+        scrollTrigger: {
+          trigger: linesWrap,
+          scroller: scroller ?? undefined,
+          start: scrollStart,
+          end: scrollEnd,
+          scrub: scrubAmount > 0 ? scrubAmount : false,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      if (pinSection && !embedded) {
         ScrollTrigger.create({
-          trigger: sectionRef.current,
+          trigger: root,
           start: "top top",
           end: "+=120%",
           pin: true,
           pinSpacing: true,
         });
       }
-    }, sectionRef);
+
+      // Layout may settle after paint (fonts, flex). Refresh once.
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
+
+      return () => {
+        tween.scrollTrigger?.kill();
+        tween.kill();
+      };
+    }, root);
 
     return () => ctx.revert();
   }, [
@@ -140,34 +153,45 @@ export function ScrollLineRevealAnimation({
     );
   }
 
+  const spacerClass = compact
+    ? "h-24 shrink-0"
+    : "h-[min(42vh,220px)] shrink-0";
+
   return (
     <div
-      ref={sectionRef}
+      ref={rootRef}
       className={cn(
         "font-medium tracking-tight text-white",
         compact ? "text-lg" : "text-3xl md:text-4xl",
-        embedded ? "min-h-[200%] py-8" : "",
+        embedded ? "flex flex-col" : "",
         className,
       )}
       aria-label={text}
     >
-      {displayLines.map((line, i) => (
-        <p
-          key={`${playKey}-${i}-${line}`}
-          data-tal-line
-          className={cn("leading-tight", i > 0 ? "mt-2" : "")}
-          style={
-            embedded
-              ? {
-                  opacity: opacityFade ? 0.2 : 1,
-                  transform: `translateY(${revealDirection === "up" ? 16 : -16}px)`,
-                }
-              : undefined
-          }
-        >
-          {line}
-        </p>
-      ))}
+      {embedded ? (
+        <div aria-hidden className={spacerClass} data-tal-scroll-spacer />
+      ) : null}
+
+      <div ref={linesWrapRef} className="relative py-2">
+        {embedded ? (
+          <p className="mb-3 text-[10px] font-normal tracking-[0.16em] text-neutral-500 uppercase">
+            Scroll to reveal
+          </p>
+        ) : null}
+        {displayLines.map((line, i) => (
+          <p
+            key={`${playKey}-${i}-${line}`}
+            data-tal-line
+            className={cn("will-change-transform leading-tight", i > 0 ? "mt-2" : "")}
+          >
+            {line}
+          </p>
+        ))}
+      </div>
+
+      {embedded ? (
+        <div aria-hidden className={spacerClass} data-tal-scroll-spacer />
+      ) : null}
     </div>
   );
 }

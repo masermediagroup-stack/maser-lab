@@ -115,9 +115,13 @@
 .tal-detail__preview[data-tal-scroll-host] {
   display: block;
   max-height: 420px;
+  overflow-x: hidden;
   overflow-y: auto;
   align-items: stretch;
   justify-content: flex-start;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  scrollbar-gutter: stable;
 }
 
 .tal-detail__actions {

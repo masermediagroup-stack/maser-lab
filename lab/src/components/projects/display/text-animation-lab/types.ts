@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import type { EaseOption } from "@/components/text-animations/shared";
+import type { AnimationPhase, EaseOption } from "@/components/text-animations/shared";
 
 export type ControlGroup =
   | "content"
@@ -49,8 +49,20 @@ export type AnimationDefinition = {
   defaultText: string;
   defaultSettings: AnimationSettings;
   controls: ControlDefinition[];
-  component: ComponentType<AnimationSettings & { text: string; playKey?: number; compact?: boolean }>;
+  component: ComponentType<
+    AnimationSettings & {
+      text: string;
+      playKey?: number;
+      compact?: boolean;
+      phase?: AnimationPhase;
+      embedded?: boolean;
+    }
+  >;
   dependencies?: string[];
+  /** When true, export drawer offers separate In / Out snippets. */
+  supportsOutAnimation?: boolean;
+  /** Notes shown in the export drawer for scroll/interactive effects. */
+  exportNotes?: string;
 };
 
 export type TypingSettings = {
@@ -171,3 +183,5 @@ export type ScrollLineRevealSettings = {
   opacityFade: boolean;
   pinSection: boolean;
 };
+
+export type ExportPhase = "in" | "out";

@@ -22,21 +22,39 @@
   }
 }
 
+/*
+  Stroke → fill → glow (in). Stroke color starts transparent so the outline
+  actually draws in before the fill lands. Out uses animation-direction: reverse.
+*/
 @keyframes tal-stroke-fill {
   0% {
     color: transparent;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke-color: transparent;
     text-shadow: none;
   }
-  40% {
+  28% {
     color: transparent;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke-color: #ffffff;
     text-shadow: none;
   }
-  70% {
-    color: white;
+  55% {
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+    -webkit-text-stroke-color: #ffffff;
+    text-shadow: none;
+  }
+  78% {
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+    -webkit-text-stroke-color: transparent;
     text-shadow: none;
   }
   100% {
-    color: white;
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+    -webkit-text-stroke-color: transparent;
     text-shadow: 0 0 var(--tal-glow-radius, 12px)
       rgba(255, 255, 255, var(--tal-glow-intensity, 0.6));
   }
@@ -90,6 +108,48 @@
   }
 }
 
+@keyframes tal-mask-clip {
+  from {
+    transform: translateY(var(--tal-mask-from, 110%));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes tal-blur-focus {
+  from {
+    opacity: 0;
+    filter: blur(var(--tal-blur-amount, 16px));
+    letter-spacing: var(--tal-blur-tracking, 0.12em);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    letter-spacing: 0;
+  }
+}
+
+@keyframes tal-underline-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes tal-underline-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .tal-animate-letter-flip {
   animation-name: tal-letter-flip;
   animation-fill-mode: both;
@@ -102,7 +162,9 @@
 
 .tal-animate-stroke-fill {
   animation-name: tal-stroke-fill;
-  animation-fill-mode: forwards;
+  animation-fill-mode: both;
+  /* Keep stroke width; color is driven by keyframes */
+  -webkit-text-stroke-width: var(--tal-stroke-width, 1.5px);
 }
 
 .tal-animate-random-fade {
@@ -122,5 +184,26 @@
 
 .tal-animate-scale {
   animation-name: tal-scale;
+  animation-fill-mode: both;
+}
+
+.tal-animate-mask-clip {
+  animation-name: tal-mask-clip;
+  animation-fill-mode: both;
+}
+
+.tal-animate-blur-focus {
+  animation-name: tal-blur-focus;
+  animation-fill-mode: both;
+}
+
+.tal-animate-underline-draw {
+  animation-name: tal-underline-draw;
+  animation-fill-mode: both;
+  transform-origin: var(--tal-underline-origin, left center);
+}
+
+.tal-animate-underline-word {
+  animation-name: tal-underline-word-in;
   animation-fill-mode: both;
 }
