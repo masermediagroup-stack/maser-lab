@@ -31,16 +31,20 @@ Users can select a month, adjust a day, open the event panel, add an event, view
 ### Non-goals
 This import does not add full monthly grid views, recurring events, reminders, accounts, backend sync, or portfolio-ready final polish.
 
+## Kind
+
+**app** — full interactive calendar experience. Transfer via `TRANSFER.md`; do not treat as a page section.
+
 ## States
 
 - [x] default
 - [x] hover (pointer fine only)
 - [x] focus
 - [x] active / pressed
-- [ ] loading
+- [ ] loading — N/A for local-mock client state (no async fetch yet)
 - [x] success
 - [x] error
-- [ ] disabled
+- [ ] disabled — N/A until form/network guards need a disabled control surface
 - [x] empty
 - [x] prefers-reduced-motion
 
@@ -54,11 +58,30 @@ This import does not add full monthly grid views, recurring events, reminders, a
 
 ## Acceptance criteria
 
-- [x] Demo route `/demos/makeyourday-calendar` renders all states above
+- [x] Demo route `/demos/makeyourday-calendar` renders all applicable states above
 - [x] `npm run lint` and `npm run build` pass in `lab/`
 - [x] Motion review: no open P0/P1 findings
 - [x] `prefers-reduced-motion` verified in browser
-- [x] Component exported from `lab/src/components/projects/web-apps/makeyourday-calendar/index.ts`
+- [x] Product (`MakeYourDayCalendarApp`) exported from package `index.ts`; demo is lab-only and not re-exported
+
+## Scaffold harden — export boundary (2026-07-16)
+
+**Mode:** Harden  
+**Skills:** `maser-lab-web` (Harden), export/acceptance discipline from lab quality gates
+
+### Findings fixed
+
+| Finding | Severity | Fix |
+| --- | --- | --- |
+| `index.ts` exported only `MakeYourDayCalendarDemo` | P0 | Barrel now exports `MakeYourDayCalendarApp` + public types |
+| `tokens.css` only imported by demo | P1 | Product module imports tokens so transfer consumers get styles |
+| `demoRegistry` imported demo through product barrel | P1 | Registry imports `makeyourday-calendar-demo.tsx` directly |
+| `TRANSFER.md` still template stubs | P0 | Rewrote with kind, props, deps, tokens, porting checklist |
+| Reduced-motion lab toggle lacked accessible name | P1 | `aria-label="Toggle reduced motion"` + `aria-pressed` on shared chrome |
+
+### Status
+
+Remains **review** — scaffolding/export hardened; loading/disabled still intentionally open; not marking `ready` without a full responsive/ready gate pass.
 
 ## Open decisions
 
