@@ -3,8 +3,10 @@
 import { useMemo } from "react";
 import {
   cn,
+  phaseDirection,
   splitChars,
   usePrefersReducedMotion,
+  type AnimationPhase,
   type BaseAnimationProps,
   type EaseOption,
 } from "./shared";
@@ -25,6 +27,7 @@ export function PouredTextAnimation({
   playKey = 0,
   compact = false,
   className,
+  phase = "in",
   speed = 700,
   curveIntensity = 40,
   stagger = 50,
@@ -35,6 +38,7 @@ export function PouredTextAnimation({
 }: PouredTextAnimationProps) {
   const reduced = usePrefersReducedMotion();
   const chars = useMemo(() => splitChars(text), [text]);
+  const resolvedPhase: AnimationPhase = phase === "out" ? "out" : "in";
 
   return (
     <span
@@ -48,6 +52,10 @@ export function PouredTextAnimation({
       {chars.map((char, i) => {
         const display = char === " " ? "\u00A0" : char;
         const curve = Math.sin((i / Math.max(chars.length - 1, 1)) * Math.PI) * curveIntensity;
+        const delay =
+          resolvedPhase === "out"
+            ? (chars.length - 1 - i) * stagger
+            : i * stagger;
 
         if (reduced) {
           return (
@@ -59,12 +67,13 @@ export function PouredTextAnimation({
 
         return (
           <span
-            key={`${playKey}-${i}-${char}`}
+            key={`${playKey}-${resolvedPhase}-${i}-${char}`}
             className="tal-animate-poured inline-block"
             style={{
               animationDuration: `${speed}ms`,
               animationTimingFunction: ease,
-              animationDelay: `${i * stagger}ms`,
+              animationDelay: `${delay}ms`,
+              animationDirection: phaseDirection(resolvedPhase),
               ["--tal-pour-y" as string]: `${verticalOffset + curve}px`,
               ["--tal-pour-x" as string]: `${horizontalOffset}px`,
               ["--tal-pour-blur" as string]: `${blur}px`,

@@ -3,8 +3,10 @@
 import { useMemo } from "react";
 import {
   cn,
+  phaseDirection,
   splitWords,
   usePrefersReducedMotion,
+  type AnimationPhase,
   type BaseAnimationProps,
   type EaseOption,
 } from "./shared";
@@ -58,6 +60,7 @@ export function ScaleAnchorTextAnimation({
   playKey = 0,
   compact = false,
   className,
+  phase = "in",
   scaleStart = 0.4,
   scaleEnd = 1,
   speed = 600,
@@ -68,6 +71,7 @@ export function ScaleAnchorTextAnimation({
   const reduced = usePrefersReducedMotion();
   const words = useMemo(() => splitWords(text), [text]);
   const origin = getTransformOrigin(anchor);
+  const resolvedPhase: AnimationPhase = phase === "out" ? "out" : "in";
 
   return (
     <span
@@ -87,14 +91,20 @@ export function ScaleAnchorTextAnimation({
           );
         }
 
+        const delay =
+          resolvedPhase === "out"
+            ? (words.length - 1 - i) * stagger
+            : i * stagger;
+
         return (
           <span
-            key={`${playKey}-${i}-${word}`}
+            key={`${playKey}-${resolvedPhase}-${i}-${word}`}
             className="tal-animate-scale inline-block"
             style={{
               animationDuration: `${speed}ms`,
               animationTimingFunction: ease,
-              animationDelay: `${i * stagger}ms`,
+              animationDelay: `${delay}ms`,
+              animationDirection: phaseDirection(resolvedPhase),
               transformOrigin: origin,
               ["--tal-scale-start" as string]: String(scaleStart),
               ["--tal-scale-end" as string]: String(scaleEnd),
