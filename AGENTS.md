@@ -21,6 +21,13 @@ Pick a **category** from `projects/categories.json` that matches the primary job
 | Task | Load first |
 | --- | --- |
 | Any web UI in the lab — sections, components, forms, motion, reveals | `.agents/skills/maser-lab-web/SKILL.md` |
+| Shape a new section (brand-first brief) | `.agents/skills/maser-lab-section-shape/SKILL.md` |
+| Scaffold a new project slug | `.agents/skills/maser-lab-project-scaffold/SKILL.md` |
+| Demo chrome / DemoHost / reduced-motion controls | `.agents/skills/maser-lab-demo-chrome/SKILL.md` |
+| Export / Transfer / product `index.ts` | `.agents/skills/maser-lab-export/SKILL.md` |
+| Prove PROJECT.md acceptance claims | `.agents/skills/maser-lab-acceptance-audit/SKILL.md` |
+| Responsive / touch Harden pass | `.agents/skills/maser-lab-responsive-qa/SKILL.md` |
+| Product vs lab CSS tokens | `.agents/skills/maser-lab-token-system/SKILL.md` |
 | Three.js, shaders, 3D, WebGL/WebGPU, scroll/pointer 3D | `.agents/skills/maser-lab-threejs/SKILL.md` |
 | Figma reference, design-to-code, code-to-Figma, Code Connect | `.agents/skills/figma-design-workflow/SKILL.md` |
 | Discovering or installing more skills | `.agents/skills/find-skills/SKILL.md` |
@@ -28,7 +35,7 @@ Pick a **category** from `projects/categories.json` that matches the primary job
 | React/Next.js performance or patterns | `.agents/skills/vercel-react-best-practices/SKILL.md` |
 | Accessibility and web interface audit | `.agents/skills/web-design-guidelines/SKILL.md` |
 
-> **Note:** `maser-lab-web` is the primary **workflow and quality gate** for all web UI in this repo. Use `maser-lab-threejs` when the deliverable is canvas/WebGL/Three.js.
+> **Note:** `maser-lab-web` is the primary **workflow and quality gate** for all web UI in this repo. Use `maser-lab-threejs` when the deliverable is canvas/WebGL/Three.js. Mode→skill routing lives in `.agents/skills/maser-lab-web/references/skill-routing.md`.
 
 **Always report** which skill(s) and reference files you loaded in your work plan or review output.
 
@@ -53,10 +60,10 @@ maser-lab/
 ## Operating contract
 
 1. **Start a project from the template** — copy `projects/_template/` to `projects/{category}/{slug}/`, fill in `PROJECT.md` and `FIGMA.md` (if design references exist), add the slug to `projects/registry.json` with a valid `category` from `projects/categories.json`.
-2. **Implement in `lab/`** — component code lives under `lab/src/components/projects/{category}/{slug}/`; demo page at `lab/src/app/demos/[slug]/page.tsx` or a dedicated route.
+2. **Implement in `lab/`** — component code lives under `lab/src/components/projects/{category}/{slug}/`; demos register in `demoRegistry` and render via `lab/src/app/demos/[slug]/page.tsx` (DemoHost). Load `maser-lab-project-scaffold` for new slugs.
 3. **Use request modes** from `maser-lab-web` — Shape, Implement, Review, Motion-review, Harden, Transfer. Do not mix modes without stating the switch.
 4. **Verify rendered output** — run `npm run dev` in `lab/`, exercise all states in `PROJECT.md`, check keyboard, touch, responsive breakpoints, and `prefers-reduced-motion` when motion is involved. Source inspection alone is not enough for visual or motion work.
-5. **Review before transfer** — a project moves to `status: "ready"` only after review passes and acceptance criteria in `PROJECT.md` are met.
+5. **Review before transfer** — a project moves to `status: "ready"` only after `maser-lab-acceptance-audit` and `maser-lab-export` pass and acceptance criteria in `PROJECT.md` are met.
 
 ## Skip these skills for
 
@@ -74,6 +81,9 @@ Before marking a project ready for portfolio transfer:
 - [ ] Review completed (lab Review mode; Motion-review when motion is in scope)
 - [ ] `prefers-reduced-motion` honored when the UI animates
 - [ ] No P0/P1 findings open from review
+- [ ] `maser-lab-acceptance-audit` pass (no false-checked ACs)
+- [ ] `maser-lab-export` pass (product-only barrel + filled `TRANSFER.md`)
+- [ ] `maser-lab-responsive-qa` pass at 320 and 1280
 
 ### Three.js / 3D projects (additional gates)
 

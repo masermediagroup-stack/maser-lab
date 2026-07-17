@@ -91,6 +91,16 @@ Inventory: default, hover, focus, active/pressed, loading, success, error, disab
 
 | Need | Skill |
 | --- | --- |
+| Shape brief / brand-first section | `maser-lab-section-shape` |
+| New project wiring | `maser-lab-project-scaffold` |
+| Demo shell / a11y chrome | `maser-lab-demo-chrome` |
+| Transfer / product barrel | `maser-lab-export` |
+| Prove PROJECT.md checkboxes | `maser-lab-acceptance-audit` |
+| Breakpoints / touch QA | `maser-lab-responsive-qa` |
+| Product vs lab tokens | `maser-lab-token-system` |
+| Expressive frontend craft | `frontend-design`, `emil-design-eng` |
+| Component composition | `vercel-composition-patterns` |
+| View Transitions API | `vercel-react-view-transitions` |
 | Disney principles, small UI feedback | `micro-interactions` |
 | Motion presets, Tailwind/Framer snippets | `animation-micro-interaction-pack` |
 | Springs, gestures, component patterns | `ui-animation` |
@@ -102,15 +112,19 @@ Inventory: default, hover, focus, active/pressed, loading, success, error, disab
 | React/Next performance | `vercel-react-best-practices` |
 | Full-flow verification | `verification` |
 | Find/install more skills | `find-skills` |
+| Author new skills | `skill-creator` |
 | Figma design refs, tokens, sync | `figma-design-workflow` |
 
 ### 7. Implement (Implement / Harden modes)
 
-1. Copy `projects/_template/` files → `projects/{category}/{slug}/` if new
-2. Add entry to `projects/registry.json` with a valid `category` from `projects/categories.json`
-3. Implement under `lab/src/components/projects/{category}/{slug}/`
-4. Wire demo at `lab/src/app/demos/[slug]/page.tsx`
-5. Run `npm run lint` and `npm run build` in `lab/`
+1. For **new slugs**, load `maser-lab-project-scaffold` (do not improvise paths)
+2. Copy `projects/_template/` files → `projects/{category}/{slug}/` if new
+3. Add entry to `projects/registry.json` with a valid `category` from `projects/categories.json`
+4. Implement under `lab/src/components/projects/{category}/{slug}/` with **product-only** `index.ts` (`maser-lab-export`)
+5. Build demo with `maser-lab-demo-chrome`; register in `demoRegistry`
+6. Prefer catch-all `lab/src/app/demos/[slug]/page.tsx` (DemoHost) — avoid new dedicated demo pages
+7. Run `npm run lint` and `npm run build` in `lab/`
+8. On Harden: `maser-lab-responsive-qa` + `maser-lab-acceptance-audit`
 
 ### 8. Verify
 
