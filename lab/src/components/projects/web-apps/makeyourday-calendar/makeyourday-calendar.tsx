@@ -27,8 +27,10 @@ import {
 } from "react";
 import { MONTHS, SAMPLE_EVENT, STORAGE_KEY, WEEKDAYS } from "./constants";
 import type { CalendarEvent, EventStore, ListedEvent, PanelMode, TimeState } from "./types";
+import "./tokens.css";
 
-type MakeYourDayCalendarAppProps = {
+export type MakeYourDayCalendarAppProps = {
+  /** When true, disables entrance/hover motion regardless of OS preference. */
   forceReducedMotion?: boolean;
 };
 
