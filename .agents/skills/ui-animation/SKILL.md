@@ -8,6 +8,19 @@ description: Creates, reviews, and debugs UI motion and animation implementation
 - **IS:** designing, implementing, reviewing, and debugging UI motion: springs, gestures, drag, easing, CSS transitions, keyframes, framer-motion.
 - **IS NOT:** extracting an animation from a video or screen recording (use `reverse-engineer-animation`), choosing overall visual direction, palettes, or typography (use `ui-design`), or auditing a whole page's UI quality (use `ui-audit`).
 
+## Maser-Lab routing
+
+When working in this repo, load `maser-lab-web` first. Then:
+
+| Need | Route to |
+| --- | --- |
+| Final motion craft verdict | `review-animations` (+ `STANDARDS.md`) — authority over this skill’s recipes |
+| Broad motion roadmap / plans | `improve-animations` (read-only) |
+| Gesture sheets / direct manipulation / velocity | `apple-design` |
+| Name an effect | `animation-vocabulary` |
+| Stable lab rule IDs | `maser-lab-web/references/rules.md` |
+
+**Performance note:** Motion `x`/`y`/`scale` props are fine for simple gestures. Under load (page busy, shared layout work), prefer full `transform` strings, CSS transitions, or WAAPI — `review-animations` wins when those conflict.
 ## Reference files
 
 | File                                                                       | Read when                                                                    |

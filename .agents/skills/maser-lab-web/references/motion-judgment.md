@@ -53,3 +53,38 @@ Compare at least two approaches when material:
 - Continuous vs snap (pose-to-pose)
 
 Document tradeoffs: bundle size, interruptibility, SSR, a11y.
+
+## Routed judgment gates
+
+Do not paste upstream skills here — load them when a gate fires.
+
+### Emil frequency / purpose gate
+
+From `find-animation-opportunities` / `emil-design-eng`. Every proposed motion must pass:
+
+1. **Frequency** — safe for how often it is seen? (100+/day or keyboard → reject)
+2. **Purpose** — spatial, state, feedback, explanation, or anti-jarring?
+3. **Speed** — fits ≤300ms UI budget (or documented exception)?
+4. **Function** — helps the user complete the job?
+
+If any fail → do not animate. Cap additive suggestions; include rejected candidates when using `find-animation-opportunities`.
+
+### Apple gesture gate
+
+From `apple-design`. For drag/swipe/sheet/spring UI:
+
+1. Pointer-down response (not wait-for-release)?
+2. 1:1 tracking with grab offset?
+3. Interruptible / retargetable from current value?
+4. Velocity handoff into settle?
+5. Rubber-banded boundaries?
+6. Reduced-motion equivalent (cross-fade / static, not slide/spring)?
+
+### Review vs audit vs implement
+
+| Intent | Skill |
+| --- | --- |
+| Diff / craft verdict | `review-animations` |
+| Codebase roadmap + plans | `improve-animations` |
+| Recipes / implementation | `ui-animation` (+ domain packs) |
+| Name the effect | `animation-vocabulary` |

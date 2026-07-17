@@ -100,9 +100,11 @@ Apply Disney's 12 animation principles to small UI feedback moments and interfac
 | Checkbox | 150ms | ease-out |
 | Focus ring | 100ms | ease-out |
 | Tooltip show | 150ms | ease-out |
-| Tooltip hide | 100ms | ease-in |
+| Tooltip hide | 100ms | ease-out |
 | Badge update | 200ms | elastic |
 | Form error | 200ms | ease-out |
+
+> **Maser-Lab:** Prefer `ease-out` / custom deceleration for UI. Avoid `ease-in` on interactive surfaces — `review-animations` is the motion review authority. Load `maser-lab-web` first; cite `rule/ease-out-enter` and `rule/no-keyboard-motion`.
 
 ## Best Practices
 

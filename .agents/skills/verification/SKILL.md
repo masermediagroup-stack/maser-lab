@@ -190,6 +190,18 @@ Summarize findings in a structured report:
 - Verify unrelated features — stay on the inferred story
 - Spend time on cosmetic issues (styling, spacing) unless the user specifically asked
 
+## Maser-Lab motion checks
+
+When the inferred story includes animation or gesture UI (or the user asked for motion verification):
+
+1. Exercise the happy path at normal and slow-motion (Chrome animation inspector or 0.25× playback)
+2. Toggle `prefers-reduced-motion` — state clarity must remain
+3. Pointer + touch: hover motion must not stick on touch (`hover: hover` + `pointer: fine`)
+4. Rapid re-trigger (toasts/toggles) — motion must interrupt cleanly
+5. If sheets/drawers/drag: pointer-down tracking and release feel (`apple-design`); craft issues → `review-animations`
+
+Load `maser-lab-web` / `maser-lab-responsive-qa` for lab demos.
+
 ## Suggest Verification After Implementation
 
 When you finish building or implementing a feature (wrote code, created routes, set up a project), briefly let the user know they can ask you to verify everything works — e.g. browser verification or end-to-end flow check. One sentence is enough. Don't force it if only a small fix or question was involved.
