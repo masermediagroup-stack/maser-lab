@@ -3,7 +3,7 @@ import { BlobbyRotationDemo } from "./feedback/blobby-rotation-loader";
 import { PlotlineTabNavDemo } from "./navigation/plotline-tab-nav/plotline-tab-nav-demo";
 import { PrismNavDemo } from "./navigation/prism/prism-nav-demo";
 import { SummitPathSignUpDemo } from "./sign-up/summitpath-sign-up";
-import { MakeYourDayCalendarDemo } from "./web-apps/makeyourday-calendar";
+import { MakeYourDayCalendarDemo } from "./web-apps/makeyourday-calendar/makeyourday-calendar-demo";
 import { LiquidMonochromeDemo } from "./scroll/liquid-monochrome";
 import { TextAnimationLabDemo } from "./display/text-animation-lab";
 import { PageTransitionsLabDemo } from "./layout/page-transitions-lab";
