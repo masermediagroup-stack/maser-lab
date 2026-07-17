@@ -86,6 +86,9 @@ When Shape is blocked by "which layout?":
 1. Route to **prototype** mindset (throwaway variants) or install taste skills
 2. Load `frontend-design` and/or `emil-design-eng` for craft pressure
 3. If Figma URL exists → `figma-design-workflow`
+4. If asking “what could animate?” → `find-animation-opportunities` (include rejected candidates)
+5. If naming an effect → `animation-vocabulary`
+6. Gesture / sheet / spring personality → `apple-design`
 
 Do not jump to production components until the brief's first viewport is settled.
 

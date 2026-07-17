@@ -677,3 +677,7 @@ When reviewing UI code, check for:
 | Framer Motion `x`/`y` props under load     | Use `transform: "translateX()"` for hardware acceleration        |
 | Same enter/exit transition speed           | Make exit faster than enter (e.g., enter 2s, exit 200ms)         |
 | Elements all appear at once                | Add stagger delay (30-80ms between items)                        |
+
+## Maser-Lab usage
+
+In this repo, load `maser-lab-web` first and declare a request mode. Route via `maser-lab-web/references/skill-routing.md`. Cite lab `rule/*` IDs when an equivalent exists; keep this skill as the upstream craft source — do not copy it into lab rules.

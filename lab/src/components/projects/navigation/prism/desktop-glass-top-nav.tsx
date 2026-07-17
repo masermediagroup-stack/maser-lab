@@ -84,18 +84,16 @@ const navShellEnter = (reduced: boolean): Variants => ({
     ? { opacity: 0 }
     : {
         opacity: 0,
-        y: 12,
-        filter: "blur(8px)",
+        y: 6,
       },
   visible: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: reduced
-      ? { duration: 0.12, ease: ENTRANCE_EASE }
+      ? { duration: 0 }
       : {
-          duration: 0.56,
-          ease: ENTRANCE_EASE,
+          duration: 0.24,
+          ease: [0.23, 1, 0.32, 1] as const,
         },
   },
 });

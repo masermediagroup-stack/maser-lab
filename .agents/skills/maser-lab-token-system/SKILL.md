@@ -34,6 +34,11 @@ Load during Implement (branded sections), Harden, and Transfer. Chain `maser-lab
 2. Product components must **not** require `--lab-*` to render correctly in portfolio
 3. Demo chrome may use `--lab-*`
 4. Prefer CSS variables for color, radius, space, motion durations used in more than one file
+5. Align shared easings with Emil defaults when inventing new motion tokens (see `emil-design-eng`):
+   - `--*-ease-out: cubic-bezier(0.23, 1, 0.32, 1)`
+   - `--*-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`
+   - `--*-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)`
+6. Enforce `rule/motion-token-cohesion` — promote repeated one-off curves/durations into product tokens
 
 ## Product `tokens.css` skeleton
 

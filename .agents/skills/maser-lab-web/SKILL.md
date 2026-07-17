@@ -32,11 +32,12 @@ Resolve mode from the user's verb before acting.
 
 | Mode | Typical request | Required behavior |
 | --- | --- | --- |
-| **Shape** | "Design this interaction", brief without settled motion | Frame problem, compare alternatives, define states and acceptance criteria. Do not edit unless asked. |
-| **Implement** | "Build", "add", "create demo" | Implement smallest end-to-end change: spec → component → demo route → registry update. |
+| **Shape** | "Design this interaction", brief without settled motion | Frame problem, compare alternatives, define states and acceptance criteria. Do not edit unless asked. “What could animate?” → `find-animation-opportunities`. Naming effects → `animation-vocabulary`. |
+| **Implement** | "Build", "add", "create demo" | Implement smallest end-to-end change: spec → component → demo route → registry update. Sheets/gestures/springs → also load `apple-design`. |
 | **Review** | "Audit", "critique", "what's wrong?" | Inspect source and rendered demo; report prioritized findings. Do not edit unless asked. |
-| **Motion-review** | "Review animations", "motion pass" | Load `review-animations` skill; motion-only scope. |
-| **Harden** | "Polish", "production-ready", edge cases | Preserve direction; fix states, a11y, reduced motion, responsive, performance. |
+| **Motion-review** | "Review animations", "motion pass" | Load `review-animations` (+ `STANDARDS.md`); motion-only scope; Before/After/Why + Block/Approve. |
+| **Motion audit** | "Improve animations", "motion roadmap" | Load `improve-animations` (read-only plans). Do not edit source unless user later asks to execute a plan. |
+| **Harden** | "Polish", "production-ready", edge cases | Preserve direction; fix states, a11y, reduced motion, responsive, performance. Optional `emil-design-eng` craft pass. |
 | **Transfer** | "Ready for portfolio", "extract component" | Verify acceptance criteria; document API, dependencies, and porting notes. |
 
 When intent is ambiguous, use the narrowest mode. A demo URL identifies scope; it does not alone authorize edits.
@@ -99,12 +100,16 @@ Inventory: default, hover, focus, active/pressed, loading, success, error, disab
 | Breakpoints / touch QA | `maser-lab-responsive-qa` |
 | Product vs lab tokens | `maser-lab-token-system` |
 | Expressive frontend craft | `frontend-design`, `emil-design-eng` |
+| Apple-style gestures / sheets / springs | `apple-design` |
 | Component composition | `vercel-composition-patterns` |
 | View Transitions API | `vercel-react-view-transitions` |
 | Disney principles, small UI feedback | `micro-interactions` |
 | Motion presets, Tailwind/Framer snippets | `animation-micro-interaction-pack` |
 | Springs, gestures, component patterns | `ui-animation` |
 | Aggressive motion code review | `review-animations` |
+| Broad motion audit + plans | `improve-animations` |
+| Additive motion opportunities | `find-animation-opportunities` |
+| Name a motion effect | `animation-vocabulary` |
 | GSAP / Framer scroll | `gsap-framer-scroll-animation` |
 | CSS/motion graphics catalog | `hyperframes-animation` |
 | shadcn/ui components | `shadcn` |
@@ -134,6 +139,8 @@ Inventory: default, hover, focus, active/pressed, loading, success, error, disab
 4. Toggle `prefers-reduced-motion` in devtools
 5. Test keyboard focus and pointer/touch
 6. Run Motion-review or `review-animations` for material motion changes
+7. For gesture/sheet demos: verify pointer-down response, interruptibility, and reduced-motion (`apple-design` gates)
+8. Optional: `improve-animations` for a multi-file motion roadmap (plans only)
 
 ## Review output
 
@@ -148,10 +155,16 @@ For each finding: location, verification status, rule ID or source, user consequ
 
 ## Lab standards
 
-- Every interactive element provides feedback within 50–300ms unless high-frequency (then reduce or delete motion)
-- Animate `transform` and `opacity` only unless justified
-- Honor `prefers-reduced-motion` — reduce movement, keep state clarity
-- Gate hover motion behind `@media (hover: hover) and (pointer: fine)`
-- Popovers and anchored surfaces animate from trigger origin, not center
+Stable IDs live in `references/rules.md`. Craft bar for motion reviews: `review-animations` / Emil pack — do not paste those skills here.
+
+- Every interactive element provides feedback within 50–300ms unless high-frequency (then reduce or delete motion) — `rule/ui-duration-cap`, `rule/no-keyboard-motion`
+- Animate `transform` and `opacity` only unless justified — `rule/gpu-properties-only`
+- Never enter from `scale(0)` — `rule/no-scale-zero`
+- Rapid/dynamic UI must be interruptible — `rule/interruptible-dynamic-motion`
+- Honor `prefers-reduced-motion` — reduce movement, keep state clarity — `rule/reduced-motion-required`
+- Gate hover motion behind `@media (hover: hover) and (pointer: fine)` — `rule/hover-gated`
+- Popovers and anchored surfaces animate from trigger origin, not center — `rule/transform-origin-anchored`
+- Drag/swipe/sheet: pointer-down, 1:1 tracking, velocity-aware release — `rule/direct-manipulation-continuity`, `rule/velocity-aware-gestures`
+- Shared motion values → product tokens — `rule/motion-token-cohesion`
 - No decorative motion without structural or state purpose
-- Demo pages show all states side-by-side or via controls — not only the happy path
+- Demo pages show all states side-by-side or via controls — not only the happy path — `rule/demo-all-states`

@@ -76,6 +76,9 @@ Declare mode at start. For non-3D UI motion, switch to `maser-lab-web`.
 | React/Next performance | `vercel-react-best-practices` |
 | E2E verification | `verification` |
 | Motion craft review | `review-animations` |
+| Broad motion audit / plans | `improve-animations` |
+| Name a motion effect | `animation-vocabulary` |
+| Pointer / gesture UX around 3D | `apple-design` |
 
 ## Loop commands
 

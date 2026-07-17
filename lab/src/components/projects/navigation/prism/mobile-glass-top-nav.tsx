@@ -216,10 +216,11 @@ export function MobileGlassTopNav({
                   role="dialog"
                   aria-modal="true"
                   aria-label="Navigation menu"
-                  initial={reduced ? false : { height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                  initial={reduced ? false : { opacity: 0, scaleY: 0.96, y: -6 }}
+                  animate={{ opacity: 1, scaleY: 1, y: 0 }}
+                  exit={reduced ? { opacity: 0 } : { opacity: 0, scaleY: 0.98, y: -4 }}
                   transition={panelTransition}
+                  style={{ transformOrigin: "top center" }}
                   className="overflow-hidden"
                 >
                   <nav

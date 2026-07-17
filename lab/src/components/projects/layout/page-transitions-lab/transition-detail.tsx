@@ -290,7 +290,10 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
     if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
       document
         .getElementById("ptl-stage-anchor")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        ?.scrollIntoView({
+          behavior: reducedMotion ? "auto" : "smooth",
+          block: "start",
+        });
     }
     play();
   };

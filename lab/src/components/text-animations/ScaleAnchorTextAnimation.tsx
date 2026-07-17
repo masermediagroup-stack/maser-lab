@@ -106,7 +106,7 @@ export function ScaleAnchorTextAnimation({
               animationDelay: `${delay}ms`,
               animationDirection: phaseDirection(resolvedPhase),
               transformOrigin: origin,
-              ["--tal-scale-start" as string]: String(scaleStart),
+              ["--tal-scale-start" as string]: String(Math.max(0.2, scaleStart)),
               ["--tal-scale-end" as string]: String(scaleEnd),
             }}
           >

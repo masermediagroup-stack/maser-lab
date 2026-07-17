@@ -7,6 +7,9 @@ Shape
   maser-lab-web (Shape)
   → maser-lab-section-shape
   → frontend-design / emil-design-eng (craft)
+  → find-animation-opportunities (if “what could animate?”)
+  → animation-vocabulary (if naming effects)
+  → apple-design (if gesture/sheet personality)
   → figma-design-workflow (if refs)
 
 Scaffold
@@ -18,13 +21,21 @@ Scaffold
 Implement
   maser-lab-web (Implement)
   → shadcn / vercel-react-best-practices / vercel-composition-patterns
-  → motion skills only when motion is in scope
+  → ui-animation / micro-interactions / packs when motion is in scope
+  → apple-design for drag/swipe/sheets/springs
   → vercel-react-view-transitions when route transitions matter
+
+Motion-review
+  review-animations (+ STANDARDS.md)
+
+Motion audit / roadmap
+  improve-animations → plans/ (read-only; execute separately)
 
 Harden
   maser-lab-demo-chrome
   → maser-lab-responsive-qa
   → review-animations (if motion)
+  → emil-design-eng (optional craft)
   → web-design-guidelines
   → maser-lab-acceptance-audit
   → verification
@@ -35,6 +46,21 @@ Transfer
   → maser-lab-token-system
   → registry status: ready → transferred
 ```
+
+## Emil Kowalski pack
+
+Install: `npx skills@latest add emilkowalski/skills`
+
+| Skill | Role |
+| --- | --- |
+| `emil-design-eng` | Design-engineering philosophy |
+| `review-animations` | Diff craft review (Block/Approve) |
+| `improve-animations` | Codebase audit + executable plans |
+| `find-animation-opportunities` | Additive motion proposals (restrained) |
+| `animation-vocabulary` | Name effects precisely |
+| `apple-design` | Gestures, springs, materials, typography |
+
+Do **not** fork these into lab rules — route and cite; absorb only stable `rule/*` IDs.
 
 ## Skills 1–7 (lab operating system)
 

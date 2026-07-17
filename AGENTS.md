@@ -34,9 +34,16 @@ Pick a **category** from `projects/categories.json` that matches the primary job
 | End-to-end verification after implementation | `.agents/skills/verification/SKILL.md` |
 | React/Next.js performance or patterns | `.agents/skills/vercel-react-best-practices/SKILL.md` |
 | Accessibility and web interface audit | `.agents/skills/web-design-guidelines/SKILL.md` |
+| Motion craft review (diff) | `.agents/skills/review-animations/SKILL.md` |
+| Broad motion audit / plans | `.agents/skills/improve-animations/SKILL.md` |
+| Additive motion opportunities | `.agents/skills/find-animation-opportunities/SKILL.md` |
+| Name a motion effect | `.agents/skills/animation-vocabulary/SKILL.md` |
+| Design-engineering polish | `.agents/skills/emil-design-eng/SKILL.md` |
+| Gesture / sheet / spring / materials | `.agents/skills/apple-design/SKILL.md` |
 
 > **Note:** `maser-lab-web` is the primary **workflow and quality gate** for all web UI in this repo. Use `maser-lab-threejs` when the deliverable is canvas/WebGL/Three.js. Mode→skill routing lives in `.agents/skills/maser-lab-web/references/skill-routing.md`.
 
+**Emil Kowalski motion pack** (`npx skills@latest add emilkowalski/skills`): still load `maser-lab-web` first, then route — `review-animations` for diff review, `improve-animations` for roadmaps, `find-animation-opportunities` for additive ideas, `apple-design` for gestures/sheets, `animation-vocabulary` for naming, `emil-design-eng` for craft philosophy. Do not duplicate those skills into lab rules.
 **Always report** which skill(s) and reference files you loaded in your work plan or review output.
 
 ## Repository layout
@@ -96,7 +103,7 @@ See `.agents/skills/maser-lab-threejs/references/quality-gates.md`.
 
 ## Branch naming (Cloud Agents)
 
-Use `cursor/webdesign<descriptive-name>-8c1a` for feature branches.
+Use `cursor/webdesign<descriptive-name>-8e91` for feature branches.
 
 ## Cursor Cloud specific instructions
 
