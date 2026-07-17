@@ -401,7 +401,7 @@ export const animationRegistry: AnimationDefinition[] = [
     controls: [
       textControl,
       phaseControl(),
-      { type: "slider", key: "scaleStart", label: "Scale start", group: "motion", min: 0, max: 1, step: 0.05 },
+      { type: "slider", key: "scaleStart", label: "Scale start", group: "motion", min: 0.2, max: 1, step: 0.05 },
       { type: "slider", key: "scaleEnd", label: "Scale end", group: "motion", min: 0.5, max: 1.5, step: 0.05 },
       { type: "slider", key: "speed", label: "Speed (ms)", group: "timing", min: 200, max: 1200, step: 25 },
       { type: "slider", key: "stagger", label: "Stagger (ms)", group: "timing", min: 0, max: 300, step: 10 },

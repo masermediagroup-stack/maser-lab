@@ -41,10 +41,12 @@ export function ServiceTabs({
 
   const activeIndex = items.findIndex((item) => item.id === activeId);
 
-  const focusTab = (index: number) => {
+  const focusTab = (index: number, activate: boolean) => {
     const next = items[index];
     if (!next) return;
-    onChange(next.id);
+    if (activate) {
+      onChange(next.id);
+    }
     requestAnimationFrame(() => {
       tabRefs.current.get(next.id)?.focus();
     });
@@ -58,20 +60,25 @@ export function ServiceTabs({
       case "ArrowRight":
       case "ArrowDown":
         event.preventDefault();
-        focusTab((current + 1) % items.length);
+        focusTab((current + 1) % items.length, false);
         break;
       case "ArrowLeft":
       case "ArrowUp":
         event.preventDefault();
-        focusTab((current - 1 + items.length) % items.length);
+        focusTab((current - 1 + items.length) % items.length, false);
         break;
       case "Home":
         event.preventDefault();
-        focusTab(0);
+        focusTab(0, false);
         break;
       case "End":
         event.preventDefault();
-        focusTab(items.length - 1);
+        focusTab(items.length - 1, false);
+        break;
+      case "Enter":
+      case " ":
+        event.preventDefault();
+        focusTab(current, true);
         break;
       default:
         break;
