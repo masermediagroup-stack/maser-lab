@@ -56,7 +56,7 @@ WebGL shader port, localStorage persistence, Figma sync.
 - [ ] Demo route `/demos/blobby-rotation-loader` renders all states above
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] Motion review: no open P0/P1 findings
-- [ ] `prefers-reduced-motion` verified in browser
+- [x] `prefers-reduced-motion` verified in browser
 - [ ] Component exported from `lab/src/components/projects/feedback/blobby-rotation-loader/index.ts`
 
 ## Open decisions

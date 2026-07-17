@@ -154,11 +154,17 @@ export function LiquidMonochrome({
 
   useEffect(() => {
     if (disabled || externalProgress !== undefined || !liquidShader) return;
+    if (reducedMotionRef.current) return;
 
     const tick = (now: number) => {
+      if (reducedMotionRef.current) {
+        idleRafRef.current = null;
+        return;
+      }
+
       const progress = progressRef.current;
 
-      if (!reducedMotionRef.current && progress > 0.01 && progress < 0.99) {
+      if (progress > 0.01 && progress < 0.99) {
         const phase = progress * Math.PI * 4 + now * 0.00135;
         applyFrame(progress, phase);
       }

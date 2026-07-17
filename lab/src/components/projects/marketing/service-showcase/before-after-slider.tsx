@@ -188,7 +188,7 @@ export function BeforeAfterSlider({
           transition:
             reduce || dragging
               ? undefined
-              : "left 180ms cubic-bezier(0.22, 1, 0.36, 1)",
+              : "opacity 180ms cubic-bezier(0.22, 1, 0.36, 1)",
         }}
         aria-hidden
       />

@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 export type EaseOption =
   | "linear"
   | "ease"
-  | "ease-in"
   | "ease-out"
   | "ease-in-out"
   | "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -13,7 +12,6 @@ export type EaseOption =
 export const EASE_OPTIONS: { value: EaseOption; label: string }[] = [
   { value: "linear", label: "Linear" },
   { value: "ease", label: "Ease" },
-  { value: "ease-in", label: "Ease In" },
   { value: "ease-out", label: "Ease Out" },
   { value: "ease-in-out", label: "Ease In Out" },
   { value: "cubic-bezier(0.22, 1, 0.36, 1)", label: "Smooth Out" },

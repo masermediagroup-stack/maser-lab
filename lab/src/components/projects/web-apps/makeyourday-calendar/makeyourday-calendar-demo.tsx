@@ -7,7 +7,6 @@ import {
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
 import { MakeYourDayCalendarApp } from "./makeyourday-calendar";
-import "./tokens.css";
 
 type MakeYourDayCalendarDemoProps = {
   minimal?: boolean;
