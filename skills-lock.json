@@ -61,12 +61,6 @@
       "skillPath": "skills/improve-animations/SKILL.md",
       "computedHash": "d150cb4b893cef2983a0592488349ad157580356f7f2a92487703b35737c466c"
     },
-    "improve-animations": {
-      "source": "emilkowalski/skills",
-      "sourceType": "github",
-      "skillPath": "skills/improve-animations/SKILL.md",
-      "computedHash": "d150cb4b893cef2983a0592488349ad157580356f7f2a92487703b35737c466c"
-    },
     "micro-interactions": {
       "source": "dylantarre/animation-principles",
       "sourceType": "github",
@@ -84,12 +78,6 @@
       "sourceType": "github",
       "skillPath": "skills/shadcn/SKILL.md",
       "computedHash": "22c6f1f7a0761a96f8903c0bffd3360d672b524a53fa3d3f789deb22bd9e299c"
-    },
-    "skill-creator": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "skillPath": "skills/skill-creator/SKILL.md",
-      "computedHash": "4557d54c524c67984e4bab23fa436e90196292ae8df4d2093f0ce0e6951bfc1c"
     },
     "skill-creator": {
       "source": "anthropics/skills",
@@ -180,12 +168,6 @@
       "sourceType": "github",
       "skillPath": "skills/react-best-practices/SKILL.md",
       "computedHash": "e3f2294574b469c7c198373a443a86571012769d0bbeed68854bd55642ec0d7b"
-    },
-    "vercel-react-view-transitions": {
-      "source": "vercel-labs/agent-skills",
-      "sourceType": "github",
-      "skillPath": "skills/react-view-transitions/SKILL.md",
-      "computedHash": "f2091cf41cb650bfaefd42dc8ad5253cb52378c35b22531dd0317b14912e1822"
     },
     "vercel-react-view-transitions": {
       "source": "vercel-labs/agent-skills",
