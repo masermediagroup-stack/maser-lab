@@ -110,7 +110,12 @@ export function SignupFormBody({
           )}
         >
           <span className="relative z-10 inline-flex items-center justify-center gap-2">
-            {submitStatus === "loading" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+            {submitStatus === "loading" ? (
+              <Loader2
+                className={cn("size-4", !reduceMotion && "animate-spin")}
+                aria-hidden
+              />
+            ) : null}
             {submitStatus === "success" ? <CheckCircle2 className="size-4" aria-hidden /> : null}
             {submitStatus === "error" ? <TriangleAlert className="size-4" aria-hidden /> : null}
             Create Account

@@ -3,8 +3,10 @@
 import { useMemo } from "react";
 import {
   cn,
+  phaseDirection,
   splitWords,
   usePrefersReducedMotion,
+  type AnimationPhase,
   type BaseAnimationProps,
   type EaseOption,
 } from "./shared";
@@ -42,6 +44,7 @@ export function GlideTextAnimation({
   playKey = 0,
   compact = false,
   className,
+  phase = "in",
   direction = "left",
   glideDistance = 48,
   speed = 650,
@@ -52,6 +55,7 @@ export function GlideTextAnimation({
   const reduced = usePrefersReducedMotion();
   const words = useMemo(() => splitWords(text), [text]);
   const glideFrom = getGlideFrom(direction, glideDistance);
+  const resolvedPhase: AnimationPhase = phase === "out" ? "out" : "in";
 
   return (
     <span
@@ -71,14 +75,20 @@ export function GlideTextAnimation({
           );
         }
 
+        const delay =
+          resolvedPhase === "out"
+            ? (words.length - 1 - i) * stagger
+            : i * stagger;
+
         return (
           <span
-            key={`${playKey}-${i}-${word}`}
+            key={`${playKey}-${resolvedPhase}-${i}-${word}`}
             className="tal-animate-glide inline-block"
             style={{
               animationDuration: `${speed}ms`,
               animationTimingFunction: ease,
-              animationDelay: `${i * stagger}ms`,
+              animationDelay: `${delay}ms`,
+              animationDirection: phaseDirection(resolvedPhase),
               ["--tal-glide-from" as string]: glideFrom,
               ["--tal-glide-blur" as string]: `${blur}px`,
             }}

@@ -41,14 +41,14 @@
       "title": "Text Animation Lab",
       "status": "building",
       "category": "display",
-      "description": "Monochrome shadcn/ui workspace for reusable text animation effects with live controls and code export"
+      "description": "Monochrome text animation workspace — 16 effects with In/Out export, GSAP scroll reveal, and Three.js 3D flip"
     },
     {
       "slug": "page-transitions-lab",
       "title": "Page Transitions Lab",
       "status": "building",
       "category": "layout",
-      "description": "Workspace for comparing page-to-page website transitions with live sliders, replay controls, and code export"
+      "description": "One-shot page transitions in Maser blue/white — five CSS patterns plus Curtain Fall with live curtain controls"
     },
     {
       "slug": "makeyourday-calendar",
@@ -63,6 +63,13 @@
       "status": "building",
       "category": "display",
       "description": "Dark architectural kinetic sculpture — thin perspective slabs with a seamless elevation wave, pointer ripple, and motion modes"
+    },
+    {
+      "slug": "service-showcase",
+      "title": "Service Showcase",
+      "status": "building",
+      "category": "marketing",
+      "description": "Premium B&W tabbed service browser with before/after comparison and lab tuning controls"
     }
   ]
 }

@@ -27,8 +27,10 @@ import {
 } from "react";
 import { MONTHS, SAMPLE_EVENT, STORAGE_KEY, WEEKDAYS } from "./constants";
 import type { CalendarEvent, EventStore, ListedEvent, PanelMode, TimeState } from "./types";
+import "./tokens.css";
 
-type MakeYourDayCalendarAppProps = {
+export type MakeYourDayCalendarAppProps = {
+  /** When true, disables entrance/hover motion regardless of OS preference. */
   forceReducedMotion?: boolean;
 };
 
@@ -248,17 +250,21 @@ export function MakeYourDayCalendarApp({
     return () => window.removeEventListener("keydown", onKeyDown);
   });
 
-  function updateDay(monthIndex: number, delta: number) {
+  function updateDay(monthIndex: number, delta: number, animate = true) {
     if (delta === 0) {
       return;
     }
 
-    daySpinTokenRef.current += 1;
-    setDaySpin({
-      direction: delta > 0 ? "next" : "prev",
-      monthIndex,
-      token: daySpinTokenRef.current,
-    });
+    if (animate && !forceReducedMotion) {
+      daySpinTokenRef.current += 1;
+      setDaySpin({
+        direction: delta > 0 ? "next" : "prev",
+        monthIndex,
+        token: daySpinTokenRef.current,
+      });
+    } else {
+      setDaySpin(null);
+    }
     setDaysByMonth((current) =>
       current.map((day, index) => {
         if (index !== monthIndex) {
@@ -279,12 +285,12 @@ export function MakeYourDayCalendarApp({
   ) {
     if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
       event.preventDefault();
-      updateDay(monthIndex, -1);
+      updateDay(monthIndex, -1, false);
     }
 
     if (event.key === "ArrowDown" || event.key === "ArrowRight") {
       event.preventDefault();
-      updateDay(monthIndex, 1);
+      updateDay(monthIndex, 1, false);
     }
   }
 

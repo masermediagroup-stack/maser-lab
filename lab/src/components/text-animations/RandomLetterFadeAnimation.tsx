@@ -3,8 +3,10 @@
 import { useMemo } from "react";
 import {
   cn,
+  phaseDirection,
   splitChars,
   usePrefersReducedMotion,
+  type AnimationPhase,
   type BaseAnimationProps,
   type EaseOption,
 } from "./shared";
@@ -37,6 +39,7 @@ export function RandomLetterFadeAnimation({
   playKey = 0,
   compact = false,
   className,
+  phase = "in",
   fadeSpeed = 500,
   stagger = 40,
   randomOrder = true,
@@ -46,6 +49,7 @@ export function RandomLetterFadeAnimation({
 }: RandomLetterFadeAnimationProps) {
   const reduced = usePrefersReducedMotion();
   const chars = useMemo(() => splitChars(text), [text]);
+  const resolvedPhase: AnimationPhase = phase === "out" ? "out" : "in";
   const order = useMemo(
     () => buildOrder(chars.length, randomOrder, randomnessAmount, playKey),
     [chars.length, randomOrder, randomnessAmount, playKey],
@@ -63,6 +67,10 @@ export function RandomLetterFadeAnimation({
       {chars.map((char, i) => {
         const display = char === " " ? "\u00A0" : char;
         const orderIndex = order.indexOf(i);
+        const delay =
+          resolvedPhase === "out"
+            ? (chars.length - 1 - orderIndex) * stagger
+            : orderIndex * stagger;
 
         if (reduced) {
           return (
@@ -74,12 +82,13 @@ export function RandomLetterFadeAnimation({
 
         return (
           <span
-            key={`${playKey}-${i}-${char}`}
+            key={`${playKey}-${resolvedPhase}-${i}-${char}`}
             className="tal-animate-random-fade inline-block"
             style={{
               animationDuration: `${fadeSpeed}ms`,
               animationTimingFunction: ease,
-              animationDelay: `${orderIndex * stagger}ms`,
+              animationDelay: `${delay}ms`,
+              animationDirection: phaseDirection(resolvedPhase),
               ["--tal-fade-blur" as string]: `${blur}px`,
             }}
           >

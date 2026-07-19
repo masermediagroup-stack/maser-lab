@@ -3,8 +3,10 @@
 import { useMemo } from "react";
 import {
   cn,
+  phaseDirection,
   splitChars,
   usePrefersReducedMotion,
+  type AnimationPhase,
   type BaseAnimationProps,
   type EaseOption,
 } from "./shared";
@@ -40,6 +42,7 @@ export function DirectionalLetterFlip({
   playKey = 0,
   compact = false,
   className,
+  phase = "in",
   direction = "top",
   flipSpeed = 550,
   stagger = 45,
@@ -50,6 +53,7 @@ export function DirectionalLetterFlip({
   const reduced = usePrefersReducedMotion();
   const chars = useMemo(() => splitChars(text), [text]);
   const flipTransform = getFlipTransform(direction, rotationAmount);
+  const resolvedPhase: AnimationPhase = phase === "out" ? "out" : "in";
 
   return (
     <span
@@ -63,6 +67,10 @@ export function DirectionalLetterFlip({
     >
       {chars.map((char, i) => {
         const display = char === " " ? "\u00A0" : char;
+        const delay =
+          resolvedPhase === "out"
+            ? (chars.length - 1 - i) * stagger
+            : i * stagger;
 
         if (reduced) {
           return (
@@ -74,12 +82,13 @@ export function DirectionalLetterFlip({
 
         return (
           <span
-            key={`${playKey}-${i}-${char}`}
+            key={`${playKey}-${resolvedPhase}-${i}-${char}`}
             className="tal-animate-directional-flip inline-block origin-center"
             style={{
               animationDuration: `${flipSpeed}ms`,
               animationTimingFunction: ease,
-              animationDelay: `${i * stagger}ms`,
+              animationDelay: `${delay}ms`,
+              animationDirection: phaseDirection(resolvedPhase),
               ["--tal-flip-transform" as string]: flipTransform,
             }}
           >

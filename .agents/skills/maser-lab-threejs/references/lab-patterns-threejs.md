@@ -25,7 +25,13 @@ Patterns are added when a project ships to `review` or `ready`. Scaffolds exist 
 
 - `lab/src/three/utils/dispose.ts` — traverse and dispose GPU resources
 
-## Planned patterns (after first project)
+## Shipped patterns
+
+| Pattern | Project | Notes |
+| --- | --- | --- |
+| Orthographic curtain strips | `layout/page-transitions-lab` | CanvasTexture of destination page → UV-sliced planes fall with stagger; CSS strip fallback without WebGL. See `curtain-fall-scene.tsx`. |
+
+## Planned patterns
 
 | Pattern | Description |
 | --- | --- |

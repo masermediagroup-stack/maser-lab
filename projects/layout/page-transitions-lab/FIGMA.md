@@ -10,7 +10,7 @@
 | Figma file | | None yet |
 | Figma frame (primary) | | Not started |
 | Figma prototype | | Future reference for motion timing |
-| Other | | Client shopping-site transition research |
+| Other | | Landing → article wireframe transition research |
 
 ## Token map
 

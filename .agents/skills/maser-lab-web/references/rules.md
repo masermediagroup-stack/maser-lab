@@ -129,3 +129,88 @@ Stable IDs for traceable findings. Format: `rule/{id}`
 **Why:** Portfolio transfer extracts one project at a time.
 
 **Source:** `project-lifecycle.md`
+
+---
+
+## rule/no-keyboard-motion
+
+**Scope:** Keyboard shortcuts, arrow navigation, focus moves, command palette, any 100+/day control
+
+**Rule:** Do not animate keyboard-initiated or ultra-high-frequency actions beyond instant state clarity (opacity/color at most).
+
+**Why:** Motion on actions seen hundreds of times per day feels slow and fatiguing.
+
+**Exceptions:** Rare first-run coaching moments documented in `PROJECT.md`.
+
+**Source:** `review-animations` STANDARDS.md, `emil-design-eng`
+
+---
+
+## rule/no-scale-zero
+
+**Scope:** Enter / appear animations for UI surfaces
+
+**Rule:** Do not start from `scale(0)`. Prefer `scale(0.9–0.97)` plus opacity. Centered modals may omit scale and use opacity only.
+
+**Why:** Nothing should appear from nothing — zero-scale feels discontinuous.
+
+**Exceptions:** Explicitly intentional brand moments with documented reduced-motion fallback.
+
+**Source:** `review-animations`, `emil-design-eng`
+
+---
+
+## rule/interruptible-dynamic-motion
+
+**Scope:** Toasts, toggles, expandable panels, drag-reversible UI, anything triggered rapidly
+
+**Rule:** Use CSS transitions or springs that retarget from the current presentation value. Avoid keyframes that restart from zero on interruption.
+
+**Why:** Restarting motion on every trigger feels broken under rapid input.
+
+**Exceptions:** Predetermined one-shot sequences (e.g. success checkmark) that are not re-triggerable mid-flight.
+
+**Source:** `review-animations`, `improve-animations` AUDIT.md, `apple-design`
+
+---
+
+## rule/direct-manipulation-continuity
+
+**Scope:** Drag, swipe, sheets, drawers, scrubbers, carousels
+
+**Rule:** Respond on pointer-down; track the pointer 1:1 during the gesture (respect grab offset); do not lock input while a transition is settling if the user can reverse.
+
+**Why:** Indirect or delayed manipulation breaks the “holding the object” illusion.
+
+**Exceptions:** Non-gesture UI (button clicks, menu items).
+
+**Source:** `apple-design`
+
+---
+
+## rule/velocity-aware-gestures
+
+**Scope:** Gesture release / commit decisions
+
+**Rule:** Use velocity (and projected landing) in addition to distance thresholds. Prefer carrying velocity into the settling spring. Rubber-band past edges instead of hard-clamping when the interaction is continuous.
+
+**Why:** Distance-only thresholds feel sticky; momentum matches user intent.
+
+**Exceptions:** Discrete snaps with no drag continuous phase.
+
+**Source:** `apple-design`
+
+---
+
+## rule/motion-token-cohesion
+
+**Scope:** Product `tokens.css` and shared motion CSS
+
+**Rule:** Repeated durations and easings used in 2+ places must become product motion tokens (e.g. `--{brand}-duration-fast`, `--{brand}-ease-out`). Do not invent a unique cubic-bezier per component without a documented personality reason.
+
+**Why:** Cohesive products share a motion language; one-offs read as unfinished.
+
+**Exceptions:** One-off brand moments documented in `PROJECT.md`.
+
+**Source:** `improve-animations` AUDIT.md, `maser-lab-token-system`, Emil recommended curves in `emil-design-eng`
+

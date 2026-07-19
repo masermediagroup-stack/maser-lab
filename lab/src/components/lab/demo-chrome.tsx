@@ -44,6 +44,8 @@ type LabButtonProps = {
   variant?: "ghost" | "accent" | "outline";
   type?: "button" | "submit";
   onClick?: () => void;
+  "aria-label"?: string;
+  "aria-pressed"?: boolean;
 };
 
 export function LabButton({
@@ -52,11 +54,15 @@ export function LabButton({
   variant = "ghost",
   type = "button",
   onClick,
+  "aria-label": ariaLabel,
+  "aria-pressed": ariaPressed,
 }: LabButtonProps) {
   return (
     <button
       type={type}
       onClick={onClick}
+      aria-label={ariaLabel}
+      aria-pressed={ariaPressed}
       className={cn(
         "rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-[color,background-color,box-shadow,transform] duration-150",
         variant === "ghost" &&
@@ -90,6 +96,8 @@ export function ReducedMotionToggle({
       variant={enabled ? "accent" : "ghost"}
       onClick={onToggle}
       className={className}
+      aria-label="Toggle reduced motion"
+      aria-pressed={enabled}
     >
       Reduced motion: {enabled ? "on" : "off"}
     </LabButton>

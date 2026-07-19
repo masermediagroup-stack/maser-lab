@@ -1,4 +1,4 @@
-import type { AnimationDefinition, AnimationSettings } from "./types";
+import type { AnimationDefinition, AnimationSettings, ExportPhase } from "./types";
 
 function formatProp(key: string, value: string | number | boolean): string {
   if (typeof value === "string") {
@@ -9,7 +9,10 @@ function formatProp(key: string, value: string | number | boolean): string {
   return `  ${key}={${value}}`;
 }
 
-function buildProps(settings: AnimationSettings, excludeKeys: string[] = ["text"]): string {
+function buildProps(
+  settings: AnimationSettings,
+  excludeKeys: string[] = ["text", "phase"],
+): string {
   return Object.entries(settings)
     .filter(([key]) => !excludeKeys.includes(key))
     .map(([key, value]) => formatProp(key, value))
@@ -28,12 +31,18 @@ const COMPONENT_IMPORTS: Record<string, string> = {
   "glide-text": "GlideTextAnimation",
   "scale-anchor": "ScaleAnchorTextAnimation",
   "scroll-line-reveal": "ScrollLineRevealAnimation",
+  "mask-clip-reveal": "MaskClipRevealAnimation",
+  "text-scramble-reveal": "TextScrambleRevealAnimation",
+  "blur-focus-reveal": "BlurFocusRevealAnimation",
+  "underline-draw-reveal": "UnderlineDrawRevealAnimation",
+  "text-flip-3d": "TextFlip3DRevealAnimation",
 };
 
 export function generateExportCode(
   definition: AnimationDefinition,
   text: string,
   settings: AnimationSettings,
+  phase: ExportPhase = "in",
 ): string {
   const componentName = COMPONENT_IMPORTS[definition.id] ?? "AnimationComponent";
   const props = buildProps(settings);
@@ -41,13 +50,25 @@ export function generateExportCode(
   const deps = definition.dependencies?.length
     ? `\n// Dependencies: ${definition.dependencies.join(", ")}\n`
     : "";
+  const notes = definition.exportNotes ? `\n// ${definition.exportNotes}\n` : "";
+  const phaseComment =
+    phase === "out"
+      ? "// Out / exit animation\n"
+      : "// In / entrance animation\n";
 
-  return `${deps}import { ${componentName} } from "@/components/text-animations";
+  const phaseProp =
+    definition.supportsOutAnimation !== false
+      ? `\n${formatProp("phase", phase)}`
+      : "";
 
-export function HeroTitle() {
+  const fnName = phase === "out" ? "HeroTitleOut" : "HeroTitleIn";
+
+  return `${phaseComment}${deps}${notes}import { ${componentName} } from "@/components/text-animations";
+
+export function ${fnName}() {
   return (
     <${componentName}
-${textProp}
+${textProp}${phaseProp}
 ${props}
     />
   );
@@ -56,6 +77,7 @@ ${props}
 
 export function generateSettingsSummary(settings: AnimationSettings): string {
   return Object.entries(settings)
+    .filter(([key]) => key !== "phase")
     .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
     .join("\n");
 }

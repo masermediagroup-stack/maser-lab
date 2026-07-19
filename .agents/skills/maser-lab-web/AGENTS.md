@@ -12,8 +12,9 @@
 
 ## Validation before closing work
 
-- [ ] Mode was declared (Shape / Implement / Review / Motion-review / Harden / Transfer)
+- [ ] Mode was declared (Shape / Implement / Review / Motion-review / Motion audit / Harden / Transfer)
 - [ ] Findings cite stable rule IDs from `references/rules.md` when applicable
+- [ ] Emil motion skills routed (not duplicated) when motion is in scope — see `references/skill-routing.md`
 - [ ] Rendered verification performed for any visual or motion change
 - [ ] `projects/registry.json` updated if project status changed
 - [ ] Coverage gaps noted in `references/coverage-gaps.md` when no standard exists

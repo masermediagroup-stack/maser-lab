@@ -10,7 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import type { AnimationDefinition, AnimationSettings } from "./types";
+import type { AnimationDefinition, AnimationSettings, ExportPhase } from "./types";
 import {
   generateExportCode,
   generateSettingsSummary,
@@ -32,8 +32,12 @@ export function CodeExportDrawer({
   text,
   settings,
 }: CodeExportDrawerProps) {
+  const supportsOut = definition.supportsOutAnimation !== false;
+  const [phase, setPhase] = useState<ExportPhase>("in");
   const [copied, setCopied] = useState(false);
-  const code = generateExportCode(definition, text, settings);
+
+  const activePhase: ExportPhase = supportsOut ? phase : "in";
+  const code = generateExportCode(definition, text, settings, activePhase);
   const summary = generateSettingsSummary(settings);
 
   const handleCopy = async () => {
@@ -51,7 +55,7 @@ export function CodeExportDrawer({
         <SheetHeader>
           <SheetTitle className="text-white">{definition.title}</SheetTitle>
           <SheetDescription className="text-neutral-400">
-            Export component usage with current settings. Lab chrome is excluded.
+            Export In and Out component usage separately. Lab chrome is excluded.
           </SheetDescription>
         </SheetHeader>
 
@@ -76,7 +80,11 @@ export function CodeExportDrawer({
             </section>
           ) : null}
 
-          <section className="space-y-2">
+          {definition.exportNotes ? (
+            <p className="text-sm text-neutral-400">{definition.exportNotes}</p>
+          ) : null}
+
+          <section className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-xs font-medium tracking-[0.14em] text-neutral-400 uppercase">
                 Component usage
@@ -90,6 +98,40 @@ export function CodeExportDrawer({
                 {copied ? "Copied" : "Copy code"}
               </Button>
             </div>
+
+            {supportsOut ? (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant={activePhase === "in" ? "default" : "outline"}
+                  className={
+                    activePhase === "in"
+                      ? "bg-white text-black hover:bg-neutral-200"
+                      : "border-white/15 bg-transparent text-white hover:bg-white/5"
+                  }
+                  onClick={() => setPhase("in")}
+                >
+                  In animation
+                </Button>
+                <Button
+                  size="sm"
+                  variant={activePhase === "out" ? "default" : "outline"}
+                  className={
+                    activePhase === "out"
+                      ? "bg-white text-black hover:bg-neutral-200"
+                      : "border-white/15 bg-transparent text-white hover:bg-white/5"
+                  }
+                  onClick={() => setPhase("out")}
+                >
+                  Out animation
+                </Button>
+              </div>
+            ) : (
+              <p className="text-xs text-neutral-500">
+                This effect exports a single entrance snippet.
+              </p>
+            )}
+
             <ScrollArea className="h-[min(50vh,420px)] rounded-lg border border-white/10">
               <pre className="p-4 text-xs leading-relaxed whitespace-pre-wrap text-neutral-200">
                 {code}

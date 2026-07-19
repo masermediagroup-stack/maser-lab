@@ -1,18 +1,23 @@
 import { EASE_OPTIONS } from "@/components/text-animations/shared";
 import {
+  BlurFocusRevealAnimation,
   CursorAsciiReveal,
   DirectionalLetterFlip,
   GlyphScanReveal,
   GlideTextAnimation,
   LetterFlipFrame,
+  MaskClipRevealAnimation,
   PouredTextAnimation,
   RandomLetterFadeAnimation,
   ScaleAnchorTextAnimation,
   ScrollLineRevealAnimation,
   StrokeFillGlowAnimation,
+  TextFlip3DRevealAnimation,
+  TextScrambleRevealAnimation,
   TypingAnimation,
+  UnderlineDrawRevealAnimation,
 } from "@/components/text-animations";
-import type { AnimationDefinition, AnimationSettings } from "./types";
+import type { AnimationDefinition, AnimationSettings, ControlDefinition } from "./types";
 
 export const DEFAULT_PREVIEW_TEXT = "Maser Media";
 const DEFAULT_GLYPH_SVG =
@@ -25,13 +30,26 @@ const textControl = {
   group: "content" as const,
 };
 
-function easeControl() {
+function easeControl(): ControlDefinition {
   return {
-    type: "select" as const,
+    type: "select",
     key: "ease",
     label: "Ease",
-    group: "timing" as const,
+    group: "timing",
     options: EASE_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
+  };
+}
+
+function phaseControl(): ControlDefinition {
+  return {
+    type: "select",
+    key: "phase",
+    label: "Animation phase",
+    group: "motion",
+    options: [
+      { value: "in", label: "In (entrance)" },
+      { value: "out", label: "Out (exit)" },
+    ],
   };
 }
 
@@ -58,6 +76,8 @@ export const animationRegistry: AnimationDefinition[] = [
       easeControl(),
       { type: "switch", key: "loop", label: "Loop", group: "timing" },
     ],
+    supportsOutAnimation: false,
+    exportNotes: "Typing is entrance-only. Pair with TextScramble or Glide for exit.",
     component: TypingAnimation as AnimationDefinition["component"],
   },
   {
@@ -66,6 +86,7 @@ export const animationRegistry: AnimationDefinition[] = [
     description: "Letters individually flip inside the word frame.",
     defaultText: DEFAULT_PREVIEW_TEXT,
     defaultSettings: {
+      phase: "in",
       flipSpeed: 600,
       stagger: 60,
       flipAxis: "x",
@@ -75,6 +96,7 @@ export const animationRegistry: AnimationDefinition[] = [
     },
     controls: [
       textControl,
+      phaseControl(),
       { type: "slider", key: "flipSpeed", label: "Flip speed (ms)", group: "timing", min: 200, max: 1500, step: 50 },
       { type: "slider", key: "stagger", label: "Stagger (ms)", group: "timing", min: 0, max: 200, step: 5 },
       {
@@ -101,6 +123,7 @@ export const animationRegistry: AnimationDefinition[] = [
         ],
       },
     ],
+    supportsOutAnimation: true,
     component: LetterFlipFrame as AnimationDefinition["component"],
   },
   {
@@ -109,6 +132,7 @@ export const animationRegistry: AnimationDefinition[] = [
     description: "Text flows into place with a curved motion path.",
     defaultText: DEFAULT_PREVIEW_TEXT,
     defaultSettings: {
+      phase: "in",
       speed: 700,
       curveIntensity: 40,
       stagger: 50,
@@ -119,6 +143,7 @@ export const animationRegistry: AnimationDefinition[] = [
     },
     controls: [
       textControl,
+      phaseControl(),
       { type: "slider", key: "speed", label: "Speed (ms)", group: "timing", min: 300, max: 1500, step: 50 },
       { type: "slider", key: "curveIntensity", label: "Curve intensity", group: "motion", min: 0, max: 80, step: 2 },
       { type: "slider", key: "stagger", label: "Stagger (ms)", group: "timing", min: 0, max: 150, step: 5 },
@@ -127,14 +152,16 @@ export const animationRegistry: AnimationDefinition[] = [
       { type: "slider", key: "blur", label: "Blur", group: "style", min: 0, max: 16, step: 1 },
       easeControl(),
     ],
+    supportsOutAnimation: true,
     component: PouredTextAnimation as AnimationDefinition["component"],
   },
   {
     id: "stroke-fill-glow",
     title: "Stroke to Fill Glow",
-    description: "Stroke appears first, fill fades in, then a controlled glow.",
+    description: "Outline strokes in first, fill follows, then a controlled glow.",
     defaultText: DEFAULT_PREVIEW_TEXT,
     defaultSettings: {
+      phase: "in",
       strokeDuration: 800,
       fillDuration: 600,
       glowIntensity: 0.6,
@@ -145,6 +172,7 @@ export const animationRegistry: AnimationDefinition[] = [
     },
     controls: [
       textControl,
+      phaseControl(),
       { type: "slider", key: "strokeDuration", label: "Stroke duration (ms)", group: "timing", min: 200, max: 2000, step: 50 },
       { type: "slider", key: "fillDuration", label: "Fill duration (ms)", group: "timing", min: 200, max: 2000, step: 50 },
       { type: "slider", key: "glowIntensity", label: "Glow intensity", group: "style", min: 0, max: 1, step: 0.05 },
@@ -153,6 +181,7 @@ export const animationRegistry: AnimationDefinition[] = [
       { type: "slider", key: "strokeWidth", label: "Stroke width", group: "style", min: 0.5, max: 4, step: 0.25 },
       easeControl(),
     ],
+    supportsOutAnimation: true,
     component: StrokeFillGlowAnimation as AnimationDefinition["component"],
   },
   {
@@ -161,6 +190,7 @@ export const animationRegistry: AnimationDefinition[] = [
     description: "Letters fade in individually, optionally in random order.",
     defaultText: DEFAULT_PREVIEW_TEXT,
     defaultSettings: {
+      phase: "in",
       fadeSpeed: 500,
       stagger: 40,
       randomOrder: true,
@@ -170,6 +200,7 @@ export const animationRegistry: AnimationDefinition[] = [
     },
     controls: [
       textControl,
+      phaseControl(),
       { type: "slider", key: "fadeSpeed", label: "Fade speed (ms)", group: "timing", min: 200, max: 1200, step: 25 },
       { type: "slider", key: "stagger", label: "Stagger (ms)", group: "timing", min: 0, max: 150, step: 5 },
       { type: "switch", key: "randomOrder", label: "Random order", group: "motion" },
@@ -177,6 +208,7 @@ export const animationRegistry: AnimationDefinition[] = [
       { type: "slider", key: "blur", label: "Blur", group: "style", min: 0, max: 12, step: 1 },
       easeControl(),
     ],
+    supportsOutAnimation: true,
     component: RandomLetterFadeAnimation as AnimationDefinition["component"],
   },
   {
@@ -185,6 +217,7 @@ export const animationRegistry: AnimationDefinition[] = [
     description: "Letters flip into place from a selected direction.",
     defaultText: DEFAULT_PREVIEW_TEXT,
     defaultSettings: {
+      phase: "in",
       direction: "top",
       flipSpeed: 550,
       stagger: 45,
@@ -194,6 +227,7 @@ export const animationRegistry: AnimationDefinition[] = [
     },
     controls: [
       textControl,
+      phaseControl(),
       {
         type: "select",
         key: "direction",
@@ -212,6 +246,7 @@ export const animationRegistry: AnimationDefinition[] = [
       { type: "slider", key: "rotationAmount", label: "Rotation amount", group: "motion", min: 30, max: 180, step: 5 },
       easeControl(),
     ],
+    supportsOutAnimation: true,
     component: DirectionalLetterFlip as AnimationDefinition["component"],
   },
   {
@@ -238,6 +273,8 @@ export const animationRegistry: AnimationDefinition[] = [
       { type: "switch", key: "hoverMode", label: "Hover mode", group: "interaction" },
       { type: "switch", key: "pressMode", label: "Press mode", group: "interaction" },
     ],
+    supportsOutAnimation: false,
+    exportNotes: "Pointer-driven reveal — no separate out timeline.",
     component: CursorAsciiReveal as AnimationDefinition["component"],
   },
   {
@@ -304,6 +341,8 @@ export const animationRegistry: AnimationDefinition[] = [
         ],
       },
     ],
+    supportsOutAnimation: false,
+    exportNotes: "Scan reconstructs once; replay via playKey.",
     component: GlyphScanReveal as AnimationDefinition["component"],
   },
   {
@@ -312,6 +351,7 @@ export const animationRegistry: AnimationDefinition[] = [
     description: "Words glide onto the screen smoothly from a chosen direction.",
     defaultText: DEFAULT_PREVIEW_TEXT,
     defaultSettings: {
+      phase: "in",
       direction: "left",
       glideDistance: 48,
       speed: 650,
@@ -321,6 +361,7 @@ export const animationRegistry: AnimationDefinition[] = [
     },
     controls: [
       textControl,
+      phaseControl(),
       {
         type: "select",
         key: "direction",
@@ -340,6 +381,7 @@ export const animationRegistry: AnimationDefinition[] = [
       { type: "slider", key: "blur", label: "Blur", group: "style", min: 0, max: 12, step: 1 },
       easeControl(),
     ],
+    supportsOutAnimation: true,
     component: GlideTextAnimation as AnimationDefinition["component"],
   },
   {
@@ -348,6 +390,7 @@ export const animationRegistry: AnimationDefinition[] = [
     description: "Words scale from small to full size from a chosen anchor point.",
     defaultText: DEFAULT_PREVIEW_TEXT,
     defaultSettings: {
+      phase: "in",
       scaleStart: 0.4,
       scaleEnd: 1,
       speed: 600,
@@ -357,7 +400,8 @@ export const animationRegistry: AnimationDefinition[] = [
     },
     controls: [
       textControl,
-      { type: "slider", key: "scaleStart", label: "Scale start", group: "motion", min: 0, max: 1, step: 0.05 },
+      phaseControl(),
+      { type: "slider", key: "scaleStart", label: "Scale start", group: "motion", min: 0.2, max: 1, step: 0.05 },
       { type: "slider", key: "scaleEnd", label: "Scale end", group: "motion", min: 0.5, max: 1.5, step: 0.05 },
       { type: "slider", key: "speed", label: "Speed (ms)", group: "timing", min: 200, max: 1200, step: 25 },
       { type: "slider", key: "stagger", label: "Stagger (ms)", group: "timing", min: 0, max: 300, step: 10 },
@@ -380,6 +424,7 @@ export const animationRegistry: AnimationDefinition[] = [
         ],
       },
     ],
+    supportsOutAnimation: true,
     component: ScaleAnchorTextAnimation as AnimationDefinition["component"],
   },
   {
@@ -389,7 +434,7 @@ export const animationRegistry: AnimationDefinition[] = [
     defaultText: "Maser Media\nScroll to reveal",
     defaultSettings: {
       scrollStart: "top 80%",
-      scrollEnd: "top 30%",
+      scrollEnd: "top 25%",
       scrubAmount: 1,
       lineStagger: 0.12,
       revealDirection: "up",
@@ -419,8 +464,154 @@ export const animationRegistry: AnimationDefinition[] = [
       { type: "switch", key: "opacityFade", label: "Opacity fade", group: "style" },
       { type: "switch", key: "pinSection", label: "Pin section", group: "motion" },
     ],
-    dependencies: ["gsap", "@gsap/react"],
+    dependencies: ["gsap"],
+    supportsOutAnimation: false,
+    exportNotes: "Scrub is bidirectional — scroll reverse acts as the out animation.",
     component: ScrollLineRevealAnimation as AnimationDefinition["component"],
+  },
+  {
+    id: "mask-clip-reveal",
+    title: "Mask Clip Reveal",
+    description: "Words rise through an overflow mask — the classic headline reveal.",
+    defaultText: DEFAULT_PREVIEW_TEXT,
+    defaultSettings: {
+      phase: "in",
+      speed: 700,
+      stagger: 90,
+      distance: 110,
+      ease: "cubic-bezier(0.22, 1, 0.36, 1)",
+    },
+    controls: [
+      textControl,
+      phaseControl(),
+      { type: "slider", key: "speed", label: "Speed (ms)", group: "timing", min: 300, max: 1400, step: 25 },
+      { type: "slider", key: "stagger", label: "Stagger (ms)", group: "timing", min: 0, max: 250, step: 5 },
+      { type: "slider", key: "distance", label: "Travel distance (%)", group: "motion", min: 40, max: 160, step: 5 },
+      easeControl(),
+    ],
+    supportsOutAnimation: true,
+    component: MaskClipRevealAnimation as AnimationDefinition["component"],
+  },
+  {
+    id: "text-scramble-reveal",
+    title: "Text Scramble Decode",
+    description: "Characters scramble through glyphs then settle — tech / brand decode.",
+    defaultText: DEFAULT_PREVIEW_TEXT,
+    defaultSettings: {
+      phase: "in",
+      scrambleSpeed: 28,
+      settleDelay: 40,
+      cyclesPerChar: 4,
+      startDelay: 120,
+    },
+    controls: [
+      textControl,
+      phaseControl(),
+      { type: "slider", key: "scrambleSpeed", label: "Scramble tick (ms)", group: "timing", min: 12, max: 80, step: 2 },
+      { type: "slider", key: "settleDelay", label: "Per-char delay (ms)", group: "timing", min: 10, max: 120, step: 5 },
+      { type: "slider", key: "cyclesPerChar", label: "Cycles per char", group: "motion", min: 1, max: 10, step: 1 },
+      { type: "slider", key: "startDelay", label: "Start delay (ms)", group: "timing", min: 0, max: 1000, step: 20 },
+    ],
+    supportsOutAnimation: true,
+    component: TextScrambleRevealAnimation as AnimationDefinition["component"],
+  },
+  {
+    id: "blur-focus-reveal",
+    title: "Blur Focus Reveal",
+    description: "Soft blur and tracking tighten into crisp type.",
+    defaultText: DEFAULT_PREVIEW_TEXT,
+    defaultSettings: {
+      phase: "in",
+      speed: 900,
+      stagger: 80,
+      blurAmount: 16,
+      trackingStart: 0.12,
+      ease: "cubic-bezier(0.22, 1, 0.36, 1)",
+    },
+    controls: [
+      textControl,
+      phaseControl(),
+      { type: "slider", key: "speed", label: "Speed (ms)", group: "timing", min: 300, max: 1600, step: 25 },
+      { type: "slider", key: "stagger", label: "Stagger (ms)", group: "timing", min: 0, max: 200, step: 5 },
+      { type: "slider", key: "blurAmount", label: "Blur amount", group: "style", min: 4, max: 32, step: 1 },
+      { type: "slider", key: "trackingStart", label: "Start tracking (em)", group: "style", min: 0, max: 0.3, step: 0.01 },
+      easeControl(),
+    ],
+    supportsOutAnimation: true,
+    component: BlurFocusRevealAnimation as AnimationDefinition["component"],
+  },
+  {
+    id: "underline-draw-reveal",
+    title: "Underline Draw Reveal",
+    description: "Words rise while an underline draws under each — CTA treatments.",
+    defaultText: DEFAULT_PREVIEW_TEXT,
+    defaultSettings: {
+      phase: "in",
+      speed: 650,
+      stagger: 110,
+      underlineThickness: 2,
+      underlineOffset: 4,
+      drawFrom: "left",
+      ease: "cubic-bezier(0.22, 1, 0.36, 1)",
+    },
+    controls: [
+      textControl,
+      phaseControl(),
+      { type: "slider", key: "speed", label: "Speed (ms)", group: "timing", min: 300, max: 1400, step: 25 },
+      { type: "slider", key: "stagger", label: "Stagger (ms)", group: "timing", min: 0, max: 300, step: 10 },
+      { type: "slider", key: "underlineThickness", label: "Underline thickness", group: "style", min: 1, max: 6, step: 0.5 },
+      { type: "slider", key: "underlineOffset", label: "Underline offset", group: "style", min: 0, max: 12, step: 1 },
+      {
+        type: "select",
+        key: "drawFrom",
+        label: "Draw from",
+        group: "motion",
+        options: [
+          { value: "left", label: "Left" },
+          { value: "right", label: "Right" },
+          { value: "center", label: "Center" },
+        ],
+      },
+      easeControl(),
+    ],
+    supportsOutAnimation: true,
+    component: UnderlineDrawRevealAnimation as AnimationDefinition["component"],
+  },
+  {
+    id: "text-flip-3d",
+    title: "3D Text Flip Reveal",
+    description: "Three.js letter planes flip into view with depth — WebGL with CSS fallback.",
+    defaultText: DEFAULT_PREVIEW_TEXT,
+    defaultSettings: {
+      phase: "in",
+      flipSpeed: 700,
+      stagger: 55,
+      flipAxis: "y",
+      letterSpacing: 0.12,
+      depth: 0.35,
+    },
+    controls: [
+      textControl,
+      phaseControl(),
+      { type: "slider", key: "flipSpeed", label: "Flip speed (ms)", group: "timing", min: 300, max: 1600, step: 25 },
+      { type: "slider", key: "stagger", label: "Stagger (ms)", group: "timing", min: 0, max: 150, step: 5 },
+      {
+        type: "select",
+        key: "flipAxis",
+        label: "Flip axis",
+        group: "motion",
+        options: [
+          { value: "x", label: "X" },
+          { value: "y", label: "Y" },
+        ],
+      },
+      { type: "slider", key: "letterSpacing", label: "Letter spacing", group: "style", min: 0, max: 0.4, step: 0.02 },
+      { type: "slider", key: "depth", label: "Depth", group: "motion", min: 0, max: 1, step: 0.05 },
+    ],
+    dependencies: ["three"],
+    supportsOutAnimation: true,
+    exportNotes: "Requires WebGL. Falls back to CSS 3D flip when unavailable.",
+    component: TextFlip3DRevealAnimation as AnimationDefinition["component"],
   },
 ];
 
