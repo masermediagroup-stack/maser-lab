@@ -93,18 +93,20 @@ _Patterns ship with projects; document in `lab-patterns-threejs.md`._
 | Canvas lifecycle hook | Scaffold in `lab/src/three/hooks/` |
 | Renderer factory | Scaffold in `lab/src/three/utils/` |
 | Static fallback component | Scaffold in `lab/src/three/fallbacks/` |
+| R3F kinetic bar sculpture | Shipped: `display/kinetic-perspective-bars` — shared `useFrame`, mode blend, pointer ripple |
 
 ## HyperFrames vs Maser-Lab loops
 
 - **HyperFrames**: render from `hf-seek` event; no rAF as source of truth
 - **Maser-Lab demos**: `requestAnimationFrame` or `setAnimationLoop` with cleanup; standard React lifecycle
+- **R3F demos**: single `useFrame` controller; refs for per-frame values; no React state inside the frame loop
 
 ## Open questions
 
 - WebGPU + Next.js 16 production patterns
-- `@react-three/fiber` vs vanilla Three.js for lab demos
 - Shared post-processing composer utility
 - Automated WebGL perf evals in `tooling/scripts/evals/`
+- Instanced rounded bars with per-instance edge strokes (perf vs craft tradeoff)
 
 ## Future experiments
 

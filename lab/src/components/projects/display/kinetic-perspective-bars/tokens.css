@@ -1,0 +1,210 @@
+.kinetic-bars-demo {
+  --kb-bg: #050506;
+  --kb-fg: #e8e8ec;
+  --kb-muted: #8a8a96;
+  --kb-line: rgba(255, 255, 255, 0.1);
+  --kb-focus: rgba(220, 220, 230, 0.55);
+  --kb-panel: rgba(12, 12, 14, 0.72);
+  --kb-font-display: "Instrument Sans", "Segoe UI", sans-serif;
+  --kb-font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+
+  position: relative;
+  min-height: 100dvh;
+  background: var(--kb-bg);
+  color: var(--kb-fg);
+  font-family: var(--kb-font-body);
+  overflow: hidden;
+}
+
+.kinetic-bars-demo__chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+}
+
+.kinetic-bars-demo__chrome > * {
+  pointer-events: auto;
+}
+
+.kinetic-bars-demo__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.kinetic-bars-demo__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: min(36rem, 70vw);
+}
+
+.kinetic-bars-demo__back {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kb-muted);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.kinetic-bars-demo__back:hover {
+  color: var(--kb-fg);
+}
+
+.kinetic-bars-demo__back:focus-visible {
+  outline: 2px solid var(--kb-focus);
+  outline-offset: 3px;
+}
+
+.kinetic-bars-demo__title {
+  margin: 0;
+  font-family: var(--kb-font-display);
+  font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.kinetic-bars-demo__desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--kb-muted);
+  max-width: 34ch;
+}
+
+.kinetic-bars-demo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.kinetic-bars-demo__icon-btn {
+  appearance: none;
+  border: 1px solid var(--kb-line);
+  background: var(--kb-panel);
+  color: var(--kb-fg);
+  border-radius: 0.5rem;
+  min-height: 2.25rem;
+  min-width: 2.25rem;
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.kinetic-bars-demo__icon-btn:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(18, 18, 22, 0.88);
+}
+
+.kinetic-bars-demo__icon-btn:focus-visible {
+  outline: 2px solid var(--kb-focus);
+  outline-offset: 2px;
+}
+
+.kinetic-bars-demo__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.kinetic-bars-demo__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.kinetic-bars-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-width: min(100%, 36rem);
+}
+
+.kinetic-bars-modes__btn {
+  appearance: none;
+  border: 1px solid var(--kb-line);
+  background: transparent;
+  color: var(--kb-muted);
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.kinetic-bars-modes__btn:hover {
+  color: var(--kb-fg);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.kinetic-bars-modes__btn.is-active {
+  color: var(--kb-fg);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.kinetic-bars-modes__btn:focus-visible {
+  outline: 2px solid var(--kb-focus);
+  outline-offset: 2px;
+}
+
+.kinetic-bars-modes__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.kinetic-bars-demo__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.kinetic-bars-demo__fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .kinetic-bars-demo__desc {
+    display: none;
+  }
+
+  .kinetic-bars-demo__title {
+    font-size: 1.05rem;
+  }
+
+  .kinetic-bars-modes__btn {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.625rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .kinetic-bars-demo__chrome {
+    padding: 0.85rem;
+  }
+}

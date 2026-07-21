@@ -40,6 +40,7 @@ Patterns are added when a project ships to `review` or `ready`. Scaffolds exist 
 | Pointer-reactive shader | `uMouse` + `uVelocity` uniforms |
 | GLTF hero with loading UI | Loaders skill + placeholder |
 | Mobile degrade | Disable post-processing, lower DPR |
+| Kinetic bar formation | `display/kinetic-perspective-bars` — R3F rounded slabs, shared `useFrame` wave, mode blend, pointer ripple, Leva + export |
 
 ## Anti-patterns
 
