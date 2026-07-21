@@ -1,6 +1,7 @@
 import { animatedColorForPiece, assignPieceColors } from "./colors";
 import { rotateShape } from "./polyominoes";
 import type {
+  PieceAnimState,
   PieceRuntime,
   PixelPiece,
   RevealOutDirection,
@@ -38,7 +39,6 @@ function steppedHorizontal(
   const points = [spawnX, ...waypoints];
   if (points[points.length - 1] !== targetX) points.push(targetX);
   if (points.length === 1) return points[0]!;
-  // Spend most of the fall on intermediate columns; quick slide between them
   const travelT = Math.min(1, t / 0.82);
   const segCount = points.length - 1;
   const f = travelT * segCount;
@@ -50,7 +50,6 @@ function steppedHorizontal(
 
 function rotationAt(start: number, steps: number, t: number, rotationSpeed: number): number {
   if (steps <= 0) return 0;
-  // Rotations happen during mid-fall
   const windowStart = 0.15;
   const windowEnd = 0.75;
   const speedScale = 0.5 + rotationSpeed * 0.5;
@@ -58,7 +57,6 @@ function rotationAt(start: number, steps: number, t: number, rotationSpeed: numb
   const clamped = Math.max(0, Math.min(1, u));
   const stepped = Math.floor(clamped * steps + 1e-6);
   const currentStep = Math.min(steps, stepped);
-  // Discrete snap with tiny tween into each quarter
   const stepProgress = clamped * steps - currentStep;
   const from = start - currentStep * 90;
   if (stepProgress < 0.25 && currentStep < steps) {
@@ -66,6 +64,11 @@ function rotationAt(start: number, steps: number, t: number, rotationSpeed: numb
     return lerp(from, next, easeOutCubic(stepProgress / 0.25));
   }
   return start - currentStep * 90;
+}
+
+function setState(p: PieceRuntime, animState: PieceAnimState, visible: boolean) {
+  p.animState = animState;
+  p.visible = visible;
 }
 
 export function createRuntimePieces(pieces: PixelPiece[]): PieceRuntime[] {
@@ -78,7 +81,9 @@ export function createRuntimePieces(pieces: PixelPiece[]): PieceRuntime[] {
     bounceScaleY: 1,
     glowAlpha: 0,
     impactFlash: 0,
-    visible: true,
+    // waiting: never draw until delay elapses
+    visible: false,
+    animState: "waiting" as const,
     landed: false,
   }));
 }
@@ -87,7 +92,17 @@ export function initController(
   pieces: PixelPiece[],
   gridWidth: number,
   gridHeight: number,
-  settings: Pick<TetrisPixelSettings, "colorMode" | "color" | "rainbowSaturation" | "rainbowBrightness" | "rainbowSpread" | "hueSpeed" | "gradientAxis" | "phase">,
+  settings: Pick<
+    TetrisPixelSettings,
+    | "colorMode"
+    | "color"
+    | "rainbowSaturation"
+    | "rainbowBrightness"
+    | "rainbowSpread"
+    | "hueSpeed"
+    | "gradientAxis"
+    | "phase"
+  >,
 ): ControllerState {
   const colored = assignPieceColors(pieces, {
     colorMode: settings.colorMode,
@@ -106,7 +121,6 @@ export function initController(
   const runtime = createRuntimePieces(colored);
 
   if (phase === "out") {
-    // Start assembled
     for (const p of runtime) {
       p.x = p.targetX;
       p.y = p.targetY;
@@ -115,6 +129,7 @@ export function initController(
       p.landed = true;
       p.bounceScaleY = 1;
       p.glowAlpha = 0;
+      setState(p, "landed", true);
     }
   }
 
@@ -141,7 +156,7 @@ function updateRevealIn(
     const p = state.pieces[i]!;
     const localTime = state.elapsed - p.delay;
 
-    if (settings.colorMode === "animated-rainbow") {
+    if (settings.colorMode === "animated-rainbow" && localTime >= 0) {
       p.color = animatedColorForPiece(i, state.pieces.length, {
         colorMode: settings.colorMode,
         color: settings.color,
@@ -157,38 +172,47 @@ function updateRevealIn(
       p.glowColor = p.color;
     }
 
+    // Explicit skip — do not clamp progress to 0 and draw at spawn.
     if (localTime < 0) {
       p.x = p.spawnX;
       p.y = p.spawnY;
       p.rotation = p.startRotation;
-      p.visible = true;
+      p.progress = 0;
+      p.landed = false;
+      setState(p, "waiting", false);
       continue;
     }
 
-    if (p.landed) {
-      landedCount++;
-      // Decay glow / bounce
+    if (p.landed || p.animState === "landed" || p.animState === "landing") {
       const sinceLand = localTime - p.duration;
+      if (sinceLand < 180 && p.animState !== "landed") {
+        setState(p, "landing", true);
+      } else {
+        setState(p, "landed", true);
+      }
+      landedCount++;
       const glowT = Math.max(0, 1 - sinceLand / Math.max(60, settings.glowDuration));
       p.glowAlpha = glowT * settings.glowIntensity;
       p.impactFlash = Math.max(0, 1 - sinceLand / 120) * settings.impactFlash;
-      const bounceT = Math.min(1, sinceLand / 180);
+      const bounceT = Math.min(1, Math.max(0, sinceLand) / 180);
       const bounce = Math.sin(bounceT * Math.PI) * settings.landingBounce * 0.12;
       p.bounceScaleY = 1 - bounce + bounceT * bounce * 0.3;
       if (bounceT >= 1) p.bounceScaleY = 1;
+      p.x = p.targetX;
+      p.y = p.targetY;
+      p.rotation = 0;
       continue;
     }
 
     const t = Math.min(1, localTime / Math.max(1, p.duration));
     p.progress = t;
+    setState(p, "falling", true);
 
-    // Vertical: mostly linear drop with slight ease-in near end
     const yT = t < 0.85 ? t / 0.85 : 1;
     const yEase = yT < 1 ? yT * yT : 1;
     p.y = lerp(p.spawnY, p.targetY, yEase);
     p.x = steppedHorizontal(p.spawnX, p.horizontalWaypoints, p.targetX, t);
     p.rotation = rotationAt(p.startRotation, p.rotationSteps, t, settings.rotationSpeed);
-    p.visible = true;
 
     if (t >= 1) {
       p.landed = true;
@@ -198,6 +222,7 @@ function updateRevealIn(
       p.glowAlpha = settings.glowIntensity;
       p.impactFlash = settings.impactFlash;
       p.bounceScaleY = 1 - settings.landingBounce * 0.15;
+      setState(p, "landing", true);
       landedCount++;
     }
   }
@@ -219,18 +244,10 @@ function updateRevealOut(
   const direction: RevealOutDirection = settings.revealOutDirection;
   let gone = 0;
 
-  // Unlock order
   const order = state.pieces.map((p, i) => ({ p, i }));
   if (direction === "reverse-assembly") {
     order.reverse();
-  } else if (direction === "lift-up") {
-    order.sort(
-      (a, b) =>
-        Math.min(...a.p.cells.map((c) => c.y + a.p.targetY)) -
-        Math.min(...b.p.cells.map((c) => c.y + b.p.targetY)),
-    );
   } else {
-    // fall-down / scatter: top first unlocks so lower stay readable longer
     order.sort(
       (a, b) =>
         Math.min(...a.p.cells.map((c) => c.y + a.p.targetY)) -
@@ -267,18 +284,20 @@ function updateRevealOut(
       p.y = p.targetY;
       p.rotation = 0;
       p.landed = true;
-      p.visible = true;
+      setState(p, "landed", true);
       continue;
     }
 
     const t = Math.min(1, localTime / Math.max(1, duration));
+    setState(p, "exiting", t < 1);
+
     if (t < 0.08) {
       p.glowAlpha = settings.glowIntensity * (1 - t / 0.08);
     } else {
       p.glowAlpha = Math.max(0, p.glowAlpha - dt / 200);
     }
 
-    const exitLift = state.gridHeight + 6;
+    const exitLift = state.gridHeight + 8;
     let destY = p.targetY + exitLift;
     let destX = p.targetX;
     let destRot = 90;
@@ -301,9 +320,8 @@ function updateRevealOut(
     p.y = lerp(p.targetY, destY, ease);
     p.rotation = lerp(0, destRot, ease);
     p.landed = false;
-    p.visible = t < 1;
     if (t >= 1) {
-      p.visible = false;
+      setState(p, "exiting", false);
       gone++;
     }
   }
@@ -327,7 +345,6 @@ export function tickController(
       updateRevealIn(state, dt, settings);
     } else {
       state.elapsed += dt;
-      // Keep animated rainbow alive during hold
       if (settings.colorMode === "animated-rainbow") {
         for (let i = 0; i < state.pieces.length; i++) {
           const p = state.pieces[i]!;
@@ -346,10 +363,8 @@ export function tickController(
           p.glowColor = p.color;
         }
       }
-      // Soft word glow pulse
       state.wordGlow =
-        settings.finalWordGlow *
-        (0.75 + 0.25 * Math.sin(state.elapsed / 600));
+        settings.finalWordGlow * (0.75 + 0.25 * Math.sin(state.elapsed / 600));
     }
   } else if (state.phase === "out") {
     updateRevealOut(state, dt, settings);
@@ -368,7 +383,7 @@ export function snapToCompleted(state: ControllerState, settings: TetrisPixelSet
     p.bounceScaleY = 1;
     p.glowAlpha = 0;
     p.impactFlash = 0;
-    p.visible = true;
+    setState(p, "landed", true);
   }
   state.allLanded = true;
   state.phase = "hold";
@@ -380,7 +395,6 @@ export function getDrawnCells(
 ): Array<{ x: number; y: number }> {
   const rot = ((Math.round(piece.rotation / 90) % 4) + 4) % 4;
   const snapped = (rot * 90) as 0 | 90 | 180 | 270;
-  // During continuous rotation, use nearest discrete orientation for crisp pixels
   const useSmooth = Math.abs(piece.rotation - snapped) > 2;
   if (!useSmooth) {
     return rotateShape(piece.cells, snapped).map((c) => ({
@@ -388,7 +402,6 @@ export function getDrawnCells(
       y: Math.round(piece.y) + c.y,
     }));
   }
-  // Approximate smooth rotation around piece center in cell space — still snap draw positions
   const cx = piece.cells.reduce((s, c) => s + c.x, 0) / piece.cells.length;
   const cy = piece.cells.reduce((s, c) => s + c.y, 0) / piece.cells.length;
   const rad = (piece.rotation * Math.PI) / 180;

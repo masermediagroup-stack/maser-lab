@@ -32,6 +32,13 @@ export type ShapeId =
   | "F1"
   | "custom";
 
+export type PieceAnimState =
+  | "waiting"
+  | "falling"
+  | "landing"
+  | "landed"
+  | "exiting";
+
 export type PixelPiece = {
   id: string;
   shapeId: ShapeId;
@@ -64,7 +71,9 @@ export type PieceRuntime = PixelPiece & {
   bounceScaleY: number;
   glowAlpha: number;
   impactFlash: number;
+  /** Draw gate — waiting pieces must not render. */
   visible: boolean;
+  animState: PieceAnimState;
 };
 
 export type OccupancyGrid = {
@@ -94,6 +103,12 @@ export type TetrisPixelSettings = {
   spawnHeightMax: number;
   landingDensity: number;
   edgeDetail: number;
+  /** Fraction of cell samples that must be filled (0–1). */
+  coverageThreshold: number;
+  /** Extra cells above the rotated piece height when spawning. */
+  spawnSafetyMargin: number;
+  /** Dev-only mask/partition overlay. */
+  debugOverlay: boolean;
   fallDuration: number;
   stagger: number;
   staggerRandomness: number;
@@ -138,25 +153,28 @@ export type TetrisPixelTextProps = Partial<TetrisPixelSettings> & {
 export const DEFAULT_TETRIS_SETTINGS: TetrisPixelSettings = {
   line2: "",
   fontVariant: "geist-pixel-square",
-  fontSize: 72,
+  fontSize: 96,
   letterSpacing: 0,
   lineHeight: 1.05,
   textAlign: "center",
   background: "#000000",
-  cellSize: 8,
-  gridPadding: 2,
-  pieceSizePreference: 0.75,
-  tetrominoFrequency: 0.7,
-  triominoFrequency: 0.2,
+  cellSize: 5,
+  gridPadding: 1,
+  pieceSizePreference: 0.7,
+  tetrominoFrequency: 0.65,
+  triominoFrequency: 0.25,
   shapeVariety: 0.85,
-  pieceSpacing: 0.35,
-  spawnHeightMin: 1.2,
-  spawnHeightMax: 2.4,
+  pieceSpacing: 0.25,
+  spawnHeightMin: 0.35,
+  spawnHeightMax: 0.85,
   landingDensity: 0.55,
-  edgeDetail: 0.7,
+  edgeDetail: 0.9,
+  coverageThreshold: 0.12,
+  spawnSafetyMargin: 2,
+  debugOverlay: false,
   fallDuration: 1800,
-  stagger: 55,
-  staggerRandomness: 0.35,
+  stagger: 45,
+  staggerRandomness: 0.3,
   horizontalMovement: 0.65,
   horizontalCorrections: 2,
   rotationAmount: 0.7,
@@ -175,7 +193,7 @@ export const DEFAULT_TETRIS_SETTINGS: TetrisPixelSettings = {
   hueSpeed: 0.08,
   gradientAxis: "horizontal",
   glowIntensity: 0.45,
-  glowRadius: 3,
+  glowRadius: 2.5,
   glowDuration: 320,
   impactFlash: 0.4,
   finalWordGlow: 0.55,

@@ -237,19 +237,25 @@ export function partitionGrid(options: PartitionOptions): PixelPiece[] {
     shapeVariety = 0.85,
   } = options;
 
+  const targetOccupiedCellCount = grid.cells.size;
   const rng = createSeededRandom(layoutSeed);
   const remaining = new Set(grid.cells);
   const catalog = catalogForPrefs(rng, tetrominoFrequency, triominoFrequency, pieceSizePreference);
   const shapeCounts = new Map<ShapeId, number>();
   const placements: Placement[] = [];
 
+  // Prefer tetrominoes, then triominoes, dominoes, then singles — never abandon cells.
+  const preferredSizes =
+    pieceSizePreference > 0.6 ? [4, 5, 3, 2, 1] : [4, 3, 2, 5, 1];
+
   let guard = 0;
-  while (remaining.size > 0 && guard < grid.occupied.length + 50) {
+  const maxGuards = Math.max(grid.occupied.length * 3, 200);
+  while (remaining.size > 0 && guard < maxGuards) {
     guard++;
-    const preferredSizes = pieceSizePreference > 0.6 ? [4, 5, 3, 2, 1] : [3, 4, 2, 5, 1];
     let placed: Placement | null = null;
 
     for (const size of preferredSizes) {
+      if (size === 1) break;
       const sized = catalog.filter((c) => c.size === size);
       if (!sized.length) continue;
       placed = findBestPlacement(
@@ -266,7 +272,7 @@ export function partitionGrid(options: PartitionOptions): PixelPiece[] {
     if (!placed) {
       placed = findBestPlacement(
         remaining,
-        catalog,
+        catalog.filter((c) => c.size >= 2),
         rng,
         shapeCounts,
         shapeVariety,
@@ -281,7 +287,7 @@ export function partitionGrid(options: PartitionOptions): PixelPiece[] {
     placements.push(placed);
   }
 
-  // Fallback: flood-fill leftovers as grouped custom pieces
+  // Fallback: flood-fill leftovers as connected groups (never discard).
   if (remaining.size > 0) {
     for (const group of floodGroups(remaining)) {
       applyPlacement(group, remaining);
@@ -296,11 +302,24 @@ export function partitionGrid(options: PartitionOptions): PixelPiece[] {
     }
   }
 
-  return placements.map((p, index) => {
+  // Absolute last resort: any stray keys still remaining (should be empty).
+  if (remaining.size > 0) {
+    for (const key of [...remaining]) {
+      const [xs, ys] = key.split(",");
+      const cell = { x: Number(xs), y: Number(ys) };
+      remaining.delete(key);
+      placements.push({
+        shapeId: "F1",
+        rotation: 0,
+        originX: cell.x,
+        originY: cell.y,
+        cells: [cell],
+      });
+    }
+  }
+
+  const pieces = placements.map((p, index) => {
     const local = toLocalCells(p.cells);
-    // Store local cells at rotation 0 relative to target origin.
-    // Target rotation is baked into the cell layout already (world cells),
-    // so targetRotation is 0 and startRotation carries the visual spin.
     return {
       id: `piece-${layoutSeed}-${index}`,
       shapeId: p.shapeId,
@@ -320,6 +339,74 @@ export function partitionGrid(options: PartitionOptions): PixelPiece[] {
       landed: false,
     } satisfies PixelPiece;
   });
+
+  validatePartition(grid.cells, pieces, targetOccupiedCellCount);
+
+  return pieces;
+}
+
+export type PartitionValidation = {
+  ok: boolean;
+  targetOccupiedCellCount: number;
+  assignedPieceCellCount: number;
+  missing: string[];
+  duplicates: string[];
+  outside: string[];
+  pieceCount: number;
+};
+
+export function validatePartition(
+  targetCells: Set<string>,
+  pieces: PixelPiece[],
+  targetOccupiedCellCount = targetCells.size,
+): PartitionValidation {
+  const assigned = new Map<string, string>();
+  const duplicates: string[] = [];
+  const outside: string[] = [];
+
+  for (const piece of pieces) {
+    for (const c of piece.cells) {
+      const k = cellKey(c.x + piece.targetX, c.y + piece.targetY);
+      if (!targetCells.has(k)) outside.push(k);
+      if (assigned.has(k)) duplicates.push(k);
+      else assigned.set(k, piece.id);
+    }
+  }
+
+  const missing: string[] = [];
+  for (const k of targetCells) {
+    if (!assigned.has(k)) missing.push(k);
+  }
+
+  const assignedPieceCellCount = assigned.size;
+  const ok =
+    missing.length === 0 &&
+    duplicates.length === 0 &&
+    outside.length === 0 &&
+    assignedPieceCellCount === targetOccupiedCellCount;
+
+  if (typeof process !== "undefined" && process.env.NODE_ENV !== "production") {
+    if (!ok) {
+      console.warn("[TetrisPixelText] partition validation failed", {
+        targetOccupiedCellCount,
+        assignedPieceCellCount,
+        missing: missing.length,
+        duplicates: duplicates.length,
+        outside: outside.length,
+        pieceCount: pieces.length,
+      });
+    }
+  }
+
+  return {
+    ok,
+    targetOccupiedCellCount,
+    assignedPieceCellCount,
+    missing,
+    duplicates,
+    outside,
+    pieceCount: pieces.length,
+  };
 }
 
 export function pieceAbsoluteCells(

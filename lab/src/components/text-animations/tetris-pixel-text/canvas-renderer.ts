@@ -1,6 +1,8 @@
 import { getDrawnCells, type ControllerState } from "./animation-controller";
 import { hexToRgb } from "./colors";
-import type { TetrisPixelSettings } from "./types";
+import type { PartitionValidation } from "./partitioner";
+import type { OccupancyGrid, TetrisPixelSettings } from "./types";
+import { cellKey } from "./types";
 
 export type RenderContext = {
   canvas: HTMLCanvasElement;
@@ -100,21 +102,32 @@ function drawGlow(
   ctx.restore();
 }
 
+export type DebugRenderInfo = {
+  mask: OccupancyGrid;
+  validation: PartitionValidation;
+};
+
 export function renderFrame(
   render: RenderContext,
   state: ControllerState,
   settings: TetrisPixelSettings,
+  debug?: DebugRenderInfo | null,
 ): void {
   const { ctx, cssWidth, cssHeight, cellSize, offsetX, offsetY } = render;
   ctx.imageSmoothingEnabled = false;
   ctx.fillStyle = settings.background;
   ctx.fillRect(0, 0, cssWidth, cssHeight);
 
-  // Word-level glow behind completed pieces
+  // Clip all piece drawing to the visible preview stage.
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, cssWidth, cssHeight);
+  ctx.clip();
+
   if (state.wordGlow > 0.02) {
-    ctx.save();
     for (const p of state.pieces) {
-      if (!p.visible || !p.landed) continue;
+      if (!p.visible || p.animState === "waiting") continue;
+      if (!(p.animState === "landed" || p.animState === "landing")) continue;
       const cells = getDrawnCells(p);
       drawGlow(
         ctx,
@@ -127,12 +140,10 @@ export function renderFrame(
         settings.glowRadius * 0.8,
       );
     }
-    ctx.restore();
   }
 
-  // Landing glows (under pixels)
   for (const p of state.pieces) {
-    if (!p.visible || p.glowAlpha <= 0.01) continue;
+    if (!p.visible || p.animState === "waiting" || p.glowAlpha <= 0.01) continue;
     const cells = getDrawnCells(p);
     drawGlow(
       ctx,
@@ -146,13 +157,11 @@ export function renderFrame(
     );
   }
 
-  // Pieces
   for (const p of state.pieces) {
-    if (!p.visible) continue;
+    if (!p.visible || p.animState === "waiting") continue;
     const cells = getDrawnCells(p);
     const scaleY = p.bounceScaleY;
 
-    // Impact flash
     let color = p.color;
     if (p.impactFlash > 0.01) {
       const rgb = hexToRgb(p.color);
@@ -166,7 +175,6 @@ export function renderFrame(
       drawCell(ctx, px, py, cellSize, color, scaleY);
     }
 
-    // Sparse pixel sparks on recent land
     if (p.impactFlash > 0.2 && settings.impactFlash > 0.2) {
       const rgb = hexToRgb(p.color);
       ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${p.impactFlash * 0.7})`;
@@ -178,4 +186,89 @@ export function renderFrame(
       }
     }
   }
+
+  if (settings.debugOverlay && debug) {
+    drawDebugOverlay(ctx, render, state, debug);
+  }
+
+  ctx.restore();
+}
+
+function drawDebugOverlay(
+  ctx: CanvasRenderingContext2D,
+  render: RenderContext,
+  state: ControllerState,
+  debug: DebugRenderInfo,
+): void {
+  const { cellSize, offsetX, offsetY, cssWidth } = render;
+  const { mask, validation } = debug;
+
+  // Source mask cells (cyan outline)
+  ctx.strokeStyle = "rgba(0, 220, 255, 0.55)";
+  ctx.lineWidth = 1;
+  for (const c of mask.occupied) {
+    ctx.strokeRect(offsetX + c.x * cellSize, offsetY + c.y * cellSize, cellSize, cellSize);
+  }
+
+  // Missing cells (red fill)
+  ctx.fillStyle = "rgba(255, 40, 40, 0.55)";
+  for (const k of validation.missing) {
+    const [xs, ys] = k.split(",");
+    ctx.fillRect(
+      offsetX + Number(xs) * cellSize,
+      offsetY + Number(ys) * cellSize,
+      cellSize,
+      cellSize,
+    );
+  }
+
+  // Duplicate cells (magenta)
+  ctx.fillStyle = "rgba(255, 0, 255, 0.45)";
+  for (const k of validation.duplicates) {
+    const [xs, ys] = k.split(",");
+    ctx.fillRect(
+      offsetX + Number(xs) * cellSize,
+      offsetY + Number(ys) * cellSize,
+      cellSize,
+      cellSize,
+    );
+  }
+
+  // Target bbox
+  ctx.strokeStyle = "rgba(255, 220, 0, 0.8)";
+  ctx.strokeRect(
+    offsetX,
+    offsetY,
+    state.gridWidth * cellSize,
+    state.gridHeight * cellSize,
+  );
+
+  // Canvas bounds
+  ctx.strokeStyle = "rgba(0, 255, 120, 0.7)";
+  ctx.strokeRect(0.5, 0.5, render.cssWidth - 1, render.cssHeight - 1);
+
+  // Spawn bounds: lowest spawn Y among pieces
+  const minSpawn = Math.min(...state.pieces.map((p) => p.spawnY));
+  ctx.strokeStyle = "rgba(255, 140, 0, 0.8)";
+  ctx.beginPath();
+  ctx.moveTo(0, offsetY + minSpawn * cellSize);
+  ctx.lineTo(cssWidth, offsetY + minSpawn * cellSize);
+  ctx.stroke();
+
+  const lines = [
+    `target: ${validation.targetOccupiedCellCount}`,
+    `assigned: ${validation.assignedPieceCellCount}`,
+    `pieces: ${validation.pieceCount}`,
+    `missing: ${validation.missing.length}`,
+    `dups: ${validation.duplicates.length}`,
+    `ok: ${validation.ok}`,
+    `maskKey sample: ${mask.cells.has(cellKey(0, 0)) ? "pad" : "—"}`,
+  ];
+  ctx.fillStyle = "rgba(0,0,0,0.65)";
+  ctx.fillRect(8, 8, 168, 14 * lines.length + 10);
+  ctx.fillStyle = "#fff";
+  ctx.font = "11px ui-monospace, monospace";
+  lines.forEach((line, i) => {
+    ctx.fillText(line, 14, 22 + i * 14);
+  });
 }

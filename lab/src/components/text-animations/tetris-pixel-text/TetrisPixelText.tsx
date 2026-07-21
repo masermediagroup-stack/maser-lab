@@ -7,12 +7,18 @@ import {
   tickController,
   type ControllerState,
 } from "./animation-controller";
-import { layoutStage, renderFrame, setupCanvas } from "./canvas-renderer";
+import {
+  layoutStage,
+  renderFrame,
+  setupCanvas,
+  type DebugRenderInfo,
+} from "./canvas-renderer";
 import { generateMotionPaths } from "./motion-paths";
-import { partitionGrid } from "./partitioner";
+import { partitionGrid, validatePartition, type PartitionValidation } from "./partitioner";
 import { createTextMask } from "./text-mask";
 import {
   DEFAULT_TETRIS_SETTINGS,
+  type OccupancyGrid,
   type PixelPiece,
   type TetrisPixelSettings,
   type TetrisPixelTextProps,
@@ -46,6 +52,8 @@ function settingsFingerprint(s: TetrisPixelSettings, text: string): string {
     s.triominoFrequency,
     s.shapeVariety,
     s.edgeDetail,
+    s.coverageThreshold,
+    s.spawnSafetyMargin,
     s.layoutSeed,
     s.motionSeed,
     s.fallDuration,
@@ -63,6 +71,7 @@ function settingsFingerprint(s: TetrisPixelSettings, text: string): string {
     s.color,
     s.background,
     s.phase,
+    s.debugOverlay,
   ].join("|");
 }
 
@@ -80,7 +89,8 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<ControllerState | null>(null);
   const piecesRef = useRef<PixelPiece[]>([]);
-  const gridRef = useRef({ width: 1, height: 1 });
+  const maskRef = useRef<OccupancyGrid | null>(null);
+  const validationRef = useRef<PartitionValidation | null>(null);
   const rafRef = useRef<number>(0);
   const lastTsRef = useRef<number>(0);
   const settingsRef = useRef(settings);
@@ -109,10 +119,12 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
       stageHeight: cssHeight,
       gridPadding: s.gridPadding,
       edgeDetail: s.edgeDetail,
+      coverageThreshold: s.coverageThreshold,
+      targetWidthRatio: cssWidth < 520 ? 0.88 : 0.8,
     });
 
     setStatusMessage(mask.message);
-    gridRef.current = { width: mask.width, height: mask.height };
+    maskRef.current = mask;
 
     const partitioned = partitionGrid({
       grid: mask,
@@ -123,7 +135,12 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
       shapeVariety: s.shapeVariety,
     });
 
-    const withMotion = generateMotionPaths(partitioned, mask.width, mask.height, s);
+    validationRef.current = validatePartition(mask.cells, partitioned);
+
+    const withMotion = generateMotionPaths(partitioned, mask.width, mask.height, {
+      ...s,
+      stageCssHeight: cssHeight,
+    });
     piecesRef.current = withMotion;
 
     const controller = initController(withMotion, mask.width, mask.height, s);
@@ -142,6 +159,12 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
     let cancelled = false;
     let renderCtx = setupCanvas(canvas, wrap.clientWidth || 640, wrap.clientHeight || 360);
 
+    const debugPayload = (): DebugRenderInfo | null => {
+      if (!settingsRef.current.debugOverlay) return null;
+      if (!maskRef.current || !validationRef.current) return null;
+      return { mask: maskRef.current, validation: validationRef.current };
+    };
+
     const startLoop = () => {
       cancelAnimationFrame(rafRef.current);
       lastTsRef.current = performance.now();
@@ -152,16 +175,18 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
         const dt = Math.min(48, ts - lastTsRef.current);
         lastTsRef.current = ts;
 
-        if (document.hidden || s.paused) {
+        if (document.hidden) {
           rafRef.current = requestAnimationFrame(frame);
           return;
         }
 
         const state = stateRef.current;
         if (state && renderCtx) {
-          tickController(state, dt, s);
+          if (!s.paused) {
+            tickController(state, dt, s);
+          }
           layoutStage(renderCtx, state.gridWidth, state.gridHeight, s.cellSize);
-          renderFrame(renderCtx, state, s);
+          renderFrame(renderCtx, state, s, debugPayload());
         }
         rafRef.current = requestAnimationFrame(frame);
       };
@@ -182,7 +207,7 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
           stateRef.current.gridHeight,
           settingsRef.current.cellSize,
         );
-        renderFrame(renderCtx, stateRef.current, settingsRef.current);
+        renderFrame(renderCtx, stateRef.current, settingsRef.current, debugPayload());
       }
       startLoop();
     };
@@ -195,7 +220,6 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
       const { width, height } = entry.contentRect;
       if (width < 8 || height < 8) return;
       renderCtx = setupCanvas(canvas, width, height);
-      // Preserve seeds — rebuild mask for new size but keep settings
       void rebuild(width, height).then(() => {
         if (cancelled || !renderCtx || !stateRef.current) return;
         layoutStage(
@@ -204,6 +228,7 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
           stateRef.current.gridHeight,
           settingsRef.current.cellSize,
         );
+        renderFrame(renderCtx, stateRef.current, settingsRef.current, debugPayload());
       });
     });
     ro.observe(wrap);
