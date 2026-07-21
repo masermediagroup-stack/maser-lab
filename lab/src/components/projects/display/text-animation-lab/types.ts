@@ -3,6 +3,10 @@ import type { AnimationPhase, EaseOption } from "@/components/text-animations/sh
 
 export type ControlGroup =
   | "content"
+  | "quality"
+  | "animation"
+  | "appearance"
+  | "advanced"
   | "timing"
   | "motion"
   | "style"

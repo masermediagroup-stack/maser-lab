@@ -8,7 +8,9 @@ export type PresetId =
   | "arcade-rainbow"
   | "slow-assembly"
   | "glitch-build"
-  | "minimal-lock-in";
+  | "minimal-lock-in"
+  | "high-definition"
+  | "fast-build";
 
 export type PresetDefinition = {
   id: PresetId;
@@ -21,14 +23,19 @@ export const TETRIS_PRESETS: PresetDefinition[] = [
   {
     id: "classic-blocks",
     label: "Classic Blocks",
-    description: "White pieces, black background, moderate motion, subtle glow.",
+    description: "High density, white pieces, ~4s reveal, subtle glow.",
     settings: {
       ...DEFAULT_TETRIS_SETTINGS,
+      textDensity: "high",
+      renderQuality: "high",
+      edgeDetailLevel: "detailed",
+      pieceScale: "mixed",
+      animationDuration: 4,
+      concurrency: "auto",
       colorMode: "solid",
       color: "#ffffff",
       background: "#000000",
-      cellSize: 5,
-      coverageThreshold: 0.12,
+      cellSize: 0,
       horizontalMovement: 0.65,
       rotationAmount: 0.7,
       maxQuarterTurns: 2,
@@ -40,10 +47,68 @@ export const TETRIS_PRESETS: PresetDefinition[] = [
     },
   },
   {
+    id: "high-definition",
+    label: "High Definition",
+    description: "Ultra-dense typography, high render quality, crisp 4s build.",
+    settings: {
+      textDensity: "ultra",
+      renderQuality: "high",
+      edgeDetailLevel: "detailed",
+      pieceScale: "mixed",
+      animationDuration: 4,
+      concurrency: "balanced",
+      fontSize: 160,
+      colorMode: "solid",
+      color: "#ffffff",
+      background: "#000000",
+      glowIntensity: 0.28,
+      glowRadius: 2,
+      impactFlash: 0.25,
+      finalWordGlow: 0.35,
+      horizontalMovement: 0.45,
+      rotationAmount: 0.55,
+      maxQuarterTurns: 2,
+      fallDuration: 1600,
+      stagger: 28,
+    },
+  },
+  {
+    id: "fast-build",
+    label: "Fast Build",
+    description: "High density in ~1.8s with high concurrency — smooth, not sped-up.",
+    settings: {
+      textDensity: "high",
+      renderQuality: "balanced",
+      edgeDetailLevel: "detailed",
+      pieceScale: "mixed",
+      animationDuration: 1.8,
+      concurrency: "high",
+      fontSize: 120,
+      colorMode: "solid",
+      color: "#ffffff",
+      background: "#000000",
+      horizontalMovement: 0.35,
+      horizontalCorrections: 1,
+      rotationAmount: 0.35,
+      maxQuarterTurns: 1,
+      fallDuration: 1100,
+      stagger: 18,
+      glowIntensity: 0.35,
+      glowDuration: 160,
+      impactFlash: 0.3,
+      landingBounce: 0.22,
+    },
+  },
+  {
     id: "arcade-rainbow",
     label: "Arcade Rainbow",
     description: "Rainbow by piece, stronger movement, brighter impact.",
     settings: {
+      textDensity: "high",
+      renderQuality: "high",
+      pieceScale: "mixed",
+      animationDuration: 3.2,
+      concurrency: "high",
       colorMode: "rainbow",
       color: "#ffffff",
       background: "#000000",
@@ -65,8 +130,13 @@ export const TETRIS_PRESETS: PresetDefinition[] = [
   {
     id: "slow-assembly",
     label: "Slow Assembly",
-    description: "Slow fall, larger pieces, visible rotations, longer glow.",
+    description: "Longer reveal, larger pieces, visible rotations.",
     settings: {
+      textDensity: "high",
+      renderQuality: "high",
+      pieceScale: "large",
+      animationDuration: 8,
+      concurrency: "low",
       colorMode: "solid",
       color: "#ffffff",
       background: "#000000",
@@ -86,8 +156,13 @@ export const TETRIS_PRESETS: PresetDefinition[] = [
   {
     id: "glitch-build",
     label: "Glitch Build",
-    description: "Fast corrections, more rotations, short flashes, irregular timing.",
+    description: "Fast corrections, more rotations, short flashes.",
     settings: {
+      textDensity: "detailed",
+      renderQuality: "balanced",
+      pieceScale: "small",
+      animationDuration: 2.2,
+      concurrency: "maximum",
       colorMode: "animated-rainbow",
       color: "#ffffff",
       background: "#050508",
@@ -111,6 +186,11 @@ export const TETRIS_PRESETS: PresetDefinition[] = [
     label: "Minimal Lock-In",
     description: "Almost no lateral move, few rotations, restrained glow.",
     settings: {
+      textDensity: "high",
+      renderQuality: "high",
+      pieceScale: "mixed",
+      animationDuration: 3.5,
+      concurrency: "balanced",
       colorMode: "solid",
       color: "#ffffff",
       background: "#000000",
@@ -137,7 +217,6 @@ export function applyPreset(
   return {
     ...current,
     ...preset.settings,
-    // Preserve seeds unless preset implies reset — keep current seeds for reproducibility
     layoutSeed: current.layoutSeed,
     motionSeed: current.motionSeed,
     phase: current.phase,

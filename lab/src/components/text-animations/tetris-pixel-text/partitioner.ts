@@ -1,4 +1,8 @@
 import {
+  PIECE_SCALE_PROFILES,
+  type PieceScale,
+} from "./density";
+import {
   POLYOMINOES,
   PENTOMINO_IDS,
   TETROMINO_IDS,
@@ -21,6 +25,7 @@ export type PartitionOptions = {
   triominoFrequency?: number;
   pieceSizePreference?: number;
   shapeVariety?: number;
+  pieceScale?: PieceScale;
 };
 
 type Placement = {
@@ -105,12 +110,13 @@ function findBestPlacement(
   shapeCounts: Map<ShapeId, number>,
   shapeVariety: number,
   sizePreference: number,
+  startBudget = 48,
 ): Placement | null {
   const cells = remainingCells(remaining);
   if (cells.length === 0) return null;
 
   // Prefer starting from denser / lower cells with seeded shuffle
-  const starts = rng.shuffle(cells).slice(0, Math.min(48, cells.length));
+  const starts = rng.shuffle(cells).slice(0, Math.min(startBudget, cells.length));
   const shapes = rng.shuffle(catalog);
 
   let best: Placement | null = null;
@@ -172,7 +178,7 @@ function findBestPlacement(
 }
 
 /** Group remaining adjacent cells into connected components (fallback pieces). */
-function floodGroups(remaining: Set<string>): Cell[][] {
+function floodGroups(remaining: Set<string>, maxCluster: number): Cell[][] {
   const groups: Cell[][] = [];
   const left = new Set(remaining);
   const dirs = [
@@ -181,6 +187,7 @@ function floodGroups(remaining: Set<string>): Cell[][] {
     [0, 1],
     [0, -1],
   ] as const;
+  const chunk = Math.max(2, maxCluster);
 
   while (left.size > 0) {
     const startKey = left.values().next().value as string;
@@ -198,13 +205,12 @@ function floodGroups(remaining: Set<string>): Cell[][] {
         stack.push({ x: cur.x + dx, y: cur.y + dy });
       }
     }
-    // Cap very large fallback groups into chunks of ~4–5 so they still feel like pieces
-    if (group.length <= 5) {
+    if (group.length <= chunk) {
       groups.push(group);
     } else {
       const sorted = group.sort((a, b) => a.y - b.y || a.x - b.x);
-      for (let i = 0; i < sorted.length; i += 4) {
-        groups.push(sorted.slice(i, i + 4));
+      for (let i = 0; i < sorted.length; i += chunk) {
+        groups.push(sorted.slice(i, i + chunk));
       }
     }
   }
@@ -231,31 +237,46 @@ export function partitionGrid(options: PartitionOptions): PixelPiece[] {
   const {
     grid,
     layoutSeed,
-    tetrominoFrequency = 0.7,
-    triominoFrequency = 0.2,
-    pieceSizePreference = 0.75,
+    pieceScale = "mixed",
     shapeVariety = 0.85,
   } = options;
+
+  const profile = PIECE_SCALE_PROFILES[pieceScale];
+  const tetrominoFrequency =
+    options.tetrominoFrequency ?? profile.tetrominoWeight;
+  const triominoFrequency = options.triominoFrequency ?? profile.triominoWeight;
+  const pieceSizePreference =
+    options.pieceSizePreference ??
+    (pieceScale === "large" ? 0.9 : pieceScale === "small" ? 0.45 : 0.7);
 
   const targetOccupiedCellCount = grid.cells.size;
   const rng = createSeededRandom(layoutSeed);
   const remaining = new Set(grid.cells);
   const catalog = catalogForPrefs(rng, tetrominoFrequency, triominoFrequency, pieceSizePreference);
+  // Soft-include pentominoes based on scale profile
+  for (const id of PENTOMINO_IDS) {
+    if (rng.chance(profile.pentominoWeight) && !catalog.some((c) => c.id === id)) {
+      const def = getShapeById(id);
+      if (def) catalog.push(def);
+    }
+  }
   const shapeCounts = new Map<ShapeId, number>();
   const placements: Placement[] = [];
 
-  // Prefer tetrominoes, then triominoes, dominoes, then singles — never abandon cells.
-  const preferredSizes =
-    pieceSizePreference > 0.6 ? [4, 5, 3, 2, 1] : [4, 3, 2, 5, 1];
+  const preferredSizes = profile.preferredSizes;
 
   let guard = 0;
-  const maxGuards = Math.max(grid.occupied.length * 3, 200);
+  const maxGuards = Math.max(grid.occupied.length * 4, 400);
+  // Limit start probes on huge grids for responsiveness
+  const startBudget = Math.min(64, Math.max(24, Math.floor(2000 / Math.max(1, Math.sqrt(remaining.size)))));
+
   while (remaining.size > 0 && guard < maxGuards) {
     guard++;
     let placed: Placement | null = null;
 
     for (const size of preferredSizes) {
       if (size === 1) break;
+      if (size > profile.maxCluster) continue;
       const sized = catalog.filter((c) => c.size === size);
       if (!sized.length) continue;
       placed = findBestPlacement(
@@ -265,6 +286,7 @@ export function partitionGrid(options: PartitionOptions): PixelPiece[] {
         shapeCounts,
         shapeVariety,
         pieceSizePreference,
+        startBudget,
       );
       if (placed) break;
     }
@@ -272,11 +294,12 @@ export function partitionGrid(options: PartitionOptions): PixelPiece[] {
     if (!placed) {
       placed = findBestPlacement(
         remaining,
-        catalog.filter((c) => c.size >= 2),
+        catalog.filter((c) => c.size >= 2 && c.size <= profile.maxCluster),
         rng,
         shapeCounts,
         shapeVariety,
         pieceSizePreference,
+        startBudget,
       );
     }
 
@@ -289,7 +312,7 @@ export function partitionGrid(options: PartitionOptions): PixelPiece[] {
 
   // Fallback: flood-fill leftovers as connected groups (never discard).
   if (remaining.size > 0) {
-    for (const group of floodGroups(remaining)) {
+    for (const group of floodGroups(remaining, profile.maxCluster)) {
       applyPlacement(group, remaining);
       const local = toLocalCells(group);
       placements.push({

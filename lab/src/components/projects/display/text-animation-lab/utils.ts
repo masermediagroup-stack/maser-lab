@@ -2,15 +2,23 @@ import type { ControlGroup } from "./types";
 
 export const CONTROL_GROUP_LABELS: Record<ControlGroup, string> = {
   content: "Content",
+  quality: "Quality",
+  animation: "Animation",
+  appearance: "Appearance",
+  advanced: "Advanced Motion",
   timing: "Timing",
   motion: "Motion",
   style: "Style",
   interaction: "Interaction",
-  export: "Export",
+  export: "Randomization & Export",
 };
 
 export const CONTROL_GROUP_ORDER: ControlGroup[] = [
   "content",
+  "quality",
+  "animation",
+  "appearance",
+  "advanced",
   "timing",
   "motion",
   "style",

@@ -68,7 +68,7 @@ function drawCell(
   ctx.fillRect(Math.round(x), Math.round(y + oy), size, Math.max(1, Math.round(h)));
 }
 
-function drawGlow(
+function drawPieceGlow(
   ctx: CanvasRenderingContext2D,
   cells: Array<{ x: number; y: number }>,
   offsetX: number,
@@ -77,10 +77,52 @@ function drawGlow(
   color: string,
   intensity: number,
   radius: number,
+  highDensity: boolean,
 ): void {
-  if (intensity <= 0.01) return;
+  if (intensity <= 0.01 || cells.length === 0) return;
   const rgb = hexToRgb(color);
   ctx.save();
+
+  // High-density / mobile: single silhouette glow instead of per-cell gradients
+  if (highDensity || cells.length > 8) {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const c of cells) {
+      minX = Math.min(minX, c.x);
+      minY = Math.min(minY, c.y);
+      maxX = Math.max(maxX, c.x);
+      maxY = Math.max(maxY, c.y);
+    }
+    const pad = cellSize * (0.4 + radius * 0.25);
+    const x = offsetX + minX * cellSize - pad;
+    const y = offsetY + minY * cellSize - pad;
+    const w = (maxX - minX + 1) * cellSize + pad * 2;
+    const h = (maxY - minY + 1) * cellSize + pad * 2;
+    const g = ctx.createRadialGradient(
+      x + w / 2,
+      y + h / 2,
+      Math.min(w, h) * 0.12,
+      x + w / 2,
+      y + h / 2,
+      Math.max(w, h) * 0.55,
+    );
+    g.addColorStop(0, `rgba(${rgb.r},${rgb.g},${rgb.b},${0.4 * intensity})`);
+    g.addColorStop(0.55, `rgba(${rgb.r},${rgb.g},${rgb.b},${0.12 * intensity})`);
+    g.addColorStop(1, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    for (const c of cells) {
+      const px = offsetX + c.x * cellSize;
+      const py = offsetY + c.y * cellSize;
+      ctx.rect(px - pad * 0.35, py - pad * 0.35, cellSize + pad * 0.7, cellSize + pad * 0.7);
+    }
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
+
   for (const c of cells) {
     const px = offsetX + c.x * cellSize;
     const py = offsetY + c.y * cellSize;
@@ -124,12 +166,17 @@ export function renderFrame(
   ctx.rect(0, 0, cssWidth, cssHeight);
   ctx.clip();
 
+  const highDensity =
+    cellSize <= 3 ||
+    state.pieces.reduce((n, p) => n + p.cells.length, 0) > 400 ||
+    (typeof window !== "undefined" && window.matchMedia("(max-width: 720px)").matches);
+
   if (state.wordGlow > 0.02) {
     for (const p of state.pieces) {
       if (!p.visible || p.animState === "waiting") continue;
       if (!(p.animState === "landed" || p.animState === "landing")) continue;
       const cells = getDrawnCells(p);
-      drawGlow(
+      drawPieceGlow(
         ctx,
         cells,
         offsetX,
@@ -138,6 +185,7 @@ export function renderFrame(
         p.glowColor,
         state.wordGlow * 0.35,
         settings.glowRadius * 0.8,
+        highDensity,
       );
     }
   }
@@ -145,7 +193,7 @@ export function renderFrame(
   for (const p of state.pieces) {
     if (!p.visible || p.animState === "waiting" || p.glowAlpha <= 0.01) continue;
     const cells = getDrawnCells(p);
-    drawGlow(
+    drawPieceGlow(
       ctx,
       cells,
       offsetX,
@@ -154,6 +202,7 @@ export function renderFrame(
       p.glowColor,
       p.glowAlpha,
       settings.glowRadius,
+      highDensity,
     );
   }
 

@@ -261,9 +261,38 @@ export function AnimationDetail({ definition, onBack }: AnimationDetailProps) {
                   </Button>
                 ))}
               </div>
+              <div
+                className="rounded-md border border-white/10 bg-black/40 px-3 py-2"
+                aria-label="Font preview"
+              >
+                <p className="mb-1 text-[10px] uppercase tracking-wide text-neutral-500">
+                  Font preview
+                </p>
+                <p
+                  className="truncate text-lg text-white"
+                  style={{
+                    fontFamily:
+                      settings.fontVariant === "custom" && settings.customFontFamily
+                        ? `"${String(settings.customFontFamily)}", monospace`
+                        : settings.fontVariant === "geist-pixel-grid"
+                          ? '"Geist Pixel Grid", "Geist Pixel", monospace'
+                          : settings.fontVariant === "geist-pixel-circle"
+                            ? '"Geist Pixel Circle", "Geist Pixel", monospace'
+                            : settings.fontVariant === "geist-pixel-triangle"
+                              ? '"Geist Pixel Triangle", "Geist Pixel", monospace'
+                              : settings.fontVariant === "geist-pixel-line"
+                                ? '"Geist Pixel Line", "Geist Pixel", monospace'
+                                : '"Geist Pixel", "Geist Pixel Square", monospace',
+                  }}
+                >
+                  {text || "MASER MEDIA"}
+                </p>
+              </div>
               <p className="font-mono text-xs text-neutral-500">
                 layoutSeed: {String(settings.layoutSeed)} · motionSeed:{" "}
-                {String(settings.motionSeed)}
+                {String(settings.motionSeed)} · density:{" "}
+                {String(settings.textDensity)} · length:{" "}
+                {String(settings.animationDuration)}s
               </p>
             </div>
           ) : null}

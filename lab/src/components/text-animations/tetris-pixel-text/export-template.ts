@@ -26,19 +26,20 @@ export function generateTetrisExport(
   const summary = [
     `text: ${JSON.stringify(text)}`,
     settings.line2 ? `line2: ${JSON.stringify(settings.line2)}` : null,
+    `fontVariant: ${settings.fontVariant}`,
+    `fontSize: ${settings.fontSize}`,
+    `textDensity: ${settings.textDensity}`,
+    `renderQuality: ${settings.renderQuality}`,
+    `edgeDetailLevel: ${settings.edgeDetailLevel}`,
+    `pieceScale: ${settings.pieceScale}`,
+    `animationDuration: ${settings.animationDuration}`,
+    `concurrency: ${settings.concurrency}`,
     `colorMode: ${settings.colorMode}`,
     `color: ${settings.color}`,
     `background: ${settings.background}`,
     `cellSize: ${settings.cellSize}`,
-    `fallDuration: ${settings.fallDuration}`,
-    `stagger: ${settings.stagger}`,
-    `horizontalMovement: ${settings.horizontalMovement}`,
-    `rotationAmount: ${settings.rotationAmount}`,
-    `glowIntensity: ${settings.glowIntensity}`,
     `layoutSeed: ${settings.layoutSeed}`,
     `motionSeed: ${settings.motionSeed}`,
-    `revealOutDirection: ${settings.revealOutDirection}`,
-    `fontVariant: ${settings.fontVariant}`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -46,19 +47,24 @@ export function generateTetrisExport(
   const usageProps = [
     formatProp("text", text),
     settings.line2 ? formatProp("line2", settings.line2) : null,
+    formatProp("fontVariant", settings.fontVariant),
+    formatProp("fontSize", settings.fontSize),
+    formatProp("textDensity", settings.textDensity),
+    formatProp("renderQuality", settings.renderQuality),
+    formatProp("edgeDetailLevel", settings.edgeDetailLevel),
+    formatProp("pieceScale", settings.pieceScale),
+    formatProp("animationDuration", settings.animationDuration),
+    formatProp("concurrency", settings.concurrency),
     formatProp("colorMode", settings.colorMode),
     formatProp("color", settings.color),
     formatProp("background", settings.background),
     formatProp("cellSize", settings.cellSize),
-    formatProp("fallDuration", settings.fallDuration),
-    formatProp("stagger", settings.stagger),
-    formatProp("horizontalMovement", settings.horizontalMovement),
-    formatProp("rotationAmount", settings.rotationAmount),
-    formatProp("glowIntensity", settings.glowIntensity),
     formatProp("layoutSeed", settings.layoutSeed),
     formatProp("motionSeed", settings.motionSeed),
-    formatProp("revealOutDirection", settings.revealOutDirection),
-    formatProp("fontVariant", settings.fontVariant),
+    settings.fontVariant === "custom" ? formatProp("customFontFamily", settings.customFontFamily) : null,
+    settings.fontVariant === "custom" && settings.customFontUrl
+      ? formatProp("customFontUrl", settings.customFontUrl)
+      : null,
     formatProp("autoPlay", true),
     formatProp("loop", settings.loop),
   ]
@@ -92,21 +98,18 @@ TypeScript recommended.
 
 ## Font
 
-Load Geist Pixel (Square or Grid) before mounting:
+Load the selected Geist Pixel face (or your custom FontFace) before mounting:
 
 \`\`\`html
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link
-  href="https://fonts.googleapis.com/css2?family=Geist+Pixel:wght@400&display=swap"
+  href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap"
   rel="stylesheet"
 />
 \`\`\`
 
-Or via CSS:
-
-\`\`\`css
-@import url("https://fonts.googleapis.com/css2?family=Geist+Pixel:wght@400&display=swap");
-\`\`\`
+Density settings: textDensity=${settings.textDensity}, renderQuality=${settings.renderQuality},
+pieceScale=${settings.pieceScale}, animationDuration=${settings.animationDuration}s.
 
 ## Files
 
@@ -172,7 +175,18 @@ export type RevealOutDirection =
   | "lift-up"
   | "scatter-vertical"
   | "reverse-assembly";
-export type FontVariant = "geist-pixel-square" | "geist-pixel-grid";
+export type FontVariant =
+  | "geist-pixel-square"
+  | "geist-pixel-grid"
+  | "geist-pixel-circle"
+  | "geist-pixel-triangle"
+  | "geist-pixel-line"
+  | "custom";
+export type TextDensity = "coarse" | "medium" | "detailed" | "high" | "ultra";
+export type RenderQuality = "performance" | "balanced" | "high" | "ultra";
+export type EdgeDetailLevel = "clean" | "detailed" | "maximum";
+export type PieceScale = "small" | "mixed" | "large";
+export type ConcurrencyLevel = "low" | "balanced" | "high" | "maximum" | "auto";
 export type RotationDeg = 0 | 90 | 180 | 270;
 
 export type TetrisPixelTextProps = {
@@ -182,6 +196,14 @@ export type TetrisPixelTextProps = {
   color?: string;
   background?: string;
   cellSize?: number;
+  textDensity?: TextDensity;
+  renderQuality?: RenderQuality;
+  edgeDetailLevel?: EdgeDetailLevel;
+  pieceScale?: PieceScale;
+  animationDuration?: number;
+  concurrency?: ConcurrencyLevel;
+  customFontFamily?: string;
+  customFontUrl?: string;
   fallDuration?: number;
   stagger?: number;
   horizontalMovement?: number;
@@ -238,6 +260,14 @@ const DEFAULTS = {
   color: ${JSON.stringify(settings.color)},
   background: ${JSON.stringify(settings.background)},
   cellSize: ${settings.cellSize},
+  textDensity: ${JSON.stringify(settings.textDensity)} as TextDensity,
+  renderQuality: ${JSON.stringify(settings.renderQuality)} as RenderQuality,
+  edgeDetailLevel: ${JSON.stringify(settings.edgeDetailLevel)} as EdgeDetailLevel,
+  pieceScale: ${JSON.stringify(settings.pieceScale)} as PieceScale,
+  animationDuration: ${settings.animationDuration},
+  concurrency: ${JSON.stringify(settings.concurrency)} as ConcurrencyLevel,
+  customFontFamily: ${JSON.stringify(settings.customFontFamily)},
+  customFontUrl: ${JSON.stringify(settings.customFontUrl)},
   fallDuration: ${settings.fallDuration},
   stagger: ${settings.stagger},
   staggerRandomness: ${settings.staggerRandomness},
@@ -372,57 +402,90 @@ async function buildMask(
   lineHeight: number,
   textAlign: CanvasTextAlign,
   gridPadding: number,
+  textDensity: TextDensity = "high",
+  renderQuality: RenderQuality = "high",
 ) {
   const lines = [text, line2].map((l) => l.trim()).filter(Boolean);
   const resolved = lines.length ? lines : ["A"];
   if (document.fonts?.load) {
-    try { await document.fonts.load("400 " + fontSize + "px " + fontFamily); } catch { /* ignore */ }
+    try {
+      await document.fonts.ready;
+      await document.fonts.load("400 " + fontSize + "px " + fontFamily);
+    } catch { /* ignore */ }
   }
-  const scale = 2;
+  const cellsPerEm = ({ coarse: 10, medium: 18, detailed: 28, high: 40, ultra: 56 } as const)[textDensity];
+  const logical = Math.max(0.85, fontSize / cellsPerEm);
+  const ss = ({ performance: 2, balanced: 3, high: 4, ultra: 6 } as const)[renderQuality];
+  const preferred = Math.max(2, Math.min(8, Math.round(logical * 0.85)));
   const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.floor(w * scale));
-  canvas.height = Math.max(1, Math.floor(h * scale));
+  const pad = Math.ceil(fontSize * 0.35);
+  const measure = document.createElement("canvas").getContext("2d")!;
+  measure.font = "400 " + fontSize + "px " + fontFamily;
+  const contentW = Math.max(...resolved.map((l) => measure.measureText(l).width), 1);
+  const contentH = Math.max(1, resolved.length) * fontSize * lineHeight;
+  canvas.width = Math.max(1, Math.floor((contentW + pad * 2) * ss));
+  canvas.height = Math.max(1, Math.floor((contentH + pad * 2) * ss));
   const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
+  ctx.setTransform(ss, 0, 0, ss, 0, 0);
   ctx.imageSmoothingEnabled = false;
   ctx.fillStyle = "#fff";
   ctx.textAlign = textAlign;
   ctx.textBaseline = "middle";
-  ctx.font = "400 " + fontSize * scale + "px " + fontFamily;
-  const lh = fontSize * lineHeight * scale;
-  const startY = canvas.height / 2 - ((resolved.length - 1) * lh) / 2;
-  const ax = textAlign === "left" ? canvas.width * 0.08 : textAlign === "right" ? canvas.width * 0.92 : canvas.width / 2;
+  ctx.font = "400 " + fontSize + "px " + fontFamily;
+  const lh = fontSize * lineHeight;
+  const startY = pad + contentH / 2 - ((resolved.length - 1) * lh) / 2;
+  const ax = textAlign === "left" ? pad : textAlign === "right" ? pad + contentW : pad + contentW / 2;
   resolved.forEach((line, i) => ctx.fillText(line, ax, startY + i * lh));
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-  const step = Math.max(1, Math.round(cellSize * scale));
+  const step = Math.max(1, logical * ss);
   const raw: Cell[] = [];
-  for (let py = 0; py < canvas.height; py += step) {
-    for (let px = 0; px < canvas.width; px += step) {
-      if ((data[(py * canvas.width + px) * 4 + 3] ?? 0) >= 40) {
-        raw.push({ x: Math.floor(px / step), y: Math.floor(py / step) });
+  const sub = Math.max(3, Math.min(8, ss + 1));
+  const threshold = 0.14;
+  let minGX = Infinity, minGY = Infinity, maxGX = -Infinity, maxGY = -Infinity;
+  // probe ink bounds
+  for (let py = 0; py < canvas.height; py += Math.max(1, Math.floor(step / 2))) {
+    for (let px = 0; px < canvas.width; px += Math.max(1, Math.floor(step / 2))) {
+      if ((data[(py * canvas.width + px) * 4 + 3] ?? 0) >= 20) {
+        minGX = Math.min(minGX, px); minGY = Math.min(minGY, py);
+        maxGX = Math.max(maxGX, px); maxGY = Math.max(maxGY, py);
       }
     }
   }
-  if (!raw.length) return { width: 1, height: 1, cells: new Set<string>(), occupied: [] as Cell[] };
-  const minX = Math.min(...raw.map((c) => c.x));
-  const minY = Math.min(...raw.map((c) => c.y));
-  const maxX = Math.max(...raw.map((c) => c.x));
-  const maxY = Math.max(...raw.map((c) => c.y));
+  if (!Number.isFinite(minGX)) return { width: 1, height: 1, cells: new Set<string>(), occupied: [] as Cell[], renderCellPx: preferred };
+  const cellsW = Math.max(1, Math.ceil((maxGX - minGX + 1) / step));
+  const cellsH = Math.max(1, Math.ceil((maxGY - minGY + 1) / step));
+  for (let gy = 0; gy < cellsH; gy++) {
+    for (let gx = 0; gx < cellsW; gx++) {
+      const x0 = minGX + gx * step;
+      const y0 = minGY + gy * step;
+      let occ = 0, tot = 0;
+      for (let sy = 0; sy < sub; sy++) {
+        for (let sx = 0; sx < sub; sx++) {
+          const px = Math.min(canvas.width - 1, Math.floor(x0 + ((sx + 0.5) / sub) * step));
+          const py = Math.min(canvas.height - 1, Math.floor(y0 + ((sy + 0.5) / sub) * step));
+          occ += data[(py * canvas.width + px) * 4 + 3] ?? 0;
+          tot += 255;
+        }
+      }
+      if (tot > 0 && occ / tot >= threshold) raw.push({ x: gx, y: gy });
+    }
+  }
+  if (!raw.length) return { width: 1, height: 1, cells: new Set<string>(), occupied: [] as Cell[], renderCellPx: preferred };
   const cells = new Set<string>();
   const occupied: Cell[] = [];
   for (const c of raw) {
-    const x = c.x - minX + gridPadding;
-    const y = c.y - minY + gridPadding;
+    const x = c.x + gridPadding;
+    const y = c.y + gridPadding;
     const k = key(x, y);
     if (cells.has(k)) continue;
     cells.add(k);
     occupied.push({ x, y });
   }
-  return {
-    width: maxX - minX + 1 + gridPadding * 2,
-    height: maxY - minY + 1 + gridPadding * 2,
-    cells,
-    occupied,
-  };
+  const gridW = cellsW + gridPadding * 2;
+  const gridH = cellsH + gridPadding * 2;
+  const fit = Math.min((w * 0.94) / gridW, (h * 0.86) / gridH);
+  const renderCellPx = cellSize > 0 ? Math.max(2, cellSize) : Math.max(2, Math.floor(Math.min(preferred, fit)));
+  return { width: gridW, height: gridH, cells, occupied, renderCellPx };
 }
 
 function partition(mask: { cells: Set<string>; occupied: Cell[] }, seed: number) {
@@ -633,9 +696,17 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
     };
 
     const fontFamily =
-      cfg.fontVariant === "geist-pixel-grid"
-        ? '"Geist Pixel Grid", "Geist Pixel", monospace'
-        : '"Geist Pixel", "Geist Pixel Square", monospace';
+      cfg.fontVariant === "custom" && cfg.customFontFamily
+        ? '"' + cfg.customFontFamily + '", monospace'
+        : cfg.fontVariant === "geist-pixel-grid"
+          ? '"Geist Pixel Grid", "Geist Pixel", monospace'
+          : cfg.fontVariant === "geist-pixel-circle"
+            ? '"Geist Pixel Circle", "Geist Pixel", monospace'
+            : cfg.fontVariant === "geist-pixel-triangle"
+              ? '"Geist Pixel Triangle", "Geist Pixel", monospace'
+              : cfg.fontVariant === "geist-pixel-line"
+                ? '"Geist Pixel Line", "Geist Pixel", monospace'
+                : '"Geist Pixel", "Geist Pixel Square", monospace';
 
     const build = async () => {
       const { w, h } = resize();
@@ -651,11 +722,15 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
         cfg.lineHeight,
         cfg.textAlign,
         cfg.gridPadding,
+        cfg.textDensity,
+        cfg.renderQuality,
       );
       if (cancelled) return;
       gridRef.current = { w: mask.width, h: mask.height };
       const parts = partition(mask, cfg.layoutSeed);
       const pieces = assignMotion(parts, mask.width, mask.height, { ...cfg, text });
+      const renderCell = mask.renderCellPx || (cfg.cellSize > 0 ? cfg.cellSize : 4);
+      (cfg as { cellSize: number }).cellSize = renderCell;
       if (reduced || cfg.phase === "out") {
         for (const p of pieces) {
           p.x = p.targetX; p.y = p.targetY; p.rotation = 0; p.landed = true;

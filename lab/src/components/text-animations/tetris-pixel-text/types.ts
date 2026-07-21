@@ -1,3 +1,11 @@
+import type {
+  ConcurrencyLevel,
+  EdgeDetailLevel,
+  PieceScale,
+  RenderQuality,
+  TextDensity,
+} from "./density";
+
 export type RotationDeg = 0 | 90 | 180 | 270;
 
 export type ColorMode = "solid" | "rainbow" | "animated-rainbow" | "gradient";
@@ -8,11 +16,22 @@ export type RevealOutDirection =
   | "scatter-vertical"
   | "reverse-assembly";
 
-export type FontVariant = "geist-pixel-square" | "geist-pixel-grid";
+export type FontVariant =
+  | "geist-pixel-square"
+  | "geist-pixel-grid"
+  | "geist-pixel-circle"
+  | "geist-pixel-triangle"
+  | "geist-pixel-line"
+  | "custom";
 
 export type GradientAxis = "horizontal" | "vertical";
 
 export type Cell = { x: number; y: number };
+
+export type TargetCell = Cell & {
+  /** 0–1 area coverage from supersampled mask. */
+  coverage: number;
+};
 
 export type ShapeId =
   | "I"
@@ -82,18 +101,61 @@ export type OccupancyGrid = {
   cells: Set<string>;
   /** Sorted absolute occupied cells. */
   occupied: Cell[];
+  /** Optional per-cell coverage (same order as occupied when present). */
+  coverage?: Map<string, number>;
+  logicalCellPx?: number;
+  renderCellPx?: number;
+};
+
+export type TimelineSummary = {
+  requestedDuration: number;
+  calculatedDuration: number;
+  pieceCount: number;
+  peakConcurrent: number;
+  effectiveStagger: number;
+  effectiveConcurrency: Exclude<ConcurrencyLevel, "auto">;
+};
+
+export type MaskStats = {
+  gridWidth: number;
+  gridHeight: number;
+  targetCells: number;
+  pieceCount: number;
+  logicalCellPx: number;
+  renderCellPx: number;
+  fontSizeUsed: number;
 };
 
 export type TetrisPixelSettings = {
   line2: string;
   fontVariant: FontVariant;
+  customFontFamily: string;
+  customFontUrl: string;
+  customFontWeight: string;
+  customFontStyle: "normal" | "italic";
   fontSize: number;
   letterSpacing: number;
   lineHeight: number;
   textAlign: "left" | "center" | "right";
   background: string;
+
+  textDensity: TextDensity;
+  renderQuality: RenderQuality;
+  edgeDetailLevel: EdgeDetailLevel;
+  pieceScale: PieceScale;
+
+  /**
+   * Final on-stage cell size override (CSS px).
+   * 0 = auto from density + stage fit. Does not change logical mask resolution.
+   */
   cellSize: number;
   gridPadding: number;
+
+  /** Legacy numeric edge bias; prefer edgeDetailLevel. Kept for export compat. */
+  edgeDetail: number;
+  /** Legacy; 0 = derive from edgeDetailLevel. */
+  coverageThreshold: number;
+
   pieceSizePreference: number;
   tetrominoFrequency: number;
   triominoFrequency: number;
@@ -102,13 +164,15 @@ export type TetrisPixelSettings = {
   spawnHeightMin: number;
   spawnHeightMax: number;
   landingDensity: number;
-  edgeDetail: number;
-  /** Fraction of cell samples that must be filled (0–1). */
-  coverageThreshold: number;
   /** Extra cells above the rotated piece height when spawning. */
   spawnSafetyMargin: number;
   /** Dev-only mask/partition overlay. */
   debugOverlay: boolean;
+
+  /** Master reveal length in seconds (first piece visible → last lock). */
+  animationDuration: number;
+  concurrency: ConcurrencyLevel;
+
   fallDuration: number;
   stagger: number;
   staggerRandomness: number;
@@ -148,18 +212,35 @@ export type TetrisPixelTextProps = Partial<TetrisPixelSettings> & {
   compact?: boolean;
   className?: string;
   embedded?: boolean;
+  onTimelineReady?: (summary: TimelineSummary) => void;
+  onMaskStats?: (stats: MaskStats) => void;
+  onFontError?: (message: string) => void;
+  onFontLoading?: (loading: boolean) => void;
 };
 
 export const DEFAULT_TETRIS_SETTINGS: TetrisPixelSettings = {
   line2: "",
   fontVariant: "geist-pixel-square",
-  fontSize: 96,
+  customFontFamily: "",
+  customFontUrl: "",
+  customFontWeight: "400",
+  customFontStyle: "normal",
+  fontSize: 120,
   letterSpacing: 0,
   lineHeight: 1.05,
   textAlign: "center",
   background: "#000000",
-  cellSize: 5,
+
+  textDensity: "high",
+  renderQuality: "high",
+  edgeDetailLevel: "detailed",
+  pieceScale: "mixed",
+
+  cellSize: 0,
   gridPadding: 1,
+  edgeDetail: 0.9,
+  coverageThreshold: 0,
+
   pieceSizePreference: 0.7,
   tetrominoFrequency: 0.65,
   triominoFrequency: 0.25,
@@ -168,10 +249,12 @@ export const DEFAULT_TETRIS_SETTINGS: TetrisPixelSettings = {
   spawnHeightMin: 0.35,
   spawnHeightMax: 0.85,
   landingDensity: 0.55,
-  edgeDetail: 0.9,
-  coverageThreshold: 0.12,
   spawnSafetyMargin: 2,
   debugOverlay: false,
+
+  animationDuration: 4,
+  concurrency: "auto",
+
   fallDuration: 1800,
   stagger: 45,
   staggerRandomness: 0.3,

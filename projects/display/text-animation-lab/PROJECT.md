@@ -66,30 +66,60 @@ Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/
 
 ## Tetris Pixel Text Reveal
 
-Portable package: `lab/src/components/text-animations/tetris-pixel-text/`
+Canvas 2D polyomino partition + kinematic fall into a high-density glyph mask.
 
-- Geist Pixel mask → occupancy grid → seeded polyomino partition (`layoutSeed`)
-- Separate `motionSeed` for spawn / waypoints / rotations / stagger
-- Reveal-in and reveal-out (fall-down, lift-up, scatter-vertical, reverse-assembly)
-- Color modes: solid, rainbow-by-piece, animated rainbow, position gradient
-- Presets: Classic Blocks, Arcade Rainbow, Slow Assembly, Glitch Build, Minimal Lock-In
-- Export drawer tabs: Component / Styles / Usage / Setup (self-contained, no lab paths)
-- Reduced motion: snap to completed grid
-- Dual actions: Randomize Pieces (new layout + motion seeds) / Randomize Motion (motion only)
+### Quality & density
+
+- **Text Density** (Coarse→Ultra, default High): logical cells-per-em — independent of display font size
+- **Render Quality**: supersample factor for offscreen rasterization (2×–6×)
+- **Edge Detail**: coverage threshold (Clean / Detailed / Maximum) + connectivity cleanup
+- **Piece Scale**: Small / Mixed / Large connected polyomino groups (does not change glyph resolution)
+- Font size grows the word; density grows cell count — not block size
+
+### Animation
+
+- **Animation Length** (0.8–12s, default 4s): master timeline normalizer (concurrency + stagger before naive speed-up)
+- Granular motion controls live under **Advanced Motion**
+- Timeline summary: requested vs calculated duration, piece count, peak concurrent
+
+### Fonts
+
+- Geist Pixel Square / Grid / Circle / Triangle / Line + Custom (FontFace URL)
+- Fail loudly on load errors — never silent fallback mask generation
+
+### Presets
+
+Classic Blocks, High Definition, Fast Build, Arcade Rainbow, Slow Assembly, Glitch Build, Minimal Lock-In
+
+### Implementation notes
+
+- Portable package: `lab/src/components/text-animations/tetris-pixel-text/`
+- **Tetris spawn:** `PieceAnimState.waiting` skips draw; per-piece `spawnY` from rotated bounds + glow + stage offset; canvas clip
+- **Tetris mask:** density-driven logical cells; supersampled area coverage; connectivity cleanup
+- **Tetris partition:** piece-scale profiles; exact coverage validation + flood-fill leftovers
+- **Tetris timeline:** `normalizeTimeline` adapts concurrency/stagger/waypoints before clamping fall duration
+- **Tetris cache:** layout key skips remask when only motion/color changes; silhouette glow at high density
+- Reveal-in/out, color modes, dual seeds, reduced-motion snap, export tabs (Component / Styles / Usage / Setup)
 
 ### Acceptance criteria (Tetris)
 
+- [x] Text Density control with High default; Ultra yields many more target cells
+- [x] Font size independent of logical/render cell size
+- [x] Animation Length normalizes full reveal near requested duration
+- [x] Advanced Motion retains granular controls
+- [x] Multi font + custom FontFace with clear errors
+- [x] Exact partition coverage validation
+- [x] Export includes density / duration / concurrency / font settings
 - [x] “MASER MEDIA” builds from connected falling pieces (not pixel rain)
-- [x] Pieces rotate in quarter turns and move horizontally in stepped corrections
-- [x] Final text matches Geist Pixel font mask
-- [x] Solid / rainbow / animated-rainbow / gradient color modes
-- [x] Adjustable landing glow + bounce + final-word glow
 - [x] Reveal-in / reveal-out / pause / resume / replay
-- [x] Randomize Pieces vs Randomize Motion with reproducible seeds
-- [x] Presets populate real controls
-- [x] Export produces portable Canvas React component
 - [x] `prefers-reduced-motion` supported
-- [x] Lint / production build pass
+- [x] Lint + production build pass
+
+## Fixes (2026-07-21)
+
+- Density / render quality / edge detail / piece scale / animation length timeline
+- Multi-font + custom FontFace loader; silhouette glow at high density
+- Spawn offscreen + dense coverage mask + exact partition validation
 
 ## Fixes (2026-07-16)
 
