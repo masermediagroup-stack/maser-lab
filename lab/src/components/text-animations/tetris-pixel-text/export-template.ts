@@ -404,6 +404,7 @@ async function buildMask(
   gridPadding: number,
   textDensity: TextDensity = "high",
   renderQuality: RenderQuality = "high",
+  edgeDetailLevel: EdgeDetailLevel = "detailed",
 ) {
   const lines = [text, line2].map((l) => l.trim()).filter(Boolean);
   const resolved = lines.length ? lines : ["A"];
@@ -416,6 +417,12 @@ async function buildMask(
   const cellsPerEm = ({ coarse: 10, medium: 18, detailed: 28, high: 40, ultra: 56 } as const)[textDensity];
   const logical = Math.max(0.85, fontSize / cellsPerEm);
   const ss = ({ performance: 2, balanced: 3, high: 4, ultra: 6 } as const)[renderQuality];
+  const hyst = ({
+    clean: { core: 0.42, edge: 0.28 },
+    detailed: { core: 0.32, edge: 0.18 },
+    maximum: { core: 0.24, edge: 0.12 },
+  } as const)[edgeDetailLevel];
+  const inkFloor = 48;
   const preferred = Math.max(2, Math.min(8, Math.round(logical * 0.85)));
   const canvas = document.createElement("canvas");
   const pad = Math.ceil(fontSize * 0.35);
@@ -428,6 +435,7 @@ async function buildMask(
   const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
   ctx.setTransform(ss, 0, 0, ss, 0, 0);
   ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, contentW + pad * 2, contentH + pad * 2);
   ctx.fillStyle = "#fff";
   ctx.textAlign = textAlign;
   ctx.textBaseline = "middle";
@@ -438,14 +446,11 @@ async function buildMask(
   resolved.forEach((line, i) => ctx.fillText(line, ax, startY + i * lh));
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
   const step = Math.max(1, logical * ss);
-  const raw: Cell[] = [];
   const sub = Math.max(3, Math.min(8, ss + 1));
-  const threshold = 0.14;
   let minGX = Infinity, minGY = Infinity, maxGX = -Infinity, maxGY = -Infinity;
-  // probe ink bounds
-  for (let py = 0; py < canvas.height; py += Math.max(1, Math.floor(step / 2))) {
-    for (let px = 0; px < canvas.width; px += Math.max(1, Math.floor(step / 2))) {
-      if ((data[(py * canvas.width + px) * 4 + 3] ?? 0) >= 20) {
+  for (let py = 0; py < canvas.height; py++) {
+    for (let px = 0; px < canvas.width; px++) {
+      if ((data[(py * canvas.width + px) * 4 + 3] ?? 0) >= inkFloor) {
         minGX = Math.min(minGX, px); minGY = Math.min(minGY, py);
         maxGX = Math.max(maxGX, px); maxGY = Math.max(maxGY, py);
       }
@@ -454,6 +459,7 @@ async function buildMask(
   if (!Number.isFinite(minGX)) return { width: 1, height: 1, cells: new Set<string>(), occupied: [] as Cell[], renderCellPx: preferred };
   const cellsW = Math.max(1, Math.ceil((maxGX - minGX + 1) / step));
   const cellsH = Math.max(1, Math.ceil((maxGY - minGY + 1) / step));
+  const coverage = new Float32Array(cellsW * cellsH);
   for (let gy = 0; gy < cellsH; gy++) {
     for (let gx = 0; gx < cellsW; gx++) {
       const x0 = minGX + gx * step;
@@ -463,24 +469,55 @@ async function buildMask(
         for (let sx = 0; sx < sub; sx++) {
           const px = Math.min(canvas.width - 1, Math.floor(x0 + ((sx + 0.5) / sub) * step));
           const py = Math.min(canvas.height - 1, Math.floor(y0 + ((sy + 0.5) / sub) * step));
-          occ += data[(py * canvas.width + px) * 4 + 3] ?? 0;
+          const a = data[(py * canvas.width + px) * 4 + 3] ?? 0;
+          occ += a >= inkFloor ? a : 0;
           tot += 255;
         }
       }
-      if (tot > 0 && occ / tot >= threshold) raw.push({ x: gx, y: gy });
+      coverage[gy * cellsW + gx] = tot > 0 ? occ / tot : 0;
     }
   }
-  if (!raw.length) return { width: 1, height: 1, cells: new Set<string>(), occupied: [] as Cell[], renderCellPx: preferred };
+  const core = new Uint8Array(cellsW * cellsH);
+  const candidate = new Uint8Array(cellsW * cellsH);
+  for (let i = 0; i < coverage.length; i++) {
+    const c = coverage[i]!;
+    if (c >= hyst.core) { core[i] = 1; candidate[i] = 1; }
+    else if (c >= hyst.edge) candidate[i] = 1;
+  }
+  const occupiedMask = new Uint8Array(cellsW * cellsH);
+  const stack: number[] = [];
+  for (let i = 0; i < core.length; i++) {
+    if (!core[i]) continue;
+    occupiedMask[i] = 1;
+    stack.push(i);
+  }
+  while (stack.length) {
+    const i = stack.pop()!;
+    const x = i % cellsW;
+    const y = (i / cellsW) | 0;
+    for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]] as const) {
+      const nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= cellsW || ny >= cellsH) continue;
+      const ni = ny * cellsW + nx;
+      if (!candidate[ni] || occupiedMask[ni]) continue;
+      occupiedMask[ni] = 1;
+      stack.push(ni);
+    }
+  }
   const cells = new Set<string>();
   const occupied: Cell[] = [];
-  for (const c of raw) {
-    const x = c.x + gridPadding;
-    const y = c.y + gridPadding;
-    const k = key(x, y);
-    if (cells.has(k)) continue;
-    cells.add(k);
-    occupied.push({ x, y });
+  for (let gy = 0; gy < cellsH; gy++) {
+    for (let gx = 0; gx < cellsW; gx++) {
+      if (!occupiedMask[gy * cellsW + gx]) continue;
+      const x = gx + gridPadding;
+      const y = gy + gridPadding;
+      const k = key(x, y);
+      if (cells.has(k)) continue;
+      cells.add(k);
+      occupied.push({ x, y });
+    }
   }
+  if (!occupied.length) return { width: 1, height: 1, cells: new Set<string>(), occupied: [] as Cell[], renderCellPx: preferred };
   const gridW = cellsW + gridPadding * 2;
   const gridH = cellsH + gridPadding * 2;
   const fit = Math.min((w * 0.94) / gridW, (h * 0.86) / gridH);
@@ -724,6 +761,7 @@ export function TetrisPixelText(props: TetrisPixelTextProps) {
         cfg.gridPadding,
         cfg.textDensity,
         cfg.renderQuality,
+        cfg.edgeDetailLevel,
       );
       if (cancelled) return;
       gridRef.current = { w: mask.width, h: mask.height };

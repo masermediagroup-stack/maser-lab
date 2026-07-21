@@ -189,6 +189,7 @@ function updateRevealIn(
         setState(p, "landing", true);
       } else {
         setState(p, "landed", true);
+        p.impactFlash = 0;
       }
       landedCount++;
       const glowT = Math.max(0, 1 - sinceLand / Math.max(60, settings.glowDuration));

@@ -1,9 +1,11 @@
 import {
   densityToLogicalCellPx,
-  EDGE_COVERAGE,
+  EDGE_COVERAGE_HYSTERESIS,
+  INK_ALPHA_FLOOR,
   preferredRenderCellPx,
   QUALITY_SUPERSAMPLE,
   resolveRenderCellSize,
+  type CoverageThresholds,
   type EdgeDetailLevel,
   type RenderQuality,
   type TextDensity,
@@ -100,6 +102,11 @@ export function validateTextLength(lines: string[]): { ok: boolean; message?: st
   return { ok: true };
 }
 
+/**
+ * Area coverage for one logical cell.
+ * Only source pixels at/above inkFloor count as occupied alpha — faint AA haze
+ * contributes little so inter-glyph speckles do not pass edge thresholds.
+ */
 function coverageForCell(
   data: Uint8ClampedArray,
   canvasW: number,
@@ -108,9 +115,15 @@ function coverageForCell(
   y0: number,
   x1: number,
   y1: number,
-  alphaThreshold: number,
+  inkFloor: number,
   subSamples: number,
 ): number {
+  const xStart = Math.max(0, Math.floor(x0));
+  const yStart = Math.max(0, Math.floor(y0));
+  const xEnd = Math.min(canvasW, Math.ceil(x1));
+  const yEnd = Math.min(canvasH, Math.ceil(y1));
+  if (xEnd <= xStart || yEnd <= yStart) return 0;
+
   let occupiedAlpha = 0;
   let totalPossibleAlpha = 0;
 
@@ -118,82 +131,136 @@ function coverageForCell(
     for (let sx = 0; sx < subSamples; sx++) {
       const px = Math.min(
         canvasW - 1,
-        Math.floor(x0 + ((sx + 0.5) / subSamples) * (x1 - x0)),
+        Math.floor(xStart + ((sx + 0.5) / subSamples) * (xEnd - xStart)),
       );
       const py = Math.min(
         canvasH - 1,
-        Math.floor(y0 + ((sy + 0.5) / subSamples) * (y1 - y0)),
+        Math.floor(yStart + ((sy + 0.5) / subSamples) * (yEnd - yStart)),
       );
       const a = data[(py * canvasW + px) * 4 + 3] ?? 0;
-      occupiedAlpha += a;
+      occupiedAlpha += a >= inkFloor ? a : 0;
       totalPossibleAlpha += 255;
     }
   }
 
-  // Area accumulation for thin strokes
-  const step = Math.max(1, Math.floor(Math.min(x1 - x0, y1 - y0) / 8));
+  const step = Math.max(1, Math.floor(Math.min(xEnd - xStart, yEnd - yStart) / 8));
   let areaOcc = 0;
   let areaTot = 0;
-  for (let py = y0; py < y1; py += step) {
-    for (let px = x0; px < x1; px += step) {
+  for (let py = yStart; py < yEnd; py += step) {
+    for (let px = xStart; px < xEnd; px += step) {
       areaTot += 255;
-      areaOcc += data[(py * canvasW + px) * 4 + 3] ?? 0;
+      const a = data[(py * canvasW + px) * 4 + 3] ?? 0;
+      areaOcc += a >= inkFloor ? a : 0;
     }
   }
 
   const probe = totalPossibleAlpha > 0 ? occupiedAlpha / totalPossibleAlpha : 0;
   const area = areaTot > 0 ? areaOcc / areaTot : 0;
-  // Soft-count near-threshold alpha as partial coverage
-  void alphaThreshold;
-  return Math.max(probe, area);
+  return areaTot > 0 ? 0.65 * area + 0.35 * probe : probe;
 }
 
 /**
- * Connectivity cleanup:
- * - Fill accidental 1-cell holes (3+ orthogonal neighbors)
- * - Drop isolated exterior noise (0 neighbors + low coverage)
+ * Two-threshold hysteresis occupancy:
+ * - Core cells (coverage >= core) always occupy
+ * - Edge cells (coverage >= edge) occupy only if 4-connected to a core cell
+ * Then drop components with no core, and fill 1-cell holes inside solid strokes.
  */
-function cleanupCoverage(
+function resolveOccupancyHysteresis(
   coverage: Float32Array,
   width: number,
   height: number,
-  threshold: number,
-): Float32Array {
-  const out = new Float32Array(coverage);
-  const at = (x: number, y: number) =>
-    x >= 0 && y >= 0 && x < width && y < height ? out[y * width + x]! : 0;
-  const on = (x: number, y: number) => at(x, y) >= threshold;
+  thresholds: CoverageThresholds,
+): { occupied: Uint8Array; core: Uint8Array } {
+  const { core: coreT, edge: edgeT } = thresholds;
+  const core = new Uint8Array(width * height);
+  const candidate = new Uint8Array(width * height);
 
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if (on(x, y)) continue;
-      let n = 0;
-      if (on(x - 1, y)) n++;
-      if (on(x + 1, y)) n++;
-      if (on(x, y - 1)) n++;
-      if (on(x, y + 1)) n++;
-      if (n >= 3) out[y * width + x] = Math.max(out[y * width + x]!, threshold);
+  for (let i = 0; i < coverage.length; i++) {
+    const c = coverage[i]!;
+    if (c >= coreT) {
+      core[i] = 1;
+      candidate[i] = 1;
+    } else if (c >= edgeT) {
+      candidate[i] = 1;
     }
   }
 
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const c = out[y * width + x]!;
-      if (c < threshold) continue;
-      let n = 0;
-      for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
-          if (dx === 0 && dy === 0) continue;
-          if (on(x + dx, y + dy)) n++;
-        }
+  const occupied = new Uint8Array(width * height);
+  const stack: number[] = [];
+  for (let i = 0; i < core.length; i++) {
+    if (!core[i]) continue;
+    occupied[i] = 1;
+    stack.push(i);
+  }
+
+  const tryVisit = (nx: number, ny: number) => {
+    if (nx < 0 || ny < 0 || nx >= width || ny >= height) return;
+    const ni = ny * width + nx;
+    if (!candidate[ni] || occupied[ni]) return;
+    occupied[ni] = 1;
+    stack.push(ni);
+  };
+
+  while (stack.length) {
+    const i = stack.pop()!;
+    const x = i % width;
+    const y = (i / width) | 0;
+    tryVisit(x - 1, y);
+    tryVisit(x + 1, y);
+    tryVisit(x, y - 1);
+    tryVisit(x, y + 1);
+  }
+
+  const seen = new Uint8Array(width * height);
+  for (let start = 0; start < occupied.length; start++) {
+    if (!occupied[start] || seen[start]) continue;
+    const component: number[] = [];
+    const q = [start];
+    seen[start] = 1;
+    let hasCore = false;
+    while (q.length) {
+      const i = q.pop()!;
+      component.push(i);
+      if (core[i]) hasCore = true;
+      const x = i % width;
+      const y = (i / width) | 0;
+      for (const [dx, dy] of [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1],
+      ] as const) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+        const ni = ny * width + nx;
+        if (!occupied[ni] || seen[ni]) continue;
+        seen[ni] = 1;
+        q.push(ni);
       }
-      if (n === 0 && c < threshold + 0.22) {
-        out[y * width + x] = 0;
+    }
+    if (!hasCore) {
+      for (const i of component) occupied[i] = 0;
+    }
+  }
+
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const i = y * width + x;
+      if (occupied[i]) continue;
+      const n =
+        (occupied[i - 1] ? 1 : 0) +
+        (occupied[i + 1] ? 1 : 0) +
+        (occupied[i - width] ? 1 : 0) +
+        (occupied[i + width] ? 1 : 0);
+      if (n >= 4) {
+        occupied[i] = 1;
+        core[i] = 1;
       }
     }
   }
 
-  return out;
+  return { occupied, core };
 }
 
 /**
@@ -219,7 +286,7 @@ export async function createTextMask(options: TextMaskOptions): Promise<TextMask
     stageWidth,
     stageHeight,
     gridPadding = 1,
-    alphaThreshold = 20,
+    alphaThreshold = INK_ALPHA_FLOOR,
     edgeDetail = 0.85,
     targetWidthRatio = 0.82,
   } = options;
@@ -229,6 +296,7 @@ export async function createTextMask(options: TextMaskOptions): Promise<TextMask
   // controls cell count. Stage fit happens via renderCellPx, not by coarsening glyphs.
   const fontSize = Math.round(Math.max(28, Math.min(420, requestedFontSize)));
   void targetWidthRatio;
+  void edgeDetail;
 
   const logicalCellPx = densityToLogicalCellPx(fontSize, textDensity);
   const lines = resolveLines(text, line2, stageWidth, preferredRenderCellPx(logicalCellPx, textDensity));
@@ -247,11 +315,17 @@ export async function createTextMask(options: TextMaskOptions): Promise<TextMask
   const fontReady = fontResult.ok;
   const fontError = fontResult.error;
 
-  const threshold =
+  const baseHysteresis = EDGE_COVERAGE_HYSTERESIS[edgeDetailLevel];
+  // Legacy single coverageThreshold overrides the edge gate when > 0; core stays stricter.
+  const thresholds: CoverageThresholds =
     options.coverageThreshold && options.coverageThreshold > 0
-      ? options.coverageThreshold
-      : EDGE_COVERAGE[edgeDetailLevel] * (0.85 + (1 - edgeDetail) * 0.2);
+      ? {
+          core: Math.min(0.85, options.coverageThreshold * 1.75),
+          edge: options.coverageThreshold,
+        }
+      : { ...baseHysteresis };
 
+  const inkFloor = Math.max(INK_ALPHA_FLOOR, alphaThreshold);
   const sampleScale = QUALITY_SUPERSAMPLE[renderQuality];
   const subSamples = Math.max(3, Math.min(8, sampleScale + 1));
 
@@ -305,6 +379,11 @@ export async function createTextMask(options: TextMaskOptions): Promise<TextMask
   ctx.fillStyle = "#ffffff";
   ctx.textAlign = textAlign;
   ctx.textBaseline = "middle";
+  // Prefer crisp glyph edges when the browser supports it
+  if ("textRendering" in ctx) {
+    (ctx as CanvasRenderingContext2D & { textRendering: string }).textRendering =
+      "geometricPrecision";
+  }
   ctx.font = `${customFontStyle} ${customFontWeight} ${fontSize}px ${fontFamily}`;
   if (letterSpacing !== 0 && "letterSpacing" in ctx) {
     (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing =
@@ -334,7 +413,7 @@ export async function createTextMask(options: TextMaskOptions): Promise<TextMask
   for (let py = 0; py < canvas.height; py++) {
     for (let px = 0; px < canvas.width; px++) {
       const a = data[(py * canvas.width + px) * 4 + 3] ?? 0;
-      if (a < alphaThreshold) continue;
+      if (a < inkFloor) continue;
       if (px < inkMinX) inkMinX = px;
       if (py < inkMinY) inkMinY = py;
       if (px > inkMaxX) inkMaxX = px;
@@ -345,7 +424,7 @@ export async function createTextMask(options: TextMaskOptions): Promise<TextMask
   if (inkMaxX < 0) {
     return empty(
       fontReady
-        ? "No pixels sampled — try a larger font or lower edge threshold."
+        ? "No pixels sampled — try a larger font or Maximum edge detail."
         : "Font not ready.",
     );
   }
@@ -369,13 +448,18 @@ export async function createTextMask(options: TextMaskOptions): Promise<TextMask
         y0,
         x1,
         y1,
-        alphaThreshold,
+        inkFloor,
         subSamples,
       );
     }
   }
 
-  const cleaned = cleanupCoverage(raw, contentCellsW, contentCellsH, threshold);
+  const { occupied: occupiedMask } = resolveOccupancyHysteresis(
+    raw,
+    contentCellsW,
+    contentCellsH,
+    thresholds,
+  );
   const cells = new Set<string>();
   const unique: Cell[] = [];
   const coverageMap = new Map<string, number>();
@@ -383,8 +467,9 @@ export async function createTextMask(options: TextMaskOptions): Promise<TextMask
 
   for (let gy = 0; gy < contentCellsH; gy++) {
     for (let gx = 0; gx < contentCellsW; gx++) {
-      const cov = cleaned[gy * contentCellsW + gx]!;
-      if (cov < threshold) continue;
+      const idx = gy * contentCellsW + gx;
+      if (!occupiedMask[idx]) continue;
+      const cov = raw[idx]!;
       const cell: Cell = { x: gx + gridPadding, y: gy + gridPadding };
       const k = cellKey(cell.x, cell.y);
       if (cells.has(k)) continue;
@@ -399,7 +484,7 @@ export async function createTextMask(options: TextMaskOptions): Promise<TextMask
   targetCells.sort((a, b) => a.y - b.y || a.x - b.x);
 
   if (unique.length === 0) {
-    return empty("Coverage threshold discarded all cells — try Maximum edge detail.");
+    return empty("Coverage thresholds discarded all cells — try Maximum edge detail.");
   }
 
   const gridW = contentCellsW + gridPadding * 2;

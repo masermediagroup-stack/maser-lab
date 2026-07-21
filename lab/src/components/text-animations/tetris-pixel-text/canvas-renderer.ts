@@ -224,7 +224,11 @@ export function renderFrame(
       drawCell(ctx, px, py, cellSize, color, scaleY);
     }
 
-    if (p.impactFlash > 0.2 && settings.impactFlash > 0.2) {
+    if (
+      p.animState === "landing" &&
+      p.impactFlash > 0.2 &&
+      settings.impactFlash > 0.2
+    ) {
       const rgb = hexToRgb(p.color);
       ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${p.impactFlash * 0.7})`;
       for (let s = 0; s < Math.min(3, cells.length); s++) {

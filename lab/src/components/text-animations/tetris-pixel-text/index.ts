@@ -13,11 +13,14 @@ export { DEFAULT_TETRIS_SETTINGS } from "./types";
 export {
   DENSITY_LABELS,
   DENSITY_SELECT_OPTIONS,
+  EDGE_COVERAGE_HYSTERESIS,
+  INK_ALPHA_FLOOR,
   type TextDensity,
   type RenderQuality,
   type EdgeDetailLevel,
   type PieceScale,
   type ConcurrencyLevel,
+  type CoverageThresholds,
 } from "./density";
 export { BUILT_IN_FONTS, resolveAndLoadFont, getFontSource } from "./fonts";
 export { TETRIS_PRESETS, applyPreset } from "./presets";

@@ -43,12 +43,31 @@ export const QUALITY_SUPERSAMPLE: Record<RenderQuality, number> = {
 /** @deprecated alias */
 export const SUPER_SAMPLE = QUALITY_SUPERSAMPLE;
 
-/** Coverage threshold — lower = more edge cells kept. */
-export const EDGE_COVERAGE: Record<EdgeDetailLevel, number> = {
-  clean: 0.28,
-  detailed: 0.14,
-  maximum: 0.08,
+/**
+ * Hysteresis occupancy thresholds.
+ * - core: high-confidence glyph interior / solid stroke
+ * - edge: fringe cells kept only when 4-connected to a core component
+ */
+export type CoverageThresholds = {
+  core: number;
+  edge: number;
 };
+
+export const EDGE_COVERAGE_HYSTERESIS: Record<EdgeDetailLevel, CoverageThresholds> = {
+  clean: { core: 0.42, edge: 0.28 },
+  detailed: { core: 0.32, edge: 0.18 },
+  maximum: { core: 0.24, edge: 0.12 },
+};
+
+/** @deprecated single-threshold alias — prefer EDGE_COVERAGE_HYSTERESIS.edge */
+export const EDGE_COVERAGE: Record<EdgeDetailLevel, number> = {
+  clean: EDGE_COVERAGE_HYSTERESIS.clean.edge,
+  detailed: EDGE_COVERAGE_HYSTERESIS.detailed.edge,
+  maximum: EDGE_COVERAGE_HYSTERESIS.maximum.edge,
+};
+
+/** Source-pixel alpha floor when accumulating coverage (rejects faint AA haze). */
+export const INK_ALPHA_FLOOR = 48;
 
 export type PieceScaleProfile = {
   preferredSizes: number[];

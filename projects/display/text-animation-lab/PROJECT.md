@@ -95,7 +95,7 @@ Classic Blocks, High Definition, Fast Build, Arcade Rainbow, Slow Assembly, Glit
 
 - Portable package: `lab/src/components/text-animations/tetris-pixel-text/`
 - **Tetris spawn:** `PieceAnimState.waiting` skips draw; per-piece `spawnY` from rotated bounds + glow + stage offset; canvas clip
-- **Tetris mask:** density-driven logical cells; supersampled area coverage; connectivity cleanup
+- **Tetris mask:** density-driven logical cells; supersampled area coverage with ink alpha floor; **hysteresis occupancy** (core + edge-only-if-connected-to-core); stray cluster rejection
 - **Tetris partition:** piece-scale profiles; exact coverage validation + flood-fill leftovers
 - **Tetris timeline:** `normalizeTimeline` adapts concurrency/stagger/waypoints before clamping fall duration
 - **Tetris cache:** layout key skips remask when only motion/color changes; silhouette glow at high density
