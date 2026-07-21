@@ -4,7 +4,7 @@
 **Category:** display  
 **Status:** building  
 **Created:** 2026-07-02  
-**Updated:** 2026-07-16
+**Updated:** 2026-07-21
 
 ## Purpose
 
@@ -42,7 +42,7 @@ Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/
 - **Copy code** writes the active snippet to clipboard
 - Export excludes lab chrome — only the animation component import/usage
 
-## Animations (16)
+## Animations (17)
 
 | # | ID | Title | Approach |
 | --- | --- | --- | --- |
@@ -62,6 +62,64 @@ Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/
 | 14 | `blur-focus-reveal` | Blur Focus Reveal | Blur + tracking tighten |
 | 15 | `underline-draw-reveal` | Underline Draw Reveal | Word rise + underline scaleX |
 | 16 | `text-flip-3d` | 3D Text Flip Reveal | Three.js CanvasTexture planes + CSS fallback |
+| 17 | `tetris-pixel-text` | Tetris Pixel Text Reveal | Canvas 2D polyomino partition + kinematic fall |
+
+## Tetris Pixel Text Reveal
+
+Canvas 2D polyomino partition + kinematic fall into a high-density glyph mask.
+
+### Quality & density
+
+- **Text Density** (Coarse→Ultra, default High): logical cells-per-em — independent of display font size
+- **Render Quality**: supersample factor for offscreen rasterization (2×–6×)
+- **Edge Detail**: coverage threshold (Clean / Detailed / Maximum) + connectivity cleanup
+- **Piece Scale**: Small / Mixed / Large connected polyomino groups (does not change glyph resolution)
+- Font size grows the word; density grows cell count — not block size
+
+### Animation
+
+- **Animation Length** (0.8–12s, default 4s): master timeline normalizer (concurrency + stagger before naive speed-up)
+- Granular motion controls live under **Advanced Motion**
+- Timeline summary: requested vs calculated duration, piece count, peak concurrent
+
+### Fonts
+
+- Geist Pixel Square / Grid / Circle / Triangle / Line + Custom (FontFace URL)
+- Fail loudly on load errors — never silent fallback mask generation
+
+### Presets
+
+Classic Blocks, High Definition, Fast Build, Arcade Rainbow, Slow Assembly, Glitch Build, Minimal Lock-In
+
+### Implementation notes
+
+- Portable package: `lab/src/components/text-animations/tetris-pixel-text/`
+- **Tetris spawn:** `PieceAnimState.waiting` skips draw; per-piece `spawnY` from rotated bounds + glow + stage offset; canvas clip
+- **Tetris mask:** density-driven logical cells; supersampled area coverage with ink alpha floor; **hysteresis occupancy** (core + edge-only-if-connected-to-core); stray cluster rejection
+- **Tetris partition:** piece-scale profiles; exact coverage validation + flood-fill leftovers
+- **Tetris timeline:** `normalizeTimeline` adapts concurrency/stagger/waypoints before clamping fall duration
+- **Tetris cache:** layout key skips remask when only motion/color changes; silhouette glow at high density
+- Reveal-in/out, color modes, dual seeds, reduced-motion snap, export tabs (Component / Styles / Usage / Setup)
+
+### Acceptance criteria (Tetris)
+
+- [x] Text Density control with High default; Ultra yields many more target cells
+- [x] Font size independent of logical/render cell size
+- [x] Animation Length normalizes full reveal near requested duration
+- [x] Advanced Motion retains granular controls
+- [x] Multi font + custom FontFace with clear errors
+- [x] Exact partition coverage validation
+- [x] Export includes density / duration / concurrency / font settings
+- [x] “MASER MEDIA” builds from connected falling pieces (not pixel rain)
+- [x] Reveal-in / reveal-out / pause / resume / replay
+- [x] `prefers-reduced-motion` supported
+- [x] Lint + production build pass
+
+## Fixes (2026-07-21)
+
+- Density / render quality / edge detail / piece scale / animation length timeline
+- Multi-font + custom FontFace loader; silhouette glow at high density
+- Spawn offscreen + dense coverage mask + exact partition validation
 
 ## Fixes (2026-07-16)
 
