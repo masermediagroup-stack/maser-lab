@@ -4,7 +4,7 @@
 **Category:** display  
 **Status:** building  
 **Created:** 2026-07-02  
-**Updated:** 2026-07-16
+**Updated:** 2026-07-21
 
 ## Purpose
 
@@ -42,7 +42,7 @@ Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/
 - **Copy code** writes the active snippet to clipboard
 - Export excludes lab chrome — only the animation component import/usage
 
-## Animations (16)
+## Animations (17)
 
 | # | ID | Title | Approach |
 | --- | --- | --- | --- |
@@ -62,6 +62,34 @@ Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/
 | 14 | `blur-focus-reveal` | Blur Focus Reveal | Blur + tracking tighten |
 | 15 | `underline-draw-reveal` | Underline Draw Reveal | Word rise + underline scaleX |
 | 16 | `text-flip-3d` | 3D Text Flip Reveal | Three.js CanvasTexture planes + CSS fallback |
+| 17 | `tetris-pixel-text` | Tetris Pixel Text Reveal | Canvas 2D polyomino partition + kinematic fall |
+
+## Tetris Pixel Text Reveal
+
+Portable package: `lab/src/components/text-animations/tetris-pixel-text/`
+
+- Geist Pixel mask → occupancy grid → seeded polyomino partition (`layoutSeed`)
+- Separate `motionSeed` for spawn / waypoints / rotations / stagger
+- Reveal-in and reveal-out (fall-down, lift-up, scatter-vertical, reverse-assembly)
+- Color modes: solid, rainbow-by-piece, animated rainbow, position gradient
+- Presets: Classic Blocks, Arcade Rainbow, Slow Assembly, Glitch Build, Minimal Lock-In
+- Export drawer tabs: Component / Styles / Usage / Setup (self-contained, no lab paths)
+- Reduced motion: snap to completed grid
+- Dual actions: Randomize Pieces (new layout + motion seeds) / Randomize Motion (motion only)
+
+### Acceptance criteria (Tetris)
+
+- [x] “MASER MEDIA” builds from connected falling pieces (not pixel rain)
+- [x] Pieces rotate in quarter turns and move horizontally in stepped corrections
+- [x] Final text matches Geist Pixel font mask
+- [x] Solid / rainbow / animated-rainbow / gradient color modes
+- [x] Adjustable landing glow + bounce + final-word glow
+- [x] Reveal-in / reveal-out / pause / resume / replay
+- [x] Randomize Pieces vs Randomize Motion with reproducible seeds
+- [x] Presets populate real controls
+- [x] Export produces portable Canvas React component
+- [x] `prefers-reduced-motion` supported
+- [x] Lint / production build pass
 
 ## Fixes (2026-07-16)
 

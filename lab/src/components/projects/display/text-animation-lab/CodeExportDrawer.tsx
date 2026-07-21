@@ -1,6 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import {
+  generateTetrisExport,
+  type TetrisExportTab,
+  type TetrisPixelSettings,
+} from "@/components/text-animations";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -25,6 +30,13 @@ type CodeExportDrawerProps = {
   settings: AnimationSettings;
 };
 
+const TETRIS_TABS: { id: TetrisExportTab; label: string }[] = [
+  { id: "component", label: "Component" },
+  { id: "styles", label: "Styles" },
+  { id: "usage", label: "Usage" },
+  { id: "setup", label: "Setup" },
+];
+
 export function CodeExportDrawer({
   open,
   onOpenChange,
@@ -32,13 +44,26 @@ export function CodeExportDrawer({
   text,
   settings,
 }: CodeExportDrawerProps) {
+  const isTetris = definition.id === "tetris-pixel-text";
   const supportsOut = definition.supportsOutAnimation !== false;
   const [phase, setPhase] = useState<ExportPhase>("in");
+  const [tetrisTab, setTetrisTab] = useState<TetrisExportTab>("component");
   const [copied, setCopied] = useState(false);
 
   const activePhase: ExportPhase = supportsOut ? phase : "in";
-  const code = generateExportCode(definition, text, settings, activePhase);
-  const summary = generateSettingsSummary(settings);
+
+  const tetrisBundle = useMemo(() => {
+    if (!isTetris) return null;
+    return generateTetrisExport(text, settings as unknown as TetrisPixelSettings);
+  }, [isTetris, text, settings]);
+
+  const code = isTetris && tetrisBundle
+    ? tetrisBundle[tetrisTab]
+    : generateExportCode(definition, text, settings, activePhase);
+
+  const summary = isTetris && tetrisBundle
+    ? tetrisBundle.summary
+    : generateSettingsSummary(settings);
 
   const handleCopy = async () => {
     const ok = await copyToClipboard(code);
@@ -55,7 +80,9 @@ export function CodeExportDrawer({
         <SheetHeader>
           <SheetTitle className="text-white">{definition.title}</SheetTitle>
           <SheetDescription className="text-neutral-400">
-            Export In and Out component usage separately. Lab chrome is excluded.
+            {isTetris
+              ? "Export a self-contained Canvas component with your live seeds and settings."
+              : "Export In and Out component usage separately. Lab chrome is excluded."}
           </SheetDescription>
         </SheetHeader>
 
@@ -87,7 +114,7 @@ export function CodeExportDrawer({
           <section className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-xs font-medium tracking-[0.14em] text-neutral-400 uppercase">
-                Component usage
+                {isTetris ? "Export" : "Component usage"}
               </h3>
               <Button
                 variant="outline"
@@ -99,7 +126,25 @@ export function CodeExportDrawer({
               </Button>
             </div>
 
-            {supportsOut ? (
+            {isTetris ? (
+              <div className="flex flex-wrap gap-2">
+                {TETRIS_TABS.map((tab) => (
+                  <Button
+                    key={tab.id}
+                    size="sm"
+                    variant={tetrisTab === tab.id ? "default" : "outline"}
+                    className={
+                      tetrisTab === tab.id
+                        ? "bg-white text-black hover:bg-neutral-200"
+                        : "border-white/15 bg-transparent text-white hover:bg-white/5"
+                    }
+                    onClick={() => setTetrisTab(tab.id)}
+                  >
+                    {tab.label}
+                  </Button>
+                ))}
+              </div>
+            ) : supportsOut ? (
               <div className="flex gap-2">
                 <Button
                   size="sm"

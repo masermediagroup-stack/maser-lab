@@ -38,6 +38,12 @@ export type ControlDefinition =
       label: string;
       group: ControlGroup;
       options: { value: string; label: string }[];
+    }
+  | {
+      type: "color";
+      key: string;
+      label: string;
+      group: ControlGroup;
     };
 
 export type AnimationSettings = Record<string, string | number | boolean>;
