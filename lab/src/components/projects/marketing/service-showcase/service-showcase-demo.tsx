@@ -164,11 +164,11 @@ export function ServiceShowcaseDemo({ minimal = false }: ServiceShowcaseDemoProp
                     >
                       <SelectTrigger
                         size="sm"
-                        className="h-8 border-[var(--lab-border)] bg-[var(--lab-bg)] font-mono text-xs text-[var(--lab-text-primary)]"
+                        className="h-8 border-[var(--lab-border)] bg-[var(--lab-bg)] font-mono text-xs text-[var(--lab-text-primary)] hover:bg-[var(--lab-surface-soft)]"
                       >
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="border-white/10 bg-neutral-950 text-white shadow-lg [--accent:oklch(1_0_0_/_0.16)] [--accent-foreground:oklch(0.98_0_0)]">
                         {SERVICE_ITEMS.map((item) => (
                           <SelectItem key={item.id} value={item.id}>
                             {item.label}
@@ -193,11 +193,11 @@ export function ServiceShowcaseDemo({ minimal = false }: ServiceShowcaseDemoProp
                     >
                       <SelectTrigger
                         size="sm"
-                        className="h-8 border-[var(--lab-border)] bg-[var(--lab-bg)] font-mono text-xs text-[var(--lab-text-primary)]"
+                        className="h-8 border-[var(--lab-border)] bg-[var(--lab-bg)] font-mono text-xs text-[var(--lab-text-primary)] hover:bg-[var(--lab-surface-soft)]"
                       >
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="border-white/10 bg-neutral-950 text-white shadow-lg [--accent:oklch(1_0_0_/_0.16)] [--accent-foreground:oklch(0.98_0_0)]">
                         <SelectItem value="auto">Auto (from data)</SelectItem>
                         <SelectItem value="comparison">Force comparison</SelectItem>
                         <SelectItem value="image">Force normal image</SelectItem>
