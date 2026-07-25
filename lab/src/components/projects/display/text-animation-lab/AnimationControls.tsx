@@ -87,6 +87,72 @@ function ControlField({
     );
   }
 
+  if (control.type === "color") {
+    const hex = String(value ?? "#ffffff");
+    const normalized = hex.startsWith("#") ? hex : `#${hex}`;
+    const safe = /^#[0-9a-fA-F]{6}$/.test(normalized) ? normalized : "#ffffff";
+    const r = Number.parseInt(safe.slice(1, 3), 16);
+    const g = Number.parseInt(safe.slice(3, 5), 16);
+    const b = Number.parseInt(safe.slice(5, 7), 16);
+    const setRgb = (nr: number, ng: number, nb: number) => {
+      const to = (n: number) =>
+        Math.max(0, Math.min(255, Math.round(n)))
+          .toString(16)
+          .padStart(2, "0");
+      onChange(`#${to(nr)}${to(ng)}${to(nb)}`);
+    };
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <input
+            id={control.key}
+            type="color"
+            value={safe}
+            onChange={(e) => onChange(e.target.value)}
+            className="size-9 cursor-pointer rounded border border-white/15 bg-black p-0.5"
+            aria-label={`${control.label} picker`}
+          />
+          <Input
+            value={normalized}
+            onChange={(e) => {
+              const next = e.target.value.trim();
+              onChange(next.startsWith("#") ? next : `#${next}`);
+            }}
+            className="border-white/10 bg-black font-mono text-xs text-white"
+            aria-label={`${control.label} hex`}
+          />
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {(
+            [
+              ["R", r, (v: number) => setRgb(v, g, b)],
+              ["G", g, (v: number) => setRgb(r, v, b)],
+              ["B", b, (v: number) => setRgb(r, g, v)],
+            ] as const
+          ).map(([label, channel, setter]) => (
+            <label key={label} className="space-y-1">
+              <span className="text-[10px] tracking-wider text-neutral-500 uppercase">
+                {label}
+              </span>
+              <Input
+                type="number"
+                min={0}
+                max={255}
+                value={channel}
+                onChange={(e) => setter(Number(e.target.value) || 0)}
+                className="border-white/10 bg-black font-mono text-xs text-white"
+              />
+            </label>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (control.type !== "slider") {
+    return null;
+  }
+
   const numeric = Number(value ?? control.min);
   return (
     <div className="space-y-2">

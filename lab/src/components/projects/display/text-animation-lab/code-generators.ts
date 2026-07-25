@@ -36,6 +36,7 @@ const COMPONENT_IMPORTS: Record<string, string> = {
   "blur-focus-reveal": "BlurFocusRevealAnimation",
   "underline-draw-reveal": "UnderlineDrawRevealAnimation",
   "text-flip-3d": "TextFlip3DRevealAnimation",
+  "tetris-pixel-text": "TetrisPixelText",
 };
 
 export function generateExportCode(

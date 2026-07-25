@@ -14,4 +14,21 @@ export { TextScrambleRevealAnimation } from "./TextScrambleRevealAnimation";
 export { BlurFocusRevealAnimation } from "./BlurFocusRevealAnimation";
 export { UnderlineDrawRevealAnimation } from "./UnderlineDrawRevealAnimation";
 export { TextFlip3DRevealAnimation } from "./TextFlip3DRevealAnimation";
+export {
+  TetrisPixelText,
+  DEFAULT_TETRIS_SETTINGS,
+  TETRIS_PRESETS,
+  applyPreset,
+  generateTetrisExport,
+} from "./tetris-pixel-text";
+export type {
+  TetrisPixelTextProps,
+  TetrisPixelSettings,
+  ColorMode,
+  RevealOutDirection,
+  FontVariant,
+  PresetId,
+  TetrisExportBundle,
+  TetrisExportTab,
+} from "./tetris-pixel-text";
 export * from "./shared";
