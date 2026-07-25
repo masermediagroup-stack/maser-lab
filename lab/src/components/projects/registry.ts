@@ -9,6 +9,7 @@ import { TextAnimationLabDemo } from "./display/text-animation-lab";
 import { PageTransitionsLabDemo } from "./layout/page-transitions-lab";
 import { KineticPerspectiveBarsDemo } from "./display/kinetic-perspective-bars";
 import { ServiceShowcaseDemo } from "./marketing/service-showcase";
+import { TornGradientTransitionsDemo } from "./layout/torn-gradient-transitions/torn-gradient-transitions-demo";
 
 export const demoRegistry: Record<string, ComponentType> = {
   "liquid-monochrome": LiquidMonochromeDemo,
@@ -21,6 +22,7 @@ export const demoRegistry: Record<string, ComponentType> = {
   "text-animation-lab": TextAnimationLabDemo,
   "kinetic-perspective-bars": KineticPerspectiveBarsDemo,
   "service-showcase": ServiceShowcaseDemo,
+  "torn-gradient-transitions": TornGradientTransitionsDemo,
 };
 
 export function registerDemo(slug: string, component: ComponentType) {
