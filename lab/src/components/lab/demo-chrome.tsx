@@ -70,7 +70,7 @@ export function LabButton({
         variant === "accent" &&
           "border-[var(--lab-accent-primary)] bg-[rgba(16,164,255,0.12)] text-[var(--lab-accent-primary)]",
         variant === "outline" &&
-          "border-[var(--lab-border-strong)] bg-transparent text-[var(--lab-text-secondary)] hover:text-[var(--lab-text-primary)]",
+          "border-[var(--lab-border-strong)] bg-transparent text-[var(--lab-text-secondary)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--lab-text-primary)]",
         className,
       )}
     >

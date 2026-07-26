@@ -73,10 +73,10 @@ function ControlField({
           if (v != null) onChange(v);
         }}
       >
-        <SelectTrigger className="border-white/10 bg-black text-white">
+        <SelectTrigger className="border-white/10 bg-black text-white hover:bg-white/5">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="border-white/10 bg-neutral-950 text-white">
+        <SelectContent className="border-white/10 bg-neutral-950 text-white [--accent:oklch(1_0_0_/_0.16)] [--accent-foreground:oklch(0.98_0_0)]">
           {control.options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
