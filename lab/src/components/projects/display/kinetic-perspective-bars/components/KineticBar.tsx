@@ -2,6 +2,8 @@
 
 import { useLayoutEffect, useMemo, useRef } from "react";
 import {
+  BoxGeometry,
+  DoubleSide,
   EdgesGeometry,
   Group,
   LineBasicMaterial,
@@ -22,14 +24,12 @@ type KineticBarProps = {
   register: (index: number, handle: KineticBarHandle | null) => void;
 };
 
-/** Slight pad so thin slabs stay hittable without expanding past bar height. */
-const HIT_PAD_XZ = 1.35;
+/** Pad X/Z so thin slabs stay hittable; height stays exact to the visible bar. */
+const HIT_PAD_XZ = 1.6;
 
 /**
  * Thin architectural slab: rounded box fill + controllable edge strokes.
- * Look props (opacity / edge brightness) are applied from the shared frame
- * loop via the registered materials — keeps GPU resources mutable without
- * React state churn.
+ * Look props are applied from the shared frame loop via registered materials.
  */
 export function KineticBar({
   index,
@@ -65,13 +65,14 @@ export function KineticBar({
       }),
     [],
   );
+  // Keep mesh.visible true so Raycaster can hit it; hide via transparent material.
   const hitMaterial = useMemo(
     () =>
       new MeshBasicMaterial({
-        visible: false,
         transparent: true,
         opacity: 0,
         depthWrite: false,
+        side: DoubleSide,
       }),
     [],
   );
@@ -89,18 +90,16 @@ export function KineticBar({
 
   const edgesGeo = useMemo(() => new EdgesGeometry(geometry, 18), [geometry]);
 
-  // Hit volume matches this bar’s height exactly; only X/Z are padded for thin slabs.
+  // Simple box hit volume matching this bar’s height (not formation max height).
   const hitGeometry = useMemo(() => {
-    const geo = new RoundedBoxGeometry(
+    const geo = new BoxGeometry(
       width * HIT_PAD_XZ,
       height,
-      thickness * HIT_PAD_XZ,
-      1,
-      Math.min(radius, 0.02),
+      Math.max(thickness * HIT_PAD_XZ, 0.08),
     );
     geo.translate(0, height / 2, 0);
     return geo;
-  }, [width, height, thickness, radius]);
+  }, [width, height, thickness]);
 
   useLayoutEffect(() => {
     const hit = hitMeshRef.current;

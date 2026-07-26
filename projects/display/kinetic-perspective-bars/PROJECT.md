@@ -98,5 +98,6 @@ Free orbit controls; bright fills/glows; Framer Motion on 3D bars; music-visuali
 - Reset syncs Leva store so panel values do not fight React state
 - Height profile clamps inverted min/max while dragging
 - Hover picks each bar via per-bar hit meshes (actual height) — no plane/max-height fallback
+- Chrome middle spacer no longer captures pointer events over the canvas (hover was fully blocked)
 
 **Skills loaded:** `maser-lab-web` (Harden), `maser-lab-threejs` (Harden / Performance & Fallback / Interaction UX)

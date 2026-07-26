@@ -118,17 +118,21 @@ export function BarsFormation({
       const idx = findHoveredBar(e.clientX, e.clientY);
       if (idx == null) {
         pointer.setNearest(-1, false);
+        el.dataset.kineticHover = "";
         return;
       }
       pointer.setNearest(idx, true);
+      el.dataset.kineticHover = String(idx);
     };
     const onPointerLeave = () => {
       pointer.setNearest(-1, false);
+      el.dataset.kineticHover = "";
     };
     const onPointerDown = (e: PointerEvent) => {
       const idx = findHoveredBar(e.clientX, e.clientY);
       if (idx == null) return;
       pointer.setNearest(idx, true);
+      el.dataset.kineticHover = String(idx);
       ripple.trigger(idx);
     };
 

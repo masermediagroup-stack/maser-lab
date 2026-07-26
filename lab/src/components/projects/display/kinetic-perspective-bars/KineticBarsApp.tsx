@@ -204,7 +204,7 @@ export function KineticBarsApp() {
           </div>
         </div>
 
-        <div />
+        <div className="kinetic-bars-demo__spacer" aria-hidden="true" />
 
         <div className="kinetic-bars-demo__bottom">
           <MotionModeSelector
