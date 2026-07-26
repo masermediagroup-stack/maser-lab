@@ -39,10 +39,11 @@ export function BarsFormation({
   const groupRef = useRef<THREE.Group>(null);
   const { camera, gl } = useThree();
 
+  const safeMin = Math.min(params.minHeight, params.maxHeight);
+  const safeMax = Math.max(params.minHeight, params.maxHeight);
   const heights = useMemo(
-    () =>
-      createHeightProfile(params.barCount, params.minHeight, params.maxHeight),
-    [params.barCount, params.minHeight, params.maxHeight],
+    () => createHeightProfile(params.barCount, safeMin, safeMax),
+    [params.barCount, safeMin, safeMax],
   );
 
   const xs = useMemo(() => {
@@ -56,6 +57,13 @@ export function BarsFormation({
   const register = useCallback((index: number, handle: KineticBarHandle | null) => {
     handlesRef.current[index] = handle;
   }, []);
+
+  // Drop stale handles when bar count shrinks so raycasts never hit disposed meshes.
+  useEffect(() => {
+    if (handlesRef.current.length > params.barCount) {
+      handlesRef.current.length = params.barCount;
+    }
+  }, [params.barCount]);
 
   useEffect(() => {
     modeBlend.syncMode(params.animationMode);
@@ -187,11 +195,11 @@ export function BarsFormation({
     >
       {Array.from({ length: params.barCount }, (_, i) => (
         <KineticBar
-          key={`${i}-${params.barWidth}-${params.barThickness}-${heights[i].toFixed(3)}`}
+          key={i}
           index={i}
           width={params.barWidth}
           thickness={params.barThickness}
-          height={heights[i]}
+          height={heights[i] ?? safeMin}
           x={xs[i]}
           cornerRadius={params.cornerRadius}
           fillOpacity={params.fillOpacity}

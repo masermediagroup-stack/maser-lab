@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   EdgesGeometry,
   Group,
@@ -24,6 +24,8 @@ type KineticBarProps = {
 
 /**
  * Thin architectural slab: rounded box fill + controllable edge strokes.
+ * Materials are stable instances (lazy state); look props mutate them in
+ * layout effects. Geometries dispose only when replaced or on unmount.
  */
 export function KineticBar({
   index,
@@ -38,26 +40,7 @@ export function KineticBar({
 }: KineticBarProps) {
   const groupRef = useRef<Group>(null);
 
-  const radius = Math.min(
-    cornerRadius,
-    Math.min(width, thickness, height) * 0.35,
-  );
-
-  const geometry = useMemo(() => {
-    const geo = new RoundedBoxGeometry(
-      width,
-      height,
-      thickness,
-      2,
-      radius,
-    );
-    geo.translate(0, height / 2, 0);
-    return geo;
-  }, [width, height, thickness, radius]);
-
-  const edgesGeo = useMemo(() => new EdgesGeometry(geometry, 18), [geometry]);
-
-  const fillMaterial = useMemo(
+  const [fillMaterial] = useState(
     () =>
       new MeshStandardMaterial({
         color: "#0a0a0c",
@@ -67,18 +50,43 @@ export function KineticBar({
         opacity: fillOpacity,
         depthWrite: true,
       }),
-    [fillOpacity],
+  );
+  const [edgeMaterial] = useState(
+    () =>
+      new LineBasicMaterial({
+        color: "#96969e",
+        transparent: true,
+        opacity: 0.16 + edgeBrightness * 0.38,
+        depthTest: true,
+      }),
   );
 
-  const edgeMaterial = useMemo(() => {
-    const c = 0.5 + edgeBrightness * 0.5;
-    return new LineBasicMaterial({
-      color: `rgb(${Math.round(c * 190)}, ${Math.round(c * 190)}, ${Math.round(c * 198)})`,
-      transparent: true,
-      opacity: 0.16 + edgeBrightness * 0.38,
-      depthTest: true,
-    });
-  }, [edgeBrightness]);
+  const radius = Math.min(
+    cornerRadius,
+    Math.min(width, thickness, height) * 0.35,
+  );
+
+  const geometry = useMemo(() => {
+    const geo = new RoundedBoxGeometry(width, height, thickness, 2, radius);
+    geo.translate(0, height / 2, 0);
+    return geo;
+  }, [width, height, thickness, radius]);
+
+  const edgesGeo = useMemo(() => new EdgesGeometry(geometry, 18), [geometry]);
+
+  useLayoutEffect(() => {
+    fillMaterial.opacity = fillOpacity;
+  }, [fillMaterial, fillOpacity]);
+
+  useLayoutEffect(() => {
+    const edgeC = 0.5 + edgeBrightness * 0.5;
+    edgeMaterial.color.setRGB(
+      (edgeC * 190) / 255,
+      (edgeC * 190) / 255,
+      (edgeC * 198) / 255,
+    );
+    edgeMaterial.opacity = 0.16 + edgeBrightness * 0.38;
+  }, [edgeMaterial, edgeBrightness]);
 
   useLayoutEffect(() => {
     register(index, {
@@ -91,20 +99,27 @@ export function KineticBar({
     });
     return () => {
       register(index, null);
+    };
+  }, [index, register, fillMaterial, edgeMaterial, height]);
+
+  useLayoutEffect(() => {
+    return () => {
       geometry.dispose();
+    };
+  }, [geometry]);
+
+  useLayoutEffect(() => {
+    return () => {
       edgesGeo.dispose();
+    };
+  }, [edgesGeo]);
+
+  useLayoutEffect(() => {
+    return () => {
       fillMaterial.dispose();
       edgeMaterial.dispose();
     };
-  }, [
-    index,
-    register,
-    geometry,
-    edgesGeo,
-    fillMaterial,
-    edgeMaterial,
-    height,
-  ]);
+  }, [fillMaterial, edgeMaterial]);
 
   return (
     <group ref={groupRef} position={[x, 0, 0]}>

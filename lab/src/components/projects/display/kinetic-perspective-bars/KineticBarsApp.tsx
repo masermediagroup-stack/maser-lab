@@ -78,6 +78,41 @@ export function KineticBarsApp() {
       ...DEFAULT_PARAMS,
       animationMode: prev.animationMode,
     }));
+    // Keep Leva in sync — otherwise the next panel tick re-applies stale values.
+    const d = DEFAULT_PARAMS;
+    levaStore.set(
+      {
+        barCount: d.barCount,
+        barWidth: d.barWidth,
+        barThickness: d.barThickness,
+        gap: d.gap,
+        minHeight: d.minHeight,
+        maxHeight: d.maxHeight,
+        cornerRadius: d.cornerRadius,
+        perspectiveAngle: d.perspectiveAngle,
+        groupScale: d.groupScale,
+        liftAmplitude: d.liftAmplitude,
+        waveSpeed: d.waveSpeed,
+        phaseOffset: d.phaseOffset,
+        waveDirection: d.waveDirection,
+        paused: d.paused,
+        reducedMotionPreview: d.reducedMotionPreview,
+        cameraDrift: d.cameraDrift,
+        hoverStrength: d.hoverStrength,
+        hoverRadius: d.hoverRadius,
+        rippleStrength: d.rippleStrength,
+        rippleSpeed: d.rippleSpeed,
+        rippleDecay: d.rippleDecay,
+        edgeBrightness: d.edgeBrightness,
+        fillOpacity: d.fillOpacity,
+        backgroundColor: d.backgroundColor,
+        cameraZoom: d.cameraZoom,
+        camX: d.cameraPosition[0],
+        camY: d.cameraPosition[1],
+        camZ: d.cameraPosition[2],
+      },
+      false,
+    );
     window.dispatchEvent(new Event("kinetic-bars:reset"));
   }, []);
 

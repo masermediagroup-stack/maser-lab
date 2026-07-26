@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import { isWebGLAvailable } from "../utils/capabilities";
 import { StaticFallback } from "../fallbacks/static-fallback";
 
@@ -19,7 +19,10 @@ export function ThreeCanvas({
   fallback,
   children,
 }: ThreeCanvasProps) {
-  if (!isWebGLAvailable()) {
+  // Memoize so we never re-probe (isWebGLAvailable is also cached globally).
+  const available = useMemo(() => isWebGLAvailable(), []);
+
+  if (!available) {
     return <>{fallback ?? <StaticFallback />}</>;
   }
 

@@ -94,6 +94,7 @@ _Patterns ship with projects; document in `lab-patterns-threejs.md`._
 | Renderer factory | Scaffold in `lab/src/three/utils/` |
 | Static fallback component | Scaffold in `lab/src/three/fallbacks/` |
 | R3F kinetic bar sculpture | Shipped: `display/kinetic-perspective-bars` — shared `useFrame`, mode blend, pointer ripple |
+| Cache `isWebGLAvailable()` | Required — probe must not allocate a WebGL context per React render (`capabilities.ts`); lose probe context after check |
 
 ## HyperFrames vs Maser-Lab loops
 
