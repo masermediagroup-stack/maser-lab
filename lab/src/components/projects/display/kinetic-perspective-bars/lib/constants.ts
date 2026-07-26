@@ -38,7 +38,7 @@ export const DEFAULT_PARAMS: KineticBarsParams = {
   phaseOffset: 0.32,
   waveDirection: 1,
   hoverStrength: 0.28,
-  hoverRadius: 2.4,
+  hoverRadius: 1.1,
   rippleStrength: 0.42,
   rippleSpeed: 8.5,
   rippleDecay: 1.6,
@@ -79,4 +79,4 @@ export const PARAM_RANGES = {
 } as const;
 
 export const SR_DESCRIPTION =
-  "A dark kinetic sculpture of about twenty thin vertical rectangular slabs arranged in a perspective row. The slabs rise and fall in a smooth traveling wave. Hovering near a slab lifts it slightly; clicking sends a ripple through the formation.";
+  "A dark kinetic sculpture of about twenty thin vertical rectangular slabs arranged in a perspective row. The slabs rise and fall in a smooth traveling wave. Hovering a slab lifts it slightly; clicking sends a ripple through the formation.";
