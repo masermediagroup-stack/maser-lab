@@ -1,17 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   Code2,
   Dices,
   Maximize2,
-  Minimize2,
   Pause,
   Play,
   RotateCcw,
   RotateCw,
   Shuffle,
+  X,
 } from "lucide-react";
 import {
   applyPreset,
@@ -43,8 +43,7 @@ export function AnimationDetail({ definition, onBack }: AnimationDetailProps) {
   const [playKey, setPlayKey] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const fullscreenButtonRef = useRef<HTMLButtonElement>(null);
-  const fullscreenTitleId = useId();
+  const closeFullscreenButtonRef = useRef<HTMLButtonElement>(null);
   const isTetris = definition.id === "tetris-pixel-text";
 
   useEffect(() => {
@@ -65,7 +64,7 @@ export function AnimationDetail({ definition, onBack }: AnimationDetailProps) {
     };
 
     window.addEventListener("keydown", onKeyDown);
-    fullscreenButtonRef.current?.focus();
+    closeFullscreenButtonRef.current?.focus();
 
     return () => {
       document.body.style.overflow = previousOverflow;
@@ -168,38 +167,41 @@ export function AnimationDetail({ definition, onBack }: AnimationDetailProps) {
               data-tal-scroll-host={isScrollReveal ? "" : undefined}
               role={isFullscreen ? "dialog" : undefined}
               aria-modal={isFullscreen ? true : undefined}
-              aria-labelledby={isFullscreen ? fullscreenTitleId : undefined}
+              aria-label={
+                isFullscreen
+                  ? `${definition.title} fullscreen preview`
+                  : undefined
+              }
             >
-              <div className="tal-detail__preview-toolbar">
-                {isFullscreen ? (
-                  <p id={fullscreenTitleId} className="tal-detail__preview-title">
-                    {definition.title}
-                  </p>
-                ) : null}
+              {isFullscreen ? (
                 <Button
-                  ref={fullscreenButtonRef}
+                  ref={closeFullscreenButtonRef}
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  className="tal-detail__fullscreen-btn border-white/15 bg-black/70 text-white hover:bg-white/10 hover:text-white"
-                  onClick={() => setIsFullscreen((open) => !open)}
-                  aria-pressed={isFullscreen}
-                  aria-label={
-                    isFullscreen
-                      ? "Exit fullscreen preview"
-                      : "Enter fullscreen preview"
-                  }
+                  variant="ghost"
+                  size="icon-sm"
+                  className="tal-detail__fullscreen-close text-white hover:bg-white/10 hover:text-white"
+                  onClick={() => setIsFullscreen(false)}
+                  aria-label="Close fullscreen preview"
                 >
-                  {isFullscreen ? (
-                    <Minimize2 className="size-4" />
-                  ) : (
-                    <Maximize2 className="size-4" />
-                  )}
-                  <span className="tal-detail__fullscreen-label">
-                    {isFullscreen ? "Exit" : "Fullscreen"}
-                  </span>
+                  <X className="size-5" />
                 </Button>
-              </div>
+              ) : (
+                <div className="tal-detail__preview-toolbar">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="tal-detail__fullscreen-btn border-white/15 bg-black/70 text-white hover:bg-white/10 hover:text-white"
+                    onClick={() => setIsFullscreen(true)}
+                    aria-label="Enter fullscreen preview"
+                  >
+                    <Maximize2 className="size-4" />
+                    <span className="tal-detail__fullscreen-label">
+                      Fullscreen
+                    </span>
+                  </Button>
+                </div>
+              )}
 
               <div className="tal-detail__preview-stage">
                 <AnimationPreview

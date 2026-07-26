@@ -124,24 +124,11 @@
   right: 0.75rem;
   z-index: 2;
   display: flex;
-  max-width: calc(100% - 1.5rem);
   align-items: center;
-  gap: 0.75rem;
-}
-
-.tal-detail__preview-title {
-  margin-right: auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--tal-muted);
+  justify-content: flex-end;
 }
 
 .tal-detail__fullscreen-btn {
-  margin-left: auto;
   backdrop-filter: blur(6px);
 }
 
@@ -153,6 +140,16 @@
   .tal-detail__fullscreen-label {
     display: inline;
   }
+}
+
+.tal-detail__fullscreen-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  border-radius: 9999px;
+  color: #ffffff;
+  background: transparent;
 }
 
 .tal-detail__preview-stage {
@@ -192,19 +189,13 @@
   max-height: none;
   border-radius: 0;
   border: none;
-  padding: 4.5rem 1.5rem 2rem;
+  padding: 0;
   background: #000000;
 }
 
-.tal-detail__preview--fullscreen .tal-detail__preview-toolbar {
-  top: 1rem;
-  right: 1rem;
-  left: 1rem;
-  max-width: none;
-}
-
 .tal-detail__preview--fullscreen .tal-detail__preview-stage {
-  min-height: calc(100dvh - 6.5rem);
+  min-height: 100dvh;
+  padding: 0 1.5rem;
 }
 
 .tal-detail__preview--fullscreen[data-tal-scroll-host] {
@@ -213,7 +204,8 @@
 }
 
 .tal-detail__preview--fullscreen[data-tal-scroll-host] .tal-detail__preview-stage {
-  min-height: calc(100dvh - 6.5rem);
+  min-height: 100dvh;
+  padding: 0 1.5rem;
 }
 
 .tal-detail__actions {
