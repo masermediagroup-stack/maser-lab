@@ -99,7 +99,13 @@
   }
 }
 
+.tal-detail__preview-shell {
+  position: relative;
+  min-width: 0;
+}
+
 .tal-detail__preview {
+  position: relative;
   display: flex;
   min-width: 0;
   min-height: 280px;
@@ -112,6 +118,50 @@
   padding: 2rem 1.5rem;
 }
 
+.tal-detail__preview-toolbar {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.tal-detail__fullscreen-btn {
+  backdrop-filter: blur(6px);
+}
+
+.tal-detail__fullscreen-label {
+  display: none;
+}
+
+@media (min-width: 480px) {
+  .tal-detail__fullscreen-label {
+    display: inline;
+  }
+}
+
+.tal-detail__fullscreen-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  border-radius: 9999px;
+  color: #ffffff;
+  background: transparent;
+}
+
+.tal-detail__preview-stage {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  min-height: 220px;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
 .tal-detail__preview[data-tal-scroll-host] {
   display: block;
   max-height: 420px;
@@ -122,6 +172,40 @@
   padding-top: 1rem;
   padding-bottom: 1rem;
   scrollbar-gutter: stable;
+}
+
+.tal-detail__preview[data-tal-scroll-host] .tal-detail__preview-stage {
+  display: block;
+  min-height: 0;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.tal-detail__preview--fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  min-height: 100dvh;
+  max-height: none;
+  border-radius: 0;
+  border: none;
+  padding: 0;
+  background: #000000;
+}
+
+.tal-detail__preview--fullscreen .tal-detail__preview-stage {
+  min-height: 100dvh;
+  padding: 0 1.5rem;
+}
+
+.tal-detail__preview--fullscreen[data-tal-scroll-host] {
+  max-height: none;
+  overflow-y: auto;
+}
+
+.tal-detail__preview--fullscreen[data-tal-scroll-host] .tal-detail__preview-stage {
+  min-height: 100dvh;
+  padding: 0 1.5rem;
 }
 
 .tal-detail__actions {
