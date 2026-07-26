@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   ArrowLeft,
   Code2,
   Dices,
+  Maximize2,
+  Minimize2,
   Pause,
   Play,
   RotateCcw,
@@ -40,11 +42,40 @@ export function AnimationDetail({ definition, onBack }: AnimationDetailProps) {
   );
   const [playKey, setPlayKey] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fullscreenButtonRef = useRef<HTMLButtonElement>(null);
+  const fullscreenTitleId = useId();
   const isTetris = definition.id === "tetris-pixel-text";
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [definition.id]);
+
+  useEffect(() => {
+    setIsFullscreen(false);
+  }, [definition.id]);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsFullscreen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    fullscreenButtonRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isFullscreen]);
 
   const handleSettingChange = useCallback((key: string, value: string | number | boolean) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -131,17 +162,59 @@ export function AnimationDetail({ definition, onBack }: AnimationDetailProps) {
 
       <div className="tal-detail__layout">
         <div className="tal-detail__main">
-          <div
-            className="tal-detail__preview"
-            data-tal-scroll-host={isScrollReveal ? "" : undefined}
-          >
-            <AnimationPreview
-              definition={definition}
-              text={text}
-              settings={settings}
-              playKey={playKey}
-              embeddedScroll={isScrollReveal}
-            />
+          <div className="tal-detail__preview-shell">
+            <div
+              className={
+                isFullscreen
+                  ? "tal-detail__preview tal-detail__preview--fullscreen"
+                  : "tal-detail__preview"
+              }
+              data-tal-scroll-host={isScrollReveal ? "" : undefined}
+              role={isFullscreen ? "dialog" : undefined}
+              aria-modal={isFullscreen ? true : undefined}
+              aria-labelledby={isFullscreen ? fullscreenTitleId : undefined}
+            >
+              <div className="tal-detail__preview-toolbar">
+                {isFullscreen ? (
+                  <p id={fullscreenTitleId} className="tal-detail__preview-title">
+                    {definition.title}
+                  </p>
+                ) : null}
+                <Button
+                  ref={fullscreenButtonRef}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="tal-detail__fullscreen-btn border-white/15 bg-black/70 text-white hover:bg-white/10 hover:text-white"
+                  onClick={() => setIsFullscreen((open) => !open)}
+                  aria-pressed={isFullscreen}
+                  aria-label={
+                    isFullscreen
+                      ? "Exit fullscreen preview"
+                      : "Enter fullscreen preview"
+                  }
+                >
+                  {isFullscreen ? (
+                    <Minimize2 className="size-4" />
+                  ) : (
+                    <Maximize2 className="size-4" />
+                  )}
+                  <span className="tal-detail__fullscreen-label">
+                    {isFullscreen ? "Exit" : "Fullscreen"}
+                  </span>
+                </Button>
+              </div>
+
+              <div className="tal-detail__preview-stage">
+                <AnimationPreview
+                  definition={definition}
+                  text={text}
+                  settings={settings}
+                  playKey={playKey}
+                  embeddedScroll={isScrollReveal}
+                />
+              </div>
+            </div>
           </div>
 
           {isTetris ? (

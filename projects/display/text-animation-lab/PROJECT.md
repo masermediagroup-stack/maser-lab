@@ -4,7 +4,7 @@
 **Category:** display  
 **Status:** building  
 **Created:** 2026-07-02  
-**Updated:** 2026-07-21
+**Updated:** 2026-07-26
 
 ## Purpose
 
@@ -31,6 +31,7 @@ Intended for Tyler's portfolio, MaserMedia sections, client landing pages, hero/
 
 - Local state switches from gallery → selected animation detail (no extra routing)
 - Includes back button, title, description, large preview frame, editable text, grouped controls, Replay, Reset, and **Load / Export Code**
+- Preview frame includes a **Fullscreen** control that expands the live animation to the viewport; **Escape** or **Exit** returns to the inset preview
 - Controls update the preview live; **Animation phase** toggles In/Out for supported effects
 - Scroll Line Reveal uses an internal scroll host in the preview frame (scroll inside the frame)
 
@@ -135,6 +136,7 @@ Classic Blocks, High Definition, Fast Build, Arcade Rainbow, Slow Assembly, Glit
 - [x] Export drawer offers In and Out snippets for supported effects
 - [x] Three.js 3D text flip with WebGL fallback
 - [x] Missing production effects added (mask clip, scramble, blur focus, underline draw)
+- [x] Detail preview can enter and exit fullscreen (button + Escape)
 - [x] `npm run lint` passes
 - [x] `npm run build` passes
 - [x] Rendered verification in browser
