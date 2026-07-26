@@ -52,10 +52,6 @@ export function AnimationDetail({ definition, onBack }: AnimationDetailProps) {
   }, [definition.id]);
 
   useEffect(() => {
-    setIsFullscreen(false);
-  }, [definition.id]);
-
-  useEffect(() => {
     if (!isFullscreen) return;
 
     const previousOverflow = document.body.style.overflow;

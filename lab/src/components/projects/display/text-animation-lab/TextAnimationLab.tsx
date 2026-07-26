@@ -40,7 +40,11 @@ export function TextAnimationLab() {
       </div>
 
       {selected ? (
-        <AnimationDetail definition={selected} onBack={handleBack} />
+        <AnimationDetail
+          key={selected.id}
+          definition={selected}
+          onBack={handleBack}
+        />
       ) : (
         <AnimationGallery playKey={galleryPlayKey} onEnter={handleEnter} />
       )}
