@@ -82,12 +82,12 @@ Material updates at ~60 FPS from controls; dither reads as continuous tone at vi
 ## Acceptance criteria
 
 - [x] Demo route `/demos/maser-surface-engine` renders card + material controls
-- [ ] `npm run lint` and `npm run build` pass in `lab/`
-- [ ] Pipeline stages 1–8 present and tunable
-- [ ] WebGL primary; Canvas2D fallback exists
-- [ ] Cursor influence damped; reduced-motion freezes animation
-- [ ] Product exported from `index.ts` (Demo not in barrel)
-- [ ] No React setState on every animation frame
+- [x] `npm run lint` and `npm run build` pass in `lab/`
+- [x] Pipeline stages 1–8 present and tunable
+- [x] WebGL primary; Canvas2D fallback exists
+- [x] Cursor influence damped; reduced-motion freezes animation
+- [x] Product exported from `index.ts` (Demo not in barrel)
+- [x] No React setState on every animation frame
 
 ## Open decisions
 

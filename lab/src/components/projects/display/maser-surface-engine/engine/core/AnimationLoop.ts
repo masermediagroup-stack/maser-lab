@@ -18,7 +18,6 @@ const DAMP_KEYS: (keyof MonochromeUniformState)[] = [
   "shadowStrength",
   "highlightStrength",
   "softEdge",
-  "randomSeed",
   "animationSpeed",
   "cursorInfluence",
   "scrollInfluence",
@@ -86,8 +85,9 @@ export class AnimationLoop {
     const { targets, current } = this.store;
     const reduced = this.getReducedMotion();
 
-    // Discrete dither size snaps (not interpolated)
+    // Discrete params snap (not interpolated) — avoids texture rebuild thrash
     current.ditherSize = targets.ditherSize;
+    current.randomSeed = targets.randomSeed;
 
     for (const key of DAMP_KEYS) {
       const c = current[key];
