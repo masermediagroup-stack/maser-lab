@@ -1,5 +1,6 @@
 import type { CSSProperties, ComponentType } from "react";
 import type { AnimationEngineConfig } from "./engine/animation/types";
+import type { InteractionEngineConfig } from "./engine/interaction/types";
 
 /** Bayer matrix size options for ordered dithering. */
 export type DitherSize = 2 | 4 | 8 | 16;
@@ -69,10 +70,13 @@ export type SurfaceCanvasProps = {
   params?: Partial<MonochromeParams>;
   /** Procedural animation engine config (modes, blend, timeline). */
   animation?: Partial<AnimationEngineConfig>;
+  /** Procedural interaction & lighting engine config. */
+  interaction?: Partial<InteractionEngineConfig>;
   className?: string;
   style?: CSSProperties;
   reducedMotion?: boolean;
-  pointer?: { x: number; y: number } | null;
+  /** Optional external DOM-normalized pointer (y=0 top). Prefer SurfaceCanvas-owned tracking. */
+  pointer?: { x: number; y: number; down?: boolean } | null;
   scrollProgress?: number;
   "aria-label"?: string;
 };
@@ -84,6 +88,7 @@ export type SurfaceCardProps = {
   onButtonClick?: () => void;
   params?: Partial<MonochromeParams>;
   animation?: Partial<AnimationEngineConfig>;
+  interaction?: Partial<InteractionEngineConfig>;
   reducedMotion?: boolean;
   className?: string;
 };
@@ -158,6 +163,7 @@ export type ControlGroupState = Record<ControlGroupId, boolean>;
 export type DitherAdapterProps = {
   params: MonochromeParams;
   animation?: Partial<AnimationEngineConfig>;
+  interaction?: Partial<InteractionEngineConfig>;
   reducedMotion?: boolean;
   className?: string;
 };

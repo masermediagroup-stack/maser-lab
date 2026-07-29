@@ -24,6 +24,11 @@ import {
   defaultModeParams,
 } from "../engine/animation";
 import type { AnimationEngineConfig } from "../engine/animation/types";
+import {
+  DEFAULT_INTERACTION_CONFIG,
+  createDefaultLights,
+} from "../engine/interaction";
+import type { InteractionEngineConfig } from "../engine/interaction/types";
 import type {
   ComponentId,
   ControlGroupId,
@@ -31,6 +36,7 @@ import type {
   MonochromeParams,
 } from "../types";
 import { AnimationPanel } from "./AnimationPanel";
+import { InteractionPanel } from "./InteractionPanel";
 import { cn } from "@/lib/utils";
 
 type ComponentPlaygroundProps = {
@@ -58,6 +64,19 @@ function initialAnimation(): AnimationEngineConfig {
   };
 }
 
+function initialInteraction(): InteractionEngineConfig {
+  return {
+    ...DEFAULT_INTERACTION_CONFIG,
+    physics: { ...DEFAULT_INTERACTION_CONFIG.physics },
+    falloff: { ...DEFAULT_INTERACTION_CONFIG.falloff },
+    trail: { ...DEFAULT_INTERACTION_CONFIG.trail },
+    ripple: { ...DEFAULT_INTERACTION_CONFIG.ripple },
+    hold: { ...DEFAULT_INTERACTION_CONFIG.hold },
+    release: { ...DEFAULT_INTERACTION_CONFIG.release },
+    lights: createDefaultLights(),
+  };
+}
+
 export function ComponentPlayground({
   componentId,
   reducedMotion,
@@ -75,6 +94,9 @@ export function ComponentPlayground({
   );
   const [animation, setAnimation] = useState<AnimationEngineConfig>(
     initialAnimation,
+  );
+  const [interaction, setInteraction] = useState<InteractionEngineConfig>(
+    initialInteraction,
   );
   const [presetId, setPresetId] = useState(definition.defaultPresetId);
   const [panels, setPanels] = useState<ControlGroupState>(() => {
@@ -111,13 +133,14 @@ export function ComponentPlayground({
             <Adapter
               params={params}
               animation={animation}
+              interaction={interaction}
               reducedMotion={reducedMotion}
             />
           </div>
           <div className="mde-playground__perf" aria-label="Performance">
             <span>Target 120 / 60 FPS</span>
             <span>WebGL2 · DPR ≤ 2</span>
-            <span>Procedural animation · shared engine</span>
+            <span>Procedural anim · interaction · shared engine</span>
           </div>
         </div>
 
@@ -151,6 +174,7 @@ export function ComponentPlayground({
                   setPresetId("custom");
                   setParams(createMonochromeMaterial(MONOCHROME_DEFAULTS));
                   setAnimation(initialAnimation());
+                  setInteraction(initialInteraction());
                 }}
               >
                 Reset
@@ -198,6 +222,41 @@ export function ComponentPlayground({
                     value={animation}
                     onChange={setAnimation}
                     idPrefix={`mde-${componentId}-anim`}
+                  />
+                </>
+              ) : group.id === "interaction" ? (
+                <>
+                  {group.fields.map((field) => {
+                    if (field.kind !== "slider") return null;
+                    const range = PARAM_RANGES[field.key];
+                    const current = params[field.key];
+                    return (
+                      <div key={field.key} className="mde-field">
+                        <div className="mde-field__row">
+                          <Label htmlFor={`mde-${componentId}-${field.key}`}>
+                            {PARAM_LABELS[field.key] ?? field.key}
+                          </Label>
+                          <span>{formatValue(current)}</span>
+                        </div>
+                        <Slider
+                          id={`mde-${componentId}-${field.key}`}
+                          min={range.min}
+                          max={range.max}
+                          step={range.step}
+                          value={[current]}
+                          onValueChange={(vals) => {
+                            const next = Array.isArray(vals) ? vals[0] : vals;
+                            if (typeof next !== "number") return;
+                            setParams((p) => ({ ...p, [field.key]: next }));
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                  <InteractionPanel
+                    value={interaction}
+                    onChange={setInteraction}
+                    idPrefix={`mde-${componentId}-ix`}
                   />
                 </>
               ) : (
@@ -292,6 +351,7 @@ export function ComponentPlayground({
               <strong>API.</strong> Adapter props:{" "}
               <code>params: MonochromeParams</code>,{" "}
               <code>animation?: AnimationEngineConfig</code>,{" "}
+              <code>interaction?: InteractionEngineConfig</code>,{" "}
               <code>reducedMotion?: boolean</code>,{" "}
               <code>className?: string</code>.
             </p>

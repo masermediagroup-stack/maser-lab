@@ -11,7 +11,8 @@ import {
 } from "../engine/core/SurfaceRenderer";
 import { UniformStore } from "../engine/core/UniformStore";
 import { Canvas2DRenderer } from "../engine/fallback/Canvas2DRenderer";
-import { PointerField } from "../engine/interaction/PointerField";
+import { InteractionController } from "../engine/interaction/InteractionController";
+import type { InteractionEngineConfig } from "../engine/interaction/types";
 import { ScrollField } from "../engine/interaction/ScrollField";
 import type { MonochromeParams, SurfaceCanvasProps } from "../types";
 import { cn } from "@/lib/utils";
@@ -20,10 +21,11 @@ type EngineHandle = {
   store: UniformStore;
   loop: AnimationLoop;
   renderer: SurfaceRenderer | Canvas2DRenderer;
-  pointer: PointerField;
   scroll: ScrollField;
   anim: ProceduralAnimationController;
+  ix: InteractionController;
   kind: "webgl2" | "canvas2d";
+  externalPointer: boolean;
   dispose: () => void;
 };
 
@@ -36,11 +38,12 @@ function mountEngine(
   canvas: HTMLCanvasElement,
   getReducedMotion: () => boolean,
   initialAnim?: Partial<AnimationEngineConfig>,
+  initialIx?: Partial<InteractionEngineConfig>,
 ): EngineHandle {
   const store = new UniformStore();
-  const pointer = new PointerField();
   const scroll = new ScrollField();
   const anim = new ProceduralAnimationController(initialAnim);
+  const ix = new InteractionController(initialIx);
 
   let renderer: SurfaceRenderer | Canvas2DRenderer;
   let kind: "webgl2" | "canvas2d";
@@ -59,10 +62,19 @@ function mountEngine(
     getReducedMotion,
     onFrame: (current, dt) => {
       const reduced = getReducedMotion();
-      // Material animationSpeed remains a global timeline scale.
-      const payload = anim.tick(dt * Math.max(0, current.animationSpeed), reduced);
+      const payload = anim.tick(
+        dt * Math.max(0, current.animationSpeed),
+        reduced,
+      );
       current.time = payload.time;
-      renderer.draw(current, payload);
+      const ixPayload = ix.tick(dt, reduced, payload.time, {
+        lightX: current.lightX,
+        lightY: current.lightY,
+        influence: current.cursorInfluence,
+      });
+      current.pointerX = ixPayload.pointerX;
+      current.pointerY = ixPayload.pointerY;
+      renderer.draw(current, payload, ixPayload);
     },
   });
 
@@ -70,10 +82,11 @@ function mountEngine(
     store,
     loop,
     renderer,
-    pointer,
     scroll,
     anim,
+    ix,
     kind,
+    externalPointer: false,
     dispose: () => {
       loop.stop();
       renderer.dispose();
@@ -83,11 +96,12 @@ function mountEngine(
 
 /**
  * React bridge to the Surface Engine.
- * Props update UniformStore targets; rAF damps and draws without setState.
+ * Owns pointer tracking (DOM→UV); props update targets without setState on rAF.
  */
 export function SurfaceCanvas({
   params,
   animation,
+  interaction,
   className,
   style,
   reducedMotion = false,
@@ -101,6 +115,8 @@ export function SurfaceCanvas({
   const reducedRef = useRef(reducedMotion);
   const scrollProgressRef = useRef(scrollProgress);
   const initialAnimRef = useRef(animation);
+  const initialIxRef = useRef(interaction);
+  const pointerPropRef = useRef(pointer);
 
   const onParams = useEffectEvent((p?: Partial<MonochromeParams>) => {
     if (p) engineRef.current?.store.setParams(p);
@@ -112,17 +128,26 @@ export function SurfaceCanvas({
     },
   );
 
+  const onInteraction = useEffectEvent(
+    (cfg?: Partial<InteractionEngineConfig>) => {
+      if (cfg) engineRef.current?.ix.syncFromProps(cfg);
+    },
+  );
+
   const onPointerProp = useEffectEvent(
-    (ptr: { x: number; y: number } | null) => {
+    (ptr: { x: number; y: number; down?: boolean } | null) => {
       const engine = engineRef.current;
       if (!engine) return;
+      engine.externalPointer = ptr !== null && ptr !== undefined;
       if (reducedRef.current || !ptr) {
-        engine.pointer.release();
-        engine.store.setPointer(0.5, 0.5);
+        if (!ptr) engine.ix.setPointerExit();
         return;
       }
-      engine.pointer.setNormalized(ptr.x, ptr.y);
-      engine.store.setPointer(ptr.x, ptr.y);
+      // External prop is DOM-normalized (y=0 top)
+      engine.ix.setTargetDom(ptr.x, ptr.y, true);
+      if (typeof ptr.down === "boolean") {
+        engine.ix.setPointerDown(ptr.down);
+      }
     },
   );
 
@@ -144,6 +169,10 @@ export function SurfaceCanvas({
   }, [scrollProgress]);
 
   useEffect(() => {
+    pointerPropRef.current = pointer;
+  }, [pointer]);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
@@ -152,6 +181,7 @@ export function SurfaceCanvas({
       canvas,
       () => reducedRef.current,
       initialAnimRef.current,
+      initialIxRef.current,
     );
     engineRef.current = engine;
 
@@ -160,6 +190,7 @@ export function SurfaceCanvas({
       const dpr = getDpr();
       engine.renderer.resize(rect.width, rect.height, dpr);
       engine.store.setResolution(rect.width, rect.height, dpr);
+      engine.ix.setViewportSize(rect.width, rect.height);
     };
 
     resize();
@@ -167,6 +198,54 @@ export function SurfaceCanvas({
 
     const ro = new ResizeObserver(resize);
     ro.observe(wrap);
+
+    const readLocalPointer = (clientX: number, clientY: number) => {
+      const rect = wrap.getBoundingClientRect();
+      const x = Math.min(
+        1,
+        Math.max(0, (clientX - rect.left) / Math.max(rect.width, 1)),
+      );
+      const y = Math.min(
+        1,
+        Math.max(0, (clientY - rect.top) / Math.max(rect.height, 1)),
+      );
+      return { x, y };
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (reducedRef.current) return;
+      if (pointerPropRef.current) return; // external drive
+      const { x, y } = readLocalPointer(e.clientX, e.clientY);
+      engine.ix.setTargetDom(x, y, true);
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (reducedRef.current) return;
+      wrap.setPointerCapture?.(e.pointerId);
+      const { x, y } = readLocalPointer(e.clientX, e.clientY);
+      engine.ix.setTargetDom(x, y, true);
+      engine.ix.setPointerDown(true);
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      engine.ix.setPointerDown(false);
+      try {
+        wrap.releasePointerCapture?.(e.pointerId);
+      } catch {
+        /* already released */
+      }
+    };
+
+    const onPointerLeave = () => {
+      if (pointerPropRef.current) return;
+      engine.ix.setPointerExit();
+    };
+
+    wrap.addEventListener("pointermove", onPointerMove, { passive: true });
+    wrap.addEventListener("pointerdown", onPointerDown, { passive: true });
+    wrap.addEventListener("pointerup", onPointerUp, { passive: true });
+    wrap.addEventListener("pointercancel", onPointerUp, { passive: true });
+    wrap.addEventListener("pointerleave", onPointerLeave, { passive: true });
 
     const onScroll = () => {
       if (typeof scrollProgressRef.current === "number") return;
@@ -178,6 +257,11 @@ export function SurfaceCanvas({
 
     return () => {
       window.removeEventListener("scroll", onScroll);
+      wrap.removeEventListener("pointermove", onPointerMove);
+      wrap.removeEventListener("pointerdown", onPointerDown);
+      wrap.removeEventListener("pointerup", onPointerUp);
+      wrap.removeEventListener("pointercancel", onPointerUp);
+      wrap.removeEventListener("pointerleave", onPointerLeave);
       ro.disconnect();
       engine.dispose();
       engineRef.current = null;
@@ -193,6 +277,10 @@ export function SurfaceCanvas({
   }, [animation]);
 
   useEffect(() => {
+    onInteraction(interaction);
+  }, [interaction]);
+
+  useEffect(() => {
     onPointerProp(pointer);
   }, [pointer]);
 
@@ -204,8 +292,7 @@ export function SurfaceCanvas({
     const engine = engineRef.current;
     if (!engine) return;
     if (reducedMotion) {
-      engine.pointer.release();
-      engine.store.setPointer(0.5, 0.5);
+      engine.ix.setPointerExit();
       engine.anim.patchTimeline({ playing: false });
     }
   }, [reducedMotion]);

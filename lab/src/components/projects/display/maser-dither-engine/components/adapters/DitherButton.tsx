@@ -1,17 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type PointerEvent as ReactPointerEvent } from "react";
 import { SurfaceCanvas } from "../../react/SurfaceCanvas";
 import type { DitherAdapterProps } from "../../types";
 import { cn } from "@/lib/utils";
 
+type Ptr = { x: number; y: number; down: boolean };
+
+function readPtr(e: ReactPointerEvent<HTMLElement>, down: boolean): Ptr {
+  const r = e.currentTarget.getBoundingClientRect();
+  return {
+    x: (e.clientX - r.left) / r.width,
+    y: (e.clientY - r.top) / r.height,
+    down,
+  };
+}
+
+/**
+ * Label overlays the canvas — drive pointer from the button bounds.
+ */
 export function DitherButton({
   params,
   animation,
+  interaction,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
-  const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
+  const [pointer, setPointer] = useState<Ptr | null>(null);
 
   return (
     <button
@@ -19,17 +34,22 @@ export function DitherButton({
       className={cn("mde-adapter mde-adapter--button", className)}
       onPointerMove={(e) => {
         if (reducedMotion) return;
-        const r = e.currentTarget.getBoundingClientRect();
-        setPointer({
-          x: (e.clientX - r.left) / r.width,
-          y: (e.clientY - r.top) / r.height,
-        });
+        setPointer(readPtr(e, pointer?.down ?? e.buttons > 0));
+      }}
+      onPointerDown={(e) => {
+        if (reducedMotion) return;
+        setPointer(readPtr(e, true));
+      }}
+      onPointerUp={(e) => {
+        if (reducedMotion) return;
+        setPointer(readPtr(e, false));
       }}
       onPointerLeave={() => setPointer(null)}
     >
       <span className="mde-adapter-button__fill" aria-hidden>
         <SurfaceCanvas
           animation={animation}
+          interaction={interaction}
           params={{ ...params, opacity: 1 }}
           pointer={pointer}
           reducedMotion={reducedMotion}

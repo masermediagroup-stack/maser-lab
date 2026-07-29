@@ -1,14 +1,13 @@
 "use client";
 
-import { useCallback, useRef, useState, type PointerEvent } from "react";
 import { SurfaceCanvas } from "../react/SurfaceCanvas";
 import type { SurfaceCardProps } from "../types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /**
- * First surface adapter — editorial card with procedural media plane.
- * Cursor influence is subtle; no dramatic transforms.
+ * Surface card adapter — editorial card with procedural media plane.
+ * Pointer tracking owned by SurfaceCanvas (accurate UV conversion).
  */
 export function SurfaceCard({
   title = "Surface Print",
@@ -17,46 +16,21 @@ export function SurfaceCard({
   onButtonClick,
   params,
   animation,
+  interaction,
   reducedMotion = false,
   className,
 }: SurfaceCardProps) {
-  const mediaRef = useRef<HTMLDivElement>(null);
-  const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
-
-  const handleMove = useCallback(
-    (e: PointerEvent<HTMLDivElement>) => {
-      if (reducedMotion) return;
-      const el = mediaRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      setPointer({
-        x: Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)),
-        y: Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height)),
-      });
-    },
-    [reducedMotion],
-  );
-
-  const handleLeave = useCallback(() => {
-    setPointer(null);
-  }, []);
-
   return (
     <article
       className={cn("mse-card", className)}
       aria-label="Maser Surface Engine card"
     >
-      <div
-        ref={mediaRef}
-        className="mse-card__media"
-        onPointerMove={handleMove}
-        onPointerLeave={handleLeave}
-      >
+      <div className="mse-card__media">
         <SurfaceCanvas
           className="mse-card__canvas"
           params={params}
           animation={animation}
-          pointer={pointer}
+          interaction={interaction}
           reducedMotion={reducedMotion}
           aria-label="Procedural monochrome material"
         />

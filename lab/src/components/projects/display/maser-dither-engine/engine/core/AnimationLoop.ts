@@ -26,8 +26,6 @@ const DAMP_KEYS: (keyof MonochromeUniformState)[] = [
   "lightY",
   "opacity",
   "blueNoiseAmount",
-  "pointerX",
-  "pointerY",
   "scrollY",
 ];
 

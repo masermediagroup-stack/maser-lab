@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 export function DitherLoader({
   params,
   animation,
+  interaction,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -19,9 +20,12 @@ export function DitherLoader({
       <div className="mde-adapter-loader__orb">
         <SurfaceCanvas
           animation={animation}
+          interaction={interaction}
           params={{
             ...params,
-            animationSpeed: reducedMotion ? 0 : Math.max(params.animationSpeed, 0.8),
+            animationSpeed: reducedMotion
+              ? 0
+              : Math.max(params.animationSpeed, 0.8),
           }}
           reducedMotion={reducedMotion}
         />

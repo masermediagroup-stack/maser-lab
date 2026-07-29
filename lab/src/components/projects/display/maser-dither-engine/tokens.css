@@ -532,6 +532,33 @@
   gap: 0.35rem;
 }
 
+.mde-ix-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  padding-top: 0.25rem;
+}
+
+.mde-ix-light {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.35rem 0;
+}
+
+.mde-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--mde-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.mde-check input {
+  accent-color: var(--mde-fg);
+}
+
 .mde-export {
   margin: 0;
   max-height: 220px;

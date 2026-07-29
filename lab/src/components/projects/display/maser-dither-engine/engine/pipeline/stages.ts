@@ -1,8 +1,8 @@
 import { ANIM_GLSL } from "../animation/animGlsl";
+import { INTERACTION_GLSL } from "../interaction/interactionGlsl";
 
 /**
- * Pipeline stage documentation + default ranges (shader implements stages 1–7;
- * stage 8 is CPU damp in AnimationLoop; stage 0 is procedural animation).
+ * Pipeline stages — animation (0), material (1–7), damp (8), interaction lighting.
  */
 export const PIPELINE_STAGES = [
   {
@@ -10,6 +10,12 @@ export const PIPELINE_STAGES = [
     name: "Procedural animation",
     description:
       "Mode-blended UV offset + luminance/light modulation (timeline-driven)",
+  },
+  {
+    id: 9,
+    name: "Procedural interaction",
+    description:
+      "Multi-light field, pointer physics, ripples, trails, state modulation",
   },
   {
     id: 1,
@@ -40,7 +46,7 @@ export const PIPELINE_STAGES = [
   {
     id: 6,
     name: "Highlight bloom",
-    description: "Fixed-tap soft bloom around light + cursor",
+    description: "Bloom around pointer + material bloom radius",
   },
   {
     id: 7,
@@ -50,7 +56,7 @@ export const PIPELINE_STAGES = [
   {
     id: 8,
     name: "Motion interpolation",
-    description: "CPU exponential damp of all targets → uniforms",
+    description: "CPU exponential damp of material targets → uniforms",
   },
 ] as const;
 
@@ -133,30 +139,27 @@ float sampleBlue(vec2 pixel) {
   return texture(uBlueNoise, fract(pixel / 64.0)).r;
 }
 
-float gradientField(vec2 uv, vec2 light) {
+float gradientField(vec2 uv) {
   float angle = radians(uGradientAngle);
   vec2 dir = vec2(cos(angle), sin(angle));
   float g = dot(uv - 0.5, dir) * 0.5 + 0.5;
 
-  vec2 ptr = mix(vec2(0.5), uPointer, uCursorInfluence);
-  vec2 lightPos = mix(vec2(uLightX, uLightY), ptr, uCursorInfluence * 0.65);
-  lightPos += (ptr - 0.5) * uCursorInfluence * 0.12;
-  lightPos.y += uScroll * uScrollInfluence * 0.08;
-  // Lighting animation layer — subtle pull from procedural lightMod (via light.y)
-  lightPos += (light - 0.5) * 0.08;
+  // Accurate pointer light — UV space, no stacked mixes
+  vec2 lightPos = mix(vec2(uLightX, uLightY), uIxPointer, uIxInfluence * 0.85);
+  lightPos.y += uScroll * uScrollInfluence * 0.05;
 
   float dist = distance(uv, lightPos);
-  float radial = 1.0 - smoothstep(0.0, 0.85 + uDepth * 0.5, dist);
+  float radial = ixFalloff(dist, uIxFalloffRadius) * (0.55 + uDepth * 0.35);
   float soft = mix(0.35, 1.0, uSoftEdge);
 
   float base = mix(uGradientColorA, uGradientColorB, clamp(g, 0.0, 1.0));
-  base = mix(base, clamp(base + radial * 0.35 * soft, 0.0, 1.0), 0.7);
-  base += (light.x - lightPos.x) * 0.02;
+  base = mix(base, clamp(base + radial * 0.4 * soft, 0.0, 1.0), 0.75);
   return clamp(base, 0.0, 1.0);
 }
 
 float remapContrast(float v) {
-  v = (v - 0.5) * uContrast + 0.5 + uBrightness;
+  float contrast = uContrast + uIxStateContrast;
+  v = (v - 0.5) * contrast + 0.5 + uBrightness;
   float shadows = mix(v, v * v, uShadowStrength);
   float highlights = mix(shadows, 1.0 - (1.0 - shadows) * (1.0 - shadows), uHighlightStrength * 0.5);
   return clamp(highlights, 0.0, 1.0);
@@ -169,60 +172,57 @@ float posterize(float v) {
 }
 
 float bloomField(vec2 uv) {
-  vec2 ptr = mix(vec2(uLightX, uLightY), uPointer, uCursorInfluence);
+  vec2 ptr = uIxPointer;
   float d = distance(uv, ptr);
-  float r = max(uBloomRadius, 0.02);
+  float r = max(uBloomRadius * uIxStateRadiusMul, 0.02);
   float core = exp(- (d * d) / (r * r * 2.0));
   float soft = 0.0;
   soft += exp(- (distance(uv, ptr + vec2(r, 0.0)) * distance(uv, ptr + vec2(r, 0.0))) / (r * r * 4.0));
   soft += exp(- (distance(uv, ptr + vec2(-r, 0.0)) * distance(uv, ptr + vec2(-r, 0.0))) / (r * r * 4.0));
   soft += exp(- (distance(uv, ptr + vec2(0.0, r)) * distance(uv, ptr + vec2(0.0, r))) / (r * r * 4.0));
   soft += exp(- (distance(uv, ptr + vec2(0.0, -r)) * distance(uv, ptr + vec2(0.0, -r))) / (r * r * 4.0));
-  return (core + soft * 0.15) * uBloom;
+  return (core + soft * 0.15) * (uBloom + uIxStateBloom);
 }
 
 void main() {
   vec2 uv = vUv;
 
-  // Stage 0 — procedural animation (ambient + distortion layers)
+  // Stage 0 — procedural animation (ambient + distortion)
   vec4 anim = sampleAnimation(uv, uTime);
   vec2 uvAnim = clamp(uv + anim.xy, 0.0, 1.0);
 
-  // Interaction response layer — dampened cursor tug on sample UV
-  vec2 ptr = mix(vec2(0.5), uPointer, uCursorInfluence);
-  uvAnim += (ptr - 0.5) * uCursorInfluence * 0.04;
+  // Interaction tug — velocity-aware, UV-correct pointer
+  vec2 tug = (uIxPointer - 0.5) * uIxInfluence * 0.035;
+  tug += uIxVelocity * 0.0008 * uIxInfluence;
+  uvAnim = clamp(uvAnim + tug, 0.0, 1.0);
 
   vec2 pixel = uvAnim * uResolution * uPixelDensity;
 
-  // Lighting animation layer feeds gradient via light vec
-  vec2 lightAnim = vec2(uLightX, uLightY) + vec2(anim.w * 0.15, anim.w * 0.1);
+  // Stage 1 — gradient (unified light)
+  float lum = gradientField(uvAnim);
 
-  // Stage 1 — gradient
-  float lum = gradientField(uvAnim, lightAnim);
+  // Animation luminance + interaction multi-light / ripples / trails
+  lum = clamp(lum + anim.z * 0.45, 0.0, 1.0);
+  lum = clamp(lum + sampleInteraction(uvAnim), 0.0, 1.0);
 
-  // Ambient luminance modulation from animation
-  lum = clamp(lum + anim.z * 0.55, 0.0, 1.0);
-
-  // Stage 5 early remap before dither for better print density
+  // Stage 5 remap
   lum = remapContrast(lum);
 
-  // Stage 6 — bloom add
+  // Stage 6 bloom
   lum = clamp(lum + bloomField(uvAnim) * 0.55, 0.0, 1.0);
 
-  // Stage 4 — posterize (pre-dither)
+  // Stage 4 posterize
   lum = posterize(lum);
 
-  // Stage 2 — Bayer
+  // Stage 2–3 dither
   float threshold = sampleBayer(pixel);
-  // Stage 3 — blue noise overlay
   float bn = sampleBlue(pixel * uNoiseScale + vec2(uTime * uNoiseSpeed * 8.0, uScroll * 20.0));
   threshold = mix(threshold, bn, clamp(uBlueNoiseAmount, 0.0, 1.0));
 
   float dithered = step(threshold, lum);
-
   float ink = mix(lum, dithered, 0.82);
 
-  // Stage 7 — grain
+  // Stage 7 grain
   float g = hash21(pixel + floor(uTime * uNoiseSpeed * 60.0));
   ink = clamp(ink + (g - 0.5) * uGrainAmount, 0.0, 1.0);
 
@@ -230,4 +230,4 @@ void main() {
 }
 `;
 
-export const FRAG_SRC = FRAG_HEAD + ANIM_GLSL + FRAG_BODY;
+export const FRAG_SRC = FRAG_HEAD + ANIM_GLSL + INTERACTION_GLSL + FRAG_BODY;

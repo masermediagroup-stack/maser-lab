@@ -6,6 +6,8 @@ import type { MonochromeUniformState } from "../../types";
 import type { DitherSize } from "../../types";
 import type { AnimationUniformPayload } from "../animation/types";
 import { IDLE_ANIMATION_PAYLOAD } from "../animation/types";
+import type { InteractionUniformPayload } from "../interaction/types";
+import { idleInteractionPayload } from "../interaction/types";
 
 const UNIFORM_NAMES = [
   "uResolution",
@@ -44,6 +46,48 @@ const UNIFORM_NAMES = [
   "uAnimParamsA1",
   "uAnimParamsB0",
   "uAnimParamsB1",
+  "uIxPointer",
+  "uIxVelocity",
+  "uIxState",
+  "uIxMode",
+  "uIxInfluence",
+  "uIxHold",
+  "uIxFalloffType",
+  "uIxFalloffRadius",
+  "uIxFalloffSoft",
+  "uIxFalloffPower",
+  "uIxTrailMode",
+  "uIxTrailIntensity",
+  "uIxTrailWidth",
+  "uIxRippleStyle",
+  "uIxRippleFreq",
+  "uIxRippleThick",
+  "uIxLightCount",
+  "uIxDebug",
+  "uIxReleasePulse",
+  "uIxStateBright",
+  "uIxStateBloom",
+  "uIxStateContrast",
+  "uIxStateRadiusMul",
+  "uIxTrailCount",
+  "uIxLights0",
+  "uIxLights1",
+  "uIxLights2",
+  "uIxLights3",
+  "uIxLights4",
+  "uIxLights5",
+  "uIxLights6",
+  "uIxLights7",
+  "uIxLightCol",
+  "uIxLightColB",
+  "uIxRipples0",
+  "uIxRipples1",
+  "uIxRipples2",
+  "uIxRipples3",
+  "uIxTrail0",
+  "uIxTrail1",
+  "uIxTrail2",
+  "uIxTrail3",
   "uBayer2",
   "uBayer4",
   "uBayer8",
@@ -187,6 +231,7 @@ export class SurfaceRenderer {
   draw(
     state: MonochromeUniformState,
     anim: AnimationUniformPayload = IDLE_ANIMATION_PAYLOAD,
+    ix: InteractionUniformPayload = idleInteractionPayload(),
   ): void {
     if (this.disposed) return;
     const gl = this.gl;
@@ -231,7 +276,7 @@ export class SurfaceRenderer {
     gl.uniform1f(u.uLightY, state.lightY);
     gl.uniform1f(u.uOpacity, state.opacity);
     gl.uniform1f(u.uBlueNoiseAmount, state.blueNoiseAmount);
-    gl.uniform2f(u.uPointer, state.pointerX, state.pointerY);
+    gl.uniform2f(u.uPointer, ix.pointerX, ix.pointerY);
     gl.uniform1f(u.uScroll, state.scrollY);
 
     gl.uniform1f(u.uAnimModeA, anim.modeA);
@@ -266,11 +311,123 @@ export class SurfaceRenderer {
       anim.paramsB1[3],
     );
 
+    this.uploadInteraction(gl, u, ix);
+
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  private uploadInteraction(
+    gl: WebGL2RenderingContext,
+    u: Record<string, WebGLUniformLocation | null>,
+    ix: InteractionUniformPayload,
+  ): void {
+    gl.uniform2f(u.uIxPointer, ix.pointerX, ix.pointerY);
+    gl.uniform2f(u.uIxVelocity, ix.velocityX, ix.velocityY);
+    gl.uniform1f(u.uIxState, ix.state);
+    gl.uniform1f(u.uIxMode, ix.mode);
+    gl.uniform1f(u.uIxInfluence, ix.influence);
+    gl.uniform1f(u.uIxHold, ix.holdCharge);
+    gl.uniform1f(u.uIxFalloffType, ix.falloffType);
+    gl.uniform1f(u.uIxFalloffRadius, ix.falloffRadius);
+    gl.uniform1f(u.uIxFalloffSoft, ix.falloffSoft);
+    gl.uniform1f(u.uIxFalloffPower, ix.falloffPower);
+    gl.uniform1f(u.uIxTrailMode, ix.trailMode);
+    gl.uniform1f(u.uIxTrailIntensity, ix.trailIntensity);
+    gl.uniform1f(u.uIxTrailWidth, ix.trailWidth);
+    gl.uniform1f(u.uIxRippleStyle, ix.rippleStyle);
+    gl.uniform1f(u.uIxRippleFreq, ix.rippleFreq);
+    gl.uniform1f(u.uIxRippleThick, ix.rippleThick);
+    gl.uniform1f(u.uIxLightCount, ix.lightCount);
+    gl.uniform1f(u.uIxDebug, ix.debug);
+    gl.uniform1f(u.uIxReleasePulse, ix.releasePulse);
+    gl.uniform1f(u.uIxStateBright, ix.stateBrightness);
+    gl.uniform1f(u.uIxStateBloom, ix.stateBloom);
+    gl.uniform1f(u.uIxStateContrast, ix.stateContrast);
+    gl.uniform1f(u.uIxStateRadiusMul, ix.stateRadiusMul);
+    gl.uniform1f(u.uIxTrailCount, ix.trailCount);
+
+    const lightUniforms = [
+      u.uIxLights0,
+      u.uIxLights1,
+      u.uIxLights2,
+      u.uIxLights3,
+      u.uIxLights4,
+      u.uIxLights5,
+      u.uIxLights6,
+      u.uIxLights7,
+    ];
+    for (let i = 0; i < 8; i++) {
+      gl.uniform4f(
+        lightUniforms[i]!,
+        ix.lightPos[i * 2] ?? 0.5,
+        ix.lightPos[i * 2 + 1] ?? 0.5,
+        ix.lightRad[i] ?? 0,
+        ix.lightInt[i] ?? 0,
+      );
+    }
+    gl.uniform4f(
+      u.uIxLightCol,
+      ix.lightCol[0] ?? 1,
+      ix.lightCol[1] ?? 1,
+      ix.lightCol[2] ?? 1,
+      ix.lightCol[3] ?? 1,
+    );
+    gl.uniform4f(
+      u.uIxLightColB,
+      ix.lightCol[4] ?? 1,
+      ix.lightCol[5] ?? 1,
+      ix.lightCol[6] ?? 1,
+      ix.lightCol[7] ?? 1,
+    );
+
+    const rippleUniforms = [
+      u.uIxRipples0,
+      u.uIxRipples1,
+      u.uIxRipples2,
+      u.uIxRipples3,
+    ];
+    for (let i = 0; i < 4; i++) {
+      gl.uniform4f(
+        rippleUniforms[i]!,
+        ix.ripples[i * 4] ?? 0,
+        ix.ripples[i * 4 + 1] ?? 0,
+        ix.ripples[i * 4 + 2] ?? 0,
+        ix.ripples[i * 4 + 3] ?? 0,
+      );
+    }
+
+    gl.uniform4f(
+      u.uIxTrail0,
+      ix.trailPts[0] ?? 0,
+      ix.trailPts[1] ?? 0,
+      ix.trailPts[2] ?? 0,
+      ix.trailPts[3] ?? 0,
+    );
+    gl.uniform4f(
+      u.uIxTrail1,
+      ix.trailPts[4] ?? 0,
+      ix.trailPts[5] ?? 0,
+      ix.trailPts[6] ?? 0,
+      ix.trailPts[7] ?? 0,
+    );
+    gl.uniform4f(
+      u.uIxTrail2,
+      ix.trailPts[8] ?? 0,
+      ix.trailPts[9] ?? 0,
+      ix.trailPts[10] ?? 0,
+      ix.trailPts[11] ?? 0,
+    );
+    gl.uniform4f(
+      u.uIxTrail3,
+      ix.trailPts[12] ?? 0,
+      ix.trailPts[13] ?? 0,
+      ix.trailPts[14] ?? 0,
+      ix.trailPts[15] ?? 0,
+    );
   }
 
   dispose(): void {

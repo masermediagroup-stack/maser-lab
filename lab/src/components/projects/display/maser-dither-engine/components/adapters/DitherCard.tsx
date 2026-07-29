@@ -3,7 +3,13 @@
 import { SurfaceCard } from "../../surfaces/SurfaceCard";
 import type { DitherAdapterProps } from "../../types";
 
-export function DitherCard({ params, animation, reducedMotion, className }: DitherAdapterProps) {
+export function DitherCard({
+  params,
+  animation,
+  interaction,
+  reducedMotion,
+  className,
+}: DitherAdapterProps) {
   return (
     <SurfaceCard
       title="Print Density"
@@ -11,6 +17,7 @@ export function DitherCard({ params, animation, reducedMotion, className }: Dith
       buttonLabel="Explore"
       params={params}
       animation={animation}
+      interaction={interaction}
       reducedMotion={reducedMotion}
       className={className}
     />

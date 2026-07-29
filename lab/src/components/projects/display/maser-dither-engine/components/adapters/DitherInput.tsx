@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 export function DitherInput({
   params,
   animation,
+  interaction,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -15,7 +16,12 @@ export function DitherInput({
       <span className="mde-adapter-input__label">Email</span>
       <span className="mde-adapter-input__field">
         <span className="mde-adapter-input__fill" aria-hidden>
-          <SurfaceCanvas params={params} animation={animation} reducedMotion={reducedMotion} />
+          <SurfaceCanvas
+            params={params}
+            animation={animation}
+            interaction={interaction}
+            reducedMotion={reducedMotion}
+          />
         </span>
         <input type="email" placeholder="you@maser.media" autoComplete="off" />
       </span>

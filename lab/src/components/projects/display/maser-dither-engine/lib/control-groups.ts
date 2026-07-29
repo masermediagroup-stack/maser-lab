@@ -56,6 +56,7 @@ export const CONTROL_GROUPS: ControlGroupDef[] = [
   {
     id: "interaction",
     label: "Interaction",
+    /** Mode/physics/lights UI is rendered by InteractionPanel; keep material influence sliders here. */
     fields: [
       { kind: "slider", key: "cursorInfluence" },
       { kind: "slider", key: "scrollInfluence" },

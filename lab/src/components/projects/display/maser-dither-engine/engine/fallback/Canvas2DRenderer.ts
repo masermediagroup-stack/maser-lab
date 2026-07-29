@@ -2,6 +2,7 @@ import { sampleBayer } from "../dither/bayer";
 import { BLUE_NOISE_SIZE, generateBlueNoiseTexture, sampleBlueNoise } from "../dither/blueNoise";
 import { grainHash } from "../noise/grain";
 import type { AnimationUniformPayload } from "../animation/types";
+import type { InteractionUniformPayload } from "../interaction/types";
 import type { MonochromeUniformState } from "../../types";
 
 /**
@@ -35,7 +36,11 @@ export class Canvas2DRenderer {
     }
   }
 
-  draw(state: MonochromeUniformState, anim?: AnimationUniformPayload): void {
+  draw(
+    state: MonochromeUniformState,
+    anim?: AnimationUniformPayload,
+    ix?: InteractionUniformPayload,
+  ): void {
     if (this.disposed) return;
     if (Math.abs(state.randomSeed - this.lastSeed) > 0.001) {
       this.lastSeed = state.randomSeed;
@@ -49,16 +54,17 @@ export class Canvas2DRenderer {
     const dirX = Math.cos(angle);
     const dirY = Math.sin(angle);
     const t = anim?.time ?? state.time;
-    // Lightweight fallback: soft traveling wave (mode-agnostic approximation)
     const amp = anim ? 0.12 : 0.08;
+    // UV-space pointer (y=0 bottom) — match WebGL
+    const ptrX = ix?.pointerX ?? state.pointerX;
+    const ptrY = ix?.pointerY ?? state.pointerY;
+    const influence = ix?.influence ?? state.cursorInfluence;
 
-    const ptrX =
-      state.lightX +
-      (state.pointerX - 0.5) * state.cursorInfluence * 0.65;
-    const ptrY =
+    const lightX = state.lightX + (ptrX - state.lightX) * influence * 0.85;
+    const lightY =
       state.lightY +
-      (state.pointerY - 0.5) * state.cursorInfluence * 0.65 +
-      state.scrollY * state.scrollInfluence * 0.08;
+      (ptrY - state.lightY) * influence * 0.85 +
+      state.scrollY * state.scrollInfluence * 0.05;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -75,11 +81,14 @@ export class Canvas2DRenderer {
           Math.sin(uvx * 6.2 + t * 0.9) * amp * 0.55 +
           Math.sin(uvy * 4.1 - t * 0.65) * amp * 0.35;
 
-        const dx = uvx - ptrX;
-        const dy = uvy - ptrY;
+        const dx = uvx - lightX;
+        const dy = uvy - lightY;
         const dist = Math.hypot(dx, dy);
         const radial = 1 - Math.min(1, dist / (0.85 + state.depth * 0.5));
         lum = lum + radial * 0.25 * state.softEdge;
+        if (ix) {
+          lum += (ix.stateBrightness + ix.releasePulse * 0.15) * influence;
+        }
 
         lum = (lum - 0.5) * state.contrast + 0.5 + state.brightness;
         lum = Math.min(1, Math.max(0, lum));

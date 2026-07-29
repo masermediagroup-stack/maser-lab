@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 export function DitherAvatar({
   params,
   animation,
+  interaction,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -16,7 +17,12 @@ export function DitherAvatar({
       role="img"
       aria-label="Dither avatar"
     >
-      <SurfaceCanvas params={params} animation={animation} reducedMotion={reducedMotion} />
+      <SurfaceCanvas
+        params={params}
+        animation={animation}
+        interaction={interaction}
+        reducedMotion={reducedMotion}
+      />
     </div>
   );
 }

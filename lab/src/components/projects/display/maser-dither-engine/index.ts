@@ -35,6 +35,27 @@ export type {
   AnimationUniformPayload,
   TimelineState,
 } from "./engine/animation";
+export {
+  INTERACTION_MODES,
+  InteractionModeCatalog,
+  InteractionController,
+  DEFAULT_INTERACTION_CONFIG,
+  createDefaultLights,
+  MAX_LIGHTS,
+} from "./engine/interaction";
+export type {
+  InteractionModeId,
+  InteractionEngineConfig,
+  InteractionUniformPayload,
+  PhysicsConfig,
+  FalloffConfig,
+  TrailConfig,
+  RippleConfig,
+  HoldConfig,
+  ReleaseConfig,
+  ProceduralLight,
+  PointerStateId,
+} from "./engine/interaction";
 export type {
   MonochromeParams,
   MonochromeUniformState,

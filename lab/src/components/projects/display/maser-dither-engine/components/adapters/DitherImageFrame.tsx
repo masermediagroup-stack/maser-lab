@@ -7,13 +7,19 @@ import { cn } from "@/lib/utils";
 export function DitherImageFrame({
   params,
   animation,
+  interaction,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
   return (
     <figure className={cn("mde-adapter mde-adapter--frame", className)}>
       <div className="mde-adapter-frame__matte" aria-hidden>
-        <SurfaceCanvas params={params} animation={animation} reducedMotion={reducedMotion} />
+        <SurfaceCanvas
+          params={params}
+          animation={animation}
+          interaction={interaction}
+          reducedMotion={reducedMotion}
+        />
       </div>
       <div className="mde-adapter-frame__photo">
         <div className="mde-adapter-frame__placeholder">Image</div>
