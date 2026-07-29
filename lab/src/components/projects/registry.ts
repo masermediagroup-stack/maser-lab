@@ -8,7 +8,7 @@ import { LiquidMonochromeDemo } from "./scroll/liquid-monochrome";
 import { TextAnimationLabDemo } from "./display/text-animation-lab";
 import { PageTransitionsLabDemo } from "./layout/page-transitions-lab";
 import { KineticPerspectiveBarsDemo } from "./display/kinetic-perspective-bars";
-import { MaserSurfaceEngineDemo } from "./display/maser-surface-engine/maser-surface-engine-demo";
+import { MaserDitherEngineDemo } from "./display/maser-dither-engine/maser-dither-engine-demo";
 import { ServiceShowcaseDemo } from "./marketing/service-showcase";
 
 export const demoRegistry: Record<string, ComponentType> = {
@@ -21,7 +21,7 @@ export const demoRegistry: Record<string, ComponentType> = {
   "summitpath-sign-up": SummitPathSignUpDemo,
   "text-animation-lab": TextAnimationLabDemo,
   "kinetic-perspective-bars": KineticPerspectiveBarsDemo,
-  "maser-surface-engine": MaserSurfaceEngineDemo,
+  "maser-dither-engine": MaserDitherEngineDemo,
   "service-showcase": ServiceShowcaseDemo,
 };
 

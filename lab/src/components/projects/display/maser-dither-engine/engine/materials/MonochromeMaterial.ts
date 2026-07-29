@@ -9,7 +9,7 @@ export function createMonochromeMaterial(
 
 export const MonochromeMaterial = {
   id: "monochrome" as const,
-  label: "Monochrome Print",
+  label: "Monochrome",
   status: "ready" as const,
   defaults: MONOCHROME_DEFAULTS,
   create: createMonochromeMaterial,

@@ -72,11 +72,11 @@
       "description": "Premium B&W tabbed service browser with before/after comparison and lab tuning controls"
     },
     {
-      "slug": "maser-surface-engine",
-      "title": "Maser Surface Engine",
+      "slug": "maser-dither-engine",
+      "title": "Maser Dither Engine",
       "status": "building",
       "category": "display",
-      "description": "Procedural monochrome material engine — Bayer dither, blue-noise, bloom, grain, and realtime uniforms"
+      "description": "Procedural dither material module — shared WebGL engine, component playgrounds, materials, presets, and docs"
     }
   ]
 }

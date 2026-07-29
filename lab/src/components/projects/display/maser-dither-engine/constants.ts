@@ -1,7 +1,10 @@
 import type { DitherSize, MonochromeParams } from "./types";
 
-export const ENGINE_NAME = "Maser Surface Engine";
-export const ENGINE_SLUG = "maser-surface-engine";
+export const ENGINE_NAME = "Maser Dither Engine";
+export const ENGINE_SLUG = "maser-dither-engine";
+export const ENGINE_VERSION = "0.2.0";
+export const ENGINE_TAGLINE =
+  "Procedural monochrome materials for interfaces — engineered tonal density.";
 
 /** Exponential damp rate (higher = snappier, still no overshoot). */
 export const DAMP_LAMBDA = 10;
@@ -64,6 +67,40 @@ export const PARAM_RANGES: Record<
   blueNoiseAmount: { min: 0, max: 1, step: 0.01 },
 };
 
+export const PARAM_LABELS: Partial<Record<keyof MonochromeParams, string>> = {
+  ditherSize: "Dither Size",
+  posterization: "Posterization",
+  noiseScale: "Noise Scale",
+  noiseSpeed: "Noise Speed",
+  contrast: "Contrast",
+  brightness: "Brightness",
+  gradientAngle: "Gradient Angle",
+  gradientColorA: "Gradient Dark",
+  gradientColorB: "Gradient Light",
+  bloom: "Bloom",
+  bloomRadius: "Bloom Radius",
+  grainAmount: "Grain Amount",
+  pixelDensity: "Pixel Density",
+  shadowStrength: "Shadow Strength",
+  highlightStrength: "Highlight Strength",
+  softEdge: "Soft Edge",
+  randomSeed: "Random Seed",
+  animationSpeed: "Animation Speed",
+  cursorInfluence: "Cursor Influence",
+  scrollInfluence: "Scroll Influence",
+  depth: "Depth",
+  lightX: "Light X",
+  lightY: "Light Y",
+  opacity: "Opacity",
+  blueNoiseAmount: "Blue Noise",
+};
+
 export const DITHER_SIZES: DitherSize[] = [2, 4, 8, 16];
 
 export const MAX_DPR = 2;
+
+export const STORAGE_KEYS = {
+  panels: "mde:panels:v1",
+  favorites: "mde:favorites:v1",
+  recent: "mde:recent:v1",
+} as const;
