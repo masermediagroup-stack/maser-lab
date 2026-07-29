@@ -21,6 +21,20 @@ export {
   DITHER_SIZES,
 } from "./constants";
 export { PIPELINE_STAGES } from "./engine/pipeline/stages";
+export {
+  ANIMATION_MODES,
+  AnimationModeCatalog,
+  ProceduralAnimationController,
+  DEFAULT_ANIMATION_CONFIG,
+  defaultModeParams,
+} from "./engine/animation";
+export type {
+  AnimationModeId,
+  AnimationEngineConfig,
+  AnimationModeDefinition,
+  AnimationUniformPayload,
+  TimelineState,
+} from "./engine/animation";
 export type {
   MonochromeParams,
   MonochromeUniformState,

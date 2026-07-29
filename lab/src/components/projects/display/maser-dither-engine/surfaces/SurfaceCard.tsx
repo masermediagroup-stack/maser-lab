@@ -16,6 +16,7 @@ export function SurfaceCard({
   buttonLabel = "Explore",
   onButtonClick,
   params,
+  animation,
   reducedMotion = false,
   className,
 }: SurfaceCardProps) {
@@ -54,6 +55,7 @@ export function SurfaceCard({
         <SurfaceCanvas
           className="mse-card__canvas"
           params={params}
+          animation={animation}
           pointer={pointer}
           reducedMotion={reducedMotion}
           aria-label="Procedural monochrome material"

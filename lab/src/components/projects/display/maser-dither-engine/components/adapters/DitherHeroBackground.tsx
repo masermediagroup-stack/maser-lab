@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 export function DitherHeroBackground({
   params,
+  animation,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -28,6 +29,7 @@ export function DitherHeroBackground({
       <SurfaceCanvas
         className="mde-adapter-hero__canvas"
         params={params}
+          animation={animation}
         pointer={pointer}
         reducedMotion={reducedMotion}
         aria-label="Hero dither background"

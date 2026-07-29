@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 export function DitherSectionBackground({
   params,
+  animation,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -28,6 +29,7 @@ export function DitherSectionBackground({
       <SurfaceCanvas
         className="mde-adapter-section__canvas"
         params={params}
+          animation={animation}
         pointer={pointer}
         reducedMotion={reducedMotion}
         aria-label="Section dither background"

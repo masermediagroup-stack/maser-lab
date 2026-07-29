@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 
 export function DitherBadge({
   params,
+  animation,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
   return (
     <span className={cn("mde-adapter mde-adapter--badge", className)}>
       <span className="mde-adapter-badge__fill" aria-hidden>
-        <SurfaceCanvas params={params} reducedMotion={reducedMotion} />
+        <SurfaceCanvas params={params} animation={animation} reducedMotion={reducedMotion} />
       </span>
       <span className="mde-adapter-badge__label">Live</span>
     </span>

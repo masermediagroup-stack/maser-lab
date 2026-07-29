@@ -1,6 +1,7 @@
 import { sampleBayer } from "../dither/bayer";
 import { BLUE_NOISE_SIZE, generateBlueNoiseTexture, sampleBlueNoise } from "../dither/blueNoise";
 import { grainHash } from "../noise/grain";
+import type { AnimationUniformPayload } from "../animation/types";
 import type { MonochromeUniformState } from "../../types";
 
 /**
@@ -34,7 +35,7 @@ export class Canvas2DRenderer {
     }
   }
 
-  draw(state: MonochromeUniformState): void {
+  draw(state: MonochromeUniformState, anim?: AnimationUniformPayload): void {
     if (this.disposed) return;
     if (Math.abs(state.randomSeed - this.lastSeed) > 0.001) {
       this.lastSeed = state.randomSeed;
@@ -47,6 +48,9 @@ export class Canvas2DRenderer {
     const angle = (state.gradientAngle * Math.PI) / 180;
     const dirX = Math.cos(angle);
     const dirY = Math.sin(angle);
+    const t = anim?.time ?? state.time;
+    // Lightweight fallback: soft traveling wave (mode-agnostic approximation)
+    const amp = anim ? 0.12 : 0.08;
 
     const ptrX =
       state.lightX +
@@ -66,6 +70,10 @@ export class Canvas2DRenderer {
         let lum =
           state.gradientColorA +
           (state.gradientColorB - state.gradientColorA) * Math.min(1, Math.max(0, g));
+
+        lum +=
+          Math.sin(uvx * 6.2 + t * 0.9) * amp * 0.55 +
+          Math.sin(uvy * 4.1 - t * 0.65) * amp * 0.35;
 
         const dx = uvx - ptrX;
         const dy = uvy - ptrY;

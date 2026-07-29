@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 export function DitherNavigation({
   params,
+  animation,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -29,6 +30,7 @@ export function DitherNavigation({
       <div className="mde-adapter-nav__mark" aria-hidden>
         <SurfaceCanvas
           params={params}
+          animation={animation}
           pointer={pointer}
           reducedMotion={reducedMotion}
           aria-label=""

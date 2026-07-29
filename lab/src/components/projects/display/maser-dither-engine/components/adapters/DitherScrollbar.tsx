@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 export function DitherScrollbar({
   params,
+  animation,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -16,7 +17,7 @@ export function DitherScrollbar({
     >
       <div className="mde-adapter-scrollbar__track">
         <div className="mde-adapter-scrollbar__thumb">
-          <SurfaceCanvas params={params} reducedMotion={reducedMotion} />
+          <SurfaceCanvas params={params} animation={animation} reducedMotion={reducedMotion} />
         </div>
       </div>
       <p className="mde-adapter-scrollbar__note">Visual scrollbar chrome</p>

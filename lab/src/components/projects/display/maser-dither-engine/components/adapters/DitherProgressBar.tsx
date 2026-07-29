@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 export function DitherProgressBar({
   params,
+  animation,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -24,7 +25,7 @@ export function DitherProgressBar({
           className="mde-adapter-progress__fill"
           style={{ width: `${value}%` }}
         >
-          <SurfaceCanvas params={params} reducedMotion={reducedMotion} />
+          <SurfaceCanvas params={params} animation={animation} reducedMotion={reducedMotion} />
         </div>
       </div>
       <span className="mde-adapter-progress__value">{value}%</span>

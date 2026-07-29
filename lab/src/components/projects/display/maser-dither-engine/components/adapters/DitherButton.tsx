@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 export function DitherButton({
   params,
+  animation,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -28,6 +29,7 @@ export function DitherButton({
     >
       <span className="mde-adapter-button__fill" aria-hidden>
         <SurfaceCanvas
+          animation={animation}
           params={{ ...params, opacity: 1 }}
           pointer={pointer}
           reducedMotion={reducedMotion}

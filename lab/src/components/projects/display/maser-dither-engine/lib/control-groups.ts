@@ -26,10 +26,8 @@ export const CONTROL_GROUPS: ControlGroupDef[] = [
   {
     id: "animation",
     label: "Animation",
-    fields: [
-      { kind: "slider", key: "animationSpeed" },
-      { kind: "slider", key: "noiseSpeed" },
-    ],
+    /** Mode/timeline UI is rendered by AnimationPanel; keep global speed here. */
+    fields: [{ kind: "slider", key: "animationSpeed" }],
   },
   {
     id: "lighting",
@@ -68,6 +66,7 @@ export const CONTROL_GROUPS: ControlGroupDef[] = [
     label: "Noise",
     fields: [
       { kind: "slider", key: "noiseScale" },
+      { kind: "slider", key: "noiseSpeed" },
       { kind: "slider", key: "blueNoiseAmount" },
       { kind: "slider", key: "grainAmount" },
     ],

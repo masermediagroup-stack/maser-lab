@@ -2,8 +2,13 @@
 
 import { useEffect, useEffectEvent, useRef } from "react";
 import { MAX_DPR } from "../constants";
+import { ProceduralAnimationController } from "../engine/animation/ProceduralAnimationController";
+import type { AnimationEngineConfig } from "../engine/animation/types";
 import { AnimationLoop } from "../engine/core/AnimationLoop";
-import { tryCreateSurfaceRenderer, type SurfaceRenderer } from "../engine/core/SurfaceRenderer";
+import {
+  tryCreateSurfaceRenderer,
+  type SurfaceRenderer,
+} from "../engine/core/SurfaceRenderer";
 import { UniformStore } from "../engine/core/UniformStore";
 import { Canvas2DRenderer } from "../engine/fallback/Canvas2DRenderer";
 import { PointerField } from "../engine/interaction/PointerField";
@@ -17,6 +22,7 @@ type EngineHandle = {
   renderer: SurfaceRenderer | Canvas2DRenderer;
   pointer: PointerField;
   scroll: ScrollField;
+  anim: ProceduralAnimationController;
   kind: "webgl2" | "canvas2d";
   dispose: () => void;
 };
@@ -29,10 +35,12 @@ function getDpr(): number {
 function mountEngine(
   canvas: HTMLCanvasElement,
   getReducedMotion: () => boolean,
+  initialAnim?: Partial<AnimationEngineConfig>,
 ): EngineHandle {
   const store = new UniformStore();
   const pointer = new PointerField();
   const scroll = new ScrollField();
+  const anim = new ProceduralAnimationController(initialAnim);
 
   let renderer: SurfaceRenderer | Canvas2DRenderer;
   let kind: "webgl2" | "canvas2d";
@@ -49,8 +57,12 @@ function mountEngine(
   const loop = new AnimationLoop({
     store,
     getReducedMotion,
-    onFrame: (current) => {
-      renderer.draw(current);
+    onFrame: (current, dt) => {
+      const reduced = getReducedMotion();
+      // Material animationSpeed remains a global timeline scale.
+      const payload = anim.tick(dt * Math.max(0, current.animationSpeed), reduced);
+      current.time = payload.time;
+      renderer.draw(current, payload);
     },
   });
 
@@ -60,6 +72,7 @@ function mountEngine(
     renderer,
     pointer,
     scroll,
+    anim,
     kind,
     dispose: () => {
       loop.stop();
@@ -74,6 +87,7 @@ function mountEngine(
  */
 export function SurfaceCanvas({
   params,
+  animation,
   className,
   style,
   reducedMotion = false,
@@ -86,10 +100,17 @@ export function SurfaceCanvas({
   const engineRef = useRef<EngineHandle | null>(null);
   const reducedRef = useRef(reducedMotion);
   const scrollProgressRef = useRef(scrollProgress);
+  const initialAnimRef = useRef(animation);
 
   const onParams = useEffectEvent((p?: Partial<MonochromeParams>) => {
     if (p) engineRef.current?.store.setParams(p);
   });
+
+  const onAnimation = useEffectEvent(
+    (cfg?: Partial<AnimationEngineConfig>) => {
+      if (cfg) engineRef.current?.anim.syncFromProps(cfg);
+    },
+  );
 
   const onPointerProp = useEffectEvent(
     (ptr: { x: number; y: number } | null) => {
@@ -127,7 +148,11 @@ export function SurfaceCanvas({
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
 
-    const engine = mountEngine(canvas, () => reducedRef.current);
+    const engine = mountEngine(
+      canvas,
+      () => reducedRef.current,
+      initialAnimRef.current,
+    );
     engineRef.current = engine;
 
     const resize = () => {
@@ -164,6 +189,10 @@ export function SurfaceCanvas({
   }, [params]);
 
   useEffect(() => {
+    onAnimation(animation);
+  }, [animation]);
+
+  useEffect(() => {
     onPointerProp(pointer);
   }, [pointer]);
 
@@ -177,6 +206,7 @@ export function SurfaceCanvas({
     if (reducedMotion) {
       engine.pointer.release();
       engine.store.setPointer(0.5, 0.5);
+      engine.anim.patchTimeline({ playing: false });
     }
   }, [reducedMotion]);
 

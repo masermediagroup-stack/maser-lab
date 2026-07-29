@@ -54,4 +54,27 @@ Shared engine/ (WebGL2 + Canvas2D) ← all adapters
 - [x] Grouped collapsible controls with persisted open state
 - [x] Materials + presets catalogs
 - [x] Product-only barrel; engine not rewritten
-- [ ] `npm run lint` / `npm run build` pass
+- [x] Modular procedural animation system (16 modes, blend, timeline)
+- [x] Mode-specific controls adapt in Animation panel
+- [x] `npm run lint` / `npm run build` pass
+
+## Sprint 1 — Procedural Animation Engine
+
+**Architecture**
+
+- `engine/animation/` — types, mode catalog, Timeline, ModeBlender, ProceduralAnimationController, GLSL helpers
+- Shared FRAG samples mode A/B with smoothstep blend; aspect-corrected UV
+- Layers: ambient + distortion (shader) · interaction tug · lighting modulation · CPU damp unchanged
+- UI: `shell/AnimationPanel.tsx` inside playground Animation group
+
+**Modes** — Linear H/V, Diagonal, Radial Pulse, Ripple, Wave, Spiral, Orbit, Breathing, Bloom, Noise Drift, Flow Field, Magnetic, Aurora, Turbulence, Lava Lamp
+
+**Timeline** — Play / Pause / Restart / Reverse / Loop / Ping Pong / Playback Speed / Time Scale + blend duration
+
+### Notes for Sprint 2
+
+- Layered animation mixing (stack ambient + secondary mode)
+- Per-component default animation presets
+- Scrubbable playhead + keyframe markers
+- Mobile LOD (reduce FBM octaves automatically)
+- Visual regression snapshots per mode

@@ -4,6 +4,8 @@ import { createProgram, getUniformLocations } from "./createProgram";
 import { FRAG_SRC, VERT_SRC } from "../pipeline/stages";
 import type { MonochromeUniformState } from "../../types";
 import type { DitherSize } from "../../types";
+import type { AnimationUniformPayload } from "../animation/types";
+import { IDLE_ANIMATION_PAYLOAD } from "../animation/types";
 
 const UNIFORM_NAMES = [
   "uResolution",
@@ -35,6 +37,13 @@ const UNIFORM_NAMES = [
   "uBlueNoiseAmount",
   "uPointer",
   "uScroll",
+  "uAnimModeA",
+  "uAnimModeB",
+  "uAnimBlend",
+  "uAnimParamsA0",
+  "uAnimParamsA1",
+  "uAnimParamsB0",
+  "uAnimParamsB1",
   "uBayer2",
   "uBayer4",
   "uBayer8",
@@ -175,7 +184,10 @@ export class SurfaceRenderer {
     );
   }
 
-  draw(state: MonochromeUniformState): void {
+  draw(
+    state: MonochromeUniformState,
+    anim: AnimationUniformPayload = IDLE_ANIMATION_PAYLOAD,
+  ): void {
     if (this.disposed) return;
     const gl = this.gl;
     const u = this.uniforms;
@@ -190,9 +202,11 @@ export class SurfaceRenderer {
       gl.bindTexture(gl.TEXTURE_2D, this.textures[i]!);
     }
 
+    const time = anim.time || state.time;
+
     gl.uniform2f(u.uResolution, state.resolutionX, state.resolutionY);
     gl.uniform1f(u.uDpr, state.dpr);
-    gl.uniform1f(u.uTime, state.time);
+    gl.uniform1f(u.uTime, time);
     gl.uniform1f(u.uDitherSize, state.ditherSize);
     gl.uniform1f(u.uPosterization, state.posterization);
     gl.uniform1f(u.uNoiseScale, state.noiseScale);
@@ -219,6 +233,38 @@ export class SurfaceRenderer {
     gl.uniform1f(u.uBlueNoiseAmount, state.blueNoiseAmount);
     gl.uniform2f(u.uPointer, state.pointerX, state.pointerY);
     gl.uniform1f(u.uScroll, state.scrollY);
+
+    gl.uniform1f(u.uAnimModeA, anim.modeA);
+    gl.uniform1f(u.uAnimModeB, anim.modeB);
+    gl.uniform1f(u.uAnimBlend, anim.blend);
+    gl.uniform4f(
+      u.uAnimParamsA0,
+      anim.paramsA0[0],
+      anim.paramsA0[1],
+      anim.paramsA0[2],
+      anim.paramsA0[3],
+    );
+    gl.uniform4f(
+      u.uAnimParamsA1,
+      anim.paramsA1[0],
+      anim.paramsA1[1],
+      anim.paramsA1[2],
+      anim.paramsA1[3],
+    );
+    gl.uniform4f(
+      u.uAnimParamsB0,
+      anim.paramsB0[0],
+      anim.paramsB0[1],
+      anim.paramsB0[2],
+      anim.paramsB0[3],
+    );
+    gl.uniform4f(
+      u.uAnimParamsB1,
+      anim.paramsB1[0],
+      anim.paramsB1[1],
+      anim.paramsB1[2],
+      anim.paramsB1[3],
+    );
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

@@ -1,4 +1,5 @@
 import type { CSSProperties, ComponentType } from "react";
+import type { AnimationEngineConfig } from "./engine/animation/types";
 
 /** Bayer matrix size options for ordered dithering. */
 export type DitherSize = 2 | 4 | 8 | 16;
@@ -66,6 +67,8 @@ export type MaterialDefinition = {
 
 export type SurfaceCanvasProps = {
   params?: Partial<MonochromeParams>;
+  /** Procedural animation engine config (modes, blend, timeline). */
+  animation?: Partial<AnimationEngineConfig>;
   className?: string;
   style?: CSSProperties;
   reducedMotion?: boolean;
@@ -80,6 +83,7 @@ export type SurfaceCardProps = {
   buttonLabel?: string;
   onButtonClick?: () => void;
   params?: Partial<MonochromeParams>;
+  animation?: Partial<AnimationEngineConfig>;
   reducedMotion?: boolean;
   className?: string;
 };
@@ -153,6 +157,7 @@ export type ControlGroupState = Record<ControlGroupId, boolean>;
 
 export type DitherAdapterProps = {
   params: MonochromeParams;
+  animation?: Partial<AnimationEngineConfig>;
   reducedMotion?: boolean;
   className?: string;
 };

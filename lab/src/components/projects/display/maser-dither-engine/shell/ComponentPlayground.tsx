@@ -19,12 +19,18 @@ import { generateExportCode } from "../docs/content";
 import { adapters, ComponentCatalog } from "../components/registry";
 import { presetsForComponent, getPresetById } from "../presets/catalog";
 import { createMonochromeMaterial } from "../engine/materials/MonochromeMaterial";
+import {
+  DEFAULT_ANIMATION_CONFIG,
+  defaultModeParams,
+} from "../engine/animation";
+import type { AnimationEngineConfig } from "../engine/animation/types";
 import type {
   ComponentId,
   ControlGroupId,
   ControlGroupState,
   MonochromeParams,
 } from "../types";
+import { AnimationPanel } from "./AnimationPanel";
 import { cn } from "@/lib/utils";
 
 type ComponentPlaygroundProps = {
@@ -44,6 +50,14 @@ function initialParams(componentId: ComponentId): MonochromeParams {
   return createMonochromeMaterial(preset?.params);
 }
 
+function initialAnimation(): AnimationEngineConfig {
+  return {
+    ...DEFAULT_ANIMATION_CONFIG,
+    modeParams: defaultModeParams(DEFAULT_ANIMATION_CONFIG.modeId),
+    timeline: { ...DEFAULT_ANIMATION_CONFIG.timeline },
+  };
+}
+
 export function ComponentPlayground({
   componentId,
   reducedMotion,
@@ -58,6 +72,9 @@ export function ComponentPlayground({
 
   const [params, setParams] = useState<MonochromeParams>(() =>
     initialParams(componentId),
+  );
+  const [animation, setAnimation] = useState<AnimationEngineConfig>(
+    initialAnimation,
   );
   const [presetId, setPresetId] = useState(definition.defaultPresetId);
   const [panels, setPanels] = useState<ControlGroupState>(() => {
@@ -91,12 +108,16 @@ export function ComponentPlayground({
       <div className="mde-playground__layout">
         <div className="mde-playground__stage">
           <div className="mde-playground__preview">
-            <Adapter params={params} reducedMotion={reducedMotion} />
+            <Adapter
+              params={params}
+              animation={animation}
+              reducedMotion={reducedMotion}
+            />
           </div>
           <div className="mde-playground__perf" aria-label="Performance">
-            <span>Target ~60 FPS</span>
+            <span>Target 120 / 60 FPS</span>
             <span>WebGL2 · DPR ≤ 2</span>
-            <span>Shared engine · no shader dupes</span>
+            <span>Procedural animation · shared engine</span>
           </div>
         </div>
 
@@ -129,6 +150,7 @@ export function ComponentPlayground({
                 onClick={() => {
                   setPresetId("custom");
                   setParams(createMonochromeMaterial(MONOCHROME_DEFAULTS));
+                  setAnimation(initialAnimation());
                 }}
               >
                 Reset
@@ -143,57 +165,94 @@ export function ComponentPlayground({
               open={panels[group.id]}
               onOpenChange={(open) => setPanel(group.id, open)}
             >
-              {group.fields.map((field) => {
-                if (field.kind === "ditherSize") {
-                  return (
-                    <div key="ditherSize" className="mde-field">
-                      <span className="mde-field__label">Dither Size</span>
-                      <div className="mde-preset-row">
-                        {DITHER_SIZES.map((size) => (
-                          <button
-                            key={size}
-                            type="button"
-                            className={cn(
-                              "mde-chip",
-                              params.ditherSize === size && "mde-chip--active",
-                            )}
-                            aria-pressed={params.ditherSize === size}
-                            onClick={() =>
-                              setParams((p) => ({ ...p, ditherSize: size }))
-                            }
-                          >
-                            {size}×{size}
-                          </button>
-                        ))}
+              {group.id === "animation" ? (
+                <>
+                  {group.fields.map((field) => {
+                    if (field.kind !== "slider") return null;
+                    const range = PARAM_RANGES[field.key];
+                    const current = params[field.key];
+                    return (
+                      <div key={field.key} className="mde-field">
+                        <div className="mde-field__row">
+                          <Label htmlFor={`mde-${componentId}-${field.key}`}>
+                            {PARAM_LABELS[field.key] ?? field.key}
+                          </Label>
+                          <span>{formatValue(current)}</span>
+                        </div>
+                        <Slider
+                          id={`mde-${componentId}-${field.key}`}
+                          min={range.min}
+                          max={range.max}
+                          step={range.step}
+                          value={[current]}
+                          onValueChange={(vals) => {
+                            const next = Array.isArray(vals) ? vals[0] : vals;
+                            if (typeof next !== "number") return;
+                            setParams((p) => ({ ...p, [field.key]: next }));
+                          }}
+                        />
                       </div>
+                    );
+                  })}
+                  <AnimationPanel
+                    value={animation}
+                    onChange={setAnimation}
+                    idPrefix={`mde-${componentId}-anim`}
+                  />
+                </>
+              ) : (
+                group.fields.map((field) => {
+                  if (field.kind === "ditherSize") {
+                    return (
+                      <div key="ditherSize" className="mde-field">
+                        <span className="mde-field__label">Dither Size</span>
+                        <div className="mde-preset-row">
+                          {DITHER_SIZES.map((size) => (
+                            <button
+                              key={size}
+                              type="button"
+                              className={cn(
+                                "mde-chip",
+                                params.ditherSize === size && "mde-chip--active",
+                              )}
+                              aria-pressed={params.ditherSize === size}
+                              onClick={() =>
+                                setParams((p) => ({ ...p, ditherSize: size }))
+                              }
+                            >
+                              {size}×{size}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  const range = PARAM_RANGES[field.key];
+                  const current = params[field.key];
+                  return (
+                    <div key={field.key} className="mde-field">
+                      <div className="mde-field__row">
+                        <Label htmlFor={`mde-${componentId}-${field.key}`}>
+                          {PARAM_LABELS[field.key] ?? field.key}
+                        </Label>
+                        <span>{formatValue(current)}</span>
+                      </div>
+                      <Slider
+                        id={`mde-${componentId}-${field.key}`}
+                        min={range.min}
+                        max={range.max}
+                        step={range.step}
+                        value={[current]}
+                        onValueChange={(vals) => {
+                          const next = Array.isArray(vals) ? vals[0] : vals;
+                          if (typeof next !== "number") return;
+                          setParams((p) => ({ ...p, [field.key]: next }));
+                        }}
+                      />
                     </div>
                   );
-                }
-                const range = PARAM_RANGES[field.key];
-                const current = params[field.key];
-                return (
-                  <div key={field.key} className="mde-field">
-                    <div className="mde-field__row">
-                      <Label htmlFor={`mde-${componentId}-${field.key}`}>
-                        {PARAM_LABELS[field.key] ?? field.key}
-                      </Label>
-                      <span>{formatValue(current)}</span>
-                    </div>
-                    <Slider
-                      id={`mde-${componentId}-${field.key}`}
-                      min={range.min}
-                      max={range.max}
-                      step={range.step}
-                      value={[current]}
-                      onValueChange={(vals) => {
-                        const next = Array.isArray(vals) ? vals[0] : vals;
-                        if (typeof next !== "number") return;
-                        setParams((p) => ({ ...p, [field.key]: next }));
-                      }}
-                    />
-                  </div>
-                );
-              })}
+                })
+              )}
             </Collapsible>
           ))}
 
@@ -232,6 +291,7 @@ export function ComponentPlayground({
             <p>
               <strong>API.</strong> Adapter props:{" "}
               <code>params: MonochromeParams</code>,{" "}
+              <code>animation?: AnimationEngineConfig</code>,{" "}
               <code>reducedMotion?: boolean</code>,{" "}
               <code>className?: string</code>.
             </p>

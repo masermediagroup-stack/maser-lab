@@ -1,12 +1,21 @@
+import { ANIM_GLSL } from "../animation/animGlsl";
+
 /**
  * Pipeline stage documentation + default ranges (shader implements stages 1–7;
- * stage 8 is CPU damp in AnimationLoop).
+ * stage 8 is CPU damp in AnimationLoop; stage 0 is procedural animation).
  */
 export const PIPELINE_STAGES = [
   {
+    id: 0,
+    name: "Procedural animation",
+    description:
+      "Mode-blended UV offset + luminance/light modulation (timeline-driven)",
+  },
+  {
     id: 1,
     name: "Gradient",
-    description: "Procedural grayscale gradient with angle, stops, soft edge, light falloff",
+    description:
+      "Procedural grayscale gradient with angle, stops, soft edge, light falloff",
   },
   {
     id: 2,
@@ -60,7 +69,7 @@ void main() {
 }
 `;
 
-export const FRAG_SRC = `#version 300 es
+const FRAG_HEAD = `#version 300 es
 precision highp float;
 
 in vec2 vUv;
@@ -102,7 +111,9 @@ uniform sampler2D uBayer4;
 uniform sampler2D uBayer8;
 uniform sampler2D uBayer16;
 uniform sampler2D uBlueNoise;
+`;
 
+const FRAG_BODY = `
 float hash21(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
   p += dot(p, p + 45.32 + uRandomSeed * 17.0);
@@ -131,6 +142,8 @@ float gradientField(vec2 uv, vec2 light) {
   vec2 lightPos = mix(vec2(uLightX, uLightY), ptr, uCursorInfluence * 0.65);
   lightPos += (ptr - 0.5) * uCursorInfluence * 0.12;
   lightPos.y += uScroll * uScrollInfluence * 0.08;
+  // Lighting animation layer — subtle pull from procedural lightMod (via light.y)
+  lightPos += (light - 0.5) * 0.08;
 
   float dist = distance(uv, lightPos);
   float radial = 1.0 - smoothstep(0.0, 0.85 + uDepth * 0.5, dist);
@@ -160,7 +173,6 @@ float bloomField(vec2 uv) {
   float d = distance(uv, ptr);
   float r = max(uBloomRadius, 0.02);
   float core = exp(- (d * d) / (r * r * 2.0));
-  // Cheap multi-tap soft ring
   float soft = 0.0;
   soft += exp(- (distance(uv, ptr + vec2(r, 0.0)) * distance(uv, ptr + vec2(r, 0.0))) / (r * r * 4.0));
   soft += exp(- (distance(uv, ptr + vec2(-r, 0.0)) * distance(uv, ptr + vec2(-r, 0.0))) / (r * r * 4.0));
@@ -171,17 +183,31 @@ float bloomField(vec2 uv) {
 
 void main() {
   vec2 uv = vUv;
-  // Flip Y so vUv.y=0 is bottom in GL but we treat top-left for UI feel
-  vec2 pixel = uv * uResolution * uPixelDensity;
+
+  // Stage 0 — procedural animation (ambient + distortion layers)
+  vec4 anim = sampleAnimation(uv, uTime);
+  vec2 uvAnim = clamp(uv + anim.xy, 0.0, 1.0);
+
+  // Interaction response layer — dampened cursor tug on sample UV
+  vec2 ptr = mix(vec2(0.5), uPointer, uCursorInfluence);
+  uvAnim += (ptr - 0.5) * uCursorInfluence * 0.04;
+
+  vec2 pixel = uvAnim * uResolution * uPixelDensity;
+
+  // Lighting animation layer feeds gradient via light vec
+  vec2 lightAnim = vec2(uLightX, uLightY) + vec2(anim.w * 0.15, anim.w * 0.1);
 
   // Stage 1 — gradient
-  float lum = gradientField(uv, vec2(uLightX, uLightY));
+  float lum = gradientField(uvAnim, lightAnim);
+
+  // Ambient luminance modulation from animation
+  lum = clamp(lum + anim.z * 0.55, 0.0, 1.0);
 
   // Stage 5 early remap before dither for better print density
   lum = remapContrast(lum);
 
   // Stage 6 — bloom add
-  lum = clamp(lum + bloomField(uv) * 0.55, 0.0, 1.0);
+  lum = clamp(lum + bloomField(uvAnim) * 0.55, 0.0, 1.0);
 
   // Stage 4 — posterize (pre-dither)
   lum = posterize(lum);
@@ -194,7 +220,6 @@ void main() {
 
   float dithered = step(threshold, lum);
 
-  // Soft blend: keep a hint of continuous tone so it never reads as chunky 1-bit
   float ink = mix(lum, dithered, 0.82);
 
   // Stage 7 — grain
@@ -204,3 +229,5 @@ void main() {
   fragColor = vec4(vec3(ink), uOpacity);
 }
 `;
+
+export const FRAG_SRC = FRAG_HEAD + ANIM_GLSL + FRAG_BODY;
