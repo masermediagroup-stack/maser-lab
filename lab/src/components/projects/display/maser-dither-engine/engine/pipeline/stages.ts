@@ -127,8 +127,11 @@ float hash21(vec2 p) {
 }
 
 float sampleBayer(vec2 pixel) {
-  float size = uDitherSize;
-  vec2 uv = fract(pixel / size);
+  // Integer lattice + texel centers — matches CPU sampleBayer and avoids
+  // fract/edge smearing that collapses into streaks at canvas borders.
+  float size = max(uDitherSize, 2.0);
+  vec2 cell = floor(pixel);
+  vec2 uv = (mod(cell, size) + 0.5) / size;
   if (size < 3.0) return texture(uBayer2, uv).r;
   if (size < 5.0) return texture(uBayer4, uv).r;
   if (size < 9.0) return texture(uBayer8, uv).r;
@@ -136,7 +139,8 @@ float sampleBayer(vec2 pixel) {
 }
 
 float sampleBlue(vec2 pixel) {
-  return texture(uBlueNoise, fract(pixel / 64.0)).r;
+  vec2 cell = floor(pixel);
+  return texture(uBlueNoise, (mod(cell, 64.0) + 0.5) / 64.0).r;
 }
 
 float gradientField(vec2 uv) {
@@ -189,32 +193,37 @@ void main() {
 
   // Stage 0 — procedural animation (ambient + distortion)
   vec4 anim = sampleAnimation(uv, uTime);
-  vec2 uvAnim = clamp(uv + anim.xy, 0.0, 1.0);
+  // Soft UV warp for material fields only — hard clamp collapses edge
+  // fragments onto identical coords and streaks the dither matrix.
+  vec2 uvAnim = uv + anim.xy;
 
   // Interaction tug — velocity-aware, UV-correct pointer
   vec2 tug = (uIxPointer - 0.5) * uIxInfluence * 0.035;
   tug += uIxVelocity * 0.0008 * uIxInfluence;
-  uvAnim = clamp(uvAnim + tug, 0.0, 1.0);
+  uvAnim += tug;
 
-  vec2 pixel = uvAnim * uResolution * uPixelDensity;
+  // Screen-space dither lattice (stable). Never derive Bayer coords from
+  // warped/clamped UV — that produced horizontal/vertical edge streaks.
+  vec2 pixel = gl_FragCoord.xy * max(uPixelDensity, 0.01);
 
-  // Stage 1 — gradient (unified light)
-  float lum = gradientField(uvAnim);
+  // Stage 1 — gradient (unified light); sample in soft-clamped UV
+  vec2 uvSample = clamp(uvAnim, 0.0, 1.0);
+  float lum = gradientField(uvSample);
 
   // Animation luminance + interaction multi-light / ripples / trails
   lum = clamp(lum + anim.z * 0.45, 0.0, 1.0);
-  lum = clamp(lum + sampleInteraction(uvAnim), 0.0, 1.0);
+  lum = clamp(lum + sampleInteraction(uvSample), 0.0, 1.0);
 
   // Stage 5 remap
   lum = remapContrast(lum);
 
   // Stage 6 bloom
-  lum = clamp(lum + bloomField(uvAnim) * 0.55, 0.0, 1.0);
+  lum = clamp(lum + bloomField(uvSample) * 0.55, 0.0, 1.0);
 
   // Stage 4 posterize
   lum = posterize(lum);
 
-  // Stage 2–3 dither
+  // Stage 2–3 dither — locked to fragment pixels
   float threshold = sampleBayer(pixel);
   float bn = sampleBlue(pixel * uNoiseScale + vec2(uTime * uNoiseSpeed * 8.0, uScroll * 20.0));
   threshold = mix(threshold, bn, clamp(uBlueNoiseAmount, 0.0, 1.0));
