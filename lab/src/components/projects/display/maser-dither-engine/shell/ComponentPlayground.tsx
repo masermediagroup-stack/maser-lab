@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Maximize2, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
 import {
   DITHER_SIZES,
   MONOCHROME_DEFAULTS,
@@ -136,10 +138,34 @@ export function ComponentPlayground({
   const [light, setLight] = useState<LightShapeConfig>(initialLight);
   const [content, setContent] = useState<ComponentContent>(initialContent);
   const [presetId, setPresetId] = useState(definition.defaultPresetId);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const closeFullscreenButtonRef = useRef<HTMLButtonElement>(null);
   const [panels, setPanels] = useState<ControlGroupState>(() => {
     if (typeof window === "undefined") return DEFAULT_PANEL_STATE;
     return loadPanelState();
   });
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsFullscreen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    closeFullscreenButtonRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isFullscreen]);
 
   const setPanel = (id: ControlGroupId, open: boolean) => {
     setPanels((prev) => {
@@ -166,16 +192,59 @@ export function ComponentPlayground({
 
       <div className="mde-playground__layout">
         <div className="mde-playground__stage">
-          <div className="mde-playground__preview">
-            <Adapter
-              params={params}
-              animation={animation}
-              interaction={interaction}
-              color={color}
-              light={light}
-              content={content}
-              reducedMotion={reducedMotion}
-            />
+          <div
+            className={cn(
+              "mde-playground__preview",
+              isFullscreen && "mde-playground__preview--fullscreen",
+            )}
+            role={isFullscreen ? "dialog" : undefined}
+            aria-modal={isFullscreen ? true : undefined}
+            aria-label={
+              isFullscreen
+                ? `${definition.label} fullscreen preview`
+                : undefined
+            }
+          >
+            {isFullscreen ? (
+              <Button
+                ref={closeFullscreenButtonRef}
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="mde-playground__fullscreen-close text-white hover:bg-white/10 hover:text-white"
+                onClick={() => setIsFullscreen(false)}
+                aria-label="Close fullscreen preview"
+              >
+                <X className="size-5" />
+              </Button>
+            ) : (
+              <div className="mde-playground__preview-toolbar">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mde-playground__fullscreen-btn border-white/15 bg-black/70 text-white hover:bg-white/10 hover:text-white"
+                  onClick={() => setIsFullscreen(true)}
+                  aria-label="Enter fullscreen preview"
+                >
+                  <Maximize2 className="size-4" />
+                  <span className="mde-playground__fullscreen-label">
+                    Fullscreen
+                  </span>
+                </Button>
+              </div>
+            )}
+            <div className="mde-playground__preview-stage">
+              <Adapter
+                params={params}
+                animation={animation}
+                interaction={interaction}
+                color={color}
+                light={light}
+                content={content}
+                reducedMotion={reducedMotion}
+              />
+            </div>
           </div>
           <div className="mde-playground__perf" aria-label="Performance">
             <span>Target 120 / 60 FPS</span>
