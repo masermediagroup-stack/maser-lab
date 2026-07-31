@@ -6,6 +6,8 @@ import { ProceduralAnimationController } from "../engine/animation/ProceduralAni
 import type { AnimationEngineConfig } from "../engine/animation/types";
 import { ColorMaterialController } from "../engine/color/ColorMaterialController";
 import type { ColorMaterialConfig } from "../engine/color/types";
+import { LightShapeController } from "../engine/lighting/LightShapeController";
+import type { LightShapeConfig } from "../engine/lighting/types";
 import { AnimationLoop } from "../engine/core/AnimationLoop";
 import {
   tryCreateSurfaceRenderer,
@@ -27,6 +29,7 @@ type EngineHandle = {
   anim: ProceduralAnimationController;
   ix: InteractionController;
   color: ColorMaterialController;
+  light: LightShapeController;
   kind: "webgl2" | "canvas2d";
   externalPointer: boolean;
   dispose: () => void;
@@ -43,12 +46,14 @@ function mountEngine(
   initialAnim?: Partial<AnimationEngineConfig>,
   initialIx?: Partial<InteractionEngineConfig>,
   initialColor?: Partial<ColorMaterialConfig>,
+  initialLight?: Partial<LightShapeConfig>,
 ): EngineHandle {
   const store = new UniformStore();
   const scroll = new ScrollField();
   const anim = new ProceduralAnimationController(initialAnim);
   const ix = new InteractionController(initialIx);
   const color = new ColorMaterialController(initialColor);
+  const light = new LightShapeController(initialLight);
 
   let renderer: SurfaceRenderer | Canvas2DRenderer;
   let kind: "webgl2" | "canvas2d";
@@ -80,7 +85,8 @@ function mountEngine(
       current.pointerX = ixPayload.pointerX;
       current.pointerY = ixPayload.pointerY;
       const colorPayload = color.tick(dt, reduced);
-      renderer.draw(current, payload, ixPayload, colorPayload);
+      const lightPayload = light.tick(dt, reduced);
+      renderer.draw(current, payload, ixPayload, colorPayload, lightPayload);
     },
   });
 
@@ -92,6 +98,7 @@ function mountEngine(
     anim,
     ix,
     color,
+    light,
     kind,
     externalPointer: false,
     dispose: () => {
@@ -110,6 +117,7 @@ export function SurfaceCanvas({
   animation,
   interaction,
   color,
+  light,
   className,
   style,
   reducedMotion = false,
@@ -125,6 +133,7 @@ export function SurfaceCanvas({
   const initialAnimRef = useRef(animation);
   const initialIxRef = useRef(interaction);
   const initialColorRef = useRef(color);
+  const initialLightRef = useRef(light);
   const pointerPropRef = useRef(pointer);
 
   const onParams = useEffectEvent((p?: Partial<MonochromeParams>) => {
@@ -145,6 +154,10 @@ export function SurfaceCanvas({
 
   const onColor = useEffectEvent((cfg?: Partial<ColorMaterialConfig>) => {
     if (cfg) engineRef.current?.color.syncFromProps(cfg);
+  });
+
+  const onLight = useEffectEvent((cfg?: Partial<LightShapeConfig>) => {
+    if (cfg) engineRef.current?.light.syncFromProps(cfg);
   });
 
   const onPointerProp = useEffectEvent(
@@ -195,6 +208,7 @@ export function SurfaceCanvas({
       initialAnimRef.current,
       initialIxRef.current,
       initialColorRef.current,
+      initialLightRef.current,
     );
     engineRef.current = engine;
 
@@ -296,6 +310,10 @@ export function SurfaceCanvas({
   useEffect(() => {
     onColor(color);
   }, [color]);
+
+  useEffect(() => {
+    onLight(light);
+  }, [light]);
 
   useEffect(() => {
     onPointerProp(pointer);

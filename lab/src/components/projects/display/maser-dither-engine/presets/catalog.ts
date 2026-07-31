@@ -1,19 +1,31 @@
+import { getLightingPreset } from "../engine/lighting";
 import type { PresetDefinition } from "../types";
+
+const CENTER_BLOOM = getLightingPreset("center-bloom")!.config;
 
 export const PRESETS: PresetDefinition[] = [
   {
     id: "print-density",
     label: "Print Density",
-    description: "Editorial high-contrast Bayer print — default card look.",
+    description:
+      "Editorial Bayer print with a clear centered procedural light and denser outer dither.",
     materialId: "monochrome",
     componentIds: "*",
     params: {
       ditherSize: 8,
-      contrast: 1.15,
-      bloom: 0.35,
-      blueNoiseAmount: 0.22,
-      grainAmount: 0.08,
+      contrast: 1.28,
+      bloom: 0.52,
+      bloomRadius: 0.18,
+      blueNoiseAmount: 0.16,
+      grainAmount: 0.06,
+      lightX: 0.5,
+      lightY: 0.5,
+      cursorInfluence: 0.45,
+      shadowStrength: 0.32,
+      highlightStrength: 0.55,
+      brightness: 0.02,
     },
+    light: { ...CENTER_BLOOM },
   },
   {
     id: "soft-film",

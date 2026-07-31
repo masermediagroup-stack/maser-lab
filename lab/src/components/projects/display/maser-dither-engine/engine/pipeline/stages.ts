@@ -1,9 +1,10 @@
 import { ANIM_GLSL } from "../animation/animGlsl";
 import { COLOR_GLSL } from "../color/colorGlsl";
 import { INTERACTION_GLSL } from "../interaction/interactionGlsl";
+import { LIGHT_GLSL } from "../lighting/lightGlsl";
 
 /**
- * Pipeline stages — animation (0), material (1–7), damp (8), interaction, color.
+ * Pipeline stages — animation, interaction, light shape, color, dither.
  */
 export const PIPELINE_STAGES = [
   {
@@ -19,21 +20,28 @@ export const PIPELINE_STAGES = [
       "Multi-light field, pointer physics, ripples, trails, state modulation",
   },
   {
-    id: 1,
-    name: "Gradient",
+    id: 11,
+    name: "Light shape",
     description:
-      "Procedural luminance gradient with angle, stops, soft edge, light falloff",
+      "Radial / ellipse / linear / cone / organic illumination field (luminance)",
+  },
+  {
+    id: 1,
+    name: "Color gradient",
+    description:
+      "Palette chroma only — does not flatten lighting luminance",
   },
   {
     id: 10,
     name: "Color material",
     description:
-      "Palette gradients, blend modes, material behaviors, exposure/gamma",
+      "Maps core/outer colors onto illumination; blend + behavior",
   },
   {
     id: 2,
     name: "Bayer dither",
-    description: "Ordered dither 2×2 / 4×4 / 8×8 / 32×32 / 64×64",
+    description:
+      "Ordered dither 2×2 / 4×4 / 8×8 / 32×32 / 64×64 — denser in dark outer",
   },
   {
     id: 3,
@@ -53,7 +61,7 @@ export const PIPELINE_STAGES = [
   {
     id: 6,
     name: "Highlight bloom",
-    description: "Bloom around pointer + material bloom radius",
+    description: "Bloom concentrated on the bright light core",
   },
   {
     id: 7,
@@ -153,28 +161,7 @@ float sampleBlue(vec2 pixel) {
 }
 
 float softClamp01(float v) {
-  // Soft edge — lets procedural lights travel past canvas bounds without clipping
   return mix(v, clamp(v, 0.0, 1.0), 0.68);
-}
-
-float gradientField(vec2 uv) {
-  float angle = radians(uGradientAngle);
-  vec2 dir = vec2(cos(angle), sin(angle));
-  float g = dot(uv - 0.5, dir) * 0.5 + 0.5;
-
-  // Accurate pointer light — UV space; soft-bound so travel feels physical
-  vec2 lightPos = mix(vec2(uLightX, uLightY), uIxPointer, uIxInfluence * 0.92);
-  lightPos.y += uScroll * uScrollInfluence * 0.05;
-  lightPos.x = softClamp01(lightPos.x);
-  lightPos.y = softClamp01(lightPos.y);
-
-  float dist = distance(uv, lightPos);
-  float radial = ixFalloff(dist, uIxFalloffRadius * 1.15) * (0.55 + uDepth * 0.4);
-  float soft = mix(0.35, 1.0, uSoftEdge);
-
-  float base = mix(uGradientColorA, uGradientColorB, clamp(g, 0.0, 1.0));
-  base = mix(base, clamp(base + radial * 0.48 * soft, 0.0, 1.0), 0.78);
-  return clamp(base, 0.0, 1.0);
 }
 
 float remapContrast(float v) {
@@ -191,72 +178,63 @@ float posterize(float v) {
   return floor(v * levels) / levels;
 }
 
-float bloomField(vec2 uv) {
-  vec2 ptr = uIxPointer;
-  float d = distance(uv, ptr);
-  float r = max(uBloomRadius * uIxStateRadiusMul, 0.02);
-  float core = exp(- (d * d) / (r * r * 2.0));
-  float soft = 0.0;
-  soft += exp(- (distance(uv, ptr + vec2(r, 0.0)) * distance(uv, ptr + vec2(r, 0.0))) / (r * r * 4.0));
-  soft += exp(- (distance(uv, ptr + vec2(-r, 0.0)) * distance(uv, ptr + vec2(-r, 0.0))) / (r * r * 4.0));
-  soft += exp(- (distance(uv, ptr + vec2(0.0, r)) * distance(uv, ptr + vec2(0.0, r))) / (r * r * 4.0));
-  soft += exp(- (distance(uv, ptr + vec2(0.0, -r)) * distance(uv, ptr + vec2(0.0, -r))) / (r * r * 4.0));
-  return (core + soft * 0.15) * (uBloom + uIxStateBloom);
-}
-
 void main() {
   vec2 uv = vUv;
 
-  // Stage 0 — procedural animation (ambient + distortion)
+  // Stage 0 — procedural animation
   vec4 anim = sampleAnimation(uv, uTime);
-  // Soft UV warp for material fields only — hard clamp collapses edge
-  // fragments onto identical coords and streaks the dither matrix.
   vec2 uvAnim = uv + anim.xy;
 
-  // Interaction tug — velocity-aware, UV-correct pointer
-  vec2 tug = (uIxPointer - 0.5) * uIxInfluence * 0.035;
-  tug += uIxVelocity * 0.0008 * uIxInfluence;
+  // Soft interaction tug (does not replace light shape)
+  vec2 tug = (uIxPointer - 0.5) * uIxInfluence * 0.025;
+  tug += uIxVelocity * 0.0006 * uIxInfluence;
   uvAnim += tug;
 
-  // Screen-space dither lattice (stable). Never derive Bayer coords from
-  // warped/clamped UV — that produced horizontal/vertical edge streaks.
   vec2 pixel = gl_FragCoord.xy * max(uPixelDensity, 0.01);
-
-  // Stage 1 — gradient (unified light); soft-clamp for edge travel
   vec2 uvSample = vec2(softClamp01(uvAnim.x), softClamp01(uvAnim.y));
-  float lum = gradientField(uvSample);
 
-  // Animation luminance + interaction multi-light / ripples / trails
-  lum = clamp(lum + anim.z * 0.85, 0.0, 1.0);
-  lum = clamp(lum + sampleInteraction(uvSample), 0.0, 1.0);
+  // Stage 11 — light shape supplies luminance (NOT the color gradient)
+  float illum = lightShapeField(uvSample);
+
+  // Subtle modulation only — must not flatten center→edge contrast
+  // or reintroduce asymmetric interaction wash (old ambient sat top-left).
+  illum = clamp(illum + anim.z * 0.1, 0.0, 1.0);
+  float ixMod = sampleInteraction(uvSample);
+  illum = mix(illum, clamp(illum + ixMod * 0.35, 0.0, 1.0), 0.18);
 
   // Stage 5 remap
-  lum = remapContrast(lum);
+  float lum = remapContrast(illum);
 
-  // Stage 6 bloom
-  float bloomAmt = bloomField(uvSample) * 0.55;
-  lum = clamp(lum + bloomAmt, 0.0, 1.0);
+  // Stage 6 bloom — concentrated on bright core
+  float bloomAmt = lightBloomMask(uvSample, lum) * (uBloom + uIxStateBloom) * 0.7;
+  bloomAmt *= mix(0.6, 1.2, uBloomRadius / 0.2);
+  lum = clamp(lum + bloomAmt * 0.35, 0.0, 1.0);
 
   // Stage 4 posterize
   lum = posterize(lum);
 
-  // Stage 2–3 dither — locked to fragment pixels
+  // Stage 2–3 dither — denser in the dark outer ring
   float threshold = sampleBayer(pixel);
   float bn = sampleBlue(pixel * uNoiseScale + vec2(uTime * uNoiseSpeed * 8.0, uScroll * 20.0));
   threshold = mix(threshold, bn, clamp(uBlueNoiseAmount, 0.0, 1.0));
+  // Raise threshold in dark areas → more ink dots (denser dither)
+  float dark = 1.0 - lum;
+  threshold = clamp(threshold + dark * uLsDitherResponse * 0.38, 0.0, 1.0);
 
   float dithered = step(threshold, lum);
-  float ink = mix(lum, dithered, 0.82);
+  // Outside the core, lean harder into ordered dither
+  float ditherMix = mix(0.55, 0.92, dark * uLsDitherResponse);
+  float ink = mix(lum, dithered, ditherMix);
 
   // Stage 7 grain
   float g = hash21(pixel + floor(uTime * uNoiseSpeed * 60.0));
   ink = clamp(ink + (g - 0.5) * uGrainAmount, 0.0, 1.0);
 
-  // Stage 10 — procedural color material (palette / gradient / blend)
-  vec3 rgb = matComposeColor(uvSample, ink, dithered, bloomAmt, uTime);
+  // Stage 10 — color maps onto lighting luminance
+  vec3 rgb = matComposeColor(uvSample, ink, dithered, bloomAmt, illum, uTime);
   fragColor = vec4(rgb, uOpacity);
 }
 `;
 
 export const FRAG_SRC =
-  FRAG_HEAD + ANIM_GLSL + INTERACTION_GLSL + COLOR_GLSL + FRAG_BODY;
+  FRAG_HEAD + ANIM_GLSL + INTERACTION_GLSL + LIGHT_GLSL + COLOR_GLSL + FRAG_BODY;

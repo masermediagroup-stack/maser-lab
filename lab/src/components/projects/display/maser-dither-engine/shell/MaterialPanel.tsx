@@ -144,24 +144,27 @@ export function MaterialPanel({
 
       <div className="mde-field">
         <span className="mde-field__label">Palette Studio</span>
-        <div className="mde-preset-row mde-mat-palettes" role="listbox">
-          {MATERIAL_PALETTES.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              role="option"
-              aria-selected={false}
-              className="mde-chip"
-              title={p.description}
-              onClick={() => {
-                const next = applyPaletteToConfig(p.id, value);
-                onChange(next);
-                if (p.paramsHint) onParamsHint?.(p.paramsHint);
-              }}
-            >
-              {p.label}
-            </button>
-          ))}
+        <div className="mde-preset-row mde-mat-palettes" role="listbox" aria-label="Palette studio">
+          {MATERIAL_PALETTES.map((p) => {
+            const selected = value.paletteId === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                className={cn("mde-chip", selected && "mde-chip--active")}
+                title={p.description}
+                onClick={() => {
+                  const next = applyPaletteToConfig(p.id, value);
+                  onChange(next);
+                  if (p.paramsHint) onParamsHint?.(p.paramsHint);
+                }}
+              >
+                {p.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

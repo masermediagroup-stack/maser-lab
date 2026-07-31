@@ -5,7 +5,75 @@ import type { AnimationUniformPayload } from "../animation/types";
 import type { InteractionUniformPayload } from "../interaction/types";
 import type { ColorUniformPayload } from "../color/types";
 import { idleColorPayload } from "../color/types";
+import type { LightUniformPayload } from "../lighting/types";
+import { idleLightPayload } from "../lighting/types";
 import type { MonochromeUniformState } from "../../types";
+
+function applyFalloffCurve(t: number, curve: number, falloff: number): number {
+  const x = Math.min(1, Math.max(0, t));
+  let f: number;
+  if (curve < 0.5) f = x;
+  else if (curve < 1.5) f = x * x * (3 - 2 * x);
+  else if (curve < 2.5) f = Math.pow(x, 1.2 + falloff * 1.6);
+  else {
+    const g = x * 2.4;
+    f = 1 - Math.exp(-g * g);
+  }
+  return Math.pow(Math.min(1, Math.max(0, f)), 0.65 + falloff * 1.55);
+}
+
+/**
+ * Approximate lightShapeField for the Canvas2D fallback path.
+ * Gradient supplies color only; this owns luminance.
+ */
+function lightShapeIllum(
+  uvx: number,
+  uvy: number,
+  light: LightUniformPayload,
+  ptrX: number,
+  ptrY: number,
+  influence: number,
+  scrollY: number,
+  scrollInfluence: number,
+): number {
+  const follow = Math.min(0.85, light.pointerFollow * influence);
+  const cx = light.centerX + (ptrX - light.centerX) * follow;
+  const cy =
+    light.centerY +
+    (ptrY - light.centerY) * follow +
+    scrollY * scrollInfluence * 0.03;
+
+  let px = uvx - cx;
+  let py = uvy - cy;
+  const rot = (light.rotation * Math.PI) / 180;
+  const cs = Math.cos(rot);
+  const sn = Math.sin(rot);
+  const rx = px * cs + py * sn;
+  const ry = -px * sn + py * cs;
+  px = rx / Math.max(light.stretchX, 0.08);
+  py = ry / Math.max(light.stretchY, 0.08);
+
+  let d: number;
+  if (light.shape < 1.5) {
+    // radial + ellipse (stretch already applied)
+    d = Math.hypot(px, py);
+  } else if (light.shape < 2.5) {
+    d = Math.abs(px);
+  } else if (light.shape < 3.5) {
+    const ang = Math.abs(Math.atan2(px, py));
+    d = Math.hypot(px, py) * (1 + ang * 1.35);
+  } else {
+    const n =
+      Math.abs(Math.sin((uvx * 12.9898 + uvy * 78.233 + cx) * 43758.5453)) % 1;
+    d = Math.hypot(px, py) * (0.82 + n * 0.4);
+  }
+
+  const t = Math.min(1, Math.max(0, d / Math.max(light.radius, 0.04)));
+  const f = applyFalloffCurve(t, light.falloffCurve, light.falloff);
+  let illum = light.coreBrightness + (light.edgeDarkness - light.coreBrightness) * f;
+  illum = (illum - 0.5) * light.lightContrast + 0.5;
+  return Math.min(1, Math.max(0, illum));
+}
 
 /**
  * Software Bayer path when WebGL2 is unavailable.
@@ -42,6 +110,7 @@ export class Canvas2DRenderer {
     anim?: AnimationUniformPayload,
     ix?: InteractionUniformPayload,
     color: ColorUniformPayload = idleColorPayload(),
+    light: LightUniformPayload = idleLightPayload(),
   ): void {
     if (this.disposed) return;
     if (Math.abs(state.randomSeed - this.lastSeed) > 0.001) {
@@ -52,20 +121,11 @@ export class Canvas2DRenderer {
     const { width, height } = this.canvas;
     const img = this.ctx.createImageData(width, height);
     const data = img.data;
-    const angle = (state.gradientAngle * Math.PI) / 180;
-    const dirX = Math.cos(angle);
-    const dirY = Math.sin(angle);
     const t = anim?.time ?? state.time;
-    const amp = anim ? 0.12 : 0.08;
+    const amp = anim ? 0.05 : 0.03;
     const ptrX = ix?.pointerX ?? state.pointerX;
     const ptrY = ix?.pointerY ?? state.pointerY;
     const influence = ix?.influence ?? state.cursorInfluence;
-
-    const lightX = state.lightX + (ptrX - state.lightX) * influence * 0.92;
-    const lightY =
-      state.lightY +
-      (ptrY - state.lightY) * influence * 0.92 +
-      state.scrollY * state.scrollInfluence * 0.05;
 
     const shadowR = color.colors[6] ?? 0.06;
     const shadowG = color.colors[7] ?? 0.06;
@@ -80,31 +140,31 @@ export class Canvas2DRenderer {
         const uvx = x / width;
         const uvy = 1 - y / height;
 
-        let g = (uvx - 0.5) * dirX + (uvy - 0.5) * dirY;
-        g = g * 0.5 + 0.5;
-        let lum =
-          state.gradientColorA +
-          (state.gradientColorB - state.gradientColorA) * Math.min(1, Math.max(0, g));
-
+        // Light shape = luminance; color gradient is not used as a wash
+        let lum = lightShapeIllum(
+          uvx,
+          uvy,
+          light,
+          ptrX,
+          ptrY,
+          influence,
+          state.scrollY,
+          state.scrollInfluence,
+        );
         lum +=
-          Math.sin(uvx * 6.2 + t * 0.9) * amp * 0.55 +
-          Math.sin(uvy * 4.1 - t * 0.65) * amp * 0.35;
-
-        const dx = uvx - lightX;
-        const dy = uvy - lightY;
-        const dist = Math.hypot(dx, dy);
-        const radial = 1 - Math.min(1, dist / (0.85 + state.depth * 0.5));
-        lum = lum + radial * 0.25 * state.softEdge;
-        if (ix) {
-          lum += (ix.stateBrightness + ix.releasePulse * 0.15) * influence;
-        }
+          Math.sin(uvx * 6.2 + t * 0.9) * amp * 0.35 +
+          Math.sin(uvy * 4.1 - t * 0.65) * amp * 0.2;
 
         lum = (lum - 0.5) * state.contrast + 0.5 + state.brightness;
         lum = Math.min(1, Math.max(0, lum));
 
+        const dx = uvx - light.centerX;
+        const dy = uvy - light.centerY;
+        const dist = Math.hypot(dx, dy);
         const r = Math.max(state.bloomRadius, 0.02);
-        const bloom = Math.exp(-(dist * dist) / (r * r * 2)) * state.bloom;
-        lum = Math.min(1, lum + bloom * 0.55);
+        const core = Math.min(1, Math.max(0, (lum - 0.45) / 0.47));
+        const bloom = Math.exp(-(dist * dist) / (r * r * 2)) * state.bloom * core * core;
+        lum = Math.min(1, lum + bloom * 0.45);
 
         if (state.posterization >= 0.5) {
           const levels = Math.max(state.posterization, 2);
@@ -121,8 +181,12 @@ export class Canvas2DRenderer {
           py * state.noiseScale,
         );
         thr = thr + (bn - thr) * state.blueNoiseAmount;
-        let ink = lum > thr ? 1 : 0;
-        ink = lum * 0.18 + ink * 0.82;
+        // Denser dither in dark outer ring
+        const dark = 1 - lum;
+        thr = Math.min(1, Math.max(0, thr + dark * light.ditherResponse * 0.38));
+        const dithered = lum > thr ? 1 : 0;
+        const ditherMix = 0.55 + dark * light.ditherResponse * 0.37;
+        let ink = lum * (1 - ditherMix) + dithered * ditherMix;
 
         const grain = grainHash(px, py, state.time * state.noiseSpeed, state.randomSeed);
         ink = Math.min(1, Math.max(0, ink + (grain - 0.5) * state.grainAmount));

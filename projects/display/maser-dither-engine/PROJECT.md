@@ -125,3 +125,20 @@ Shared engine/ (WebGL2 + Canvas2D) ← all adapters
 - Gesture shear + particle burst polish
 - Visual regression suite for palettes + dither sizes
 - Optional WebGPU path with stable uniform contracts
+
+## Lighting hierarchy fix (pre–Sprint 4)
+
+**Problem** — Color gradient and interaction ambient were acting as the luminance field, reading as a flat wash with dither piled on one edge.
+
+**Separation**
+
+| System | Owner | Role |
+| --- | --- | --- |
+| Color gradient | `engine/color` | Chroma / palette only |
+| Procedural illumination | `engine/lighting` | Light-shape luminance field |
+| Dither density | FRAG + `uLsDitherResponse` | Denser in dark outer ring |
+| Bloom | `lightBloomMask` + `uBloom` | Concentrated on bright core |
+
+**Light shapes** — Radial · Ellipse · Linear · Cone · Organic  
+**Lighting presets** — Center Bloom · Offset Spotlight · Wide Ambient  
+**Print Density** — defaults to centered radial bloom (`light` on preset + `DEFAULT_LIGHT_SHAPE`)

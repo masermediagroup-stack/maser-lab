@@ -25,6 +25,7 @@ export function DitherHeroBackground({
   animation,
   interaction,
   color,
+  light,
   content,
   reducedMotion,
   className,
@@ -55,6 +56,7 @@ export function DitherHeroBackground({
         animation={animation}
         interaction={interaction}
         color={color}
+          light={light}
         pointer={pointer}
         reducedMotion={reducedMotion}
         aria-label="Hero dither background"

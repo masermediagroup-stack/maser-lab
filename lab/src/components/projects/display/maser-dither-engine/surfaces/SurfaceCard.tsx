@@ -19,6 +19,7 @@ export function SurfaceCard({
   animation,
   interaction,
   color,
+  light,
   reducedMotion = false,
   className,
 }: SurfaceCardProps) {
@@ -34,6 +35,7 @@ export function SurfaceCard({
           animation={animation}
           interaction={interaction}
           color={color}
+          light={light}
           reducedMotion={reducedMotion}
           aria-label="Procedural monochrome material"
         />

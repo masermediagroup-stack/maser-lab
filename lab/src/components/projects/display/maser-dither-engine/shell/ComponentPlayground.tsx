@@ -34,6 +34,10 @@ import {
 } from "../engine/color/types";
 import type { ColorMaterialConfig } from "../engine/color/types";
 import {
+  DEFAULT_LIGHT_SHAPE,
+} from "../engine/lighting";
+import type { LightShapeConfig } from "../engine/lighting/types";
+import {
   DEFAULT_COMPONENT_CONTENT,
   type ComponentContent,
 } from "../content/types";
@@ -46,6 +50,7 @@ import type {
 import { AnimationPanel } from "./AnimationPanel";
 import { InteractionPanel } from "./InteractionPanel";
 import { MaterialPanel } from "./MaterialPanel";
+import { LightingPanel } from "./LightingPanel";
 import { ContentEditor } from "./ContentEditor";
 import { cn } from "@/lib/utils";
 
@@ -95,6 +100,10 @@ function initialColor(): ColorMaterialConfig {
   };
 }
 
+function initialLight(): LightShapeConfig {
+  return { ...DEFAULT_LIGHT_SHAPE };
+}
+
 function initialContent(): ComponentContent {
   return {
     ...DEFAULT_COMPONENT_CONTENT,
@@ -124,6 +133,7 @@ export function ComponentPlayground({
     initialInteraction,
   );
   const [color, setColor] = useState<ColorMaterialConfig>(initialColor);
+  const [light, setLight] = useState<LightShapeConfig>(initialLight);
   const [content, setContent] = useState<ComponentContent>(initialContent);
   const [presetId, setPresetId] = useState(definition.defaultPresetId);
   const [panels, setPanels] = useState<ControlGroupState>(() => {
@@ -162,6 +172,7 @@ export function ComponentPlayground({
               animation={animation}
               interaction={interaction}
               color={color}
+              light={light}
               content={content}
               reducedMotion={reducedMotion}
             />
@@ -191,6 +202,11 @@ export function ComponentPlayground({
                   onClick={() => {
                     setPresetId(p.id);
                     setParams(createMonochromeMaterial(p.params));
+                    if (p.light) {
+                      setLight({ ...DEFAULT_LIGHT_SHAPE, ...p.light });
+                    } else if (p.id === "print-density") {
+                      setLight({ ...DEFAULT_LIGHT_SHAPE });
+                    }
                   }}
                 >
                   {p.label}
@@ -205,6 +221,7 @@ export function ComponentPlayground({
                   setAnimation(initialAnimation());
                   setInteraction(initialInteraction());
                   setColor(initialColor());
+                  setLight(initialLight());
                   setContent(initialContent());
                 }}
               >
@@ -312,6 +329,41 @@ export function ComponentPlayground({
                   }
                   idPrefix={`mde-${componentId}-mat`}
                 />
+              ) : group.id === "lighting" ? (
+                <>
+                  <LightingPanel
+                    value={light}
+                    onChange={setLight}
+                    idPrefix={`mde-${componentId}-ls`}
+                  />
+                  {group.fields.map((field) => {
+                    if (field.kind !== "slider") return null;
+                    const range = PARAM_RANGES[field.key];
+                    const current = params[field.key];
+                    return (
+                      <div key={field.key} className="mde-field">
+                        <div className="mde-field__row">
+                          <Label htmlFor={`mde-${componentId}-${field.key}`}>
+                            {PARAM_LABELS[field.key] ?? field.key}
+                          </Label>
+                          <span>{formatValue(current)}</span>
+                        </div>
+                        <Slider
+                          id={`mde-${componentId}-${field.key}`}
+                          min={range.min}
+                          max={range.max}
+                          step={range.step}
+                          value={[current]}
+                          onValueChange={(vals) => {
+                            const next = Array.isArray(vals) ? vals[0] : vals;
+                            if (typeof next !== "number") return;
+                            setParams((p) => ({ ...p, [field.key]: next }));
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </>
               ) : (
                 group.fields.map((field) => {
                   if (field.kind === "ditherSize") {

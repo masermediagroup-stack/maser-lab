@@ -93,6 +93,8 @@ export type ColorMaterialConfig = {
   properties: MaterialProperties;
   /** When false, output stays grayscale (Sprint 1/2 look). */
   colorEnabled: boolean;
+  /** Active palette studio id (UI selection). */
+  paletteId: string;
 };
 
 export type ColorUniformPayload = {
@@ -202,6 +204,7 @@ export const DEFAULT_COLOR_MATERIAL: ColorMaterialConfig = {
   behavior: "none",
   properties: { ...DEFAULT_MATERIAL_PROPERTIES },
   colorEnabled: true,
+  paletteId: "monochrome",
 };
 
 export const GRADIENT_MODE_INDEX: Record<GradientModeId, number> = {

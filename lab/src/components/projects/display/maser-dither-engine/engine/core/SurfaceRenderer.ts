@@ -10,6 +10,8 @@ import type { InteractionUniformPayload } from "../interaction/types";
 import { idleInteractionPayload } from "../interaction/types";
 import type { ColorUniformPayload } from "../color/types";
 import { idleColorPayload } from "../color/types";
+import type { LightUniformPayload } from "../lighting/types";
+import { idleLightPayload } from "../lighting/types";
 
 const UNIFORM_NAMES = [
   "uResolution",
@@ -123,6 +125,21 @@ const UNIFORM_NAMES = [
   "uMatC8",
   "uMatC9",
   "uMatC10",
+  "uLsShape",
+  "uLsCenterX",
+  "uLsCenterY",
+  "uLsRadius",
+  "uLsStretchX",
+  "uLsStretchY",
+  "uLsRotation",
+  "uLsCore",
+  "uLsEdge",
+  "uLsFalloff",
+  "uLsFalloffCurve",
+  "uLsContrast",
+  "uLsDitherResponse",
+  "uLsGradFollows",
+  "uLsPointerFollow",
 ];
 
 function uploadBayer(
@@ -265,6 +282,7 @@ export class SurfaceRenderer {
     anim: AnimationUniformPayload = IDLE_ANIMATION_PAYLOAD,
     ix: InteractionUniformPayload = idleInteractionPayload(),
     color: ColorUniformPayload = idleColorPayload(),
+    light: LightUniformPayload = idleLightPayload(),
   ): void {
     if (this.disposed) return;
     const gl = this.gl;
@@ -345,6 +363,7 @@ export class SurfaceRenderer {
     );
 
     this.uploadInteraction(gl, u, ix);
+    this.uploadLight(gl, u, light);
     this.uploadColor(gl, u, color);
 
     gl.enable(gl.BLEND);
@@ -352,6 +371,28 @@ export class SurfaceRenderer {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  private uploadLight(
+    gl: WebGL2RenderingContext,
+    u: Record<string, WebGLUniformLocation | null>,
+    light: LightUniformPayload,
+  ): void {
+    gl.uniform1f(u.uLsShape, light.shape);
+    gl.uniform1f(u.uLsCenterX, light.centerX);
+    gl.uniform1f(u.uLsCenterY, light.centerY);
+    gl.uniform1f(u.uLsRadius, light.radius);
+    gl.uniform1f(u.uLsStretchX, light.stretchX);
+    gl.uniform1f(u.uLsStretchY, light.stretchY);
+    gl.uniform1f(u.uLsRotation, light.rotation);
+    gl.uniform1f(u.uLsCore, light.coreBrightness);
+    gl.uniform1f(u.uLsEdge, light.edgeDarkness);
+    gl.uniform1f(u.uLsFalloff, light.falloff);
+    gl.uniform1f(u.uLsFalloffCurve, light.falloffCurve);
+    gl.uniform1f(u.uLsContrast, light.lightContrast);
+    gl.uniform1f(u.uLsDitherResponse, light.ditherResponse);
+    gl.uniform1f(u.uLsGradFollows, light.gradientFollowsLight);
+    gl.uniform1f(u.uLsPointerFollow, light.pointerFollow);
   }
 
   private uploadColor(

@@ -10,6 +10,7 @@ export function DitherLoader({
   animation,
   interaction,
   color,
+  light,
   content,
   reducedMotion,
   className,
@@ -26,6 +27,7 @@ export function DitherLoader({
           animation={animation}
           interaction={interaction}
           color={color}
+          light={light}
           params={{
             ...params,
             animationSpeed: reducedMotion

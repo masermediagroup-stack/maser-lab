@@ -361,6 +361,7 @@ export function applyPaletteToConfig(
     ...base,
     colors: { ...p.colors },
     colorEnabled: true,
+    paletteId,
   };
 }
 

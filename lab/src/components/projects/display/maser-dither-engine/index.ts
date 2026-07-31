@@ -78,6 +78,19 @@ export type {
   BehaviorDefinition,
 } from "./engine/color";
 export {
+  DEFAULT_LIGHT_SHAPE,
+  LIGHTING_PRESETS,
+  LightShapeController,
+  getLightingPreset,
+} from "./engine/lighting";
+export type {
+  LightShapeId,
+  FalloffCurveId,
+  LightShapeConfig,
+  LightUniformPayload,
+  LightingPresetDefinition,
+} from "./engine/lighting";
+export {
   DEFAULT_COMPONENT_CONTENT,
 } from "./content/types";
 export type { ComponentContent } from "./content/types";

@@ -3,6 +3,7 @@ import type { ComponentContent } from "./content/types";
 import type { AnimationEngineConfig } from "./engine/animation/types";
 import type { ColorMaterialConfig } from "./engine/color/types";
 import type { InteractionEngineConfig } from "./engine/interaction/types";
+import type { LightShapeConfig } from "./engine/lighting/types";
 
 /** Bayer matrix size options for ordered dithering. */
 export type DitherSize = 2 | 4 | 8 | 32 | 64;
@@ -76,6 +77,8 @@ export type SurfaceCanvasProps = {
   interaction?: Partial<InteractionEngineConfig>;
   /** Procedural color / gradient / material behavior config. */
   color?: Partial<ColorMaterialConfig>;
+  /** Procedural light-shape luminance config. */
+  light?: Partial<LightShapeConfig>;
   className?: string;
   style?: CSSProperties;
   reducedMotion?: boolean;
@@ -95,6 +98,7 @@ export type SurfaceCardProps = {
   animation?: Partial<AnimationEngineConfig>;
   interaction?: Partial<InteractionEngineConfig>;
   color?: Partial<ColorMaterialConfig>;
+  light?: Partial<LightShapeConfig>;
   reducedMotion?: boolean;
   className?: string;
 };
@@ -134,6 +138,8 @@ export type PresetDefinition = {
   materialId: MaterialId;
   componentIds: ComponentId[] | "*";
   params: Partial<MonochromeParams>;
+  /** Optional light-shape luminance defaults for this material preset. */
+  light?: Partial<LightShapeConfig>;
 };
 
 export type AppView =
@@ -172,6 +178,7 @@ export type DitherAdapterProps = {
   animation?: Partial<AnimationEngineConfig>;
   interaction?: Partial<InteractionEngineConfig>;
   color?: Partial<ColorMaterialConfig>;
+  light?: Partial<LightShapeConfig>;
   content?: Partial<ComponentContent>;
   reducedMotion?: boolean;
   className?: string;

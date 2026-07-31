@@ -10,6 +10,7 @@ export function DitherAvatar({
   animation,
   interaction,
   color,
+  light,
   content,
   reducedMotion,
   className,
@@ -26,6 +27,7 @@ export function DitherAvatar({
         animation={animation}
         interaction={interaction}
         color={color}
+          light={light}
         reducedMotion={reducedMotion}
       />
       <span className="mde-adapter-avatar__initials" aria-hidden>

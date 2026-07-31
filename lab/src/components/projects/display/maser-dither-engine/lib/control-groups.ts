@@ -35,9 +35,8 @@ export const CONTROL_GROUPS: ControlGroupDef[] = [
   {
     id: "lighting",
     label: "Lighting",
+    /** Light-shape UI is rendered by LightingPanel. */
     fields: [
-      { kind: "slider", key: "lightX" },
-      { kind: "slider", key: "lightY" },
       { kind: "slider", key: "bloom" },
       { kind: "slider", key: "bloomRadius" },
       { kind: "slider", key: "depth" },
