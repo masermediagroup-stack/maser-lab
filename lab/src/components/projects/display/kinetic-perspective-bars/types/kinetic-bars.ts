@@ -1,9 +1,16 @@
-import type { Group, LineBasicMaterial, MeshStandardMaterial } from "three";
+import type {
+  Group,
+  LineBasicMaterial,
+  Mesh,
+  MeshStandardMaterial,
+} from "three";
 
 export type { MotionMode, KineticBarsParams } from "./kinetic-bars-params";
 
 export type KineticBarHandle = {
   group: Group | null;
+  /** Invisible mesh matching the bar’s current height — used for pointer hits. */
+  hitMesh: Mesh | null;
   fillMaterial: MeshStandardMaterial | null;
   edgeMaterial: LineBasicMaterial | null;
   baseY: number;

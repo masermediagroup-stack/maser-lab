@@ -59,7 +59,9 @@ export function useMotionModeBlend(initial: MotionMode) {
 
   const syncMode = useCallback((mode: MotionMode) => {
     const s = stateRef.current;
-    if (!s.blending && s.to !== mode) {
+    // Always honor the latest requested mode — even mid-blend — so rapid
+    // selector / Leva changes do not get stuck on an intermediate mode.
+    if (s.to !== mode) {
       requestMode(mode);
     }
   }, [requestMode]);

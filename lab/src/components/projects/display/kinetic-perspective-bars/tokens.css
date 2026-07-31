@@ -26,8 +26,15 @@
   padding: clamp(1rem, 2.5vw, 1.75rem);
 }
 
-.kinetic-bars-demo__chrome > * {
+/* Only interactive chrome rows capture input — the middle spacer must not
+   sit on top of the WebGL canvas and swallow pointer/hover events. */
+.kinetic-bars-demo__top,
+.kinetic-bars-demo__bottom {
   pointer-events: auto;
+}
+
+.kinetic-bars-demo__spacer {
+  pointer-events: none;
 }
 
 .kinetic-bars-demo__top {

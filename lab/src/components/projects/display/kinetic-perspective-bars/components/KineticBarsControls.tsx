@@ -13,6 +13,7 @@ type KineticBarsControlsProps = {
 /**
  * Leva development panel — collapsible, separate from artwork chrome.
  * Writes patches to React state only when Leva values change (not per-frame).
+ * Patches are flushed on rAF so rapid slider drags coalesce to one React update.
  */
 export function KineticBarsControls({
   onChange,
@@ -188,6 +189,13 @@ export function KineticBarsControls({
   });
 
   const lastSerializedRef = useRef("");
+  const pendingRef = useRef<Partial<KineticBarsParams> | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   useEffect(() => {
     const v = values as Record<string, unknown>;
@@ -228,8 +236,22 @@ export function KineticBarsControls({
     const serialized = JSON.stringify(patch);
     if (serialized === lastSerializedRef.current) return;
     lastSerializedRef.current = serialized;
-    onChange(patch);
-  }, [values, onChange]);
+    pendingRef.current = patch;
+
+    if (rafRef.current != null) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      const next = pendingRef.current;
+      pendingRef.current = null;
+      if (next) onChangeRef.current(next);
+    });
+  }, [values]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   return null;
 }

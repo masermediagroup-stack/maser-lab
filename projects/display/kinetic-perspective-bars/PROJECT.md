@@ -83,3 +83,21 @@ Free orbit controls; bright fills/glows; Framer Motion on 3D bars; music-visuali
 ## Open decisions
 
 - None blocking — orthographic vs low-FOV perspective chosen as low-FOV perspective for reference match with optional ortho toggle via camera zoom framing.
+
+## Harden notes (2026-07-26)
+
+**Mode:** Harden (stability audit)
+
+**P0 fixed:** Rapid Leva / perspective changes exhausted the browser WebGL context limit (`Too many active WebGL contexts` → sculpture context lost). Root cause: `isWebGLAvailable()` allocated a throwaway WebGL context on every React render via `ThreeCanvas`.
+
+**Also fixed:**
+- Stable Canvas `gl` / `camera` props (avoid R3F reconfigure churn)
+- KineticBar geometry dispose no longer tied to material identity changes
+- Stable bar keys (no remount storm on width/thickness)
+- Mode blend honors latest mode mid-crossfade
+- Reset syncs Leva store so panel values do not fight React state
+- Height profile clamps inverted min/max while dragging
+- Hover picks each bar via per-bar hit meshes (actual height) — no plane/max-height fallback
+- Chrome middle spacer no longer captures pointer events over the canvas (hover was fully blocked)
+
+**Skills loaded:** `maser-lab-web` (Harden), `maser-lab-threejs` (Harden / Performance & Fallback / Interaction UX)

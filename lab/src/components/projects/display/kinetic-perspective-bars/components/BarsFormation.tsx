@@ -39,10 +39,11 @@ export function BarsFormation({
   const groupRef = useRef<THREE.Group>(null);
   const { camera, gl } = useThree();
 
+  const safeMin = Math.min(params.minHeight, params.maxHeight);
+  const safeMax = Math.max(params.minHeight, params.maxHeight);
   const heights = useMemo(
-    () =>
-      createHeightProfile(params.barCount, params.minHeight, params.maxHeight),
-    [params.barCount, params.minHeight, params.maxHeight],
+    () => createHeightProfile(params.barCount, safeMin, safeMax),
+    [params.barCount, safeMin, safeMax],
   );
 
   const xs = useMemo(() => {
@@ -57,75 +58,81 @@ export function BarsFormation({
     handlesRef.current[index] = handle;
   }, []);
 
+  // Drop stale handles when bar count shrinks so raycasts never hit disposed meshes.
+  useEffect(() => {
+    if (handlesRef.current.length > params.barCount) {
+      handlesRef.current.length = params.barCount;
+    }
+  }, [params.barCount]);
+
   useEffect(() => {
     modeBlend.syncMode(params.animationMode);
   }, [params.animationMode, modeBlend]);
 
-  const findNearestBar = useCallback(
-    (clientX: number, clientY: number): number => {
+  const raycasterRef = useRef(new THREE.Raycaster());
+  const ndcRef = useRef(new THREE.Vector2());
+  const hitTargetsRef = useRef<THREE.Object3D[]>([]);
+
+  /**
+   * Mesh-only pick: returns a bar index only when the pointer ray intersects
+   * that bar’s own hit volume (matches its current height). No plane / max-height
+   * fallback — empty space above short bars does not count as a hover.
+   */
+  const findHoveredBar = useCallback(
+    (clientX: number, clientY: number): number | null => {
       const rect = gl.domElement.getBoundingClientRect();
-      const ndc = new THREE.Vector2(
+      if (rect.width <= 0 || rect.height <= 0) return null;
+
+      const ndc = ndcRef.current;
+      ndc.set(
         ((clientX - rect.left) / rect.width) * 2 - 1,
         -((clientY - rect.top) / rect.height) * 2 + 1,
       );
-      const raycaster = new THREE.Raycaster();
+
+      const raycaster = raycasterRef.current;
       raycaster.setFromCamera(ndc, camera);
 
-      const meshes: THREE.Object3D[] = [];
+      // Ensure lifted bars (group.position.y) are in the raycast world matrix.
+      groupRef.current?.updateMatrixWorld(true);
+
+      const targets = hitTargetsRef.current;
+      targets.length = 0;
       for (const h of handlesRef.current) {
-        if (h?.group) meshes.push(h.group);
+        if (h?.hitMesh) targets.push(h.hitMesh);
       }
-      const hits = raycaster.intersectObjects(meshes, true);
-      if (hits.length > 0) {
-        let obj: THREE.Object3D | null = hits[0].object;
-        while (obj) {
-          for (let i = 0; i < handlesRef.current.length; i++) {
-            if (handlesRef.current[i]?.group === obj) return i;
-          }
-          obj = obj.parent;
-        }
-      }
+      if (targets.length === 0) return null;
 
-      // Fallback: nearest bar by local X under pointer ray.
-      const hitPoint = new THREE.Vector3();
-      const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-      if (groupRef.current) {
-        const n = new THREE.Vector3(0, 0, 1).applyQuaternion(
-          groupRef.current.quaternion,
-        );
-        plane.setFromNormalAndCoplanarPoint(n, groupRef.current.position);
-      }
-      raycaster.ray.intersectPlane(plane, hitPoint);
-      const local = hitPoint.clone();
-      if (groupRef.current) groupRef.current.worldToLocal(local);
+      const hits = raycaster.intersectObjects(targets, false);
+      if (hits.length === 0) return null;
 
-      let best = 0;
-      let bestDist = Infinity;
-      for (let i = 0; i < params.barCount; i++) {
-        const d = Math.abs(local.x - xs[i]);
-        if (d < bestDist) {
-          bestDist = d;
-          best = i;
-        }
-      }
-      return best;
+      const idx = hits[0]?.object.userData?.barIndex;
+      return typeof idx === "number" ? idx : null;
     },
-    [camera, gl.domElement, params.barCount, xs],
+    [camera, gl.domElement],
   );
 
   useEffect(() => {
     const el = gl.domElement;
 
     const onPointerMove = (e: PointerEvent) => {
-      const idx = findNearestBar(e.clientX, e.clientY);
+      const idx = findHoveredBar(e.clientX, e.clientY);
+      if (idx == null) {
+        pointer.setNearest(-1, false);
+        el.dataset.kineticHover = "";
+        return;
+      }
       pointer.setNearest(idx, true);
+      el.dataset.kineticHover = String(idx);
     };
     const onPointerLeave = () => {
       pointer.setNearest(-1, false);
+      el.dataset.kineticHover = "";
     };
     const onPointerDown = (e: PointerEvent) => {
-      const idx = findNearestBar(e.clientX, e.clientY);
+      const idx = findHoveredBar(e.clientX, e.clientY);
+      if (idx == null) return;
       pointer.setNearest(idx, true);
+      el.dataset.kineticHover = String(idx);
       ripple.trigger(idx);
     };
 
@@ -137,7 +144,7 @@ export function BarsFormation({
       el.removeEventListener("pointerleave", onPointerLeave);
       el.removeEventListener("pointerdown", onPointerDown);
     };
-  }, [findNearestBar, gl.domElement, pointer, ripple]);
+  }, [findHoveredBar, gl.domElement, pointer, ripple]);
 
   useFrame((_, delta) => {
     if (!inView) return;
@@ -154,6 +161,10 @@ export function BarsFormation({
     );
 
     const edgeBase = BASE_EDGE_OPACITY + params.edgeBrightness * 0.28;
+    const edgeC = 0.5 + params.edgeBrightness * 0.5;
+    const edgeR = (edgeC * 190) / 255;
+    const edgeG = (edgeC * 190) / 255;
+    const edgeB = (edgeC * 198) / 255;
 
     for (let i = 0; i < params.barCount; i++) {
       const handle = handlesRef.current[i];
@@ -164,6 +175,7 @@ export function BarsFormation({
 
       if (handle.edgeMaterial) {
         handle.edgeMaterial.opacity = Math.min(0.85, edgeBase + intensity * 0.35);
+        handle.edgeMaterial.color.setRGB(edgeR, edgeG, edgeB);
       }
       if (handle.fillMaterial) {
         handle.fillMaterial.opacity = Math.min(
@@ -187,15 +199,13 @@ export function BarsFormation({
     >
       {Array.from({ length: params.barCount }, (_, i) => (
         <KineticBar
-          key={`${i}-${params.barWidth}-${params.barThickness}-${heights[i].toFixed(3)}`}
+          key={i}
           index={i}
           width={params.barWidth}
           thickness={params.barThickness}
-          height={heights[i]}
+          height={heights[i] ?? safeMin}
           x={xs[i]}
           cornerRadius={params.cornerRadius}
-          fillOpacity={params.fillOpacity}
-          edgeBrightness={params.edgeBrightness}
           register={register}
         />
       ))}
