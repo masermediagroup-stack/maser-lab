@@ -39,7 +39,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     extension: "Add multi-band harmonics.",
     controls: [
       ctrl("speed", "Speed", 0.05, 3, 0.01, 0.85),
-      ctrl("amplitude", "Amplitude", 0, 0.45, 0.01, 0.16),
+      ctrl("amplitude", "Amplitude", 0, 0.85, 0.01, 0.38),
       ctrl("softness", "Softness", 0.1, 1.5, 0.01, 0.7),
       ctrl("phase", "Phase", 0, 6.28, 0.01, 0),
     ],
@@ -54,7 +54,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     extension: "Staggered columns.",
     controls: [
       ctrl("speed", "Speed", 0.05, 3, 0.01, 0.7),
-      ctrl("amplitude", "Amplitude", 0, 0.45, 0.01, 0.18),
+      ctrl("amplitude", "Amplitude", 0, 0.85, 0.01, 0.42),
       ctrl("bias", "Bias", -0.3, 0.3, 0.01, 0.05),
       ctrl("shear", "Shear", 0, 0.4, 0.01, 0.12),
     ],
@@ -69,7 +69,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     extension: "Cross-hatch dual fronts.",
     controls: [
       ctrl("speed", "Speed", 0.05, 3, 0.01, 0.9),
-      ctrl("amplitude", "Amplitude", 0, 0.4, 0.01, 0.2),
+      ctrl("amplitude", "Amplitude", 0, 0.8, 0.01, 0.45),
       ctrl("skew", "Skew", 0.2, 2.5, 0.01, 1.15),
       ctrl("sharpness", "Sharpness", 0.5, 4, 0.01, 1.8),
     ],
@@ -86,7 +86,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
       ctrl("speed", "Pulse Speed", 0.1, 3, 0.01, 1.1),
       ctrl("radius", "Radius", 0.1, 1.2, 0.01, 0.55),
       ctrl("decay", "Decay", 0.5, 4, 0.01, 1.8),
-      ctrl("strength", "Strength", 0, 0.5, 0.01, 0.28),
+      ctrl("strength", "Strength", 0, 0.9, 0.01, 0.55),
     ],
   }),
   mode({
@@ -100,7 +100,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     controls: [
       ctrl("speed", "Speed", 0.1, 3, 0.01, 1.2),
       ctrl("frequency", "Frequency", 2, 18, 0.1, 8),
-      ctrl("amplitude", "Amplitude", 0, 0.35, 0.01, 0.14),
+      ctrl("amplitude", "Amplitude", 0, 0.75, 0.01, 0.4),
       ctrl("damping", "Damping", 0.2, 3, 0.01, 1.1),
     ],
   }),
@@ -114,7 +114,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     extension: "Gerstner-style crest sharpening.",
     controls: [
       ctrl("speed", "Speed", 0.05, 3, 0.01, 0.75),
-      ctrl("amplitude", "Amplitude", 0, 0.4, 0.01, 0.18),
+      ctrl("amplitude", "Amplitude", 0, 0.85, 0.01, 0.48),
       ctrl("frequency", "Frequency", 0.5, 6, 0.01, 2.2),
       ctrl("phase", "Phase", 0, 6.28, 0.01, 0.4),
       ctrl("direction", "Direction Mix", 0, 1, 0.01, 0.35),
@@ -132,7 +132,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
       ctrl("speed", "Speed", 0.05, 3, 0.01, 0.65),
       ctrl("arms", "Arms", 1, 8, 0.1, 2.5),
       ctrl("tightness", "Tightness", 0.5, 4, 0.01, 1.6),
-      ctrl("amplitude", "Amplitude", 0, 0.4, 0.01, 0.2),
+      ctrl("amplitude", "Amplitude", 0, 0.8, 0.01, 0.45),
     ],
   }),
   mode({
@@ -147,7 +147,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
       ctrl("radius", "Radius", 0.05, 0.55, 0.01, 0.28),
       ctrl("angular", "Angular Velocity", 0.1, 3, 0.01, 0.9),
       ctrl("offset", "Offset", 0, 3.14, 0.01, 1.2),
-      ctrl("strength", "Strength", 0, 0.5, 0.01, 0.3),
+      ctrl("strength", "Strength", 0, 0.9, 0.01, 0.58),
     ],
   }),
   mode({
@@ -160,7 +160,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     extension: "Asymmetric inhale/exhale curves.",
     controls: [
       ctrl("speed", "Speed", 0.05, 2, 0.01, 0.45),
-      ctrl("depth", "Depth", 0, 0.35, 0.01, 0.12),
+      ctrl("depth", "Depth", 0, 0.45, 0.01, 0.16),
       ctrl("center", "Center Softness", 0.1, 1.2, 0.01, 0.55),
       ctrl("hold", "Hold", 0, 0.8, 0.01, 0.25),
     ],
@@ -175,7 +175,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     extension: "Color-channel stagger when color materials arrive.",
     controls: [
       ctrl("speed", "Speed", 0.1, 2.5, 0.01, 0.8),
-      ctrl("amount", "Bloom Amount", 0, 0.55, 0.01, 0.32),
+      ctrl("amount", "Bloom Amount", 0, 0.95, 0.01, 0.55),
       ctrl("radius", "Radius", 0.15, 1.2, 0.01, 0.6),
       ctrl("delay", "Secondary Delay", 0, 1.5, 0.01, 0.45),
     ],
@@ -190,7 +190,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     extension: "True simplex gradients.",
     controls: [
       ctrl("scale", "Noise Scale", 0.5, 6, 0.01, 2.2),
-      ctrl("strength", "Noise Strength", 0, 0.35, 0.01, 0.14),
+      ctrl("strength", "Noise Strength", 0, 0.7, 0.01, 0.32),
       ctrl("evolution", "Evolution Speed", 0.05, 2, 0.01, 0.55),
       ctrl("octaves", "Detail", 1, 4, 0.1, 2.5),
     ],
@@ -204,7 +204,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     performance: "Moderate — 4 noise samples.",
     extension: "Bake vector field texture.",
     controls: [
-      ctrl("strength", "Flow Strength", 0, 0.4, 0.01, 0.16),
+      ctrl("strength", "Flow Strength", 0, 0.85, 0.01, 0.42),
       ctrl("scale", "Field Scale", 0.4, 5, 0.01, 1.8),
       ctrl("rotation", "Rotation", 0, 6.28, 0.01, 0.7),
       ctrl("velocity", "Velocity", 0.05, 2.5, 0.01, 0.85),
@@ -219,7 +219,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     performance: "Low.",
     extension: "Multipole fields.",
     controls: [
-      ctrl("strength", "Strength", 0, 0.45, 0.01, 0.22),
+      ctrl("strength", "Strength", 0, 0.9, 0.01, 0.5),
       ctrl("separation", "Pole Separation", 0.1, 0.8, 0.01, 0.35),
       ctrl("spin", "Spin", 0, 2, 0.01, 0.55),
       ctrl("falloff", "Falloff", 0.5, 3, 0.01, 1.4),
@@ -235,7 +235,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     extension: "Ribbon secondary sheets.",
     controls: [
       ctrl("speed", "Speed", 0.05, 2, 0.01, 0.4),
-      ctrl("warp", "Warp", 0, 0.45, 0.01, 0.22),
+      ctrl("warp", "Warp", 0, 0.9, 0.01, 0.48),
       ctrl("bands", "Bands", 1, 6, 0.1, 3.2),
       ctrl("drift", "Drift", 0, 1.5, 0.01, 0.65),
     ],
@@ -250,7 +250,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     extension: "LOD reduce octaves on mobile.",
     controls: [
       ctrl("scale", "Scale", 0.5, 5, 0.01, 2.4),
-      ctrl("strength", "Strength", 0, 0.4, 0.01, 0.18),
+      ctrl("strength", "Strength", 0, 0.85, 0.01, 0.42),
       ctrl("speed", "Speed", 0.1, 2.5, 0.01, 0.95),
       ctrl("roughness", "Roughness", 0.3, 1.2, 0.01, 0.72),
     ],
@@ -264,10 +264,10 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     performance: "Moderate — N blobs.",
     extension: "GPU particle seeds.",
     controls: [
-      ctrl("speed", "Speed", 0.05, 2, 0.01, 0.5),
-      ctrl("count", "Blob Density", 2, 7, 0.1, 4),
-      ctrl("size", "Size", 0.08, 0.4, 0.01, 0.2),
-      ctrl("merge", "Merge", 0.2, 1.5, 0.01, 0.75),
+      ctrl("speed", "Speed", 0.05, 2, 0.01, 0.55),
+      ctrl("count", "Blob Density", 2, 7, 0.1, 5),
+      ctrl("size", "Size", 0.1, 0.55, 0.01, 0.32),
+      ctrl("merge", "Merge", 0.2, 1.5, 0.01, 0.85),
     ],
   }),
 ];

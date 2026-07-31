@@ -59,6 +59,9 @@ Shared engine/ (WebGL2 + Canvas2D) ← all adapters
 - [x] Procedural interaction & multi-light engine (modes, physics, trails, ripples)
 - [x] Accurate DOM→UV pointer tracking + mobile touch path
 - [x] Interaction panel in playground
+- [x] Procedural color / gradient / palette / blend / behavior system
+- [x] Live editable component content
+- [x] Dither sizes 2 / 4 / 8 / 32 / 64 visually distinct
 - [x] `npm run lint` / `npm run build` pass
 
 ## Sprint 1 — Procedural Animation Engine
@@ -95,3 +98,30 @@ Shared engine/ (WebGL2 + Canvas2D) ← all adapters
 - Per-component interaction presets
 - Visual regression for pointer accuracy
 - Optional WebGPU path later — keep WebGL2 contracts stable
+
+## Sprint 3 — Procedural Material System (Lighting, Color & Materials)
+
+**Architecture**
+
+- `engine/color/` — types, palettes, behaviors, ColorMaterialController, COLOR_GLSL
+- Shared FRAG composes RGB via `matComposeColor` after dither/grain (renderer unchanged)
+- Soft-bound UV + larger light travel so procedural lights cross the full material
+- Animation mode strengths increased for clearer personality separation
+- Dither progression: 2×2 · 4×4 · 8×8 · 32×32 · 64×64 (16×16 removed)
+- Live content editing via `content?: Partial<ComponentContent>` on every adapter
+- UI: `MaterialPanel` (Palette Studio) + `ContentEditor` in playground
+
+**Palettes** — Monochrome, Blueprint, Aurora, Ocean, Paper, Chrome, Sunset, Heat Map, Terminal, Matrix, Pearl, Acid, Infrared, Smoke, Forest, Cyberpunk, Electric Blue, Graphite, Velvet
+
+**Behaviors** — Paper, Ink, Plastic, Velvet, Metal, Smoke, Fog, Cloud, Glass (foundation)
+
+**Blend modes** — Normal, Multiply, Screen, Overlay, Soft/Hard Light, Difference, Exclusion, Color Dodge, Luminosity
+
+### Notes for Sprint 4
+
+- Layered materials / multi-pass compositing
+- Outline + edge-tint as first-class outline stage
+- Per-light color pickers in InteractionPanel
+- Gesture shear + particle burst polish
+- Visual regression suite for palettes + dither sizes
+- Optional WebGPU path with stable uniform contracts

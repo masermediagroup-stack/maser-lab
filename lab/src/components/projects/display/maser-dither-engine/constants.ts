@@ -2,9 +2,9 @@ import type { DitherSize, MonochromeParams } from "./types";
 
 export const ENGINE_NAME = "Maser Dither Engine";
 export const ENGINE_SLUG = "maser-dither-engine";
-export const ENGINE_VERSION = "0.4.0";
+export const ENGINE_VERSION = "0.5.0";
 export const ENGINE_TAGLINE =
-  "Procedural monochrome materials for interfaces — engineered tonal density.";
+  "Procedural materials for interfaces — lighting, color, and engineered tonal density.";
 
 /** Exponential damp rate (higher = snappier, still no overshoot). */
 export const DAMP_LAMBDA = 10;
@@ -20,7 +20,7 @@ export const MONOCHROME_DEFAULTS: MonochromeParams = {
   gradientColorA: 0.08,
   gradientColorB: 0.92,
   bloom: 0.35,
-  bloomRadius: 0.12,
+  bloomRadius: 0.18,
   grainAmount: 0.08,
   pixelDensity: 1.0,
   shadowStrength: 0.25,
@@ -28,11 +28,11 @@ export const MONOCHROME_DEFAULTS: MonochromeParams = {
   softEdge: 0.55,
   randomSeed: 0.37,
   animationSpeed: 0.6,
-  cursorInfluence: 0.45,
+  cursorInfluence: 0.72,
   scrollInfluence: 0.2,
   depth: 0.45,
-  lightX: 0.35,
-  lightY: 0.28,
+  lightX: 0.22,
+  lightY: 0.18,
   opacity: 1,
   blueNoiseAmount: 0.22,
 };
@@ -95,7 +95,7 @@ export const PARAM_LABELS: Partial<Record<keyof MonochromeParams, string>> = {
   blueNoiseAmount: "Blue Noise",
 };
 
-export const DITHER_SIZES: DitherSize[] = [2, 4, 8, 16];
+export const DITHER_SIZES: DitherSize[] = [2, 4, 8, 32, 64];
 
 export const MAX_DPR = 2;
 

@@ -56,6 +56,31 @@ export type {
   ProceduralLight,
   PointerStateId,
 } from "./engine/interaction";
+export {
+  MATERIAL_PALETTES,
+  MATERIAL_BEHAVIORS,
+  ColorMaterialController,
+  DEFAULT_COLOR_MATERIAL,
+  applyPaletteToConfig,
+  applyBehavior,
+  hexToRgb,
+  rgbToHex,
+} from "./engine/color";
+export type {
+  ColorMaterialConfig,
+  ColorUniformPayload,
+  GradientModeId,
+  GradientBehaviorId,
+  BlendModeId,
+  MaterialBehaviorId,
+  MaterialColors,
+  PaletteDefinition,
+  BehaviorDefinition,
+} from "./engine/color";
+export {
+  DEFAULT_COMPONENT_CONTENT,
+} from "./content/types";
+export type { ComponentContent } from "./content/types";
 export type {
   MonochromeParams,
   MonochromeUniformState,
@@ -70,4 +95,5 @@ export type {
   PresetDefinition,
   DitherEngineConfig,
   AppRoute,
+  DitherAdapterProps,
 } from "./types";

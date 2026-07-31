@@ -3,6 +3,7 @@
 import { useState, type PointerEvent as ReactPointerEvent } from "react";
 import { SurfaceCanvas } from "../../react/SurfaceCanvas";
 import type { DitherAdapterProps } from "../../types";
+import { DEFAULT_COMPONENT_CONTENT } from "../../content/types";
 import { cn } from "@/lib/utils";
 
 type Ptr = { x: number; y: number; down: boolean };
@@ -23,10 +24,13 @@ export function DitherNavigation({
   params,
   animation,
   interaction,
+  color,
+  content,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
   const [pointer, setPointer] = useState<Ptr | null>(null);
+  const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
 
   return (
     <nav
@@ -51,16 +55,24 @@ export function DitherNavigation({
           params={params}
           animation={animation}
           interaction={interaction}
+          color={color}
           pointer={pointer}
           reducedMotion={reducedMotion}
           aria-label=""
         />
       </div>
-      <span className="mde-adapter-nav__brand">Maser</span>
+      <span className="mde-adapter-nav__brand">{c.navBrand}</span>
       <div className="mde-adapter-nav__links">
-        <a href="#overview">Overview</a>
-        <a href="#components">Components</a>
-        <a href="#docs">Docs</a>
+        {c.navItems.map((item, i) => (
+          <a
+            key={`${item}-${i}`}
+            href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
+            className={cn(i === c.navActiveIndex && "mde-adapter-nav__link--active")}
+            aria-current={i === c.navActiveIndex ? "page" : undefined}
+          >
+            {item}
+          </a>
+        ))}
       </div>
     </nav>
   );

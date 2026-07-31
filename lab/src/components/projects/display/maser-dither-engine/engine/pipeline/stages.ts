@@ -1,8 +1,9 @@
 import { ANIM_GLSL } from "../animation/animGlsl";
+import { COLOR_GLSL } from "../color/colorGlsl";
 import { INTERACTION_GLSL } from "../interaction/interactionGlsl";
 
 /**
- * Pipeline stages — animation (0), material (1–7), damp (8), interaction lighting.
+ * Pipeline stages — animation (0), material (1–7), damp (8), interaction, color.
  */
 export const PIPELINE_STAGES = [
   {
@@ -21,12 +22,18 @@ export const PIPELINE_STAGES = [
     id: 1,
     name: "Gradient",
     description:
-      "Procedural grayscale gradient with angle, stops, soft edge, light falloff",
+      "Procedural luminance gradient with angle, stops, soft edge, light falloff",
+  },
+  {
+    id: 10,
+    name: "Color material",
+    description:
+      "Palette gradients, blend modes, material behaviors, exposure/gamma",
   },
   {
     id: 2,
     name: "Bayer dither",
-    description: "Ordered dither 2×2 / 4×4 / 8×8 / 16×16",
+    description: "Ordered dither 2×2 / 4×4 / 8×8 / 32×32 / 64×64",
   },
   {
     id: 3,
@@ -115,7 +122,8 @@ uniform float uScroll;
 uniform sampler2D uBayer2;
 uniform sampler2D uBayer4;
 uniform sampler2D uBayer8;
-uniform sampler2D uBayer16;
+uniform sampler2D uBayer32;
+uniform sampler2D uBayer64;
 uniform sampler2D uBlueNoise;
 `;
 
@@ -135,7 +143,8 @@ float sampleBayer(vec2 pixel) {
   if (size < 3.0) return texture(uBayer2, uv).r;
   if (size < 5.0) return texture(uBayer4, uv).r;
   if (size < 9.0) return texture(uBayer8, uv).r;
-  return texture(uBayer16, uv).r;
+  if (size < 40.0) return texture(uBayer32, uv).r;
+  return texture(uBayer64, uv).r;
 }
 
 float sampleBlue(vec2 pixel) {
@@ -143,21 +152,28 @@ float sampleBlue(vec2 pixel) {
   return texture(uBlueNoise, (mod(cell, 64.0) + 0.5) / 64.0).r;
 }
 
+float softClamp01(float v) {
+  // Soft edge — lets procedural lights travel past canvas bounds without clipping
+  return mix(v, clamp(v, 0.0, 1.0), 0.68);
+}
+
 float gradientField(vec2 uv) {
   float angle = radians(uGradientAngle);
   vec2 dir = vec2(cos(angle), sin(angle));
   float g = dot(uv - 0.5, dir) * 0.5 + 0.5;
 
-  // Accurate pointer light — UV space, no stacked mixes
-  vec2 lightPos = mix(vec2(uLightX, uLightY), uIxPointer, uIxInfluence * 0.85);
+  // Accurate pointer light — UV space; soft-bound so travel feels physical
+  vec2 lightPos = mix(vec2(uLightX, uLightY), uIxPointer, uIxInfluence * 0.92);
   lightPos.y += uScroll * uScrollInfluence * 0.05;
+  lightPos.x = softClamp01(lightPos.x);
+  lightPos.y = softClamp01(lightPos.y);
 
   float dist = distance(uv, lightPos);
-  float radial = ixFalloff(dist, uIxFalloffRadius) * (0.55 + uDepth * 0.35);
+  float radial = ixFalloff(dist, uIxFalloffRadius * 1.15) * (0.55 + uDepth * 0.4);
   float soft = mix(0.35, 1.0, uSoftEdge);
 
   float base = mix(uGradientColorA, uGradientColorB, clamp(g, 0.0, 1.0));
-  base = mix(base, clamp(base + radial * 0.4 * soft, 0.0, 1.0), 0.75);
+  base = mix(base, clamp(base + radial * 0.48 * soft, 0.0, 1.0), 0.78);
   return clamp(base, 0.0, 1.0);
 }
 
@@ -206,19 +222,20 @@ void main() {
   // warped/clamped UV — that produced horizontal/vertical edge streaks.
   vec2 pixel = gl_FragCoord.xy * max(uPixelDensity, 0.01);
 
-  // Stage 1 — gradient (unified light); sample in soft-clamped UV
-  vec2 uvSample = clamp(uvAnim, 0.0, 1.0);
+  // Stage 1 — gradient (unified light); soft-clamp for edge travel
+  vec2 uvSample = vec2(softClamp01(uvAnim.x), softClamp01(uvAnim.y));
   float lum = gradientField(uvSample);
 
   // Animation luminance + interaction multi-light / ripples / trails
-  lum = clamp(lum + anim.z * 0.45, 0.0, 1.0);
+  lum = clamp(lum + anim.z * 0.85, 0.0, 1.0);
   lum = clamp(lum + sampleInteraction(uvSample), 0.0, 1.0);
 
   // Stage 5 remap
   lum = remapContrast(lum);
 
   // Stage 6 bloom
-  lum = clamp(lum + bloomField(uvSample) * 0.55, 0.0, 1.0);
+  float bloomAmt = bloomField(uvSample) * 0.55;
+  lum = clamp(lum + bloomAmt, 0.0, 1.0);
 
   // Stage 4 posterize
   lum = posterize(lum);
@@ -235,8 +252,11 @@ void main() {
   float g = hash21(pixel + floor(uTime * uNoiseSpeed * 60.0));
   ink = clamp(ink + (g - 0.5) * uGrainAmount, 0.0, 1.0);
 
-  fragColor = vec4(vec3(ink), uOpacity);
+  // Stage 10 — procedural color material (palette / gradient / blend)
+  vec3 rgb = matComposeColor(uvSample, ink, dithered, bloomAmt, uTime);
+  fragColor = vec4(rgb, uOpacity);
 }
 `;
 
-export const FRAG_SRC = FRAG_HEAD + ANIM_GLSL + INTERACTION_GLSL + FRAG_BODY;
+export const FRAG_SRC =
+  FRAG_HEAD + ANIM_GLSL + INTERACTION_GLSL + COLOR_GLSL + FRAG_BODY;

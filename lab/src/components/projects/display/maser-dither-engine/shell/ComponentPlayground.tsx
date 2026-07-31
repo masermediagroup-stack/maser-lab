@@ -29,6 +29,14 @@ import {
   createDefaultLights,
 } from "../engine/interaction";
 import type { InteractionEngineConfig } from "../engine/interaction/types";
+import {
+  DEFAULT_COLOR_MATERIAL,
+} from "../engine/color/types";
+import type { ColorMaterialConfig } from "../engine/color/types";
+import {
+  DEFAULT_COMPONENT_CONTENT,
+  type ComponentContent,
+} from "../content/types";
 import type {
   ComponentId,
   ControlGroupId,
@@ -37,6 +45,8 @@ import type {
 } from "../types";
 import { AnimationPanel } from "./AnimationPanel";
 import { InteractionPanel } from "./InteractionPanel";
+import { MaterialPanel } from "./MaterialPanel";
+import { ContentEditor } from "./ContentEditor";
 import { cn } from "@/lib/utils";
 
 type ComponentPlaygroundProps = {
@@ -77,6 +87,21 @@ function initialInteraction(): InteractionEngineConfig {
   };
 }
 
+function initialColor(): ColorMaterialConfig {
+  return {
+    ...DEFAULT_COLOR_MATERIAL,
+    colors: { ...DEFAULT_COLOR_MATERIAL.colors },
+    properties: { ...DEFAULT_COLOR_MATERIAL.properties },
+  };
+}
+
+function initialContent(): ComponentContent {
+  return {
+    ...DEFAULT_COMPONENT_CONTENT,
+    navItems: [...DEFAULT_COMPONENT_CONTENT.navItems],
+  };
+}
+
 export function ComponentPlayground({
   componentId,
   reducedMotion,
@@ -98,6 +123,8 @@ export function ComponentPlayground({
   const [interaction, setInteraction] = useState<InteractionEngineConfig>(
     initialInteraction,
   );
+  const [color, setColor] = useState<ColorMaterialConfig>(initialColor);
+  const [content, setContent] = useState<ComponentContent>(initialContent);
   const [presetId, setPresetId] = useState(definition.defaultPresetId);
   const [panels, setPanels] = useState<ControlGroupState>(() => {
     if (typeof window === "undefined") return DEFAULT_PANEL_STATE;
@@ -134,13 +161,15 @@ export function ComponentPlayground({
               params={params}
               animation={animation}
               interaction={interaction}
+              color={color}
+              content={content}
               reducedMotion={reducedMotion}
             />
           </div>
           <div className="mde-playground__perf" aria-label="Performance">
             <span>Target 120 / 60 FPS</span>
             <span>WebGL2 · DPR ≤ 2</span>
-            <span>Procedural anim · interaction · shared engine</span>
+            <span>Color · anim · interaction · shared engine</span>
           </div>
         </div>
 
@@ -175,11 +204,26 @@ export function ComponentPlayground({
                   setParams(createMonochromeMaterial(MONOCHROME_DEFAULTS));
                   setAnimation(initialAnimation());
                   setInteraction(initialInteraction());
+                  setColor(initialColor());
+                  setContent(initialContent());
                 }}
               >
                 Reset
               </button>
             </div>
+          </Collapsible>
+
+          <Collapsible
+            title="Content"
+            open={panels.content}
+            onOpenChange={(open) => setPanel("content", open)}
+          >
+            <ContentEditor
+              componentId={componentId}
+              value={content}
+              onChange={setContent}
+              idPrefix={`mde-${componentId}-content`}
+            />
           </Collapsible>
 
           {CONTROL_GROUPS.map((group) => (
@@ -259,6 +303,15 @@ export function ComponentPlayground({
                     idPrefix={`mde-${componentId}-ix`}
                   />
                 </>
+              ) : group.id === "colors" ? (
+                <MaterialPanel
+                  value={color}
+                  onChange={setColor}
+                  onParamsHint={(hint) =>
+                    setParams((p) => ({ ...p, ...hint }))
+                  }
+                  idPrefix={`mde-${componentId}-mat`}
+                />
               ) : (
                 group.fields.map((field) => {
                   if (field.kind === "ditherSize") {
@@ -349,11 +402,9 @@ export function ComponentPlayground({
             </p>
             <p>
               <strong>API.</strong> Adapter props:{" "}
-              <code>params: MonochromeParams</code>,{" "}
-              <code>animation?: AnimationEngineConfig</code>,{" "}
-              <code>interaction?: InteractionEngineConfig</code>,{" "}
-              <code>reducedMotion?: boolean</code>,{" "}
-              <code>className?: string</code>.
+              <code>params</code>, <code>animation</code>,{" "}
+              <code>interaction</code>, <code>color</code>,{" "}
+              <code>content</code>, <code>reducedMotion</code>.
             </p>
           </section>
         </aside>

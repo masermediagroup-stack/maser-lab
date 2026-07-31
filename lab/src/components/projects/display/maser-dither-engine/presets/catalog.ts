@@ -54,7 +54,7 @@ export const PRESETS: PresetDefinition[] = [
     materialId: "monochrome",
     componentIds: "*",
     params: {
-      ditherSize: 16,
+      ditherSize: 32,
       posterization: 6,
       pixelDensity: 1.4,
       contrast: 1.2,

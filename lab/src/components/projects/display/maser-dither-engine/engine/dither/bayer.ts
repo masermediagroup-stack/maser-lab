@@ -24,40 +24,43 @@ const BAYER_8 = [
   [63, 31, 55, 23, 61, 29, 53, 21],
 ].map((row) => row.map((v) => (v + 0.5) / 64));
 
-function buildBayer16(): number[][] {
-  function expand(src: number[][]): number[][] {
-    const n = src.length;
-    const out = Array.from({ length: n * 2 }, () => Array<number>(n * 2).fill(0));
-    for (let y = 0; y < n; y++) {
-      for (let x = 0; x < n; x++) {
-        const v = src[y]![x]! * 4;
-        out[y]![x] = v;
-        out[y]![x + n] = v + 2;
-        out[y + n]![x] = v + 3;
-        out[y + n]![x + n] = v + 1;
-      }
+function expandBayer(src: number[][]): number[][] {
+  const n = src.length;
+  const out = Array.from({ length: n * 2 }, () => Array<number>(n * 2).fill(0));
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      const v = src[y]![x]! * 4;
+      out[y]![x] = v;
+      out[y]![x + n] = v + 2;
+      out[y + n]![x] = v + 3;
+      out[y + n]![x + n] = v + 1;
     }
-    return out;
   }
-  // Start from 2×2 indices, expand to 4 → 8 → 16, then normalize
+  return out;
+}
+
+/** Build Bayer N×N from recursive expand of 2×2 index matrix, then normalize. */
+function buildBayer(size: 32 | 64): number[][] {
   let m = [
     [0, 2],
     [3, 1],
   ];
-  m = expand(m);
-  m = expand(m);
-  m = expand(m);
-  const denom = 16 * 16;
+  // 2 → 4 → 8 → 16 → 32 (→ 64)
+  const steps = size === 32 ? 4 : 5;
+  for (let i = 0; i < steps; i++) m = expandBayer(m);
+  const denom = size * size;
   return m.map((row) => row.map((v) => (v + 0.5) / denom));
 }
 
-const BAYER_16 = buildBayer16();
+const BAYER_32 = buildBayer(32);
+const BAYER_64 = buildBayer(64);
 
 export const BAYER_MATRICES: Record<DitherSize, number[][]> = {
   2: BAYER_2,
   4: BAYER_4,
   8: BAYER_8,
-  16: BAYER_16,
+  32: BAYER_32,
+  64: BAYER_64,
 };
 
 export function getBayerMatrix(size: DitherSize): number[][] {

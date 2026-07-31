@@ -2,15 +2,19 @@
 
 import { SurfaceCanvas } from "../../react/SurfaceCanvas";
 import type { DitherAdapterProps } from "../../types";
+import { DEFAULT_COMPONENT_CONTENT } from "../../content/types";
 import { cn } from "@/lib/utils";
 
 export function DitherImageFrame({
   params,
   animation,
   interaction,
+  color,
+  content,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
+  const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
   return (
     <figure className={cn("mde-adapter mde-adapter--frame", className)}>
       <div className="mde-adapter-frame__matte" aria-hidden>
@@ -18,13 +22,14 @@ export function DitherImageFrame({
           params={params}
           animation={animation}
           interaction={interaction}
+          color={color}
           reducedMotion={reducedMotion}
         />
       </div>
       <div className="mde-adapter-frame__photo">
         <div className="mde-adapter-frame__placeholder">Image</div>
       </div>
-      <figcaption>Dither matte · photo stays crisp</figcaption>
+      <figcaption>{c.imageCaption}</figcaption>
     </figure>
   );
 }

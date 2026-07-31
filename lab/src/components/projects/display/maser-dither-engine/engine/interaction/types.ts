@@ -72,8 +72,10 @@ export type LightBlendMode = "add" | "screen" | "soft";
 export type LightRole =
   | "ambient"
   | "pointer"
+  | "primary"
   | "secondary"
   | "accent"
+  | "edge"
   | "animated";
 
 export type PhysicsConfig = {
@@ -137,13 +139,16 @@ export type ProceduralLight = {
   y: number;
   radius: number;
   intensity: number;
-  /** Grayscale 0–1 (monochrome material). */
+  /** Grayscale 0–1 (tint strength); RGB tint comes from color material engine. */
   color: number;
   animation: number;
   phase: number;
   offset: number;
   blendMode: LightBlendMode;
   moveSpeed: number;
+  softness: number;
+  opacity: number;
+  noiseInfluence: number;
 };
 
 export type InteractionEngineConfig = {
@@ -217,24 +222,24 @@ export const MAX_RIPPLES = 4;
 export const MAX_TRAIL = 8;
 
 export const DEFAULT_PHYSICS: PhysicsConfig = {
-  interpolation: 0.22,
-  easing: 0.65,
-  springStrength: 18,
-  mass: 1,
-  friction: 8,
-  velocityInfluence: 0.35,
-  acceleration: 14,
-  maxSpeed: 2.5,
-  deadZone: 0.008,
-  smoothing: 0.55,
+  interpolation: 0.28,
+  easing: 0.55,
+  springStrength: 22,
+  mass: 0.9,
+  friction: 6.5,
+  velocityInfluence: 0.45,
+  acceleration: 18,
+  maxSpeed: 4.2,
+  deadZone: 0.005,
+  smoothing: 0.42,
 };
 
 export const DEFAULT_FALLOFF: FalloffConfig = {
   type: "gaussian",
-  radius: 0.42,
-  softness: 0.55,
-  edgeWidth: 0.2,
-  power: 2,
+  radius: 0.62,
+  softness: 0.62,
+  edgeWidth: 0.22,
+  power: 1.8,
 };
 
 export const DEFAULT_TRAIL: TrailConfig = {
@@ -275,16 +280,19 @@ export function createDefaultLights(): ProceduralLight[] {
       id: "ambient",
       enabled: true,
       role: "ambient",
-      x: 0.35,
-      y: 0.28,
-      radius: 0.75,
-      intensity: 0.45,
+      x: 0.28,
+      y: 0.22,
+      radius: 0.95,
+      intensity: 0.42,
       color: 1,
       animation: 0,
       phase: 0,
       offset: 0,
       blendMode: "add",
       moveSpeed: 0,
+      softness: 0.7,
+      opacity: 1,
+      noiseInfluence: 0,
     },
     {
       id: "pointer",
@@ -292,44 +300,89 @@ export function createDefaultLights(): ProceduralLight[] {
       role: "pointer",
       x: 0.5,
       y: 0.5,
-      radius: 0.28,
-      intensity: 0.85,
+      radius: 0.38,
+      intensity: 0.95,
       color: 1,
       animation: 0,
       phase: 0,
       offset: 0,
       blendMode: "add",
       moveSpeed: 0,
+      softness: 0.55,
+      opacity: 1,
+      noiseInfluence: 0.1,
+    },
+    {
+      id: "primary",
+      enabled: true,
+      role: "primary",
+      x: 0.55,
+      y: 0.4,
+      radius: 0.55,
+      intensity: 0.55,
+      color: 1,
+      animation: 0.45,
+      phase: 0.4,
+      offset: 0.42,
+      blendMode: "soft",
+      moveSpeed: 0.55,
+      softness: 0.6,
+      opacity: 0.9,
+      noiseInfluence: 0.15,
     },
     {
       id: "secondary",
       enabled: false,
       role: "secondary",
-      x: 0.72,
-      y: 0.68,
-      radius: 0.35,
-      intensity: 0.4,
+      x: 0.78,
+      y: 0.7,
+      radius: 0.4,
+      intensity: 0.45,
       color: 0.92,
-      animation: 0.35,
+      animation: 0.55,
       phase: 1.2,
-      offset: 0.15,
+      offset: 0.38,
       blendMode: "soft",
-      moveSpeed: 0.25,
+      moveSpeed: 0.4,
+      softness: 0.5,
+      opacity: 0.85,
+      noiseInfluence: 0.2,
     },
     {
       id: "accent",
       enabled: false,
       role: "accent",
-      x: 0.2,
-      y: 0.75,
-      radius: 0.22,
-      intensity: 0.35,
+      x: 0.18,
+      y: 0.78,
+      radius: 0.28,
+      intensity: 0.4,
       color: 1,
-      animation: 0.5,
+      animation: 0.7,
       phase: 2.4,
-      offset: 0.2,
+      offset: 0.35,
       blendMode: "screen",
-      moveSpeed: 0.4,
+      moveSpeed: 0.65,
+      softness: 0.45,
+      opacity: 0.8,
+      noiseInfluence: 0.25,
+    },
+    {
+      id: "edge",
+      enabled: false,
+      role: "edge",
+      x: 0.08,
+      y: 0.5,
+      radius: 0.5,
+      intensity: 0.35,
+      color: 0.95,
+      animation: 0.25,
+      phase: 0.8,
+      offset: 0.48,
+      blendMode: "add",
+      moveSpeed: 0.3,
+      softness: 0.8,
+      opacity: 0.7,
+      noiseInfluence: 0.1,
     },
   ];
 }

@@ -11,12 +11,14 @@ import { cn } from "@/lib/utils";
  */
 export function SurfaceCard({
   title = "Surface Print",
+  subtitle,
   description = "Procedural monochrome material driven by the Maser Surface Engine.",
   buttonLabel = "Explore",
   onButtonClick,
   params,
   animation,
   interaction,
+  color,
   reducedMotion = false,
   className,
 }: SurfaceCardProps) {
@@ -31,12 +33,14 @@ export function SurfaceCard({
           params={params}
           animation={animation}
           interaction={interaction}
+          color={color}
           reducedMotion={reducedMotion}
           aria-label="Procedural monochrome material"
         />
       </div>
       <div className="mse-card__body">
         <h2 className="mse-card__title">{title}</h2>
+        {subtitle ? <p className="mse-card__subtitle">{subtitle}</p> : null}
         <p className="mse-card__desc">{description}</p>
         <Button
           type="button"

@@ -1,9 +1,11 @@
 import type { CSSProperties, ComponentType } from "react";
+import type { ComponentContent } from "./content/types";
 import type { AnimationEngineConfig } from "./engine/animation/types";
+import type { ColorMaterialConfig } from "./engine/color/types";
 import type { InteractionEngineConfig } from "./engine/interaction/types";
 
 /** Bayer matrix size options for ordered dithering. */
-export type DitherSize = 2 | 4 | 8 | 16;
+export type DitherSize = 2 | 4 | 8 | 32 | 64;
 
 /** Tunable monochrome / dither material parameters (targets → damped current). */
 export type MonochromeParams = {
@@ -72,6 +74,8 @@ export type SurfaceCanvasProps = {
   animation?: Partial<AnimationEngineConfig>;
   /** Procedural interaction & lighting engine config. */
   interaction?: Partial<InteractionEngineConfig>;
+  /** Procedural color / gradient / material behavior config. */
+  color?: Partial<ColorMaterialConfig>;
   className?: string;
   style?: CSSProperties;
   reducedMotion?: boolean;
@@ -83,12 +87,14 @@ export type SurfaceCanvasProps = {
 
 export type SurfaceCardProps = {
   title?: string;
+  subtitle?: string;
   description?: string;
   buttonLabel?: string;
   onButtonClick?: () => void;
   params?: Partial<MonochromeParams>;
   animation?: Partial<AnimationEngineConfig>;
   interaction?: Partial<InteractionEngineConfig>;
+  color?: Partial<ColorMaterialConfig>;
   reducedMotion?: boolean;
   className?: string;
 };
@@ -155,6 +161,7 @@ export type ControlGroupId =
   | "interaction"
   | "noise"
   | "rendering"
+  | "content"
   | "export"
   | "presets";
 
@@ -164,6 +171,8 @@ export type DitherAdapterProps = {
   params: MonochromeParams;
   animation?: Partial<AnimationEngineConfig>;
   interaction?: Partial<InteractionEngineConfig>;
+  color?: Partial<ColorMaterialConfig>;
+  content?: Partial<ComponentContent>;
   reducedMotion?: boolean;
   className?: string;
 };

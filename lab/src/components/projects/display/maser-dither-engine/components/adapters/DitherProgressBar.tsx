@@ -2,16 +2,20 @@
 
 import { SurfaceCanvas } from "../../react/SurfaceCanvas";
 import type { DitherAdapterProps } from "../../types";
+import { DEFAULT_COMPONENT_CONTENT } from "../../content/types";
 import { cn } from "@/lib/utils";
 
 export function DitherProgressBar({
   params,
   animation,
   interaction,
+  color,
+  content,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
-  const value = 64;
+  const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
+  const value = Math.min(100, Math.max(0, c.progressValue));
   return (
     <div
       className={cn("mde-adapter mde-adapter--progress", className)}
@@ -19,7 +23,7 @@ export function DitherProgressBar({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={value}
-      aria-label="Progress"
+      aria-label={c.progressLabel}
     >
       <div className="mde-adapter-progress__track">
         <div
@@ -30,6 +34,7 @@ export function DitherProgressBar({
             params={params}
             animation={animation}
             interaction={interaction}
+            color={color}
             reducedMotion={reducedMotion}
           />
         </div>

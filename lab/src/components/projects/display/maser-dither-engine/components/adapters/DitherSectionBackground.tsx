@@ -3,6 +3,7 @@
 import { useState, type PointerEvent as ReactPointerEvent } from "react";
 import { SurfaceCanvas } from "../../react/SurfaceCanvas";
 import type { DitherAdapterProps } from "../../types";
+import { DEFAULT_COMPONENT_CONTENT } from "../../content/types";
 import { cn } from "@/lib/utils";
 
 type Ptr = { x: number; y: number; down: boolean };
@@ -20,10 +21,13 @@ export function DitherSectionBackground({
   params,
   animation,
   interaction,
+  color,
+  content,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
   const [pointer, setPointer] = useState<Ptr | null>(null);
+  const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
 
   return (
     <section
@@ -47,13 +51,14 @@ export function DitherSectionBackground({
         params={params}
         animation={animation}
         interaction={interaction}
+        color={color}
         pointer={pointer}
         reducedMotion={reducedMotion}
         aria-label="Section dither background"
       />
       <div className="mde-adapter-section__content">
-        <h3>One job per section</h3>
-        <p>Material atmosphere without card clutter.</p>
+        <h3>{c.sectionTitle}</h3>
+        <p>{c.sectionBody}</p>
       </div>
     </section>
   );

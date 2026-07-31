@@ -3,6 +3,8 @@ import { BLUE_NOISE_SIZE, generateBlueNoiseTexture, sampleBlueNoise } from "../d
 import { grainHash } from "../noise/grain";
 import type { AnimationUniformPayload } from "../animation/types";
 import type { InteractionUniformPayload } from "../interaction/types";
+import type { ColorUniformPayload } from "../color/types";
+import { idleColorPayload } from "../color/types";
 import type { MonochromeUniformState } from "../../types";
 
 /**
@@ -26,7 +28,6 @@ export class Canvas2DRenderer {
 
   resize(cssWidth: number, cssHeight: number, dpr: number): void {
     if (this.disposed) return;
-    // Cap software path resolution for perf
     const scale = Math.min(dpr, 1.25);
     const w = Math.max(1, Math.floor(cssWidth * scale));
     const h = Math.max(1, Math.floor(cssHeight * scale));
@@ -40,6 +41,7 @@ export class Canvas2DRenderer {
     state: MonochromeUniformState,
     anim?: AnimationUniformPayload,
     ix?: InteractionUniformPayload,
+    color: ColorUniformPayload = idleColorPayload(),
   ): void {
     if (this.disposed) return;
     if (Math.abs(state.randomSeed - this.lastSeed) > 0.001) {
@@ -55,16 +57,23 @@ export class Canvas2DRenderer {
     const dirY = Math.sin(angle);
     const t = anim?.time ?? state.time;
     const amp = anim ? 0.12 : 0.08;
-    // UV-space pointer (y=0 bottom) — match WebGL
     const ptrX = ix?.pointerX ?? state.pointerX;
     const ptrY = ix?.pointerY ?? state.pointerY;
     const influence = ix?.influence ?? state.cursorInfluence;
 
-    const lightX = state.lightX + (ptrX - state.lightX) * influence * 0.85;
+    const lightX = state.lightX + (ptrX - state.lightX) * influence * 0.92;
     const lightY =
       state.lightY +
-      (ptrY - state.lightY) * influence * 0.85 +
+      (ptrY - state.lightY) * influence * 0.92 +
       state.scrollY * state.scrollInfluence * 0.05;
+
+    const shadowR = color.colors[6] ?? 0.06;
+    const shadowG = color.colors[7] ?? 0.06;
+    const shadowB = color.colors[8] ?? 0.07;
+    const highR = color.colors[3] ?? 0.96;
+    const highG = color.colors[4] ?? 0.96;
+    const highB = color.colors[5] ?? 0.94;
+    const useColor = color.colorEnabled > 0.5;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -119,10 +128,16 @@ export class Canvas2DRenderer {
         ink = Math.min(1, Math.max(0, ink + (grain - 0.5) * state.grainAmount));
 
         const i = (y * width + x) * 4;
-        const c = Math.round(ink * 255);
-        data[i] = c;
-        data[i + 1] = c;
-        data[i + 2] = c;
+        if (useColor) {
+          data[i] = Math.round((shadowR + (highR - shadowR) * ink) * 255);
+          data[i + 1] = Math.round((shadowG + (highG - shadowG) * ink) * 255);
+          data[i + 2] = Math.round((shadowB + (highB - shadowB) * ink) * 255);
+        } else {
+          const c = Math.round(ink * 255);
+          data[i] = c;
+          data[i + 1] = c;
+          data[i + 2] = c;
+        }
         data[i + 3] = Math.round(state.opacity * 255);
       }
     }

@@ -111,10 +111,10 @@ vec4 modeRipple(vec2 uv, float t, vec4 p0, vec4 p1) {
   float damp = p0.w;
   vec2 a = aspectUv(uv);
   float r = length(a);
-  float wave = sin(r * freq - t * speed) / (1.0 + r * damp * 4.0);
-  float lum = wave * amp;
-  vec2 off = normalize(a + 1e-4) * wave * amp * 0.35;
-  return vec4(off, lum, lum * 0.2);
+  float wave = sin(r * freq - t * speed) / (1.0 + r * damp * 3.2);
+  float lum = wave * amp * 1.35;
+  vec2 off = normalize(a + 1e-4) * wave * amp * 0.55;
+  return vec4(off, lum, lum * 0.35);
 }
 
 vec4 modeWave(vec2 uv, float t, vec4 p0, vec4 p1) {
@@ -128,9 +128,9 @@ vec4 modeWave(vec2 uv, float t, vec4 p0, vec4 p1) {
   float w2 = sin(a.y * (freq * 0.73) - t * speed * 1.17 + phase * 1.3);
   float w3 = sin((a.x * 0.61 + a.y * 1.1) * freq * 0.55 + t * speed * 0.41);
   float field = mix(w1, w2, dirMix) * 0.55 + w3 * 0.45;
-  float lum = field * amp;
-  vec2 off = vec2(w2, w1) * amp * 0.1;
-  return vec4(off, lum, lum * 0.15);
+  float lum = field * amp * 1.25;
+  vec2 off = vec2(w2, w1) * amp * 0.22;
+  return vec4(off, lum, lum * 0.28);
 }
 
 vec4 modeSpiral(vec2 uv, float t, vec4 p0, vec4 p1) {
@@ -226,9 +226,9 @@ vec4 modeFlowField(vec2 uv, float t, vec4 p0, vec4 p1) {
   float cs = cos(rot);
   float sn = sin(rot);
   flow = mat2(cs, -sn, sn, cs) * flow;
-  vec2 off = flow * strength * 0.04;
-  float lum = length(flow) * strength * 0.08;
-  return vec4(off, lum, lum * 0.15);
+  vec2 off = flow * strength * 0.1;
+  float lum = length(flow) * strength * 0.22;
+  return vec4(off, lum, lum * 0.25);
 }
 
 vec4 modeMagnetic(vec2 uv, float t, vec4 p0, vec4 p1) {
@@ -245,9 +245,9 @@ vec4 modeMagnetic(vec2 uv, float t, vec4 p0, vec4 p1) {
   float rN = length(dN) + 0.05;
   float rS = length(dS) + 0.05;
   vec2 field = dN / pow(rN, falloff) - dS / pow(rS, falloff);
-  vec2 off = field * strength * 0.06;
-  float lum = (1.0 / rN - 1.0 / rS) * strength * 0.15;
-  return vec4(off, lum, lum * 0.35);
+  vec2 off = field * strength * 0.14;
+  float lum = (1.0 / rN - 1.0 / rS) * strength * 0.35;
+  return vec4(off, lum, lum * 0.5);
 }
 
 vec4 modeAurora(vec2 uv, float t, vec4 p0, vec4 p1) {
@@ -258,10 +258,10 @@ vec4 modeAurora(vec2 uv, float t, vec4 p0, vec4 p1) {
   vec2 a = aspectUv(uv);
   float n = animFbm(vec2(a.x * bands + t * drift * 0.2, a.y * 1.4 + t * speed * 0.08), 3.0);
   float sheet = sin((a.x + n * warp) * bands * 1.7 + t * speed);
-  float curtain = pow(abs(sheet), 1.4) * smoothstep(0.85, -0.1, a.y);
-  float lum = curtain * warp * 1.1;
-  vec2 off = vec2(n - 0.5, sheet * 0.15) * warp * 0.25;
-  return vec4(off, lum, lum * 0.4);
+  float curtain = pow(abs(sheet), 1.15) * smoothstep(0.95, -0.25, a.y);
+  float lum = curtain * warp * 1.65;
+  vec2 off = vec2(n - 0.5, sheet * 0.22) * warp * 0.45;
+  return vec4(off, lum, lum * 0.55);
 }
 
 vec4 modeTurbulence(vec2 uv, float t, vec4 p0, vec4 p1) {
@@ -300,9 +300,12 @@ vec4 modeLavaLamp(vec2 uv, float t, vec4 p0, vec4 p1) {
     field += size / (d + 0.08 * merge);
   }
   float metaball = smoothstep(1.2 / merge, 2.4 / merge, field);
-  float lum = metaball * 0.35;
-  vec2 off = vec2(0.0, sin(t * speed) * size * 0.15) * metaball;
-  return vec4(off, lum, lum * 0.3);
+  float lum = metaball * (0.55 + size * 0.9);
+  vec2 off = vec2(
+    sin(t * speed * 0.7) * size * 0.22,
+    sin(t * speed) * size * 0.28
+  ) * metaball;
+  return vec4(off, lum, lum * 0.45);
 }
 
 vec4 evalAnimMode(float modeId, vec2 uv, float t, vec4 p0, vec4 p1) {

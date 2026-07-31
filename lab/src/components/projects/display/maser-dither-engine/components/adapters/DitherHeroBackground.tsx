@@ -3,6 +3,7 @@
 import { useState, type PointerEvent as ReactPointerEvent } from "react";
 import { SurfaceCanvas } from "../../react/SurfaceCanvas";
 import type { DitherAdapterProps } from "../../types";
+import { DEFAULT_COMPONENT_CONTENT } from "../../content/types";
 import { cn } from "@/lib/utils";
 
 type Ptr = { x: number; y: number; down: boolean };
@@ -23,10 +24,13 @@ export function DitherHeroBackground({
   params,
   animation,
   interaction,
+  color,
+  content,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
   const [pointer, setPointer] = useState<Ptr | null>(null);
+  const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
 
   return (
     <div
@@ -50,16 +54,15 @@ export function DitherHeroBackground({
         params={params}
         animation={animation}
         interaction={interaction}
+        color={color}
         pointer={pointer}
         reducedMotion={reducedMotion}
         aria-label="Hero dither background"
       />
       <div className="mde-adapter-hero__copy">
-        <p className="mde-adapter-hero__eyebrow">Maser</p>
-        <h3 className="mde-adapter-hero__title">Engineered tone</h3>
-        <p className="mde-adapter-hero__support">
-          Full-bleed dither field for brand-forward heroes.
-        </p>
+        <p className="mde-adapter-hero__eyebrow">{c.heroEyebrow}</p>
+        <h3 className="mde-adapter-hero__title">{c.heroTitle}</h3>
+        <p className="mde-adapter-hero__support">{c.heroDescription}</p>
       </div>
     </div>
   );

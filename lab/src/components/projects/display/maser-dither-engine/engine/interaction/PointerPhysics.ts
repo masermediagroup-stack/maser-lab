@@ -166,13 +166,14 @@ export class PointerPhysics {
       }
 
       case "orbit-pointer": {
-        const orbitR = Math.min(0.22, radius * 0.45);
-        this.orbitAngle += dt * (1.2 + px.acceleration * 0.15);
+        // Travel across most of the surface — no tiny 0.22 UV cap
+        const orbitR = Math.max(0.12, Math.min(0.48, radius * 0.85));
+        this.orbitAngle += dt * (1.6 + px.acceleration * 0.22);
         const cx = active ? tx : this.restX;
         const cy = active ? ty : this.restY;
         const ox = cx + Math.cos(this.orbitAngle) * orbitR;
         const oy = cy + Math.sin(this.orbitAngle) * orbitR;
-        const k = 1 - Math.exp(-dt * (10 + px.interpolation * 20));
+        const k = 1 - Math.exp(-dt * (8 + px.interpolation * 18));
         this.vx = (ox - this.x) / Math.max(dt, 1e-4);
         this.vy = (oy - this.y) / Math.max(dt, 1e-4);
         this.x += (ox - this.x) * k;
@@ -218,8 +219,9 @@ export class PointerPhysics {
       this.x = this.x * (1 - s) + tx * s * 0.15 + this.x * s * 0.85;
     }
 
-    this.x = Math.min(1, Math.max(0, this.x));
-    this.y = Math.min(1, Math.max(0, this.y));
+    // Soft edge soft-bound — keep light on-material without hard clipping feel
+    this.x = softBound01(this.x);
+    this.y = softBound01(this.y);
 
     return { x: this.x, y: this.y, vx: this.vx, vy: this.vy };
   }
@@ -232,4 +234,11 @@ export class PointerPhysics {
       this.vy *= s;
     }
   }
+}
+
+function softBound01(v: number): number {
+  // Reflect lightly at edges so lights travel full surface without hard stick
+  if (v < 0) return Math.min(0.35, -v * 0.5);
+  if (v > 1) return Math.max(0.65, 1 - (v - 1) * 0.5);
+  return v;
 }

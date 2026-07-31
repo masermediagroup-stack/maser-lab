@@ -38,26 +38,36 @@ export const DOCS_TOPICS = [
   {
     id: "interaction",
     title: "Procedural Interaction & Lighting",
-    body: `Sprint 2 adds engine/interaction/. Pointer pipeline: DOM-normalized (y=0 top) → UV (y=0 bottom) inside InteractionController.setTargetDom — fixes the prior upward/right drift. PointerPhysics implements unique math per mode (Follow, Spring, Magnetic, Sticky, Gravity, Repel, Orbit Pointer, Elastic, Pressure, Ripple, None). Multi-light engine packs 1–8 ProceduralLight slots (ambient/pointer/secondary/accent/animated) with radius, intensity, color, blend, phase, and movement. Hold/release behaviors, trails, ripples, falloff curves, and optional debug overlay are GPU-uniform driven — no React setState on rAF. Pass interaction?: Partial<InteractionEngineConfig> into SurfaceCanvas. Reduced motion disables interaction animations and exits the pointer.`,
+    body: `Sprint 2 adds engine/interaction/. Pointer pipeline: DOM-normalized (y=0 top) → UV (y=0 bottom) inside InteractionController.setTargetDom — fixes the prior upward/right drift. PointerPhysics implements unique math per mode (Follow, Spring, Magnetic, Sticky, Gravity, Repel, Orbit Pointer, Elastic, Pressure, Ripple, None). Multi-light engine packs 1–8 ProceduralLight slots (ambient/pointer/primary/secondary/accent/edge/animated) with radius, intensity, color, blend, phase, softness, opacity, noise, and movement. Hold/release behaviors, trails, ripples, falloff curves, and optional debug overlay are GPU-uniform driven — no React setState on rAF. Sprint 3 increases light travel (soft-bound UV, larger orbit offsets). Pass interaction?: Partial<InteractionEngineConfig> into SurfaceCanvas. Reduced motion disables interaction animations and exits the pointer.`,
+  },
+  {
+    id: "color-material",
+    title: "Color & Material System",
+    body: `Sprint 3 adds engine/color/. ColorMaterialController packs palette colors, gradient mode/behavior, blend mode, material behavior, and exposure/gamma/density into GPU uniforms each frame. COLOR_GLSL composes RGB from ink + dither + bloom without rewriting the renderer. Palette Studio includes Monochrome, Blueprint, Aurora, Ocean, Paper, Chrome, Sunset, Heat Map, Terminal, Matrix, Pearl, Acid, Infrared, Smoke, Forest, Cyberpunk, Electric Blue, Graphite, Velvet. Material behaviors (Paper, Ink, Plastic, Velvet, Metal, Smoke, Fog, Cloud, Glass) influence density, sharpness, scatter, and preferred blend — not just recolor. Pass color?: Partial<ColorMaterialConfig> into SurfaceCanvas. Toggle colorEnabled for Sprint 1/2 grayscale.`,
+  },
+  {
+    id: "content-editing",
+    title: "Live Component Editing",
+    body: `Every adapter accepts content?: Partial<ComponentContent>. The playground Content editor updates labels, titles, descriptions, nav items, placeholders, progress, scrollbar thickness/radius instantly while the material keeps animating. Content is React overlay state — it never remounts the WebGL surface.`,
   },
   {
     id: "engine-api",
     title: "Engine API",
-    body: `Use createEngineParams / splitConfig / mergeConfig from engine/api.ts to group Material, Animation, Lighting, Colors, Interaction, Noise, and Dither. UniformStore + AnimationLoop damp material targets on rAF without React setState thrash. Pointer position is owned by InteractionController (not damp keys). Timeline transport: play/pause/restart/reverse/loop/ping-pong/playbackSpeed/timeScale.`,
+    body: `Use createEngineParams / splitConfig / mergeConfig from engine/api.ts to group Material, Animation, Lighting, Colors, Interaction, Noise, and Dither. UniformStore + AnimationLoop damp material targets on rAF without React setState thrash. Pointer position is owned by InteractionController (not damp keys). ColorMaterialController owns palette/gradient uniforms. Timeline transport: play/pause/restart/reverse/loop/ping-pong/playbackSpeed/timeScale. Dither sizes: 2×2, 4×4, 8×8, 32×32, 64×64.`,
   },
   {
     id: "accessibility",
     title: "Accessibility",
-    body: `Honor prefers-reduced-motion (demo toggle + OS). Surfaces expose aria-labels; interactive adapters use native controls. Reduced motion pauses the animation timeline and disables interaction physics/lights motion. Material never replaces text contrast requirements.`,
+    body: `Honor prefers-reduced-motion (demo toggle + OS). Surfaces expose aria-labels; interactive adapters use native controls. Reduced motion pauses the animation timeline, disables interaction physics/lights motion, and freezes gradient behaviors. Material never replaces text contrast requirements.`,
   },
   {
     id: "performance",
     title: "Performance",
-    body: `DPR clamped to 2. Prefer pausing offscreen surfaces. Discrete dither size + seed snap avoid texture rebuild thrash. Animation + interaction uniforms update each frame without React re-renders. Object reuse in InteractionController (ripples, trail, light pack). Canvas2D fallback approximates motion when WebGL2 is unavailable. Target 120 FPS desktop / 60 FPS mobile.`,
+    body: `DPR clamped to 2. Prefer pausing offscreen surfaces. Discrete dither size + seed snap avoid texture rebuild thrash. Animation + interaction + color uniforms update each frame without React re-renders. Object reuse in InteractionController (ripples, trail, light pack). Canvas2D fallback approximates color + motion when WebGL2 is unavailable. Target 120 FPS desktop / 60 FPS mobile.`,
   },
   {
     id: "future-engines",
     title: "Future Engines",
-    body: `Follow this package shape: engine/ (immutable renderer), materials/, components/adapters/, presets/, shell/, docs/. New engines (Glass, Grain, Liquid, Noise, Pixel, Mesh Gradient, CRT, Chromatic) should mirror catalogs + playground routing. Animation modes and interaction modes extend by appending to their catalogs + GLSL branches — no giant UI switches.`,
+    body: `Follow this package shape: engine/ (immutable renderer), materials/, components/adapters/, presets/, shell/, docs/. New engines (Glass, Grain, Liquid, Noise, Pixel, Mesh Gradient, CRT, Chromatic) should mirror catalogs + playground routing. Animation, interaction, and color modes extend by appending to their catalogs + GLSL branches — no giant UI switches. Sprint 4 candidates: layered materials, outline/edge tint compositing, WebGPU path, gesture shear.`,
   },
 ] as const;

@@ -21,6 +21,9 @@ export const CONTROL_GROUPS: ControlGroupDef[] = [
       { kind: "slider", key: "softEdge" },
       { kind: "slider", key: "opacity" },
       { kind: "slider", key: "randomSeed" },
+      { kind: "slider", key: "gradientAngle" },
+      { kind: "slider", key: "brightness" },
+      { kind: "slider", key: "contrast" },
     ],
   },
   {
@@ -44,14 +47,9 @@ export const CONTROL_GROUPS: ControlGroupDef[] = [
   },
   {
     id: "colors",
-    label: "Colors",
-    fields: [
-      { kind: "slider", key: "gradientAngle" },
-      { kind: "slider", key: "gradientColorA" },
-      { kind: "slider", key: "gradientColorB" },
-      { kind: "slider", key: "brightness" },
-      { kind: "slider", key: "contrast" },
-    ],
+    label: "Color & Material",
+    /** Palette / gradient / blend / behavior UI is rendered by MaterialPanel. */
+    fields: [],
   },
   {
     id: "interaction",

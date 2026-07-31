@@ -8,6 +8,8 @@ import type { AnimationUniformPayload } from "../animation/types";
 import { IDLE_ANIMATION_PAYLOAD } from "../animation/types";
 import type { InteractionUniformPayload } from "../interaction/types";
 import { idleInteractionPayload } from "../interaction/types";
+import type { ColorUniformPayload } from "../color/types";
+import { idleColorPayload } from "../color/types";
 
 const UNIFORM_NAMES = [
   "uResolution",
@@ -91,8 +93,36 @@ const UNIFORM_NAMES = [
   "uBayer2",
   "uBayer4",
   "uBayer8",
-  "uBayer16",
+  "uBayer32",
+  "uBayer64",
   "uBlueNoise",
+  "uMatColorEnabled",
+  "uMatGradMode",
+  "uMatGradBehavior",
+  "uMatGradSpeed",
+  "uMatGradOffset",
+  "uMatBlendMode",
+  "uMatBehavior",
+  "uMatExposure",
+  "uMatGamma",
+  "uMatThreshold",
+  "uMatDensity",
+  "uMatSharpness",
+  "uMatSmoothness",
+  "uMatBlur",
+  "uMatWeight",
+  "uMatScatter",
+  "uMatC0",
+  "uMatC1",
+  "uMatC2",
+  "uMatC3",
+  "uMatC4",
+  "uMatC5",
+  "uMatC6",
+  "uMatC7",
+  "uMatC8",
+  "uMatC9",
+  "uMatC10",
 ];
 
 function uploadBayer(
@@ -183,16 +213,18 @@ export class SurfaceRenderer {
       uploadBayer(gl, 2, 0),
       uploadBayer(gl, 4, 1),
       uploadBayer(gl, 8, 2),
-      uploadBayer(gl, 16, 3),
+      uploadBayer(gl, 32, 3),
       uploadBlueNoise(gl, 4, 0.37),
+      uploadBayer(gl, 64, 5),
     );
 
     gl.useProgram(this.program);
     gl.uniform1i(this.uniforms.uBayer2, 0);
     gl.uniform1i(this.uniforms.uBayer4, 1);
     gl.uniform1i(this.uniforms.uBayer8, 2);
-    gl.uniform1i(this.uniforms.uBayer16, 3);
+    gl.uniform1i(this.uniforms.uBayer32, 3);
     gl.uniform1i(this.uniforms.uBlueNoise, 4);
+    gl.uniform1i(this.uniforms.uBayer64, 5);
   }
 
   resize(cssWidth: number, cssHeight: number, dpr: number): void {
@@ -232,6 +264,7 @@ export class SurfaceRenderer {
     state: MonochromeUniformState,
     anim: AnimationUniformPayload = IDLE_ANIMATION_PAYLOAD,
     ix: InteractionUniformPayload = idleInteractionPayload(),
+    color: ColorUniformPayload = idleColorPayload(),
   ): void {
     if (this.disposed) return;
     const gl = this.gl;
@@ -312,12 +345,50 @@ export class SurfaceRenderer {
     );
 
     this.uploadInteraction(gl, u, ix);
+    this.uploadColor(gl, u, color);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  private uploadColor(
+    gl: WebGL2RenderingContext,
+    u: Record<string, WebGLUniformLocation | null>,
+    color: ColorUniformPayload,
+  ): void {
+    gl.uniform1f(u.uMatColorEnabled, color.colorEnabled);
+    gl.uniform1f(u.uMatGradMode, color.gradientMode);
+    gl.uniform1f(u.uMatGradBehavior, color.gradientBehavior);
+    gl.uniform1f(u.uMatGradSpeed, color.gradientSpeed);
+    gl.uniform1f(u.uMatGradOffset, color.gradientOffset);
+    gl.uniform1f(u.uMatBlendMode, color.blendMode);
+    gl.uniform1f(u.uMatBehavior, color.behavior);
+    gl.uniform1f(u.uMatExposure, color.exposure);
+    gl.uniform1f(u.uMatGamma, color.gamma);
+    gl.uniform1f(u.uMatThreshold, color.threshold);
+    gl.uniform1f(u.uMatDensity, color.density);
+    gl.uniform1f(u.uMatSharpness, color.sharpness);
+    gl.uniform1f(u.uMatSmoothness, color.smoothness);
+    gl.uniform1f(u.uMatBlur, color.blur);
+    gl.uniform1f(u.uMatWeight, color.materialWeight);
+    gl.uniform1f(u.uMatScatter, color.lightScatter);
+
+    const c = color.colors;
+    // Pack 14×rgb into vec4 slots matching colorGlsl accessors
+    gl.uniform4f(u.uMatC0, c[0]!, c[1]!, c[2]!, c[3]!);
+    gl.uniform4f(u.uMatC1, c[4]!, c[5]!, c[6]!, c[7]!);
+    gl.uniform4f(u.uMatC2, c[8]!, c[9]!, c[10]!, c[11]!);
+    gl.uniform4f(u.uMatC3, c[12]!, c[13]!, c[14]!, c[15]!);
+    gl.uniform4f(u.uMatC4, c[16]!, c[17]!, c[18]!, c[19]!);
+    gl.uniform4f(u.uMatC5, c[20]!, c[21]!, c[22]!, c[23]!);
+    gl.uniform4f(u.uMatC6, c[24]!, c[25]!, c[26]!, c[27]!);
+    gl.uniform4f(u.uMatC7, c[28]!, c[29]!, c[30]!, c[31]!);
+    gl.uniform4f(u.uMatC8, c[32]!, c[33]!, c[34]!, c[35]!);
+    gl.uniform4f(u.uMatC9, c[36]!, c[37]!, c[38]!, c[39]!);
+    gl.uniform2f(u.uMatC10, c[40]!, c[41]!);
   }
 
   private uploadInteraction(

@@ -5,10 +5,11 @@ export const DEFAULT_PANEL_STATE: ControlGroupState = {
   material: true,
   animation: false,
   lighting: true,
-  colors: false,
+  colors: true,
   interaction: false,
   noise: false,
   rendering: false,
+  content: true,
   export: true,
   presets: true,
 };

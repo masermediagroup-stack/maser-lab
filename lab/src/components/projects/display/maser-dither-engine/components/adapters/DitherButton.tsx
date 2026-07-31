@@ -3,6 +3,7 @@
 import { useState, type PointerEvent as ReactPointerEvent } from "react";
 import { SurfaceCanvas } from "../../react/SurfaceCanvas";
 import type { DitherAdapterProps } from "../../types";
+import { DEFAULT_COMPONENT_CONTENT } from "../../content/types";
 import { cn } from "@/lib/utils";
 
 type Ptr = { x: number; y: number; down: boolean };
@@ -23,10 +24,13 @@ export function DitherButton({
   params,
   animation,
   interaction,
+  color,
+  content,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
   const [pointer, setPointer] = useState<Ptr | null>(null);
+  const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
 
   return (
     <button
@@ -50,12 +54,21 @@ export function DitherButton({
         <SurfaceCanvas
           animation={animation}
           interaction={interaction}
+          color={color}
           params={{ ...params, opacity: 1 }}
           pointer={pointer}
           reducedMotion={reducedMotion}
         />
       </span>
-      <span className="mde-adapter-button__label">Continue</span>
+      <span className="mde-adapter-button__label">
+        {c.buttonLabel}
+        {c.buttonIcon ? (
+          <span className="mde-adapter-button__icon" aria-hidden>
+            {" "}
+            {c.buttonIcon}
+          </span>
+        ) : null}
+      </span>
     </button>
   );
 }

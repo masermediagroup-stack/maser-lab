@@ -390,23 +390,57 @@ export class InteractionController {
     for (const light of this.config.lights) {
       if (!light.enabled) continue;
       const copy = { ...light };
+      const soft = light.softness ?? 0.55;
+      const opacity = light.opacity ?? 1;
+      const noise = light.noiseInfluence ?? 0;
+
       if (copy.role === "pointer") {
         copy.x = px;
         copy.y = py;
-        copy.radius = radius * 0.65 * mul;
+        copy.radius = radius * 0.85 * mul * (0.85 + soft * 0.3);
         copy.intensity =
           light.intensity *
+          opacity *
           this.config.influence *
           (0.75 + this.holdCharge * 0.45 + this.releasePulse * 0.3);
       } else if (copy.role === "ambient") {
-        // Keep authored position; subtle breathe
-        copy.intensity = light.intensity * (0.9 + this.stateBrightness() * 0.2);
-      } else if (copy.animation > 0 || copy.role === "animated") {
-        const ang = time * copy.moveSpeed + copy.phase;
-        copy.x = clamp01(light.x + Math.cos(ang) * copy.offset);
-        copy.y = clamp01(light.y + Math.sin(ang * 0.85) * copy.offset);
         copy.intensity =
-          light.intensity * (0.75 + 0.25 * Math.sin(time * 1.3 + copy.phase));
+          light.intensity * opacity * (0.9 + this.stateBrightness() * 0.2);
+      } else if (copy.role === "edge") {
+        // Sweep along edges with large travel
+        const ang = time * Math.max(0.15, copy.moveSpeed) + copy.phase;
+        const edge = (Math.sin(ang) * 0.5 + 0.5) * copy.offset * 2;
+        copy.x = clamp01(0.04 + edge * 0.92);
+        copy.y = clamp01(0.08 + Math.cos(ang * 0.7) * copy.offset * 0.85);
+        copy.radius = light.radius * (0.9 + soft * 0.4);
+        copy.intensity =
+          light.intensity *
+          opacity *
+          (0.7 + 0.3 * Math.sin(time * 1.1 + copy.phase));
+      } else if (
+        copy.animation > 0 ||
+        copy.role === "animated" ||
+        copy.role === "primary" ||
+        copy.role === "secondary" ||
+        copy.role === "accent"
+      ) {
+        const ang = time * Math.max(0.05, copy.moveSpeed) + copy.phase;
+        const travel = Math.max(0.2, copy.offset);
+        const nx =
+          noise > 0
+            ? Math.sin(time * 1.7 + copy.phase * 2) * noise * 0.12
+            : 0;
+        const ny =
+          noise > 0
+            ? Math.cos(time * 1.3 + copy.phase) * noise * 0.12
+            : 0;
+        copy.x = clamp01(light.x + Math.cos(ang) * travel + nx);
+        copy.y = clamp01(light.y + Math.sin(ang * 0.85) * travel + ny);
+        copy.radius = light.radius * (0.85 + soft * 0.35);
+        copy.intensity =
+          light.intensity *
+          opacity *
+          (0.7 + 0.3 * Math.sin(time * 1.3 + copy.phase));
       }
       out.push(copy);
       if (out.length >= MAX_LIGHTS) break;

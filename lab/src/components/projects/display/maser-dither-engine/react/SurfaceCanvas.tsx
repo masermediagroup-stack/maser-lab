@@ -4,6 +4,8 @@ import { useEffect, useEffectEvent, useRef } from "react";
 import { MAX_DPR } from "../constants";
 import { ProceduralAnimationController } from "../engine/animation/ProceduralAnimationController";
 import type { AnimationEngineConfig } from "../engine/animation/types";
+import { ColorMaterialController } from "../engine/color/ColorMaterialController";
+import type { ColorMaterialConfig } from "../engine/color/types";
 import { AnimationLoop } from "../engine/core/AnimationLoop";
 import {
   tryCreateSurfaceRenderer,
@@ -24,6 +26,7 @@ type EngineHandle = {
   scroll: ScrollField;
   anim: ProceduralAnimationController;
   ix: InteractionController;
+  color: ColorMaterialController;
   kind: "webgl2" | "canvas2d";
   externalPointer: boolean;
   dispose: () => void;
@@ -39,11 +42,13 @@ function mountEngine(
   getReducedMotion: () => boolean,
   initialAnim?: Partial<AnimationEngineConfig>,
   initialIx?: Partial<InteractionEngineConfig>,
+  initialColor?: Partial<ColorMaterialConfig>,
 ): EngineHandle {
   const store = new UniformStore();
   const scroll = new ScrollField();
   const anim = new ProceduralAnimationController(initialAnim);
   const ix = new InteractionController(initialIx);
+  const color = new ColorMaterialController(initialColor);
 
   let renderer: SurfaceRenderer | Canvas2DRenderer;
   let kind: "webgl2" | "canvas2d";
@@ -74,7 +79,8 @@ function mountEngine(
       });
       current.pointerX = ixPayload.pointerX;
       current.pointerY = ixPayload.pointerY;
-      renderer.draw(current, payload, ixPayload);
+      const colorPayload = color.tick(dt, reduced);
+      renderer.draw(current, payload, ixPayload, colorPayload);
     },
   });
 
@@ -85,6 +91,7 @@ function mountEngine(
     scroll,
     anim,
     ix,
+    color,
     kind,
     externalPointer: false,
     dispose: () => {
@@ -102,6 +109,7 @@ export function SurfaceCanvas({
   params,
   animation,
   interaction,
+  color,
   className,
   style,
   reducedMotion = false,
@@ -116,6 +124,7 @@ export function SurfaceCanvas({
   const scrollProgressRef = useRef(scrollProgress);
   const initialAnimRef = useRef(animation);
   const initialIxRef = useRef(interaction);
+  const initialColorRef = useRef(color);
   const pointerPropRef = useRef(pointer);
 
   const onParams = useEffectEvent((p?: Partial<MonochromeParams>) => {
@@ -134,6 +143,10 @@ export function SurfaceCanvas({
     },
   );
 
+  const onColor = useEffectEvent((cfg?: Partial<ColorMaterialConfig>) => {
+    if (cfg) engineRef.current?.color.syncFromProps(cfg);
+  });
+
   const onPointerProp = useEffectEvent(
     (ptr: { x: number; y: number; down?: boolean } | null) => {
       const engine = engineRef.current;
@@ -143,7 +156,6 @@ export function SurfaceCanvas({
         if (!ptr) engine.ix.setPointerExit();
         return;
       }
-      // External prop is DOM-normalized (y=0 top)
       engine.ix.setTargetDom(ptr.x, ptr.y, true);
       if (typeof ptr.down === "boolean") {
         engine.ix.setPointerDown(ptr.down);
@@ -182,6 +194,7 @@ export function SurfaceCanvas({
       () => reducedRef.current,
       initialAnimRef.current,
       initialIxRef.current,
+      initialColorRef.current,
     );
     engineRef.current = engine;
 
@@ -214,7 +227,7 @@ export function SurfaceCanvas({
 
     const onPointerMove = (e: PointerEvent) => {
       if (reducedRef.current) return;
-      if (pointerPropRef.current) return; // external drive
+      if (pointerPropRef.current) return;
       const { x, y } = readLocalPointer(e.clientX, e.clientY);
       engine.ix.setTargetDom(x, y, true);
     };
@@ -279,6 +292,10 @@ export function SurfaceCanvas({
   useEffect(() => {
     onInteraction(interaction);
   }, [interaction]);
+
+  useEffect(() => {
+    onColor(color);
+  }, [color]);
 
   useEffect(() => {
     onPointerProp(pointer);
