@@ -184,6 +184,10 @@ vec3 matComposeColor(vec2 uv, float ink, float dithered, float bloomAmt, float i
   vec3 outerCol = matShadow();
   float lit = pow(clamp(ink * uMatExposure, 0.0, 1.2), max(uMatGamma, 0.35));
   lit = clamp((lit - 0.5) * mix(0.85, 1.35, uMatSharpness) + 0.5, 0.0, 1.0);
+  // Threshold / smoothness — tonal gate before core↔outer mix
+  float thr = clamp(uMatThreshold, 0.0, 0.6);
+  float soft = mix(0.02, 0.45, clamp(uMatSmoothness, 0.0, 1.0));
+  lit = smoothstep(thr, thr + soft + 0.001, lit);
 
   vec3 tone = mix(outerCol, coreCol, lit);
 
@@ -218,6 +222,13 @@ vec3 matComposeColor(vec2 uv, float ink, float dithered, float bloomAmt, float i
   if (uMatBehavior > 5.5 && uMatBehavior < 8.5) {
     tone = mix(tone, matAmbient(), 0.08 + uMatBlur * 0.15);
   }
+
+  // Accent midtones · edge tint · noise scatter (were previously unused)
+  float mid = 1.0 - abs(lit - 0.5) * 2.0;
+  tone = mix(tone, matAccent(), mid * 0.1);
+  float edge = max(abs(uv.x - 0.5), abs(uv.y - 0.5)) * 2.0;
+  tone = mix(tone, matEdge(), edge * edge * 0.12);
+  tone = mix(tone, matNoise(), uMatScatter * 0.1);
 
   // Soft blend mode against outer plate (does not flatten core)
   vec3 plate = mix(matBg(), outerCol, 0.55);

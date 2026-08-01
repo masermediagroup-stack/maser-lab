@@ -8,6 +8,8 @@ import { ColorMaterialController } from "../engine/color/ColorMaterialController
 import type { ColorMaterialConfig } from "../engine/color/types";
 import { LightShapeController } from "../engine/lighting/LightShapeController";
 import type { LightShapeConfig } from "../engine/lighting/types";
+import { DitherController } from "../engine/dither/DitherController";
+import type { DitherConfig } from "../engine/dither/types";
 import { AnimationLoop } from "../engine/core/AnimationLoop";
 import {
   tryCreateSurfaceRenderer,
@@ -30,6 +32,7 @@ type EngineHandle = {
   ix: InteractionController;
   color: ColorMaterialController;
   light: LightShapeController;
+  dither: DitherController;
   kind: "webgl2" | "canvas2d";
   externalPointer: boolean;
   dispose: () => void;
@@ -47,6 +50,7 @@ function mountEngine(
   initialIx?: Partial<InteractionEngineConfig>,
   initialColor?: Partial<ColorMaterialConfig>,
   initialLight?: Partial<LightShapeConfig>,
+  initialDither?: Partial<DitherConfig>,
 ): EngineHandle {
   const store = new UniformStore();
   const scroll = new ScrollField();
@@ -54,6 +58,7 @@ function mountEngine(
   const ix = new InteractionController(initialIx);
   const color = new ColorMaterialController(initialColor);
   const light = new LightShapeController(initialLight);
+  const dither = new DitherController(initialDither);
 
   let renderer: SurfaceRenderer | Canvas2DRenderer;
   let kind: "webgl2" | "canvas2d";
@@ -80,13 +85,23 @@ function mountEngine(
       const ixPayload = ix.tick(dt, reduced, payload.time, {
         lightX: current.lightX,
         lightY: current.lightY,
-        influence: current.cursorInfluence,
+        // Pointer influence owned by InteractionConfig — do not multiply
+        // with a second material cursorInfluence slider.
+        influence: 1,
       });
       current.pointerX = ixPayload.pointerX;
       current.pointerY = ixPayload.pointerY;
       const colorPayload = color.tick(dt, reduced);
       const lightPayload = light.tick(dt, reduced);
-      renderer.draw(current, payload, ixPayload, colorPayload, lightPayload);
+      const ditherPayload = dither.tick();
+      renderer.draw(
+        current,
+        payload,
+        ixPayload,
+        colorPayload,
+        lightPayload,
+        ditherPayload,
+      );
     },
   });
 
@@ -99,6 +114,7 @@ function mountEngine(
     ix,
     color,
     light,
+    dither,
     kind,
     externalPointer: false,
     dispose: () => {
@@ -118,6 +134,7 @@ export function SurfaceCanvas({
   interaction,
   color,
   light,
+  dither,
   className,
   style,
   reducedMotion = false,
@@ -134,10 +151,17 @@ export function SurfaceCanvas({
   const initialIxRef = useRef(interaction);
   const initialColorRef = useRef(color);
   const initialLightRef = useRef(light);
+  const initialDitherRef = useRef(dither);
   const pointerPropRef = useRef(pointer);
 
   const onParams = useEffectEvent((p?: Partial<MonochromeParams>) => {
-    if (p) engineRef.current?.store.setParams(p);
+    if (!p) return;
+    const engine = engineRef.current;
+    if (!engine) return;
+    engine.store.setParams(p);
+    if (typeof p.ditherSize === "number") {
+      engine.dither.syncFromProps({ matrixSize: p.ditherSize });
+    }
   });
 
   const onAnimation = useEffectEvent(
@@ -158,6 +182,10 @@ export function SurfaceCanvas({
 
   const onLight = useEffectEvent((cfg?: Partial<LightShapeConfig>) => {
     if (cfg) engineRef.current?.light.syncFromProps(cfg);
+  });
+
+  const onDither = useEffectEvent((cfg?: Partial<DitherConfig>) => {
+    if (cfg) engineRef.current?.dither.syncFromProps(cfg);
   });
 
   const onPointerProp = useEffectEvent(
@@ -209,6 +237,7 @@ export function SurfaceCanvas({
       initialIxRef.current,
       initialColorRef.current,
       initialLightRef.current,
+      initialDitherRef.current,
     );
     engineRef.current = engine;
 
@@ -314,6 +343,10 @@ export function SurfaceCanvas({
   useEffect(() => {
     onLight(light);
   }, [light]);
+
+  useEffect(() => {
+    onDither(dither);
+  }, [dither]);
 
   useEffect(() => {
     onPointerProp(pointer);

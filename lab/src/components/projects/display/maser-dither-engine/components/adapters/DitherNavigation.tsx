@@ -26,6 +26,7 @@ export function DitherNavigation({
   interaction,
   color,
   light,
+  dither,
   content,
   reducedMotion,
   className,
@@ -58,6 +59,7 @@ export function DitherNavigation({
           interaction={interaction}
           color={color}
           light={light}
+          dither={dither}
           pointer={pointer}
           reducedMotion={reducedMotion}
           aria-label=""

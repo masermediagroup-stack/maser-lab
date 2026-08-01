@@ -9,10 +9,7 @@ import type { DitherEngineConfig, MonochromeParams } from "../types";
 export function splitConfig(params: MonochromeParams): DitherEngineConfig {
   return {
     material: {
-      ditherSize: params.ditherSize,
       posterization: params.posterization,
-      softEdge: params.softEdge,
-      pixelDensity: params.pixelDensity,
       opacity: params.opacity,
       randomSeed: params.randomSeed,
     },
@@ -25,7 +22,6 @@ export function splitConfig(params: MonochromeParams): DitherEngineConfig {
       lightY: params.lightY,
       bloom: params.bloom,
       bloomRadius: params.bloomRadius,
-      depth: params.depth,
       shadowStrength: params.shadowStrength,
       highlightStrength: params.highlightStrength,
     },
@@ -37,13 +33,13 @@ export function splitConfig(params: MonochromeParams): DitherEngineConfig {
       contrast: params.contrast,
     },
     interaction: {
-      cursorInfluence: params.cursorInfluence,
       scrollInfluence: params.scrollInfluence,
     },
-    noise: {
-      noiseScale: params.noiseScale,
-      blueNoiseAmount: params.blueNoiseAmount,
+    finish: {
       grainAmount: params.grainAmount,
+      blueNoiseAmount: params.blueNoiseAmount,
+      softEdge: params.softEdge,
+      noiseScale: params.noiseScale,
     },
     dither: {
       ditherSize: params.ditherSize,
@@ -56,15 +52,21 @@ export function mergeConfig(
   base: MonochromeParams,
   patch: Partial<DitherEngineConfig>,
 ): MonochromeParams {
+  const { dither: ditherPatch, ...rest } = patch;
   return {
     ...base,
-    ...(patch.material ?? {}),
-    ...(patch.animation ?? {}),
-    ...(patch.lighting ?? {}),
-    ...(patch.colors ?? {}),
-    ...(patch.interaction ?? {}),
-    ...(patch.noise ?? {}),
-    ...(patch.dither ?? {}),
+    ...(rest.material ?? {}),
+    ...(rest.animation ?? {}),
+    ...(rest.lighting ?? {}),
+    ...(rest.colors ?? {}),
+    ...(rest.interaction ?? {}),
+    ...(rest.finish ?? {}),
+    ...(ditherPatch
+      ? {
+          ditherSize: ditherPatch.ditherSize ?? base.ditherSize,
+          pixelDensity: ditherPatch.pixelDensity ?? base.pixelDensity,
+        }
+      : {}),
   };
 }
 

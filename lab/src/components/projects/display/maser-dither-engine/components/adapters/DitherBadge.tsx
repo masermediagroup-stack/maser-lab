@@ -11,6 +11,7 @@ export function DitherBadge({
   interaction,
   color,
   light,
+  dither,
   content,
   reducedMotion,
   className,
@@ -25,6 +26,7 @@ export function DitherBadge({
           interaction={interaction}
           color={color}
           light={light}
+          dither={dither}
           reducedMotion={reducedMotion}
         />
       </span>

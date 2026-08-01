@@ -33,6 +33,7 @@ type MaterialPanelProps = {
     softEdge?: number;
   }) => void;
   idPrefix?: string;
+  advanced?: boolean;
 };
 
 const GRADIENT_MODES: { id: GradientModeId; label: string }[] = [
@@ -74,22 +75,37 @@ const BLEND_MODES: { id: BlendModeId; label: string }[] = [
   { id: "luminosity", label: "Luminosity" },
 ];
 
-const COLOR_PICKERS: { key: keyof MaterialColors; label: string }[] = [
-  { key: "background", label: "Background" },
-  { key: "highlight", label: "Highlight" },
-  { key: "shadow", label: "Shadow" },
-  { key: "dither", label: "Dither" },
-  { key: "bloom", label: "Bloom" },
-  { key: "ambient", label: "Ambient" },
-  { key: "accent", label: "Accent" },
+const COLOR_PICKERS_BASIC: { key: keyof MaterialColors; label: string }[] = [
+  { key: "highlight", label: "Core Light" },
+  { key: "shadow", label: "Outer Dark" },
+  { key: "dither", label: "Dither Ink" },
   { key: "gradientStart", label: "Gradient Start" },
   { key: "gradientEnd", label: "Gradient End" },
+  { key: "glow", label: "Glow" },
+  { key: "background", label: "Background" },
+];
+
+const COLOR_PICKERS_ADVANCED: { key: keyof MaterialColors; label: string }[] = [
+  { key: "bloom", label: "Bloom Tint" },
+  { key: "ambient", label: "Ambient" },
+  { key: "accent", label: "Accent Midtone" },
   { key: "gradientMid", label: "Gradient Mid" },
   { key: "gradientFourth", label: "Gradient 4th" },
-  { key: "glow", label: "Glow" },
   { key: "edgeTint", label: "Edge Tint" },
   { key: "noiseTint", label: "Noise Tint" },
 ];
+
+const MATERIAL_PROP_SLIDERS = [
+  ["exposure", "Exposure", 0.4, 1.8, "Scene luminance before dither. Unlike Light Intensity."],
+  ["gamma", "Gamma", 0.4, 2.2, "Tonal curve after exposure."],
+  ["threshold", "Tone Gate", 0, 0.6, "Lifts the floor of the core↔outer mix (distinct from dither threshold bias)."],
+  ["density", "Dither Ink Density", 0, 1, "How strongly dither ink tints dark outer regions."],
+  ["sharpness", "Tonal Sharpness", 0, 1, "Expands midtones before color mapping."],
+  ["smoothness", "Tone Gate Softness", 0, 1, "Softens the tone gate transition."],
+  ["blur", "Ambient Soft Mix", 0, 1, "Soft ambient plate mix for fog-like behaviors."],
+  ["materialWeight", "Material Weight", 0, 1, "Compositing influence of material plate vs background."],
+  ["lightScatter", "Noise Scatter", 0, 1, "Mixes noise tint into the plate — not light falloff."],
+] as const;
 
 function formatValue(v: number): string {
   if (Number.isInteger(v)) return String(v);
@@ -104,6 +120,7 @@ export function MaterialPanel({
   onChange,
   onParamsHint,
   idPrefix = "mde-mat",
+  advanced = false,
 }: MaterialPanelProps) {
   const patch = (partial: Partial<ColorMaterialConfig>) => {
     onChange({
@@ -290,7 +307,10 @@ export function MaterialPanel({
       <div className="mde-field">
         <span className="mde-field__label">Material Colors</span>
         <div className="mde-mat-colors">
-          {COLOR_PICKERS.map(({ key, label }) => (
+          {(advanced
+            ? [...COLOR_PICKERS_BASIC, ...COLOR_PICKERS_ADVANCED]
+            : COLOR_PICKERS_BASIC
+          ).map(({ key, label }) => (
             <label key={key} className="mde-mat-color">
               <span>{label}</span>
               <input
@@ -304,24 +324,17 @@ export function MaterialPanel({
         </div>
       </div>
 
-      {(
-        [
-          ["exposure", "Exposure", 0.4, 1.8],
-          ["gamma", "Gamma", 0.4, 2.2],
-          ["threshold", "Threshold", 0, 0.6],
-          ["density", "Density", 0, 1],
-          ["sharpness", "Sharpness", 0, 1],
-          ["smoothness", "Smoothness", 0, 1],
-          ["blur", "Blur", 0, 1],
-          ["materialWeight", "Material Weight", 0, 1],
-          ["lightScatter", "Light Scatter", 0, 1],
-        ] as const
-      ).map(([key, label, min, max]) => (
+      {(advanced ? MATERIAL_PROP_SLIDERS : MATERIAL_PROP_SLIDERS.filter(
+        ([key]) => key === "exposure" || key === "density" || key === "materialWeight",
+      )).map(([key, label, min, max, tip]) => (
         <div key={key} className="mde-field">
           <div className="mde-field__row">
-            <Label htmlFor={`${idPrefix}-${key}`}>{label}</Label>
+            <Label htmlFor={`${idPrefix}-${key}`} title={tip}>
+              {label}
+            </Label>
             <span>{formatValue(value.properties[key])}</span>
           </div>
+          <p className="mde-field__hint">{tip}</p>
           <Slider
             id={`${idPrefix}-${key}`}
             min={min}

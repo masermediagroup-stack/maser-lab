@@ -1,10 +1,11 @@
 import { ANIM_GLSL } from "../animation/animGlsl";
 import { COLOR_GLSL } from "../color/colorGlsl";
+import { DITHER_GLSL } from "../dither/ditherGlsl";
 import { INTERACTION_GLSL } from "../interaction/interactionGlsl";
 import { LIGHT_GLSL } from "../lighting/lightGlsl";
 
 /**
- * Pipeline stages — animation, interaction, light shape, color, dither.
+ * Pipeline stages — animation → interaction → light → tone → dither → color.
  */
 export const PIPELINE_STAGES = [
   {
@@ -26,34 +27,6 @@ export const PIPELINE_STAGES = [
       "Radial / ellipse / linear / cone / organic illumination field (luminance)",
   },
   {
-    id: 1,
-    name: "Color gradient",
-    description:
-      "Palette chroma only — does not flatten lighting luminance",
-  },
-  {
-    id: 10,
-    name: "Color material",
-    description:
-      "Maps core/outer colors onto illumination; blend + behavior",
-  },
-  {
-    id: 2,
-    name: "Bayer dither",
-    description:
-      "Ordered dither 2×2 / 4×4 / 8×8 / 32×32 / 64×64 — denser in dark outer",
-  },
-  {
-    id: 3,
-    name: "Blue-noise overlay",
-    description: "Optional blue-noise mix for softer tonal grain",
-  },
-  {
-    id: 4,
-    name: "Posterization",
-    description: "Quantize luminance levels (0 = off)",
-  },
-  {
     id: 5,
     name: "Contrast remapping",
     description: "Brightness, contrast, shadow/highlight strength",
@@ -64,9 +37,32 @@ export const PIPELINE_STAGES = [
     description: "Bloom concentrated on the bright light core",
   },
   {
+    id: 4,
+    name: "Posterization",
+    description: "Quantize luminance levels (0 = off)",
+  },
+  {
+    id: 2,
+    name: "Dither quantization",
+    description:
+      "Algorithm family (Bayer, blue-noise, halftone, …) with pattern scale",
+  },
+  {
     id: 7,
     name: "Animated grain",
     description: "Time-varying filmic grain",
+  },
+  {
+    id: 1,
+    name: "Color gradient",
+    description:
+      "Palette chroma only — does not flatten lighting luminance",
+  },
+  {
+    id: 10,
+    name: "Color material",
+    description:
+      "Maps core/outer colors onto illumination; blend + behavior",
   },
   {
     id: 8,
@@ -135,7 +131,8 @@ uniform sampler2D uBayer64;
 uniform sampler2D uBlueNoise;
 `;
 
-const FRAG_BODY = `
+/** Shared sampling helpers — must appear before DITHER_GLSL. */
+const SAMPLE_GLSL = `
 float hash21(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
   p += dot(p, p + 45.32 + uRandomSeed * 17.0);
@@ -161,7 +158,9 @@ float sampleBlue(vec2 pixel) {
 }
 
 float softClamp01(float v) {
-  return mix(v, clamp(v, 0.0, 1.0), 0.68);
+  // Soft edge = how hard UV warps clamp (advanced finish). Unused depth kept as noop.
+  float soft = mix(0.35, 0.95, clamp(uSoftEdge, 0.0, 1.0));
+  return mix(v, clamp(v, 0.0, 1.0), soft);
 }
 
 float remapContrast(float v) {
@@ -177,7 +176,9 @@ float posterize(float v) {
   float levels = max(uPosterization, 2.0);
   return floor(v * levels) / levels;
 }
+`;
 
+const FRAG_MAIN = `
 void main() {
   vec2 uv = vUv;
 
@@ -197,7 +198,6 @@ void main() {
   float illum = lightShapeField(uvSample);
 
   // Subtle modulation only — must not flatten center→edge contrast
-  // or reintroduce asymmetric interaction wash (old ambient sat top-left).
   illum = clamp(illum + anim.z * 0.1, 0.0, 1.0);
   float ixMod = sampleInteraction(uvSample);
   illum = mix(illum, clamp(illum + ixMod * 0.35, 0.0, 1.0), 0.18);
@@ -210,21 +210,13 @@ void main() {
   bloomAmt *= mix(0.6, 1.2, uBloomRadius / 0.2);
   lum = clamp(lum + bloomAmt * 0.35, 0.0, 1.0);
 
-  // Stage 4 posterize
+  // Stage 4 posterize (global tone steps — also used by posterized dither)
   lum = posterize(lum);
 
-  // Stage 2–3 dither — denser in the dark outer ring
-  float threshold = sampleBayer(pixel);
-  float bn = sampleBlue(pixel * uNoiseScale + vec2(uTime * uNoiseSpeed * 8.0, uScroll * 20.0));
-  threshold = mix(threshold, bn, clamp(uBlueNoiseAmount, 0.0, 1.0));
-  // Raise threshold in dark areas → more ink dots (denser dither)
-  float dark = 1.0 - lum;
-  threshold = clamp(threshold + dark * uLsDitherResponse * 0.38, 0.0, 1.0);
-
-  float dithered = step(threshold, lum);
-  // Outside the core, lean harder into ordered dither
-  float ditherMix = mix(0.55, 0.92, dark * uLsDitherResponse);
-  float ink = mix(lum, dithered, ditherMix);
+  // Stage 2 — algorithm dither (pattern scale ≠ matrix size ≠ render density)
+  vec2 dit = applyDitherStage(pixel, lum, uTime);
+  float ink = dit.x;
+  float dithered = dit.y;
 
   // Stage 7 grain
   float g = hash21(pixel + floor(uTime * uNoiseSpeed * 60.0));
@@ -237,4 +229,11 @@ void main() {
 `;
 
 export const FRAG_SRC =
-  FRAG_HEAD + ANIM_GLSL + INTERACTION_GLSL + LIGHT_GLSL + COLOR_GLSL + FRAG_BODY;
+  FRAG_HEAD +
+  ANIM_GLSL +
+  INTERACTION_GLSL +
+  LIGHT_GLSL +
+  COLOR_GLSL +
+  SAMPLE_GLSL +
+  DITHER_GLSL +
+  FRAG_MAIN;

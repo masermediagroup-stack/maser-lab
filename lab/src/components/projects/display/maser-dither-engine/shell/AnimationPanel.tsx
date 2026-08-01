@@ -18,6 +18,8 @@ type AnimationPanelProps = {
   value: AnimationEngineConfig;
   onChange: (next: AnimationEngineConfig) => void;
   idPrefix?: string;
+  /** When false, hide Time Scale (multiplies with Master Time Scale). */
+  advanced?: boolean;
 };
 
 function formatValue(v: number): string {
@@ -32,6 +34,7 @@ export function AnimationPanel({
   value,
   onChange,
   idPrefix = "mde-anim",
+  advanced = false,
 }: AnimationPanelProps) {
   const mode = getAnimationMode(value.modeId);
   const params = {
@@ -197,42 +200,64 @@ export function AnimationPanel({
             </button>
           ))}
         </div>
-        <div className="mde-field">
-          <div className="mde-field__row">
-            <Label htmlFor={`${idPrefix}-speed`}>Playback Speed</Label>
-            <span>{formatValue(value.timeline.playbackSpeed)}×</span>
-          </div>
-          <Slider
-            id={`${idPrefix}-speed`}
-            min={0}
-            max={3}
-            step={0.05}
-            value={[value.timeline.playbackSpeed]}
-            onValueChange={(vals) => {
-              const next = Array.isArray(vals) ? vals[0] : vals;
-              if (typeof next !== "number") return;
-              setTimeline({ playbackSpeed: next });
-            }}
-          />
-        </div>
-        <div className="mde-field">
-          <div className="mde-field__row">
-            <Label htmlFor={`${idPrefix}-scale`}>Time Scale</Label>
-            <span>{formatValue(value.timeline.timeScale)}×</span>
-          </div>
-          <Slider
-            id={`${idPrefix}-scale`}
-            min={0}
-            max={3}
-            step={0.05}
-            value={[value.timeline.timeScale]}
-            onValueChange={(vals) => {
-              const next = Array.isArray(vals) ? vals[0] : vals;
-              if (typeof next !== "number") return;
-              setTimeline({ timeScale: next });
-            }}
-          />
-        </div>
+        {advanced ? (
+          <>
+            <div className="mde-field">
+              <div className="mde-field__row">
+                <Label
+                  htmlFor={`${idPrefix}-speed`}
+                  title="Timeline-level speed. Multiplies with Master Time Scale."
+                >
+                  Timeline Playback Speed
+                </Label>
+                <span>{formatValue(value.timeline.playbackSpeed)}×</span>
+              </div>
+              <p className="mde-field__hint">
+                Multiplies with Master Time Scale — avoid stacking extremes.
+              </p>
+              <Slider
+                id={`${idPrefix}-speed`}
+                min={0}
+                max={3}
+                step={0.05}
+                value={[value.timeline.playbackSpeed]}
+                onValueChange={(vals) => {
+                  const next = Array.isArray(vals) ? vals[0] : vals;
+                  if (typeof next !== "number") return;
+                  setTimeline({ playbackSpeed: next });
+                }}
+              />
+            </div>
+            <div className="mde-field">
+              <div className="mde-field__row">
+                <Label
+                  htmlFor={`${idPrefix}-scale`}
+                  title="Additional timeline scale. Prefer Master Time Scale for most work."
+                >
+                  Timeline Time Scale
+                </Label>
+                <span>{formatValue(value.timeline.timeScale)}×</span>
+              </div>
+              <Slider
+                id={`${idPrefix}-scale`}
+                min={0}
+                max={3}
+                step={0.05}
+                value={[value.timeline.timeScale]}
+                onValueChange={(vals) => {
+                  const next = Array.isArray(vals) ? vals[0] : vals;
+                  if (typeof next !== "number") return;
+                  setTimeline({ timeScale: next });
+                }}
+              />
+            </div>
+          </>
+        ) : (
+          <p className="mde-field__hint">
+            Use Master Time Scale above. Timeline speed multipliers are in
+            Advanced.
+          </p>
+        )}
       </div>
     </div>
   );

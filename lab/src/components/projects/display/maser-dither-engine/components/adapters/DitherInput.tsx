@@ -11,6 +11,7 @@ export function DitherInput({
   interaction,
   color,
   light,
+  dither,
   content,
   reducedMotion,
   className,
@@ -27,6 +28,7 @@ export function DitherInput({
             interaction={interaction}
             color={color}
           light={light}
+          dither={dither}
             reducedMotion={reducedMotion}
           />
         </span>

@@ -105,6 +105,7 @@ export class Canvas2DRenderer {
     }
   }
 
+  // Extra args (dither payload) ignored — WebGL owns algorithm dither.
   draw(
     state: MonochromeUniformState,
     anim?: AnimationUniformPayload,

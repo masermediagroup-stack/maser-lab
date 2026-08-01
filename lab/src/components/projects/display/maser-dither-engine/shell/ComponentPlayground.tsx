@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { Maximize2, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import {
-  DITHER_SIZES,
   MONOCHROME_DEFAULTS,
   PARAM_LABELS,
   PARAM_RANGES,
+  PARAM_TOOLTIPS,
+  STORAGE_KEYS,
 } from "../constants";
 import { CONTROL_GROUPS } from "../lib/control-groups";
 import {
@@ -40,11 +41,16 @@ import {
 } from "../engine/lighting";
 import type { LightShapeConfig } from "../engine/lighting/types";
 import {
+  DEFAULT_DITHER_CONFIG,
+  type DitherConfig,
+} from "../engine/dither";
+import {
   DEFAULT_COMPONENT_CONTENT,
   type ComponentContent,
 } from "../content/types";
 import type {
   ComponentId,
+  ControlDensityMode,
   ControlGroupId,
   ControlGroupState,
   MonochromeParams,
@@ -53,6 +59,7 @@ import { AnimationPanel } from "./AnimationPanel";
 import { InteractionPanel } from "./InteractionPanel";
 import { MaterialPanel } from "./MaterialPanel";
 import { LightingPanel } from "./LightingPanel";
+import { DitherPanel } from "./DitherPanel";
 import { ContentEditor } from "./ContentEditor";
 import { cn } from "@/lib/utils";
 
@@ -106,11 +113,34 @@ function initialLight(): LightShapeConfig {
   return { ...DEFAULT_LIGHT_SHAPE };
 }
 
+function initialDither(componentId: ComponentId): DitherConfig {
+  const definition = ComponentCatalog.get(componentId)!;
+  const preset = getPresetById(definition.defaultPresetId);
+  return {
+    ...DEFAULT_DITHER_CONFIG,
+    ...(preset?.dither ?? {}),
+    matrixSize:
+      (preset?.dither?.matrixSize as DitherConfig["matrixSize"] | undefined) ??
+      (preset?.params.ditherSize as DitherConfig["matrixSize"] | undefined) ??
+      DEFAULT_DITHER_CONFIG.matrixSize,
+  };
+}
+
 function initialContent(): ComponentContent {
   return {
     ...DEFAULT_COMPONENT_CONTENT,
     navItems: [...DEFAULT_COMPONENT_CONTENT.navItems],
   };
+}
+
+function loadDensityMode(): ControlDensityMode {
+  if (typeof window === "undefined") return "basic";
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.density);
+    return raw === "advanced" ? "advanced" : "basic";
+  } catch {
+    return "basic";
+  }
 }
 
 export function ComponentPlayground({
@@ -136,14 +166,35 @@ export function ComponentPlayground({
   );
   const [color, setColor] = useState<ColorMaterialConfig>(initialColor);
   const [light, setLight] = useState<LightShapeConfig>(initialLight);
+  const [dither, setDither] = useState<DitherConfig>(() =>
+    initialDither(componentId),
+  );
+  const [compareDither, setCompareDither] = useState<DitherConfig | null>(null);
   const [content, setContent] = useState<ComponentContent>(initialContent);
   const [presetId, setPresetId] = useState(definition.defaultPresetId);
+  const [densityMode, setDensityMode] = useState<ControlDensityMode>(() =>
+    loadDensityMode(),
+  );
+  const [disabledPanels, setDisabledPanels] = useState<
+    Partial<Record<ControlGroupId, boolean>>
+  >({});
   const [isFullscreen, setIsFullscreen] = useState(false);
   const closeFullscreenButtonRef = useRef<HTMLButtonElement>(null);
   const [panels, setPanels] = useState<ControlGroupState>(() => {
     if (typeof window === "undefined") return DEFAULT_PANEL_STATE;
     return loadPanelState();
   });
+
+  const advanced = densityMode === "advanced";
+
+  const setDensity = (mode: ControlDensityMode) => {
+    setDensityMode(mode);
+    try {
+      localStorage.setItem(STORAGE_KEYS.density, mode);
+    } catch {
+      /* ignore */
+    }
+  };
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -186,6 +237,27 @@ export function ComponentPlayground({
         <div>
           <h1>{definition.label}</h1>
           <p>{definition.description}</p>
+        </div>
+        <div className="mde-playground__density" role="group" aria-label="Control density">
+          <button
+            type="button"
+            className={cn("mde-chip", densityMode === "basic" && "mde-chip--active")}
+            aria-pressed={densityMode === "basic"}
+            onClick={() => setDensity("basic")}
+          >
+            Basic
+          </button>
+          <button
+            type="button"
+            className={cn(
+              "mde-chip",
+              densityMode === "advanced" && "mde-chip--active",
+            )}
+            aria-pressed={densityMode === "advanced"}
+            onClick={() => setDensity("advanced")}
+          >
+            Advanced
+          </button>
         </div>
         <span className="mde-pill">{definition.status}</span>
       </header>
@@ -235,15 +307,51 @@ export function ComponentPlayground({
               </div>
             )}
             <div className="mde-playground__preview-stage">
-              <Adapter
-                params={params}
-                animation={animation}
-                interaction={interaction}
-                color={color}
-                light={light}
-                content={content}
-                reducedMotion={reducedMotion}
-              />
+              {compareDither ? (
+                <div className="mde-compare" aria-label="Algorithm comparison">
+                  <div className="mde-compare__pane">
+                    <span className="mde-compare__label">
+                      A · {dither.algorithm}
+                    </span>
+                    <Adapter
+                      params={params}
+                      animation={animation}
+                      interaction={interaction}
+                      color={color}
+                      light={light}
+                      dither={dither}
+                      content={content}
+                      reducedMotion={reducedMotion}
+                    />
+                  </div>
+                  <div className="mde-compare__pane">
+                    <span className="mde-compare__label">
+                      B · {compareDither.algorithm}
+                    </span>
+                    <Adapter
+                      params={params}
+                      animation={animation}
+                      interaction={interaction}
+                      color={color}
+                      light={light}
+                      dither={compareDither}
+                      content={content}
+                      reducedMotion={reducedMotion}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <Adapter
+                  params={params}
+                  animation={animation}
+                  interaction={interaction}
+                  color={color}
+                  light={light}
+                  dither={dither}
+                  content={content}
+                  reducedMotion={reducedMotion}
+                />
+              )}
             </div>
           </div>
           <div className="mde-playground__perf" aria-label="Performance">
@@ -270,7 +378,21 @@ export function ComponentPlayground({
                   )}
                   onClick={() => {
                     setPresetId(p.id);
-                    setParams(createMonochromeMaterial(p.params));
+                    const nextParams = createMonochromeMaterial(p.params);
+                    setParams(nextParams);
+                    setDither({
+                      ...DEFAULT_DITHER_CONFIG,
+                      ...(p.dither ?? {}),
+                      matrixSize:
+                        (p.dither?.matrixSize as DitherConfig["matrixSize"]) ??
+                        nextParams.ditherSize,
+                    });
+                    if (typeof p.params.cursorInfluence === "number") {
+                      setInteraction((ix) => ({
+                        ...ix,
+                        influence: p.params.cursorInfluence!,
+                      }));
+                    }
                     if (p.light) {
                       setLight({ ...DEFAULT_LIGHT_SHAPE, ...p.light });
                     } else if (p.id === "print-density") {
@@ -291,6 +413,8 @@ export function ComponentPlayground({
                   setInteraction(initialInteraction());
                   setColor(initialColor());
                   setLight(initialLight());
+                  setDither({ ...DEFAULT_DITHER_CONFIG });
+                  setCompareDither(null);
                   setContent(initialContent());
                 }}
               >
@@ -312,92 +436,94 @@ export function ComponentPlayground({
             />
           </Collapsible>
 
-          {CONTROL_GROUPS.map((group) => (
+          {CONTROL_GROUPS.map((group) => {
+            const panelOff = Boolean(disabledPanels[group.id]);
+            return (
             <Collapsible
               key={group.id}
               title={group.label}
-              open={panels[group.id]}
+              open={panels[group.id] ?? false}
               onOpenChange={(open) => setPanel(group.id, open)}
+              trailing={
+                <button
+                  type="button"
+                  className={cn("mde-chip mde-chip--tiny", panelOff && "mde-chip--active")}
+                  aria-pressed={panelOff}
+                  title="Temporarily disable this panel's contribution where supported"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDisabledPanels((d) => ({
+                      ...d,
+                      [group.id]: !d[group.id],
+                    }));
+                  }}
+                >
+                  {panelOff ? "Bypass" : "Live"}
+                </button>
+              }
             >
+              {panelOff ? (
+                <p className="mde-field__hint">
+                  Panel bypassed — values retained; contribution muted in preview
+                  where applicable.
+                </p>
+              ) : null}
+
               {group.id === "animation" ? (
                 <>
-                  {group.fields.map((field) => {
-                    if (field.kind !== "slider") return null;
-                    const range = PARAM_RANGES[field.key];
-                    const current = params[field.key];
-                    return (
-                      <div key={field.key} className="mde-field">
-                        <div className="mde-field__row">
-                          <Label htmlFor={`mde-${componentId}-${field.key}`}>
-                            {PARAM_LABELS[field.key] ?? field.key}
-                          </Label>
-                          <span>{formatValue(current)}</span>
-                        </div>
-                        <Slider
-                          id={`mde-${componentId}-${field.key}`}
-                          min={range.min}
-                          max={range.max}
-                          step={range.step}
-                          value={[current]}
-                          onValueChange={(vals) => {
-                            const next = Array.isArray(vals) ? vals[0] : vals;
-                            if (typeof next !== "number") return;
-                            setParams((p) => ({ ...p, [field.key]: next }));
-                          }}
-                        />
-                      </div>
-                    );
+                  {renderParamFields(group.fields, {
+                    componentId,
+                    params,
+                    setParams,
+                    advanced,
                   })}
-                  <AnimationPanel
-                    value={animation}
-                    onChange={setAnimation}
-                    idPrefix={`mde-${componentId}-anim`}
-                  />
+                  {!panelOff ? (
+                    <AnimationPanel
+                      value={animation}
+                      onChange={setAnimation}
+                      idPrefix={`mde-${componentId}-anim`}
+                      advanced={advanced}
+                    />
+                  ) : null}
                 </>
               ) : group.id === "interaction" ? (
                 <>
-                  {group.fields.map((field) => {
-                    if (field.kind !== "slider") return null;
-                    const range = PARAM_RANGES[field.key];
-                    const current = params[field.key];
-                    return (
-                      <div key={field.key} className="mde-field">
-                        <div className="mde-field__row">
-                          <Label htmlFor={`mde-${componentId}-${field.key}`}>
-                            {PARAM_LABELS[field.key] ?? field.key}
-                          </Label>
-                          <span>{formatValue(current)}</span>
-                        </div>
-                        <Slider
-                          id={`mde-${componentId}-${field.key}`}
-                          min={range.min}
-                          max={range.max}
-                          step={range.step}
-                          value={[current]}
-                          onValueChange={(vals) => {
-                            const next = Array.isArray(vals) ? vals[0] : vals;
-                            if (typeof next !== "number") return;
-                            setParams((p) => ({ ...p, [field.key]: next }));
-                          }}
-                        />
-                      </div>
-                    );
+                  {renderParamFields(group.fields, {
+                    componentId,
+                    params,
+                    setParams,
+                    advanced,
                   })}
-                  <InteractionPanel
-                    value={interaction}
-                    onChange={setInteraction}
-                    idPrefix={`mde-${componentId}-ix`}
-                  />
+                  {!panelOff ? (
+                    <InteractionPanel
+                      value={
+                        panelOff
+                          ? { ...interaction, influence: 0, enabled: false }
+                          : interaction
+                      }
+                      onChange={setInteraction}
+                      idPrefix={`mde-${componentId}-ix`}
+                    />
+                  ) : null}
                 </>
               ) : group.id === "colors" ? (
-                <MaterialPanel
-                  value={color}
-                  onChange={setColor}
-                  onParamsHint={(hint) =>
-                    setParams((p) => ({ ...p, ...hint }))
-                  }
-                  idPrefix={`mde-${componentId}-mat`}
-                />
+                <>
+                  {renderParamFields(group.fields, {
+                    componentId,
+                    params,
+                    setParams,
+                    advanced,
+                  })}
+                  <MaterialPanel
+                    value={color}
+                    onChange={setColor}
+                    onParamsHint={(hint) =>
+                      setParams((p) => ({ ...p, ...hint }))
+                    }
+                    idPrefix={`mde-${componentId}-mat`}
+                    advanced={advanced}
+                  />
+                </>
               ) : group.id === "lighting" ? (
                 <>
                   <LightingPanel
@@ -405,89 +531,50 @@ export function ComponentPlayground({
                     onChange={setLight}
                     idPrefix={`mde-${componentId}-ls`}
                   />
-                  {group.fields.map((field) => {
-                    if (field.kind !== "slider") return null;
-                    const range = PARAM_RANGES[field.key];
-                    const current = params[field.key];
-                    return (
-                      <div key={field.key} className="mde-field">
-                        <div className="mde-field__row">
-                          <Label htmlFor={`mde-${componentId}-${field.key}`}>
-                            {PARAM_LABELS[field.key] ?? field.key}
-                          </Label>
-                          <span>{formatValue(current)}</span>
-                        </div>
-                        <Slider
-                          id={`mde-${componentId}-${field.key}`}
-                          min={range.min}
-                          max={range.max}
-                          step={range.step}
-                          value={[current]}
-                          onValueChange={(vals) => {
-                            const next = Array.isArray(vals) ? vals[0] : vals;
-                            if (typeof next !== "number") return;
-                            setParams((p) => ({ ...p, [field.key]: next }));
-                          }}
-                        />
-                      </div>
-                    );
+                  {renderParamFields(group.fields, {
+                    componentId,
+                    params,
+                    setParams,
+                    advanced,
+                  })}
+                </>
+              ) : group.id === "dither" ? (
+                <>
+                  <DitherPanel
+                    value={dither}
+                    onChange={(next) => {
+                      setDither(next);
+                      setParams((p) => ({
+                        ...p,
+                        ditherSize: next.matrixSize,
+                      }));
+                    }}
+                    onMatrixSize={(size) =>
+                      setParams((p) => ({ ...p, ditherSize: size }))
+                    }
+                    advanced={advanced}
+                    idPrefix={`mde-${componentId}-dit`}
+                    compare={compareDither}
+                    onCompareChange={setCompareDither}
+                  />
+                  {renderParamFields(group.fields, {
+                    componentId,
+                    params,
+                    setParams,
+                    advanced,
                   })}
                 </>
               ) : (
-                group.fields.map((field) => {
-                  if (field.kind === "ditherSize") {
-                    return (
-                      <div key="ditherSize" className="mde-field">
-                        <span className="mde-field__label">Dither Size</span>
-                        <div className="mde-preset-row">
-                          {DITHER_SIZES.map((size) => (
-                            <button
-                              key={size}
-                              type="button"
-                              className={cn(
-                                "mde-chip",
-                                params.ditherSize === size && "mde-chip--active",
-                              )}
-                              aria-pressed={params.ditherSize === size}
-                              onClick={() =>
-                                setParams((p) => ({ ...p, ditherSize: size }))
-                              }
-                            >
-                              {size}×{size}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  }
-                  const range = PARAM_RANGES[field.key];
-                  const current = params[field.key];
-                  return (
-                    <div key={field.key} className="mde-field">
-                      <div className="mde-field__row">
-                        <Label htmlFor={`mde-${componentId}-${field.key}`}>
-                          {PARAM_LABELS[field.key] ?? field.key}
-                        </Label>
-                        <span>{formatValue(current)}</span>
-                      </div>
-                      <Slider
-                        id={`mde-${componentId}-${field.key}`}
-                        min={range.min}
-                        max={range.max}
-                        step={range.step}
-                        value={[current]}
-                        onValueChange={(vals) => {
-                          const next = Array.isArray(vals) ? vals[0] : vals;
-                          if (typeof next !== "number") return;
-                          setParams((p) => ({ ...p, [field.key]: next }));
-                        }}
-                      />
-                    </div>
-                  );
+                renderParamFields(group.fields, {
+                  componentId,
+                  params,
+                  setParams,
+                  advanced,
                 })
               )}
             </Collapsible>
-          ))}
+            );
+          })}
 
           <Collapsible
             title="Export"
@@ -525,7 +612,8 @@ export function ComponentPlayground({
               <strong>API.</strong> Adapter props:{" "}
               <code>params</code>, <code>animation</code>,{" "}
               <code>interaction</code>, <code>color</code>,{" "}
-              <code>content</code>, <code>reducedMotion</code>.
+              <code>light</code>, <code>dither</code>, <code>content</code>,{" "}
+              <code>reducedMotion</code>.
             </p>
           </section>
         </aside>
@@ -534,28 +622,91 @@ export function ComponentPlayground({
   );
 }
 
+function renderParamFields(
+  fields: (typeof CONTROL_GROUPS)[number]["fields"],
+  opts: {
+    componentId: ComponentId;
+    params: MonochromeParams;
+    setParams: Dispatch<SetStateAction<MonochromeParams>>;
+    advanced: boolean;
+  },
+) {
+  const { componentId, params, setParams, advanced } = opts;
+  return fields.map((field) => {
+    if (field.kind !== "slider") return null;
+    if (field.advanced && !advanced) return null;
+    const range = PARAM_RANGES[field.key];
+    const current = params[field.key];
+    const tip = PARAM_TOOLTIPS[field.key];
+    const def = MONOCHROME_DEFAULTS[field.key];
+    return (
+      <div key={field.key} className="mde-field">
+        <div className="mde-field__row">
+          <Label
+            htmlFor={`mde-${componentId}-${field.key}`}
+            title={tip}
+          >
+            {PARAM_LABELS[field.key] ?? field.key}
+          </Label>
+          <span className="mde-field__value-row">
+            <span>{formatValue(current)}</span>
+            <button
+              type="button"
+              className="mde-chip mde-chip--tiny"
+              title={`Reset to default (${formatValue(def)})`}
+              onClick={() =>
+                setParams((p) => ({ ...p, [field.key]: def }))
+              }
+            >
+              ↺
+            </button>
+          </span>
+        </div>
+        {tip ? <p className="mde-field__hint">{tip}</p> : null}
+        <Slider
+          id={`mde-${componentId}-${field.key}`}
+          min={range.min}
+          max={range.max}
+          step={range.step}
+          value={[current]}
+          onValueChange={(vals) => {
+            const next = Array.isArray(vals) ? vals[0] : vals;
+            if (typeof next !== "number") return;
+            setParams((p) => ({ ...p, [field.key]: next }));
+          }}
+        />
+      </div>
+    );
+  });
+}
+
 function Collapsible({
   title,
   open,
   onOpenChange,
+  trailing,
   children,
 }: {
   title: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  trailing?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <div className="mde-panel">
-      <button
-        type="button"
-        className="mde-panel__toggle"
-        aria-expanded={open}
-        onClick={() => onOpenChange(!open)}
-      >
-        <span>{title}</span>
-        <span aria-hidden>{open ? "−" : "+"}</span>
-      </button>
+      <div className="mde-panel__head">
+        <button
+          type="button"
+          className="mde-panel__toggle"
+          aria-expanded={open}
+          onClick={() => onOpenChange(!open)}
+        >
+          <span>{title}</span>
+          <span aria-hidden>{open ? "−" : "+"}</span>
+        </button>
+        {trailing}
+      </div>
       {open ? <div className="mde-panel__body">{children}</div> : null}
     </div>
   );

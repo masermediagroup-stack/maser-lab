@@ -142,3 +142,56 @@ Shared engine/ (WebGL2 + Canvas2D) ← all adapters
 **Light shapes** — Radial · Ellipse · Linear · Cone · Organic  
 **Lighting presets** — Center Bloom · Offset Spotlight · Wide Ambient  
 **Print Density** — defaults to centered radial bloom (`light` on preset + `DEFAULT_LIGHT_SHAPE`)
+
+## Sprint 5 — Control Architecture Audit & Dither Algorithm System
+
+**Mode:** Implement  
+**Skills loaded:** `maser-lab-web` (Implement)
+
+### Pipeline order (authoritative)
+
+Procedural animation → Interaction modulation → Light shape luminance → Contrast/bloom/posterize → **Dither algorithm** → Grain → Color material compose
+
+### Control consolidation (summary)
+
+| Action | Controls |
+| --- | --- |
+| **Removed from UI** | `depth` (never sampled), duplicate Material Soft Edge as distinct from UV Soft Clamp placement |
+| **Merged** | `cursorInfluence` × Interaction `influence` → single **Pointer Influence** (Interaction owns; no multiply) |
+| **Renamed** | Animation Speed → Master Time Scale; Dither Size → Matrix Size; Pixel Density → Render Density; Bloom Radius → Bloom Spread; Blue Noise → Bayer Blue-Noise Mix; Soft Edge → UV Soft Clamp |
+| **Moved to Advanced** | Timeline Playback/Time Scale, scroll influence, bloom spread, shadow/highlight, grain noise scale/speed, UV soft clamp, opacity, seed, posterization, render density, most material tone props |
+| **Contextual** | Dither algo-specific sliders; Animation mode params; Interaction physics when mode ≠ None |
+| **Wired (were placebo)** | Material Tone Gate / Softness / Noise Scatter; Accent / Edge / Noise tints; UV Soft Clamp → `softClamp01` |
+
+### Dither algorithms
+
+Ordered Bayer · Blue Noise · Random Threshold · Clustered Dot · Halftone · Posterized · Hybrid · Animated Threshold · Line Screen · Crosshatch
+
+**Matrix sizes:** 2 / 4 / 8 / 32 / 64 — 16×16 not restored (no dedicated LUT; prior `size < 40` mapped to 32, so 16 was never distinct). Preset `poster-16` → **`poster-32`**.
+
+**Spatial semantics**
+
+| Control | Meaning |
+| --- | --- |
+| Matrix Size | Bayer LUT complexity |
+| Pattern Scale | On-screen pattern period |
+| Render Density | Internal sampling resolution |
+
+### UI
+
+- Basic / Advanced density modes (visibility only — same values)
+- `DitherPanel` + algorithm comparison workspace
+- Per-control reset · panel Live/Bypass · tooltips (`PARAM_TOOLTIPS`)
+- Panels: Preset · Content · Animation · Interaction · Lighting · Color · Dither · Finish · Export
+
+### Migration
+
+See `engine/dither/migrate.ts` (`DEPRECATED_KEYS`, `migrateParamsBlob`, `migratePreset`).
+
+### Sprint 6 recommendations
+
+- Canvas2D parity for non-Bayer algorithms
+- Solo/layer mute with real uniform gating (bypass is UI-level today)
+- Log-mapped sliders for radius / exposure / pattern scale
+- Persist full `DitherEngineConfig` blobs (not only panel open state)
+- Visual regression suite for algorithms × matrix sizes

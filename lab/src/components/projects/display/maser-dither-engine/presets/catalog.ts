@@ -1,9 +1,10 @@
 import { getLightingPreset } from "../engine/lighting";
+import { migratePreset } from "../engine/dither/migrate";
 import type { PresetDefinition } from "../types";
 
 const CENTER_BLOOM = getLightingPreset("center-bloom")!.config;
 
-export const PRESETS: PresetDefinition[] = [
+const RAW_PRESETS: PresetDefinition[] = [
   {
     id: "print-density",
     label: "Print Density",
@@ -26,11 +27,17 @@ export const PRESETS: PresetDefinition[] = [
       brightness: 0.02,
     },
     light: { ...CENTER_BLOOM },
+    dither: {
+      algorithm: "bayer",
+      matrixSize: 8,
+      patternScale: 1,
+      thresholdBias: 0,
+    },
   },
   {
     id: "soft-film",
     label: "Soft Film",
-    description: "Lower contrast with more grain and blue-noise.",
+    description: "Lower contrast with blue-noise dither and grain.",
     materialId: "monochrome",
     componentIds: "*",
     params: {
@@ -42,11 +49,18 @@ export const PRESETS: PresetDefinition[] = [
       bloom: 0.2,
       softEdge: 0.7,
     },
+    dither: {
+      algorithm: "blue-noise",
+      matrixSize: 8,
+      patternScale: 1.15,
+      distribution: 0.9,
+      temporalDrift: 0.2,
+    },
   },
   {
     id: "hard-ink",
     label: "Hard Ink",
-    description: "Crisp 4×4 dither, strong shadows, minimal bloom.",
+    description: "Crisp 4×4 Bayer, strong shadows, minimal bloom.",
     materialId: "monochrome",
     componentIds: "*",
     params: {
@@ -58,11 +72,18 @@ export const PRESETS: PresetDefinition[] = [
       blueNoiseAmount: 0.08,
       posterization: 0,
     },
+    dither: {
+      algorithm: "bayer",
+      matrixSize: 4,
+      patternScale: 1,
+      thresholdBias: 0.12,
+    },
   },
   {
-    id: "poster-16",
-    label: "Poster 16",
-    description: "Posterized luminance with fine 16×16 matrix.",
+    id: "poster-32",
+    label: "Poster 32",
+    description:
+      "Posterized luminance with a fine 32×32 Bayer matrix (renamed from poster-16).",
     materialId: "monochrome",
     componentIds: "*",
     params: {
@@ -71,6 +92,11 @@ export const PRESETS: PresetDefinition[] = [
       pixelDensity: 1.4,
       contrast: 1.2,
       bloom: 0.25,
+    },
+    dither: {
+      algorithm: "posterized",
+      matrixSize: 32,
+      patternScale: 0.9,
     },
   },
   {
@@ -86,6 +112,13 @@ export const PRESETS: PresetDefinition[] = [
       highlightStrength: 0.65,
       animationSpeed: 0.85,
       cursorInfluence: 0.55,
+    },
+    dither: {
+      algorithm: "halftone",
+      matrixSize: 8,
+      cellSize: 0.35,
+      angle: 22,
+      patternScale: 1.1,
     },
   },
   {
@@ -103,10 +136,61 @@ export const PRESETS: PresetDefinition[] = [
       animationSpeed: 0.4,
       softEdge: 0.4,
     },
+    dither: {
+      algorithm: "bayer",
+      matrixSize: 8,
+      patternScale: 1.25,
+      thresholdBias: -0.05,
+    },
+  },
+  {
+    id: "line-etch",
+    label: "Line Etch",
+    description: "Engraving-style line screen for editorial chrome.",
+    materialId: "monochrome",
+    componentIds: "*",
+    params: {
+      ditherSize: 8,
+      contrast: 1.2,
+      bloom: 0.18,
+      grainAmount: 0.04,
+    },
+    dither: {
+      algorithm: "line-screen",
+      angle: 35,
+      lineWidth: 0.4,
+      spacing: 0.42,
+      waveDistortion: 0.15,
+      patternScale: 1,
+    },
+  },
+  {
+    id: "cross-print",
+    label: "Cross Print",
+    description: "Layered crosshatch tonal build for dense print looks.",
+    materialId: "monochrome",
+    componentIds: ["card", "image-frame", "section-background"],
+    params: {
+      ditherSize: 8,
+      contrast: 1.3,
+      shadowStrength: 0.4,
+      bloom: 0.12,
+    },
+    dither: {
+      algorithm: "crosshatch",
+      lineCount: 3,
+      angleSeparation: 60,
+      spacing: 0.5,
+      roughness: 0.3,
+      patternScale: 1.05,
+    },
   },
 ];
 
+export const PRESETS: PresetDefinition[] = RAW_PRESETS.map(migratePreset);
+
 export function getPresetById(id: string): PresetDefinition | undefined {
+  if (id === "poster-16") return PRESETS.find((p) => p.id === "poster-32");
   return PRESETS.find((p) => p.id === id);
 }
 

@@ -163,7 +163,8 @@ export function InteractionPanel({
         <span className="mde-field__label">Pointer</span>
         <SliderField
           id={`${idPrefix}-inf`}
-          label="Influence"
+          label="Pointer Influence"
+          tip="Global pointer contribution to interaction lights and tug. Single owner — no longer multiplied with a material cursor slider."
           min={0}
           max={1}
           step={0.01}
@@ -512,6 +513,7 @@ export function InteractionPanel({
 function SliderField({
   id,
   label,
+  tip,
   min,
   max,
   step,
@@ -520,6 +522,7 @@ function SliderField({
 }: {
   id: string;
   label: string;
+  tip?: string;
   min: number;
   max: number;
   step: number;
@@ -529,9 +532,12 @@ function SliderField({
   return (
     <div className="mde-field">
       <div className="mde-field__row">
-        <Label htmlFor={id}>{label}</Label>
+        <Label htmlFor={id} title={tip}>
+          {label}
+        </Label>
         <span>{formatValue(value)}</span>
       </div>
+      {tip ? <p className="mde-field__hint">{tip}</p> : null}
       <Slider
         id={id}
         min={min}

@@ -11,6 +11,7 @@ export function DitherProgressBar({
   interaction,
   color,
   light,
+  dither,
   content,
   reducedMotion,
   className,
@@ -37,6 +38,7 @@ export function DitherProgressBar({
             interaction={interaction}
             color={color}
           light={light}
+          dither={dither}
             reducedMotion={reducedMotion}
           />
         </div>

@@ -3,7 +3,12 @@ import type { MonochromeParams } from "../types";
 
 export type ControlField =
   | { kind: "ditherSize" }
-  | { kind: "slider"; key: keyof Omit<MonochromeParams, "ditherSize"> };
+  | {
+      kind: "slider";
+      key: keyof Omit<MonochromeParams, "ditherSize">;
+      /** Shown only in Advanced density mode. */
+      advanced?: boolean;
+    };
 
 export type ControlGroupDef = {
   id: ControlGroupId;
@@ -11,67 +16,70 @@ export type ControlGroupDef = {
   fields: ControlField[];
 };
 
+/**
+ * Sprint 5 panel ownership — each concept appears in one group.
+ * Dither algorithm UI is rendered by DitherPanel (dither group).
+ * Dead/duplicate fields (depth, softEdge-as-material, cursorInfluence) removed from UI.
+ */
 export const CONTROL_GROUPS: ControlGroupDef[] = [
-  {
-    id: "material",
-    label: "Material",
-    fields: [
-      { kind: "ditherSize" },
-      { kind: "slider", key: "posterization" },
-      { kind: "slider", key: "softEdge" },
-      { kind: "slider", key: "opacity" },
-      { kind: "slider", key: "randomSeed" },
-      { kind: "slider", key: "gradientAngle" },
-      { kind: "slider", key: "brightness" },
-      { kind: "slider", key: "contrast" },
-    ],
-  },
   {
     id: "animation",
     label: "Animation",
-    /** Mode/timeline UI is rendered by AnimationPanel; keep global speed here. */
     fields: [{ kind: "slider", key: "animationSpeed" }],
-  },
-  {
-    id: "lighting",
-    label: "Lighting",
-    /** Light-shape UI is rendered by LightingPanel. */
-    fields: [
-      { kind: "slider", key: "bloom" },
-      { kind: "slider", key: "bloomRadius" },
-      { kind: "slider", key: "depth" },
-      { kind: "slider", key: "shadowStrength" },
-      { kind: "slider", key: "highlightStrength" },
-    ],
-  },
-  {
-    id: "colors",
-    label: "Color & Material",
-    /** Palette / gradient / blend / behavior UI is rendered by MaterialPanel. */
-    fields: [],
   },
   {
     id: "interaction",
     label: "Interaction",
-    /** Mode/physics/lights UI is rendered by InteractionPanel; keep material influence sliders here. */
+    fields: [{ kind: "slider", key: "scrollInfluence", advanced: true }],
+  },
+  {
+    id: "lighting",
+    label: "Lighting",
     fields: [
-      { kind: "slider", key: "cursorInfluence" },
-      { kind: "slider", key: "scrollInfluence" },
+      { kind: "slider", key: "bloom" },
+      { kind: "slider", key: "bloomRadius", advanced: true },
+      { kind: "slider", key: "shadowStrength", advanced: true },
+      { kind: "slider", key: "highlightStrength", advanced: true },
     ],
   },
   {
-    id: "noise",
-    label: "Noise",
+    id: "colors",
+    label: "Color",
     fields: [
-      { kind: "slider", key: "noiseScale" },
-      { kind: "slider", key: "noiseSpeed" },
-      { kind: "slider", key: "blueNoiseAmount" },
+      { kind: "slider", key: "brightness", advanced: true },
+      { kind: "slider", key: "contrast" },
+      { kind: "slider", key: "gradientAngle", advanced: true },
+      { kind: "slider", key: "gradientColorA", advanced: true },
+      { kind: "slider", key: "gradientColorB", advanced: true },
+    ],
+  },
+  {
+    id: "dither",
+    label: "Dither",
+    fields: [
+      { kind: "slider", key: "posterization", advanced: true },
+      { kind: "slider", key: "pixelDensity", advanced: true },
+    ],
+  },
+  {
+    id: "finish",
+    label: "Finish",
+    fields: [
       { kind: "slider", key: "grainAmount" },
+      { kind: "slider", key: "blueNoiseAmount", advanced: true },
+      { kind: "slider", key: "noiseScale", advanced: true },
+      { kind: "slider", key: "noiseSpeed", advanced: true },
+      { kind: "slider", key: "softEdge", advanced: true },
+      { kind: "slider", key: "opacity", advanced: true },
+      { kind: "slider", key: "randomSeed", advanced: true },
     ],
-  },
-  {
-    id: "rendering",
-    label: "Rendering",
-    fields: [{ kind: "slider", key: "pixelDensity" }],
   },
 ];
+
+/** Fields still in MonochromeParams but removed from UI (kept for migration). */
+export const DEPRECATED_PARAM_KEYS = [
+  "depth",
+  "cursorInfluence",
+  "lightX",
+  "lightY",
+] as const;

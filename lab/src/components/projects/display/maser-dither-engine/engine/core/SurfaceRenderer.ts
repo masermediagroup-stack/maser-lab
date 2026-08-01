@@ -12,6 +12,8 @@ import type { ColorUniformPayload } from "../color/types";
 import { idleColorPayload } from "../color/types";
 import type { LightUniformPayload } from "../lighting/types";
 import { idleLightPayload } from "../lighting/types";
+import type { DitherUniformPayload } from "../dither/types";
+import { idleDitherPayload } from "../dither/types";
 
 const UNIFORM_NAMES = [
   "uResolution",
@@ -140,6 +142,25 @@ const UNIFORM_NAMES = [
   "uLsDitherResponse",
   "uLsGradFollows",
   "uLsPointerFollow",
+  "uDitAlgo",
+  "uDitPatternScale",
+  "uDitThresholdBias",
+  "uDitInvert",
+  "uDitTemporal",
+  "uDitDistribution",
+  "uDitClusterSize",
+  "uDitRoundness",
+  "uDitAngle",
+  "uDitCoverage",
+  "uDitCellSize",
+  "uDitLineWidth",
+  "uDitSpacing",
+  "uDitWave",
+  "uDitLineCount",
+  "uDitAngleSep",
+  "uDitRoughness",
+  "uDitSecondary",
+  "uDitBlend",
 ];
 
 function uploadBayer(
@@ -283,6 +304,7 @@ export class SurfaceRenderer {
     ix: InteractionUniformPayload = idleInteractionPayload(),
     color: ColorUniformPayload = idleColorPayload(),
     light: LightUniformPayload = idleLightPayload(),
+    dither: DitherUniformPayload = idleDitherPayload(),
   ): void {
     if (this.disposed) return;
     const gl = this.gl;
@@ -299,11 +321,13 @@ export class SurfaceRenderer {
     }
 
     const time = anim.time || state.time;
+    // Matrix size: dither controller owns authoritative size; fallback to params.
+    const matrixSize = dither.matrixSize || state.ditherSize;
 
     gl.uniform2f(u.uResolution, state.resolutionX, state.resolutionY);
     gl.uniform1f(u.uDpr, state.dpr);
     gl.uniform1f(u.uTime, time);
-    gl.uniform1f(u.uDitherSize, state.ditherSize);
+    gl.uniform1f(u.uDitherSize, matrixSize);
     gl.uniform1f(u.uPosterization, state.posterization);
     gl.uniform1f(u.uNoiseScale, state.noiseScale);
     gl.uniform1f(u.uNoiseSpeed, state.noiseSpeed);
@@ -365,12 +389,39 @@ export class SurfaceRenderer {
     this.uploadInteraction(gl, u, ix);
     this.uploadLight(gl, u, light);
     this.uploadColor(gl, u, color);
+    this.uploadDither(gl, u, dither);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  private uploadDither(
+    gl: WebGL2RenderingContext,
+    u: Record<string, WebGLUniformLocation | null>,
+    d: DitherUniformPayload,
+  ): void {
+    gl.uniform1f(u.uDitAlgo, d.algorithm);
+    gl.uniform1f(u.uDitPatternScale, d.patternScale);
+    gl.uniform1f(u.uDitThresholdBias, d.thresholdBias);
+    gl.uniform1f(u.uDitInvert, d.invertResponse);
+    gl.uniform1f(u.uDitTemporal, d.temporalDrift);
+    gl.uniform1f(u.uDitDistribution, d.distribution);
+    gl.uniform1f(u.uDitClusterSize, d.clusterSize);
+    gl.uniform1f(u.uDitRoundness, d.dotRoundness);
+    gl.uniform1f(u.uDitAngle, d.angle);
+    gl.uniform1f(u.uDitCoverage, d.coverage);
+    gl.uniform1f(u.uDitCellSize, d.cellSize);
+    gl.uniform1f(u.uDitLineWidth, d.lineWidth);
+    gl.uniform1f(u.uDitSpacing, d.spacing);
+    gl.uniform1f(u.uDitWave, d.waveDistortion);
+    gl.uniform1f(u.uDitLineCount, d.lineCount);
+    gl.uniform1f(u.uDitAngleSep, d.angleSeparation);
+    gl.uniform1f(u.uDitRoughness, d.roughness);
+    gl.uniform1f(u.uDitSecondary, d.secondary);
+    gl.uniform1f(u.uDitBlend, d.blendAmount);
   }
 
   private uploadLight(

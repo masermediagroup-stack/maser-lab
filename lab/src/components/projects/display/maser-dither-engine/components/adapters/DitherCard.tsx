@@ -10,6 +10,7 @@ export function DitherCard({
   interaction,
   color,
   light,
+  dither,
   content,
   reducedMotion,
   className,
@@ -26,6 +27,7 @@ export function DitherCard({
       interaction={interaction}
       color={color}
       light={light}
+      dither={dither}
       reducedMotion={reducedMotion}
       className={className}
     />

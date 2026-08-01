@@ -91,6 +91,19 @@ export type {
   LightingPresetDefinition,
 } from "./engine/lighting";
 export {
+  DEFAULT_DITHER_CONFIG,
+  DITHER_ALGORITHMS,
+  DitherController,
+  migrateParamsBlob,
+  migratePreset,
+  DEPRECATED_KEYS,
+} from "./engine/dither";
+export type {
+  DitherAlgorithmId,
+  DitherConfig,
+  DitherUniformPayload,
+} from "./engine/dither";
+export {
   DEFAULT_COMPONENT_CONTENT,
 } from "./content/types";
 export type { ComponentContent } from "./content/types";
@@ -107,6 +120,7 @@ export type {
   ComponentDefinition,
   PresetDefinition,
   DitherEngineConfig,
+  ControlDensityMode,
   AppRoute,
   DitherAdapterProps,
 } from "./types";

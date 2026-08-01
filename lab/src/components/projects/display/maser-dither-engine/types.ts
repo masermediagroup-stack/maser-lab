@@ -4,6 +4,7 @@ import type { AnimationEngineConfig } from "./engine/animation/types";
 import type { ColorMaterialConfig } from "./engine/color/types";
 import type { InteractionEngineConfig } from "./engine/interaction/types";
 import type { LightShapeConfig } from "./engine/lighting/types";
+import type { DitherConfig } from "./engine/dither/types";
 
 /** Bayer matrix size options for ordered dithering. */
 export type DitherSize = 2 | 4 | 8 | 32 | 64;
@@ -79,6 +80,8 @@ export type SurfaceCanvasProps = {
   color?: Partial<ColorMaterialConfig>;
   /** Procedural light-shape luminance config. */
   light?: Partial<LightShapeConfig>;
+  /** Dither algorithm config (matrix size, pattern scale, algo-specific). */
+  dither?: Partial<DitherConfig>;
   className?: string;
   style?: CSSProperties;
   reducedMotion?: boolean;
@@ -99,6 +102,7 @@ export type SurfaceCardProps = {
   interaction?: Partial<InteractionEngineConfig>;
   color?: Partial<ColorMaterialConfig>;
   light?: Partial<LightShapeConfig>;
+  dither?: Partial<DitherConfig>;
   reducedMotion?: boolean;
   className?: string;
 };
@@ -140,6 +144,8 @@ export type PresetDefinition = {
   params: Partial<MonochromeParams>;
   /** Optional light-shape luminance defaults for this material preset. */
   light?: Partial<LightShapeConfig>;
+  /** Optional dither algorithm defaults. */
+  dither?: Partial<DitherConfig>;
 };
 
 export type AppView =
@@ -164,6 +170,8 @@ export type ControlGroupId =
   | "animation"
   | "lighting"
   | "colors"
+  | "dither"
+  | "finish"
   | "interaction"
   | "noise"
   | "rendering"
@@ -173,12 +181,15 @@ export type ControlGroupId =
 
 export type ControlGroupState = Record<ControlGroupId, boolean>;
 
+export type ControlDensityMode = "basic" | "advanced";
+
 export type DitherAdapterProps = {
   params: MonochromeParams;
   animation?: Partial<AnimationEngineConfig>;
   interaction?: Partial<InteractionEngineConfig>;
   color?: Partial<ColorMaterialConfig>;
   light?: Partial<LightShapeConfig>;
+  dither?: Partial<DitherConfig>;
   content?: Partial<ComponentContent>;
   reducedMotion?: boolean;
   className?: string;
@@ -190,12 +201,7 @@ export type AdapterComponent = ComponentType<DitherAdapterProps>;
 export type DitherEngineConfig = {
   material: Pick<
     MonochromeParams,
-    | "ditherSize"
-    | "posterization"
-    | "softEdge"
-    | "pixelDensity"
-    | "opacity"
-    | "randomSeed"
+    "posterization" | "opacity" | "randomSeed"
   >;
   animation: Pick<MonochromeParams, "animationSpeed" | "noiseSpeed">;
   lighting: Pick<
@@ -204,7 +210,6 @@ export type DitherEngineConfig = {
     | "lightY"
     | "bloom"
     | "bloomRadius"
-    | "depth"
     | "shadowStrength"
     | "highlightStrength"
   >;
@@ -216,13 +221,13 @@ export type DitherEngineConfig = {
     | "brightness"
     | "contrast"
   >;
-  interaction: Pick<
+  interaction: Pick<MonochromeParams, "scrollInfluence">;
+  finish: Pick<
     MonochromeParams,
-    "cursorInfluence" | "scrollInfluence"
+    "grainAmount" | "blueNoiseAmount" | "softEdge" | "noiseScale"
   >;
-  noise: Pick<
-    MonochromeParams,
-    "noiseScale" | "blueNoiseAmount" | "grainAmount"
-  >;
-  dither: Pick<MonochromeParams, "ditherSize" | "pixelDensity">;
+  dither: Pick<MonochromeParams, "ditherSize" | "pixelDensity"> & {
+    algorithm?: string;
+    patternScale?: number;
+  };
 };
