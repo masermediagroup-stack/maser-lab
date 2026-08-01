@@ -463,19 +463,19 @@
   height: 100%;
   padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 2.5rem);
   place-items: center;
+  align-content: center;
 }
 
+/*
+ * Fullscreen must NOT force a shared width on .mde-adapter.
+ * Compact chrome (button, badge, avatar, …) sizes to content in the
+ * normal preview; a blanket width stretched them into long pills.
+ * Let each adapter keep its authored dimensions and only center it.
+ */
 .mde-playground__preview--fullscreen .mse-card,
 .mde-playground__preview--fullscreen .mde-adapter {
-  width: min(100%, 42rem);
+  max-width: 100%;
   max-height: calc(100dvh - 5rem);
-}
-
-.mde-playground__preview--fullscreen .mde-adapter--hero,
-.mde-playground__preview--fullscreen .mde-adapter--section {
-  width: min(100%, 72rem);
-  height: min(70dvh, 36rem);
-  max-height: none;
 }
 
 .mde-playground__perf {
