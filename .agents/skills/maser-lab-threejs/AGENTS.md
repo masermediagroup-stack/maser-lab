@@ -66,3 +66,15 @@ Use `/loop` between Implement and Harden for visual tuning.
 - [ ] Quality gates in `references/quality-gates.md` satisfied
 - [ ] `references/threejs-notes.md` updated if new patterns emerged
 - [ ] No open P0/P1 from Performance or Interaction UX agents
+
+## Exception: Maser Dither / Surface Engine
+
+Slug `display/maser-dither-engine` is a **custom WebGL2 fullscreen-triangle pipeline**, not Three.js.
+
+When that slug is in scope:
+
+1. Load `projects/display/maser-dither-engine/AGENTS.md` and `lab/src/components/projects/display/maser-dither-engine/engine/AGENTS.md` **before** editing shaders.
+2. Load `docs/engine-lessons.md` (black-screen postmortem).
+3. Do **not** migrate it to Three.js `ShaderMaterial` or invent a second program.
+4. Apply this skill’s dispose / reduced-motion / context-budget hygiene only.
+5. Pattern notes live in `references/lab-patterns-threejs.md` → “Shared procedural dither surface”.

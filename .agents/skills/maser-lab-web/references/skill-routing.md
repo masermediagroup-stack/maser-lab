@@ -79,6 +79,7 @@ Install pack: `npx skills@latest add emilkowalski/skills`
 | Skill | Install source | When to load |
 | --- | --- | --- |
 | `maser-lab-threejs` | Maser-Lab (local) | Three.js workflow, agents, quality gates |
+| **Project AGENTS for `maser-dither-engine`** | `projects/display/maser-dither-engine/AGENTS.md` + `engine/AGENTS.md` | Any edit to the shared dither/surface WebGL pipeline (not Three.js) |
 | `threejs-fundamentals` | cloudai-x/threejs-skills | Scene, camera, renderer, resize |
 | `threejs-geometry` | cloudai-x/threejs-skills | Meshes, BufferGeometry, instancing |
 | `threejs-materials` | cloudai-x/threejs-skills | PBR, ShaderMaterial decisions |
