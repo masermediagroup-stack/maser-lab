@@ -14,11 +14,8 @@ import { ServiceShowcaseDemo } from "./marketing/service-showcase";
 export const demoRegistry: Record<string, ComponentType> = {
   "liquid-monochrome": LiquidMonochromeDemo,
   "blobby-rotation-loader": BlobbyRotationDemo,
-<<<<<<< HEAD
   "svg-3d-rotator": SVG3DRotatorDemo,
-=======
   "makeyourday-calendar": MakeYourDayCalendarDemo,
->>>>>>> origin/main
   "plotline-tab-nav": PlotlineTabNavDemo,
   prism: PrismNavDemo,
   "page-transitions-lab": PageTransitionsLabDemo,
