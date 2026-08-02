@@ -14,7 +14,7 @@ Stable IDs for traceable findings. Format: `rule/{id}`
 
 **Exceptions:** None in lab code.
 
-**Source:** `review-animations` escalation triggers
+**Source:** `review-animations` escalation triggers; ESLint `lab-custom/no-transition-all`
 
 **Bad:**
 ```css
@@ -128,7 +128,20 @@ Stable IDs for traceable findings. Format: `rule/{id}`
 
 **Why:** Portfolio transfer extracts one project at a time.
 
-**Source:** `project-lifecycle.md`
+**Exceptions:** App demo routes and `demo-host` / `registry` may import a single product barrel. Shared demo types live in `@/components/lab/demo-chrome` (or another non-slug module), not inside a product project.
+
+**Source:** `project-lifecycle.md`; ESLint `lab-custom/no-cross-project-imports`
+
+**Bad:**
+```ts
+// marketing/service-showcase importing sign-up/summitpath-sign-up
+import type { ViewportMode } from "@/components/projects/sign-up/summitpath-sign-up/summitpath-sign-up-section";
+```
+
+**Good:**
+```ts
+import type { ViewportMode } from "@/components/lab/demo-chrome";
+```
 
 ---
 

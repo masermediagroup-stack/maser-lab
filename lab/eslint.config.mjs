@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     },
     rules: {
       "lab-custom/no-transition-all": "warn",
+      "lab-custom/no-cross-project-imports": "warn",
     },
   },
 ]);

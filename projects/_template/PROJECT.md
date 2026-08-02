@@ -82,4 +82,12 @@ See `.agents/skills/maser-lab-threejs/references/client-portfolio.md`.
 
 ## Open decisions
 
+Record unresolved product choices with the [decision template](../../../.agents/skills/maser-lab-web/references/decision-template.md). Do not hide assumptions inside implementation.
+
+- 
+
+## Accepted decisions
+
+Copy accepted decisions here (or link an exemplar). Status must be `accepted` with a named approver before promoting to `rules.md` / lint / evals.
+
 - 

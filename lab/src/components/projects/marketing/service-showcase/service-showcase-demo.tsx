@@ -7,8 +7,8 @@ import {
   DemoViewportFrame,
   LabButton,
   ViewportModeToggle,
+  type ViewportMode,
 } from "@/components/lab/demo-chrome";
-import type { ViewportMode } from "@/components/projects/sign-up/summitpath-sign-up/summitpath-sign-up-section";
 import { Label } from "@/components/ui/label";
 import {
   Select,

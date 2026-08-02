@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "fixtures": [
+    {
+      "id": "transition-all-button",
+      "holdout": false,
+      "path": "transition-all-button",
+      "expectedMode": ["Harden", "Implement"],
+      "rules": ["rule/no-transition-all"]
+    },
+    {
+      "id": "cross-project-import",
+      "holdout": true,
+      "path": "cross-project-import",
+      "expectedMode": ["Harden", "Implement"],
+      "rules": ["rule/project-isolation"],
+      "exemplar": "pr-summitpath-sign-up"
+    },
+    {
+      "id": "govern-intake-no-promote",
+      "holdout": true,
+      "path": "govern-intake-no-promote",
+      "expectedMode": ["Govern / Intake"],
+      "rules": [],
+      "process": ["packet", "pending-candidates", "no-rules-md-edit"],
+      "exemplar": "pr-maser-dither-engine"
+    }
+  ]
+}

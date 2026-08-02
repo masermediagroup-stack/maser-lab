@@ -21,6 +21,7 @@ Pick a **category** from `projects/categories.json` that matches the primary job
 | Task | Load first |
 | --- | --- |
 | Any web UI in the lab — sections, components, forms, motion, reveals | `.agents/skills/maser-lab-web/SKILL.md` |
+| Encode review feedback into lab standards (Govern / Intake) | `.agents/skills/maser-lab-web/SKILL.md` (Govern mode) + `governance/README.md` + `references/governance-prompts.md` |
 | Shape a new section (brand-first brief) | `.agents/skills/maser-lab-section-shape/SKILL.md` |
 | Scaffold a new project slug | `.agents/skills/maser-lab-project-scaffold/SKILL.md` |
 | Demo chrome / DemoHost / reduced-motion controls | `.agents/skills/maser-lab-demo-chrome/SKILL.md` |
@@ -42,10 +43,10 @@ Pick a **category** from `projects/categories.json` that matches the primary job
 | Design-engineering polish | `.agents/skills/emil-design-eng/SKILL.md` |
 | Gesture / sheet / spring / materials | `.agents/skills/apple-design/SKILL.md` |
 
-> **Note:** `maser-lab-web` is the primary **workflow and quality gate** for all web UI in this repo. Use `maser-lab-threejs` when the deliverable is canvas/WebGL/Three.js. Mode→skill routing lives in `.agents/skills/maser-lab-web/references/skill-routing.md`.
+> **Note:** `maser-lab-web` is the primary **workflow, product-design entry, and quality gate** for all web UI in this repo. Use `maser-lab-threejs` when the deliverable is canvas/WebGL/Three.js. Mode→skill routing lives in `.agents/skills/maser-lab-web/references/skill-routing.md`. Guidance updates use collector→judge→human packets under `.agents/skills/maser-lab-web/governance/` — agents must not silently edit `rules.md`.
 
 **Emil Kowalski motion pack** (`npx skills@latest add emilkowalski/skills`): still load `maser-lab-web` first, then route — `review-animations` for diff review, `improve-animations` for roadmaps, `find-animation-opportunities` for additive ideas, `apple-design` for gestures/sheets, `animation-vocabulary` for naming, `emil-design-eng` for craft philosophy. Do not duplicate those skills into lab rules.
-**Always report** which skill(s) and reference files you loaded in your work plan or review output.
+**Always report** which skill(s) and reference files you loaded in your work plan or review output. Cite `rule/*` IDs when applicable.
 
 ## Repository layout
 

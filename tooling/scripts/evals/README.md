@@ -1,24 +1,41 @@
-# Motion eval fixtures
+# Product-design / motion eval fixtures
 
-Holdout fixtures for testing whether agents apply lab guidance on unseen interfaces.
+Holdout fixtures for testing whether agents load `maser-lab-web` and apply lab rules on unseen (or partially documented) interfaces.
+
+## Rubric dimensions (score separately)
+
+| Dimension | Pass criteria | Fail does **not** imply |
+| --- | --- | --- |
+| **(a) Skill load** | Agent reports loading `maser-lab-web` + listed refs | Rule follow |
+| **(b) Rule citation** | Findings or edits cite relevant `rule/*` IDs | Pixel match to `after/` |
+| **(c) Mode** | Declared mode matches the prompt (Review vs Implement vs Govern) | — |
+| **(d) Rule correctness** | Fix satisfies the rubric rule checks | Similarity to shipped `after/` code |
+
+Article insight: **failing to load the skill ≠ failing to follow a rule** — record both scores.
 
 ## Structure (per fixture)
 
 ```text
 tooling/scripts/evals/{fixture-name}/
+├── prompt.md        # agent brief
 ├── before/          # starting code
-├── after/           # expected direction (not necessarily identical)
-└── rubric.md        # rule IDs that must be satisfied
+├── after/           # expected direction (not a gold paste into the skill)
+└── rubric.md        # rule IDs + skill-load checks
 ```
 
-## Usage
+## Offline run checklist
 
-1. Agent edits `before/` state
-2. Judge checks against `rubric.md` and `rules-checklist.json`
-3. Score rule correctness separately from similarity to `after/`
+1. Copy `before/` into a scratch tree (do not commit agent output here).
+2. Give the agent only `prompt.md` + `before/` (not `after/` or rubric answers pasted into skill text).
+3. Score with `rubric.md` and `rules-checklist.json`.
+4. Log: skill-load Y/N · mode · cited rules · rule-correct Y/N · notes.
 
-## Creating fixtures
+CI runner: **not yet** — keep offline until fixtures are stable.
 
-Seed from projects that reach `ready` status. Keep expected edits out of the skill text (holdout).
+## Index
 
-_No fixtures yet._
+| Fixture | Holdout? | Primary rules |
+| --- | --- | --- |
+| [transition-all-button](./transition-all-button/) | No | `rule/no-transition-all` |
+| [cross-project-import](./cross-project-import/) | Yes | `rule/project-isolation` |
+| [govern-intake-no-promote](./govern-intake-no-promote/) | Yes | Govern mode (no `rules.md` edit) |
