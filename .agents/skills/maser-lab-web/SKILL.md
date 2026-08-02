@@ -3,17 +3,19 @@ name: maser-lab-web
 description: >-
   Primary workflow skill for all web UI in Maser-Lab — page sections, components,
   forms, navigation, heroes, sign-up flows, scroll reveals, loaders, and
-  micro-interactions. Use when shaping, implementing, auditing, polishing, or
-  porting any client-facing web surface in this Maser-Lab repo. Trigger on web
-  section, component, form, nav, hero, sign-up, scroll reveal, animation, motion,
-  lab demo, portfolio transfer, or production-ready UI requests. Not for
-  backend-only work, pure 3D/WebGL (use maser-lab-threejs), telemetry, or docs
-  with no shipped UI.
+  micro-interactions. Lab product-design entry (Vercel-style): Shape, Implement,
+  Review, Copy, Harden, Transfer, and Govern/Intake. Use when shaping, building,
+  auditing, polishing, rewriting copy, encoding review feedback into standards,
+  or porting any client-facing web surface in this repo. Trigger on web section,
+  component, form, nav, hero, sign-up, scroll reveal, animation, motion, lab
+  demo, portfolio transfer, production-ready UI, or governance intake requests.
+  Not for backend-only work, pure 3D/WebGL (use maser-lab-threejs), telemetry, or
+  docs with no shipped UI (except governance packets and skill guidance).
 ---
 
 # Maser-Lab Web
 
-Primary workflow for **all client-facing web UI** in Maser-Lab — sections, components, forms, navigation, reveals, and motion. Use `maser-lab-threejs` when the deliverable is canvas/WebGL/Three.js.
+Primary workflow for **all client-facing web UI** in Maser-Lab — sections, components, forms, navigation, reveals, and motion. This skill is the lab’s **product-design entry**: skill + linters + collector→judge→human loop. Use `maser-lab-threejs` when the deliverable is canvas/WebGL/Three.js.
 
 Build web UI that is **correct for the user, the surface, and the craft bar** — not merely present. Cover reachable states, respect accessibility, verify the rendered result, and treat motion as one quality dimension alongside layout, typography, and interaction — not the only one.
 
@@ -21,10 +23,12 @@ Build web UI that is **correct for the user, the surface, and the craft bar** �
 
 - **Start with the job, not the keyframes.** Who triggers it, how often, what state changes, what must the user understand?
 - **Define outcome before output.** Current behavior, desired feel, success signal, non-goals — before picking a library.
-- **Use evidence, not taste.** Trace decisions to `references/rules.md`, routed skills, project acceptance criteria, or verified adjacent demos.
-- **Separate facts from decisions.** Mark assumptions and open product choices explicitly.
+- **Use evidence, not taste.** Trace decisions to `references/rules.md`, routed skills, project acceptance criteria, exemplars, or verified adjacent demos.
+- **Separate facts from decisions.** Mark assumptions and open product choices explicitly (`references/decision-template.md`).
+- **Treat shipped code as evidence, not automatic precedent.** It proves what exists, not why it is correct.
 - **Choose the smallest coherent intervention.** Prefer fixing timing, origin, or easing before adding new motion.
 - **Verify the real surface.** Never claim visual or motion quality from code alone — run the demo in `lab/`.
+- **Report loaded references.** Always list which skill refs and routed skills you loaded.
 
 ## Request modes
 
@@ -32,13 +36,15 @@ Resolve mode from the user's verb before acting.
 
 | Mode | Typical request | Required behavior |
 | --- | --- | --- |
-| **Shape** | "Design this interaction", brief without settled motion | Frame problem, compare alternatives, define states and acceptance criteria. Do not edit unless asked. “What could animate?” → `find-animation-opportunities`. Naming effects → `animation-vocabulary`. |
+| **Shape** | "Design this interaction", brief without settled motion | Frame problem, compare alternatives, define states and acceptance criteria using `decision-template.md`. Do not edit unless asked. “What could animate?” → `find-animation-opportunities`. Naming effects → `animation-vocabulary`. |
 | **Implement** | "Build", "add", "create demo" | Implement smallest end-to-end change: spec → component → demo route → registry update. Sheets/gestures/springs → also load `apple-design`. |
 | **Review** | "Audit", "critique", "what's wrong?" | Inspect source and rendered demo; report prioritized findings. Do not edit unless asked. |
 | **Motion-review** | "Review animations", "motion pass" | Load `review-animations` (+ `STANDARDS.md`); motion-only scope; Before/After/Why + Block/Approve. |
 | **Motion audit** | "Improve animations", "motion roadmap" | Load `improve-animations` (read-only plans). Do not edit source unless user later asks to execute a plan. |
+| **Copy** | "Fix the copy", "rewrite labels/errors" | Edit user-facing language and accessible names only. Report structural blockers without silently redesigning. Load `references/copy.md`. |
 | **Harden** | "Polish", "production-ready", edge cases | Preserve direction; fix states, a11y, reduced motion, responsive, performance. Optional `emil-design-eng` craft pass. |
 | **Transfer** | "Ready for portfolio", "extract component" | Verify acceptance criteria; document API, dependencies, and porting notes. |
+| **Govern / Intake** | "Encode this review into standards", "governance packet" | Collector→judge only. Write packet under `governance/packets/`. Do **not** promote rules or edit product code. |
 
 When intent is ambiguous, use the narrowest mode. A demo URL identifies scope; it does not alone authorize edits.
 
@@ -61,15 +67,17 @@ Name target project slug (if any), demo route, and mode.
 
 If a slug exists, read `projects/{category}/{slug}/PROJECT.md`, `projects/registry.json`, and note its `category` from `projects/categories.json`.
 
-### 3. Model the interaction decision
+### 3. Model the product / interaction decision
 
-For Shape, Implement, Harden, or full Review, read `references/motion-judgment.md` and write a compact brief:
+For Shape, Implement, Harden, or full Review, read `references/product-judgment.md` and `references/motion-judgment.md` (when motion is in scope). Write a compact brief using `references/decision-template.md` fields:
 
 - User / trigger frequency
+- Job / object / consequence
 - State change
 - Success signal
 - Non-goals
 - Reversibility and a11y requirements
+- Open decisions
 
 ### 4. Map states
 
@@ -79,7 +87,12 @@ Inventory: default, hover, focus, active/pressed, loading, success, error, disab
 
 | Need | Load |
 | --- | --- |
+| Product / flow decision | `references/product-judgment.md` + `decision-template.md` |
 | Why this motion exists | `references/motion-judgment.md` |
+| Copy / accessible names | `references/copy.md` |
+| Extreme data / fallbacks / WebGL budget | `references/resilience.md` |
+| Which lab surface am I on? | `references/surfaces.md` |
+| Canonical terms | `references/glossary.md` |
 | Project lifecycle & transfer | `references/project-lifecycle.md` |
 | Craft, hierarchy, demo layout | `references/interface-quality.md` |
 | Stable rules with IDs | `references/rules.md` |
@@ -87,6 +100,7 @@ Inventory: default, hover, focus, active/pressed, loading, success, error, disab
 | Which external skill owns what | `references/skill-routing.md` |
 | Missing standards | `references/coverage-gaps.md` |
 | Shipped examples | `exemplars/` |
+| Encode review → standards | `governance/` + `references/governance-prompts.md` |
 
 ### 6. Route to domain skills (do not duplicate)
 
@@ -151,7 +165,20 @@ Lead with findings by user impact:
 - **P2:** weak craft, inconsistent easing, wrong transform-origin, missing reduced-motion variant
 - **P3:** minor polish
 
-For each finding: location, verification status, rule ID or source, user consequence, smallest fix.
+For each finding include:
+
+1. File/line or rendered location
+2. Verification status (source-only vs rendered)
+3. Canonical source (`rule/*`, reference, or coverage-gap)
+4. User consequence
+5. Smallest concrete fix
+
+## Govern / Intake workflow
+
+1. Copy `governance/packets/_template/` → `governance/packets/YYYY-MM-DD-topic/`
+2. Run collector → `collector.md`
+3. Run judge → `judge.md` + `candidates.md` (all pending)
+4. Stop. Human chooses destinations; log in `governance/decision-log.md`
 
 ## Lab standards
 
@@ -168,3 +195,4 @@ Stable IDs live in `references/rules.md`. Craft bar for motion reviews: `review-
 - Shared motion values → product tokens — `rule/motion-token-cohesion`
 - No decorative motion without structural or state purpose
 - Demo pages show all states side-by-side or via controls — not only the happy path — `rule/demo-all-states`
+- No cross-imports between project slugs — `rule/project-isolation` (also ESLint `lab-custom/no-cross-project-imports`)

@@ -8,14 +8,16 @@ Use this order inside `maser-lab-web` request modes:
 
 | Mode | Load (in order) |
 | --- | --- |
-| **Shape** | `maser-lab-section-shape` → optional `frontend-design` / `emil-design-eng` / `figma-design-workflow` → `find-animation-opportunities` if asking “what could animate?” → `animation-vocabulary` if naming effects |
+| **Shape** | `product-judgment.md` + `decision-template.md` → `maser-lab-section-shape` → optional `frontend-design` / `emil-design-eng` / `figma-design-workflow` → `find-animation-opportunities` if asking “what could animate?” → `animation-vocabulary` if naming effects |
 | **Implement (new slug)** | `maser-lab-project-scaffold` → `maser-lab-demo-chrome` → `maser-lab-export` (barrel contract) → `maser-lab-token-system` |
 | **Implement (existing)** | Domain skills as needed → `vercel-composition-patterns` / `vercel-react-best-practices` / motion skills → `apple-design` for sheets/gestures/springs |
 | **Review** | `maser-lab-acceptance-audit` → `web-design-guidelines` → motion via `review-animations` if in scope |
 | **Motion-review** | `review-animations` (+ `STANDARDS.md`; motion domain skills as needed) |
 | **Motion audit / roadmap** | `improve-animations` (read-only plans into `plans/`; do not treat as Implement) |
+| **Copy** | `references/copy.md` → `web-design-guidelines` (names only); do not broaden to layout |
 | **Harden** | `maser-lab-demo-chrome` → `maser-lab-responsive-qa` → `maser-lab-acceptance-audit` → `verification` → optional `emil-design-eng` polish |
 | **Transfer** | `maser-lab-acceptance-audit` → `maser-lab-export` → `maser-lab-token-system` |
+| **Govern / Intake** | `governance/README.md` → `governance-prompts.md` → write packet; **stop** before promoting |
 
 ## Lab operating skills (Maser-Lab local)
 

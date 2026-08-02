@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { ViewportMode } from "@/components/projects/sign-up/summitpath-sign-up/summitpath-sign-up-section";
+
+/** Shared demo viewport modes — keep out of product project slugs (rule/project-isolation). */
+export type ViewportMode = "desktop" | "mobile" | "responsive";
 
 type DemoBackButtonProps = {
   className?: string;
