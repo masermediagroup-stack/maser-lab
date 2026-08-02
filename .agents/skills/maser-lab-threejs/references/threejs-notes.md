@@ -94,8 +94,8 @@ _Patterns ship with projects; document in `lab-patterns-threejs.md`._
 | Renderer factory | Scaffold in `lab/src/three/utils/` |
 | Static fallback component | Scaffold in `lab/src/three/fallbacks/` |
 | R3F kinetic bar sculpture | Shipped: `display/kinetic-perspective-bars` — shared `useFrame`, mode blend, pointer ripple |
-<<<<<<< HEAD
 | Shared procedural dither surface | Shipped: `display/maser-dither-engine` — **not Three.js**; see project + `engine/AGENTS.md` |
+| Cache `isWebGLAvailable()` | Required — probe must not allocate a WebGL context per React render (`capabilities.ts`); lose probe context after check |
 
 ## Maser Dither Engine (non-Three.js WebGL2)
 
@@ -106,9 +106,6 @@ Do not treat this as a Three.js scene. One shared program in `engine/pipeline/st
 - Controllers pack uniforms; Material (Sprint 6) owns structure; Color owns chroma only
 
 **Never regress:** stripping `SAMPLE_GLSL`, renaming `uPosterization`, or switching VERT to `aPos` without binding a buffer. Details: `projects/display/maser-dither-engine/AGENTS.md`, `docs/engine-lessons.md`.
-=======
-| Cache `isWebGLAvailable()` | Required — probe must not allocate a WebGL context per React render (`capabilities.ts`); lose probe context after check |
->>>>>>> origin/main
 
 ## HyperFrames vs Maser-Lab loops
 
