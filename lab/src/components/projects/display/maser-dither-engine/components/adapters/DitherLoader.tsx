@@ -14,6 +14,8 @@ export function DitherLoader({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -38,6 +40,8 @@ export function DitherLoader({
               ? 0
               : Math.max(params.animationSpeed, 0.8),
           }}
+          sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
           reducedMotion={reducedMotion}
         />
       </div>

@@ -29,6 +29,8 @@ export function DitherHeroBackground({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -62,7 +64,9 @@ export function DitherHeroBackground({
           dither={dither}
           material={material}
         pointer={pointer}
-        reducedMotion={reducedMotion}
+        sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
+          reducedMotion={reducedMotion}
         aria-label="Hero dither background"
       />
       <div className="mde-adapter-hero__copy">

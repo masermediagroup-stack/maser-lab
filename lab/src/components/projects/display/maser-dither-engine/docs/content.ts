@@ -56,6 +56,11 @@ export const DOCS_TOPICS = [
     body: `One shared program in engine/pipeline/stages.ts. VERT uses gl_VertexID fullscreen triangle — never switch to aPos without a VBO in SurfaceRenderer. SAMPLE_GLSL must keep sampleBayer/sampleBlue/uPosterization helpers (DITHER_GLSL depends on them). Material owns structure; Color owns chroma; do not reintroduce Sprint 5 duplicate controls. Cap live WebGL contexts in UI chrome. After any shader edit, verify a non-black surface at /demos/maser-dither-engine. Full rules: docs/engine-lessons.md (R1–R7).`,
   },
   {
+    id: "source-image",
+    title: "Source Image Dither",
+    body: `Upload any photo from the Content panel (Source image). SurfaceCanvas loads it into texture unit 6 (uSource). Fragment luminance switches from pure light-shape to cover-fit image luminance, then the full shared pipeline (material → tone → dither → grain → color → finish) recreates the look on top of the photo. Light on image (uSourceLightMix) blends pure photo luminance with light-modulated luminance. Clear removes the texture and returns to procedural light-only fields. Works on Image Frame and every other adapter.`,
+  },
+  {
     id: "content-editing",
     title: "Live Component Editing",
     body: `Every adapter accepts content?: Partial<ComponentContent>. The playground Content editor updates labels, titles, descriptions, nav items, placeholders, progress, scrollbar thickness/radius instantly while the material keeps animating. Content is React overlay state — it never remounts the WebGL surface.`,

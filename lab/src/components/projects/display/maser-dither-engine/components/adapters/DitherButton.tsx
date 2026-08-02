@@ -29,6 +29,8 @@ export function DitherButton({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -63,6 +65,8 @@ export function DitherButton({
           material={material}
           params={{ ...params, opacity: 1 }}
           pointer={pointer}
+          sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
           reducedMotion={reducedMotion}
         />
       </span>

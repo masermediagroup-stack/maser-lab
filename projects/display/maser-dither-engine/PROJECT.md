@@ -229,6 +229,10 @@ Tiers: lightweight / standard / advanced. Mobile `lowQuality` reduces FBM octave
 
 Sprint 6 briefly broke all surfaces by (1) switching VERT to `aPos` without a VBO and (2) stripping `SAMPLE_GLSL` helpers still required by dither. Fixed by restoring the Sprint 5 vertex path + full SAMPLE block and using CSS Materials thumbs. **Do not regress** — see `docs/engine-lessons.md`.
 
+### Source image dither
+
+Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives luminance (cover-fit); full dither/material/lighting pipeline recreates the look on the photo. Image Frame is the primary surface; every adapter accepts `sourceUrl`.
+
 ### Sprint 7 recommendations
 
 - Deeper frosted/clear glass variants with background sampling when available

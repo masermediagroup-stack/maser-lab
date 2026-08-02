@@ -14,6 +14,8 @@ export function DitherAvatar({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -32,7 +34,9 @@ export function DitherAvatar({
           light={light}
           dither={dither}
           material={material}
-        reducedMotion={reducedMotion}
+        sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
+          reducedMotion={reducedMotion}
       />
       <span className="mde-adapter-avatar__initials" aria-hidden>
         {c.avatarInitials}

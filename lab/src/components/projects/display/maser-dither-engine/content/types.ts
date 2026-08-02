@@ -55,7 +55,7 @@ export const DEFAULT_COMPONENT_CONTENT: ComponentContent = {
   progressValue: 64,
   loaderLabel: "Rendering",
   avatarInitials: "MD",
-  imageCaption: "Dither matte · photo stays crisp",
+  imageCaption: "Upload a photo to dither",
   scrollbarNote: "Visual scrollbar chrome",
   scrollbarThickness: 10,
   scrollbarRadius: 6,

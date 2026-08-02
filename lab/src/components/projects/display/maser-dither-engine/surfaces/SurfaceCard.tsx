@@ -22,6 +22,8 @@ export function SurfaceCard({
   light,
   dither,
   material,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion = false,
   className,
 }: SurfaceCardProps) {
@@ -40,6 +42,8 @@ export function SurfaceCard({
           light={light}
           dither={dither}
           material={material}
+          sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
           reducedMotion={reducedMotion}
           aria-label="Procedural monochrome material"
         />

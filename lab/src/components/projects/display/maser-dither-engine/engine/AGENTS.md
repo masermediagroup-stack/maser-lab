@@ -26,6 +26,15 @@ in vec2 aPos;
 
 Incident: Sprint 6 briefly switched VERT to `aPos` without binding a buffer → black canvas everywhere.
 
+## Texture units
+
+| Unit | Binding |
+| --- | --- |
+| 0–3 | Bayer 2 / 4 / 8 / 32 |
+| 4 | Blue noise |
+| 5 | Bayer 64 |
+| **6** | **`uSource`** optional photo (cover-fit luminance) |
+
 ## Sacred: SAMPLE_GLSL
 
 `SAMPLE_GLSL` in `stages.ts` **must** keep (at minimum):

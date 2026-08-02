@@ -48,8 +48,9 @@ Animation → Interaction → **Material UV** → Light → **Material field** �
 | --- | --- | --- |
 | New dither algorithm | `engine/dither/*` + `SAMPLE_GLSL` if new samplers | Compile + Playground algorithm switch |
 | New material | `engine/material/` (types → catalog → pack → GLSL) + optional preset | Materials detail live preview + Playground |
+| Source image dither | `uSource` unit 6; `SurfaceRenderer.setSourceImage`; `SurfaceCanvas` `sourceUrl` | Upload in Content panel → non-black dithered photo |
 | New control | One owning panel only; wire through controller → uniform | No duplicate slider elsewhere |
-| New adapter | Reuse `SurfaceCanvas` / existing adapters; pass `material` | Demo Components page |
+| New adapter | Reuse `SurfaceCanvas` / existing adapters; pass `material` + `sourceUrl` | Demo Components page |
 | Pipeline stage | Append GLSL modules into `FRAG_SRC` order; update `PIPELINE_STAGES` | Black-screen check after HMR |
 
 ## Verification gate (required for any engine/shader edit)
