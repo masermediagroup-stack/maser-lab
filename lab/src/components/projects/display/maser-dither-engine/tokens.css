@@ -1298,6 +1298,54 @@
   background: #111;
 }
 
+.mde-mat-thumb__swatch {
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 45% 40%, rgba(255, 255, 255, 0.55), transparent 55%),
+    linear-gradient(145deg, #1a1a1a, #3a3a3a 45%, #0e0e0e);
+}
+
+.mde-mat-thumb__swatch[data-material="paper"] {
+  background:
+    radial-gradient(circle at 40% 35%, rgba(245, 230, 200, 0.55), transparent 50%),
+    repeating-linear-gradient(90deg, #2a261f 0 1px, #1c1914 1px 3px);
+}
+.mde-mat-thumb__swatch[data-material="ink"] {
+  background:
+    radial-gradient(circle at 50% 50%, #111 20%, transparent 55%),
+    radial-gradient(circle at 30% 60%, rgba(20, 20, 40, 0.9), transparent 40%),
+    #0a0a0c;
+}
+.mde-mat-thumb__swatch[data-material="velvet"] {
+  background:
+    radial-gradient(ellipse at 60% 30%, rgba(180, 140, 200, 0.45), transparent 45%),
+    linear-gradient(160deg, #1a0f18, #3b2038);
+}
+.mde-mat-thumb__swatch[data-material="metal"],
+.mde-mat-thumb__swatch[data-material="chrome"] {
+  background:
+    linear-gradient(110deg, #111 10%, #cfd4da 35%, #333 50%, #e8eaed 70%, #1a1a1a 90%);
+}
+.mde-mat-thumb__swatch[data-material="smoke"],
+.mde-mat-thumb__swatch[data-material="fog"],
+.mde-mat-thumb__swatch[data-material="cloud"] {
+  background:
+    radial-gradient(circle at 40% 50%, rgba(200, 200, 210, 0.35), transparent 50%),
+    radial-gradient(circle at 70% 40%, rgba(160, 170, 180, 0.3), transparent 45%),
+    #12151a;
+}
+.mde-mat-thumb__swatch[data-material="glass"] {
+  background:
+    linear-gradient(160deg, rgba(180, 220, 255, 0.25), transparent 40%),
+    linear-gradient(#1a2228, #0c1014);
+}
+.mde-mat-thumb__swatch[data-material="crt"] {
+  background:
+    repeating-linear-gradient(0deg, #0a1a0a 0 2px, #0f2a0f 2px 4px),
+    radial-gradient(circle at 50% 50%, #2a6a2a, #051005);
+}
+
 .mde-mat-thumb__preview .mse-surface-canvas,
 .mde-mat-thumb__preview .mse-surface-canvas__gl {
   width: 100%;

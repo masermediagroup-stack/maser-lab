@@ -174,10 +174,11 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
               onClick={() => setSelected(m.id)}
             >
               <div className="mde-mat-thumb__preview" aria-hidden>
-                <SurfaceCanvas
-                  {...sharedPreviewProps}
-                  material={configFor(m.id)}
-                  aria-label={`${m.label} preview`}
+                {/* Avoid one WebGL context per thumb — browsers cap ~8–16 contexts.
+                    Live preview lives in the detail pane only. */}
+                <div
+                  className="mde-mat-thumb__swatch"
+                  data-material={m.id}
                 />
               </div>
               <div className="mde-mat-thumb__meta">
