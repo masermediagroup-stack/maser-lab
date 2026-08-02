@@ -9,12 +9,8 @@
 3. Load routed references from `references/` (see SKILL.md routing table)
 4. Load project context from `projects/{category}/{slug}/PROJECT.md` when a slug is in scope
 5. If slug is `maser-dither-engine`, also load `projects/display/maser-dither-engine/AGENTS.md` and `lab/.../engine/AGENTS.md` before any `engine/` edits
-<<<<<<< HEAD
 6. For Govern / Intake: load `references/governance-prompts.md` + `governance/README.md`; write a packet — do **not** promote rules
 7. Chain to domain skills only when SKILL.md routes you there — do not duplicate their content
-=======
-6. Chain to domain skills only when SKILL.md routes you there — do not duplicate their content
->>>>>>> origin/main
 
 ## Validation before closing work
 
