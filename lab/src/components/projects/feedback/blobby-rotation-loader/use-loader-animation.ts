@@ -118,7 +118,23 @@ export function useLoaderAnimationLoop(
     if (!ctx) return;
 
     const tick = (time: number) => {
-      if (lastTimeRef.current !== null && !paused) {
+      if (paused) {
+        const currentOptions: DrawLoaderOptions = {
+          ...optionsRef.current,
+          rotation: rotationRef.current,
+        };
+        const layout = computeCanvasLayout(currentOptions);
+        const dpr = window.devicePixelRatio || 1;
+        const nextSize = layout.canvasSize * dpr;
+        if (canvas.width !== nextSize) canvas.width = nextSize;
+        if (canvas.height !== nextSize) canvas.height = nextSize;
+        drawBlobbyLoader(ctx, currentOptions);
+        lastTimeRef.current = null;
+        rafRef.current = null;
+        return;
+      }
+
+      if (lastTimeRef.current !== null) {
         const delta = (time - lastTimeRef.current) / 1000;
         rotationRef.current += delta * speed * Math.PI * 2;
       }
@@ -131,8 +147,9 @@ export function useLoaderAnimationLoop(
 
       const layout = computeCanvasLayout(currentOptions);
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = layout.canvasSize * dpr;
-      canvas.height = layout.canvasSize * dpr;
+      const nextSize = layout.canvasSize * dpr;
+      if (canvas.width !== nextSize) canvas.width = nextSize;
+      if (canvas.height !== nextSize) canvas.height = nextSize;
 
       drawBlobbyLoader(ctx, currentOptions);
 

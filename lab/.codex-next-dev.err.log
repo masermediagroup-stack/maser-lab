@@ -1,0 +1,2258 @@
+[browser] Image with src "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=80" has "fill" and a height value of 0. This is likely because the parent element of the image has not been styled to have a set height.
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:222:24)
+[browser] Image with src "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=80" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [0.45, bottom-to-top, 1, 0.16, [object Object], 7, 0.62]
+Incoming: [bottom-to-top, 1, 0.16, [object Object], 7, 0.62] 
+    at LiquidShaderOverlay (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:165:12)
+    at Set.forEach (<anonymous>)
+  163 |   );
+  164 |
+> 165 |   useEffect(() => {
+      |            ^
+  166 |     const canvas = canvasRef.current;
+  167 |     const host = canvas?.parentElement;
+  168 |     if (!canvas || !host) return; (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:165:12)
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [0.45, bottom-to-top, 1, 0.16, [object Object], 7, 0.62]
+Incoming: [bottom-to-top, 1, 0.16, [object Object], 7, 0.62] 
+    at LiquidShaderOverlay (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:165:12)
+    at Set.forEach (<anonymous>)
+  163 |   );
+  164 |
+> 165 |   useEffect(() => {
+      |            ^
+  166 |     const canvas = canvasRef.current;
+  167 |     const host = canvas?.parentElement;
+  168 |     if (!canvas || !host) return; (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:165:12)
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [0.45, bottom-to-top, 1, 0.16, [object Object], 7, 0.62]
+Incoming: [bottom-to-top, 1, 0.16, [object Object], 7, 0.62] 
+    at LiquidShaderOverlay (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:165:12)
+    at Set.forEach (<anonymous>)
+  163 |   );
+  164 |
+> 165 |   useEffect(() => {
+      |            ^
+  166 |     const canvas = canvasRef.current;
+  167 |     const host = canvas?.parentElement;
+  168 |     if (!canvas || !host) return; (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:165:12)
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [0.45, top-to-bottom, 1, 0.16, [object Object], 7, 0.62]
+Incoming: [top-to-bottom, 1, 0.16, [object Object], 7, 0.62] 
+    at LiquidShaderOverlay (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:165:12)
+    at Set.forEach (<anonymous>)
+  163 |   );
+  164 |
+> 165 |   useEffect(() => {
+      |            ^
+  166 |     const canvas = canvasRef.current;
+  167 |     const host = canvas?.parentElement;
+  168 |     if (!canvas || !host) return; (src/components/projects/scroll/liquid-monochrome/LiquidShaderOverlay.tsx:165:12)
+[browser] React has detected a change in the order of Hooks called by LiquidMonochrome. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+1. useId                      useId
+2. useRef                     useRef
+3. useRef                     useRef
+4. useRef                     useRef
+5. useRef                     useRef
+6. useRef                     useRef
+7. useRef                     useRef
+8. useCallback                useCallback
+9. useCallback                useCallback
+10. useEffect                 useEffect
+11. useRef                    useRef
+12. useRef                    useRef
+13. useState                  useState
+14. useEffect                 useEffect
+15. useRef                    useRef
+16. useRef                    useRef
+17. useRef                    useRef
+18. useLayoutEffect           useLayoutEffect
+19. useLayoutEffect           useEffect
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+    at useLiquidScroll (src/components/projects/scroll/liquid-monochrome/use-liquid-scroll.ts:115:12)
+    at LiquidMonochrome (src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:116:47)
+    at Set.forEach (<anonymous>)
+  113 |   );
+  114 |
+> 115 |   useEffect(() => {
+      |            ^
+  116 |     reducedMotionRef.current = reducedMotion;
+  117 |   }, [reducedMotion]);
+  118 | (src/components/projects/scroll/liquid-monochrome/use-liquid-scroll.ts:115:12)
+[browser] The final argument passed to useLayoutEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: []
+Incoming: [true, true, 1.4, 0, 1, 50, center 50%, , false, , false] 
+    at useLiquidScroll (src/components/projects/scroll/liquid-monochrome/use-liquid-scroll.ts:45:10)
+    at LiquidMonochrome (src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:116:47)
+    at Set.forEach (<anonymous>)
+  43 |   }, []);
+  44 |
+> 45 |   useGSAP(
+     |          ^
+  46 |     () => {
+  47 |       const trigger = triggerRef.current;
+  48 |       const stage = stageRef.current; (src/components/projects/scroll/liquid-monochrome/use-liquid-scroll.ts:45:10)
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [true, true, 1.4, 0, 1, center 50%, , false, , false]
+Incoming: [false] 
+    at useLiquidScroll (src/components/projects/scroll/liquid-monochrome/use-liquid-scroll.ts:115:12)
+    at LiquidMonochrome (src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:116:47)
+    at Set.forEach (<anonymous>)
+  113 |   );
+  114 |
+> 115 |   useEffect(() => {
+      |            ^
+  116 |     reducedMotionRef.current = reducedMotion;
+  117 |   }, [reducedMotion]);
+  118 | (src/components/projects/scroll/liquid-monochrome/use-liquid-scroll.ts:115:12)
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [false]
+Incoming: [(progress, phase)=>{
+            const mono = monoLayerRef.current;
+            if (!mono) return;
+            const { width, height } = sizeRef.current;
+            if (width <= 0 || height <= 0) return;
+            const clip = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lab$2f$src$2f$components$2f$projects$2f$scroll$2f$liquid$2d$monochrome$2f$clip$2d$path$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildLiquidClipPath"])(progress, width, height, {
+                direction,
+                turbulence,
+                noiseScale,
+                liquidStrength,
+                edgeSoftness: softness,
+                segments: 80,
+                seed,
+                phase
+            });
+            mono.style.clipPath = clip;
+            mono.style.setProperty("-webkit-clip-path", clip);
+            mono.style.opacity = String(intensity);
+            shaderRef.current?.updateFrame(progress, phase);
+        }, ] 
+    at LiquidMonochrome (src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:137:12)
+    at Set.forEach (<anonymous>)
+  135 |   });
+  136 |
+> 137 |   useEffect(() => {
+      |            ^
+  138 |     applyFrame(externalProgress ?? 0, 0);
+  139 |   }, [applyFrame, externalProgress]);
+  140 | (src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:137:12)
+[browser] The final argument passed to useLayoutEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: []
+Incoming: [true, true, 1.4, 0, 1, 50, center 50%, , false, , false] 
+    at useLiquidScroll (src/components/projects/scroll/liquid-monochrome/use-liquid-scroll.ts:45:10)
+    at LiquidMonochrome (src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:116:47)
+  43 |   }, []);
+  44 |
+> 45 |   useGSAP(
+     |          ^
+  46 |     () => {
+  47 |       const trigger = triggerRef.current;
+  48 |       const stage = stageRef.current; (src/components/projects/scroll/liquid-monochrome/use-liquid-scroll.ts:45:10)
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [true, true, 1.4, 0, 1, center 50%, , false, , false]
+Incoming: [false] 
+    at useLiquidScroll (src/components/projects/scroll/liquid-monochrome/use-liquid-scroll.ts:115:12)
+    at LiquidMonochrome (src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:116:47)
+  113 |   );
+  114 |
+> 115 |   useEffect(() => {
+      |            ^
+  116 |     reducedMotionRef.current = reducedMotion;
+  117 |   }, [reducedMotion]);
+  118 | (src/components/projects/scroll/liquid-monochrome/use-liquid-scroll.ts:115:12)
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [false]
+Incoming: [(progress, phase)=>{
+            const mono = monoLayerRef.current;
+            if (!mono) return;
+            const { width, height } = sizeRef.current;
+            if (width <= 0 || height <= 0) return;
+            const clip = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lab$2f$src$2f$components$2f$projects$2f$scroll$2f$liquid$2d$monochrome$2f$clip$2d$path$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildLiquidClipPath"])(progress, width, height, {
+                direction,
+                turbulence,
+                noiseScale,
+                liquidStrength,
+                edgeSoftness: softness,
+                segments: 80,
+                seed,
+                phase
+            });
+            mono.style.clipPath = clip;
+            mono.style.setProperty("-webkit-clip-path", clip);
+            mono.style.opacity = String(intensity);
+            shaderRef.current?.updateFrame(progress, phase);
+        }, ] 
+    at LiquidMonochrome (src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:137:12)
+  135 |   });
+  136 |
+> 137 |   useEffect(() => {
+      |            ^
+  138 |     applyFrame(externalProgress ?? 0, 0);
+  139 |   }, [applyFrame, externalProgress]);
+  140 | (src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:137:12)
+[browser] Uncaught Error: Rendered fewer hooks than expected. This may be caused by an accidental early return statement.
+    at HeroExample (src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx:90:27)
+    at LiquidMonochromeDemo (src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx:272:35)
+    at DemoHost (src/components/projects/demo-host.tsx:18:17)
+    at DemoPage (src\app\demos\[slug]\page.tsx:25:7)
+  88 |         <div className={styles.hero}>
+  89 |           <div className={styles.heroCopy}>
+> 90 |             <p className={styles.heroEyebrow}>Premium scroll interaction</p>
+     |                           ^
+  91 |             <h2 className={styles.heroTitle}>
+  92 |               Ink rises.
+  93 |               <br />
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  [90m1 |[0m [36mexport[0m { [33mLiquidMonochrome[0m } [36mfrom[0m [32m"./LiquidMonochrome"[0m;
+[31m[1m>[0m [90m2 |[0m [36mexport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mexport[0m { fbm, noise2D } [36mfrom[0m [32m"./noise"[0m;
+  [90m4 |[0m [36mexport[0m {
+  [90m5 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  [90m1 |[0m [36mexport[0m { [33mLiquidMonochrome[0m } [36mfrom[0m [32m"./LiquidMonochrome"[0m;
+[31m[1m>[0m [90m2 |[0m [36mexport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mexport[0m { fbm, noise2D } [36mfrom[0m [32m"./noise"[0m;
+  [90m4 |[0m [36mexport[0m {
+  [90m5 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  [90m1 |[0m [36mexport[0m { [33mLiquidMonochrome[0m } [36mfrom[0m [32m"./LiquidMonochrome"[0m;
+[31m[1m>[0m [90m2 |[0m [36mexport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mexport[0m { fbm, noise2D } [36mfrom[0m [32m"./noise"[0m;
+  [90m4 |[0m [36mexport[0m {
+  [90m5 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  [90m1 |[0m [36mexport[0m { [33mLiquidMonochrome[0m } [36mfrom[0m [32m"./LiquidMonochrome"[0m;
+[31m[1m>[0m [90m2 |[0m [36mexport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mexport[0m { fbm, noise2D } [36mfrom[0m [32m"./noise"[0m;
+  [90m4 |[0m [36mexport[0m {
+  [90m5 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  [90m1 |[0m [36mexport[0m { [33mLiquidMonochrome[0m } [36mfrom[0m [32m"./LiquidMonochrome"[0m;
+[31m[1m>[0m [90m2 |[0m [36mexport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mexport[0m { fbm, noise2D } [36mfrom[0m [32m"./noise"[0m;
+  [90m4 |[0m [36mexport[0m {
+  [90m5 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  [90m1 |[0m [36mexport[0m { [33mLiquidMonochrome[0m } [36mfrom[0m [32m"./LiquidMonochrome"[0m;
+[31m[1m>[0m [90m2 |[0m [36mexport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mexport[0m { fbm, noise2D } [36mfrom[0m [32m"./noise"[0m;
+  [90m4 |[0m [36mexport[0m {
+  [90m5 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  [90m1 |[0m [36mexport[0m { [33mLiquidMonochrome[0m } [36mfrom[0m [32m"./LiquidMonochrome"[0m;
+[31m[1m>[0m [90m2 |[0m [36mexport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mexport[0m { fbm, noise2D } [36mfrom[0m [32m"./noise"[0m;
+  [90m4 |[0m [36mexport[0m {
+  [90m5 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  [90m1 |[0m [36mexport[0m { [33mLiquidMonochrome[0m } [36mfrom[0m [32m"./LiquidMonochrome"[0m;
+[31m[1m>[0m [90m2 |[0m [36mexport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mexport[0m { fbm, noise2D } [36mfrom[0m [32m"./noise"[0m;
+  [90m4 |[0m [36mexport[0m {
+  [90m5 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  [90m4 |[0m [36mimport[0m gsap [36mfrom[0m [32m"gsap"[0m;
+  [90m5 |[0m [36mimport[0m { [33mScrollTrigger[0m } [36mfrom[0m [32m"gsap/ScrollTrigger"[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m {
+  [90m8 |[0m   [33mFILTER_ID[0m,
+  [90m9 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  [90m1 |[0m [36mexport[0m { [33mLiquidMonochrome[0m } [36mfrom[0m [32m"./LiquidMonochrome"[0m;
+[31m[1m>[0m [90m2 |[0m [36mexport[0m { buildLiquidClipPath } [36mfrom[0m [32m"./clip-path"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mexport[0m { fbm, noise2D } [36mfrom[0m [32m"./noise"[0m;
+  [90m4 |[0m [36mexport[0m {
+  [90m5 |[0m   [33mLIQUID_MONOCHROME_DEFAULTS[0m,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[browser] Uncaught Error: ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx:6:1
+Module not found: Can't resolve './clip-path'
+  4 | import gsap from "gsap";
+  5 | import { ScrollTrigger } from "gsap/ScrollTrigger";
+> 6 | import { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import {
+  8 |   FILTER_ID,
+  9 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component Browser]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/LiquidMonochrome.tsx [Client Component SSR]
+    ./lab/src/components/projects/scroll/liquid-monochrome/liquid-monochrome-demo.tsx [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./lab/src/components/projects/scroll/liquid-monochrome/index.ts:2:1
+Module not found: Can't resolve './clip-path'
+  1 | export { LiquidMonochrome } from "./LiquidMonochrome";
+> 2 | export { buildLiquidClipPath } from "./clip-path";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | export { fbm, noise2D } from "./noise";
+  4 | export {
+  5 |   LIQUID_MONOCHROME_DEFAULTS,
+
+Import traces:
+  Client Component Browser:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component Browser]
+    ./lab/src/components/projects/registry.ts [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Client Component Browser]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lab/src/components/projects/scroll/liquid-monochrome/index.ts [Client Component SSR]
+    ./lab/src/components/projects/registry.ts [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Client Component SSR]
+    ./lab/src/components/projects/demo-host.tsx [Server Component]
+    ./lab/src/app/demos/[slug]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled (src/components/projects/navigation/prism/mobile-glass-top-nav.tsx:74:42)
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="geist_a715...">
+                          <body
+                            className="min-h-full flex flex-col"
+-                           cz-shortcut-listen="true"
+                          >
+                  ...
+ 
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled (src/components/projects/navigation/prism/mobile-glass-top-nav.tsx:74:42)
+[browser] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled (src/components/projects/navigation/prism/mobile-glass-top-nav.tsx:74:42)
+[browser] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled (src/components/projects/navigation/prism/mobile-glass-top-nav.tsx:74:42)
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <LoadingBoundary name="prism/" loading={null}>
+      <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+        <RedirectBoundary>
+          <RedirectErrorBoundary router={{...}}>
+            <InnerLayoutRouter url="/demos/prism" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+              <SegmentViewNode type="page" pagePath="demos/pris...">
+                <SegmentTrieNode>
+                <PrismDemoPage>
+                  <PrismNavDemo>
+                    <div className="maser-lab ..." data-reduced-motion={undefined}>
+                      <div>
+                      <DemoControlBar>
+                      <div className="relative z...">
+                        <LiquidGlassTopNav activeId="gallery" ...>
+                          <div className="prism-nav-..." data-reduced-motion={undefined}>
+                            <MobileGlassTopNav activeId="gallery" ...>
+                              <AnimatePresence>
+                              <div className={"prism-mo..."}>
+                                <header
+                                  className="figtree_978eadb9-module__DCc07q__className prism-nav w-full max-w-md"
++                                 data-reduced-motion="true"
+-                                 data-reduced-motion="false"
+                                >
+                            <DesktopGlassTopNav activeId="gallery" ...>
+                              <motion.header className={"figtree_..."} data-reduced-motion="true">
+                                <header
+                                  className={"figtree_1d3c6e70-module__w7O0ia__className prism-nav relative z-10 mx-a..."}
++                                 data-reduced-motion="true"
+-                                 data-reduced-motion="false"
+                                  style={{}}
+                                  ref={function useMotionRef.useCallback}
+                                >
+                                  <motion.nav className="prism-glas..." aria-label="Primary" ...>
+                                    <nav
+                                      className="prism-glass-bar relative z-10 flex h-[var(--prism-nav-height)] w-full..."
+                                      aria-label="Primary"
+                                      style={{
++                                       opacity: 0
+-                                       opacity: "0"
+-                                       filter: "blur(8px)"
+-                                       transform: "translateY(12px)"
+                                      }}
+                                      ref={function useMotionRef.useCallback}
+                                    >
+                                      <motion.button type="button" onClick={function onClick} className="prism-bran..." ...>
+                                        <button
+                                          type="button"
+                                          onClick={function onClick}
+                                          className="prism-brand relative z-10 shrink-0 rounded-[var(--prism-radius-pi..."
+                                          aria-label="Prism home"
+                                          style={{
++                                           opacity: 0
+-                                           opacity: "0"
+-                                           transform: "translateX(-8px)"
+                                          }}
+                                          ref={function useMotionRef.useCallback}
+                                        >
+                                      <div ref={{current:null}} className="relative z..." role="tablist" ...>
+                                        ...
+                                          <button type="button" role="tab" id="_R_inebn5r..." aria-selected={false} ...>
+                                            <motion.span variants={{hidden:{...}, ...}}>
+                                              <span
+                                                style={{
++                                                 opacity: 0
+-                                                 opacity: "0"
+-                                                 transform: "translateY(6px)"
+                                                }}
+                                                ref={function useMotionRef.useCallback}
+                                              >
++                                               Home
+                                        ...
+                                          <button type="button" role="tab" id="_R_inebn5r..." aria-selected={false} ...>
+                                            <motion.span variants={{hidden:{...}, ...}}>
+                                              <span
+                                                style={{
++                                                 opacity: 0
+-                                                 opacity: "0"
+-                                                 transform: "translateY(6px)"
+                                                }}
+                                                ref={function useMotionRef.useCallback}
+                                              >
++                                               Explore
+                                        ...
+                                          <button type="button" role="tab" id="_R_inebn5r..." aria-selected={false} ...>
+                                            <motion.span variants={{hidden:{...}, ...}}>
+                                              <span
+                                                style={{
++                                                 opacity: 0
+-                                                 opacity: "0"
+-                                                 transform: "translateY(6px)"
+                                                }}
+                                                ref={function useMotionRef.useCallback}
+                                              >
++                                               Library
+                                        ...
+                                          <button type="button" role="tab" id="_R_inebn5r..." aria-selected={true} ...>
+                                            <motion.span variants={{hidden:{...}, ...}}>
+                                              <span
+                                                style={{
++                                                 opacity: 0
+-                                                 opacity: "0"
+-                                                 transform: "translateY(6px)"
+                                                }}
+                                                ref={function useMotionRef.useCallback}
+                                              >
++                                               Gallery
+                                      <motion.button type="button" role="tab" id="_R_inebn5r..." aria-selected={false} ...>
+                                        <button
+                                          type="button"
+                                          role="tab"
+                                          id="_R_inebn5rlb_-tab-profile"
+                                          aria-selected={false}
+                                          aria-controls="_R_inebn5rlb_-panel-profile"
+                                          tabIndex={-1}
+                                          onClick={function onClick}
+                                          className="prism-profile-btn relative z-10 flex min-h-[52px] items-center ga..."
+                                          style={{
++                                           opacity: 0
+-                                           opacity: "0"
+-                                           transform: "translateX(8px)"
+                                          }}
+                                          ref={function useMotionRef.useCallback}
+                                        >
+                                          <span
++                                           className="flex h-7 w-7 items-center justify-center rounded-full transitio..."
+-                                           className="flex h-7 w-7 items-center justify-center rounded-full transitio..."
+                                          >
+                                          <span
++                                           className="text-[17px] font-medium leading-[26px] transition-none text-white"
+-                                           className="text-[17px] font-medium leading-[26px] transition-colors durati..."
+                                          >
++                                           Profile
+                                  ...
+                      ...
+              ...
+            ...
+ 
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/demos/prism" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="geist_a715...">
+                          <body
+                            className="min-h-full flex flex-col"
+-                           cz-shortcut-listen="true"
+                          >
+                  ...
+ 
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/demos/prism" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="geist_a715...">
+                          <body
+                            className="min-h-full flex flex-col"
+-                           cz-shortcut-listen="true"
+                          >
+                  ...
+ 
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/demos/prism" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="geist_a715...">
+                          <body
+                            className="min-h-full flex flex-col"
+-                           cz-shortcut-listen="true"
+                          >
+                  ...
+ 
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/demos/prism" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="geist_a715...">
+                          <body
+                            className="min-h-full flex flex-col"
+-                           cz-shortcut-listen="true"
+                          >
+                  ...
+ 
+[browser] Image with src "/brand/masermedia-logo-bold-blue.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/images/plotline-logomark.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.

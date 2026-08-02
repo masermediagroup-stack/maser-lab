@@ -80,6 +80,16 @@
   }
 }
 
+.summitpath-signup[data-reduced-motion="true"] .summitpath-signup-social:hover {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .summitpath-signup-social:hover {
+    transform: none;
+  }
+}
+
 .summitpath-signup-viewport-frame {
   border: 1px solid var(--lab-border-strong, rgba(255, 255, 255, 0.14));
   border-radius: var(--lab-radius-md, 10px);

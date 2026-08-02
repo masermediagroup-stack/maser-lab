@@ -8,13 +8,13 @@
 ## Design reference
 
 - Figma: none
-- Other: Mobile playground screenshots — rotating superellipse arc with blur and chromatic aberration
+- Other: Mobile Maser-Lab screenshots — rotating superellipse arc with blur and chromatic aberration
 - Design spec: `FIGMA.md` in this folder
 
 ## Brief
 
 ### User / trigger
-Designers and developers tuning a decorative loading indicator; viewed during wait states or in the lab playground.
+Designers and developers tuning a decorative loading indicator; viewed during wait states or in Maser-Lab.
 
 ### Job
 Communicate ongoing activity through a morphable, rotating blob shape. Bottom sliders let users explore blur, corner roundness, superellipse power, and chromatic aberration intensity.
@@ -56,7 +56,7 @@ WebGL shader port, localStorage persistence, Figma sync.
 - [ ] Demo route `/demos/blobby-rotation-loader` renders all states above
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] Motion review: no open P0/P1 findings
-- [ ] `prefers-reduced-motion` verified in browser
+- [x] `prefers-reduced-motion` verified in browser
 - [ ] Component exported from `lab/src/components/projects/feedback/blobby-rotation-loader/index.ts`
 
 ## Open decisions

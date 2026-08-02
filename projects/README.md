@@ -1,6 +1,6 @@
 # Projects
 
-Each folder is one micro-interaction or component experiment, organized by category:
+Each folder is one **web UI experiment** — a section, component, or interactive system — organized by category:
 
 ```text
 projects/
@@ -10,10 +10,12 @@ projects/
 │   └── plotline-tab-nav/
 │       ├── PROJECT.md
 │       └── TRANSFER.md
+├── sign-up/
+│   └── summitpath-sign-up/
 ├── hero-section/
 │   └── my-hero-slug/
-└── inputs/
-    └── my-button-slug/
+└── scroll/
+    └── my-reveal-slug/
 ```
 
 Component code mirrors the same `{category}/{slug}/` layout under `lab/src/components/projects/`.
@@ -25,21 +27,22 @@ Every project must declare a category in `registry.json`. Canonical IDs live in 
 | Category | Folder | Use for |
 | --- | --- | --- |
 | `navigation` | `navigation/{slug}/` | Menus, tabs, breadcrumbs, wayfinding |
+| `sign-up` | `sign-up/{slug}/` | Sign-up flows, onboarding forms, conversion sections |
 | `inputs` | `inputs/{slug}/` | Buttons, toggles, sliders, form controls |
 | `feedback` | `feedback/{slug}/` | Loaders, toasts, success/error states |
 | `display` | `display/{slug}/` | Cards, lists, badges, data presentation |
 | `scroll` | `scroll/{slug}/` | Scroll-linked reveals and parallax |
 | `hero-section` | `hero-section/{slug}/` | Landing heroes and above-the-fold headers |
-| `marketing` | `marketing/{slug}/` | CTAs, social proof, brand moments |
+| `marketing` | `marketing/{slug}/` | CTAs, social proof, brand moments, landing sections |
 | `layout` | `layout/{slug}/` | Modals, drawers, panels, page chrome |
 
-Pick the category that best describes the **primary user-facing job** of the component.
+Pick the category that best describes the **primary user-facing job** of the work — whether it is a full section (e.g. sign-up page block) or a reusable component (e.g. tab nav).
 
 ## Start a new project
 
 ```bash
 SLUG=my-slug
-CATEGORY=navigation   # or hero-section, inputs, etc.
+CATEGORY=navigation   # or sign-up, hero-section, scroll, etc.
 
 mkdir -p "projects/${CATEGORY}/${SLUG}"
 cp projects/_template/PROJECT.md "projects/${CATEGORY}/${SLUG}/"
@@ -52,4 +55,4 @@ mkdir -p "lab/src/components/projects/${CATEGORY}/${SLUG}"
 3. Implement in `lab/src/components/projects/{category}/{slug}/`
 4. Demo at `/demos/{slug}`
 
-Agents: load `.agents/skills/micro-interaction-lab/SKILL.md` before starting.
+Agents: load `.agents/skills/maser-lab-web/SKILL.md` before starting any web UI work in the lab.

@@ -1,0 +1,19 @@
+{
+  "name": "maser-lab-repo",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "lab"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace maser-lab",
+    "build": "npm run build --workspace maser-lab",
+    "start": "npm run start --workspace maser-lab",
+    "lint": "npm run lint --workspace maser-lab"
+  },
+  "dependencies": {
+    "next": "16.2.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  }
+}

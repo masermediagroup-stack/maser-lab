@@ -26,23 +26,27 @@ type MobileTabNavProps = {
   placement?: PlotlineTabNavPlacement;
 };
 
-function MenuIcon({ open }: { open: boolean }) {
+function MenuIcon({ open, reduced }: { open: boolean; reduced: boolean }) {
+  const barTransition = reduced
+    ? { duration: 0 }
+    : { duration: 0.22, ease: [0.23, 1, 0.32, 1] as const };
+
   return (
     <div className="relative h-5 w-5" aria-hidden>
       <motion.span
         className="absolute left-0 top-[3px] block h-[2px] w-5 rounded-full bg-[var(--pl-text)]"
         animate={open ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
-        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+        transition={barTransition}
       />
       <motion.span
         className="absolute left-0 top-[9px] block h-[2px] w-5 rounded-full bg-[var(--pl-text)]"
         animate={open ? { opacity: 0, scaleX: 0.5 } : { opacity: 1, scaleX: 1 }}
-        transition={{ duration: 0.16 }}
+        transition={reduced ? { duration: 0 } : { duration: 0.16 }}
       />
       <motion.span
         className="absolute left-0 top-[15px] block h-[2px] w-5 rounded-full bg-[var(--pl-text)]"
         animate={open ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
-        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+        transition={barTransition}
       />
     </div>
   );
@@ -264,7 +268,7 @@ export function MobileTabNav({
             onClick={() => onOpenChange(!isOpen)}
             className="flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)]"
           >
-            <MenuIcon open={isOpen} />
+            <MenuIcon open={isOpen} reduced={reduced} />
           </button>
         </motion.div>
       </header>

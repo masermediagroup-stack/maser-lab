@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
   LOADER_DEFAULTS,
@@ -36,6 +37,9 @@ export function BlobbyRotationLoader({
   "aria-label": ariaLabel = "Loading",
 }: BlobbyRotationLoaderProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const prefersReduced = useReducedMotion() ?? false;
+  const shouldPause = paused || prefersReduced;
+  const resolvedSpeed = prefersReduced ? 0 : speed;
 
   useLoaderAnimationLoop(
     canvasRef,
@@ -49,8 +53,8 @@ export function BlobbyRotationLoader({
       rotation: 0,
       colors,
     },
-    speed,
-    paused,
+    resolvedSpeed,
+    shouldPause,
   );
 
   return (
@@ -58,7 +62,7 @@ export function BlobbyRotationLoader({
       ref={canvasRef}
       role="img"
       aria-label={ariaLabel}
-      aria-busy={!paused}
+      aria-busy={!shouldPause}
       className={cn("blobby-loader-canvas", className)}
     />
   );

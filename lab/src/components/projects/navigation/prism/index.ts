@@ -11,4 +11,5 @@ export {
   PROFILE_ITEM,
   BRAND_NAME,
   isCategoryId,
+  type PrismNavPlacement,
 } from "./constants";

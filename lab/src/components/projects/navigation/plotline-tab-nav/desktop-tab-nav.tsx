@@ -1,13 +1,19 @@
 "use client";
 
 import {
+  AnimatePresence,
   motion,
   useReducedMotion,
   type Transition,
 } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatedText } from "./animated-text";
-import { CENTER_NAV_ITEMS, SIGN_IN_ITEM, type NavItemId } from "./constants";
+import {
+  CENTER_NAV_ITEMS,
+  SIGN_IN_ITEM,
+  type NavItem,
+  type NavItemId,
+} from "./constants";
 import { MagneticTabButton } from "./magnetic-tab-button";
 import { PlotlineLogo } from "./plotline-logo";
 import { SignInTabLabel } from "./sign-in-tab-label";
@@ -19,6 +25,13 @@ type BubbleRect = {
   width: number;
   height: number;
 };
+
+type DropdownRect = {
+  left: number;
+  top: number;
+};
+
+type DropdownId = Extract<NavItemId, "features" | "integrations">;
 
 /** Peak blur during bubble spring — matches `--pl-bubble-motion-blur` in tokens.css */
 const BUBBLE_MOTION_BLUR_PX = 5;
@@ -37,6 +50,9 @@ const BUBBLE_MOTION_BLUR_FILTER: Transition = {
 };
 
 const INSTANT: Transition = { duration: 0 };
+const DROPDOWN_WIDTH = 260;
+const DROPDOWN_GAP = 12;
+const DROPDOWN_CLOSE_DELAY_MS = 140;
 
 function bubbleMotionBlurFilter(active: boolean): string | string[] {
   return active
@@ -66,11 +82,18 @@ export function DesktopTabNav({
   const prefersReduced = useReducedMotion();
   const reduced = forceReducedMotion ?? prefersReduced ?? false;
   const visualActiveId = startFreeActive ? null : activeId;
+  const bubbleActiveId = visualActiveId === SIGN_IN_ITEM.id ? SIGN_IN_ITEM.id : null;
   const barRef = useRef<HTMLDivElement>(null);
   const linkRefs = useRef<Partial<Record<NavItemId, HTMLButtonElement>>>({});
   const prevVisualActiveIdRef = useRef<NavItemId | null>(null);
   const isFirstMeasureRef = useRef(true);
+  const closeDropdownTimeoutRef = useRef<number | null>(null);
   const [signInHovered, setSignInHovered] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState<DropdownId | null>(null);
+  const [dropdownRect, setDropdownRect] = useState<DropdownRect>({
+    left: 0,
+    top: 0,
+  });
   const [bubbleSize, setBubbleSize] = useState({ width: 88, height: 36 });
   const [bubble, setBubble] = useState<BubbleRect>({
     left: 0,
@@ -79,6 +102,56 @@ export function DesktopTabNav({
     height: 36,
   });
   const [bubbleAnimates, setBubbleAnimates] = useState(false);
+
+  const cancelDropdownClose = useCallback(() => {
+    if (closeDropdownTimeoutRef.current !== null) {
+      window.clearTimeout(closeDropdownTimeoutRef.current);
+      closeDropdownTimeoutRef.current = null;
+    }
+  }, []);
+
+  const closeDropdown = useCallback(() => {
+    cancelDropdownClose();
+    setOpenDropdownId(null);
+  }, [cancelDropdownClose]);
+
+  const scheduleDropdownClose = useCallback(() => {
+    cancelDropdownClose();
+    closeDropdownTimeoutRef.current = window.setTimeout(() => {
+      setOpenDropdownId(null);
+      closeDropdownTimeoutRef.current = null;
+    }, DROPDOWN_CLOSE_DELAY_MS);
+  }, [cancelDropdownClose]);
+
+  const updateDropdownRect = useCallback((button: HTMLButtonElement) => {
+    const buttonRect = button.getBoundingClientRect();
+    const viewportPadding = 12;
+    const maxLeft = window.innerWidth - DROPDOWN_WIDTH - viewportPadding;
+    const preferredLeft =
+      buttonRect.left + buttonRect.width / 2 - DROPDOWN_WIDTH / 2;
+
+    setDropdownRect({
+      left: Math.min(
+        Math.max(viewportPadding, preferredLeft),
+        Math.max(viewportPadding, maxLeft),
+      ),
+      top: buttonRect.bottom + DROPDOWN_GAP,
+    });
+  }, []);
+
+  const openDropdown = useCallback(
+    (item: NavItem, button: HTMLButtonElement | null) => {
+      if (!item.dropdownItems) {
+        closeDropdown();
+        return;
+      }
+
+      cancelDropdownClose();
+      if (button) updateDropdownRect(button);
+      setOpenDropdownId(item.id as DropdownId);
+    },
+    [cancelDropdownClose, closeDropdown, updateDropdownRect],
+  );
 
   const measureBubble = useCallback((id: NavItemId) => {
     const container = barRef.current;
@@ -95,8 +168,8 @@ export function DesktopTabNav({
     }
 
     setBubble({
-      left: linkRect.left - containerRect.left,
-      top: linkRect.top - containerRect.top,
+      left: linkRect.left - containerRect.left - container.clientLeft,
+      top: linkRect.top - containerRect.top - container.clientTop,
       width,
       height,
     });
@@ -104,29 +177,49 @@ export function DesktopTabNav({
 
   useEffect(() => {
     const prev = prevVisualActiveIdRef.current;
-    const tabChanged = prev !== visualActiveId;
+    const tabChanged = prev !== bubbleActiveId;
 
     setBubbleAnimates(!isFirstMeasureRef.current && tabChanged);
     isFirstMeasureRef.current = false;
 
-    if (visualActiveId) {
-      measureBubble(visualActiveId);
+    if (bubbleActiveId) {
+      measureBubble(bubbleActiveId);
     } else {
       setBubble((current) => ({ ...current, width: 0 }));
     }
-    prevVisualActiveIdRef.current = visualActiveId;
-  }, [visualActiveId, measureBubble]);
+    prevVisualActiveIdRef.current = bubbleActiveId;
+  }, [bubbleActiveId, measureBubble]);
 
   useEffect(() => {
     const handleResize = () => {
       setBubbleAnimates(false);
-      if (visualActiveId) {
-        measureBubble(visualActiveId);
+      if (bubbleActiveId) {
+        measureBubble(bubbleActiveId);
+      }
+
+      if (openDropdownId) {
+        const button = linkRefs.current[openDropdownId];
+        if (button) updateDropdownRect(button);
       }
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [visualActiveId, measureBubble]);
+  }, [bubbleActiveId, measureBubble, openDropdownId, updateDropdownRect]);
+
+  useEffect(() => {
+    if (!openDropdownId) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeDropdown();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [closeDropdown, openDropdownId]);
+
+  useEffect(() => {
+    return () => cancelDropdownClose();
+  }, [cancelDropdownClose]);
 
   const headerClass =
     placement === "fixed-top"
@@ -134,13 +227,32 @@ export function DesktopTabNav({
       : "relative z-10 hidden w-full justify-center px-6 md:flex";
 
   const shouldBubbleMotionBlur =
-    bubbleAnimates && !reduced && visualActiveId !== null;
+    bubbleAnimates && !reduced && bubbleActiveId !== null;
 
   const baseWidth = bubbleSize.width;
   const baseHeight = bubbleSize.height;
   const scaleX = bubble.width > 0 ? bubble.width / baseWidth : 1;
   const scaleY = bubble.height > 0 ? bubble.height / baseHeight : 1;
   const signInActive = visualActiveId === SIGN_IN_ITEM.id;
+  const openDropdownItem = openDropdownId
+    ? CENTER_NAV_ITEMS.find((item) => item.id === openDropdownId)
+    : null;
+  const dropdownMotion = reduced
+    ? {
+        initial: false as const,
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        transition: { duration: 0.08 },
+      }
+    : {
+        initial: { opacity: 0, y: -6, scale: 0.97 },
+        animate: { opacity: 1, y: 0, scale: 1 },
+        exit: { opacity: 0, y: -4, scale: 0.98 },
+        transition: {
+          duration: 0.19,
+          ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+        },
+      };
 
   return (
     <header className={headerClass}>
@@ -152,7 +264,7 @@ export function DesktopTabNav({
           borderBottomRightRadius: "var(--pl-radius-tab)",
         }}
       >
-        {visualActiveId && bubble.width > 0 ? (
+        {bubbleActiveId && bubble.width > 0 ? (
           <motion.div
             className="plotline-glass-strong pointer-events-none absolute left-0 top-0 rounded-[var(--pl-radius-bubble)] border border-[var(--pl-glass-border)]"
             style={{
@@ -206,7 +318,7 @@ export function DesktopTabNav({
 
         <div className="relative z-10 flex min-h-10 items-center justify-center">
           <nav
-            className="relative flex items-center"
+            className="relative flex items-center gap-2.5"
             aria-label="Primary"
           >
             {CENTER_NAV_ITEMS.map((item) => {
@@ -220,15 +332,41 @@ export function DesktopTabNav({
                   reduced={reduced}
                   type="button"
                   onClick={() => onNavigate(item.id)}
+                  onMouseEnter={(event) => openDropdown(item, event.currentTarget)}
+                  onMouseLeave={scheduleDropdownClose}
+                  onFocus={(event) => openDropdown(item, event.currentTarget)}
+                  onBlur={scheduleDropdownClose}
                   id={idPrefix ? `${idPrefix}-tab-${item.id}` : undefined}
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative px-4 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)] ${
+                  aria-haspopup={item.dropdownItems ? "menu" : undefined}
+                  aria-expanded={
+                    item.dropdownItems ? openDropdownId === item.id : undefined
+                  }
+                  className={`relative inline-flex h-10 box-border items-center justify-center whitespace-nowrap rounded-full border border-transparent px-[18px] py-0 text-sm font-medium leading-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)] ${
                     isActive
                       ? "text-[var(--pl-tab-active-text)]"
                       : "text-[var(--pl-text-muted)] hover:text-[var(--pl-pink-light)]"
                   }`}
                 >
-                  <AnimatedText active={isActive}>{item.label}</AnimatedText>
+                  {item.dropdownItems ? (
+                    <span className="relative z-10 grid grid-cols-[14px_auto_14px] items-center gap-1.5 whitespace-nowrap leading-none">
+                      <span className="h-[14px] w-[14px]" aria-hidden />
+                      <AnimatedText active={isActive}>{item.label}</AnimatedText>
+                      <span className="flex h-[14px] w-[14px] shrink-0 items-center justify-center" aria-hidden>
+                        <span
+                          className={`plotline-dropdown-chevron ${
+                            openDropdownId === item.id
+                              ? "plotline-dropdown-chevron--open"
+                              : ""
+                          }`}
+                        />
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="relative z-10 inline-flex items-center justify-center whitespace-nowrap leading-none">
+                      <AnimatedText active={isActive}>{item.label}</AnimatedText>
+                    </span>
+                  )}
                 </MagneticTabButton>
               );
             })}
@@ -246,7 +384,7 @@ export function DesktopTabNav({
           onMouseLeave={() => setSignInHovered(false)}
           id={idPrefix ? `${idPrefix}-tab-${SIGN_IN_ITEM.id}` : undefined}
           aria-current={signInActive ? "page" : undefined}
-          className={`plotline-sign-in-btn relative z-10 flex shrink-0 items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)] ${
+          className={`plotline-sign-in-btn relative z-10 flex h-10 shrink-0 items-center justify-center rounded-full px-4 py-0 text-sm font-medium leading-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pl-pink-light)] ${
             signInActive
               ? "plotline-sign-in-btn--active min-w-[5.5rem] text-[var(--pl-tab-active-text)]"
               : "text-[var(--pl-text-muted)] hover:text-[var(--pl-pink-light)]"
@@ -282,6 +420,44 @@ export function DesktopTabNav({
           </AnimatedText>
         </motion.button>
       </div>
+      <AnimatePresence>
+        {openDropdownItem?.dropdownItems ? (
+          <motion.div
+            key={openDropdownItem.id}
+            className="plotline-dropdown-layer fixed"
+            style={{
+              left: dropdownRect.left,
+              top: dropdownRect.top,
+              width: DROPDOWN_WIDTH,
+              transformOrigin: "top center",
+            }}
+            onMouseEnter={cancelDropdownClose}
+            onMouseLeave={scheduleDropdownClose}
+            onFocus={cancelDropdownClose}
+            onBlur={scheduleDropdownClose}
+            {...dropdownMotion}
+          >
+            <div className="plotline-dropdown-bridge" aria-hidden />
+            <div
+              role="menu"
+              aria-label={`${openDropdownItem.label} menu`}
+              className="plotline-dropdown-panel"
+            >
+              {openDropdownItem.dropdownItems.map((dropdownItem) => (
+                <button
+                  key={dropdownItem}
+                  type="button"
+                  role="menuitem"
+                  className="plotline-dropdown-item"
+                  onClick={closeDropdown}
+                >
+                  {dropdownItem}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </header>
   );
 }

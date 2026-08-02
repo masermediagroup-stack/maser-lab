@@ -4,6 +4,14 @@ import path from "path";
 const repoRoot = path.join(process.cwd(), "..");
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+  },
   turbopack: {
     root: repoRoot,
     resolveAlias: {

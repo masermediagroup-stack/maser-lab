@@ -1,6 +1,6 @@
 # Figma / visual reference — Blobby Rotation Loader
 
-No Figma file. Reference is a mobile playground screenshot set.
+No Figma file. Reference is a mobile Maser-Lab screenshot set.
 
 ## Layout
 

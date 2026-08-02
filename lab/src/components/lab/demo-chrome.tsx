@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -18,12 +19,33 @@ export function DemoBackButton({ className }: DemoBackButtonProps) {
   );
 }
 
+type DemoLabBrandProps = {
+  className?: string;
+};
+
+export function DemoLabBrand({ className }: DemoLabBrandProps) {
+  return (
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+      <DemoBackButton />
+      <Image
+        src="/brand/masermedia-logo-bold-blue.png"
+        alt="MaserMedia"
+        width={120}
+        height={28}
+        className="hidden h-7 w-auto sm:block"
+      />
+    </div>
+  );
+}
+
 type LabButtonProps = {
   children: ReactNode;
   className?: string;
   variant?: "ghost" | "accent" | "outline";
   type?: "button" | "submit";
   onClick?: () => void;
+  "aria-label"?: string;
+  "aria-pressed"?: boolean;
 };
 
 export function LabButton({
@@ -32,19 +54,23 @@ export function LabButton({
   variant = "ghost",
   type = "button",
   onClick,
+  "aria-label": ariaLabel,
+  "aria-pressed": ariaPressed,
 }: LabButtonProps) {
   return (
     <button
       type={type}
       onClick={onClick}
+      aria-label={ariaLabel}
+      aria-pressed={ariaPressed}
       className={cn(
-        "rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-colors",
+        "rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-[color,background-color,box-shadow,transform] duration-150",
         variant === "ghost" &&
-          "border-[var(--lab-border)] bg-[var(--lab-surface)] text-[var(--lab-text-primary)] hover:border-[var(--lab-accent-primary)] hover:text-[var(--lab-accent-primary)]",
+          "border-[var(--lab-border)] bg-[var(--lab-surface)] text-[var(--lab-text-primary)] hover:bg-[rgba(16,164,255,0.08)] hover:text-[var(--lab-accent-primary)]",
         variant === "accent" &&
           "border-[var(--lab-accent-primary)] bg-[rgba(16,164,255,0.12)] text-[var(--lab-accent-primary)]",
         variant === "outline" &&
-          "border-[var(--lab-border-strong)] bg-transparent text-[var(--lab-text-secondary)] hover:text-[var(--lab-text-primary)]",
+          "border-[var(--lab-border-strong)] bg-transparent text-[var(--lab-text-secondary)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--lab-text-primary)]",
         className,
       )}
     >
@@ -70,6 +96,8 @@ export function ReducedMotionToggle({
       variant={enabled ? "accent" : "ghost"}
       onClick={onToggle}
       className={className}
+      aria-label="Toggle reduced motion"
+      aria-pressed={enabled}
     >
       Reduced motion: {enabled ? "on" : "off"}
     </LabButton>
@@ -123,10 +151,37 @@ type DemoControlBarProps = {
 };
 
 export function DemoControlBar({ className, children }: DemoControlBarProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const syncOffset = () => {
+      const bottom = node.getBoundingClientRect().bottom;
+      document.documentElement.style.setProperty(
+        "--lab-control-bar-bottom",
+        `${bottom + 12}px`,
+      );
+    };
+
+    syncOffset();
+    const observer = new ResizeObserver(syncOffset);
+    observer.observe(node);
+    window.addEventListener("resize", syncOffset);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", syncOffset);
+      document.documentElement.style.removeProperty("--lab-control-bar-bottom");
+    };
+  }, []);
+
   return (
     <div
+      ref={ref}
       className={cn(
-        "fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[rgba(10,10,11,0.88)] p-2 backdrop-blur-md",
+        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[rgba(10,10,11,0.88)] p-2 backdrop-blur-md",
         className,
       )}
     >

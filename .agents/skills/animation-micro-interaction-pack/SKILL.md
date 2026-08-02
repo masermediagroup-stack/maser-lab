@@ -39,3 +39,12 @@ animation: {
 ## Best Practices
 
 Use 200-300ms for micro-interactions, respect prefers-reduced-motion, animate transform/opacity for performance, add easing functions, stagger list items, provide hover/active states.
+
+## Maser-Lab note
+
+This is a **pattern/snippet pack**, not the craft bar. In Maser-Lab:
+
+1. Load `maser-lab-web` and validate against `references/rules.md`
+2. Use `find-animation-opportunities` before adding decorative motion
+3. Final motion review → `review-animations`
+4. Prefer product motion tokens (`rule/motion-token-cohesion`) over one-off preset timings

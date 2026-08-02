@@ -8,7 +8,7 @@
 
 | Source | URL / node | Notes |
 | --- | --- | --- |
-| Figma file | https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/web-component-and-interaction-playground | Playground source |
+| Figma file | https://www.figma.com/design/f2TLFWW5Eg8aqczRjuZ403/Maser-Lab-web-component-and-interaction-file | Maser-Lab source |
 | Desktop frame | `19:2` | `SummitPath - Sign Up` — 1920×1080 |
 | Mobile frame | `56:570` | `SummitPath - Sign Up-mobile` — 452×1168 |
 | Motion node | `45:16` | Hikelogo — opacity + x keyframes, 3.505s loop |
