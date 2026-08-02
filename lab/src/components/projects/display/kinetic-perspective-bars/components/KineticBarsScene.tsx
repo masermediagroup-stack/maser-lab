@@ -17,6 +17,20 @@ type KineticBarsSceneProps = {
   reducedMotion: boolean;
 };
 
+/** Stable Canvas props — new object literals each render reconfigure R3F. */
+const CANVAS_GL = {
+  antialias: true,
+  alpha: false,
+  powerPreference: "high-performance" as const,
+};
+
+const CANVAS_CAMERA = {
+  fov: 28,
+  near: 0.1,
+  far: 60,
+  position: [4.8, 2.6, 5.4] as [number, number, number],
+};
+
 function SceneInner({
   params,
   reducedMotion,
@@ -126,17 +140,8 @@ export function KineticBarsScene({
     <div ref={containerRef} className="kinetic-bars-canvas h-full w-full">
       <Canvas
         dpr={dpr}
-        gl={{
-          antialias: true,
-          alpha: false,
-          powerPreference: "high-performance",
-        }}
-        camera={{
-          fov: 28,
-          near: 0.1,
-          far: 60,
-          position: params.cameraPosition,
-        }}
+        gl={CANVAS_GL}
+        camera={CANVAS_CAMERA}
         frameloop={inView ? "always" : "demand"}
         style={{ width: "100%", height: "100%", touchAction: "none" }}
       >

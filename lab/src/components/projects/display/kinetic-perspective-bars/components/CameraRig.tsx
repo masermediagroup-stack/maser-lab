@@ -37,9 +37,6 @@ export function CameraRig({
       camera.position.set(x * invZoom, y * invZoom, z * invZoom);
     }
     camera.lookAt(0, 0.9, 0);
-    if ("isPerspectiveCamera" in camera && camera.isPerspectiveCamera) {
-      camera.updateProjectionMatrix();
-    }
   });
 
   return <group ref={pivotRef} />;
