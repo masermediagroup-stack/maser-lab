@@ -29,6 +29,7 @@ Pick a **category** from `projects/categories.json` that matches the primary job
 | Responsive / touch Harden pass | `.agents/skills/maser-lab-responsive-qa/SKILL.md` |
 | Product vs lab CSS tokens | `.agents/skills/maser-lab-token-system/SKILL.md` |
 | Three.js, shaders, 3D, WebGL/WebGPU, scroll/pointer 3D | `.agents/skills/maser-lab-threejs/SKILL.md` |
+| **Maser Dither / Surface Engine** (`maser-dither-engine`) | `projects/display/maser-dither-engine/AGENTS.md` then `lab/src/components/projects/display/maser-dither-engine/engine/AGENTS.md` |
 | Figma reference, design-to-code, code-to-Figma, Code Connect | `.agents/skills/figma-design-workflow/SKILL.md` |
 | Discovering or installing more skills | `.agents/skills/find-skills/SKILL.md` |
 | End-to-end verification after implementation | `.agents/skills/verification/SKILL.md` |
@@ -100,6 +101,18 @@ See `.agents/skills/maser-lab-threejs/references/quality-gates.md`.
 - [ ] WebGL fallback implemented or documented
 - [ ] Mobile simplification considered
 - [ ] Geometry/material/texture disposal on unmount
+
+### Maser Dither Engine (`display/maser-dither-engine`) — mandatory
+
+This slug is a **shared WebGL2 procedural pipeline** (not Three.js). Before any edit to `engine/` or shaders:
+
+1. Read `projects/display/maser-dither-engine/AGENTS.md` and `lab/.../engine/AGENTS.md`.
+2. Read `lab/.../docs/engine-lessons.md` (Sprint 6 black-screen postmortem).
+3. **Do not** switch `VERT_SRC` off `gl_VertexID` without a VBO in `SurfaceRenderer`.
+4. **Do not** strip `SAMPLE_GLSL` helpers (`sampleBayer` / `sampleBlue` / `uPosterization`).
+5. **Do not** spawn many live WebGL thumbs (Materials grid = CSS swatches).
+6. **Do not** reintroduce Sprint 5 duplicate controls or Color “behavior” chips for structure.
+7. Verify `/demos/maser-dither-engine` renders a **non-black** surface after shader changes.
 
 ## Branch naming (Cloud Agents)
 

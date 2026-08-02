@@ -44,9 +44,15 @@ Advanced mode: enable / bypass / solo. Bits packed into `uMatLayerBits`. Value c
 
 ## UI
 
-- **Materials page:** family filters, search, live WebGL thumbs, favorites, detail, side/swipe/A-B compare
+- **Materials page:** family filters, search, **CSS swatch** thumbs (not one WebGL context per card — context budget), favorites, detail with **one** live preview, side/swipe/A-B compare
 - **Playground Material panel:** material picker + contextual sliders + Advanced layer recipe
 - **Color panel:** palette / gradient only — behavior chips removed (structure is Material panel)
+
+## Agent contracts
+
+- `projects/display/maser-dither-engine/AGENTS.md`
+- `engine/AGENTS.md`
+- `docs/engine-lessons.md` — Sprint 6 black-screen causes and rules R1–R7
 
 ## Presets added
 

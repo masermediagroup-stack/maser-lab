@@ -94,6 +94,17 @@ _Patterns ship with projects; document in `lab-patterns-threejs.md`._
 | Renderer factory | Scaffold in `lab/src/three/utils/` |
 | Static fallback component | Scaffold in `lab/src/three/fallbacks/` |
 | R3F kinetic bar sculpture | Shipped: `display/kinetic-perspective-bars` — shared `useFrame`, mode blend, pointer ripple |
+| Shared procedural dither surface | Shipped: `display/maser-dither-engine` — **not Three.js**; see project + `engine/AGENTS.md` |
+
+## Maser Dither Engine (non-Three.js WebGL2)
+
+Do not treat this as a Three.js scene. One shared program in `engine/pipeline/stages.ts`:
+
+- VERT: `gl_VertexID` fullscreen triangle (no attribute VBO today)
+- FRAG: Animation → Interaction → Material UV → Light → Material field → Tone → Dither → Grain → Color → Material finish
+- Controllers pack uniforms; Material (Sprint 6) owns structure; Color owns chroma only
+
+**Never regress:** stripping `SAMPLE_GLSL`, renaming `uPosterization`, or switching VERT to `aPos` without binding a buffer. Details: `projects/display/maser-dither-engine/AGENTS.md`, `docs/engine-lessons.md`.
 
 ## HyperFrames vs Maser-Lab loops
 

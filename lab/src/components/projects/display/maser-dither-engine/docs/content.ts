@@ -48,7 +48,12 @@ export const DOCS_TOPICS = [
   {
     id: "procedural-materials",
     title: "Procedural Materials (Sprint 6)",
-    body: `engine/material/ defines Paper, Ink, Velvet, Metal, Smoke, Fog, Cloud, Glass, Chrome, and CRT as true procedural materials with distinct UV, structure, finish, and interaction response under identical shared lighting/palette/dither. MaterialController packs uMat* uniforms; layer recipe (enable/bypass/solo) gates structure without shader recompile. Materials page: live thumbnails, family filters, search, favorites, detail, side/swipe/A-B compare. Playground Material panel shows only supportedControls for the active material. Performance tiers + mobile lowQuality. CRT flicker capped; reduced motion zeros flicker. See docs/sprint6-materials.md.`,
+    body: `engine/material/ defines Paper, Ink, Velvet, Metal, Smoke, Fog, Cloud, Glass, Chrome, and CRT as true procedural materials with distinct UV, structure, finish, and interaction response under identical shared lighting/palette/dither. MaterialController packs uMat* uniforms; layer recipe (enable/bypass/solo) gates structure without shader recompile. Materials page: CSS swatch thumbs (context budget), family filters, search, favorites, detail with one live preview, side/swipe/A-B compare. Playground Material panel shows only supportedControls for the active material. Performance tiers + mobile lowQuality. CRT flicker capped; reduced motion zeros flicker. Sacred contracts: projects/.../AGENTS.md + engine/AGENTS.md. See docs/sprint6-materials.md and docs/engine-lessons.md.`,
+  },
+  {
+    id: "engine-contracts",
+    title: "Engine Contracts (Agents)",
+    body: `One shared program in engine/pipeline/stages.ts. VERT uses gl_VertexID fullscreen triangle — never switch to aPos without a VBO in SurfaceRenderer. SAMPLE_GLSL must keep sampleBayer/sampleBlue/uPosterization helpers (DITHER_GLSL depends on them). Material owns structure; Color owns chroma; do not reintroduce Sprint 5 duplicate controls. Cap live WebGL contexts in UI chrome. After any shader edit, verify a non-black surface at /demos/maser-dither-engine. Full rules: docs/engine-lessons.md (R1–R7).`,
   },
   {
     id: "content-editing",

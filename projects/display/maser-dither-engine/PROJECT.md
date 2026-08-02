@@ -223,7 +223,11 @@ Tiers: lightweight / standard / advanced. Mobile `lowQuality` reduces FBM octave
 
 ### Docs
 
-`docs/sprint6-materials.md`
+`docs/sprint6-materials.md` · `docs/engine-lessons.md` (postmortem) · project `AGENTS.md` + `engine/AGENTS.md`
+
+### Incident note (engine load)
+
+Sprint 6 briefly broke all surfaces by (1) switching VERT to `aPos` without a VBO and (2) stripping `SAMPLE_GLSL` helpers still required by dither. Fixed by restoring the Sprint 5 vertex path + full SAMPLE block and using CSS Materials thumbs. **Do not regress** — see `docs/engine-lessons.md`.
 
 ### Sprint 7 recommendations
 

@@ -8,7 +8,8 @@
 2. Read `SKILL.md` and resolve **request mode**
 3. Load routed references from `references/` (see SKILL.md routing table)
 4. Load project context from `projects/{category}/{slug}/PROJECT.md` when a slug is in scope
-5. Chain to domain skills only when SKILL.md routes you there — do not duplicate their content
+5. If slug is `maser-dither-engine`, also load `projects/display/maser-dither-engine/AGENTS.md` and `lab/.../engine/AGENTS.md` before any `engine/` edits
+6. Chain to domain skills only when SKILL.md routes you there — do not duplicate their content
 
 ## Validation before closing work
 
