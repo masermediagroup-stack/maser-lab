@@ -19,13 +19,15 @@ const NAV_PRIMARY: { route: AppRoute; label: string; shortcut: string }[] = [
   { route: { view: "overview" }, label: "Overview", shortcut: "1" },
   { route: { view: "components" }, label: "Components", shortcut: "2" },
   { route: { view: "materials" }, label: "Materials", shortcut: "3" },
-  { route: { view: "presets" }, label: "Presets", shortcut: "4" },
-  { route: { view: "playground" }, label: "Playground", shortcut: "5" },
-  { route: { view: "docs" }, label: "Documentation", shortcut: "6" },
+  { route: { view: "projects" }, label: "Studio", shortcut: "4" },
+  { route: { view: "presets" }, label: "System", shortcut: "5" },
+  { route: { view: "playground" }, label: "Playground", shortcut: "6" },
+  { route: { view: "docs" }, label: "Documentation", shortcut: "7" },
 ];
 
 function isActive(route: AppRoute, target: AppRoute): boolean {
   if (route.view === "component" && target.view === "components") return true;
+  if (route.view === "projects" && target.view === "projects") return true;
   if (route.view !== target.view) return false;
   if (route.view === "docs" && target.view === "docs") return true;
   return route.view === target.view;

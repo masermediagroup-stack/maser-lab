@@ -233,18 +233,43 @@ Sprint 6 briefly broke all surfaces by (1) switching VERT to `aPos` without a VB
 
 Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives luminance (cover-fit); full dither/material/lighting pipeline recreates the look on the photo. Image Frame is the primary surface; every adapter accepts `sourceUrl`.
 
-### Sprint 7 recommendations
+## Sprint 7 — Preset Studio, Projects & Mobile Workspace
 
+**Status:** shipping on this branch.
+
+### Delivered
+
+- [x] Preset Studio (`#/projects`) — system vs user, grid/list, search, sort, favorites, import/export
+- [x] User project CRUD — save / save as / autosave / rename / duplicate / delete
+- [x] System presets protected (never overwritten; Save As forks)
+- [x] Thumbnail capture from live canvas on save
+- [x] Undo / redo history stack (debounced)
+- [x] Material Dock (inspect / apply / long-press / reorder)
+- [x] Mobile bottom nav + bottom sheet editor
+- [x] Control search + favorite control chips
+- [x] Workspace modes: Beginner / Advanced / Presentation / Debug
+- [x] Quick actions (save, export, reset, thumbnail, …)
+- [x] Persistent `mde:projects:v1` library
+- [x] Docs: `docs/sprint7-workspace.md`
+
+### Architecture notes
+
+`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions. Renderer untouched.
+
+### Sprint 8 recommendations
+
+- Cloud sync / share links for project JSON
+- Live Material Dock thumbnails (shared offscreen blit, no extra WebGL contexts)
+- Timeline snapshots / version history UI
+- Wire StudioSlider across every panel by default
+- Component inspector sheet (padding / radius / content) as first-class dock target
+- Drag material from dock onto component adapters with drop highlight
 - Deeper frosted/clear glass variants with background sampling when available
 - Ceramic / newsprint / brushed aluminum as first-class IDs beyond presets
-- Canvas2D approximate material fields
-- Persist material + layer recipe in localStorage with presets
-- Visual regression: materials × components × dither algorithms
-- Optional environment-band LUT for chrome without full cubemaps
 
 ### Sprint 5 leftover recommendations (still open)
 
 - Canvas2D parity for non-Bayer algorithms
 - Log-mapped sliders for radius / exposure / pattern scale
-- Persist full `DitherEngineConfig` blobs (not only panel open state)
 - Visual regression suite for algorithms × matrix sizes
+- Optional environment-band LUT for chrome without full cubemaps

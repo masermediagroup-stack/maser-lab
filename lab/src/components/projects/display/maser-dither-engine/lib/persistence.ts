@@ -71,6 +71,7 @@ export function parseHash(hash: string): AppRoute {
   if (h === "components") return { view: "components" };
   if (h === "materials") return { view: "materials" };
   if (h === "presets") return { view: "presets" };
+  if (h === "projects" || h === "studio") return { view: "projects" };
   if (h === "playground") return { view: "playground" };
   if (h === "docs" || h.startsWith("docs/")) {
     const topic = h.includes("/") ? h.split("/")[1] : undefined;
@@ -95,6 +96,8 @@ export function routeToHash(route: AppRoute): string {
       return "#/materials";
     case "presets":
       return "#/presets";
+    case "projects":
+      return "#/projects";
     case "playground":
       return "#/playground";
     case "docs":
