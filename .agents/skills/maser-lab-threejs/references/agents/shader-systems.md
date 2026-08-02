@@ -15,11 +15,14 @@ Custom shader work: animated backgrounds, GLSL/WGSL/TSL, procedural visuals, noi
 
 1. **CSS** — simple gradients, blur (no custom mesh)
 2. **Canvas 2D** — 2D procedural, no depth
-3. **Three.js ShaderMaterial** — full-screen or mesh shaders
-4. **Post-processing** — screen-space bloom, DOF, custom passes
-5. **Node Materials / TSL** — when official docs recommend for target Three.js version
+3. **Maser Dither Engine** — if slug is `maser-dither-engine` or you need shared dither/lighting/material surfaces: extend `engine/pipeline/stages.ts` only. Read project + `engine/AGENTS.md` first. **Do not** replace with Three.js.
+4. **Three.js ShaderMaterial** — full-screen or mesh shaders for other 3D demos
+5. **Post-processing** — screen-space bloom, DOF, custom passes
+6. **Node Materials / TSL** — when official docs recommend for target Three.js version
 
-Load `threejs-shaders` and `threejs-postprocessing` skills. Verify APIs at [threejs.org/docs](https://threejs.org/docs/).
+Load `threejs-shaders` and `threejs-postprocessing` skills for Three.js paths. Verify APIs at [threejs.org/docs](https://threejs.org/docs/).
+
+For `maser-dither-engine`: preserve `gl_VertexID` VERT, full `SAMPLE_GLSL`, and `uPosterization` name alignment with `SurfaceRenderer`.
 
 ## Preferred uniform naming
 
