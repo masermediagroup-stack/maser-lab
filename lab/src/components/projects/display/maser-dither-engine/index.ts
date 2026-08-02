@@ -112,7 +112,7 @@ export type {
   MonochromeUniformState,
   DitherSize,
   MaterialId,
-  MaterialDefinition,
+  MaterialCatalogEntry,
   SurfaceCanvasProps,
   SurfaceCardProps,
   SurfaceRendererKind,
@@ -124,3 +124,22 @@ export type {
   AppRoute,
   DitherAdapterProps,
 } from "./types";
+export {
+  MATERIAL_FAMILIES,
+  PROCEDURAL_MATERIALS,
+  MaterialController,
+  DEFAULT_MATERIAL_CONFIG,
+  DEFAULT_MATERIAL_PARAMS,
+  getMaterialDefinition,
+  listReadyMaterials,
+  createDefaultLayers,
+} from "./engine/material";
+export type {
+  EngineMaterialId,
+  ProceduralMaterialId,
+  MaterialFamilyId,
+  MaterialEngineConfig,
+  MaterialDefinition as ProceduralMaterialDefinition,
+  MaterialLayer,
+  PerformanceTier,
+} from "./engine/material";

@@ -3,10 +3,6 @@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import {
-  applyBehavior,
-  MATERIAL_BEHAVIORS,
-} from "../engine/color/behaviors";
-import {
   applyPaletteToConfig,
   MATERIAL_PALETTES,
 } from "../engine/color/palettes";
@@ -15,7 +11,6 @@ import type {
   ColorMaterialConfig,
   GradientBehaviorId,
   GradientModeId,
-  MaterialBehaviorId,
   MaterialColors,
   Rgb,
 } from "../engine/color/types";
@@ -113,7 +108,8 @@ function formatValue(v: number): string {
 }
 
 /**
- * Palette studio + gradient / blend / behavior / material properties.
+ * Palette studio + gradient / blend / color properties.
+ * Procedural material structure lives in ProceduralMaterialPanel.
  */
 export function MaterialPanel({
   value,
@@ -282,30 +278,11 @@ export function MaterialPanel({
       </div>
 
       <div className="mde-field">
-        <span className="mde-field__label">Material Behavior</span>
-        <div className="mde-preset-row">
-          {MATERIAL_BEHAVIORS.map((b) => (
-            <button
-              key={b.id}
-              type="button"
-              className={cn(
-                "mde-chip",
-                value.behavior === b.id && "mde-chip--active",
-              )}
-              title={b.description}
-              aria-pressed={value.behavior === b.id}
-              onClick={() =>
-                onChange(applyBehavior(value, b.id as MaterialBehaviorId))
-              }
-            >
-              {b.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mde-field">
         <span className="mde-field__label">Material Colors</span>
+        <p className="mde-field__hint">
+          Palette only — procedural structure is owned by the Material panel
+          (Sprint 6).
+        </p>
         <div className="mde-mat-colors">
           {(advanced
             ? [...COLOR_PICKERS_BASIC, ...COLOR_PICKERS_ADVANCED]

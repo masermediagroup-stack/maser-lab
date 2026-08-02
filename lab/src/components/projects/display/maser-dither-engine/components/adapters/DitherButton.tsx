@@ -27,6 +27,7 @@ export function DitherButton({
   color,
   light,
   dither,
+  material,
   content,
   reducedMotion,
   className,
@@ -59,6 +60,7 @@ export function DitherButton({
           color={color}
           light={light}
           dither={dither}
+          material={material}
           params={{ ...params, opacity: 1 }}
           pointer={pointer}
           reducedMotion={reducedMotion}

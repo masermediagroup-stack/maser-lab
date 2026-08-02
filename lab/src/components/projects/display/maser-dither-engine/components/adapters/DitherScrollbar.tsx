@@ -13,6 +13,7 @@ export function DitherScrollbar({
   color,
   light,
   dither,
+  material,
   content,
   reducedMotion,
   className,
@@ -38,6 +39,7 @@ export function DitherScrollbar({
             color={color}
           light={light}
           dither={dither}
+          material={material}
             reducedMotion={reducedMotion}
           />
         </div>

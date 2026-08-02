@@ -10,6 +10,8 @@ import { LightShapeController } from "../engine/lighting/LightShapeController";
 import type { LightShapeConfig } from "../engine/lighting/types";
 import { DitherController } from "../engine/dither/DitherController";
 import type { DitherConfig } from "../engine/dither/types";
+import { MaterialController } from "../engine/material/MaterialController";
+import type { MaterialEngineConfig } from "../engine/material/types";
 import { AnimationLoop } from "../engine/core/AnimationLoop";
 import {
   tryCreateSurfaceRenderer,
@@ -33,6 +35,7 @@ type EngineHandle = {
   color: ColorMaterialController;
   light: LightShapeController;
   dither: DitherController;
+  material: MaterialController;
   kind: "webgl2" | "canvas2d";
   externalPointer: boolean;
   dispose: () => void;
@@ -51,6 +54,7 @@ function mountEngine(
   initialColor?: Partial<ColorMaterialConfig>,
   initialLight?: Partial<LightShapeConfig>,
   initialDither?: Partial<DitherConfig>,
+  initialMaterial?: Partial<MaterialEngineConfig>,
 ): EngineHandle {
   const store = new UniformStore();
   const scroll = new ScrollField();
@@ -59,6 +63,7 @@ function mountEngine(
   const color = new ColorMaterialController(initialColor);
   const light = new LightShapeController(initialLight);
   const dither = new DitherController(initialDither);
+  const material = new MaterialController(initialMaterial);
 
   let renderer: SurfaceRenderer | Canvas2DRenderer;
   let kind: "webgl2" | "canvas2d";
@@ -94,6 +99,7 @@ function mountEngine(
       const colorPayload = color.tick(dt, reduced);
       const lightPayload = light.tick(dt, reduced);
       const ditherPayload = dither.tick();
+      const materialPayload = material.tick(reduced);
       renderer.draw(
         current,
         payload,
@@ -101,6 +107,7 @@ function mountEngine(
         colorPayload,
         lightPayload,
         ditherPayload,
+        materialPayload,
       );
     },
   });
@@ -115,6 +122,7 @@ function mountEngine(
     color,
     light,
     dither,
+    material,
     kind,
     externalPointer: false,
     dispose: () => {
@@ -135,6 +143,7 @@ export function SurfaceCanvas({
   color,
   light,
   dither,
+  material,
   className,
   style,
   reducedMotion = false,
@@ -152,6 +161,7 @@ export function SurfaceCanvas({
   const initialColorRef = useRef(color);
   const initialLightRef = useRef(light);
   const initialDitherRef = useRef(dither);
+  const initialMaterialRef = useRef(material);
   const pointerPropRef = useRef(pointer);
 
   const onParams = useEffectEvent((p?: Partial<MonochromeParams>) => {
@@ -186,6 +196,10 @@ export function SurfaceCanvas({
 
   const onDither = useEffectEvent((cfg?: Partial<DitherConfig>) => {
     if (cfg) engineRef.current?.dither.syncFromProps(cfg);
+  });
+
+  const onMaterial = useEffectEvent((cfg?: Partial<MaterialEngineConfig>) => {
+    if (cfg) engineRef.current?.material.syncFromProps(cfg);
   });
 
   const onPointerProp = useEffectEvent(
@@ -238,6 +252,7 @@ export function SurfaceCanvas({
       initialColorRef.current,
       initialLightRef.current,
       initialDitherRef.current,
+      initialMaterialRef.current,
     );
     engineRef.current = engine;
 
@@ -247,6 +262,9 @@ export function SurfaceCanvas({
       engine.renderer.resize(rect.width, rect.height, dpr);
       engine.store.setResolution(rect.width, rect.height, dpr);
       engine.ix.setViewportSize(rect.width, rect.height);
+      // Mobile simplification — keep visual identity, lower octaves
+      const lowQ = rect.width < 360 || (typeof window !== "undefined" && window.innerWidth < 640);
+      engine.material.setLowQuality(lowQ);
     };
 
     resize();
@@ -347,6 +365,10 @@ export function SurfaceCanvas({
   useEffect(() => {
     onDither(dither);
   }, [dither]);
+
+  useEffect(() => {
+    onMaterial(material);
+  }, [material]);
 
   useEffect(() => {
     onPointerProp(pointer);

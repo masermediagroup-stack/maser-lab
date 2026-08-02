@@ -5,6 +5,8 @@ import type { ColorMaterialConfig } from "./engine/color/types";
 import type { InteractionEngineConfig } from "./engine/interaction/types";
 import type { LightShapeConfig } from "./engine/lighting/types";
 import type { DitherConfig } from "./engine/dither/types";
+import type { MaterialEngineConfig } from "./engine/material/types";
+import type { EngineMaterialId } from "./engine/material/types";
 
 /** Bayer matrix size options for ordered dithering. */
 export type DitherSize = 2 | 4 | 8 | 32 | 64;
@@ -50,19 +52,10 @@ export type MonochromeUniformState = MonochromeParams & {
 
 export type SurfaceRendererKind = "webgl2" | "canvas2d";
 
-/** Materials available or reserved in the Dither Engine catalog. */
-export type MaterialId =
-  | "monochrome"
-  | "gradient"
-  | "noise"
-  | "chrome"
-  | "paper"
-  | "velvet"
-  | "aurora"
-  | "water"
-  | "smoke";
+/** Procedural materials (Sprint 6) — structure, not palette aliases. */
+export type MaterialId = EngineMaterialId;
 
-export type MaterialDefinition = {
+export type MaterialCatalogEntry = {
   id: MaterialId;
   label: string;
   status: "ready" | "stub";
@@ -76,12 +69,14 @@ export type SurfaceCanvasProps = {
   animation?: Partial<AnimationEngineConfig>;
   /** Procedural interaction & lighting engine config. */
   interaction?: Partial<InteractionEngineConfig>;
-  /** Procedural color / gradient / material behavior config. */
+  /** Procedural color / gradient config (palette — not material structure). */
   color?: Partial<ColorMaterialConfig>;
   /** Procedural light-shape luminance config. */
   light?: Partial<LightShapeConfig>;
   /** Dither algorithm config (matrix size, pattern scale, algo-specific). */
   dither?: Partial<DitherConfig>;
+  /** Procedural material structure / recipe config. */
+  material?: Partial<MaterialEngineConfig>;
   className?: string;
   style?: CSSProperties;
   reducedMotion?: boolean;
@@ -103,6 +98,7 @@ export type SurfaceCardProps = {
   color?: Partial<ColorMaterialConfig>;
   light?: Partial<LightShapeConfig>;
   dither?: Partial<DitherConfig>;
+  material?: Partial<MaterialEngineConfig>;
   reducedMotion?: boolean;
   className?: string;
 };
@@ -146,6 +142,19 @@ export type PresetDefinition = {
   light?: Partial<LightShapeConfig>;
   /** Optional dither algorithm defaults. */
   dither?: Partial<DitherConfig>;
+  /** Optional procedural material structure / recipe. */
+  material?: {
+    materialId?: MaterialId;
+    params?: Partial<import("./engine/material/types").MaterialSpecificParams>;
+    layers?: import("./engine/material/types").MaterialLayer[];
+    lowQuality?: boolean;
+  };
+  /** Optional palette / color config. */
+  color?: Partial<ColorMaterialConfig>;
+  /** Optional animation defaults. */
+  animation?: Partial<AnimationEngineConfig>;
+  /** Optional interaction defaults. */
+  interaction?: Partial<InteractionEngineConfig>;
 };
 
 export type AppView =
@@ -190,6 +199,7 @@ export type DitherAdapterProps = {
   color?: Partial<ColorMaterialConfig>;
   light?: Partial<LightShapeConfig>;
   dither?: Partial<DitherConfig>;
+  material?: Partial<MaterialEngineConfig>;
   content?: Partial<ComponentContent>;
   reducedMotion?: boolean;
   className?: string;

@@ -14,6 +14,8 @@ import type { LightUniformPayload } from "../lighting/types";
 import { idleLightPayload } from "../lighting/types";
 import type { DitherUniformPayload } from "../dither/types";
 import { idleDitherPayload } from "../dither/types";
+import type { MaterialUniformPayload } from "../material/types";
+import { idleMaterialPayload } from "../material/types";
 
 const UNIFORM_NAMES = [
   "uResolution",
@@ -161,6 +163,15 @@ const UNIFORM_NAMES = [
   "uDitRoughness",
   "uDitSecondary",
   "uDitBlend",
+  "uMatId",
+  "uMatStructAmt",
+  "uMatIxResp",
+  "uMatLowQ",
+  "uMatP0",
+  "uMatP1",
+  "uMatP2",
+  "uMatP3",
+  "uMatLayerBits",
 ];
 
 function uploadBayer(
@@ -305,6 +316,7 @@ export class SurfaceRenderer {
     color: ColorUniformPayload = idleColorPayload(),
     light: LightUniformPayload = idleLightPayload(),
     dither: DitherUniformPayload = idleDitherPayload(),
+    material: MaterialUniformPayload = idleMaterialPayload(),
   ): void {
     if (this.disposed) return;
     const gl = this.gl;
@@ -390,12 +402,29 @@ export class SurfaceRenderer {
     this.uploadLight(gl, u, light);
     this.uploadColor(gl, u, color);
     this.uploadDither(gl, u, dither);
+    this.uploadMaterial(gl, u, material);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  private uploadMaterial(
+    gl: WebGL2RenderingContext,
+    u: Record<string, WebGLUniformLocation | null>,
+    m: MaterialUniformPayload,
+  ): void {
+    gl.uniform1f(u.uMatId, m.materialId);
+    gl.uniform1f(u.uMatStructAmt, m.structureAmount);
+    gl.uniform1f(u.uMatIxResp, m.interactionResponse);
+    gl.uniform1f(u.uMatLowQ, m.lowQuality);
+    gl.uniform4f(u.uMatP0, m.p0[0], m.p0[1], m.p0[2], m.p0[3]);
+    gl.uniform4f(u.uMatP1, m.p1[0], m.p1[1], m.p1[2], m.p1[3]);
+    gl.uniform4f(u.uMatP2, m.p2[0], m.p2[1], m.p2[2], m.p2[3]);
+    gl.uniform4f(u.uMatP3, m.p3[0], m.p3[1], m.p3[2], m.p3[3]);
+    gl.uniform1f(u.uMatLayerBits, m.layerBits);
   }
 
   private uploadDither(

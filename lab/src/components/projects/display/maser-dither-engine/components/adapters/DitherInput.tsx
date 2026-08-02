@@ -12,6 +12,7 @@ export function DitherInput({
   color,
   light,
   dither,
+  material,
   content,
   reducedMotion,
   className,
@@ -29,6 +30,7 @@ export function DitherInput({
             color={color}
           light={light}
           dither={dither}
+          material={material}
             reducedMotion={reducedMotion}
           />
         </span>

@@ -105,7 +105,8 @@ export class Canvas2DRenderer {
     }
   }
 
-  // Extra args (dither payload) ignored — WebGL owns algorithm dither.
+  // Extra args (dither / material payloads) ignored — WebGL owns those stages.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   draw(
     state: MonochromeUniformState,
     anim?: AnimationUniformPayload,

@@ -2,7 +2,7 @@ import type { AppRoute, ComponentId, ControlGroupId, ControlGroupState } from ".
 import { STORAGE_KEYS } from "../constants";
 
 export const DEFAULT_PANEL_STATE: ControlGroupState = {
-  material: false,
+  material: true,
   animation: false,
   lighting: true,
   colors: true,

@@ -43,7 +43,12 @@ export const DOCS_TOPICS = [
   {
     id: "color-material",
     title: "Color & Material System",
-    body: `Sprint 3 adds engine/color/. ColorMaterialController packs palette colors, gradient mode/behavior, blend mode, material behavior, and exposure/gamma/density into GPU uniforms each frame. COLOR_GLSL composes RGB from ink + dither + bloom without rewriting the renderer. Palette Studio includes Monochrome, Blueprint, Aurora, Ocean, Paper, Chrome, Sunset, Heat Map, Terminal, Matrix, Pearl, Acid, Infrared, Smoke, Forest, Cyberpunk, Electric Blue, Graphite, Velvet. Material behaviors (Paper, Ink, Plastic, Velvet, Metal, Smoke, Fog, Cloud, Glass) influence density, sharpness, scatter, and preferred blend — not just recolor. Pass color?: Partial<ColorMaterialConfig> into SurfaceCanvas. Toggle colorEnabled for Sprint 1/2 grayscale.`,
+    body: `Sprint 3 adds engine/color/. ColorMaterialController packs palette colors, gradient mode/behavior, blend mode, and exposure/gamma/density into GPU uniforms each frame. COLOR_GLSL composes RGB from ink + dither + bloom without rewriting the renderer. Palette Studio includes Monochrome, Blueprint, Aurora, Ocean, Paper, Chrome, Sunset, Heat Map, Terminal, Matrix, Pearl, Acid, Infrared, Smoke, Forest, Cyberpunk, Electric Blue, Graphite, Velvet. Sprint 6 moved procedural material structure out of color “behaviors” into engine/material/ — Color owns chroma; Material owns structure. Pass color?: Partial<ColorMaterialConfig> into SurfaceCanvas. Toggle colorEnabled for grayscale.`,
+  },
+  {
+    id: "procedural-materials",
+    title: "Procedural Materials (Sprint 6)",
+    body: `engine/material/ defines Paper, Ink, Velvet, Metal, Smoke, Fog, Cloud, Glass, Chrome, and CRT as true procedural materials with distinct UV, structure, finish, and interaction response under identical shared lighting/palette/dither. MaterialController packs uMat* uniforms; layer recipe (enable/bypass/solo) gates structure without shader recompile. Materials page: live thumbnails, family filters, search, favorites, detail, side/swipe/A-B compare. Playground Material panel shows only supportedControls for the active material. Performance tiers + mobile lowQuality. CRT flicker capped; reduced motion zeros flicker. See docs/sprint6-materials.md.`,
   },
   {
     id: "content-editing",
@@ -68,6 +73,6 @@ export const DOCS_TOPICS = [
   {
     id: "future-engines",
     title: "Future Engines",
-    body: `Follow this package shape: engine/ (immutable renderer), materials/, components/adapters/, presets/, shell/, docs/. New engines (Glass, Grain, Liquid, Noise, Pixel, Mesh Gradient, CRT, Chromatic) should mirror catalogs + playground routing. Animation, interaction, and color modes extend by appending to their catalogs + GLSL branches — no giant UI switches. Sprint 4 candidates: layered materials, outline/edge tint compositing, WebGPU path, gesture shear.`,
+    body: `Follow this package shape: engine/ (immutable renderer), materials/, components/adapters/, presets/, shell/, docs/. New engines should mirror catalogs + playground routing. Animation, interaction, color, dither, and material modes extend by appending to their catalogs + GLSL branches — no giant UI switches. Sprint 7 candidates: ceramic/newsprint IDs, deeper glass variants, Canvas2D material fields, persisted material recipes, visual regression.`,
   },
 ] as const;

@@ -12,6 +12,7 @@ export function DitherAvatar({
   color,
   light,
   dither,
+  material,
   content,
   reducedMotion,
   className,
@@ -30,6 +31,7 @@ export function DitherAvatar({
         color={color}
           light={light}
           dither={dither}
+          material={material}
         reducedMotion={reducedMotion}
       />
       <span className="mde-adapter-avatar__initials" aria-hidden>

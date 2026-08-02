@@ -24,6 +24,7 @@ export function DitherSectionBackground({
   color,
   light,
   dither,
+  material,
   content,
   reducedMotion,
   className,
@@ -56,6 +57,7 @@ export function DitherSectionBackground({
         color={color}
           light={light}
           dither={dither}
+          material={material}
         pointer={pointer}
         reducedMotion={reducedMotion}
         aria-label="Section dither background"

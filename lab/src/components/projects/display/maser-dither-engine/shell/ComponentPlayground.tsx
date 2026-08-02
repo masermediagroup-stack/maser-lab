@@ -58,9 +58,14 @@ import type {
 import { AnimationPanel } from "./AnimationPanel";
 import { InteractionPanel } from "./InteractionPanel";
 import { MaterialPanel } from "./MaterialPanel";
+import {
+  ProceduralMaterialPanel,
+  createInitialMaterialConfig,
+} from "./ProceduralMaterialPanel";
 import { LightingPanel } from "./LightingPanel";
 import { DitherPanel } from "./DitherPanel";
 import { ContentEditor } from "./ContentEditor";
+import type { MaterialEngineConfig } from "../engine/material/types";
 import { cn } from "@/lib/utils";
 
 type ComponentPlaygroundProps = {
@@ -169,7 +174,12 @@ export function ComponentPlayground({
   const [dither, setDither] = useState<DitherConfig>(() =>
     initialDither(componentId),
   );
+  const [material, setMaterial] = useState<MaterialEngineConfig>(() =>
+    createInitialMaterialConfig("monochrome"),
+  );
   const [compareDither, setCompareDither] = useState<DitherConfig | null>(null);
+  const [compareMaterial, setCompareMaterial] =
+    useState<MaterialEngineConfig | null>(null);
   const [content, setContent] = useState<ComponentContent>(initialContent);
   const [presetId, setPresetId] = useState(definition.defaultPresetId);
   const [densityMode, setDensityMode] = useState<ControlDensityMode>(() =>
@@ -307,11 +317,11 @@ export function ComponentPlayground({
               </div>
             )}
             <div className="mde-playground__preview-stage">
-              {compareDither ? (
-                <div className="mde-compare" aria-label="Algorithm comparison">
+              {compareDither || compareMaterial ? (
+                <div className="mde-compare" aria-label="Comparison">
                   <div className="mde-compare__pane">
                     <span className="mde-compare__label">
-                      A · {dither.algorithm}
+                      A · {compareDither ? dither.algorithm : material.materialId}
                     </span>
                     <Adapter
                       params={params}
@@ -320,13 +330,17 @@ export function ComponentPlayground({
                       color={color}
                       light={light}
                       dither={dither}
+                      material={material}
                       content={content}
                       reducedMotion={reducedMotion}
                     />
                   </div>
                   <div className="mde-compare__pane">
                     <span className="mde-compare__label">
-                      B · {compareDither.algorithm}
+                      B ·{" "}
+                      {compareDither
+                        ? compareDither.algorithm
+                        : compareMaterial?.materialId}
                     </span>
                     <Adapter
                       params={params}
@@ -334,7 +348,8 @@ export function ComponentPlayground({
                       interaction={interaction}
                       color={color}
                       light={light}
-                      dither={compareDither}
+                      dither={compareDither ?? dither}
+                      material={compareMaterial ?? material}
                       content={content}
                       reducedMotion={reducedMotion}
                     />
@@ -348,6 +363,7 @@ export function ComponentPlayground({
                   color={color}
                   light={light}
                   dither={dither}
+                  material={material}
                   content={content}
                   reducedMotion={reducedMotion}
                 />
@@ -398,6 +414,42 @@ export function ComponentPlayground({
                     } else if (p.id === "print-density") {
                       setLight({ ...DEFAULT_LIGHT_SHAPE });
                     }
+                    if (p.material) {
+                      setMaterial(
+                        createInitialMaterialConfig(
+                          p.material.materialId ?? p.materialId ?? "monochrome",
+                        ),
+                      );
+                      setMaterial((m) => ({
+                        ...m,
+                        ...p.material,
+                        params: {
+                          ...m.params,
+                          ...(p.material?.params ?? {}),
+                        },
+                        layers: p.material?.layers ?? m.layers,
+                      }));
+                    } else if (p.materialId && p.materialId !== "monochrome") {
+                      setMaterial(createInitialMaterialConfig(p.materialId));
+                    }
+                    if (p.color) {
+                      setColor((c) => ({
+                        ...c,
+                        ...p.color,
+                        colors: { ...c.colors, ...(p.color?.colors ?? {}) },
+                        properties: {
+                          ...c.properties,
+                          ...(p.color?.properties ?? {}),
+                        },
+                      }));
+                    }
+                    if (p.animation) {
+                      setAnimation((a) => ({ ...a, ...p.animation }));
+                    }
+                    if (p.interaction) {
+                      setInteraction((ix) => ({ ...ix, ...p.interaction }));
+                    }
+                    setCompareMaterial(null);
                   }}
                 >
                   {p.label}
@@ -414,7 +466,9 @@ export function ComponentPlayground({
                   setColor(initialColor());
                   setLight(initialLight());
                   setDither({ ...DEFAULT_DITHER_CONFIG });
+                  setMaterial(createInitialMaterialConfig("monochrome"));
                   setCompareDither(null);
+                  setCompareMaterial(null);
                   setContent(initialContent());
                 }}
               >
@@ -469,7 +523,27 @@ export function ComponentPlayground({
                 </p>
               ) : null}
 
-              {group.id === "animation" ? (
+              {group.id === "material" ? (
+                <ProceduralMaterialPanel
+                  value={
+                    panelOff
+                      ? {
+                          ...material,
+                          params: {
+                            ...material.params,
+                            structureAmount: 0,
+                          },
+                        }
+                      : material
+                  }
+                  onChange={(next) => {
+                    setMaterial(next);
+                    setCompareMaterial(null);
+                  }}
+                  idPrefix={`mde-${componentId}-proc`}
+                  advanced={advanced}
+                />
+              ) : group.id === "animation" ? (
                 <>
                   {renderParamFields(group.fields, {
                     componentId,
@@ -612,8 +686,8 @@ export function ComponentPlayground({
               <strong>API.</strong> Adapter props:{" "}
               <code>params</code>, <code>animation</code>,{" "}
               <code>interaction</code>, <code>color</code>,{" "}
-              <code>light</code>, <code>dither</code>, <code>content</code>,{" "}
-              <code>reducedMotion</code>.
+              <code>light</code>, <code>dither</code>, <code>material</code>,{" "}
+              <code>content</code>, <code>reducedMotion</code>.
             </p>
           </section>
         </aside>

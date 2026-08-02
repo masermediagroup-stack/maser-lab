@@ -23,6 +23,11 @@ export type ControlGroupDef = {
  */
 export const CONTROL_GROUPS: ControlGroupDef[] = [
   {
+    id: "material",
+    label: "Material",
+    fields: [],
+  },
+  {
     id: "animation",
     label: "Animation",
     fields: [{ kind: "slider", key: "animationSpeed" }],
