@@ -13,6 +13,8 @@ export function DitherCard({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -30,6 +32,8 @@ export function DitherCard({
       light={light}
       dither={dither}
       material={material}
+      sourceUrl={sourceUrl}
+      sourceLightMix={sourceLightMix}
       reducedMotion={reducedMotion}
       className={className}
     />

@@ -29,6 +29,8 @@ export function DitherNavigation({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -63,6 +65,8 @@ export function DitherNavigation({
           dither={dither}
           material={material}
           pointer={pointer}
+          sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
           reducedMotion={reducedMotion}
           aria-label=""
         />

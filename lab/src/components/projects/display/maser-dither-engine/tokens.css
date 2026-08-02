@@ -1013,39 +1013,100 @@
 }
 
 .mde-adapter-frame__matte {
-  height: 180px;
+  height: 220px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--mde-line);
   position: relative;
 }
 
-.mde-adapter-frame__photo {
-  position: absolute;
-  inset: 18px;
-  border-radius: 8px;
-  background: #1a1a1a;
-  display: grid;
-  place-items: center;
-  z-index: 1;
-  pointer-events: none;
+.mde-adapter-frame__matte--sourced {
+  height: min(52vw, 320px);
 }
 
-.mde-adapter-frame__placeholder {
+.mde-adapter-frame__empty {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  gap: 0.25rem;
+  pointer-events: none;
+  text-align: center;
   color: var(--mde-muted);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  background: linear-gradient(
+    180deg,
+    transparent 30%,
+    color-mix(in oklab, var(--mde-bg) 55%, transparent) 100%
+  );
+}
+
+.mde-adapter-frame__empty-sub {
+  font-size: 0.7rem;
+  opacity: 0.8;
 }
 
 .mde-adapter-frame__matte .mse-surface-canvas,
 .mde-adapter-frame__matte canvas {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .mde-adapter--frame figcaption {
   margin-top: 0.5rem;
   color: var(--mde-muted);
   font-size: 0.75rem;
+}
+
+.mde-source-field {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--mde-line);
+}
+
+.mde-source-field__hint {
+  margin: 0.25rem 0 0.55rem;
+  color: var(--mde-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.mde-source-field__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mde-source-field__input {
+  max-width: 100%;
+  font-size: 0.8rem;
+  color: var(--mde-fg);
+}
+
+.mde-source-field__preview {
+  margin-top: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.mde-source-field__preview img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--mde-line);
+}
+
+.mde-source-field__preview span {
+  font-size: 0.72rem;
+  color: var(--mde-muted);
 }
 
 .mde-adapter--progress {

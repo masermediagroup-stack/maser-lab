@@ -156,6 +156,13 @@ uniform sampler2D uBayer8;
 uniform sampler2D uBayer32;
 uniform sampler2D uBayer64;
 uniform sampler2D uBlueNoise;
+
+/** Optional photo / bitmap luminance source (unit 6). */
+uniform sampler2D uSource;
+uniform float uSourceEnabled;
+uniform vec2 uSourceSize;
+/** 0 = pure image luminance; 1 = image × light field. */
+uniform float uSourceLightMix;
 `;
 
 /** Shared sampling helpers — must appear before DITHER_GLSL. */
@@ -225,7 +232,24 @@ void main() {
   vec2 uvSample = applyMaterialUv(uvBase, uTime);
 
   // Stage 11 — light shape supplies luminance (NOT the color gradient)
-  float illum = lightShapeField(uvSample);
+  float lightIllum = lightShapeField(uvSample);
+  float illum = lightIllum;
+
+  // Optional uploaded image — dither operates on photo luminance
+  if (uSourceEnabled > 0.5) {
+    float canvasAspect = uResolution.x / max(uResolution.y, 1.0);
+    float imageAspect = uSourceSize.x / max(uSourceSize.y, 1.0);
+    vec2 scale = canvasAspect > imageAspect
+      ? vec2(1.0, imageAspect / canvasAspect)
+      : vec2(canvasAspect / imageAspect, 1.0);
+    vec2 suv = (uvSample - 0.5) * scale + 0.5;
+    float inBounds = step(0.0, suv.x) * step(suv.x, 1.0) * step(0.0, suv.y) * step(suv.y, 1.0);
+    vec3 srcRgb = texture(uSource, clamp(suv, 0.0, 1.0)).rgb;
+    float srcLum = dot(srcRgb, vec3(0.299, 0.587, 0.114));
+    srcLum *= inBounds;
+    float lit = clamp(srcLum * (0.22 + lightIllum * 1.55), 0.0, 1.0);
+    illum = mix(srcLum, lit, clamp(uSourceLightMix, 0.0, 1.0));
+  }
 
   // Subtle modulation only — must not flatten center→edge contrast
   illum = clamp(illum + anim.z * 0.1, 0.0, 1.0);

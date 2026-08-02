@@ -77,6 +77,13 @@ export type SurfaceCanvasProps = {
   dither?: Partial<DitherConfig>;
   /** Procedural material structure / recipe config. */
   material?: Partial<MaterialEngineConfig>;
+  /**
+   * Object URL or http(s) URL of an image to dither.
+   * When set, luminance is driven by the photo (cover-fit) then dithered.
+   */
+  sourceUrl?: string | null;
+  /** 0 = image luminance only; 1 = image × light field. Default 0.45. */
+  sourceLightMix?: number;
   className?: string;
   style?: CSSProperties;
   reducedMotion?: boolean;
@@ -99,6 +106,8 @@ export type SurfaceCardProps = {
   light?: Partial<LightShapeConfig>;
   dither?: Partial<DitherConfig>;
   material?: Partial<MaterialEngineConfig>;
+  sourceUrl?: string | null;
+  sourceLightMix?: number;
   reducedMotion?: boolean;
   className?: string;
 };
@@ -201,6 +210,9 @@ export type DitherAdapterProps = {
   dither?: Partial<DitherConfig>;
   material?: Partial<MaterialEngineConfig>;
   content?: Partial<ComponentContent>;
+  /** Image URL to dither through the shared surface engine. */
+  sourceUrl?: string | null;
+  sourceLightMix?: number;
   reducedMotion?: boolean;
   className?: string;
 };

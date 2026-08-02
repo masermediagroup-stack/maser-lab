@@ -14,6 +14,8 @@ export function DitherBadge({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -29,6 +31,8 @@ export function DitherBadge({
           light={light}
           dither={dither}
           material={material}
+          sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
           reducedMotion={reducedMotion}
         />
       </span>

@@ -65,6 +65,7 @@ import {
 import { LightingPanel } from "./LightingPanel";
 import { DitherPanel } from "./DitherPanel";
 import { ContentEditor } from "./ContentEditor";
+import { type SourceImageValue } from "./SourceImageField";
 import type { MaterialEngineConfig } from "../engine/material/types";
 import { cn } from "@/lib/utils";
 
@@ -181,6 +182,10 @@ export function ComponentPlayground({
   const [compareMaterial, setCompareMaterial] =
     useState<MaterialEngineConfig | null>(null);
   const [content, setContent] = useState<ComponentContent>(initialContent);
+  const [source, setSource] = useState<SourceImageValue>({
+    url: null,
+    lightMix: 0.45,
+  });
   const [presetId, setPresetId] = useState(definition.defaultPresetId);
   const [densityMode, setDensityMode] = useState<ControlDensityMode>(() =>
     loadDensityMode(),
@@ -205,6 +210,16 @@ export function ComponentPlayground({
       /* ignore */
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (source.url?.startsWith("blob:")) {
+        URL.revokeObjectURL(source.url);
+      }
+    };
+    // Only revoke the URL that was current at unmount / change — handled via setSource clear.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- cleanup last blob on unmount
+  }, []);
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -332,6 +347,8 @@ export function ComponentPlayground({
                       dither={dither}
                       material={material}
                       content={content}
+                      sourceUrl={source.url}
+                      sourceLightMix={source.lightMix}
                       reducedMotion={reducedMotion}
                     />
                   </div>
@@ -351,6 +368,8 @@ export function ComponentPlayground({
                       dither={compareDither ?? dither}
                       material={compareMaterial ?? material}
                       content={content}
+                      sourceUrl={source.url}
+                      sourceLightMix={source.lightMix}
                       reducedMotion={reducedMotion}
                     />
                   </div>
@@ -365,6 +384,8 @@ export function ComponentPlayground({
                   dither={dither}
                   material={material}
                   content={content}
+                  sourceUrl={source.url}
+                  sourceLightMix={source.lightMix}
                   reducedMotion={reducedMotion}
                 />
               )}
@@ -470,6 +491,12 @@ export function ComponentPlayground({
                   setCompareDither(null);
                   setCompareMaterial(null);
                   setContent(initialContent());
+                  setSource((prev) => {
+                    if (prev.url?.startsWith("blob:")) {
+                      URL.revokeObjectURL(prev.url);
+                    }
+                    return { url: null, lightMix: 0.45 };
+                  });
                 }}
               >
                 Reset
@@ -486,6 +513,8 @@ export function ComponentPlayground({
               componentId={componentId}
               value={content}
               onChange={setContent}
+              source={source}
+              onSourceChange={setSource}
               idPrefix={`mde-${componentId}-content`}
             />
           </Collapsible>

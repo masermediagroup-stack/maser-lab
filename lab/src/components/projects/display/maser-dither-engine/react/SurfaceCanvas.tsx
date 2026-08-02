@@ -144,6 +144,8 @@ export function SurfaceCanvas({
   light,
   dither,
   material,
+  sourceUrl = null,
+  sourceLightMix = 0.45,
   className,
   style,
   reducedMotion = false,
@@ -200,6 +202,42 @@ export function SurfaceCanvas({
 
   const onMaterial = useEffectEvent((cfg?: Partial<MaterialEngineConfig>) => {
     if (cfg) engineRef.current?.material.syncFromProps(cfg);
+  });
+
+  const onSourceLightMix = useEffectEvent((mix: number) => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    engine.renderer.setSourceLightMix(mix);
+  });
+
+  const onSourceUrl = useEffectEvent((url: string | null | undefined) => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    if (!url) {
+      engine.renderer.setSourceImage(null);
+      return;
+    }
+    const img = new Image();
+    img.decoding = "async";
+    // Object URLs and same-origin assets do not need CORS; remote URLs may.
+    if (!url.startsWith("blob:") && !url.startsWith("data:")) {
+      img.crossOrigin = "anonymous";
+    }
+    let cancelled = false;
+    img.onload = () => {
+      if (cancelled) return;
+      if (engineRef.current !== engine) return;
+      engine.renderer.setSourceImage(img);
+    };
+    img.onerror = () => {
+      if (cancelled) return;
+      if (engineRef.current !== engine) return;
+      engine.renderer.setSourceImage(null);
+    };
+    img.src = url;
+    return () => {
+      cancelled = true;
+    };
   });
 
   const onPointerProp = useEffectEvent(
@@ -369,6 +407,14 @@ export function SurfaceCanvas({
   useEffect(() => {
     onMaterial(material);
   }, [material]);
+
+  useEffect(() => {
+    onSourceLightMix(sourceLightMix);
+  }, [sourceLightMix]);
+
+  useEffect(() => {
+    return onSourceUrl(sourceUrl) ?? undefined;
+  }, [sourceUrl]);
 
   useEffect(() => {
     onPointerProp(pointer);

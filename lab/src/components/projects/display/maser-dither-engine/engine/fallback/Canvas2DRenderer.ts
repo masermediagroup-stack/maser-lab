@@ -85,6 +85,10 @@ export class Canvas2DRenderer {
   private blueNoise: Uint8Array;
   private disposed = false;
   private lastSeed = 0.37;
+  private sourcePixels: Uint8ClampedArray | null = null;
+  private sourceWidth = 0;
+  private sourceHeight = 0;
+  private sourceLightMix = 0.45;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -92,6 +96,32 @@ export class Canvas2DRenderer {
     if (!ctx) throw new Error("Canvas2D unavailable");
     this.ctx = ctx;
     this.blueNoise = generateBlueNoiseTexture(BLUE_NOISE_SIZE, 0.37);
+  }
+
+  setSourceImage(
+    image: (CanvasImageSource & { width: number; height: number }) | null,
+  ): void {
+    if (!image) {
+      this.sourcePixels = null;
+      this.sourceWidth = 0;
+      this.sourceHeight = 0;
+      return;
+    }
+    const w = Math.max(1, Math.floor(image.width));
+    const h = Math.max(1, Math.floor(image.height));
+    const off = document.createElement("canvas");
+    off.width = w;
+    off.height = h;
+    const octx = off.getContext("2d");
+    if (!octx) return;
+    octx.drawImage(image as CanvasImageSource, 0, 0, w, h);
+    this.sourcePixels = octx.getImageData(0, 0, w, h).data;
+    this.sourceWidth = w;
+    this.sourceHeight = h;
+  }
+
+  setSourceLightMix(value: number): void {
+    this.sourceLightMix = Math.min(1, Math.max(0, value));
   }
 
   resize(cssWidth: number, cssHeight: number, dpr: number): void {
@@ -142,7 +172,7 @@ export class Canvas2DRenderer {
         const uvy = 1 - y / height;
 
         // Light shape = luminance; color gradient is not used as a wash
-        let lum = lightShapeIllum(
+        const lightIllum = lightShapeIllum(
           uvx,
           uvy,
           light,
@@ -152,6 +182,44 @@ export class Canvas2DRenderer {
           state.scrollY,
           state.scrollInfluence,
         );
+        let lum = lightIllum;
+        if (this.sourcePixels && this.sourceWidth > 0 && this.sourceHeight > 0) {
+          const canvasAspect = width / Math.max(height, 1);
+          const imageAspect = this.sourceWidth / Math.max(this.sourceHeight, 1);
+          let sx = uvx;
+          let sy = uvy;
+          if (canvasAspect > imageAspect) {
+            const scaleY = imageAspect / canvasAspect;
+            sy = (uvy - 0.5) * scaleY + 0.5;
+          } else {
+            const scaleX = canvasAspect / imageAspect;
+            sx = (uvx - 0.5) * scaleX + 0.5;
+          }
+          if (sx >= 0 && sx <= 1 && sy >= 0 && sy <= 1) {
+            const ix = Math.min(
+              this.sourceWidth - 1,
+              Math.max(0, Math.floor(sx * this.sourceWidth)),
+            );
+            const iy = Math.min(
+              this.sourceHeight - 1,
+              Math.max(0, Math.floor((1 - sy) * this.sourceHeight)),
+            );
+            const si = (iy * this.sourceWidth + ix) * 4;
+            const srcLum =
+              ((this.sourcePixels[si] ?? 0) * 0.299 +
+                (this.sourcePixels[si + 1] ?? 0) * 0.587 +
+                (this.sourcePixels[si + 2] ?? 0) * 0.114) /
+              255;
+            const lit = Math.min(
+              1,
+              Math.max(0, srcLum * (0.22 + lightIllum * 1.55)),
+            );
+            lum =
+              srcLum * (1 - this.sourceLightMix) + lit * this.sourceLightMix;
+          } else {
+            lum = 0;
+          }
+        }
         lum +=
           Math.sin(uvx * 6.2 + t * 0.9) * amp * 0.35 +
           Math.sin(uvy * 4.1 - t * 0.65) * amp * 0.2;

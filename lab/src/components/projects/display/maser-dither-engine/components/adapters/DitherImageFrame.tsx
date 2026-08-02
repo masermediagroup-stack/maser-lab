@@ -14,13 +14,22 @@ export function DitherImageFrame({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
   const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
+  const hasSource = Boolean(sourceUrl);
+
   return (
     <figure className={cn("mde-adapter mde-adapter--frame", className)}>
-      <div className="mde-adapter-frame__matte" aria-hidden>
+      <div
+        className={cn(
+          "mde-adapter-frame__matte",
+          hasSource && "mde-adapter-frame__matte--sourced",
+        )}
+      >
         <SurfaceCanvas
           params={params}
           animation={animation}
@@ -29,13 +38,29 @@ export function DitherImageFrame({
           light={light}
           dither={dither}
           material={material}
+          sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
           reducedMotion={reducedMotion}
+          aria-label={
+            hasSource
+              ? "Dithered source image"
+              : "Dither matte — upload an image in Content"
+          }
         />
+        {!hasSource ? (
+          <div className="mde-adapter-frame__empty" aria-hidden>
+            <span>Upload an image</span>
+            <span className="mde-adapter-frame__empty-sub">
+              Content panel → Source image
+            </span>
+          </div>
+        ) : null}
       </div>
-      <div className="mde-adapter-frame__photo">
-        <div className="mde-adapter-frame__placeholder">Image</div>
-      </div>
-      <figcaption>{c.imageCaption}</figcaption>
+      <figcaption>
+        {hasSource
+          ? c.imageCaption || "Dithered source image"
+          : c.imageCaption || "Upload a photo to dither"}
+      </figcaption>
     </figure>
   );
 }

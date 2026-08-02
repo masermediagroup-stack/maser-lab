@@ -4,11 +4,17 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import type { ComponentId } from "../types";
 import type { ComponentContent } from "../content/types";
+import {
+  SourceImageField,
+  type SourceImageValue,
+} from "./SourceImageField";
 
 type ContentEditorProps = {
   componentId: ComponentId;
   value: ComponentContent;
   onChange: (next: ComponentContent) => void;
+  source: SourceImageValue;
+  onSourceChange: (next: SourceImageValue) => void;
   idPrefix?: string;
 };
 
@@ -101,15 +107,17 @@ function fieldsFor(id: ComponentId): Field[] {
 
 /**
  * Live content editor — updates adapter copy instantly without remounting the material.
+ * Always includes source-image upload so any adapter can dither a photo.
  */
 export function ContentEditor({
   componentId,
   value,
   onChange,
+  source,
+  onSourceChange,
   idPrefix = "mde-content",
 }: ContentEditorProps) {
   const fields = fieldsFor(componentId);
-  if (fields.length === 0) return null;
 
   const setText = (key: keyof ComponentContent, text: string) => {
     onChange({ ...value, [key]: text });
@@ -117,6 +125,11 @@ export function ContentEditor({
 
   return (
     <div className="mde-content-editor">
+      <SourceImageField
+        value={source}
+        onChange={onSourceChange}
+        idPrefix={`${idPrefix}-source`}
+      />
       {fields.map((field) => {
         if (field.kind === "text") {
           const current = String(value[field.key] ?? "");

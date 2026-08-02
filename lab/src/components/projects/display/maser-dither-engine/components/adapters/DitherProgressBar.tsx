@@ -14,6 +14,8 @@ export function DitherProgressBar({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -41,7 +43,9 @@ export function DitherProgressBar({
           light={light}
           dither={dither}
           material={material}
-            reducedMotion={reducedMotion}
+            sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
+          reducedMotion={reducedMotion}
           />
         </div>
       </div>

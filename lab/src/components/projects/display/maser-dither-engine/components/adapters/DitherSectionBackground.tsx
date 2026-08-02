@@ -26,6 +26,8 @@ export function DitherSectionBackground({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -59,7 +61,9 @@ export function DitherSectionBackground({
           dither={dither}
           material={material}
         pointer={pointer}
-        reducedMotion={reducedMotion}
+        sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
+          reducedMotion={reducedMotion}
         aria-label="Section dither background"
       />
       <div className="mde-adapter-section__content">

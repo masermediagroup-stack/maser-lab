@@ -14,6 +14,8 @@ export function DitherInput({
   dither,
   material,
   content,
+  sourceUrl,
+  sourceLightMix,
   reducedMotion,
   className,
 }: DitherAdapterProps) {
@@ -31,7 +33,9 @@ export function DitherInput({
           light={light}
           dither={dither}
           material={material}
-            reducedMotion={reducedMotion}
+            sourceUrl={sourceUrl}
+          sourceLightMix={sourceLightMix}
+          reducedMotion={reducedMotion}
           />
         </span>
         <input

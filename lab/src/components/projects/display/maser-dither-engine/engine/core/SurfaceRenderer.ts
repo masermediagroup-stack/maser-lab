@@ -172,7 +172,13 @@ const UNIFORM_NAMES = [
   "uMatP2",
   "uMatP3",
   "uMatLayerBits",
+  "uSource",
+  "uSourceEnabled",
+  "uSourceSize",
+  "uSourceLightMix",
 ];
+
+const SOURCE_TEXTURE_UNIT = 6;
 
 function uploadBayer(
   gl: WebGL2RenderingContext,
@@ -230,6 +236,11 @@ function uploadBlueNoise(
   return tex;
 }
 
+export type SourceImageBitmap = TexImageSource & {
+  width: number;
+  height: number;
+};
+
 export class SurfaceRenderer {
   readonly canvas: HTMLCanvasElement;
   readonly gl: WebGL2RenderingContext;
@@ -239,6 +250,10 @@ export class SurfaceRenderer {
   private vao: WebGLVertexArrayObject;
   private disposed = false;
   private lastSeed = -1;
+  private sourceEnabled = false;
+  private sourceWidth = 1;
+  private sourceHeight = 1;
+  private sourceLightMix = 0.45;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -265,6 +280,7 @@ export class SurfaceRenderer {
       uploadBayer(gl, 32, 3),
       uploadBlueNoise(gl, 4, 0.37),
       uploadBayer(gl, 64, 5),
+      this.createPlaceholderSource(gl, SOURCE_TEXTURE_UNIT),
     );
 
     gl.useProgram(this.program);
@@ -274,6 +290,76 @@ export class SurfaceRenderer {
     gl.uniform1i(this.uniforms.uBayer32, 3);
     gl.uniform1i(this.uniforms.uBlueNoise, 4);
     gl.uniform1i(this.uniforms.uBayer64, 5);
+    gl.uniform1i(this.uniforms.uSource, SOURCE_TEXTURE_UNIT);
+    gl.uniform1f(this.uniforms.uSourceEnabled, 0);
+    gl.uniform2f(this.uniforms.uSourceSize, 1, 1);
+    gl.uniform1f(this.uniforms.uSourceLightMix, this.sourceLightMix);
+  }
+
+  private createPlaceholderSource(
+    gl: WebGL2RenderingContext,
+    unit: number,
+  ): WebGLTexture {
+    const tex = gl.createTexture();
+    if (!tex) throw new Error("Failed to create source texture");
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      1,
+      1,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      new Uint8Array([0, 0, 0, 255]),
+    );
+    return tex;
+  }
+
+  /**
+   * Bind an uploaded photo / bitmap as the luminance source for dithering.
+   * Pass null to clear and return to procedural light-only luminance.
+   */
+  setSourceImage(image: SourceImageBitmap | null): void {
+    if (this.disposed) return;
+    const gl = this.gl;
+    const tex = this.textures[SOURCE_TEXTURE_UNIT];
+    if (!tex) return;
+    gl.activeTexture(gl.TEXTURE0 + SOURCE_TEXTURE_UNIT);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    if (!image) {
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        1,
+        1,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        new Uint8Array([0, 0, 0, 255]),
+      );
+      this.sourceEnabled = false;
+      this.sourceWidth = 1;
+      this.sourceHeight = 1;
+      return;
+    }
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+    this.sourceEnabled = true;
+    this.sourceWidth = Math.max(1, image.width);
+    this.sourceHeight = Math.max(1, image.height);
+  }
+
+  setSourceLightMix(value: number): void {
+    this.sourceLightMix = Math.min(1, Math.max(0, value));
   }
 
   resize(cssWidth: number, cssHeight: number, dpr: number): void {
@@ -403,6 +489,10 @@ export class SurfaceRenderer {
     this.uploadColor(gl, u, color);
     this.uploadDither(gl, u, dither);
     this.uploadMaterial(gl, u, material);
+
+    gl.uniform1f(u.uSourceEnabled, this.sourceEnabled ? 1 : 0);
+    gl.uniform2f(u.uSourceSize, this.sourceWidth, this.sourceHeight);
+    gl.uniform1f(u.uSourceLightMix, this.sourceLightMix);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
