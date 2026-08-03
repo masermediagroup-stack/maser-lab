@@ -8,6 +8,8 @@ export type AvatarShape = "circle" | "rounded" | "square";
 export type AvatarMode = "initials" | "image" | "placeholder";
 export type AvatarPresence = "online" | "away" | "busy" | "offline";
 export type AvatarSizeToken = "sm" | "md" | "lg" | "xl";
+/** Shared preview size tokens for badge / loader / progress / scrollbar. */
+export type ChromeSizeToken = "sm" | "md" | "lg" | "xl";
 
 export type ImageAspectId =
   | "1:1"
@@ -26,6 +28,7 @@ export type ComponentContent = {
   buttonLabel: string;
   buttonIcon: string;
   badgeLabel: string;
+  badgeSize: ChromeSizeToken;
   cardTitle: string;
   cardSubtitle: string;
   cardDescription: string;
@@ -42,7 +45,13 @@ export type ComponentContent = {
   inputPlaceholder: string;
   progressLabel: string;
   progressValue: number;
+  progressSize: ChromeSizeToken;
+  /** When true, fill loops 0→100 independently of progressValue. */
+  progressAuto: boolean;
+  /** Cycles per second when progressAuto is on (0.05–1). */
+  progressSpeed: number;
   loaderLabel: string;
+  loaderSize: ChromeSizeToken;
   avatarInitials: string;
   avatarShape: AvatarShape;
   avatarMode: AvatarMode;
@@ -60,6 +69,7 @@ export type ComponentContent = {
   imageBorder: number;
   imageOverlay: number;
   scrollbarNote: string;
+  scrollbarSize: ChromeSizeToken;
   scrollbarThickness: number;
   scrollbarRadius: number;
   scrollbarOrientation: ScrollbarOrientation;
@@ -70,6 +80,7 @@ export const DEFAULT_COMPONENT_CONTENT: ComponentContent = {
   buttonLabel: "Continue",
   buttonIcon: "→",
   badgeLabel: "Live",
+  badgeSize: "md",
   cardTitle: "Print Density",
   cardSubtitle: "Ordered media",
   cardDescription:
@@ -87,7 +98,11 @@ export const DEFAULT_COMPONENT_CONTENT: ComponentContent = {
   inputPlaceholder: "you@maser.media",
   progressLabel: "Progress",
   progressValue: 64,
+  progressSize: "md",
+  progressAuto: true,
+  progressSpeed: 0.22,
   loaderLabel: "Rendering",
+  loaderSize: "md",
   avatarInitials: "MD",
   avatarShape: "circle",
   avatarMode: "initials",
@@ -105,6 +120,7 @@ export const DEFAULT_COMPONENT_CONTENT: ComponentContent = {
   imageBorder: 1,
   imageOverlay: 0,
   scrollbarNote: "Drag the thumb · scroll the pane",
+  scrollbarSize: "md",
   scrollbarThickness: 14,
   scrollbarRadius: 8,
   scrollbarOrientation: "vertical",
@@ -117,6 +133,50 @@ export const AVATAR_SIZE_PX: Record<AvatarSizeToken, number> = {
   lg: 80,
   xl: 112,
 };
+
+export const BADGE_SIZE: Record<
+  ChromeSizeToken,
+  { height: number; padX: number; font: number }
+> = {
+  sm: { height: 22, padX: 8, font: 10 },
+  md: { height: 28, padX: 11, font: 11 },
+  lg: { height: 34, padX: 14, font: 12 },
+  xl: { height: 42, padX: 16, font: 13 },
+};
+
+export const LOADER_SIZE_PX: Record<ChromeSizeToken, number> = {
+  sm: 40,
+  md: 56,
+  lg: 72,
+  xl: 96,
+};
+
+export const PROGRESS_SIZE: Record<
+  ChromeSizeToken,
+  { height: number; width: number }
+> = {
+  sm: { height: 6, width: 240 },
+  md: { height: 10, width: 320 },
+  lg: { height: 14, width: 400 },
+  xl: { height: 20, width: 480 },
+};
+
+export const SCROLLBAR_SIZE: Record<
+  ChromeSizeToken,
+  { thickness: number; stage: number }
+> = {
+  sm: { thickness: 10, stage: 160 },
+  md: { thickness: 14, stage: 200 },
+  lg: { thickness: 18, stage: 240 },
+  xl: { thickness: 24, stage: 280 },
+};
+
+export const CHROME_SIZE_OPTIONS: { id: ChromeSizeToken; label: string }[] = [
+  { id: "sm", label: "SM" },
+  { id: "md", label: "MD" },
+  { id: "lg", label: "LG" },
+  { id: "xl", label: "XL" },
+];
 
 export const IMAGE_ASPECT_RATIO: Record<Exclude<ImageAspectId, "custom">, number> =
   {

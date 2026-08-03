@@ -283,6 +283,18 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Docs: `docs/sprint7-3-creative-restoration.md`
 - [x] Engine `0.7.3`
 
+### Sprint 7.4 — Component & preset audit
+
+- [x] Avatar / small adapters run at full animationSpeed (≥1) for 60 FPS dither motion
+- [x] Spiral arm count integer-only (UI step + GLSL floor + pack round)
+- [x] Lava lamp soft-clamped against high merge/size/speed flicker
+- [x] Hero Background removed (folded into Section Background)
+- [x] Loader is a spinning dither ring (not an avatar orb)
+- [x] Size tokens for badge / loader / progress / scrollbar
+- [x] Progress auto 0→100 loop with adjustable speed
+- [x] Preset/project open no longer remounts and wipes the saved snapshot
+- [x] Engine `0.7.4`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).

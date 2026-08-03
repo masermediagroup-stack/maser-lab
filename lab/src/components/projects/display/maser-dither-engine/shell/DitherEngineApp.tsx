@@ -156,7 +156,11 @@ export function DitherEngineApp() {
     (project: ProjectRecord) => {
       setPendingProjectId(project.id);
       libraryApi.setLastOpened(project.id);
-      navigate({ view: "component", id: project.snapshot.componentId });
+      const componentId =
+        (project.snapshot.componentId as string) === "hero-background"
+          ? "section-background"
+          : project.snapshot.componentId;
+      navigate({ view: "component", id: componentId });
     },
     [libraryApi, navigate],
   );
@@ -175,7 +179,8 @@ export function DitherEngineApp() {
     const exists = ComponentCatalog.get(route.id);
     main = exists ? (
       <ComponentPlayground
-        key={`${route.id}:${pendingProjectId ?? "default"}`}
+        /* Stable key — including pendingProjectId remounted after apply and wiped the snapshot. */
+        key={route.id}
         componentId={route.id}
         reducedMotion={reducedMotion}
         onBack={() => navigate({ view: "components" })}

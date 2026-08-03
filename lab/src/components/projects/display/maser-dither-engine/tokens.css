@@ -875,13 +875,13 @@
   grid-template-columns: minmax(0, 1fr) var(--mde-scroll-thickness, 14px);
   gap: 0.45rem;
   align-items: stretch;
-  min-height: 200px;
+  min-height: var(--mde-scroll-stage, 200px);
 }
 
 .mde-adapter--scrollbar-horizontal .mde-adapter-scrollbar__stage {
   grid-template-columns: 1fr;
   grid-template-rows: minmax(0, 1fr) var(--mde-scroll-thickness, 14px);
-  min-height: 140px;
+  min-height: calc(var(--mde-scroll-stage, 200px) * 0.7);
 }
 
 .mde-adapter-scrollbar__pane {
@@ -889,8 +889,8 @@
   border-radius: 12px;
   background: #0c0c0c;
   overflow: auto;
-  max-height: 220px;
-  min-height: 180px;
+  max-height: calc(var(--mde-scroll-stage, 200px) + 20px);
+  min-height: var(--mde-scroll-stage, 200px);
   padding: 0.75rem 0.85rem;
   scrollbar-width: none;
 }
@@ -1041,11 +1041,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 64px;
-  height: 28px;
+  min-width: 3.5em;
   border-radius: 999px;
   overflow: hidden;
-  padding: 0 0.75rem;
+  box-sizing: border-box;
 }
 
 .mde-adapter-badge__fill {
@@ -1056,10 +1055,11 @@
 .mde-adapter-badge__label {
   position: relative;
   z-index: 1;
-  font-size: 0.72rem;
+  font-size: inherit;
   font-weight: 560;
   mix-blend-mode: exclusion;
   color: #fff;
+  line-height: 1;
 }
 
 .mde-adapter--avatar {
@@ -1394,7 +1394,7 @@
 }
 
 .mde-adapter-progress__track {
-  height: 10px;
+  height: var(--mde-progress-h, 10px);
   border-radius: 999px;
   background: #1a1a1a;
   overflow: hidden;
@@ -1403,6 +1403,8 @@
 .mde-adapter-progress__fill {
   height: 100%;
   overflow: hidden;
+  width: 0%;
+  min-width: 0;
 }
 
 .mde-adapter-progress__value {
@@ -1420,12 +1422,79 @@
   gap: 0.65rem;
 }
 
-.mde-adapter-loader__orb {
-  width: 72px;
-  height: 72px;
+.mde-adapter-loader__stage {
+  position: relative;
+  width: var(--mde-loader-size, 56px);
+  height: var(--mde-loader-size, 56px);
+}
+
+.mde-adapter-loader__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 2px solid color-mix(in oklab, var(--mde-line) 80%, transparent);
+  opacity: 0.55;
+}
+
+.mde-adapter-loader__spin {
+  position: absolute;
+  inset: 0;
   border-radius: 999px;
   overflow: hidden;
-  border: 1px solid var(--mde-line);
+  /* Material arc — ~28% of the ring visible while spinning */
+  -webkit-mask-image: conic-gradient(
+    #000 0deg,
+    #000 100deg,
+    transparent 100deg,
+    transparent 360deg
+  );
+  mask-image: conic-gradient(
+    #000 0deg,
+    #000 100deg,
+    transparent 100deg,
+    transparent 360deg
+  );
+  animation: mde-loader-spin 1.05s linear infinite;
+}
+
+.mde-adapter-loader__spin--static {
+  animation: none;
+  -webkit-mask-image: conic-gradient(
+    #000 0deg,
+    #000 120deg,
+    transparent 120deg,
+    transparent 360deg
+  );
+  mask-image: conic-gradient(
+    #000 0deg,
+    #000 120deg,
+    transparent 120deg,
+    transparent 360deg
+  );
+}
+
+.mde-adapter-loader__material {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  /* Punch the center so it reads as a ring, not a filled disc */
+  -webkit-mask-image: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 9px),
+    #000 calc(100% - 8px)
+  );
+  mask-image: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 9px),
+    #000 calc(100% - 8px)
+  );
+}
+
+.mde-adapter-loader__material .mse-surface-canvas,
+.mde-adapter-loader__material canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .mde-adapter-loader__label {
@@ -1434,6 +1503,18 @@
   color: var(--mde-muted);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+@keyframes mde-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mde-adapter-loader__spin {
+    animation: none;
+  }
 }
 
 /* Preserve Surface Card styles from prior tokens */

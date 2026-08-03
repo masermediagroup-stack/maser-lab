@@ -392,12 +392,14 @@ export function ComponentPlayground({
     const record = getProject(library, projectId);
     if (!record) return;
     loadedProject.current = projectId;
-    // External project open — apply snapshot after paint.
-    queueMicrotask(() => {
+    // Defer apply so we don't sync-setState in the effect body (lint).
+    // Safe now that playground key is stable (pendingProjectId no longer remounts).
+    const id = window.setTimeout(() => {
       applyProjectSnapshot(record.snapshot);
       setActiveProjectId(record.id);
       onProjectConsumed?.();
-    });
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [projectId, library, applyProjectSnapshot, onProjectConsumed]);
 
   useEffect(() => {

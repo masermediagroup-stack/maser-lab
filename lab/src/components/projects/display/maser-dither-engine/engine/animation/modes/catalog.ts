@@ -134,7 +134,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     extension: "Multi-arm interference.",
     controls: [
       ctrl("speed", "Rotation Speed", 0.05, 3, 0.01, 0.85),
-      ctrl("arms", "Arm Count", 1, 8, 0.1, 3),
+      ctrl("arms", "Arm Count", 1, 8, 1, 3),
       ctrl("tightness", "Spiral Tightness", 0.5, 4, 0.01, 1.75),
       ctrl("amplitude", "Amplitude", 0, 0.9, 0.01, 0.55),
       ctrl("centerX", "Center X", -0.45, 0.45, 0.01, 0),
@@ -275,11 +275,11 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     controls: [
       ctrl("speed", "Merge Speed", 0.05, 2, 0.01, 0.55),
       ctrl("count", "Blob Count", 2, 7, 1, 5),
-      ctrl("size", "Blob Size", 0.12, 0.6, 0.01, 0.36),
-      ctrl("merge", "Merge", 0.35, 1.6, 0.01, 0.9),
-      ctrl("viscosity", "Viscosity", 0.2, 2.2, 0.01, 0.85),
-      ctrl("tension", "Surface Tension", 0.35, 2.2, 0.01, 1),
-      ctrl("distort", "Organic Distortion", 0, 1.5, 0.01, 0.55),
+      ctrl("size", "Blob Size", 0.12, 0.55, 0.01, 0.36),
+      ctrl("merge", "Merge", 0.4, 1.45, 0.01, 0.9),
+      ctrl("viscosity", "Viscosity", 0.25, 2.2, 0.01, 0.85),
+      ctrl("tension", "Surface Tension", 0.35, 2, 0.01, 1),
+      ctrl("distort", "Organic Distortion", 0, 1.35, 0.01, 0.55),
     ],
   }),
 ];
@@ -312,7 +312,10 @@ export function packModeParams(
   const m = getAnimationMode(id);
   const values = m.controls.map((c) => {
     const v = params[c.key];
-    return typeof v === "number" ? v : c.defaultValue;
+    let n = typeof v === "number" ? v : c.defaultValue;
+    // Integer-step controls (arm count, blob count, …) must never ship fractional uniforms
+    if (c.step >= 1) n = Math.round(n);
+    return n;
   });
   while (values.length < 8) values.push(0);
   return {

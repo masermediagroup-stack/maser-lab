@@ -36,7 +36,12 @@ export function loadFavorites(): ComponentId[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.favorites);
-    return raw ? (JSON.parse(raw) as ComponentId[]) : [];
+    const ids = raw ? (JSON.parse(raw) as string[]) : [];
+    return ids
+      .map((id) =>
+        id === "hero-background" ? "section-background" : id,
+      )
+      .filter(Boolean) as ComponentId[];
   } catch {
     return [];
   }
@@ -51,7 +56,12 @@ export function loadRecent(): ComponentId[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.recent);
-    return raw ? (JSON.parse(raw) as ComponentId[]) : [];
+    const ids = raw ? (JSON.parse(raw) as string[]) : [];
+    return ids
+      .map((id) =>
+        id === "hero-background" ? "section-background" : id,
+      )
+      .filter(Boolean) as ComponentId[];
   } catch {
     return [];
   }
@@ -79,8 +89,10 @@ export function parseHash(hash: string): AppRoute {
     return { view: "docs", topic };
   }
   if (h.startsWith("components/")) {
-    const id = h.split("/")[1] as ComponentId;
-    return { view: "component", id };
+    let id = h.split("/")[1] as ComponentId | "hero-background";
+    // Sprint 7.4 — hero background folded into section background
+    if (id === "hero-background") id = "section-background";
+    return { view: "component", id: id as ComponentId };
   }
   return { view: "overview" };
 }

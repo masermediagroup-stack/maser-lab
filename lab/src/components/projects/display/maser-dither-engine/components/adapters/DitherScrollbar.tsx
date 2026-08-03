@@ -10,7 +10,7 @@ import {
 } from "react";
 import { SurfaceCanvas } from "../../react/SurfaceCanvas";
 import type { DitherAdapterProps } from "../../types";
-import { DEFAULT_COMPONENT_CONTENT } from "../../content/types";
+import { DEFAULT_COMPONENT_CONTENT, SCROLLBAR_SIZE } from "../../content/types";
 import { cn } from "@/lib/utils";
 
 const DEMO_LINES = [
@@ -51,6 +51,9 @@ export function DitherScrollbar({
 }: DitherAdapterProps) {
   const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
   const vertical = c.scrollbarOrientation !== "horizontal";
+  const sizeToken = SCROLLBAR_SIZE[c.scrollbarSize] ?? SCROLLBAR_SIZE.md;
+  // Size token drives stage + default thickness; explicit thickness slider still overrides when advanced.
+  const thickness = Math.max(c.scrollbarThickness, sizeToken.thickness);
   const paneRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const paneId = useId();
@@ -168,10 +171,12 @@ export function DitherScrollbar({
       )}
       style={
         {
-          "--mde-scroll-thickness": `${c.scrollbarThickness}px`,
+          "--mde-scroll-thickness": `${thickness}px`,
           "--mde-scroll-radius": `${c.scrollbarRadius}px`,
+          "--mde-scroll-stage": `${sizeToken.stage}px`,
         } as CSSProperties
       }
+      data-size={c.scrollbarSize}
     >
       <div className="mde-adapter-scrollbar__stage">
         <div
@@ -215,7 +220,12 @@ export function DitherScrollbar({
             onPointerCancel={onThumbPointerUp}
           >
             <SurfaceCanvas
-              params={params}
+              params={{
+                ...params,
+                animationSpeed: reducedMotion
+                  ? 0
+                  : Math.max(params.animationSpeed, 1),
+              }}
               animation={animation}
               interaction={interaction}
               color={color}

@@ -138,7 +138,7 @@ export class ThumbBlitEngine {
     if (this.disposed) return "";
     this.store.setResolution(this.size, this.size, 1);
     this.store.snapCurrentToTargets();
-    const dt = 1 / 30;
+    const dt = 1 / 60;
     for (let i = 0; i < 3; i++) {
       this.drawOnce(dt);
     }

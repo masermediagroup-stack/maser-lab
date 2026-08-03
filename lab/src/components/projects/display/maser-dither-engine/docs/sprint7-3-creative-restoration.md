@@ -7,51 +7,69 @@
 
 Restore creative color exploration, replace identical CSS material tiles with live procedural thumbs, make key animations read as their names, and add creative randomize / animation compare — without new major systems or architecture rewrites.
 
-## Color system restored
+## 1. Color system restored
 
-- All material color slots labeled for creative use: Background, Material Color (ambient), Highlight, Shadow, Accent, Dither, Bloom, Glow, Gradient Start/Mid/End/4th, Overlay, Noise Tint
-- Live picker + HEX / RGB / HSL editors (Sprint 7.2 + clarified labels)
-- Interaction Light Color / Interaction Color tint sliders
-- Stronger shader mix for accent / overlay / noise / dither / bloom / glow so pickers produce obvious results
-- Hue-cycle and flow gradient behaviors amplify animated palette motion
-- Palette presets + quick palette row in Creative Explore
-
-## Material browser
-
-- **Placeholder CSS tiles removed** from the primary preview path
-- `ThumbBlitEngine` — **one** shared WebGL context serializes JPEG captures
-- Materials grid / rail show live procedural thumbs (material + wave anim + palette + light + dither)
-- Browse: All / Favorites / Recent · Layout: Grid / Rail · Family filters · Search
-- Hover/focus preview updates the detail stage; performance badge + recommended comps/anims
-- Material Dock thumbs also use the shared blit cache and refresh with scene hash
-
-## Animations
-
-| Mode | Change |
+| Slot | Wire |
 | --- | --- |
-| Spiral | Angular advection, center offset, direction, twist UV |
-| Lava Lamp | Viscosity, surface tension, organic distort, ∇field UV |
-| Radial Pulse | Multi-front rings with width / falloff / repeat (≠ ripple/bloom) |
+| Background | `matBg()` plate mix |
+| Material Color (ambient) | Stronger weight-driven plate fill |
+| Highlight / Shadow | Core ↔ outer lighting mix |
+| Accent | Midtone chroma |
+| Dither Color | Dark-region ink tint |
+| Bloom / Glow | Additive bloom masks |
+| Gradient Start / Mid / End / 4th | Gradient stops + modes |
+| Overlay (edgeTint) | Edge vignette tint |
+| Noise Tint | Scatter mix |
+| Light Color | Interaction per-light tint slider |
 
-New route `#/animations` — Animation compare board (blit grid + one live detail).
+Also: HEX / RGB / HSL live pickers, palette presets, gradient modes/behaviors (incl. Hue Cycle / Palette), animated gradients, Creative Explore quick palettes.
 
-## Creative explore
+## 2. Material browser
 
-Playground panel: randomize palette / lighting / animation / material / entire scene with per-section locks.
+- Placeholder CSS tiles removed from primary preview path
+- `ThumbBlitEngine` — one shared WebGL context → JPEG thumbs
+- Grid / rail, search, favorites, recent, family filters
+- Hover/focus preview → detail stage; performance badge + recommended comps/anims
+- Material Dock uses same blit cache; refreshes on palette/anim/light/color hash
+
+## 3. Animation improvements
+
+| Mode | Identity |
+| --- | --- |
+| Spiral | Sharper rotating arms, center offset, direction, twist |
+| Lava Lamp | Metaballs + viscosity / tension / distort / ∇field UV |
+| Radial Pulse | Multi-front Gaussian rings ≠ ripple sine train |
+| Flow Field | Curl streaks |
+| Aurora | Vertical curtain veil |
+| Magnetic / Orbit / Bloom / … | Existing distinct math retained |
+
+`#/animations` compare board: identical Paper + Aurora + light + dither; blit grid + one live detail.
+
+## 4. Creative explore
+
+Randomize palette / lighting / animation / material / scene with per-section locks.
+
+## 5. Broken systems repaired
+
+- Disconnected-feeling color slots (weak shader mixes)
+- Identical dark material placeholder tiles
+- Spiral / lava / radial-pulse confusion with neighbors
+- Missing animation compare surface
+
+## 6. Remaining weak animations
+
+- **Noise Drift vs Turbulence** — both FBM-family; readable but closest cousins
+- **Linear H / V / Diagonal** — intentionally simple; compare board clarifies them
+- Blit thumbs are **snapshots** (not continuously animating in the grid)
 
 ## Context budget
 
-Still one blit context for grids/docks + at most one (or two in material compare) interactive `SurfaceCanvas`. No per-tile WebGL.
-
-## Known limits
-
-- Blit thumbs are snapshots (not continuously animating in the grid)
-- Project saves still drop blob image URLs
-- Canvas2D algorithm parity still open
+One blit context for grids/docks + at most 1–2 interactive `SurfaceCanvas`. No per-tile WebGL.
 
 ## Sprint 8 recommendations
 
-- Continuous thumb refresh via shared FBO without JPEG churn
+- Continuous FBO thumb refresh without JPEG churn
 - Persist uploads (data URL / IndexedDB)
 - Visual regression for animation × material matrix
 - Optional RGB-per-interaction-light
+- Further split Noise Drift / Turbulence if product wants stricter identity

@@ -145,7 +145,7 @@ vec4 modeWave(vec2 uv, float t, vec4 p0, vec4 p1) {
 vec4 modeSpiral(vec2 uv, float t, vec4 p0, vec4 p1) {
   // Visible arm rotation around an offset center (Archimedean + angular advection)
   float speed = p0.x;
-  float arms = max(p0.y, 1.0);
+  float arms = max(floor(p0.y + 0.5), 1.0);
   float tight = p0.z;
   float amp = p0.w;
   float cx = p1.x;
@@ -306,36 +306,40 @@ vec4 modeTurbulence(vec2 uv, float t, vec4 p0, vec4 p1) {
 
 vec4 modeLavaLamp(vec2 uv, float t, vec4 p0, vec4 p1) {
   // Soft metaball blobs with viscosity + field-gradient UV (not FBM noise)
-  float speed = p0.x;
-  float count = p0.y;
-  float size = p0.z;
-  float merge = max(p0.w, 0.35);
-  float viscosity = max(p1.x, 0.2);
-  float tension = clamp(p1.y, 0.2, 2.5);
-  float distort = p1.z;
-  float speedEff = speed / (0.35 + viscosity);
+  // Soft clamps keep high merge/size/speed from blowing the field into NaN flicker
+  float speed = clamp(p0.x, 0.05, 2.0);
+  float count = floor(clamp(p0.y, 2.0, 7.0) + 0.5);
+  float size = clamp(p0.z, 0.12, 0.55);
+  float merge = clamp(p0.w, 0.4, 1.45);
+  float viscosity = clamp(p1.x, 0.25, 2.2);
+  float tension = clamp(p1.y, 0.35, 2.0);
+  float distort = clamp(p1.z, 0.0, 1.35);
+  float speedEff = speed / (0.55 + viscosity);
   vec2 a = aspectUv(uv);
   float field = 0.0;
-  float n = clamp(count, 2.0, 7.0);
+  float n = count;
   for (int i = 0; i < 7; i++) {
     if (float(i) >= n) break;
     float fi = float(i);
     float seed = fi * 1.7 + 0.3;
-    float wobble = sin(t * speedEff * 0.41 + seed * 3.1) * distort * 0.12;
-    float bx = sin(t * speedEff * (0.22 + fi * 0.05) + seed * 2.1) * 0.5 + wobble;
-    float by = fract(t * speedEff * (0.07 + fi * 0.02) + seed) * 1.55 - 0.78;
-    by += sin(t * speedEff * 0.33 + seed) * 0.08 * (1.0 / viscosity);
+    float wobble = sin(t * speedEff * 0.41 + seed * 3.1) * distort * 0.1;
+    float bx = sin(t * speedEff * (0.22 + fi * 0.05) + seed * 2.1) * 0.48 + wobble;
+    float by = fract(t * speedEff * (0.07 + fi * 0.02) + seed) * 1.45 - 0.72;
+    by += sin(t * speedEff * 0.33 + seed) * 0.07 * (1.0 / viscosity);
     vec2 b = vec2(bx, by);
     float d = length(a - b);
-    field += size / (d + 0.06 * merge);
+    field += size / (d + 0.1 * merge + 0.04);
   }
-  float lo = 1.05 / merge * tension;
-  float hi = 2.55 / merge * tension;
+  field = min(field, 10.0);
+  float lo = (0.95 / merge) * tension;
+  float hi = (2.35 / merge) * tension;
+  hi = max(hi, lo + 0.15);
   float metaball = smoothstep(lo, hi, field);
-  float surface = smoothstep(lo, mix(lo, hi, 0.55), field) - smoothstep(mix(lo, hi, 0.55), hi, field);
-  float lum = metaball * (0.5 + size * 0.95) + surface * 0.22;
+  float mid = mix(lo, hi, 0.55);
+  float surface = smoothstep(lo, mid, field) - smoothstep(mid, hi, field);
+  float lum = clamp(metaball * (0.45 + size * 0.85) + surface * 0.2, 0.0, 1.75);
   // Blob-local UV from numerical gradient of the field
-  float e = 0.02;
+  float e = 0.025;
   float fx1 = 0.0;
   float fx0 = 0.0;
   float fy1 = 0.0;
@@ -344,19 +348,20 @@ vec4 modeLavaLamp(vec2 uv, float t, vec4 p0, vec4 p1) {
     if (float(i) >= n) break;
     float fi = float(i);
     float seed = fi * 1.7 + 0.3;
-    float wobble = sin(t * speedEff * 0.41 + seed * 3.1) * distort * 0.12;
-    float bx = sin(t * speedEff * (0.22 + fi * 0.05) + seed * 2.1) * 0.5 + wobble;
-    float by = fract(t * speedEff * (0.07 + fi * 0.02) + seed) * 1.55 - 0.78;
-    by += sin(t * speedEff * 0.33 + seed) * 0.08 * (1.0 / viscosity);
+    float wobble = sin(t * speedEff * 0.41 + seed * 3.1) * distort * 0.1;
+    float bx = sin(t * speedEff * (0.22 + fi * 0.05) + seed * 2.1) * 0.48 + wobble;
+    float by = fract(t * speedEff * (0.07 + fi * 0.02) + seed) * 1.45 - 0.72;
+    by += sin(t * speedEff * 0.33 + seed) * 0.07 * (1.0 / viscosity);
     vec2 b = vec2(bx, by);
-    fx1 += size / (length(a + vec2(e, 0.0) - b) + 0.06 * merge);
-    fx0 += size / (length(a - vec2(e, 0.0) - b) + 0.06 * merge);
-    fy1 += size / (length(a + vec2(0.0, e) - b) + 0.06 * merge);
-    fy0 += size / (length(a - vec2(0.0, e) - b) + 0.06 * merge);
+    float soft = 0.1 * merge + 0.04;
+    fx1 += size / (length(a + vec2(e, 0.0) - b) + soft);
+    fx0 += size / (length(a - vec2(e, 0.0) - b) + soft);
+    fy1 += size / (length(a + vec2(0.0, e) - b) + soft);
+    fy0 += size / (length(a - vec2(0.0, e) - b) + soft);
   }
-  vec2 grad = vec2(fx1 - fx0, fy1 - fy0);
-  vec2 off = grad * metaball * size * 0.09;
-  return vec4(off, lum, lum * 0.5);
+  vec2 grad = clamp(vec2(fx1 - fx0, fy1 - fy0), -8.0, 8.0);
+  vec2 off = clamp(grad * metaball * size * 0.07, vec2(-0.35), vec2(0.35));
+  return vec4(off, lum, lum * 0.45);
 }
 
 vec4 evalAnimMode(float modeId, vec2 uv, float t, vec4 p0, vec4 p1) {

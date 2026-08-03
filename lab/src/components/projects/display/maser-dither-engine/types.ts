@@ -117,7 +117,6 @@ export type ComponentId =
   | "navigation"
   | "button"
   | "scrollbar"
-  | "hero-background"
   | "badge"
   | "avatar"
   | "input"

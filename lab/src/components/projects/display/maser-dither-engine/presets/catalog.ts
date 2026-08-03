@@ -104,7 +104,7 @@ const RAW_PRESETS: PresetDefinition[] = [
     label: "Ambient Glow",
     description: "Soft bloom-forward material for heroes and loaders.",
     materialId: "monochrome",
-    componentIds: ["hero-background", "loader", "section-background", "card"],
+    componentIds: ["section-background", "loader", "card"],
     params: {
       ditherSize: 8,
       bloom: 0.7,
@@ -190,7 +190,7 @@ const RAW_PRESETS: PresetDefinition[] = [
     label: "Warm Newsprint",
     description: "Fibrous paper stock with soft Bayer print and warm absorption.",
     materialId: "paper",
-    componentIds: ["card", "image-frame", "section-background", "hero-background"],
+    componentIds: ["card", "image-frame", "section-background"],
     params: {
       ditherSize: 8,
       contrast: 1.15,
@@ -240,7 +240,7 @@ const RAW_PRESETS: PresetDefinition[] = [
     label: "Black Velvet",
     description: "Directional nap sheen — lighting shifts with light angle.",
     materialId: "velvet",
-    componentIds: ["card", "hero-background", "button", "section-background"],
+    componentIds: ["card", "section-background", "button"],
     params: {
       ditherSize: 8,
       contrast: 1.25,
@@ -288,7 +288,7 @@ const RAW_PRESETS: PresetDefinition[] = [
     label: "Dense Smoke",
     description: "Volumetric curl and turbulence for heroes and loaders.",
     materialId: "smoke",
-    componentIds: ["hero-background", "section-background", "loader"],
+    componentIds: ["section-background", "loader"],
     params: {
       ditherSize: 8,
       contrast: 1.1,
@@ -312,7 +312,7 @@ const RAW_PRESETS: PresetDefinition[] = [
     label: "Morning Fog",
     description: "Soft diffusion that preserves an illuminated volume.",
     materialId: "fog",
-    componentIds: ["hero-background", "section-background", "card"],
+    componentIds: ["section-background", "card"],
     params: {
       ditherSize: 8,
       contrast: 0.95,
@@ -335,7 +335,7 @@ const RAW_PRESETS: PresetDefinition[] = [
     label: "Soft Cloud",
     description: "Billowy multi-scale density — denser than fog.",
     materialId: "cloud",
-    componentIds: ["hero-background", "section-background", "card"],
+    componentIds: ["section-background", "card"],
     params: {
       ditherSize: 8,
       contrast: 1.05,
@@ -407,7 +407,7 @@ const RAW_PRESETS: PresetDefinition[] = [
     label: "Green Phosphor CRT",
     description: "Scanlines and phosphor mask with flicker capped for a11y.",
     materialId: "crt",
-    componentIds: ["card", "hero-background", "loader", "image-frame"],
+    componentIds: ["card", "section-background", "loader", "image-frame"],
     params: {
       ditherSize: 8,
       contrast: 1.2,
@@ -505,7 +505,7 @@ const RAW_PRESETS: PresetDefinition[] = [
     label: "Aurora",
     description: "Soft atmospheric drift with luminous color bands.",
     materialId: "fog",
-    componentIds: ["hero-background", "section-background", "card"],
+    componentIds: ["section-background", "card"],
     params: {
       ditherSize: 8,
       contrast: 0.95,
@@ -587,7 +587,7 @@ const RAW_PRESETS: PresetDefinition[] = [
     label: "Heat",
     description: "Thermal gradient — hot core, cool periphery.",
     materialId: "metal",
-    componentIds: ["card", "badge", "progress-bar", "hero-background"],
+    componentIds: ["card", "badge", "progress-bar", "section-background"],
     params: {
       ditherSize: 8,
       contrast: 1.3,

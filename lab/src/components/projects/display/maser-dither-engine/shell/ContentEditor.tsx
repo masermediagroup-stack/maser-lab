@@ -8,6 +8,7 @@ import type {
   AvatarPresence,
   AvatarShape,
   AvatarSizeToken,
+  ChromeSizeToken,
   ComponentContent,
   ImageAspectId,
   ImageFitMode,
@@ -56,7 +57,20 @@ function fieldsFor(id: ComponentId): Field[] {
         { kind: "text", key: "buttonIcon", label: "Icon / suffix" },
       ];
     case "badge":
-      return [{ kind: "text", key: "badgeLabel", label: "Badge label" }];
+      return [
+        { kind: "text", key: "badgeLabel", label: "Badge label" },
+        {
+          kind: "choice",
+          key: "badgeSize",
+          label: "Size",
+          options: [
+            { id: "sm", label: "SM" },
+            { id: "md", label: "MD" },
+            { id: "lg", label: "LG" },
+            { id: "xl", label: "XL" },
+          ],
+        },
+      ];
     case "card":
       return [
         { kind: "text", key: "cardTitle", label: "Title" },
@@ -69,12 +83,6 @@ function fieldsFor(id: ComponentId): Field[] {
         { kind: "text", key: "navBrand", label: "Brand" },
         { kind: "navItems", label: "Nav items (comma-separated)" },
         { kind: "activeIndex", label: "Active item" },
-      ];
-    case "hero-background":
-      return [
-        { kind: "text", key: "heroEyebrow", label: "Eyebrow / brand" },
-        { kind: "text", key: "heroTitle", label: "Hero title" },
-        { kind: "text", key: "heroDescription", label: "Description" },
       ];
     case "section-background":
       return [
@@ -90,16 +98,49 @@ function fieldsFor(id: ComponentId): Field[] {
       return [
         { kind: "text", key: "progressLabel", label: "Label" },
         {
+          kind: "choice",
+          key: "progressSize",
+          label: "Size",
+          options: [
+            { id: "sm", label: "SM" },
+            { id: "md", label: "MD" },
+            { id: "lg", label: "LG" },
+            { id: "xl", label: "XL" },
+          ],
+        },
+        { kind: "toggle", key: "progressAuto", label: "Auto 0→100 loop" },
+        {
+          kind: "number",
+          key: "progressSpeed",
+          label: "Loop speed",
+          min: 0.05,
+          max: 1,
+          step: 0.01,
+        },
+        {
           kind: "number",
           key: "progressValue",
-          label: "Value %",
+          label: "Value % (manual)",
           min: 0,
           max: 100,
           step: 1,
         },
       ];
     case "loader":
-      return [{ kind: "text", key: "loaderLabel", label: "Status label" }];
+      return [
+        { kind: "text", key: "loaderLabel", label: "Status label" },
+        {
+          kind: "choice",
+          key: "loaderSize",
+          label: "Size",
+          options: [
+            { id: "sm", label: "SM" },
+            { id: "md", label: "MD" },
+            { id: "lg", label: "LG" },
+            { id: "xl", label: "XL" },
+          ],
+        },
+      ];
     case "avatar":
       return [
         { kind: "text", key: "avatarInitials", label: "Initials" },
@@ -236,6 +277,17 @@ function fieldsFor(id: ComponentId): Field[] {
         { kind: "text", key: "scrollbarNote", label: "Note" },
         {
           kind: "choice",
+          key: "scrollbarSize",
+          label: "Size",
+          options: [
+            { id: "sm", label: "SM" },
+            { id: "md", label: "MD" },
+            { id: "lg", label: "LG" },
+            { id: "xl", label: "XL" },
+          ],
+        },
+        {
+          kind: "choice",
           key: "scrollbarOrientation",
           label: "Orientation",
           options: [
@@ -246,7 +298,7 @@ function fieldsFor(id: ComponentId): Field[] {
         {
           kind: "number",
           key: "scrollbarThickness",
-          label: "Thickness",
+          label: "Thickness override",
           min: 8,
           max: 28,
           step: 1,
@@ -322,6 +374,12 @@ export function ContentEditor({
           ) {
             return null;
           }
+          if (field.key === "progressValue" && value.progressAuto) {
+            return null;
+          }
+          if (field.key === "progressSpeed" && !value.progressAuto) {
+            return null;
+          }
           const current = Number(value[field.key] ?? 0);
           return (
             <div key={field.key} className="mde-field">
@@ -394,6 +452,26 @@ export function ContentEditor({
                         onChange({
                           ...value,
                           scrollbarOrientation: opt.id as ScrollbarOrientation,
+                        });
+                      } else if (field.key === "badgeSize") {
+                        onChange({
+                          ...value,
+                          badgeSize: opt.id as ChromeSizeToken,
+                        });
+                      } else if (field.key === "loaderSize") {
+                        onChange({
+                          ...value,
+                          loaderSize: opt.id as ChromeSizeToken,
+                        });
+                      } else if (field.key === "progressSize") {
+                        onChange({
+                          ...value,
+                          progressSize: opt.id as ChromeSizeToken,
+                        });
+                      } else if (field.key === "scrollbarSize") {
+                        onChange({
+                          ...value,
+                          scrollbarSize: opt.id as ChromeSizeToken,
                         });
                       }
                     }}

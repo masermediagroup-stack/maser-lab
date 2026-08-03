@@ -76,7 +76,12 @@ export function DitherAvatar({
     >
       <div className="mde-adapter-avatar__fill">
         <SurfaceCanvas
-          params={params}
+          params={{
+            ...params,
+            animationSpeed: reducedMotion
+              ? 0
+              : Math.max(params.animationSpeed, 1),
+          }}
           animation={animation}
           interaction={interaction}
           color={color}

@@ -72,6 +72,12 @@ export function applySnapshot(
   snapshot: ProjectSnapshot,
   applier: SnapshotApplier,
 ): void {
+  const componentId =
+    (snapshot.componentId as string) === "hero-background"
+      ? ("section-background" as const)
+      : snapshot.componentId;
+  // componentId lives on the snapshot for routing — playground already opened the route
+  void componentId;
   applier.setParams({ ...snapshot.params });
   applier.setAnimation(structuredClone(snapshot.animation));
   applier.setInteraction(structuredClone(snapshot.interaction));
