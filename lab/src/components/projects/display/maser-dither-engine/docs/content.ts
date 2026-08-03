@@ -83,6 +83,11 @@ export const DOCS_TOPICS = [
   {
     id: "future-engines",
     title: "Future Engines",
-    body: `Follow this package shape: engine/ (immutable renderer), materials/, components/adapters/, presets/, shell/, docs/. New engines should mirror catalogs + playground routing. Animation, interaction, color, dither, and material modes extend by appending to their catalogs + GLSL branches — no giant UI switches. Sprint 7 candidates: ceramic/newsprint IDs, deeper glass variants, Canvas2D material fields, persisted material recipes, visual regression.`,
+    body: `Follow this package shape: engine/ (immutable renderer), materials/, components/adapters/, presets/, shell/, docs/, projects/. New engines should mirror catalogs + playground routing. Animation, interaction, color, dither, and material modes extend by appending to their catalogs + GLSL branches — no giant UI switches. Sprint 8 candidates: cloud sync/share links, live dock thumbnails without extra WebGL contexts, timeline history UI, StudioSlider everywhere, component inspector dock targets.`,
+  },
+  {
+    id: "preset-studio",
+    title: "Preset Studio & Projects (Sprint 7)",
+    body: `Preset Studio (#/projects) separates immutable System Presets from editable User Projects. Snapshots capture animation, lighting, palette, material, dither, interaction, content, and sliders (schema v1). Save / Save As never overwrite system rows — they fork. Autosave writes only user projects to localStorage (mde:projects:v1). Thumbnails are JPEG captures from the live stage canvas. Playground adds Material Dock, Quick Actions, undo/redo, control search, workspace modes, and a mobile bottom nav + bottom sheet editor. See docs/sprint7-workspace.md.`,
   },
 ] as const;

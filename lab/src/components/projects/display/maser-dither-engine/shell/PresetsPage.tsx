@@ -13,10 +13,18 @@ export function PresetsPage({ onNavigate }: PresetsPageProps) {
   return (
     <div className="mde-page">
       <header className="mde-page__header">
-        <h1>Presets</h1>
+        <h1>System Presets</h1>
         <p>
-          Named parameter snapshots applied across component playgrounds. Presets
-          never fork the renderer — they only write MonochromeParams.
+          Built-in looks that cannot be overwritten. Open{" "}
+          <button
+            type="button"
+            className="mde-btn"
+            onClick={() => onNavigate({ view: "projects" })}
+          >
+            Preset Studio
+          </button>{" "}
+          to duplicate into editable User Projects with thumbnails, favorites,
+          and export.
         </p>
       </header>
       <div className="mde-list">

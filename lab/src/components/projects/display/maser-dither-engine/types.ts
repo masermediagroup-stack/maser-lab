@@ -158,8 +158,11 @@ export type PresetDefinition = {
     layers?: import("./engine/material/types").MaterialLayer[];
     lowQuality?: boolean;
   };
-  /** Optional palette / color config. */
-  color?: Partial<ColorMaterialConfig>;
+  /** Optional palette / color config (nested color slots are also partial). */
+  color?: Omit<Partial<ColorMaterialConfig>, "colors" | "properties"> & {
+    colors?: Partial<ColorMaterialConfig["colors"]>;
+    properties?: Partial<ColorMaterialConfig["properties"]>;
+  };
   /** Optional animation defaults. */
   animation?: Partial<AnimationEngineConfig>;
   /** Optional interaction defaults. */
@@ -171,6 +174,7 @@ export type AppView =
   | "components"
   | "materials"
   | "presets"
+  | "projects"
   | "playground"
   | "docs";
 
@@ -180,8 +184,11 @@ export type AppRoute =
   | { view: "component"; id: ComponentId }
   | { view: "materials" }
   | { view: "presets" }
+  | { view: "projects" }
   | { view: "playground" }
   | { view: "docs"; topic?: string };
+
+export type WorkspaceMode = "beginner" | "advanced" | "presentation" | "debug";
 
 export type ControlGroupId =
   | "material"

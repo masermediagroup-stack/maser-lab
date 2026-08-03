@@ -9,7 +9,9 @@ import { MaterialsPage } from "./MaterialsPage";
 import { PresetsPage } from "./PresetsPage";
 import { DocsPage } from "./DocsPage";
 import { ComponentsIndex } from "./ComponentsIndex";
+import { ProjectBrowser, useProjectLibrary } from "./studio";
 import type { AppRoute, ComponentId } from "../types";
+import type { ProjectRecord } from "../projects";
 import {
   loadFavorites,
   loadRecent,
@@ -20,7 +22,10 @@ import {
   toggleFavorite,
 } from "../lib/persistence";
 import { ComponentCatalog } from "../components/registry";
+import { cn } from "@/lib/utils";
 import "../tokens.css";
+
+const MOBILE_WORKSPACE_MQ = "(max-width: 900px)";
 
 function useOsReducedMotion(): boolean {
   const [os, setOs] = useState(false);
@@ -53,12 +58,42 @@ export function DitherEngineApp() {
   const [recent, setRecent] = useState<ComponentId[]>(() =>
     typeof window !== "undefined" ? loadRecent() : [],
   );
+  const [pendingProjectId, setPendingProjectId] = useState<string | null>(null);
+  const [isCompactViewport, setIsCompactViewport] = useState(false);
+
+  const libraryApi = useProjectLibrary();
 
   useEffect(() => {
     const sync = () => setRoute(parseHash(window.location.hash));
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
   }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_WORKSPACE_MQ);
+    const sync = () => setIsCompactViewport(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const isMobileEditor =
+    isCompactViewport &&
+    (route.view === "component" || route.view === "playground");
+
+  useEffect(() => {
+    if (!isMobileEditor) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+    };
+  }, [isMobileEditor]);
 
   const navigate = useCallback((next: AppRoute) => {
     const hash = routeToHash(next);
@@ -88,9 +123,10 @@ export function DitherEngineApp() {
         "1": { view: "overview" },
         "2": { view: "components" },
         "3": { view: "materials" },
-        "4": { view: "presets" },
-        "5": { view: "playground" },
-        "6": { view: "docs" },
+        "4": { view: "projects" },
+        "5": { view: "presets" },
+        "6": { view: "playground" },
+        "7": { view: "docs" },
       };
       const next = map[e.key];
       if (next) {
@@ -115,6 +151,15 @@ export function DitherEngineApp() {
     });
   }, []);
 
+  const openProject = useCallback(
+    (project: ProjectRecord) => {
+      setPendingProjectId(project.id);
+      libraryApi.setLastOpened(project.id);
+      navigate({ view: "component", id: project.snapshot.componentId });
+    },
+    [libraryApi, navigate],
+  );
+
   let main: ReactNode = null;
   if (route.view === "overview") {
     main = (
@@ -129,10 +174,15 @@ export function DitherEngineApp() {
     const exists = ComponentCatalog.get(route.id);
     main = exists ? (
       <ComponentPlayground
-        key={route.id}
+        key={`${route.id}:${pendingProjectId ?? "default"}`}
         componentId={route.id}
         reducedMotion={reducedMotion}
         onBack={() => navigate({ view: "components" })}
+        projectId={pendingProjectId}
+        library={libraryApi.library}
+        onLibraryChange={libraryApi.setLibrary}
+        onOpenStudio={() => navigate({ view: "projects" })}
+        onProjectConsumed={() => setPendingProjectId(null)}
       />
     ) : (
       <div className="mde-page">
@@ -141,6 +191,39 @@ export function DitherEngineApp() {
     );
   } else if (route.view === "materials") {
     main = <MaterialsPage onNavigate={navigate} />;
+  } else if (route.view === "projects") {
+    main = (
+      <ProjectBrowser
+        library={libraryApi.library}
+        onOpen={openProject}
+        onDuplicate={libraryApi.duplicate}
+        onDelete={libraryApi.removeProject}
+        onRename={libraryApi.rename}
+        onFavorite={libraryApi.favorite}
+        onImport={(raw) => {
+          try {
+            libraryApi.importRaw(raw);
+          } catch (err) {
+            window.alert(
+              err instanceof Error ? err.message : "Import failed.",
+            );
+          }
+        }}
+        onExport={(project) => {
+          const blob = new Blob([libraryApi.exportOne(project)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${project.name.replace(/\s+/g, "-").toLowerCase()}.mde.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }}
+        onNavigate={navigate}
+        onViewChange={libraryApi.setView}
+      />
+    );
   } else if (route.view === "presets") {
     main = <PresetsPage onNavigate={navigate} />;
   } else if (route.view === "playground") {
@@ -149,6 +232,11 @@ export function DitherEngineApp() {
         componentId="card"
         reducedMotion={reducedMotion}
         onBack={() => navigate({ view: "overview" })}
+        projectId={pendingProjectId}
+        library={libraryApi.library}
+        onLibraryChange={libraryApi.setLibrary}
+        onOpenStudio={() => navigate({ view: "projects" })}
+        onProjectConsumed={() => setPendingProjectId(null)}
       />
     );
   } else if (route.view === "docs") {
@@ -156,22 +244,29 @@ export function DitherEngineApp() {
   }
 
   return (
-    <div className="mde-app" aria-label="Maser Dither Engine">
-      <div className="mde-app__chrome">
-        <Link href="/" className="mde-app__back">
-          ← Maser-Lab
-        </Link>
-      </div>
+    <div
+      className={cn("mde-app", isMobileEditor && "mde-app--mobile-editor")}
+      aria-label="Maser Dither Engine"
+    >
+      {!isMobileEditor ? (
+        <div className="mde-app__chrome">
+          <Link href="/" className="mde-app__back">
+            ← Maser-Lab
+          </Link>
+        </div>
+      ) : null}
       <div className="mde-app__body">
-        <Sidebar
-          route={route}
-          onNavigate={navigate}
-          favorites={favorites}
-          recent={recent}
-          onToggleFavorite={onToggleFavorite}
-          reducedMotion={reducedMotion}
-          onToggleReducedMotion={() => setForceReduced((v) => !v)}
-        />
+        {!isMobileEditor ? (
+          <Sidebar
+            route={route}
+            onNavigate={navigate}
+            favorites={favorites}
+            recent={recent}
+            onToggleFavorite={onToggleFavorite}
+            reducedMotion={reducedMotion}
+            onToggleReducedMotion={() => setForceReduced((v) => !v)}
+          />
+        ) : null}
         <main className="mde-app__main">{main}</main>
       </div>
     </div>
