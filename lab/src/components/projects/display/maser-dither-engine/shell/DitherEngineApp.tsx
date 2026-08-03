@@ -22,7 +22,10 @@ import {
   toggleFavorite,
 } from "../lib/persistence";
 import { ComponentCatalog } from "../components/registry";
+import { cn } from "@/lib/utils";
 import "../tokens.css";
+
+const MOBILE_WORKSPACE_MQ = "(max-width: 900px)";
 
 function useOsReducedMotion(): boolean {
   const [os, setOs] = useState(false);
@@ -56,6 +59,7 @@ export function DitherEngineApp() {
     typeof window !== "undefined" ? loadRecent() : [],
   );
   const [pendingProjectId, setPendingProjectId] = useState<string | null>(null);
+  const [isCompactViewport, setIsCompactViewport] = useState(false);
 
   const libraryApi = useProjectLibrary();
 
@@ -64,6 +68,32 @@ export function DitherEngineApp() {
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
   }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_WORKSPACE_MQ);
+    const sync = () => setIsCompactViewport(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const isMobileEditor =
+    isCompactViewport &&
+    (route.view === "component" || route.view === "playground");
+
+  useEffect(() => {
+    if (!isMobileEditor) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+    };
+  }, [isMobileEditor]);
 
   const navigate = useCallback((next: AppRoute) => {
     const hash = routeToHash(next);
@@ -214,22 +244,29 @@ export function DitherEngineApp() {
   }
 
   return (
-    <div className="mde-app" aria-label="Maser Dither Engine">
-      <div className="mde-app__chrome">
-        <Link href="/" className="mde-app__back">
-          ← Maser-Lab
-        </Link>
-      </div>
+    <div
+      className={cn("mde-app", isMobileEditor && "mde-app--mobile-editor")}
+      aria-label="Maser Dither Engine"
+    >
+      {!isMobileEditor ? (
+        <div className="mde-app__chrome">
+          <Link href="/" className="mde-app__back">
+            ← Maser-Lab
+          </Link>
+        </div>
+      ) : null}
       <div className="mde-app__body">
-        <Sidebar
-          route={route}
-          onNavigate={navigate}
-          favorites={favorites}
-          recent={recent}
-          onToggleFavorite={onToggleFavorite}
-          reducedMotion={reducedMotion}
-          onToggleReducedMotion={() => setForceReduced((v) => !v)}
-        />
+        {!isMobileEditor ? (
+          <Sidebar
+            route={route}
+            onNavigate={navigate}
+            favorites={favorites}
+            recent={recent}
+            onToggleFavorite={onToggleFavorite}
+            reducedMotion={reducedMotion}
+            onToggleReducedMotion={() => setForceReduced((v) => !v)}
+          />
+        ) : null}
         <main className="mde-app__main">{main}</main>
       </div>
     </div>

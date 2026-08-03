@@ -12,10 +12,10 @@ import { cn } from "@/lib/utils";
 export type SheetSnap = "collapsed" | "half" | "expanded" | "fullscreen";
 
 const SNAP_VH: Record<SheetSnap, number> = {
-  collapsed: 18,
-  half: 48,
-  expanded: 72,
-  fullscreen: 94,
+  collapsed: 22,
+  half: 42,
+  expanded: 58,
+  fullscreen: 78,
 };
 
 type BottomSheetProps = {
@@ -99,7 +99,7 @@ export function BottomSheet({
     <div
       ref={sheetRef}
       className={cn("mde-sheet", className)}
-      style={{ height: `${heightVh}vh` }}
+      style={{ height: `${heightVh}dvh` }}
       role="dialog"
       aria-label={title}
     >

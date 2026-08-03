@@ -85,6 +85,7 @@ import { type SourceImageValue } from "./SourceImageField";
 import type { MaterialEngineConfig } from "../engine/material/types";
 import {
   BottomSheet,
+  FitStage,
   MaterialDock,
   MobileBottomNav,
   QuickActions,
@@ -719,12 +720,381 @@ export function ComponentPlayground({
     exportCode,
   };
 
+  const activeProjectLabel = activeProjectId
+    ? activeProjectId.startsWith("system:")
+      ? "System look"
+      : library
+        ? (getProject(library, activeProjectId)?.name ?? "User project")
+        : "User project"
+    : null;
+
+  const sheetTitle =
+    mobileTab === "materials"
+      ? "Materials"
+      : mobileTab === "animation"
+        ? "Animation"
+        : mobileTab === "lighting"
+          ? "Lighting"
+          : mobileTab === "interaction"
+            ? "Interaction"
+            : mobileTab === "components"
+              ? "Component"
+              : "Settings";
+
+  const previewBody =
+    compareDither || compareMaterial ? (
+      <div className="mde-compare" aria-label="Comparison">
+        <div className="mde-compare__pane">
+          <span className="mde-compare__label">
+            A · {compareDither ? dither.algorithm : material.materialId}
+          </span>
+          <Adapter
+            params={params}
+            animation={animation}
+            interaction={interaction}
+            color={color}
+            light={light}
+            dither={dither}
+            material={material}
+            content={content}
+            sourceUrl={source.url}
+            sourceLightMix={source.lightMix}
+            reducedMotion={reducedMotion}
+          />
+        </div>
+        <div className="mde-compare__pane">
+          <span className="mde-compare__label">
+            B ·{" "}
+            {compareDither
+              ? compareDither.algorithm
+              : compareMaterial?.materialId}
+          </span>
+          <Adapter
+            params={params}
+            animation={animation}
+            interaction={interaction}
+            color={color}
+            light={light}
+            dither={compareDither ?? dither}
+            material={compareMaterial ?? material}
+            content={content}
+            sourceUrl={source.url}
+            sourceLightMix={source.lightMix}
+            reducedMotion={reducedMotion}
+          />
+        </div>
+      </div>
+    ) : (
+      <Adapter
+        params={params}
+        animation={animation}
+        interaction={interaction}
+        color={color}
+        light={light}
+        dither={dither}
+        material={material}
+        content={content}
+        sourceUrl={source.url}
+        sourceLightMix={source.lightMix}
+        reducedMotion={reducedMotion}
+      />
+    );
+
+  const previewFrame = (
+    <div
+      className={cn(
+        "mde-playground__preview",
+        isNarrow && "mde-playground__preview--mobile-fit",
+        isFullscreen && "mde-playground__preview--fullscreen",
+      )}
+      role={isFullscreen ? "dialog" : undefined}
+      aria-modal={isFullscreen ? true : undefined}
+      aria-label={
+        isFullscreen ? `${definition.label} fullscreen preview` : undefined
+      }
+    >
+      {isFullscreen ? (
+        <Button
+          ref={closeFullscreenButtonRef}
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="mde-playground__fullscreen-close text-white hover:bg-white/10 hover:text-white"
+          onClick={() => setIsFullscreen(false)}
+          aria-label="Close fullscreen preview"
+        >
+          <X className="size-5" />
+        </Button>
+      ) : (
+        <div className="mde-playground__preview-toolbar">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mde-playground__fullscreen-btn border-white/15 bg-black/70 text-white hover:bg-white/10 hover:text-white"
+            onClick={() => {
+              setMobileTab("preview");
+              setIsFullscreen(true);
+            }}
+            aria-label="Enter fullscreen preview"
+          >
+            <Maximize2 className="size-4" />
+            <span className="mde-playground__fullscreen-label">Fullscreen</span>
+          </Button>
+        </div>
+      )}
+      <div className="mde-playground__preview-stage">
+        {isNarrow && !isFullscreen ? (
+          <FitStage>{previewBody}</FitStage>
+        ) : (
+          previewBody
+        )}
+      </div>
+    </div>
+  );
+
+  const materialDock = (
+    <MaterialDock
+      activeId={material.materialId}
+      order={(library?.dockOrder as MaterialId[]) ?? []}
+      onOrderChange={(order) => {
+        if (!library) return;
+        commitLibrary(setDockOrderLib(library, order));
+      }}
+      onSelect={(id) => {
+        setMaterial(createInitialMaterialConfig(id));
+        setPanel("material", true);
+      }}
+      onApply={(id) => {
+        setMaterial(createInitialMaterialConfig(id));
+      }}
+      onFavorite={(id) => {
+        setFavoriteControls((prev) =>
+          prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+        );
+      }}
+      onDuplicate={() => saveCurrent({ asNew: true })}
+    />
+  );
+
+  const openControlHit = (hit: { panel: string; label: string }) => {
+    setPanel(hit.panel as ControlGroupId, true);
+    setFavoriteControls((prev) =>
+      prev.includes(hit.label) ? prev : [...prev, hit.label],
+    );
+    setControlQuery("");
+    if (isNarrow) {
+      const tab: MobileTabId =
+        hit.panel === "material"
+          ? "materials"
+          : hit.panel === "animation"
+            ? "animation"
+            : hit.panel === "lighting"
+              ? "lighting"
+              : hit.panel === "interaction"
+                ? "interaction"
+                : "settings";
+      setMobileTab(tab);
+      setSheetSnap("expanded");
+    }
+  };
+
+  /* —— Mobile workspace shell (≤900px): topbar + stage + sheet + bottom nav —— */
+  if (isNarrow) {
+    return (
+      <div
+        className={cn(
+          "mde-playground",
+          "mde-playground--mobile",
+          presentation && "mde-playground--presentation",
+          sheetOpen && "mde-playground--sheet-open",
+        )}
+      >
+        <header className="mde-mobile-topbar">
+          <button
+            type="button"
+            className="mde-mobile-topbar__back"
+            onClick={onBack}
+            aria-label="Back to components"
+          >
+            ←
+          </button>
+          <div className="mde-mobile-topbar__title">
+            <strong>{definition.label}</strong>
+            {activeProjectLabel ? (
+              <span className="mde-muted">{activeProjectLabel}</span>
+            ) : (
+              <span className="mde-muted">{material.materialId}</span>
+            )}
+          </div>
+          <div className="mde-mobile-topbar__actions">
+            <button
+              type="button"
+              className="mde-btn mde-btn--compact"
+              disabled={!history || !canUndo(history)}
+              onClick={onUndo}
+              aria-label="Undo"
+            >
+              Undo
+            </button>
+            <button
+              type="button"
+              className="mde-btn mde-btn--compact"
+              disabled={!history || !canRedo(history)}
+              onClick={onRedo}
+              aria-label="Redo"
+            >
+              Redo
+            </button>
+            <button
+              type="button"
+              className="mde-btn mde-btn--primary mde-btn--compact"
+              onClick={() => saveCurrent()}
+            >
+              Save
+            </button>
+          </div>
+        </header>
+
+        <div
+          className="mde-mobile-stage"
+          ref={stageRef}
+          data-sheet={sheetOpen ? sheetSnap : "closed"}
+        >
+          {previewFrame}
+        </div>
+
+        <BottomSheet
+          open={sheetOpen}
+          title={sheetTitle}
+          snap={sheetSnap}
+          onSnapChange={setSheetSnap}
+          onClose={() => setMobileTab("preview")}
+        >
+          <div className="mde-sheet__panels">
+            {mobileTab === "materials" ? (
+              <div className="mde-sheet__dock">{materialDock}</div>
+            ) : null}
+            {mobileTab === "settings" ? (
+              <div className="mde-sheet__search-block">
+                <label className="mde-playground__control-search">
+                  <span className="sr-only">Search controls</span>
+                  <input
+                    type="search"
+                    placeholder="Search controls…"
+                    value={controlQuery}
+                    onChange={(e) => setControlQuery(e.target.value)}
+                  />
+                </label>
+                {controlHits.length > 0 ? (
+                  <div
+                    className="mde-playground__control-hits"
+                    role="listbox"
+                  >
+                    {controlHits.slice(0, 8).map((hit) => (
+                      <button
+                        key={hit.id}
+                        type="button"
+                        role="option"
+                        className="mde-chip"
+                        aria-selected={false}
+                        onClick={() => openControlHit(hit)}
+                      >
+                        {hit.label}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+                <div
+                  className="mde-playground__density mde-sheet__modes"
+                  role="group"
+                  aria-label="Workspace mode"
+                >
+                  {(
+                    [
+                      ["beginner", "Beginner"],
+                      ["advanced", "Advanced"],
+                      ["presentation", "Present"],
+                      ["debug", "Debug"],
+                    ] as const
+                  ).map(([id, label]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      className={cn(
+                        "mde-chip",
+                        workspaceMode === id && "mde-chip--active",
+                      )}
+                      aria-pressed={workspaceMode === id}
+                      onClick={() => changeWorkspaceMode(id)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <div className="mde-sheet__quick-row">
+                  <button
+                    type="button"
+                    className="mde-btn"
+                    onClick={() => saveCurrent({ asNew: true })}
+                  >
+                    Save As
+                  </button>
+                  <button
+                    type="button"
+                    className="mde-btn"
+                    onClick={resetDemo}
+                  >
+                    Reset
+                  </button>
+                  <button
+                    type="button"
+                    className="mde-btn"
+                    onClick={exportProjectBundle}
+                  >
+                    Export
+                  </button>
+                  {onOpenStudio ? (
+                    <button
+                      type="button"
+                      className="mde-btn"
+                      onClick={onOpenStudio}
+                    >
+                      Projects
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+            {renderControlPanels({
+              ...panelProps,
+              focusGroup: mobilePanelFocus[mobileTab],
+            })}
+          </div>
+        </BottomSheet>
+
+        <MobileBottomNav
+          active={mobileTab}
+          onChange={(id) => {
+            if (id === "projects") {
+              onOpenStudio?.();
+              return;
+            }
+            setMobileTab(id);
+            if (id === "preview") return;
+            setSheetSnap(id === "settings" ? "expanded" : "half");
+          }}
+        />
+      </div>
+    );
+  }
+
+  /* —— Desktop workspace (unchanged composition) —— */
   return (
     <div
       className={cn(
         "mde-playground",
         presentation && "mde-playground--presentation",
-        isNarrow && "mde-playground--mobile",
       )}
     >
       <header className="mde-playground__header">
@@ -801,27 +1171,7 @@ export function ComponentPlayground({
                   role="option"
                   className="mde-chip"
                   aria-selected={false}
-                  onClick={() => {
-                    setPanel(hit.panel as ControlGroupId, true);
-                    setFavoriteControls((prev) =>
-                      prev.includes(hit.label) ? prev : [...prev, hit.label],
-                    );
-                    setControlQuery("");
-                    if (isNarrow) {
-                      const tab: MobileTabId =
-                        hit.panel === "material"
-                          ? "materials"
-                          : hit.panel === "animation"
-                            ? "animation"
-                            : hit.panel === "lighting"
-                              ? "lighting"
-                              : hit.panel === "interaction"
-                                ? "interaction"
-                                : "settings";
-                      setMobileTab(tab);
-                      setSheetSnap("expanded");
-                    }
-                  }}
+                  onClick={() => openControlHit(hit)}
                 >
                   {hit.label}
                 </button>
@@ -846,109 +1196,7 @@ export function ComponentPlayground({
 
       <div className="mde-playground__layout">
         <div className="mde-playground__stage" ref={stageRef}>
-          <div
-            className={cn(
-              "mde-playground__preview",
-              isFullscreen && "mde-playground__preview--fullscreen",
-            )}
-            role={isFullscreen ? "dialog" : undefined}
-            aria-modal={isFullscreen ? true : undefined}
-            aria-label={
-              isFullscreen
-                ? `${definition.label} fullscreen preview`
-                : undefined
-            }
-          >
-            {isFullscreen ? (
-              <Button
-                ref={closeFullscreenButtonRef}
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                className="mde-playground__fullscreen-close text-white hover:bg-white/10 hover:text-white"
-                onClick={() => setIsFullscreen(false)}
-                aria-label="Close fullscreen preview"
-              >
-                <X className="size-5" />
-              </Button>
-            ) : (
-              <div className="mde-playground__preview-toolbar">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="mde-playground__fullscreen-btn border-white/15 bg-black/70 text-white hover:bg-white/10 hover:text-white"
-                  onClick={() => setIsFullscreen(true)}
-                  aria-label="Enter fullscreen preview"
-                >
-                  <Maximize2 className="size-4" />
-                  <span className="mde-playground__fullscreen-label">
-                    Fullscreen
-                  </span>
-                </Button>
-              </div>
-            )}
-            <div className="mde-playground__preview-stage">
-              {compareDither || compareMaterial ? (
-                <div className="mde-compare" aria-label="Comparison">
-                  <div className="mde-compare__pane">
-                    <span className="mde-compare__label">
-                      A ·{" "}
-                      {compareDither ? dither.algorithm : material.materialId}
-                    </span>
-                    <Adapter
-                      params={params}
-                      animation={animation}
-                      interaction={interaction}
-                      color={color}
-                      light={light}
-                      dither={dither}
-                      material={material}
-                      content={content}
-                      sourceUrl={source.url}
-                      sourceLightMix={source.lightMix}
-                      reducedMotion={reducedMotion}
-                    />
-                  </div>
-                  <div className="mde-compare__pane">
-                    <span className="mde-compare__label">
-                      B ·{" "}
-                      {compareDither
-                        ? compareDither.algorithm
-                        : compareMaterial?.materialId}
-                    </span>
-                    <Adapter
-                      params={params}
-                      animation={animation}
-                      interaction={interaction}
-                      color={color}
-                      light={light}
-                      dither={compareDither ?? dither}
-                      material={compareMaterial ?? material}
-                      content={content}
-                      sourceUrl={source.url}
-                      sourceLightMix={source.lightMix}
-                      reducedMotion={reducedMotion}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <Adapter
-                  params={params}
-                  animation={animation}
-                  interaction={interaction}
-                  color={color}
-                  light={light}
-                  dither={dither}
-                  material={material}
-                  content={content}
-                  sourceUrl={source.url}
-                  sourceLightMix={source.lightMix}
-                  reducedMotion={reducedMotion}
-                />
-              )}
-            </div>
-          </div>
+          {previewFrame}
 
           {!presentation ? (
             <>
@@ -967,34 +1215,16 @@ export function ComponentPlayground({
                   const rec = getProject(library, activeProjectId);
                   if (!rec) return;
                   commitLibrary(
-                    setProjectFavoriteLib(library, activeProjectId, !rec.favorite),
+                    setProjectFavoriteLib(
+                      library,
+                      activeProjectId,
+                      !rec.favorite,
+                    ),
                   );
                 }}
                 onThumbnail={() => saveCurrent()}
               />
-              <MaterialDock
-                activeId={material.materialId}
-                order={(library?.dockOrder as MaterialId[]) ?? []}
-                onOrderChange={(order) => {
-                  if (!library) return;
-                  commitLibrary(setDockOrderLib(library, order));
-                }}
-                onSelect={(id) => {
-                  setMaterial(createInitialMaterialConfig(id));
-                  setPanel("material", true);
-                }}
-                onApply={(id) => {
-                  setMaterial(createInitialMaterialConfig(id));
-                }}
-                onFavorite={(id) => {
-                  setFavoriteControls((prev) =>
-                    prev.includes(id)
-                      ? prev.filter((x) => x !== id)
-                      : [...prev, id],
-                  );
-                }}
-                onDuplicate={() => saveCurrent({ asNew: true })}
-              />
+              {materialDock}
             </>
           ) : null}
 
@@ -1012,54 +1242,12 @@ export function ComponentPlayground({
           </div>
         </div>
 
-        {!presentation && !isNarrow ? (
+        {!presentation ? (
           <aside className="mde-playground__panel" aria-label="Controls">
             {renderControlPanels(panelProps)}
           </aside>
         ) : null}
       </div>
-
-      {isNarrow ? (
-        <>
-          <BottomSheet
-            open={sheetOpen}
-            title={
-              mobileTab === "materials"
-                ? "Materials"
-                : mobileTab === "animation"
-                  ? "Animation"
-                  : mobileTab === "lighting"
-                    ? "Lighting"
-                    : mobileTab === "interaction"
-                      ? "Interaction"
-                      : mobileTab === "components"
-                        ? "Component"
-                        : "Settings"
-            }
-            snap={sheetSnap}
-            onSnapChange={setSheetSnap}
-            onClose={() => setMobileTab("preview")}
-          >
-            <div className="mde-sheet__panels">
-              {renderControlPanels({
-                ...panelProps,
-                focusGroup: mobilePanelFocus[mobileTab],
-              })}
-            </div>
-          </BottomSheet>
-          <MobileBottomNav
-            active={mobileTab}
-            onChange={(id) => {
-              if (id === "projects") {
-                onOpenStudio?.();
-                return;
-              }
-              setMobileTab(id);
-              if (id !== "preview") setSheetSnap("half");
-            }}
-          />
-        </>
-      ) : null}
     </div>
   );
 }

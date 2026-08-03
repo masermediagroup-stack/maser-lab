@@ -1,4 +1,5 @@
 export { BottomSheet, type SheetSnap } from "./BottomSheet";
+export { FitStage } from "./FitStage";
 export { MaterialDock } from "./MaterialDock";
 export { MobileBottomNav, type MobileTabId } from "./MobileBottomNav";
 export { ProjectBrowser } from "./ProjectBrowser";

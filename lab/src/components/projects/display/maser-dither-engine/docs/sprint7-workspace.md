@@ -13,14 +13,30 @@ DitherEngineApp
 │   ├── System presets (immutable `system:*` rows from catalog)
 │   └── User projects (`localStorage` `mde:projects:v1`)
 └── ComponentPlayground
-    ├── Stage + QuickActions + Material Dock
-    ├── Desktop control panels (collapsible groups)
-    ├── Mobile: bottom nav + BottomSheet (collapsed / half / expanded / fullscreen)
+    ├── Desktop: stage + QuickActions + Material Dock + side panels
+    ├── Mobile (≤900px): dedicated 100dvh workspace shell
+    │   ├── Compact top bar (back · title · undo/redo · save)
+    │   ├── Preview stage (FitStage scales adapters into view)
+    │   ├── Contextual BottomSheet (tool panels; closed on Preview)
+    │   └── Persistent bottom tool nav
     ├── Control search + favorite control chips
     └── Workspace modes: Beginner · Advanced · Presentation · Debug
 ```
 
 Shared WebGL pipeline is unchanged. Studio code lives under `projects/` (snapshot/store/history) and `shell/studio/` (UI chrome).
+
+## Sprint 7.1 — Mobile workspace reconstruction
+
+Desktop composition is **not** reused on phones. At ≤900px on `#/component` / `#/playground`, `mde-app--mobile-editor` locks the app to `height: 100dvh`, hides lab chrome + sidebar, and hands the viewport to a purpose-built shell:
+
+| Region | Role |
+| --- | --- |
+| Top bar | Navigation + undo/redo + save |
+| Stage | Full selected component + procedural effect (no document scroll) |
+| Sheet | Materials dock, sliders, search/modes (More tab) — overlays stage |
+| Bottom nav | Preview · Materials · Anim · Light · Touch · Comps · Projects · More |
+
+**Preview tab** closes the sheet for immediate full-stage viewing. Adapters are width-contained and scaled via `FitStage` so cards/navs no longer clip off the right edge. Horizontal page overflow and stacked desktop chrome (header → modes → search → dock → perf) are removed from the mobile path.
 
 ## Project format (schema v1)
 
@@ -63,11 +79,13 @@ Research (Figma Mobile, Procreate Pocket, Lightroom, Nomad, Rive, Linear): one w
 
 Implemented:
 
+- Dedicated mobile editor shell (`100dvh`, no competing sticky chrome)
 - Bottom nav: Preview · Materials · Anim · Light · Touch · Comps · Projects · More
-- Draggable bottom sheet with snap points
-- Material Dock: tap inspect, double-tap apply, long-press menu, drag reorder
+- Draggable bottom sheet with snap points (dvh-based, above bottom nav)
+- Material Dock inside Materials sheet
 - StudioSlider available for touch-first numeric editing
-- Global control search (e.g. “Bloom”)
+- Global control search under More
+- FitStage preview containment
 
 ## Future cloud sync
 

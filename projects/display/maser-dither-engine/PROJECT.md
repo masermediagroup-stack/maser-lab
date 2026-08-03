@@ -252,9 +252,18 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Persistent `mde:projects:v1` library
 - [x] Docs: `docs/sprint7-workspace.md`
 
+### Sprint 7.1 — Mobile workspace reconstruction
+
+- [x] Dedicated `100dvh` mobile editor shell (`mde-app--mobile-editor`)
+- [x] Compact top bar + preview stage + contextual sheet + bottom tool nav
+- [x] Hide lab chrome / sidebar on mobile editor routes (desktop unchanged)
+- [x] FitStage scales adapters so full component + effect fits the stage
+- [x] No document-scroll workspace; controls live in the sheet, not a long page
+- [x] Preview tab returns to full-stage viewing immediately
+
 ### Architecture notes
 
-`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions. Renderer untouched.
+`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer untouched.
 
 ### Sprint 8 recommendations
 
