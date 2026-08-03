@@ -1,4 +1,5 @@
 import type { ComponentContent } from "../content/types";
+import { DEFAULT_COMPONENT_CONTENT } from "../content/types";
 import type { AnimationEngineConfig } from "../engine/animation/types";
 import type { ColorMaterialConfig } from "../engine/color/types";
 import type { DitherConfig } from "../engine/dither/types";
@@ -78,7 +79,13 @@ export function applySnapshot(
   applier.setLight(structuredClone(snapshot.light));
   applier.setDither(structuredClone(snapshot.dither));
   applier.setMaterial(structuredClone(snapshot.material));
-  applier.setContent(structuredClone(snapshot.content));
+  applier.setContent({
+    ...DEFAULT_COMPONENT_CONTENT,
+    ...structuredClone(snapshot.content),
+    navItems: [
+      ...(snapshot.content.navItems ?? DEFAULT_COMPONENT_CONTENT.navItems),
+    ],
+  });
   applier.setSource({
     url: snapshot.sourceUrl,
     lightMix: snapshot.sourceLightMix,

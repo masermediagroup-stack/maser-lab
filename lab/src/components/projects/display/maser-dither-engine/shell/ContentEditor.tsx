@@ -3,11 +3,21 @@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import type { ComponentId } from "../types";
-import type { ComponentContent } from "../content/types";
+import type {
+  AvatarMode,
+  AvatarPresence,
+  AvatarShape,
+  AvatarSizeToken,
+  ComponentContent,
+  ImageAspectId,
+  ImageFitMode,
+  ScrollbarOrientation,
+} from "../content/types";
 import {
   SourceImageField,
   type SourceImageValue,
 } from "./SourceImageField";
+import { cn } from "@/lib/utils";
 
 type ContentEditorProps = {
   componentId: ComponentId;
@@ -20,9 +30,23 @@ type ContentEditorProps = {
 
 type Field =
   | { kind: "text"; key: keyof ComponentContent; label: string }
-  | { kind: "number"; key: keyof ComponentContent; label: string; min: number; max: number; step: number }
+  | {
+      kind: "number";
+      key: keyof ComponentContent;
+      label: string;
+      min: number;
+      max: number;
+      step: number;
+    }
   | { kind: "navItems"; label: string }
-  | { kind: "activeIndex"; label: string };
+  | { kind: "activeIndex"; label: string }
+  | {
+      kind: "choice";
+      key: keyof ComponentContent;
+      label: string;
+      options: { id: string; label: string }[];
+    }
+  | { kind: "toggle"; key: keyof ComponentContent; label: string };
 
 function fieldsFor(id: ComponentId): Field[] {
   switch (id) {
@@ -77,18 +101,154 @@ function fieldsFor(id: ComponentId): Field[] {
     case "loader":
       return [{ kind: "text", key: "loaderLabel", label: "Status label" }];
     case "avatar":
-      return [{ kind: "text", key: "avatarInitials", label: "Initials" }];
+      return [
+        { kind: "text", key: "avatarInitials", label: "Initials" },
+        {
+          kind: "choice",
+          key: "avatarShape",
+          label: "Shape",
+          options: [
+            { id: "circle", label: "Circle" },
+            { id: "rounded", label: "Rounded" },
+            { id: "square", label: "Square" },
+          ],
+        },
+        {
+          kind: "choice",
+          key: "avatarMode",
+          label: "Mode",
+          options: [
+            { id: "initials", label: "Initials" },
+            { id: "image", label: "Image" },
+            { id: "placeholder", label: "Placeholder" },
+          ],
+        },
+        {
+          kind: "choice",
+          key: "avatarSize",
+          label: "Size",
+          options: [
+            { id: "sm", label: "SM" },
+            { id: "md", label: "MD" },
+            { id: "lg", label: "LG" },
+            { id: "xl", label: "XL" },
+          ],
+        },
+        { kind: "toggle", key: "avatarShowPresence", label: "Presence" },
+        {
+          kind: "choice",
+          key: "avatarPresence",
+          label: "Status",
+          options: [
+            { id: "online", label: "Online" },
+            { id: "away", label: "Away" },
+            { id: "busy", label: "Busy" },
+            { id: "offline", label: "Offline" },
+          ],
+        },
+        {
+          kind: "number",
+          key: "avatarBorder",
+          label: "Border",
+          min: 0,
+          max: 6,
+          step: 1,
+        },
+        {
+          kind: "number",
+          key: "avatarGlow",
+          label: "Glow",
+          min: 0,
+          max: 1,
+          step: 0.01,
+        },
+      ];
     case "image-frame":
-      return [{ kind: "text", key: "imageCaption", label: "Caption" }];
+      return [
+        { kind: "text", key: "imageCaption", label: "Caption" },
+        {
+          kind: "choice",
+          key: "imageAspect",
+          label: "Aspect",
+          options: [
+            { id: "1:1", label: "1:1" },
+            { id: "4:3", label: "4:3" },
+            { id: "3:2", label: "3:2" },
+            { id: "16:9", label: "16:9" },
+            { id: "9:16", label: "9:16" },
+            { id: "21:9", label: "21:9" },
+            { id: "custom", label: "Custom" },
+          ],
+        },
+        {
+          kind: "number",
+          key: "imageCustomAspect",
+          label: "Custom ratio",
+          min: 0.4,
+          max: 3,
+          step: 0.01,
+        },
+        {
+          kind: "choice",
+          key: "imageFit",
+          label: "Fit",
+          options: [
+            { id: "cover", label: "Cover" },
+            { id: "contain", label: "Contain" },
+            { id: "fill", label: "Fill" },
+          ],
+        },
+        {
+          kind: "number",
+          key: "imageRadius",
+          label: "Radius",
+          min: 0,
+          max: 48,
+          step: 1,
+        },
+        {
+          kind: "number",
+          key: "imagePadding",
+          label: "Padding",
+          min: 0,
+          max: 32,
+          step: 1,
+        },
+        {
+          kind: "number",
+          key: "imageBorder",
+          label: "Border",
+          min: 0,
+          max: 8,
+          step: 1,
+        },
+        {
+          kind: "number",
+          key: "imageOverlay",
+          label: "Material overlay",
+          min: 0,
+          max: 1,
+          step: 0.01,
+        },
+      ];
     case "scrollbar":
       return [
         { kind: "text", key: "scrollbarNote", label: "Note" },
         {
+          kind: "choice",
+          key: "scrollbarOrientation",
+          label: "Orientation",
+          options: [
+            { id: "vertical", label: "Vertical" },
+            { id: "horizontal", label: "Horizontal" },
+          ],
+        },
+        {
           kind: "number",
           key: "scrollbarThickness",
           label: "Thickness",
-          min: 4,
-          max: 24,
+          min: 8,
+          max: 28,
           step: 1,
         },
         {
@@ -98,6 +258,14 @@ function fieldsFor(id: ComponentId): Field[] {
           min: 0,
           max: 16,
           step: 1,
+        },
+        {
+          kind: "number",
+          key: "scrollbarProgress",
+          label: "Start progress",
+          min: 0,
+          max: 1,
+          step: 0.01,
         },
       ];
     default:
@@ -129,6 +297,7 @@ export function ContentEditor({
         value={source}
         onChange={onSourceChange}
         idPrefix={`${idPrefix}-source`}
+        emphasize={componentId === "image-frame" || componentId === "avatar"}
       />
       {fields.map((field) => {
         if (field.kind === "text") {
@@ -147,6 +316,12 @@ export function ContentEditor({
           );
         }
         if (field.kind === "number") {
+          if (
+            field.key === "imageCustomAspect" &&
+            value.imageAspect !== "custom"
+          ) {
+            return null;
+          }
           const current = Number(value[field.key] ?? 0);
           return (
             <div key={field.key} className="mde-field">
@@ -166,6 +341,88 @@ export function ContentEditor({
                   onChange({ ...value, [field.key]: next });
                 }}
               />
+            </div>
+          );
+        }
+        if (field.kind === "choice") {
+          const current = String(value[field.key] ?? "");
+          return (
+            <div key={field.key} className="mde-field">
+              <span className="mde-field__label">{field.label}</span>
+              <div className="mde-preset-row" role="group" aria-label={field.label}>
+                {field.options.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={cn(
+                      "mde-chip",
+                      current === opt.id && "mde-chip--active",
+                    )}
+                    aria-pressed={current === opt.id}
+                    onClick={() => {
+                      if (field.key === "avatarShape") {
+                        onChange({
+                          ...value,
+                          avatarShape: opt.id as AvatarShape,
+                        });
+                      } else if (field.key === "avatarMode") {
+                        onChange({
+                          ...value,
+                          avatarMode: opt.id as AvatarMode,
+                        });
+                      } else if (field.key === "avatarSize") {
+                        onChange({
+                          ...value,
+                          avatarSize: opt.id as AvatarSizeToken,
+                        });
+                      } else if (field.key === "avatarPresence") {
+                        onChange({
+                          ...value,
+                          avatarPresence: opt.id as AvatarPresence,
+                        });
+                      } else if (field.key === "imageAspect") {
+                        onChange({
+                          ...value,
+                          imageAspect: opt.id as ImageAspectId,
+                        });
+                      } else if (field.key === "imageFit") {
+                        onChange({
+                          ...value,
+                          imageFit: opt.id as ImageFitMode,
+                        });
+                      } else if (field.key === "scrollbarOrientation") {
+                        onChange({
+                          ...value,
+                          scrollbarOrientation: opt.id as ScrollbarOrientation,
+                        });
+                      }
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+        if (field.kind === "toggle") {
+          const on = Boolean(value[field.key]);
+          return (
+            <div key={field.key} className="mde-field">
+              <div className="mde-field__row">
+                <Label htmlFor={`${idPrefix}-${field.key}`}>{field.label}</Label>
+                <button
+                  type="button"
+                  id={`${idPrefix}-${field.key}`}
+                  className={cn("mde-chip", on && "mde-chip--active")}
+                  aria-pressed={on}
+                  onClick={() =>
+                    onChange({ ...value, [field.key]: !on } as ComponentContent)
+                  }
+                >
+                  {on ? "On" : "Off"}
+                </button>
+              </div>
             </div>
           );
         }

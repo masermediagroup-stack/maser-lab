@@ -218,7 +218,7 @@ void main() {
 
   // Stage 0 — procedural animation
   vec4 anim = sampleAnimation(uv, uTime);
-  vec2 uvAnim = uv + anim.xy;
+  vec2 uvAnim = uv + anim.xy * 2.15;
 
   // Soft interaction tug (does not replace light shape)
   vec2 tug = (uIxPointer - 0.5) * uIxInfluence * 0.025;
@@ -251,8 +251,8 @@ void main() {
     illum = mix(srcLum, lit, clamp(uSourceLightMix, 0.0, 1.0));
   }
 
-  // Subtle modulation only — must not flatten center→edge contrast
-  illum = clamp(illum + anim.z * 0.1, 0.0, 1.0);
+  // Subtle→readable modulation — modes must remain visually distinct
+  illum = clamp(illum + anim.z * 0.42 + anim.w * 0.12, 0.0, 1.0);
   float ixMod = sampleInteraction(uvSample);
   illum = mix(illum, clamp(illum + ixMod * 0.35, 0.0, 1.0), 0.18);
 

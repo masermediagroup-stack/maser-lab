@@ -220,6 +220,11 @@ export type DitherAdapterProps = {
   /** Image URL to dither through the shared surface engine. */
   sourceUrl?: string | null;
   sourceLightMix?: number;
+  /** Optional upload handler — image-frame / avatar can replace the source in-place. */
+  onSourceChange?: (next: {
+    url: string | null;
+    lightMix?: number;
+  }) => void;
   reducedMotion?: boolean;
   className?: string;
 };

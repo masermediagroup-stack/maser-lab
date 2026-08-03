@@ -261,18 +261,31 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] No document-scroll workspace; controls live in the sheet, not a long page
 - [x] Preview tab returns to full-stage viewing immediately
 
+### Sprint 7.2 — Stabilization & feature audit
+
+- [x] Monochrome editor chrome (color only in procedural preview)
+- [x] Scrollbar interactive preview (V/H, drag, progress, material thumb)
+- [x] Avatar restored (shape / size / initials / image / presence / glow)
+- [x] Image Frame upload + aspect ratios + fit / overlay
+- [x] Full color slots + HEX / RGB / HSL editors; light tint sliders restored
+- [x] Animation composition gain so modes read distinctly
+- [x] Docs: `docs/sprint7-2-stabilization.md`
+- [x] Engine `0.7.2`
+
 ### Architecture notes
 
-`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer untouched.
+`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite.
 
 ### Sprint 8 recommendations
 
+- Persist uploads (data URL / IndexedDB) across project save
 - Cloud sync / share links for project JSON
 - Live Material Dock thumbnails (shared offscreen blit, no extra WebGL contexts)
 - Timeline snapshots / version history UI
 - Wire StudioSlider across every panel by default
 - Component inspector sheet (padding / radius / content) as first-class dock target
 - Drag material from dock onto component adapters with drop highlight
+- Visual regression suite for algorithms × materials × animations
 - Deeper frosted/clear glass variants with background sampling when available
 - Ceramic / newsprint / brushed aluminum as first-class IDs beyond presets
 

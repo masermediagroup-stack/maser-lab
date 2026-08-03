@@ -94,3 +94,7 @@ Project JSON is already portable. A future sync layer can push `ProjectRecord[]`
 ## Reduced motion
 
 Sheet height transitions disable under `prefers-reduced-motion`. Engine reduced-motion toggle continues to mute animation/flicker.
+
+## Sprint 7.2
+
+See `docs/sprint7-2-stabilization.md` — monochrome chrome, Scrollbar/Avatar/Image Frame repairs, color HEX/RGB/HSL editors, animation composition gain (engine `0.7.2`).

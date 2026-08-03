@@ -741,6 +741,26 @@ export function ComponentPlayground({
               ? "Component"
               : "Settings";
 
+  const handleSourceChange = useCallback(
+    (next: { url: string | null; lightMix?: number }) => {
+      setSource((prev) => {
+        if (prev.url?.startsWith("blob:") && prev.url !== next.url) {
+          try {
+            URL.revokeObjectURL(prev.url);
+          } catch {
+            /* ignore */
+          }
+        }
+        return {
+          url: next.url,
+          lightMix:
+            typeof next.lightMix === "number" ? next.lightMix : prev.lightMix,
+        };
+      });
+    },
+    [],
+  );
+
   const previewBody =
     compareDither || compareMaterial ? (
       <div className="mde-compare" aria-label="Comparison">
@@ -759,6 +779,7 @@ export function ComponentPlayground({
             content={content}
             sourceUrl={source.url}
             sourceLightMix={source.lightMix}
+            onSourceChange={handleSourceChange}
             reducedMotion={reducedMotion}
           />
         </div>
@@ -780,6 +801,7 @@ export function ComponentPlayground({
             content={content}
             sourceUrl={source.url}
             sourceLightMix={source.lightMix}
+            onSourceChange={handleSourceChange}
             reducedMotion={reducedMotion}
           />
         </div>
@@ -796,6 +818,7 @@ export function ComponentPlayground({
         content={content}
         sourceUrl={source.url}
         sourceLightMix={source.lightMix}
+        onSourceChange={handleSourceChange}
         reducedMotion={reducedMotion}
       />
     );

@@ -159,7 +159,17 @@ export function applyBehavior(
     behavior: behaviorId,
     properties: props,
     blendMode: b.preferBlend ?? config.blendMode,
-    gradientSpeed: config.gradientSpeed * (b.gradientSpeedMul ?? 1),
+    // Do not compound speed on repeated applies — mul is a one-shot bias from default.
+    gradientSpeed:
+      behaviorId === "none"
+        ? config.gradientSpeed
+        : Math.min(
+            2,
+            Math.max(
+              0,
+              DEFAULT_COLOR_MATERIAL.gradientSpeed * (b.gradientSpeedMul ?? 1),
+            ),
+          ),
   };
 }
 
