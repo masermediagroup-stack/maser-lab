@@ -6,6 +6,7 @@ import { Sidebar } from "./Sidebar";
 import { OverviewPage } from "./OverviewPage";
 import { ComponentPlayground } from "./ComponentPlayground";
 import { MaterialsPage } from "./MaterialsPage";
+import { AnimationComparePage } from "./AnimationComparePage";
 import { PresetsPage } from "./PresetsPage";
 import { DocsPage } from "./DocsPage";
 import { ComponentsIndex } from "./ComponentsIndex";
@@ -191,6 +192,8 @@ export function DitherEngineApp() {
     );
   } else if (route.view === "materials") {
     main = <MaterialsPage onNavigate={navigate} />;
+  } else if (route.view === "animations") {
+    main = <AnimationComparePage onNavigate={navigate} />;
   } else if (route.view === "projects") {
     main = (
       <ProjectBrowser

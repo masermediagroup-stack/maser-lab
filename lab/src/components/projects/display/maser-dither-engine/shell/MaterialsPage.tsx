@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { SurfaceCanvas } from "../react/SurfaceCanvas";
+import { useLiveThumbCache } from "../react/useLiveThumbCache";
 import {
-  DEFAULT_MATERIAL_CONFIG,
   createDefaultLayers,
   DEFAULT_MATERIAL_PARAMS,
   type EngineMaterialId,
@@ -19,6 +19,8 @@ import {
 import { MONOCHROME_DEFAULTS } from "../constants";
 import { DEFAULT_LIGHT_SHAPE } from "../engine/lighting";
 import { DEFAULT_DITHER_CONFIG } from "../engine/dither";
+import { DEFAULT_COLOR_MATERIAL } from "../engine/color/types";
+import { DEFAULT_ANIMATION_CONFIG } from "../engine/animation/types";
 import type { AppRoute } from "../types";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +29,8 @@ type MaterialsPageProps = {
 };
 
 type CompareMode = "side" | "swipe" | "toggle";
+type LayoutMode = "grid" | "rail";
+type BrowseFilter = "all" | "favorites" | "recent";
 
 function configFor(id: EngineMaterialId): MaterialEngineConfig {
   return {
@@ -58,21 +62,78 @@ function saveFavorites(ids: EngineMaterialId[]) {
   }
 }
 
+function loadRecent(): EngineMaterialId[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem("mde-material-recent");
+    return raw ? (JSON.parse(raw) as EngineMaterialId[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function pushRecent(id: EngineMaterialId, current: EngineMaterialId[]) {
+  const next = [id, ...current.filter((x) => x !== id)].slice(0, 12);
+  try {
+    localStorage.setItem("mde-material-recent", JSON.stringify(next));
+  } catch {
+    /* ignore */
+  }
+  return next;
+}
+
 export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
   const [family, setFamily] = useState<MaterialFamilyId | "all">("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<EngineMaterialId>("paper");
   const [favorites, setFavorites] = useState<EngineMaterialId[]>(loadFavorites);
+  const [recent, setRecent] = useState<EngineMaterialId[]>(loadRecent);
+  const [browse, setBrowse] = useState<BrowseFilter>("all");
+  const [layout, setLayout] = useState<LayoutMode>("grid");
+  const [hoverId, setHoverId] = useState<EngineMaterialId | null>(null);
   const [compare, setCompare] = useState(false);
   const [compareB, setCompareB] = useState<EngineMaterialId>("chrome");
   const [compareMode, setCompareMode] = useState<CompareMode>("side");
   const [toggleShowA, setToggleShowA] = useState(true);
   const [swipe, setSwipe] = useState(50);
 
+  const materialIds = useMemo(
+    () => PROCEDURAL_MATERIALS.map((m) => m.id) as EngineMaterialId[],
+    [],
+  );
+
+  const thumbScene = useMemo(
+    () => ({
+      params: {
+        ...MONOCHROME_DEFAULTS,
+        contrast: 1.25,
+        bloom: 0.45,
+        grainAmount: 0.07,
+      },
+      color: {
+        ...DEFAULT_COLOR_MATERIAL,
+        colorEnabled: true,
+        paletteId: "pearl",
+      },
+      light: { ...DEFAULT_LIGHT_SHAPE },
+      dither: { ...DEFAULT_DITHER_CONFIG, algorithm: "bayer" as const },
+      animation: {
+        ...DEFAULT_ANIMATION_CONFIG,
+        modeId: "wave" as const,
+        blendDuration: 0,
+      },
+    }),
+    [],
+  );
+
+  const thumbs = useLiveThumbCache(materialIds, thumbScene, "materials-v1");
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return PROCEDURAL_MATERIALS.filter((m) => {
       if (family !== "all" && m.family !== family) return false;
+      if (browse === "favorites" && !favorites.includes(m.id)) return false;
+      if (browse === "recent" && !recent.includes(m.id)) return false;
       if (!q) return true;
       return (
         m.label.toLowerCase().includes(q) ||
@@ -80,10 +141,11 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
         m.useCases.some((u) => u.toLowerCase().includes(q))
       );
     });
-  }, [family, query]);
+  }, [family, query, browse, favorites, recent]);
 
   const detail = getMaterialDefinition(selected)!;
-  const materialA = useMemo(() => configFor(selected), [selected]);
+  const previewId = hoverId ?? selected;
+  const materialA = useMemo(() => configFor(previewId), [previewId]);
   const materialB = useMemo(() => configFor(compareB), [compareB]);
 
   const sharedPreviewProps = {
@@ -93,8 +155,13 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
       bloom: 0.4,
       grainAmount: 0.08,
     },
+    color: { ...DEFAULT_COLOR_MATERIAL, colorEnabled: true },
     light: { ...DEFAULT_LIGHT_SHAPE },
     dither: { ...DEFAULT_DITHER_CONFIG, algorithm: "bayer" as const },
+    animation: {
+      ...DEFAULT_ANIMATION_CONFIG,
+      modeId: "wave" as const,
+    },
     reducedMotion: false,
   };
 
@@ -108,14 +175,19 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
     });
   };
 
+  const selectMaterial = (id: EngineMaterialId) => {
+    setSelected(id);
+    setHoverId(null);
+    setRecent((prev) => pushRecent(id, prev));
+  };
+
   return (
     <div className="mde-page mde-materials">
       <header className="mde-page__header">
         <h1>Materials</h1>
         <p>
-          Procedural material platform — each material has distinct structure,
-          light response, density, and interaction. Same palette and lighting
-          across previews.
+          Live procedural previews from the shared renderer — material,
+          animation, lighting, palette, and dither in every thumb.
         </p>
       </header>
 
@@ -128,6 +200,43 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Search materials"
         />
+        <div className="mde-preset-row" role="group" aria-label="Browse">
+          {(
+            [
+              ["all", "All"],
+              ["favorites", "Favorites"],
+              ["recent", "Recent"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              className={cn("mde-chip", browse === id && "mde-chip--active")}
+              aria-pressed={browse === id}
+              onClick={() => setBrowse(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="mde-preset-row" role="group" aria-label="Layout">
+          <button
+            type="button"
+            className={cn("mde-chip", layout === "grid" && "mde-chip--active")}
+            aria-pressed={layout === "grid"}
+            onClick={() => setLayout("grid")}
+          >
+            Grid
+          </button>
+          <button
+            type="button"
+            className={cn("mde-chip", layout === "rail" && "mde-chip--active")}
+            aria-pressed={layout === "rail"}
+            onClick={() => setLayout("rail")}
+          >
+            Rail
+          </button>
+        </div>
         <div className="mde-preset-row" role="group" aria-label="Family filter">
           <button
             type="button"
@@ -135,7 +244,7 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
             aria-pressed={family === "all"}
             onClick={() => setFamily("all")}
           >
-            All
+            All families
           </button>
           {MATERIAL_FAMILIES.map((f) => (
             <button
@@ -158,10 +267,22 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
         >
           {compare ? "Exit compare" : "Compare materials"}
         </button>
+        <button
+          type="button"
+          className="mde-btn"
+          onClick={() => onNavigate({ view: "animations" })}
+        >
+          Animation compare
+        </button>
       </div>
 
       <div className="mde-mat-browser">
-        <div className="mde-mat-grid">
+        <div
+          className={cn(
+            "mde-mat-grid",
+            layout === "rail" && "mde-mat-grid--rail",
+          )}
+        >
           {filtered.map((m) => (
             <button
               key={m.id}
@@ -171,21 +292,40 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
                 selected === m.id && "mde-mat-thumb--active",
               )}
               aria-pressed={selected === m.id}
-              onClick={() => setSelected(m.id)}
+              onClick={() => selectMaterial(m.id)}
+              onMouseEnter={() => setHoverId(m.id)}
+              onMouseLeave={() => setHoverId(null)}
+              onFocus={() => setHoverId(m.id)}
+              onBlur={() => setHoverId(null)}
             >
               <div className="mde-mat-thumb__preview" aria-hidden>
-                {/* Avoid one WebGL context per thumb — browsers cap ~8–16 contexts.
-                    Live preview lives in the detail pane only. */}
-                <div
-                  className="mde-mat-thumb__swatch"
-                  data-material={m.id}
-                />
+                {thumbs[m.id] ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- live blit data URL
+                  <img
+                    className="mde-mat-thumb__live"
+                    src={thumbs[m.id]}
+                    alt=""
+                  />
+                ) : (
+                  <div
+                    className="mde-mat-thumb__swatch mde-mat-thumb__swatch--loading"
+                    data-material={m.id}
+                  />
+                )}
               </div>
               <div className="mde-mat-thumb__meta">
                 <span className="mde-mat-thumb__title">{m.label}</span>
-                <span className="mde-pill">{m.performanceTier}</span>
+                <span className="mde-pill" title="Performance tier">
+                  {m.performanceTier}
+                </span>
               </div>
               <p className="mde-mat-thumb__desc">{m.description}</p>
+              <p className="mde-mat-thumb__recs">
+                {m.recommendedComponents.slice(0, 2).join(" · ")}
+                {m.recommendedAnimations[0]
+                  ? ` · ${m.recommendedAnimations[0]}`
+                  : ""}
+              </p>
               <span className="mde-mat-thumb__fav">
                 <button
                   type="button"
@@ -265,7 +405,7 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
                     <div className="mde-mat-detail__preview">
                       <SurfaceCanvas
                         {...sharedPreviewProps}
-                        material={materialA}
+                        material={configFor(selected)}
                       />
                     </div>
                   </div>
@@ -294,7 +434,7 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
                   <div className="mde-mat-detail__preview mde-mat-detail__preview--lg">
                     <SurfaceCanvas
                       {...sharedPreviewProps}
-                      material={toggleShowA ? materialA : materialB}
+                      material={toggleShowA ? configFor(selected) : materialB}
                     />
                   </div>
                 </div>
@@ -304,7 +444,7 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
                   <div className="mde-mat-detail__preview mde-mat-detail__preview--lg">
                     <SurfaceCanvas
                       {...sharedPreviewProps}
-                      material={materialA}
+                      material={configFor(selected)}
                     />
                     <div
                       className="mde-mat-swipe__overlay"
@@ -335,9 +475,14 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
                 <SurfaceCanvas
                   {...sharedPreviewProps}
                   material={materialA}
-                  aria-label={`${detail.label} large preview`}
+                  aria-label={`${getMaterialDefinition(previewId)?.label ?? "Material"} large preview`}
                 />
               </div>
+              {hoverId && hoverId !== selected ? (
+                <p className="mde-field__hint">
+                  Hover preview · {detail.label} stays selected
+                </p>
+              ) : null}
               <h2>{detail.label}</h2>
               <p>{detail.description}</p>
               <p>
@@ -352,6 +497,8 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
               </ul>
               <h3>Recommended components</h3>
               <p>{detail.recommendedComponents.join(" · ") || "—"}</p>
+              <h3>Recommended animations</h3>
+              <p>{detail.recommendedAnimations.join(" · ") || "—"}</p>
               {detail.poorFitComponents.length > 0 ? (
                 <>
                   <h3>Poor fits</h3>
@@ -361,11 +508,6 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
               <h3>Dither</h3>
               <p>
                 {detail.recommendedDither.join(", ")} — {detail.ditherNotes}
-              </p>
-              <h3>Animation</h3>
-              <p>
-                Recommended: {detail.recommendedAnimations.join(", ")}.
-                Compatible: {detail.compatibleAnimations.join(", ")}.
               </p>
               <h3>Accessibility</h3>
               <p>{detail.accessibilityNotes}</p>
@@ -388,11 +530,6 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
           )}
         </aside>
       </div>
-
-      {/* Keep default config reference for tree-shaking clarity */}
-      <span className="sr-only" aria-hidden>
-        {DEFAULT_MATERIAL_CONFIG.materialId}
-      </span>
     </div>
   );
 }

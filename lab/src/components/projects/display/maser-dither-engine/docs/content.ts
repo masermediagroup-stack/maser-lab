@@ -33,7 +33,7 @@ export const DOCS_TOPICS = [
   {
     id: "animation",
     title: "Procedural Animation",
-    body: `Sprint 1 adds a modular animation engine under engine/animation/. Each mode is catalogued with purpose, math approach, controls, and performance notes. ProceduralAnimationController owns Timeline + ModeBlender; the shared FRAG shader evaluates mode A/B and smoothsteps the blend. Layers stay separate: ambient motion, UV distortion, interaction tug, and lighting modulation. Pass animation?: Partial<AnimationEngineConfig> into SurfaceCanvas. Modes: Linear H/V, Diagonal, Radial Pulse, Ripple, Wave, Spiral, Orbit, Breathing, Bloom, Noise Drift, Flow Field, Magnetic, Aurora, Turbulence, Lava Lamp.`,
+    body: `Sprint 1 adds a modular animation engine under engine/animation/. Each mode is catalogued with purpose, math approach, controls, and performance notes. ProceduralAnimationController owns Timeline + ModeBlender; the shared FRAG shader evaluates mode A/B and smoothsteps the blend. Layers stay separate: ambient motion, UV distortion, interaction tug, and lighting modulation. Pass animation?: Partial<AnimationEngineConfig> into SurfaceCanvas. Modes: Linear H/V, Diagonal, Radial Pulse (multi-front rings), Ripple, Wave, Spiral (rotating arms + center offset), Orbit, Breathing, Bloom, Noise Drift, Flow Field, Magnetic, Aurora, Turbulence, Lava Lamp (metaballs + viscosity). Sprint 7.3 adds #/animations compare board. Creative Explore randomizes modes with locks.`,
   },
   {
     id: "interaction",
@@ -48,7 +48,7 @@ export const DOCS_TOPICS = [
   {
     id: "procedural-materials",
     title: "Procedural Materials (Sprint 6)",
-    body: `engine/material/ defines Paper, Ink, Velvet, Metal, Smoke, Fog, Cloud, Glass, Chrome, and CRT as true procedural materials with distinct UV, structure, finish, and interaction response under identical shared lighting/palette/dither. MaterialController packs uMat* uniforms; layer recipe (enable/bypass/solo) gates structure without shader recompile. Materials page: CSS swatch thumbs (context budget), family filters, search, favorites, detail with one live preview, side/swipe/A-B compare. Playground Material panel shows only supportedControls for the active material. Performance tiers + mobile lowQuality. CRT flicker capped; reduced motion zeros flicker. Sacred contracts: projects/.../AGENTS.md + engine/AGENTS.md. See docs/sprint6-materials.md and docs/engine-lessons.md.`,
+    body: `engine/material/ defines Paper, Ink, Velvet, Metal, Smoke, Fog, Cloud, Glass, Chrome, and CRT as true procedural materials with distinct UV, structure, finish, and interaction response under identical shared lighting/palette/dither. MaterialController packs uMat* uniforms; layer recipe (enable/bypass/solo) gates structure without shader recompile. Materials page: live procedural thumbs via ThumbBlitEngine (one shared WebGL context → JPEG), family filters, search, favorites/recent, grid/rail, hover preview, detail with one live canvas, side/swipe/A-B compare. Playground Material Dock uses the same blit cache. See docs/sprint6-materials.md, docs/sprint7-3-creative-restoration.md, and docs/engine-lessons.md.`,
   },
   {
     id: "engine-contracts",

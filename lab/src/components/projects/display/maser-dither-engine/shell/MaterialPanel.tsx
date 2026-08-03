@@ -57,7 +57,7 @@ const GRADIENT_BEHAVIORS: { id: GradientBehaviorId; label: string }[] = [
   { id: "pulse", label: "Pulse" },
   { id: "orbit", label: "Orbit" },
   { id: "noise-drift", label: "Noise Drift" },
-  { id: "hue-cycle", label: "Hue Cycle" },
+  { id: "hue-cycle", label: "Hue Cycle / Palette" },
   { id: "blend", label: "Blend" },
   { id: "mirror", label: "Mirror" },
 ];
@@ -77,18 +77,18 @@ const BLEND_MODES: { id: BlendModeId; label: string }[] = [
 
 const COLOR_PICKERS: { key: keyof MaterialColors; label: string; hint: string }[] = [
   { key: "background", label: "Background", hint: "Plate behind the material" },
-  { key: "highlight", label: "Primary / Highlight", hint: "Core light / primary chroma" },
-  { key: "accent", label: "Secondary / Accent", hint: "Midtone / secondary accent" },
+  { key: "ambient", label: "Material Color", hint: "Base material plate / ambient fill" },
+  { key: "highlight", label: "Highlight", hint: "Core light / primary chroma" },
   { key: "shadow", label: "Shadow", hint: "Outer dark" },
+  { key: "accent", label: "Accent", hint: "Midtone accent chroma" },
   { key: "dither", label: "Dither Color", hint: "Ink tint in dark regions" },
-  { key: "bloom", label: "Bloom", hint: "Bloom tint" },
-  { key: "glow", label: "Glow", hint: "Glow additive" },
-  { key: "ambient", label: "Ambient", hint: "Soft ambient plate" },
+  { key: "bloom", label: "Bloom Color", hint: "Bloom tint" },
+  { key: "glow", label: "Glow Color", hint: "Glow additive" },
   { key: "gradientStart", label: "Gradient Start", hint: "Gradient A" },
   { key: "gradientMid", label: "Gradient Mid", hint: "Gradient midpoint" },
   { key: "gradientEnd", label: "Gradient End", hint: "Gradient B" },
-  { key: "gradientFourth", label: "Gradient 4th", hint: "Quad stop" },
-  { key: "edgeTint", label: "Overlay / Edge", hint: "Edge overlay tint" },
+  { key: "gradientFourth", label: "Gradient 4th", hint: "Quad stop / palette cycle" },
+  { key: "edgeTint", label: "Overlay Color", hint: "Edge overlay tint" },
   { key: "noiseTint", label: "Noise Tint", hint: "Scatter / grain tint" },
 ];
 

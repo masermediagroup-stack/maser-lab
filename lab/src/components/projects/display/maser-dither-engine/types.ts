@@ -183,6 +183,7 @@ export type AppRoute =
   | { view: "components" }
   | { view: "component"; id: ComponentId }
   | { view: "materials" }
+  | { view: "animations" }
   | { view: "presets" }
   | { view: "projects" }
   | { view: "playground" }

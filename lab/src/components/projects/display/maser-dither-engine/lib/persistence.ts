@@ -70,6 +70,7 @@ export function parseHash(hash: string): AppRoute {
   if (!h || h === "overview") return { view: "overview" };
   if (h === "components") return { view: "components" };
   if (h === "materials") return { view: "materials" };
+  if (h === "animations") return { view: "animations" };
   if (h === "presets") return { view: "presets" };
   if (h === "projects" || h === "studio") return { view: "projects" };
   if (h === "playground") return { view: "playground" };
@@ -94,6 +95,8 @@ export function routeToHash(route: AppRoute): string {
       return `#/components/${route.id}`;
     case "materials":
       return "#/materials";
+    case "animations":
+      return "#/animations";
     case "presets":
       return "#/presets";
     case "projects":

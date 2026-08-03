@@ -92,6 +92,10 @@ import {
   type MobileTabId,
   type SheetSnap,
 } from "./studio";
+import { CreativeExplore, type CreativeLocks } from "./CreativeExplore";
+import { useLiveThumbCache } from "../react/useLiveThumbCache";
+import { PROCEDURAL_MATERIALS } from "../engine/material/catalog";
+import type { EngineMaterialId } from "../engine/material/types";
 import {
   renderControlPanels,
   type ControlPanelBundle,
@@ -239,6 +243,64 @@ export function ComponentPlayground({
   );
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>(
     () => library?.workspaceMode ?? "advanced",
+  );
+  const [creativeLocks, setCreativeLocks] = useState<CreativeLocks>({
+    color: false,
+    light: false,
+    animation: false,
+    material: false,
+  });
+  const dockMaterialIds = useMemo(
+    () => PROCEDURAL_MATERIALS.map((m) => m.id) as EngineMaterialId[],
+    [],
+  );
+  const dockThumbScene = useMemo(
+    () => ({
+      params,
+      color,
+      light,
+      dither,
+      animation: { ...animation, blendDuration: 0 },
+    }),
+    [params, color, light, dither, animation],
+  );
+  const dockThumbKey = useMemo(
+    () =>
+      [
+        material.materialId,
+        color.paletteId,
+        animation.modeId,
+        light.shape,
+        dither.algorithm,
+        Math.round(params.contrast * 100),
+        Math.round(params.bloom * 100),
+        Math.round(color.colors.highlight.r * 99),
+        Math.round(color.colors.shadow.g * 99),
+        Math.round(color.colors.gradientStart.b * 99),
+        Math.round(color.colors.ambient.r * 99),
+        color.gradientBehavior,
+        Math.round(color.gradientSpeed * 100),
+      ].join("|"),
+    [
+      material.materialId,
+      color.paletteId,
+      color.colors.highlight.r,
+      color.colors.shadow.g,
+      color.colors.gradientStart.b,
+      color.colors.ambient.r,
+      color.gradientBehavior,
+      color.gradientSpeed,
+      animation.modeId,
+      light.shape,
+      dither.algorithm,
+      params.contrast,
+      params.bloom,
+    ],
+  );
+  const dockThumbs = useLiveThumbCache(
+    dockMaterialIds,
+    dockThumbScene,
+    dockThumbKey,
   );
   const [disabledPanels, setDisabledPanels] = useState<
     Partial<Record<ControlGroupId, boolean>>
@@ -897,6 +959,7 @@ export function ComponentPlayground({
         );
       }}
       onDuplicate={() => saveCurrent({ asNew: true })}
+      thumbUrls={dockThumbs}
     />
   );
 
@@ -1000,6 +1063,18 @@ export function ComponentPlayground({
             ) : null}
             {mobileTab === "settings" ? (
               <div className="mde-sheet__search-block">
+                <CreativeExplore
+                  locks={creativeLocks}
+                  onLocksChange={setCreativeLocks}
+                  color={color}
+                  onColor={setColor}
+                  light={light}
+                  onLight={setLight}
+                  animation={animation}
+                  onAnimation={setAnimation}
+                  material={material}
+                  onMaterial={setMaterial}
+                />
                 <label className="mde-playground__control-search">
                   <span className="sr-only">Search controls</span>
                   <input
@@ -1246,6 +1321,18 @@ export function ComponentPlayground({
                   );
                 }}
                 onThumbnail={() => saveCurrent()}
+              />
+              <CreativeExplore
+                locks={creativeLocks}
+                onLocksChange={setCreativeLocks}
+                color={color}
+                onColor={setColor}
+                light={light}
+                onLight={setLight}
+                animation={animation}
+                onAnimation={setAnimation}
+                material={material}
+                onMaterial={setMaterial}
               />
               {materialDock}
             </>
