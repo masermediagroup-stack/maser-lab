@@ -52,6 +52,8 @@ export type ComponentContent = {
   progressSpeed: number;
   loaderLabel: string;
   loaderSize: ChromeSizeToken;
+  /** Spin rate multiplier for the loader ring (0.25–3). */
+  loaderSpeed: number;
   avatarInitials: string;
   avatarShape: AvatarShape;
   avatarMode: AvatarMode;
@@ -103,6 +105,7 @@ export const DEFAULT_COMPONENT_CONTENT: ComponentContent = {
   progressSpeed: 0.22,
   loaderLabel: "Rendering",
   loaderSize: "md",
+  loaderSpeed: 1,
   avatarInitials: "MD",
   avatarShape: "circle",
   avatarMode: "initials",

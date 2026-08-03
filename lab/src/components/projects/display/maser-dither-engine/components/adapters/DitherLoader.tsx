@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Spinning dither ring — material fills a conic-masked arc that rotates.
- * Not an avatar orb: reads as an indeterminate loader.
+ * Rounded caps, no track stroke; spin speed from content.loaderSpeed.
  */
 export function DitherLoader({
   params,
@@ -29,6 +29,11 @@ export function DitherLoader({
   const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
   const size = LOADER_SIZE_PX[c.loaderSize] ?? 56;
   const speed = reducedMotion ? 0 : Math.max(params.animationSpeed, 1);
+  const spin = reducedMotion
+    ? 0
+    : Math.max(0.25, Math.min(3, c.loaderSpeed ?? 1));
+  // Base period 1.05s at speed 1
+  const durationSec = spin > 0 ? 1.05 / spin : 0;
 
   return (
     <div
@@ -37,10 +42,12 @@ export function DitherLoader({
       aria-busy={!reducedMotion}
       aria-label={c.loaderLabel}
       data-size={c.loaderSize}
-      style={{ ["--mde-loader-size" as string]: `${size}px` }}
+      style={{
+        ["--mde-loader-size" as string]: `${size}px`,
+        ["--mde-loader-duration" as string]: `${durationSec}s`,
+      }}
     >
       <div className="mde-adapter-loader__stage" aria-hidden>
-        <div className="mde-adapter-loader__track" />
         <div
           className={cn(
             "mde-adapter-loader__spin",

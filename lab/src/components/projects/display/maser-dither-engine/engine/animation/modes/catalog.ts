@@ -129,7 +129,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     index: 6,
     purpose: "Arms that visibly rotate around a center.",
     approach:
-      "Archimedean log-spiral with angular advection, center offset, and tangential UV twist.",
+      "Archimedean log-spiral with angular advection, center offset, and UV scale zoom.",
     performance: "atan + length.",
     extension: "Multi-arm interference.",
     controls: [
@@ -140,7 +140,7 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
       ctrl("centerX", "Center X", -0.45, 0.45, 0.01, 0),
       ctrl("centerY", "Center Y", -0.45, 0.45, 0.01, 0),
       ctrl("direction", "Direction", -1, 1, 1, 1),
-      ctrl("twist", "Twist", 0.15, 2.5, 0.01, 1.1),
+      ctrl("scale", "Scale", 0.35, 2.8, 0.01, 1),
     ],
   }),
   mode({

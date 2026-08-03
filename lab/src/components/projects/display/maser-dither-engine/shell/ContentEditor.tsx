@@ -140,6 +140,14 @@ function fieldsFor(id: ComponentId): Field[] {
             { id: "xl", label: "XL" },
           ],
         },
+        {
+          kind: "number",
+          key: "loaderSpeed",
+          label: "Spin speed",
+          min: 0.25,
+          max: 3,
+          step: 0.05,
+        },
       ];
     case "avatar":
       return [

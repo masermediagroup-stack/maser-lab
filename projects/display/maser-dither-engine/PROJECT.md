@@ -295,6 +295,16 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Preset/project open no longer remounts and wipes the saved snapshot
 - [x] Engine `0.7.4`
 
+### Sprint 7.5 — Interaction & palette polish
+
+- [x] Progress loop phase continuous across speed changes (no flash-away)
+- [x] Pointer follow uses framerate-independent exponential damp (no snap-on-enter)
+- [x] Palettes use distinct multi-stop slots; heat-map is a thermal quad ramp
+- [x] Spiral animation gains Scale control (replaces Twist)
+- [x] Loader: spin-speed slider, rounded arc caps, no track stroke
+- [x] Docs: `docs/sprint7-5-interaction-palette.md`
+- [x] Engine `0.7.5`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).

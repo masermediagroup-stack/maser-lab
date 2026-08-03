@@ -151,8 +151,10 @@ vec4 modeSpiral(vec2 uv, float t, vec4 p0, vec4 p1) {
   float cx = p1.x;
   float cy = p1.y;
   float direction = p1.z >= 0.0 ? 1.0 : -1.0;
-  float twist = max(p1.w, 0.15);
-  vec2 a = aspectUv(uv) - vec2(cx, cy);
+  // p1.w = pattern scale (zoom). Higher = arms fill more of the surface.
+  float scale = clamp(p1.w, 0.25, 3.0);
+  float twist = 1.1;
+  vec2 a = (aspectUv(uv) - vec2(cx, cy)) * scale;
   float r = length(a);
   float theta = atan(a.y, a.x) + t * speed * 0.7 * direction;
   float spiral = sin(theta * arms + log(r * tight + 0.08) * tight * 3.2 - t * speed * direction);

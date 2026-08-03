@@ -1428,12 +1428,9 @@
   height: var(--mde-loader-size, 56px);
 }
 
+/* No outline / stroke track — ring is the material alone */
 .mde-adapter-loader__track {
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  border: 2px solid color-mix(in oklab, var(--mde-line) 80%, transparent);
-  opacity: 0.55;
+  display: none;
 }
 
 .mde-adapter-loader__spin {
@@ -1441,34 +1438,54 @@
   inset: 0;
   border-radius: 999px;
   overflow: hidden;
-  /* Material arc — ~28% of the ring visible while spinning */
+  /* Soft-feathered arc ends (rounded caps) — no hard conic cut */
   -webkit-mask-image: conic-gradient(
-    #000 0deg,
-    #000 100deg,
-    transparent 100deg,
+    from -90deg,
+    transparent 0deg,
+    rgba(0, 0, 0, 0.2) 5deg,
+    rgba(0, 0, 0, 0.75) 12deg,
+    #000 20deg,
+    #000 95deg,
+    rgba(0, 0, 0, 0.75) 103deg,
+    rgba(0, 0, 0, 0.2) 112deg,
+    transparent 120deg,
     transparent 360deg
   );
   mask-image: conic-gradient(
-    #000 0deg,
-    #000 100deg,
-    transparent 100deg,
+    from -90deg,
+    transparent 0deg,
+    rgba(0, 0, 0, 0.2) 5deg,
+    rgba(0, 0, 0, 0.75) 12deg,
+    #000 20deg,
+    #000 95deg,
+    rgba(0, 0, 0, 0.75) 103deg,
+    rgba(0, 0, 0, 0.2) 112deg,
+    transparent 120deg,
     transparent 360deg
   );
-  animation: mde-loader-spin 1.05s linear infinite;
+  animation: mde-loader-spin var(--mde-loader-duration, 1.05s) linear infinite;
 }
 
 .mde-adapter-loader__spin--static {
   animation: none;
   -webkit-mask-image: conic-gradient(
-    #000 0deg,
-    #000 120deg,
-    transparent 120deg,
+    from -90deg,
+    transparent 0deg,
+    rgba(0, 0, 0, 0.25) 6deg,
+    #000 18deg,
+    #000 110deg,
+    rgba(0, 0, 0, 0.25) 122deg,
+    transparent 130deg,
     transparent 360deg
   );
   mask-image: conic-gradient(
-    #000 0deg,
-    #000 120deg,
-    transparent 120deg,
+    from -90deg,
+    transparent 0deg,
+    rgba(0, 0, 0, 0.25) 6deg,
+    #000 18deg,
+    #000 110deg,
+    rgba(0, 0, 0, 0.25) 122deg,
+    transparent 130deg,
     transparent 360deg
   );
 }
@@ -1478,16 +1495,24 @@
   inset: 0;
   border-radius: 999px;
   overflow: hidden;
-  /* Punch the center so it reads as a ring, not a filled disc */
+  /* Soft inner/outer ring edges (rounded stroke profile) */
   -webkit-mask-image: radial-gradient(
     farthest-side,
-    transparent calc(100% - 9px),
-    #000 calc(100% - 8px)
+    transparent calc(100% - 11px),
+    rgba(0, 0, 0, 0.35) calc(100% - 9.5px),
+    #000 calc(100% - 8px),
+    #000 calc(100% - 2.5px),
+    rgba(0, 0, 0, 0.35) calc(100% - 1px),
+    transparent 100%
   );
   mask-image: radial-gradient(
     farthest-side,
-    transparent calc(100% - 9px),
-    #000 calc(100% - 8px)
+    transparent calc(100% - 11px),
+    rgba(0, 0, 0, 0.35) calc(100% - 9.5px),
+    #000 calc(100% - 8px),
+    #000 calc(100% - 2.5px),
+    rgba(0, 0, 0, 0.35) calc(100% - 1px),
+    transparent 100%
   );
 }
 

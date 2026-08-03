@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Progress bar — manual value or auto 0→100 loop (DOM-driven, no React thrash).
+ * Speed changes update rate only — phase is continuous so the fill never flashes away.
  */
 export function DitherProgressBar({
   params,
@@ -30,8 +31,16 @@ export function DitherProgressBar({
   const size = PROGRESS_SIZE[c.progressSize] ?? PROGRESS_SIZE.md;
   const fillRef = useRef<HTMLDivElement>(null);
   const valueRef = useRef<HTMLSpanElement>(null);
+  const phaseRef = useRef(Math.min(100, Math.max(0, c.progressValue)) / 100);
+  const lastTsRef = useRef<number | null>(null);
+  const speedRef = useRef(Math.max(0.05, Math.min(1, c.progressSpeed)));
+
   const manual = Math.min(100, Math.max(0, c.progressValue));
   const auto = c.progressAuto && !reducedMotion;
+
+  useEffect(() => {
+    speedRef.current = Math.max(0.05, Math.min(1, c.progressSpeed));
+  }, [c.progressSpeed]);
 
   useEffect(() => {
     const fill = fillRef.current;
@@ -39,26 +48,31 @@ export function DitherProgressBar({
     if (!fill) return;
 
     if (!auto) {
+      lastTsRef.current = null;
+      phaseRef.current = manual / 100;
       fill.style.width = `${manual}%`;
       if (label) label.textContent = `${Math.round(manual)}%`;
       return;
     }
 
     let raf = 0;
-    const t0 = performance.now();
-    const cyclesPerSec = Math.max(0.05, Math.min(1, c.progressSpeed));
-
     const tick = (now: number) => {
-      const elapsed = (now - t0) / 1000;
-      const phase = (elapsed * cyclesPerSec) % 1;
-      const pct = phase * 100;
+      const last = lastTsRef.current ?? now;
+      const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
+      lastTsRef.current = now;
+      // cyclesPerSec from speedRef — changing speed never resets phase
+      phaseRef.current = (phaseRef.current + dt * speedRef.current) % 1;
+      const pct = phaseRef.current * 100;
       fill.style.width = `${pct}%`;
       if (label) label.textContent = `${Math.round(pct)}%`;
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [auto, manual, c.progressSpeed]);
+    return () => {
+      cancelAnimationFrame(raf);
+      lastTsRef.current = null;
+    };
+  }, [auto, manual]);
 
   const ariaNow = auto ? undefined : manual;
 
