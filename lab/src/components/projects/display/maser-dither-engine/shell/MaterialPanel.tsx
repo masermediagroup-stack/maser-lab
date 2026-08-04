@@ -33,6 +33,8 @@ type MaterialPanelProps = {
   }) => void;
   idPrefix?: string;
   advanced?: boolean;
+  /** When true, skip nested BasePlate (already pinned above in the playground). */
+  hideBasePlate?: boolean;
 };
 
 type ColorEditMode = "hex" | "rgb" | "hsl";
@@ -120,8 +122,12 @@ export function MaterialPanel({
   onParamsHint,
   idPrefix = "mde-mat",
   advanced = false,
+  hideBasePlate = false,
 }: MaterialPanelProps) {
   const [colorMode, setColorMode] = useState<ColorEditMode>("hex");
+  const [hexDrafts, setHexDrafts] = useState<Partial<Record<keyof MaterialColors, string>>>(
+    {},
+  );
 
   const patch = (partial: Partial<ColorMaterialConfig>) => {
     onChange({
@@ -134,6 +140,12 @@ export function MaterialPanel({
 
   const setColor = (key: keyof MaterialColors, next: Rgb) => {
     patch({ colors: { ...value.colors, [key]: next } });
+    setHexDrafts((d) => {
+      if (!(key in d)) return d;
+      const nextDrafts = { ...d };
+      delete nextDrafts[key];
+      return nextDrafts;
+    });
   };
 
   const setProp = (key: keyof ColorMaterialConfig["properties"], n: number) => {
@@ -142,13 +154,15 @@ export function MaterialPanel({
 
   return (
     <div className="mde-mat-panel">
-      <div className="mde-field">
-        <BasePlateControl
-          value={value}
-          onChange={onChange}
-          idPrefix={`${idPrefix}-base`}
-        />
-      </div>
+      {!hideBasePlate ? (
+        <div className="mde-field">
+          <BasePlateControl
+            value={value}
+            onChange={onChange}
+            idPrefix={`${idPrefix}-base`}
+          />
+        </div>
+      ) : null}
 
       <div className="mde-field">
         <div className="mde-field__row">
@@ -358,13 +372,28 @@ export function MaterialPanel({
                     className="mde-mat-color__edit"
                     type="text"
                     spellCheck={false}
-                    value={hex}
+                    value={hexDrafts[key] ?? hex}
                     aria-label={`${label} HEX`}
                     onChange={(e) => {
                       const raw = e.target.value.trim();
-                      if (/^#?[0-9a-fA-F]{6}$/.test(raw) || /^#?[0-9a-fA-F]{3}$/.test(raw)) {
-                        setColor(key, hexToRgb(raw.startsWith("#") ? raw : `#${raw}`));
+                      setHexDrafts((d) => ({ ...d, [key]: raw }));
+                      if (
+                        /^#?[0-9a-fA-F]{6}$/.test(raw) ||
+                        /^#?[0-9a-fA-F]{3}$/.test(raw)
+                      ) {
+                        setColor(
+                          key,
+                          hexToRgb(raw.startsWith("#") ? raw : `#${raw}`),
+                        );
                       }
+                    }}
+                    onBlur={() => {
+                      setHexDrafts((d) => {
+                        if (!(key in d)) return d;
+                        const nextDrafts = { ...d };
+                        delete nextDrafts[key];
+                        return nextDrafts;
+                      });
                     }}
                   />
                 ) : null}

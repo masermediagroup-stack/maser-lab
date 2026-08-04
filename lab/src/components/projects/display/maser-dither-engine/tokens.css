@@ -453,6 +453,25 @@
   background: var(--mde-elevated);
 }
 
+.mde-palette-strip {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--mde-line);
+  border-radius: 12px;
+  background: var(--mde-elevated);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.mde-palette-strip > .mde-field__label {
+  margin: 0;
+}
+
+.mde-palette-strip > .mde-field__hint {
+  margin: 0;
+}
+
 .mde-base-plate__row {
   margin-top: 0.4rem;
 }

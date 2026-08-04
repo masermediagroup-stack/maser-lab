@@ -358,6 +358,15 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Docs: `docs/sprint7-11-card-cta-photos.md`
 - [x] Engine `0.7.11`
 
+### Sprint 7.12 — Palette presets + custom HEX (mobile + desktop)
+
+- [x] Pinned Palette & colors strip after Base Plate (all components, desktop)
+- [x] Mobile Color tab shows palette + hex editors + procedural material
+- [x] Color accordion → Color tone (no duplicate MaterialPanel)
+- [x] HEX draft editing; colors search hits → Color tab
+- [x] Docs: `docs/sprint7-12-palette-hex-access.md`
+- [x] Engine `0.7.12`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).

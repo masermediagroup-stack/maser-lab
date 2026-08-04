@@ -752,6 +752,16 @@ export function ComponentPlayground({
     settings: "export",
   };
 
+  const mobileFocusGroups: Partial<
+    Record<
+      MobileTabId,
+      Array<ControlGroupId | "presets" | "content" | "export">
+    >
+  > = {
+    // Palette strip + procedural material + tone sliders
+    materials: ["colors", "material"],
+  };
+
   const panelProps: ControlPanelBundle = {
     beginner,
     advanced,
@@ -799,7 +809,7 @@ export function ComponentPlayground({
 
   const sheetTitle =
     mobileTab === "materials"
-      ? "Materials"
+      ? "Color & material"
       : mobileTab === "animation"
         ? "Animation"
         : mobileTab === "lighting"
@@ -1012,7 +1022,7 @@ export function ComponentPlayground({
     setControlQuery("");
     if (isNarrow) {
       const tab: MobileTabId =
-        hit.panel === "material"
+        hit.panel === "material" || hit.panel === "colors"
           ? "materials"
           : hit.panel === "animation"
             ? "animation"
@@ -1205,7 +1215,10 @@ export function ComponentPlayground({
             ) : null}
             {renderControlPanels({
               ...panelProps,
-              focusGroup: mobilePanelFocus[mobileTab],
+              focusGroup: mobileFocusGroups[mobileTab]
+                ? undefined
+                : mobilePanelFocus[mobileTab],
+              focusGroups: mobileFocusGroups[mobileTab],
             })}
           </div>
         </BottomSheet>
@@ -1219,6 +1232,10 @@ export function ComponentPlayground({
             }
             setMobileTab(id);
             if (id === "preview") return;
+            if (id === "materials") {
+              setPanel("colors", true);
+              setPanel("material", true);
+            }
             setSheetSnap(id === "settings" ? "expanded" : "half");
           }}
         />

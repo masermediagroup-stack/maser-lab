@@ -96,6 +96,8 @@ export type ControlPanelBundle = {
   };
   exportCode: string;
   focusGroup?: ControlGroupId | "presets" | "content" | "export";
+  /** When set, show these groups in addition to / instead of a single focusGroup match. */
+  focusGroups?: Array<ControlGroupId | "presets" | "content" | "export">;
 };
 
 function formatValue(v: number): string {
@@ -264,7 +266,16 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
     definition,
     exportCode,
     focusGroup,
+    focusGroups,
   } = bundle;
+
+  const groupVisible = (id: ControlGroupId | "presets" | "content" | "export") => {
+    if (focusGroups && focusGroups.length > 0) {
+      return focusGroups.includes(id);
+    }
+    if (!focusGroup) return true;
+    return focusGroup === id;
+  };
 
   return (
     <>
@@ -278,7 +289,33 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
         />
       </div>
 
-      {(!focusGroup || focusGroup === "presets") ? (
+      {/* Palette presets + HEX/RGB/HSL — always available on every component (mobile + desktop) */}
+      {(!focusGroup ||
+        focusGroup === "colors" ||
+        focusGroup === "material" ||
+        focusGroups?.includes("colors") ||
+        focusGroups?.includes("material")) ? (
+        <div
+          className="mde-palette-strip"
+          aria-label="Palette presets and custom colors"
+        >
+          <span className="mde-field__label">Palette &amp; colors</span>
+          <p className="mde-field__hint">
+            Choose a palette preset, then tune any slot with the picker or HEX /
+            RGB / HSL. Applies to this component on mobile and desktop.
+          </p>
+          <MaterialPanel
+            value={color}
+            onChange={setColor}
+            onParamsHint={(hint) => setParams((p) => ({ ...p, ...hint }))}
+            idPrefix={`mde-${componentId}-palette`}
+            advanced={advanced}
+            hideBasePlate
+          />
+        </div>
+      ) : null}
+
+      {groupVisible("presets") ? (
 <Collapsible
   title="Presets"
   open={panels.presets}
@@ -386,7 +423,7 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
 
 
       ) : null}
-      {(!focusGroup || focusGroup === "content") ? (
+      {groupVisible("content") ? (
 <Collapsible
   title="Content"
   open={panels.content}
@@ -405,10 +442,13 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
 
       ) : null}
 {CONTROL_GROUPS.filter((group) => {
-            if (focusGroup && focusGroup !== group.id) return false;
+            if (!groupVisible(group.id)) return false;
+            // Color studio is pinned above as "Palette & colors" — keep accordion
+            // slot only for tone sliders (brightness / contrast / gradient).
             if (
               beginner &&
               !focusGroup &&
+              !focusGroups?.length &&
               (group.id === "noise" ||
                 group.id === "rendering" ||
                 group.id === "finish")
@@ -508,21 +548,16 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
       </>
     ) : group.id === "colors" ? (
       <>
+        <p className="mde-field__hint">
+          Palette presets and HEX editors are in the Palette &amp; colors strip
+          above. These sliders adjust tone response.
+        </p>
         {renderParamFields(group.fields, {
           componentId,
           params,
           setParams,
           advanced,
         })}
-        <MaterialPanel
-          value={color}
-          onChange={setColor}
-          onParamsHint={(hint) =>
-            setParams((p) => ({ ...p, ...hint }))
-          }
-          idPrefix={`mde-${componentId}-mat`}
-          advanced={advanced}
-        />
       </>
     ) : group.id === "lighting" ? (
       <>
@@ -577,7 +612,7 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
 })}
 
 
-      {(!focusGroup || focusGroup === "export") ? (
+      {groupVisible("export") ? (
 <>
 <Collapsible
   title="Export"

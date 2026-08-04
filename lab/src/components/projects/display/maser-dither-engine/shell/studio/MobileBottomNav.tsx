@@ -14,7 +14,7 @@ export type MobileTabId =
 
 const TABS: { id: MobileTabId; label: string }[] = [
   { id: "preview", label: "Preview" },
-  { id: "materials", label: "Materials" },
+  { id: "materials", label: "Color" },
   { id: "animation", label: "Anim" },
   { id: "lighting", label: "Light" },
   { id: "interaction", label: "Touch" },

@@ -49,7 +49,7 @@ export const CONTROL_GROUPS: ControlGroupDef[] = [
   },
   {
     id: "colors",
-    label: "Color",
+    label: "Color tone",
     fields: [
       { kind: "slider", key: "brightness", advanced: true },
       { kind: "slider", key: "contrast" },
