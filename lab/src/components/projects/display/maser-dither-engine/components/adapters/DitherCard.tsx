@@ -19,7 +19,6 @@ export function DitherCard({
   className,
 }: DitherAdapterProps) {
   const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
-  const hasCtaPhoto = Boolean(c.cardCtaSourceUrl);
 
   return (
     <SurfaceCard
@@ -36,8 +35,8 @@ export function DitherCard({
       material={material}
       sourceUrl={sourceUrl}
       sourceLightMix={sourceLightMix}
-      ctaSourceUrl={hasCtaPhoto ? c.cardCtaSourceUrl : sourceUrl}
-      ctaSourceLightMix={hasCtaPhoto ? c.cardCtaLightMix : sourceLightMix}
+      ctaSourceUrl={c.cardCtaSourceUrl}
+      ctaSourceLightMix={c.cardCtaLightMix}
       reducedMotion={reducedMotion}
       className={className}
       labelColor={c.labelColor}

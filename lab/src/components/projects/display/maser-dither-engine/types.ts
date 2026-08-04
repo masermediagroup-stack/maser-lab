@@ -109,7 +109,7 @@ export type SurfaceCardProps = {
   /** Photo / luminance source for the card media plane. */
   sourceUrl?: string | null;
   sourceLightMix?: number;
-  /** Optional separate photo for the dithered CTA. Falls back to sourceUrl when null. */
+  /** Optional separate photo for the dithered CTA. Null/empty = procedural only (never reuses card media). */
   ctaSourceUrl?: string | null;
   ctaSourceLightMix?: number;
   reducedMotion?: boolean;

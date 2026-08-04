@@ -3,7 +3,6 @@
 import { useId, useRef, useState, type DragEvent } from "react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export type SourceImageValue = {
@@ -111,9 +110,13 @@ export function SourceImageField({
               {value.url ? "Replace image" : "Choose image"}
             </label>
             {value.url ? (
-              <Button type="button" variant="outline" size="sm" onClick={clear}>
-                Remove
-              </Button>
+              <button
+                type="button"
+                className="mde-btn mde-btn--compact mde-source-field__remove"
+                onClick={clear}
+              >
+                Remove photo
+              </button>
             ) : null}
           </div>
           {value.url ? (

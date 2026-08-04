@@ -42,7 +42,7 @@ export type ComponentContent = {
   cardSubtitle: string;
   cardDescription: string;
   cardButtonLabel: string;
-  /** Optional separate photo for the card CTA pill. Null = reuse card photo. */
+  /** Optional separate photo for the card CTA pill. Null = procedural fill (no card-photo reuse). */
   cardCtaSourceUrl: string | null;
   /** Light mix when CTA has its own photo. */
   cardCtaLightMix: number;

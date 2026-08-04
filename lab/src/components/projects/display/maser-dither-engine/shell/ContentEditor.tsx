@@ -443,7 +443,7 @@ export function ContentEditor({
           }
           idPrefix={`${idPrefix}-cta-source`}
           label="CTA photo"
-          hint="Separate photo for the dithered button. Leave empty to reuse the card photo."
+          hint="Optional photo for the dithered button only. Leave empty for procedural fill — the card photo is never reused."
         />
       ) : null}
       {fields.map((field) => {

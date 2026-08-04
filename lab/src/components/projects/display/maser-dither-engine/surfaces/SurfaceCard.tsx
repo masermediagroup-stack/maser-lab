@@ -13,7 +13,7 @@ import { DEFAULT_COMPONENT_CONTENT } from "../content/types";
 /**
  * Featured editorial card — full-bleed dither media, inset frame,
  * bottom scrim + copy, dithered pill CTA.
- * Media and CTA can use independent source photos.
+ * Media and CTA use independent source photos; CTA never inherits card media.
  */
 export function SurfaceCard({
   title = "Fresh density",
@@ -53,14 +53,13 @@ export function SurfaceCard({
       ? "#14110e"
       : labelColor;
 
+  /* Explicit null = no CTA photo (do not reuse card media). Undefined = legacy omit. */
   const resolvedCtaUrl =
-    ctaSourceUrl !== undefined && ctaSourceUrl !== null
-      ? ctaSourceUrl
-      : sourceUrl;
+    ctaSourceUrl === undefined ? (sourceUrl ?? null) : ctaSourceUrl;
   const resolvedCtaMix =
-    ctaSourceUrl !== undefined && ctaSourceUrl !== null
-      ? (ctaSourceLightMix ?? sourceLightMix)
-      : sourceLightMix;
+    ctaSourceUrl === undefined
+      ? sourceLightMix
+      : (ctaSourceLightMix ?? sourceLightMix);
 
   return (
     <article

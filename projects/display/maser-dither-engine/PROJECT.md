@@ -367,6 +367,13 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Docs: `docs/sprint7-12-palette-hex-access.md`
 - [x] Engine `0.7.12`
 
+### Sprint 7.13 — CTA photo independence + Remove photo contrast
+
+- [x] CTA does not reuse card photo when CTA photo is empty (procedural fill)
+- [x] Remove photo uses `mde-btn` with readable contrast (no white-on-white)
+- [x] Docs: `docs/sprint7-13-cta-photo-independence.md`
+- [x] Engine `0.7.13`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).
