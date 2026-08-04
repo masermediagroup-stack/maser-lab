@@ -31,10 +31,10 @@ export default function MaserDitherEngineCanvas() {
           where it ships today, and where it can go next.
         </Text>
         <Row gap={8} wrap>
-          <Pill active>v0.7.11</Pill>
+          <Pill active>v0.7.13</Pill>
           <Pill>WebGL 1</Pill>
-          <Pill>Card + CTA photos</Pill>
-          <Pill>Stable progress clip</Pill>
+          <Pill>Palette + HEX studio</Pill>
+          <Pill>CTA photo independence</Pill>
         </Row>
       </Stack>
 
@@ -190,7 +190,7 @@ export default function MaserDitherEngineCanvas() {
       <Divider />
 
       <Stack gap={12}>
-        <H2>Shipped through v0.7.11</H2>
+        <H2>Shipped through v0.7.13</H2>
         <Table
           headers={["Sprint", "Outcome", "Status"]}
           rows={[
@@ -233,8 +233,20 @@ export default function MaserDitherEngineCanvas() {
               "Card photo + CTA photo independent uploads",
               "done",
             ],
+            [
+              "7.12",
+              "Pinned palette presets + HEX/RGB/HSL on mobile and desktop",
+              "done",
+            ],
+            [
+              "7.13",
+              "CTA skips card photo when empty · Remove photo contrast",
+              "done",
+            ],
           ]}
           rowTone={[
+            "success",
+            "success",
             "success",
             "success",
             "success",
