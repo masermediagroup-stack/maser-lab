@@ -8,6 +8,16 @@ export type PhysicsSample = {
 };
 
 /**
+ * Framerate-independent exponential damp toward a target.
+ * Same perceived catch-up on 60Hz / 144Hz (Freya Holmér / frame-damp).
+ * Never snaps current → target on pointer enter.
+ */
+function damp(current: number, target: number, lambda: number, dt: number): number {
+  if (dt <= 0 || lambda <= 0) return current;
+  return target + (current - target) * Math.exp(-lambda * dt);
+}
+
+/**
  * Unique integration per interaction mode — not just different lerp rates.
  */
 export class PointerPhysics {
@@ -63,6 +73,9 @@ export class PointerPhysics {
       return { x: this.x, y: this.y, vx: this.vx, vy: this.vy };
     }
 
+    const prevX = this.x;
+    const prevY = this.y;
+
     switch (mode) {
       case "none":
         this.vx = 0;
@@ -70,15 +83,13 @@ export class PointerPhysics {
         break;
 
       case "follow": {
-        // Critically-damped exponential + velocity feedforward
-        const k = 1 - Math.exp(-dt * (8 + px.interpolation * 40));
-        const ease = Math.pow(k, 0.5 + px.easing * 0.5);
-        this.vx = (tx - this.x) / Math.max(dt, 1e-4);
-        this.vy = (ty - this.y) / Math.max(dt, 1e-4);
-        this.x += (tx - this.x) * ease;
-        this.y += (ty - this.y) * ease;
-        this.x += this.vx * dt * px.velocityInfluence * 0.02;
-        this.y += this.vy * dt * px.velocityInfluence * 0.02;
+        // Soft catch-up: λ ≈ 3.5–10.5 (half-life ~0.2s → ~0.07s).
+        // Previous 8+40*interp caused near-instant snaps on enter.
+        const lambda = 3.5 + px.interpolation * 7;
+        this.x = damp(this.x, tx, lambda, dt);
+        this.y = damp(this.y, ty, lambda, dt);
+        this.vx = (this.x - prevX) / Math.max(dt, 1e-4);
+        this.vy = (this.y - prevY) / Math.max(dt, 1e-4);
         break;
       }
 
@@ -121,14 +132,17 @@ export class PointerPhysics {
         if (!this.stuck && dist < enter && active) this.stuck = true;
         if (this.stuck && dist > exit) this.stuck = false;
         if (this.stuck && active) {
-          this.x = tx;
-          this.y = ty;
-          this.vx = 0;
-          this.vy = 0;
+          // Ease into sticky lock instead of hard teleport
+          const lambda = 14 + px.interpolation * 10;
+          this.x = damp(this.x, tx, lambda, dt);
+          this.y = damp(this.y, ty, lambda, dt);
+          this.vx = (this.x - prevX) / Math.max(dt, 1e-4);
+          this.vy = (this.y - prevY) / Math.max(dt, 1e-4);
         } else {
-          const k = 1 - Math.exp(-dt * 6);
-          this.x += (this.restX - this.x) * k;
-          this.y += (this.restY - this.y) * k;
+          this.x = damp(this.x, this.restX, 5, dt);
+          this.y = damp(this.y, this.restY, 5, dt);
+          this.vx = (this.x - prevX) / Math.max(dt, 1e-4);
+          this.vy = (this.y - prevY) / Math.max(dt, 1e-4);
         }
         break;
       }
@@ -173,11 +187,11 @@ export class PointerPhysics {
         const cy = active ? ty : this.restY;
         const ox = cx + Math.cos(this.orbitAngle) * orbitR;
         const oy = cy + Math.sin(this.orbitAngle) * orbitR;
-        const k = 1 - Math.exp(-dt * (8 + px.interpolation * 18));
-        this.vx = (ox - this.x) / Math.max(dt, 1e-4);
-        this.vy = (oy - this.y) / Math.max(dt, 1e-4);
-        this.x += (ox - this.x) * k;
-        this.y += (oy - this.y) * k;
+        const lambda = 4 + px.interpolation * 8;
+        this.x = damp(this.x, ox, lambda, dt);
+        this.y = damp(this.y, oy, lambda, dt);
+        this.vx = (this.x - prevX) / Math.max(dt, 1e-4);
+        this.vy = (this.y - prevY) / Math.max(dt, 1e-4);
         break;
       }
 
@@ -201,22 +215,16 @@ export class PointerPhysics {
       case "pressure":
       case "ripple": {
         // Soft follow — pressure/ripple handled by controller charge/emit
-        const k = 1 - Math.exp(-dt * (6 + px.interpolation * 24));
-        this.vx = (tx - this.x) / Math.max(dt, 1e-4);
-        this.vy = (ty - this.y) / Math.max(dt, 1e-4);
-        this.x += (tx - this.x) * k * (0.7 + px.smoothing * 0.3);
-        this.y += (ty - this.y) * k * (0.7 + px.smoothing * 0.3);
+        const lambda = 3 + px.interpolation * 6;
+        this.x = damp(this.x, tx, lambda, dt);
+        this.y = damp(this.y, ty, lambda, dt);
+        this.vx = (this.x - prevX) / Math.max(dt, 1e-4);
+        this.vy = (this.y - prevY) / Math.max(dt, 1e-4);
         break;
       }
 
       default:
         break;
-    }
-
-    // Secondary smoothing pass
-    if (px.smoothing > 0 && mode !== "sticky" && mode !== "none") {
-      const s = px.smoothing * 0.15;
-      this.x = this.x * (1 - s) + tx * s * 0.15 + this.x * s * 0.85;
     }
 
     // Soft edge soft-bound — keep light on-material without hard clipping feel

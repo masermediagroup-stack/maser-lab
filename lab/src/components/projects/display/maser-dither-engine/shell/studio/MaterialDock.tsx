@@ -16,6 +16,8 @@ type MaterialDockProps = {
   onApply: (id: EngineMaterialId) => void;
   onFavorite?: (id: EngineMaterialId) => void;
   onDuplicate?: (id: EngineMaterialId) => void;
+  /** Live procedural thumbnails from ThumbBlitEngine (data URLs). */
+  thumbUrls?: Record<string, string>;
   className?: string;
 };
 
@@ -31,6 +33,7 @@ export function MaterialDock({
   onApply,
   onFavorite,
   onDuplicate,
+  thumbUrls,
   className,
 }: MaterialDockProps) {
   const ids =
@@ -113,7 +116,12 @@ export function MaterialDock({
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => onDrop(index)}
                 title={`${def?.label ?? id} — tap inspect, double-tap apply, long-press menu`}
-              />
+              >
+                {thumbUrls?.[id] ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- blit data URL
+                  <img src={thumbUrls[id]} alt="" />
+                ) : null}
+              </button>
               <span className="mde-dock__label">{def?.label ?? id}</span>
             </div>
           );

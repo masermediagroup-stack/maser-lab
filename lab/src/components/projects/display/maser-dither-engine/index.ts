@@ -65,6 +65,8 @@ export {
   applyBehavior,
   hexToRgb,
   rgbToHex,
+  rgbToHsl,
+  hslToRgb,
 } from "./engine/color";
 export type {
   ColorMaterialConfig,
@@ -76,6 +78,7 @@ export type {
   MaterialColors,
   PaletteDefinition,
   BehaviorDefinition,
+  Hsl,
 } from "./engine/color";
 export {
   DEFAULT_LIGHT_SHAPE,

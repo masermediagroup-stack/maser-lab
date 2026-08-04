@@ -1,5 +1,6 @@
 export type {
   Rgb,
+  Hsl,
   GradientModeId,
   GradientBehaviorId,
   BlendModeId,
@@ -13,6 +14,8 @@ export {
   rgb,
   hexToRgb,
   rgbToHex,
+  rgbToHsl,
+  hslToRgb,
   DEFAULT_COLORS,
   DEFAULT_MATERIAL_PROPERTIES,
   DEFAULT_COLOR_MATERIAL,

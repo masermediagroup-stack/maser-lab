@@ -117,7 +117,6 @@ export type ComponentId =
   | "navigation"
   | "button"
   | "scrollbar"
-  | "hero-background"
   | "badge"
   | "avatar"
   | "input"
@@ -183,6 +182,7 @@ export type AppRoute =
   | { view: "components" }
   | { view: "component"; id: ComponentId }
   | { view: "materials" }
+  | { view: "animations" }
   | { view: "presets" }
   | { view: "projects" }
   | { view: "playground" }
@@ -220,6 +220,11 @@ export type DitherAdapterProps = {
   /** Image URL to dither through the shared surface engine. */
   sourceUrl?: string | null;
   sourceLightMix?: number;
+  /** Optional upload handler — image-frame / avatar can replace the source in-place. */
+  onSourceChange?: (next: {
+    url: string | null;
+    lightMix?: number;
+  }) => void;
   reducedMotion?: boolean;
   className?: string;
 };

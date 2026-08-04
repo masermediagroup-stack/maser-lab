@@ -78,15 +78,18 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     id: "radial-pulse",
     label: "Radial Pulse",
     index: 3,
-    purpose: "Heartbeat energy from a focus — loaders and CTAs.",
-    approach: "Expanding radial envelope with exponential decay rings.",
-    performance: "Low — distance + exp.",
+    purpose: "Expanding concentric pulse fronts — loaders and CTAs.",
+    approach:
+      "Multi-front Gaussian rings with explicit width, falloff, and repeat (≠ ripple sine train).",
+    performance: "Low — up to 4 ring samples.",
     extension: "Multi-focus pulses.",
     controls: [
-      ctrl("speed", "Pulse Speed", 0.1, 3, 0.01, 1.1),
-      ctrl("radius", "Radius", 0.1, 1.2, 0.01, 0.55),
-      ctrl("decay", "Decay", 0.5, 4, 0.01, 1.8),
-      ctrl("strength", "Strength", 0, 0.9, 0.01, 0.55),
+      ctrl("speed", "Expansion Speed", 0.1, 3, 0.01, 1.15),
+      ctrl("radius", "Radius", 0.15, 1.35, 0.01, 0.72),
+      ctrl("width", "Pulse Width", 0.03, 0.35, 0.01, 0.09),
+      ctrl("strength", "Strength", 0, 1, 0.01, 0.62),
+      ctrl("falloff", "Falloff", 0.2, 3.5, 0.01, 1.4),
+      ctrl("repeat", "Repeat", 1, 4, 1, 2),
     ],
   }),
   mode({
@@ -124,15 +127,20 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     id: "spiral",
     label: "Spiral",
     index: 6,
-    purpose: "Armature twist — distinctive angular identity.",
-    approach: "Polar θ + log-radius phase (Archimedean spiral field).",
+    purpose: "Arms that visibly rotate around a center.",
+    approach:
+      "Archimedean log-spiral with angular advection, center offset, and UV scale zoom.",
     performance: "atan + length.",
     extension: "Multi-arm interference.",
     controls: [
-      ctrl("speed", "Speed", 0.05, 3, 0.01, 0.65),
-      ctrl("arms", "Arms", 1, 8, 0.1, 2.5),
-      ctrl("tightness", "Tightness", 0.5, 4, 0.01, 1.6),
-      ctrl("amplitude", "Amplitude", 0, 0.8, 0.01, 0.45),
+      ctrl("speed", "Rotation Speed", 0.05, 3, 0.01, 0.85),
+      ctrl("arms", "Arm Count", 1, 8, 1, 3),
+      ctrl("tightness", "Spiral Tightness", 0.5, 4, 0.01, 1.75),
+      ctrl("amplitude", "Amplitude", 0, 0.9, 0.01, 0.55),
+      ctrl("centerX", "Center X", -0.45, 0.45, 0.01, 0),
+      ctrl("centerY", "Center Y", -0.45, 0.45, 0.01, 0),
+      ctrl("direction", "Direction", -1, 1, 1, 1),
+      ctrl("scale", "Scale", 0.35, 2.8, 0.01, 1),
     ],
   }),
   mode({
@@ -259,15 +267,19 @@ export const ANIMATION_MODES: AnimationModeDefinition[] = [
     id: "lava-lamp",
     label: "Lava Lamp",
     index: 15,
-    purpose: "Dense organic metaballs.",
-    approach: "Sum of rising soft blobs with soft-min merge (metaball field).",
-    performance: "Moderate — N blobs.",
+    purpose: "Large soft organic blobs that rise and merge.",
+    approach:
+      "Metaball field with viscosity-slowed paths, surface tension threshold, and ∇field UV bulge.",
+    performance: "Moderate — N blobs × gradient samples.",
     extension: "GPU particle seeds.",
     controls: [
-      ctrl("speed", "Speed", 0.05, 2, 0.01, 0.55),
-      ctrl("count", "Blob Density", 2, 7, 0.1, 5),
-      ctrl("size", "Size", 0.1, 0.55, 0.01, 0.32),
-      ctrl("merge", "Merge", 0.2, 1.5, 0.01, 0.85),
+      ctrl("speed", "Merge Speed", 0.05, 2, 0.01, 0.55),
+      ctrl("count", "Blob Count", 2, 7, 1, 5),
+      ctrl("size", "Blob Size", 0.12, 0.55, 0.01, 0.36),
+      ctrl("merge", "Merge", 0.4, 1.45, 0.01, 0.9),
+      ctrl("viscosity", "Viscosity", 0.25, 2.2, 0.01, 0.85),
+      ctrl("tension", "Surface Tension", 0.35, 2, 0.01, 1),
+      ctrl("distort", "Organic Distortion", 0, 1.35, 0.01, 0.55),
     ],
   }),
 ];
@@ -300,7 +312,10 @@ export function packModeParams(
   const m = getAnimationMode(id);
   const values = m.controls.map((c) => {
     const v = params[c.key];
-    return typeof v === "number" ? v : c.defaultValue;
+    let n = typeof v === "number" ? v : c.defaultValue;
+    // Integer-step controls (arm count, blob count, …) must never ship fractional uniforms
+    if (c.step >= 1) n = Math.round(n);
+    return n;
   });
   while (values.length < 8) values.push(0);
   return {

@@ -200,35 +200,42 @@ vec3 matComposeColor(vec2 uv, float ink, float dithered, float bloomAmt, float i
     grad = matSampleGradient(uv, t);
   }
   if (uMatGradBehavior > 7.5 && uMatGradBehavior < 8.5) {
-    grad = matHueShift(grad, t * uMatGradSpeed * 0.08 + uMatGradOffset);
+    // Hue cycle / animated palette rotation — keep chroma moving
+    grad = matHueShift(grad, t * uMatGradSpeed * 0.16 + uMatGradOffset);
+  } else if (uMatGradBehavior > 3.5 && uMatGradBehavior < 4.5) {
+    // Flow — gentle stop cycling
+    grad = matHueShift(grad, sin(t * uMatGradSpeed * 0.35) * 0.35);
   }
 
   // Preserve lighting luminance; borrow gradient chrominance
   float toneL = max(matLuma(tone), 1e-3);
   float gradL = max(matLuma(grad), 1e-3);
   vec3 tinted = grad * (toneL / gradL);
-  tone = mix(tone, tinted, mix(0.35, 0.7, uMatWeight));
+  // Lean harder into multi-stop gradient chroma so palettes read dimensional
+  tone = mix(tone, tinted, mix(0.45, 0.82, uMatWeight));
 
   // Dense dither toward dark outer — ink dots, not a flat wash
-  float dens = mix(0.2, 1.0, uMatDensity);
+  float dens = mix(0.25, 1.0, uMatDensity);
   float outerAmt = (1.0 - lit) * dens;
-  tone = mix(tone, mix(tone, matDither(), 0.55), outerAmt * dithered * 0.45);
-  tone = mix(matBg(), tone, mix(0.82, 1.0, uMatWeight));
+  tone = mix(tone, mix(tone, matDither(), 0.78), outerAmt * dithered * 0.78);
+  tone = mix(matBg(), tone, mix(0.78, 1.0, uMatWeight));
 
   // Bloom — additive on core only
-  tone += bloomAmt * matGlow() * 0.75;
-  tone += bloomAmt * matBloom() * 0.3;
+  tone += bloomAmt * matGlow() * 0.95;
+  tone += bloomAmt * matBloom() * 0.55;
 
   if (uMatBehavior > 5.5 && uMatBehavior < 8.5) {
-    tone = mix(tone, matAmbient(), 0.08 + uMatBlur * 0.15);
+    tone = mix(tone, matAmbient(), 0.12 + uMatBlur * 0.22);
   }
 
-  // Accent midtones · edge tint · noise scatter (were previously unused)
+  // Accent midtones · edge overlay · noise scatter — clearly driven by color slots
   float mid = 1.0 - abs(lit - 0.5) * 2.0;
-  tone = mix(tone, matAccent(), mid * 0.1);
+  tone = mix(tone, matAccent(), mid * 0.36);
   float edge = max(abs(uv.x - 0.5), abs(uv.y - 0.5)) * 2.0;
-  tone = mix(tone, matEdge(), edge * edge * 0.12);
-  tone = mix(tone, matNoise(), uMatScatter * 0.1);
+  tone = mix(tone, matEdge(), edge * edge * 0.32);
+  // Material Color (ambient) — plate fill, always visible when weight > 0
+  tone = mix(tone, matAmbient(), mix(0.12, 0.32, uMatWeight));
+  tone = mix(tone, matNoise(), uMatScatter * 0.42);
 
   // Soft blend mode against outer plate (does not flatten core)
   vec3 plate = mix(matBg(), outerCol, 0.55);

@@ -261,18 +261,64 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] No document-scroll workspace; controls live in the sheet, not a long page
 - [x] Preview tab returns to full-stage viewing immediately
 
+### Sprint 7.2 — Stabilization & feature audit
+
+- [x] Monochrome editor chrome (color only in procedural preview)
+- [x] Scrollbar interactive preview (V/H, drag, progress, material thumb)
+- [x] Avatar restored (shape / size / initials / image / presence / glow)
+- [x] Image Frame upload + aspect ratios + fit / overlay
+- [x] Full color slots + HEX / RGB / HSL editors; light tint sliders restored
+- [x] Animation composition gain so modes read distinctly
+- [x] Docs: `docs/sprint7-2-stabilization.md`
+- [x] Engine `0.7.2`
+
+### Sprint 7.3 — Creative restoration & material browser
+
+- [x] Color slot labels + stronger chroma response in shader
+- [x] Live material thumbs via shared `ThumbBlitEngine` (no placeholder tiles)
+- [x] Material browser: grid/rail, favorites/recent, hover preview, recommendations
+- [x] Spiral / Lava Lamp / Radial Pulse redesigned for distinct identity
+- [x] Animation compare route `#/animations`
+- [x] Creative Explore: randomize + section locks
+- [x] Docs: `docs/sprint7-3-creative-restoration.md`
+- [x] Engine `0.7.3`
+
+### Sprint 7.4 — Component & preset audit
+
+- [x] Avatar / small adapters run at full animationSpeed (≥1) for 60 FPS dither motion
+- [x] Spiral arm count integer-only (UI step + GLSL floor + pack round)
+- [x] Lava lamp soft-clamped against high merge/size/speed flicker
+- [x] Hero Background removed (folded into Section Background)
+- [x] Loader is a spinning dither ring (not an avatar orb)
+- [x] Size tokens for badge / loader / progress / scrollbar
+- [x] Progress auto 0→100 loop with adjustable speed
+- [x] Preset/project open no longer remounts and wipes the saved snapshot
+- [x] Engine `0.7.4`
+
+### Sprint 7.5 — Interaction & palette polish
+
+- [x] Progress loop phase continuous across speed changes (no flash-away)
+- [x] Pointer follow uses framerate-independent exponential damp (no snap-on-enter)
+- [x] Palettes use distinct multi-stop slots; heat-map is a thermal quad ramp
+- [x] Spiral animation gains Scale control (replaces Twist)
+- [x] Loader: spin-speed slider, rounded arc caps, no track stroke
+- [x] Docs: `docs/sprint7-5-interaction-palette.md`
+- [x] Engine `0.7.5`
+
 ### Architecture notes
 
-`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer untouched.
+`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).
 
 ### Sprint 8 recommendations
 
+- Persist uploads (data URL / IndexedDB) across project save
+- Continuous FBO thumb refresh without JPEG churn
 - Cloud sync / share links for project JSON
-- Live Material Dock thumbnails (shared offscreen blit, no extra WebGL contexts)
+- Live Material Dock continuous animation (still one context)
 - Timeline snapshots / version history UI
 - Wire StudioSlider across every panel by default
 - Component inspector sheet (padding / radius / content) as first-class dock target
-- Drag material from dock onto component adapters with drop highlight
+- Visual regression suite for algorithms × materials × animations
 - Deeper frosted/clear glass variants with background sampling when available
 - Ceramic / newsprint / brushed aluminum as first-class IDs beyond presets
 

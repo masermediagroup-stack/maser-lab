@@ -2,7 +2,10 @@
 
 import { SurfaceCanvas } from "../../react/SurfaceCanvas";
 import type { DitherAdapterProps } from "../../types";
-import { DEFAULT_COMPONENT_CONTENT } from "../../content/types";
+import {
+  BADGE_SIZE,
+  DEFAULT_COMPONENT_CONTENT,
+} from "../../content/types";
 import { cn } from "@/lib/utils";
 
 export function DitherBadge({
@@ -20,11 +23,26 @@ export function DitherBadge({
   className,
 }: DitherAdapterProps) {
   const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
+  const size = BADGE_SIZE[c.badgeSize] ?? BADGE_SIZE.md;
+
   return (
-    <span className={cn("mde-adapter mde-adapter--badge", className)}>
+    <span
+      className={cn("mde-adapter mde-adapter--badge", className)}
+      data-size={c.badgeSize}
+      style={{
+        height: size.height,
+        paddingInline: size.padX,
+        fontSize: size.font,
+      }}
+    >
       <span className="mde-adapter-badge__fill" aria-hidden>
         <SurfaceCanvas
-          params={params}
+          params={{
+            ...params,
+            animationSpeed: reducedMotion
+              ? 0
+              : Math.max(params.animationSpeed, 1),
+          }}
           animation={animation}
           interaction={interaction}
           color={color}

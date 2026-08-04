@@ -222,16 +222,16 @@ export const MAX_RIPPLES = 4;
 export const MAX_TRAIL = 8;
 
 export const DEFAULT_PHYSICS: PhysicsConfig = {
-  interpolation: 0.28,
+  interpolation: 0.22,
   easing: 0.55,
   springStrength: 22,
   mass: 0.9,
   friction: 6.5,
-  velocityInfluence: 0.45,
+  velocityInfluence: 0.35,
   acceleration: 18,
   maxSpeed: 4.2,
   deadZone: 0.005,
-  smoothing: 0.42,
+  smoothing: 0.35,
 };
 
 export const DEFAULT_FALLOFF: FalloffConfig = {

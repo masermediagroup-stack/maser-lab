@@ -6,16 +6,19 @@ import {
   applyPaletteToConfig,
   MATERIAL_PALETTES,
 } from "../engine/color/palettes";
+import { MATERIAL_BEHAVIORS, applyBehavior } from "../engine/color/behaviors";
 import type {
   BlendModeId,
   ColorMaterialConfig,
   GradientBehaviorId,
   GradientModeId,
+  MaterialBehaviorId,
   MaterialColors,
   Rgb,
 } from "../engine/color/types";
-import { rgbToHex, hexToRgb } from "../engine/color/types";
+import { rgbToHex, hexToRgb, rgbToHsl, hslToRgb } from "../engine/color/types";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 type MaterialPanelProps = {
   value: ColorMaterialConfig;
@@ -30,6 +33,8 @@ type MaterialPanelProps = {
   idPrefix?: string;
   advanced?: boolean;
 };
+
+type ColorEditMode = "hex" | "rgb" | "hsl";
 
 const GRADIENT_MODES: { id: GradientModeId; label: string }[] = [
   { id: "single", label: "Single" },
@@ -52,7 +57,7 @@ const GRADIENT_BEHAVIORS: { id: GradientBehaviorId; label: string }[] = [
   { id: "pulse", label: "Pulse" },
   { id: "orbit", label: "Orbit" },
   { id: "noise-drift", label: "Noise Drift" },
-  { id: "hue-cycle", label: "Hue Cycle" },
+  { id: "hue-cycle", label: "Hue Cycle / Palette" },
   { id: "blend", label: "Blend" },
   { id: "mirror", label: "Mirror" },
 ];
@@ -70,24 +75,21 @@ const BLEND_MODES: { id: BlendModeId; label: string }[] = [
   { id: "luminosity", label: "Luminosity" },
 ];
 
-const COLOR_PICKERS_BASIC: { key: keyof MaterialColors; label: string }[] = [
-  { key: "highlight", label: "Core Light" },
-  { key: "shadow", label: "Outer Dark" },
-  { key: "dither", label: "Dither Ink" },
-  { key: "gradientStart", label: "Gradient Start" },
-  { key: "gradientEnd", label: "Gradient End" },
-  { key: "glow", label: "Glow" },
-  { key: "background", label: "Background" },
-];
-
-const COLOR_PICKERS_ADVANCED: { key: keyof MaterialColors; label: string }[] = [
-  { key: "bloom", label: "Bloom Tint" },
-  { key: "ambient", label: "Ambient" },
-  { key: "accent", label: "Accent Midtone" },
-  { key: "gradientMid", label: "Gradient Mid" },
-  { key: "gradientFourth", label: "Gradient 4th" },
-  { key: "edgeTint", label: "Edge Tint" },
-  { key: "noiseTint", label: "Noise Tint" },
+const COLOR_PICKERS: { key: keyof MaterialColors; label: string; hint: string }[] = [
+  { key: "background", label: "Background", hint: "Plate behind the material" },
+  { key: "ambient", label: "Material Color", hint: "Base material plate / ambient fill" },
+  { key: "highlight", label: "Highlight", hint: "Core light / primary chroma" },
+  { key: "shadow", label: "Shadow", hint: "Outer dark" },
+  { key: "accent", label: "Accent", hint: "Midtone accent chroma" },
+  { key: "dither", label: "Dither Color", hint: "Ink tint in dark regions" },
+  { key: "bloom", label: "Bloom Color", hint: "Bloom tint" },
+  { key: "glow", label: "Glow Color", hint: "Glow additive" },
+  { key: "gradientStart", label: "Gradient Start", hint: "Gradient A" },
+  { key: "gradientMid", label: "Gradient Mid", hint: "Gradient midpoint" },
+  { key: "gradientEnd", label: "Gradient End", hint: "Gradient B" },
+  { key: "gradientFourth", label: "Gradient 4th", hint: "Quad stop / palette cycle" },
+  { key: "edgeTint", label: "Overlay Color", hint: "Edge overlay tint" },
+  { key: "noiseTint", label: "Noise Tint", hint: "Scatter / grain tint" },
 ];
 
 const MATERIAL_PROP_SLIDERS = [
@@ -118,6 +120,8 @@ export function MaterialPanel({
   idPrefix = "mde-mat",
   advanced = false,
 }: MaterialPanelProps) {
+  const [colorMode, setColorMode] = useState<ColorEditMode>("hex");
+
   const patch = (partial: Partial<ColorMaterialConfig>) => {
     onChange({
       ...value,
@@ -278,32 +282,171 @@ export function MaterialPanel({
       </div>
 
       <div className="mde-field">
-        <span className="mde-field__label">Material Colors</span>
+        <span className="mde-field__label">Color behavior</span>
         <p className="mde-field__hint">
-          Palette only — procedural structure is owned by the Material panel
-          (Sprint 6).
+          Property presets for chroma response (structure still lives in Material).
         </p>
-        <div className="mde-mat-colors">
-          {(advanced
-            ? [...COLOR_PICKERS_BASIC, ...COLOR_PICKERS_ADVANCED]
-            : COLOR_PICKERS_BASIC
-          ).map(({ key, label }) => (
-            <label key={key} className="mde-mat-color">
-              <span>{label}</span>
-              <input
-                type="color"
-                value={rgbToHex(value.colors[key])}
-                aria-label={label}
-                onChange={(e) => setColor(key, hexToRgb(e.target.value))}
-              />
-            </label>
+        <div className="mde-preset-row">
+          {MATERIAL_BEHAVIORS.map((b) => (
+            <button
+              key={b.id}
+              type="button"
+              className={cn(
+                "mde-chip",
+                value.behavior === b.id && "mde-chip--active",
+              )}
+              aria-pressed={value.behavior === b.id}
+              title={b.description}
+              onClick={() => onChange(applyBehavior(value, b.id as MaterialBehaviorId))}
+            >
+              {b.label}
+            </button>
           ))}
         </div>
       </div>
 
-      {(advanced ? MATERIAL_PROP_SLIDERS : MATERIAL_PROP_SLIDERS.filter(
-        ([key]) => key === "exposure" || key === "density" || key === "materialWeight",
-      )).map(([key, label, min, max, tip]) => (
+      <div className="mde-field">
+        <span className="mde-field__label">Material Colors</span>
+        <p className="mde-field__hint">
+          Full palette slots — Primary/Highlight, Secondary/Accent, gradients,
+          dither, bloom, glow, overlay. Live picker + HEX / RGB / HSL editors.
+        </p>
+        <div className="mde-preset-row" role="group" aria-label="Color edit mode">
+          {(
+            [
+              ["hex", "HEX"],
+              ["rgb", "RGB"],
+              ["hsl", "HSL"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              className={cn("mde-chip", colorMode === id && "mde-chip--active")}
+              aria-pressed={colorMode === id}
+              onClick={() => setColorMode(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="mde-mat-colors">
+          {COLOR_PICKERS.map(({ key, label, hint }) => {
+            const c = value.colors[key];
+            const hex = rgbToHex(c);
+            const hsl = rgbToHsl(c);
+            return (
+              <div key={key} className="mde-mat-color" title={hint}>
+                <span className="mde-mat-color__name">{label}</span>
+                <input
+                  type="color"
+                  value={hex}
+                  aria-label={`${label} picker`}
+                  onChange={(e) => setColor(key, hexToRgb(e.target.value))}
+                />
+                {colorMode === "hex" ? (
+                  <input
+                    className="mde-mat-color__edit"
+                    type="text"
+                    spellCheck={false}
+                    value={hex}
+                    aria-label={`${label} HEX`}
+                    onChange={(e) => {
+                      const raw = e.target.value.trim();
+                      if (/^#?[0-9a-fA-F]{6}$/.test(raw) || /^#?[0-9a-fA-F]{3}$/.test(raw)) {
+                        setColor(key, hexToRgb(raw.startsWith("#") ? raw : `#${raw}`));
+                      }
+                    }}
+                  />
+                ) : null}
+                {colorMode === "rgb" ? (
+                  <div className="mde-mat-color__channels" aria-label={`${label} RGB`}>
+                    {(["r", "g", "b"] as const).map((ch) => (
+                      <input
+                        key={ch}
+                        className="mde-mat-color__edit mde-mat-color__edit--ch"
+                        type="number"
+                        min={0}
+                        max={255}
+                        step={1}
+                        value={Math.round(c[ch] * 255)}
+                        aria-label={`${label} ${ch.toUpperCase()}`}
+                        onChange={(e) => {
+                          const n = Number(e.target.value);
+                          if (!Number.isFinite(n)) return;
+                          setColor(key, {
+                            ...c,
+                            [ch]: Math.min(255, Math.max(0, n)) / 255,
+                          });
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+                {colorMode === "hsl" ? (
+                  <div className="mde-mat-color__channels" aria-label={`${label} HSL`}>
+                    <input
+                      className="mde-mat-color__edit mde-mat-color__edit--ch"
+                      type="number"
+                      min={0}
+                      max={360}
+                      step={1}
+                      value={Math.round(hsl.h)}
+                      aria-label={`${label} H`}
+                      onChange={(e) => {
+                        const n = Number(e.target.value);
+                        if (!Number.isFinite(n)) return;
+                        setColor(key, hslToRgb({ ...hsl, h: n }));
+                      }}
+                    />
+                    <input
+                      className="mde-mat-color__edit mde-mat-color__edit--ch"
+                      type="number"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={Math.round(hsl.s)}
+                      aria-label={`${label} S`}
+                      onChange={(e) => {
+                        const n = Number(e.target.value);
+                        if (!Number.isFinite(n)) return;
+                        setColor(key, hslToRgb({ ...hsl, s: n }));
+                      }}
+                    />
+                    <input
+                      className="mde-mat-color__edit mde-mat-color__edit--ch"
+                      type="number"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={Math.round(hsl.l)}
+                      aria-label={`${label} L`}
+                      onChange={(e) => {
+                        const n = Number(e.target.value);
+                        if (!Number.isFinite(n)) return;
+                        setColor(key, hslToRgb({ ...hsl, l: n }));
+                      }}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {(advanced
+        ? MATERIAL_PROP_SLIDERS
+        : MATERIAL_PROP_SLIDERS.filter(
+            ([key]) =>
+              key === "exposure" ||
+              key === "density" ||
+              key === "materialWeight" ||
+              key === "gamma" ||
+              key === "threshold" ||
+              key === "lightScatter",
+          )
+      ).map(([key, label, min, max, tip]) => (
         <div key={key} className="mde-field">
           <div className="mde-field__row">
             <Label htmlFor={`${idPrefix}-${key}`} title={tip}>

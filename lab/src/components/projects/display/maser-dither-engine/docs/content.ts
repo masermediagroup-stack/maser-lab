@@ -33,7 +33,7 @@ export const DOCS_TOPICS = [
   {
     id: "animation",
     title: "Procedural Animation",
-    body: `Sprint 1 adds a modular animation engine under engine/animation/. Each mode is catalogued with purpose, math approach, controls, and performance notes. ProceduralAnimationController owns Timeline + ModeBlender; the shared FRAG shader evaluates mode A/B and smoothsteps the blend. Layers stay separate: ambient motion, UV distortion, interaction tug, and lighting modulation. Pass animation?: Partial<AnimationEngineConfig> into SurfaceCanvas. Modes: Linear H/V, Diagonal, Radial Pulse, Ripple, Wave, Spiral, Orbit, Breathing, Bloom, Noise Drift, Flow Field, Magnetic, Aurora, Turbulence, Lava Lamp.`,
+    body: `Sprint 1 adds a modular animation engine under engine/animation/. Each mode is catalogued with purpose, math approach, controls, and performance notes. ProceduralAnimationController owns Timeline + ModeBlender; the shared FRAG shader evaluates mode A/B and smoothsteps the blend. Layers stay separate: ambient motion, UV distortion, interaction tug, and lighting modulation. Pass animation?: Partial<AnimationEngineConfig> into SurfaceCanvas. Modes: Linear H/V, Diagonal, Radial Pulse (multi-front rings), Ripple, Wave, Spiral (rotating arms + center offset), Orbit, Breathing, Bloom, Noise Drift, Flow Field, Magnetic, Aurora, Turbulence, Lava Lamp (metaballs + viscosity). Sprint 7.3 adds #/animations compare board. Creative Explore randomizes modes with locks.`,
   },
   {
     id: "interaction",
@@ -43,12 +43,12 @@ export const DOCS_TOPICS = [
   {
     id: "color-material",
     title: "Color & Material System",
-    body: `Sprint 3 adds engine/color/. ColorMaterialController packs palette colors, gradient mode/behavior, blend mode, and exposure/gamma/density into GPU uniforms each frame. COLOR_GLSL composes RGB from ink + dither + bloom without rewriting the renderer. Palette Studio includes Monochrome, Blueprint, Aurora, Ocean, Paper, Chrome, Sunset, Heat Map, Terminal, Matrix, Pearl, Acid, Infrared, Smoke, Forest, Cyberpunk, Electric Blue, Graphite, Velvet. Sprint 6 moved procedural material structure out of color “behaviors” into engine/material/ — Color owns chroma; Material owns structure. Pass color?: Partial<ColorMaterialConfig> into SurfaceCanvas. Toggle colorEnabled for grayscale.`,
+    body: `Sprint 3 adds engine/color/. ColorMaterialController packs palette colors, gradient mode/behavior, blend mode, and exposure/gamma/density into GPU uniforms each frame. COLOR_GLSL composes RGB from ink + dither + bloom without rewriting the renderer. Palette Studio includes Monochrome, Blueprint, Aurora, Ocean, Paper, Chrome, Sunset, Heat Map, Terminal, Matrix, Pearl, Acid, Infrared, Smoke, Forest, Cyberpunk, Electric Blue, Graphite, Velvet. Sprint 6 moved procedural material structure out of color “behaviors” into engine/material/ — Color owns chroma; Material owns structure. Sprint 7.2 restores all color slots in the Material panel with live picker + HEX / RGB / HSL editors, Primary/Highlight + Secondary/Accent labels, and reconnects interaction Light Color / Interaction Color tint sliders. Pass color?: Partial<ColorMaterialConfig> into SurfaceCanvas. Toggle colorEnabled for grayscale.`,
   },
   {
     id: "procedural-materials",
     title: "Procedural Materials (Sprint 6)",
-    body: `engine/material/ defines Paper, Ink, Velvet, Metal, Smoke, Fog, Cloud, Glass, Chrome, and CRT as true procedural materials with distinct UV, structure, finish, and interaction response under identical shared lighting/palette/dither. MaterialController packs uMat* uniforms; layer recipe (enable/bypass/solo) gates structure without shader recompile. Materials page: CSS swatch thumbs (context budget), family filters, search, favorites, detail with one live preview, side/swipe/A-B compare. Playground Material panel shows only supportedControls for the active material. Performance tiers + mobile lowQuality. CRT flicker capped; reduced motion zeros flicker. Sacred contracts: projects/.../AGENTS.md + engine/AGENTS.md. See docs/sprint6-materials.md and docs/engine-lessons.md.`,
+    body: `engine/material/ defines Paper, Ink, Velvet, Metal, Smoke, Fog, Cloud, Glass, Chrome, and CRT as true procedural materials with distinct UV, structure, finish, and interaction response under identical shared lighting/palette/dither. MaterialController packs uMat* uniforms; layer recipe (enable/bypass/solo) gates structure without shader recompile. Materials page: live procedural thumbs via ThumbBlitEngine (one shared WebGL context → JPEG), family filters, search, favorites/recent, grid/rail, hover preview, detail with one live canvas, side/swipe/A-B compare. Playground Material Dock uses the same blit cache. See docs/sprint6-materials.md, docs/sprint7-3-creative-restoration.md, and docs/engine-lessons.md.`,
   },
   {
     id: "engine-contracts",
@@ -58,12 +58,12 @@ export const DOCS_TOPICS = [
   {
     id: "source-image",
     title: "Source Image Dither",
-    body: `Upload any photo from the Content panel (Source image). SurfaceCanvas loads it into texture unit 6 (uSource). Fragment luminance switches from pure light-shape to cover-fit image luminance, then the full shared pipeline (material → tone → dither → grain → color → finish) recreates the look on top of the photo. Light on image (uSourceLightMix) blends pure photo luminance with light-modulated luminance. Clear removes the texture and returns to procedural light-only fields. Works on Image Frame and every other adapter.`,
+    body: `Upload any photo from Content → Source image, or in-frame on Image Frame / Avatar (image mode): drag/drop, click upload, replace, remove. SurfaceCanvas loads texture unit 6 (uSource). Aspect ratios (1:1, 4:3, 3:2, 16:9, 9:16, 21:9, custom) and fit (cover/contain/fill) update live via content. Overlay mode composites material above or behind the photo. Light on image (uSourceLightMix) blends pure photo luminance with light-modulated luminance. Blob URLs are revoked on replace; project saves drop blob sources (persist as data URL / IndexedDB planned).`,
   },
   {
     id: "content-editing",
     title: "Live Component Editing",
-    body: `Every adapter accepts content?: Partial<ComponentContent>. The playground Content editor updates labels, titles, descriptions, nav items, placeholders, progress, scrollbar thickness/radius instantly while the material keeps animating. Content is React overlay state — it never remounts the WebGL surface.`,
+    body: `Every adapter accepts content?: Partial<ComponentContent>. Content editor covers titles, nav, progress, avatar shape/mode/size/presence, image aspect/fit/radius/padding/border/overlay, scrollbar orientation/thickness/radius/progress — without remounting WebGL.`,
   },
   {
     id: "engine-api",
@@ -88,6 +88,6 @@ export const DOCS_TOPICS = [
   {
     id: "preset-studio",
     title: "Preset Studio & Projects (Sprint 7)",
-    body: `Preset Studio (#/projects) separates immutable System Presets from editable User Projects. Snapshots capture animation, lighting, palette, material, dither, interaction, content, and sliders (schema v1). Save / Save As never overwrite system rows — they fork. Autosave writes only user projects to localStorage (mde:projects:v1). Thumbnails are JPEG captures from the live stage canvas. Playground adds Material Dock, Quick Actions, undo/redo, control search, workspace modes, and a mobile bottom nav + bottom sheet editor. See docs/sprint7-workspace.md.`,
+    body: `Preset Studio (#/projects) separates immutable System Presets from editable User Projects. Snapshots capture animation, lighting, palette, material, dither, interaction, content, and sliders (schema v1). Save / Save As never overwrite system rows — they fork. Autosave writes only user projects to localStorage (mde:projects:v1). Thumbnails are JPEG captures from the live stage canvas. Playground adds Material Dock, Quick Actions, undo/redo, control search, workspace modes, and a mobile bottom nav + bottom sheet editor. See docs/sprint7-workspace.md. Sprint 7.2 stabilization: monochrome editor chrome, repaired Scrollbar/Avatar/Image Frame, animation composition gain, full color editors — docs/sprint7-2-stabilization.md.`,
   },
 ] as const;

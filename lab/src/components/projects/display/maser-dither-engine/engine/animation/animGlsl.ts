@@ -89,19 +89,28 @@ vec4 modeDiagonal(vec2 uv, float t, vec4 p0, vec4 p1) {
 }
 
 vec4 modeRadialPulse(vec2 uv, float t, vec4 p0, vec4 p1) {
+  // Discrete expanding pulse fronts (≠ continuous ripple, ≠ soft bloom core)
   float speed = p0.x;
   float radius = p0.y;
-  float decay = p0.z;
+  float width = max(p0.z, 0.02);
   float strength = p0.w;
+  float falloff = p1.x;
+  float repeat = clamp(p1.y, 1.0, 4.0);
   vec2 a = aspectUv(uv);
   float r = length(a);
-  float pulse = fract(t * speed * 0.25);
-  float ring = exp(-abs(r - pulse * radius) * decay * 8.0);
-  float core = exp(-r * r * (3.0 / max(radius, 0.05)));
-  float breath = 0.5 + 0.5 * sin(t * speed);
-  float lum = (ring * 0.85 + core * breath * 0.35) * strength;
-  vec2 off = normalize(a + 1e-4) * ring * strength * 0.12;
-  return vec4(off, lum, lum * 0.45);
+  float waveTrain = 0.0;
+  for (int i = 0; i < 4; i++) {
+    if (float(i) >= repeat) break;
+    float phase = fract(t * speed * 0.28 - float(i) / repeat);
+    float front = phase * radius;
+    float ring = exp(-pow(abs(r - front) / width, 2.0) * 2.4);
+    ring *= (1.0 - phase);
+    ring *= exp(-r * falloff);
+    waveTrain += ring;
+  }
+  float lum = waveTrain * strength * 1.35;
+  vec2 off = normalize(a + 1e-4) * waveTrain * strength * 0.16;
+  return vec4(off, lum, lum * 0.55);
 }
 
 vec4 modeRipple(vec2 uv, float t, vec4 p0, vec4 p1) {
@@ -134,17 +143,29 @@ vec4 modeWave(vec2 uv, float t, vec4 p0, vec4 p1) {
 }
 
 vec4 modeSpiral(vec2 uv, float t, vec4 p0, vec4 p1) {
+  // Visible arm rotation around an offset center (Archimedean + angular advection)
   float speed = p0.x;
-  float arms = p0.y;
+  float arms = max(floor(p0.y + 0.5), 1.0);
   float tight = p0.z;
   float amp = p0.w;
-  vec2 a = aspectUv(uv);
+  float cx = p1.x;
+  float cy = p1.y;
+  float direction = p1.z >= 0.0 ? 1.0 : -1.0;
+  // p1.w = pattern scale (zoom). Higher = arms fill more of the surface.
+  float scale = clamp(p1.w, 0.25, 3.0);
+  float twist = 1.1;
+  vec2 a = (aspectUv(uv) - vec2(cx, cy)) * scale;
   float r = length(a);
-  float theta = atan(a.y, a.x);
-  float spiral = sin(theta * arms + log(r * tight + 0.08) * tight * 3.0 - t * speed);
-  float lum = spiral * amp * exp(-r * 1.2);
-  vec2 off = vec2(-a.y, a.x) * spiral * amp * 0.08;
-  return vec4(off, lum, lum * 0.25);
+  float theta = atan(a.y, a.x) + t * speed * 0.7 * direction;
+  float spiral = sin(theta * arms + log(r * tight + 0.08) * tight * 3.2 - t * speed * direction);
+  // Sharper arm ridges so spiral reads immediately vs orbit/noise
+  float ridges = pow(abs(spiral), 0.65) * sign(spiral + 1e-4);
+  float envelope = exp(-r * 0.95) * (0.55 + 0.45 * smoothstep(0.55, 0.0, r));
+  float lum = ridges * amp * envelope * 1.35;
+  vec2 tangential = vec2(-a.y, a.x) * (1.0 / max(r, 0.08));
+  vec2 off = tangential * ridges * amp * 0.18 * twist;
+  off += a * ridges * amp * 0.05 * twist;
+  return vec4(off, lum, lum * 0.4);
 }
 
 vec4 modeOrbit(vec2 uv, float t, vec4 p0, vec4 p1) {
@@ -226,9 +247,11 @@ vec4 modeFlowField(vec2 uv, float t, vec4 p0, vec4 p1) {
   float cs = cos(rot);
   float sn = sin(rot);
   flow = mat2(cs, -sn, sn, cs) * flow;
-  vec2 off = flow * strength * 0.1;
-  float lum = length(flow) * strength * 0.22;
-  return vec4(off, lum, lum * 0.25);
+  vec2 off = flow * strength * 0.14;
+  // Streak luminance along flow direction (≠ isotropic noise drift)
+  float streak = abs(dot(normalize(flow + 1e-4), vec2(0.707, 0.707)));
+  float lum = length(flow) * strength * (0.18 + streak * 0.2);
+  return vec4(off, lum, lum * 0.3);
 }
 
 vec4 modeMagnetic(vec2 uv, float t, vec4 p0, vec4 p1) {
@@ -259,9 +282,11 @@ vec4 modeAurora(vec2 uv, float t, vec4 p0, vec4 p1) {
   float n = animFbm(vec2(a.x * bands + t * drift * 0.2, a.y * 1.4 + t * speed * 0.08), 3.0);
   float sheet = sin((a.x + n * warp) * bands * 1.7 + t * speed);
   float curtain = pow(abs(sheet), 1.15) * smoothstep(0.95, -0.25, a.y);
-  float lum = curtain * warp * 1.65;
-  vec2 off = vec2(n - 0.5, sheet * 0.22) * warp * 0.45;
-  return vec4(off, lum, lum * 0.55);
+  // Vertical curtain sheets — distinct from noise drift / flow curl
+  float veil = curtain * (0.55 + 0.45 * smoothstep(-0.2, 0.6, a.y + n * 0.2));
+  float lum = veil * warp * 1.85;
+  vec2 off = vec2(n - 0.5, sheet * 0.28) * warp * 0.5;
+  return vec4(off, lum, lum * 0.6);
 }
 
 vec4 modeTurbulence(vec2 uv, float t, vec4 p0, vec4 p1) {
@@ -282,29 +307,62 @@ vec4 modeTurbulence(vec2 uv, float t, vec4 p0, vec4 p1) {
 }
 
 vec4 modeLavaLamp(vec2 uv, float t, vec4 p0, vec4 p1) {
-  float speed = p0.x;
-  float count = p0.y;
-  float size = p0.z;
-  float merge = p0.w;
+  // Soft metaball blobs with viscosity + field-gradient UV (not FBM noise)
+  // Soft clamps keep high merge/size/speed from blowing the field into NaN flicker
+  float speed = clamp(p0.x, 0.05, 2.0);
+  float count = floor(clamp(p0.y, 2.0, 7.0) + 0.5);
+  float size = clamp(p0.z, 0.12, 0.55);
+  float merge = clamp(p0.w, 0.4, 1.45);
+  float viscosity = clamp(p1.x, 0.25, 2.2);
+  float tension = clamp(p1.y, 0.35, 2.0);
+  float distort = clamp(p1.z, 0.0, 1.35);
+  float speedEff = speed / (0.55 + viscosity);
   vec2 a = aspectUv(uv);
   float field = 0.0;
-  float n = clamp(count, 2.0, 7.0);
+  float n = count;
   for (int i = 0; i < 7; i++) {
     if (float(i) >= n) break;
     float fi = float(i);
     float seed = fi * 1.7 + 0.3;
-    float bx = sin(t * speed * (0.35 + fi * 0.07) + seed * 2.1) * 0.55;
-    float by = fract(t * speed * (0.12 + fi * 0.03) + seed) * 1.6 - 0.8;
+    float wobble = sin(t * speedEff * 0.41 + seed * 3.1) * distort * 0.1;
+    float bx = sin(t * speedEff * (0.22 + fi * 0.05) + seed * 2.1) * 0.48 + wobble;
+    float by = fract(t * speedEff * (0.07 + fi * 0.02) + seed) * 1.45 - 0.72;
+    by += sin(t * speedEff * 0.33 + seed) * 0.07 * (1.0 / viscosity);
     vec2 b = vec2(bx, by);
     float d = length(a - b);
-    field += size / (d + 0.08 * merge);
+    field += size / (d + 0.1 * merge + 0.04);
   }
-  float metaball = smoothstep(1.2 / merge, 2.4 / merge, field);
-  float lum = metaball * (0.55 + size * 0.9);
-  vec2 off = vec2(
-    sin(t * speed * 0.7) * size * 0.22,
-    sin(t * speed) * size * 0.28
-  ) * metaball;
+  field = min(field, 10.0);
+  float lo = (0.95 / merge) * tension;
+  float hi = (2.35 / merge) * tension;
+  hi = max(hi, lo + 0.15);
+  float metaball = smoothstep(lo, hi, field);
+  float mid = mix(lo, hi, 0.55);
+  float surface = smoothstep(lo, mid, field) - smoothstep(mid, hi, field);
+  float lum = clamp(metaball * (0.45 + size * 0.85) + surface * 0.2, 0.0, 1.75);
+  // Blob-local UV from numerical gradient of the field
+  float e = 0.025;
+  float fx1 = 0.0;
+  float fx0 = 0.0;
+  float fy1 = 0.0;
+  float fy0 = 0.0;
+  for (int i = 0; i < 7; i++) {
+    if (float(i) >= n) break;
+    float fi = float(i);
+    float seed = fi * 1.7 + 0.3;
+    float wobble = sin(t * speedEff * 0.41 + seed * 3.1) * distort * 0.1;
+    float bx = sin(t * speedEff * (0.22 + fi * 0.05) + seed * 2.1) * 0.48 + wobble;
+    float by = fract(t * speedEff * (0.07 + fi * 0.02) + seed) * 1.45 - 0.72;
+    by += sin(t * speedEff * 0.33 + seed) * 0.07 * (1.0 / viscosity);
+    vec2 b = vec2(bx, by);
+    float soft = 0.1 * merge + 0.04;
+    fx1 += size / (length(a + vec2(e, 0.0) - b) + soft);
+    fx0 += size / (length(a - vec2(e, 0.0) - b) + soft);
+    fy1 += size / (length(a + vec2(0.0, e) - b) + soft);
+    fy0 += size / (length(a - vec2(0.0, e) - b) + soft);
+  }
+  vec2 grad = clamp(vec2(fx1 - fx0, fy1 - fy0), -8.0, 8.0);
+  vec2 off = clamp(grad * metaball * size * 0.07, vec2(-0.35), vec2(0.35));
   return vec4(off, lum, lum * 0.45);
 }
 

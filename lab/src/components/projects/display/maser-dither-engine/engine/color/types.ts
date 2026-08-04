@@ -148,6 +148,48 @@ export function rgbToHex({ r, g, b }: Rgb): string {
   return `#${c(r)}${c(g)}${c(b)}`;
 }
 
+export type Hsl = { h: number; s: number; l: number };
+
+/** Convert 0–1 RGB → HSL (h 0–360, s/l 0–100). */
+export function rgbToHsl({ r, g, b }: Rgb): Hsl {
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) return { h: 0, s: 0, l: l * 100 };
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h = 0;
+  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+  else if (max === g) h = ((b - r) / d + 2) / 6;
+  else h = ((r - g) / d + 4) / 6;
+  return { h: h * 360, s: s * 100, l: l * 100 };
+}
+
+/** Convert HSL (h 0–360, s/l 0–100) → 0–1 RGB. */
+export function hslToRgb({ h, s, l }: Hsl): Rgb {
+  const hh = ((h % 360) + 360) % 360;
+  const ss = Math.min(100, Math.max(0, s)) / 100;
+  const ll = Math.min(100, Math.max(0, l)) / 100;
+  if (ss < 1e-6) return rgb(ll, ll, ll);
+  const q = ll < 0.5 ? ll * (1 + ss) : ll + ss - ll * ss;
+  const p = 2 * ll - q;
+  const hk = hh / 360;
+  const channel = (t: number) => {
+    let tt = t;
+    if (tt < 0) tt += 1;
+    if (tt > 1) tt -= 1;
+    if (tt < 1 / 6) return p + (q - p) * 6 * tt;
+    if (tt < 1 / 2) return q;
+    if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
+    return p;
+  };
+  return {
+    r: channel(hk + 1 / 3),
+    g: channel(hk),
+    b: channel(hk - 1 / 3),
+  };
+}
+
 export const COLOR_SLOT_ORDER = [
   "background",
   "highlight",

@@ -262,23 +262,69 @@ export function InteractionPanel({
                     patch({ lights });
                   }}
                 />
+                <SliderField
+                  id={`${idPrefix}-l${index}-c`}
+                  label="Light Color"
+                  tip="Grayscale tint strength for this light. RGB chroma comes from Material Colors."
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={light.color}
+                  onChange={(color) => {
+                    const lights = value.lights.map((l, i) =>
+                      i === index ? { ...l, color } : l,
+                    );
+                    patch({ lights });
+                  }}
+                />
+                <SliderField
+                  id={`${idPrefix}-l${index}-s`}
+                  label="Softness"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={light.softness}
+                  onChange={(softness) => {
+                    const lights = value.lights.map((l, i) =>
+                      i === index ? { ...l, softness } : l,
+                    );
+                    patch({ lights });
+                  }}
+                />
               </>
             ) : null}
             {light.enabled && light.role === "pointer" ? (
-              <SliderField
-                id={`${idPrefix}-l${index}-i`}
-                label="Pointer Intensity"
-                min={0}
-                max={1.5}
-                step={0.01}
-                value={light.intensity}
-                onChange={(intensity) => {
-                  const lights = value.lights.map((l, i) =>
-                    i === index ? { ...l, intensity } : l,
-                  );
-                  patch({ lights });
-                }}
-              />
+              <>
+                <SliderField
+                  id={`${idPrefix}-l${index}-i`}
+                  label="Pointer Intensity"
+                  min={0}
+                  max={1.5}
+                  step={0.01}
+                  value={light.intensity}
+                  onChange={(intensity) => {
+                    const lights = value.lights.map((l, i) =>
+                      i === index ? { ...l, intensity } : l,
+                    );
+                    patch({ lights });
+                  }}
+                />
+                <SliderField
+                  id={`${idPrefix}-l${index}-c`}
+                  label="Interaction Color"
+                  tip="Pointer light tint strength (0–1). Material palette supplies RGB."
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={light.color}
+                  onChange={(color) => {
+                    const lights = value.lights.map((l, i) =>
+                      i === index ? { ...l, color } : l,
+                    );
+                    patch({ lights });
+                  }}
+                />
+              </>
             ) : null}
           </div>
         ))}
