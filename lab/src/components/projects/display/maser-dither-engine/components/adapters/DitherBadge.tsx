@@ -7,6 +7,11 @@ import {
   DEFAULT_COMPONENT_CONTENT,
 } from "../../content/types";
 import { cn } from "@/lib/utils";
+import {
+  chromeCornerStyle,
+  overlayLabelStyle,
+  useAdapterPointer,
+} from "./adapterInteraction";
 
 export function DitherBadge({
   params,
@@ -22,6 +27,7 @@ export function DitherBadge({
   reducedMotion,
   className,
 }: DitherAdapterProps) {
+  const { pointer, handlers } = useAdapterPointer(reducedMotion);
   const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
   const size = BADGE_SIZE[c.badgeSize] ?? BADGE_SIZE.md;
 
@@ -29,11 +35,15 @@ export function DitherBadge({
     <span
       className={cn("mde-adapter mde-adapter--badge", className)}
       data-size={c.badgeSize}
+      role="img"
+      aria-label={c.badgeLabel}
       style={{
+        ...chromeCornerStyle(c),
         height: size.height,
         paddingInline: size.padX,
         fontSize: size.font,
       }}
+      {...handlers}
     >
       <span className="mde-adapter-badge__fill" aria-hidden>
         <SurfaceCanvas
@@ -49,12 +59,15 @@ export function DitherBadge({
           light={light}
           dither={dither}
           material={material}
+          pointer={pointer}
           sourceUrl={sourceUrl}
           sourceLightMix={sourceLightMix}
           reducedMotion={reducedMotion}
         />
       </span>
-      <span className="mde-adapter-badge__label">{c.badgeLabel}</span>
+      <span className="mde-adapter-badge__label" style={overlayLabelStyle(c)}>
+        {c.badgeLabel}
+      </span>
     </span>
   );
 }

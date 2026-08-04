@@ -314,6 +314,15 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Engine `0.7.6`
 - [x] Mobile: hide Material Dock thumb strip in bottom sheet (use Material panel)
 
+### Sprint 7.7 — Fullscreen, corners, solid labels
+
+- [x] Fullscreen mobile: compact adapters keep intrinsic width (no full-bleed button)
+- [x] Content: Corner (Pill/Round/Soft/Square) on button & badge
+- [x] Fullscreen touch: no iOS callout; pointer on button/badge/avatar
+- [x] Solid text color on dither fills (default); optional Invert blend
+- [x] Docs: `docs/sprint7-7-fullscreen-touch-labels.md`
+- [x] Engine `0.7.7`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).

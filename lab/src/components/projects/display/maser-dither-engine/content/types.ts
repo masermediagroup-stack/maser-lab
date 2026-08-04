@@ -24,11 +24,20 @@ export type ImageFitMode = "cover" | "contain" | "fill";
 
 export type ScrollbarOrientation = "vertical" | "horizontal";
 
+export type ChromeCorner = "pill" | "rounded" | "soft" | "square";
+export type LabelBlendMode = "solid" | "exclusion";
+
 export type ComponentContent = {
   buttonLabel: string;
   buttonIcon: string;
   badgeLabel: string;
   badgeSize: ChromeSizeToken;
+  /** Corner radius preset for button / badge (and similar chrome). */
+  chromeCorner: ChromeCorner;
+  /** Solid hex color for text sitting on dither fills. */
+  labelColor: string;
+  /** `solid` = opaque label; `exclusion` = invert against the fill. */
+  labelBlend: LabelBlendMode;
   cardTitle: string;
   cardSubtitle: string;
   cardDescription: string;
@@ -83,6 +92,9 @@ export const DEFAULT_COMPONENT_CONTENT: ComponentContent = {
   buttonIcon: "→",
   badgeLabel: "Live",
   badgeSize: "md",
+  chromeCorner: "pill",
+  labelColor: "#ffffff",
+  labelBlend: "solid",
   cardTitle: "Print Density",
   cardSubtitle: "Ordered media",
   cardDescription:
