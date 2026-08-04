@@ -31,10 +31,10 @@ export default function MaserDitherEngineCanvas() {
           where it ships today, and where it can go next.
         </Text>
         <Row gap={8} wrap>
-          <Pill active>v0.7.6</Pill>
+          <Pill active>v0.7.7</Pill>
           <Pill>WebGL 1</Pill>
           <Pill>Black / White base plate</Pill>
-          <Pill>Lab shell + transfer path</Pill>
+          <Pill>Solid overlay text</Pill>
         </Row>
       </Stack>
 
@@ -190,7 +190,7 @@ export default function MaserDitherEngineCanvas() {
       <Divider />
 
       <Stack gap={12}>
-        <H2>Shipped through v0.7.6</H2>
+        <H2>Shipped through v0.7.7</H2>
         <Table
           headers={["Sprint", "Outcome", "Status"]}
           rows={[
@@ -208,8 +208,14 @@ export default function MaserDitherEngineCanvas() {
               "Black / White component base plate (first control + preview stage)",
               "done",
             ],
+            [
+              "7.7",
+              "Fullscreen size · Corner control · solid labels · mobile touch",
+              "done",
+            ],
           ]}
           rowTone={[
+            "success",
             "success",
             "success",
             "success",
