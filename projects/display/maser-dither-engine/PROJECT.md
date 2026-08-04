@@ -322,6 +322,7 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Solid text color on dither fills (default); optional Invert blend
 - [x] Docs: `docs/sprint7-7-fullscreen-touch-labels.md`
 - [x] Engine `0.7.7`
+- [x] Overview component list: text rows only (no placeholder dither thumbs)
 
 ### Architecture notes
 
