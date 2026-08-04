@@ -324,6 +324,15 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Engine `0.7.7`
 - [x] Overview component list: text rows only (no placeholder dither thumbs)
 
+### Sprint 7.8 — Featured card redesign
+
+- [x] Tall featured promo layout (inset frame, bottom scrim, eyebrow + headline)
+- [x] Pill CTA with live dither fill (cream plate + multiply)
+- [x] Content editor: Eyebrow / Headline / CTA + label color/blend
+- [x] Instrument Sans retained; no body-under-media stack
+- [x] Docs: `docs/sprint7-8-featured-card.md`
+- [x] Engine `0.7.8`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).

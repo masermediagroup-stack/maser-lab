@@ -116,10 +116,20 @@ function fieldsFor(id: ComponentId): Field[] {
       ];
     case "card":
       return [
-        { kind: "text", key: "cardTitle", label: "Title" },
-        { kind: "text", key: "cardSubtitle", label: "Subtitle" },
+        { kind: "text", key: "cardSubtitle", label: "Eyebrow" },
+        { kind: "text", key: "cardTitle", label: "Headline" },
         { kind: "text", key: "cardDescription", label: "Description" },
-        { kind: "text", key: "cardButtonLabel", label: "Button" },
+        { kind: "text", key: "cardButtonLabel", label: "CTA label" },
+        { kind: "color", key: "labelColor", label: "CTA text color" },
+        {
+          kind: "choice",
+          key: "labelBlend",
+          label: "CTA text on fill",
+          options: [
+            { id: "solid", label: "Solid" },
+            { id: "exclusion", label: "Invert" },
+          ],
+        },
       ];
     case "navigation":
       return [

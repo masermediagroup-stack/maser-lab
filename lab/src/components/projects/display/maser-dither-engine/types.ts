@@ -110,6 +110,10 @@ export type SurfaceCardProps = {
   sourceLightMix?: number;
   reducedMotion?: boolean;
   className?: string;
+  /** CTA label color on the dithered pill. */
+  labelColor?: string;
+  /** `solid` = opaque label; `exclusion` = invert against the fill. */
+  labelBlend?: "solid" | "exclusion";
 };
 
 export type ComponentId =

@@ -36,6 +36,8 @@ export function DitherCard({
       sourceLightMix={sourceLightMix}
       reducedMotion={reducedMotion}
       className={className}
+      labelColor={c.labelColor}
+      labelBlend={c.labelBlend}
     />
   );
 }

@@ -95,10 +95,9 @@ export const DEFAULT_COMPONENT_CONTENT: ComponentContent = {
   chromeCorner: "pill",
   labelColor: "#ffffff",
   labelBlend: "solid",
-  cardTitle: "Print Density",
-  cardSubtitle: "Ordered media",
-  cardDescription:
-    "Ordered dither media plane — shared engine, card adapter.",
+  cardTitle: "Fresh density",
+  cardSubtitle: "What's printing",
+  cardDescription: "",
   cardButtonLabel: "Explore",
   navBrand: "Maser",
   navItems: ["Overview", "Components", "Docs"],
