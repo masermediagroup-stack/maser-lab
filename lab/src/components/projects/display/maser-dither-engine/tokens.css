@@ -416,6 +416,65 @@
   overflow: hidden;
 }
 
+.mde-playground__preview--base-black {
+  background: #000000;
+}
+
+.mde-playground__preview--base-white {
+  background: #ffffff;
+  border-color: color-mix(in oklab, #000 12%, transparent);
+}
+
+.mde-playground__preview--base-white .mde-playground__fullscreen-btn {
+  border-color: color-mix(in oklab, #000 18%, transparent);
+  background: color-mix(in oklab, #fff 88%, transparent);
+  color: #111111;
+}
+
+.mde-playground__preview--base-white .mde-playground__fullscreen-btn:hover {
+  background: color-mix(in oklab, #000 6%, transparent);
+  color: #000000;
+}
+
+.mde-playground__preview--fullscreen.mde-playground__preview--base-white {
+  background: #ffffff;
+}
+
+.mde-base-plate-strip {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--mde-line);
+  border-radius: 12px;
+  background: var(--mde-elevated);
+}
+
+.mde-base-plate__row {
+  margin-top: 0.4rem;
+}
+
+.mde-base-plate__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mde-base-plate__swatch {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, #fff 25%, transparent);
+  flex-shrink: 0;
+}
+
+.mde-base-plate__swatch--black {
+  background: #000000;
+}
+
+.mde-base-plate__swatch--white {
+  background: #ffffff;
+  border-color: color-mix(in oklab, #fff 55%, transparent);
+}
+
 .mde-playground__preview-toolbar {
   position: absolute;
   top: 0.75rem;

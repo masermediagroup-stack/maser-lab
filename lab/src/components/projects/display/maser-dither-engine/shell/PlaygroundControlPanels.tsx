@@ -46,6 +46,7 @@ import {
 import { LightingPanel } from "./LightingPanel";
 import { DitherPanel } from "./DitherPanel";
 import { ContentEditor } from "./ContentEditor";
+import { BasePlateControl } from "./BasePlateControl";
 import type { SourceImageValue } from "./SourceImageField";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -267,6 +268,16 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
 
   return (
     <>
+      {/* Foundation choice — always first, before other settings */}
+      <div className="mde-base-plate-strip">
+        <BasePlateControl
+          value={color}
+          onChange={setColor}
+          idPrefix={`mde-${componentId}-base`}
+          compact
+        />
+      </div>
+
       {(!focusGroup || focusGroup === "presets") ? (
 <Collapsible
   title="Presets"

@@ -305,6 +305,14 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Docs: `docs/sprint7-5-interaction-palette.md`
 - [x] Engine `0.7.5`
 
+### Sprint 7.6 — Component base plate
+
+- [x] Black / White component background as first playground control
+- [x] Preview stage matches base plate
+- [x] Palette apply preserves base plate
+- [x] Docs: `docs/sprint7-6-base-plate.md` + canvas briefing update
+- [x] Engine `0.7.6`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).

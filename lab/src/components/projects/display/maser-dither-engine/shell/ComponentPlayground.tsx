@@ -36,6 +36,7 @@ import {
   DEFAULT_COLOR_MATERIAL,
 } from "../engine/color/types";
 import type { ColorMaterialConfig } from "../engine/color/types";
+import { resolveBasePlate } from "../engine/color/basePlate";
 import {
   DEFAULT_LIGHT_SHAPE,
 } from "../engine/lighting";
@@ -887,13 +888,17 @@ export function ComponentPlayground({
       />
     );
 
+  const basePlate = resolveBasePlate(color.colors.background);
+
   const previewFrame = (
     <div
       className={cn(
         "mde-playground__preview",
+        `mde-playground__preview--base-${basePlate}`,
         isNarrow && "mde-playground__preview--mobile-fit",
         isFullscreen && "mde-playground__preview--fullscreen",
       )}
+      data-base-plate={basePlate}
       role={isFullscreen ? "dialog" : undefined}
       aria-modal={isFullscreen ? true : undefined}
       aria-label={

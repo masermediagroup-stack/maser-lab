@@ -17,6 +17,7 @@ import type {
   Rgb,
 } from "../engine/color/types";
 import { rgbToHex, hexToRgb, rgbToHsl, hslToRgb } from "../engine/color/types";
+import { BasePlateControl } from "./BasePlateControl";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -141,6 +142,14 @@ export function MaterialPanel({
 
   return (
     <div className="mde-mat-panel">
+      <div className="mde-field">
+        <BasePlateControl
+          value={value}
+          onChange={onChange}
+          idPrefix={`${idPrefix}-base`}
+        />
+      </div>
+
       <div className="mde-field">
         <div className="mde-field__row">
           <Label htmlFor={`${idPrefix}-enabled`}>Color materials</Label>

@@ -208,7 +208,8 @@ export const COLOR_SLOT_ORDER = [
 ] as const satisfies readonly (keyof MaterialColors)[];
 
 export const DEFAULT_COLORS: MaterialColors = {
-  background: rgb(0.04, 0.04, 0.05),
+  /** Default component plate — pure black (pair with BasePlate White). */
+  background: rgb(0, 0, 0),
   highlight: rgb(0.96, 0.96, 0.94),
   shadow: rgb(0.06, 0.06, 0.07),
   dither: rgb(0.92, 0.92, 0.9),

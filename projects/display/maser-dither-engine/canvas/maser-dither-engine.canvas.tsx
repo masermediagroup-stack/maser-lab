@@ -31,9 +31,9 @@ export default function MaserDitherEngineCanvas() {
           where it ships today, and where it can go next.
         </Text>
         <Row gap={8} wrap>
-          <Pill active>v0.7.5</Pill>
+          <Pill active>v0.7.6</Pill>
           <Pill>WebGL 1</Pill>
-          <Pill>Product-ready adapters</Pill>
+          <Pill>Black / White base plate</Pill>
           <Pill>Lab shell + transfer path</Pill>
         </Row>
       </Stack>
@@ -50,6 +50,63 @@ export default function MaserDitherEngineCanvas() {
         button, badge, text, icon, card — so motion and brand stay coherent
         without duplicating GPU code.
       </Callout>
+
+      <Callout tone="success" title="Start here — component background">
+        Every playground opens with a Black or White base plate. Pick that first;
+        palettes and finer color slots build on top and keep your plate choice.
+      </Callout>
+
+      <Divider />
+
+      <Stack gap={12}>
+        <H2>Control layers</H2>
+        <Grid columns={4} gap={12}>
+          <Card>
+            <CardHeader>Base plate</CardHeader>
+            <CardBody>
+              <Stack gap={6}>
+                <Text>Black or White only</Text>
+                <Text tone="secondary" size="small">
+                  First control in the playground. Sets the GPU plate + preview stage.
+                </Text>
+              </Stack>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader>Content</CardHeader>
+            <CardBody>
+              <Stack gap={6}>
+                <Text>Copy, CTA, speed, labels</Text>
+                <Text tone="secondary" size="small">
+                  Editor-facing. Safe for clients to tune.
+                </Text>
+              </Stack>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader>Style</CardHeader>
+            <CardBody>
+              <Stack gap={6}>
+                <Text>Palette, pattern, intensity</Text>
+                <Text tone="secondary" size="small">
+                  Brand skin without touching GLSL.
+                </Text>
+              </Stack>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader>Motion</CardHeader>
+            <CardBody>
+              <Stack gap={6}>
+                <Text>Mode, direction, scale</Text>
+                <Text tone="secondary" size="small">
+                  Animation catalog + spiral UV zoom.
+                </Text>
+              </Stack>
+            </CardBody>
+          </Card>
+        </Grid>
+      </Stack>
 
       <Divider />
 
@@ -133,48 +190,7 @@ export default function MaserDitherEngineCanvas() {
       <Divider />
 
       <Stack gap={12}>
-        <H2>Control layers</H2>
-        <Grid columns={3} gap={12}>
-          <Card>
-            <CardHeader>Content</CardHeader>
-            <CardBody>
-              <Stack gap={6}>
-                <Text>Copy, CTA, speed, labels</Text>
-                <Text tone="secondary" size="small">
-                  Editor-facing. Safe for clients to tune.
-                </Text>
-              </Stack>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardHeader>Style</CardHeader>
-            <CardBody>
-              <Stack gap={6}>
-                <Text>Palette, pattern, intensity</Text>
-                <Text tone="secondary" size="small">
-                  Brand skin without touching GLSL.
-                </Text>
-              </Stack>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardHeader>Motion</CardHeader>
-            <CardBody>
-              <Stack gap={6}>
-                <Text>Mode, direction, scale</Text>
-                <Text tone="secondary" size="small">
-                  Animation catalog + spiral UV zoom.
-                </Text>
-              </Stack>
-            </CardBody>
-          </Card>
-        </Grid>
-      </Stack>
-
-      <Divider />
-
-      <Stack gap={12}>
-        <H2>Shipped through v0.7.5</H2>
+        <H2>Shipped through v0.7.6</H2>
         <Table
           headers={["Sprint", "Outcome", "Status"]}
           rows={[
@@ -187,8 +203,20 @@ export default function MaserDitherEngineCanvas() {
               "Progress continuity · palette depth · loader · spiral scale · damp",
               "done",
             ],
+            [
+              "7.6",
+              "Black / White component base plate (first control + preview stage)",
+              "done",
+            ],
           ]}
-          rowTone={["success", "success", "success", "success", "success"]}
+          rowTone={[
+            "success",
+            "success",
+            "success",
+            "success",
+            "success",
+            "success",
+          ]}
           columnAlign={["left", "left", "center"]}
         />
       </Stack>
