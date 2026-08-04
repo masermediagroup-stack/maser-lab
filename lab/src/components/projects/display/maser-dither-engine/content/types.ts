@@ -42,6 +42,10 @@ export type ComponentContent = {
   cardSubtitle: string;
   cardDescription: string;
   cardButtonLabel: string;
+  /** Optional separate photo for the card CTA pill. Null = reuse card photo. */
+  cardCtaSourceUrl: string | null;
+  /** Light mix when CTA has its own photo. */
+  cardCtaLightMix: number;
   navBrand: string;
   navItems: string[];
   navActiveIndex: number;
@@ -99,6 +103,8 @@ export const DEFAULT_COMPONENT_CONTENT: ComponentContent = {
   cardSubtitle: "What's printing",
   cardDescription: "",
   cardButtonLabel: "Explore",
+  cardCtaSourceUrl: null,
+  cardCtaLightMix: 0.45,
   navBrand: "Maser",
   navItems: ["Overview", "Components", "Docs"],
   navActiveIndex: 0,

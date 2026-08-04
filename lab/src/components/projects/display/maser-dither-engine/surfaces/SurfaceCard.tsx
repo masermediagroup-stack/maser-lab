@@ -13,6 +13,7 @@ import { DEFAULT_COMPONENT_CONTENT } from "../content/types";
 /**
  * Featured editorial card — full-bleed dither media, inset frame,
  * bottom scrim + copy, dithered pill CTA.
+ * Media and CTA can use independent source photos.
  */
 export function SurfaceCard({
   title = "Fresh density",
@@ -29,6 +30,8 @@ export function SurfaceCard({
   material,
   sourceUrl,
   sourceLightMix,
+  ctaSourceUrl,
+  ctaSourceLightMix,
   reducedMotion = false,
   className,
   labelColor,
@@ -49,6 +52,15 @@ export function SurfaceCard({
     !labelColor || labelColor.toLowerCase() === "#ffffff"
       ? "#14110e"
       : labelColor;
+
+  const resolvedCtaUrl =
+    ctaSourceUrl !== undefined && ctaSourceUrl !== null
+      ? ctaSourceUrl
+      : sourceUrl;
+  const resolvedCtaMix =
+    ctaSourceUrl !== undefined && ctaSourceUrl !== null
+      ? (ctaSourceLightMix ?? sourceLightMix)
+      : sourceLightMix;
 
   return (
     <article
@@ -100,8 +112,8 @@ export function SurfaceCard({
                   light={light}
                   dither={dither}
                   material={material}
-                  sourceUrl={sourceUrl}
-                  sourceLightMix={sourceLightMix}
+                  sourceUrl={resolvedCtaUrl}
+                  sourceLightMix={resolvedCtaMix}
                   pointer={ctaPointer}
                   reducedMotion={reducedMotion}
                 />

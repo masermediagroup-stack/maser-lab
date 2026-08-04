@@ -350,6 +350,14 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Docs: `docs/sprint7-10-card-mobile-preview.md`
 - [x] Engine `0.7.10`
 
+### Sprint 7.11 — Card + CTA independent photos
+
+- [x] Content: `cardCtaSourceUrl` + `cardCtaLightMix`
+- [x] Content editor: “Card photo” + “CTA photo” upload fields
+- [x] SurfaceCard / DitherCard wire separate sources (CTA falls back to card photo)
+- [x] Docs: `docs/sprint7-11-card-cta-photos.md`
+- [x] Engine `0.7.11`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).

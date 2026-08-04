@@ -421,7 +421,31 @@ export function ContentEditor({
         onChange={onSourceChange}
         idPrefix={`${idPrefix}-source`}
         emphasize={componentId === "image-frame" || componentId === "avatar"}
+        label={componentId === "card" ? "Card photo" : "Source image"}
+        hint={
+          componentId === "card"
+            ? "Photo for the card media plane. The engine dithers luminance with your current material and lighting."
+            : undefined
+        }
       />
+      {componentId === "card" ? (
+        <SourceImageField
+          value={{
+            url: value.cardCtaSourceUrl,
+            lightMix: value.cardCtaLightMix,
+          }}
+          onChange={(next) =>
+            onChange({
+              ...value,
+              cardCtaSourceUrl: next.url,
+              cardCtaLightMix: next.lightMix,
+            })
+          }
+          idPrefix={`${idPrefix}-cta-source`}
+          label="CTA photo"
+          hint="Separate photo for the dithered button. Leave empty to reuse the card photo."
+        />
+      ) : null}
       {fields.map((field) => {
         if (field.kind === "text") {
           const current = String(value[field.key] ?? "");

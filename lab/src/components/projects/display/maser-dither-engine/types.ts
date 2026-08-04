@@ -106,8 +106,12 @@ export type SurfaceCardProps = {
   light?: Partial<LightShapeConfig>;
   dither?: Partial<DitherConfig>;
   material?: Partial<MaterialEngineConfig>;
+  /** Photo / luminance source for the card media plane. */
   sourceUrl?: string | null;
   sourceLightMix?: number;
+  /** Optional separate photo for the dithered CTA. Falls back to sourceUrl when null. */
+  ctaSourceUrl?: string | null;
+  ctaSourceLightMix?: number;
   reducedMotion?: boolean;
   className?: string;
   /** CTA label color on the dithered pill. */

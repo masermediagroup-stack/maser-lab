@@ -16,6 +16,12 @@ type SourceImageFieldProps = {
   onChange: (next: SourceImageValue) => void;
   idPrefix?: string;
   emphasize?: boolean;
+  /** Override the default “Source image” label. */
+  label?: string;
+  /** Override the default hint under the label. */
+  hint?: string;
+  /** When false, hide the light-mix slider (default true). */
+  showLightMix?: boolean;
 };
 
 /**
@@ -27,6 +33,9 @@ export function SourceImageField({
   onChange,
   idPrefix = "mde-source",
   emphasize = false,
+  label = "Source image",
+  hint = "Drag & drop or click to upload. The engine dithers luminance with your current algorithm, material, and lighting.",
+  showLightMix = true,
 }: SourceImageFieldProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -70,11 +79,8 @@ export function SourceImageField({
       )}
     >
       <div className="mde-field">
-        <Label htmlFor={inputId}>Source image</Label>
-        <p className="mde-source-field__hint">
-          Drag & drop or click to upload. The engine dithers luminance with your
-          current algorithm, material, and lighting.
-        </p>
+        <Label htmlFor={inputId}>{label}</Label>
+        <p className="mde-source-field__hint">{hint}</p>
         <div
           className={cn(
             "mde-source-field__drop",
@@ -123,25 +129,27 @@ export function SourceImageField({
           )}
         </div>
       </div>
-      <div className="mde-field">
-        <div className="mde-field__row">
-          <Label htmlFor={`${idPrefix}-light-mix`}>Light on image</Label>
-          <span>{value.lightMix.toFixed(2)}</span>
+      {showLightMix ? (
+        <div className="mde-field">
+          <div className="mde-field__row">
+            <Label htmlFor={`${idPrefix}-light-mix`}>Light on image</Label>
+            <span>{value.lightMix.toFixed(2)}</span>
+          </div>
+          <Slider
+            id={`${idPrefix}-light-mix`}
+            min={0}
+            max={1}
+            step={0.01}
+            value={[value.lightMix]}
+            disabled={!value.url}
+            onValueChange={(vals) => {
+              const next = Array.isArray(vals) ? vals[0] : vals;
+              if (typeof next !== "number") return;
+              onChange({ ...value, lightMix: next });
+            }}
+          />
         </div>
-        <Slider
-          id={`${idPrefix}-light-mix`}
-          min={0}
-          max={1}
-          step={0.01}
-          value={[value.lightMix]}
-          disabled={!value.url}
-          onValueChange={(vals) => {
-            const next = Array.isArray(vals) ? vals[0] : vals;
-            if (typeof next !== "number") return;
-            onChange({ ...value, lightMix: next });
-          }}
-        />
-      </div>
+      ) : null}
     </div>
   );
 }
