@@ -1065,9 +1065,6 @@ export function ComponentPlayground({
           onClose={() => setMobileTab("preview")}
         >
           <div className="mde-sheet__panels">
-            {mobileTab === "materials" ? (
-              <div className="mde-sheet__dock">{materialDock}</div>
-            ) : null}
             {mobileTab === "settings" ? (
               <div className="mde-sheet__search-block">
                 <CreativeExplore

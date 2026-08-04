@@ -312,6 +312,7 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Palette apply preserves base plate
 - [x] Docs: `docs/sprint7-6-base-plate.md` + canvas briefing update
 - [x] Engine `0.7.6`
+- [x] Mobile: hide Material Dock thumb strip in bottom sheet (use Material panel)
 
 ### Architecture notes
 
