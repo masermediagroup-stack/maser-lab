@@ -17,6 +17,9 @@ type Size = { w: number; h: number };
 /**
  * Scales children down (never up) so the full component + effect fits the stage.
  * Used by the mobile workspace where desktop-sized adapters would otherwise clip.
+ *
+ * Sets a definite max-width on the measure node so children sized with
+ * `width: min(100%, N)` / `width: 100%` don't shrink-wrap to ~0.
  */
 export function FitStage({ children, className }: FitStageProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -33,8 +36,16 @@ export function FitStage({ children, className }: FitStageProps) {
       const pad = 8;
       const ww = Math.max(0, wrap.clientWidth - pad * 2);
       const wh = Math.max(0, wrap.clientHeight - pad * 2);
-      const iw = measure.offsetWidth;
-      const ih = measure.offsetHeight;
+
+      /* Definite containing block for %-based children inside max-content */
+      if (ww > 0) {
+        measure.style.maxWidth = `${ww}px`;
+      } else {
+        measure.style.maxWidth = "";
+      }
+
+      const iw = Math.max(measure.offsetWidth, measure.scrollWidth);
+      const ih = Math.max(measure.offsetHeight, measure.scrollHeight);
       if (ww <= 0 || wh <= 0 || iw <= 0 || ih <= 0) {
         setScale(1);
         setSize({ w: iw, h: ih });
@@ -45,11 +56,18 @@ export function FitStage({ children, className }: FitStageProps) {
       setSize({ w: iw, h: ih });
     };
 
-    const ro = new ResizeObserver(update);
+    const ro = new ResizeObserver(() => {
+      update();
+    });
     ro.observe(wrap);
     ro.observe(measure);
     update();
-    return () => ro.disconnect();
+    /* Second pass after WebGL/layout settles (card canvases, images) */
+    const raf = requestAnimationFrame(() => update());
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
   }, []);
 
   const slotW = size.w > 0 ? size.w * scale : undefined;

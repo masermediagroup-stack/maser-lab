@@ -31,9 +31,9 @@ export default function MaserDitherEngineCanvas() {
           where it ships today, and where it can go next.
         </Text>
         <Row gap={8} wrap>
-          <Pill active>v0.7.9</Pill>
+          <Pill active>v0.7.10</Pill>
           <Pill>WebGL 1</Pill>
-          <Pill>Mobile fullscreen fix</Pill>
+          <Pill>Card mobile preview</Pill>
           <Pill>Stable progress clip</Pill>
         </Row>
       </Stack>
@@ -190,7 +190,7 @@ export default function MaserDitherEngineCanvas() {
       <Divider />
 
       <Stack gap={12}>
-        <H2>Shipped through v0.7.9</H2>
+        <H2>Shipped through v0.7.10</H2>
         <Table
           headers={["Sprint", "Outcome", "Status"]}
           rows={[
@@ -223,8 +223,14 @@ export default function MaserDitherEngineCanvas() {
               "Mobile FS shell · avatar size · progress clip-path (no GL flash)",
               "done",
             ],
+            [
+              "7.10",
+              "Card visible in mobile Preview (vw size · FitStage measure)",
+              "done",
+            ],
           ]}
           rowTone={[
+            "success",
             "success",
             "success",
             "success",

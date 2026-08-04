@@ -3080,8 +3080,9 @@ html.mde-fs-open body {
     right: 0.4rem;
   }
 
-  /* Contain wide adapters — compact chrome keeps intrinsic width */
-  .mde-playground--mobile .mse-card,
+  /* Contain wide adapters — compact chrome keeps intrinsic width.
+   * Featured card is excluded: width:100% inside FitStage (max-content)
+   * collapses % to ~0 and the card vanishes until fullscreen. */
   .mde-playground--mobile .mde-adapter--nav,
   .mde-playground--mobile .mde-adapter--scrollbar,
   .mde-playground--mobile .mde-adapter--progress,
@@ -3116,8 +3117,12 @@ html.mde-fs-open body {
     gap: 0.45rem;
   }
 
+  /* Viewport units — definite size for FitStage measure (no % shrink-wrap) */
+  .mde-playground--mobile .mse-card,
   .mde-playground--mobile .mse-card--featured {
-    width: min(100%, 300px);
+    width: min(72vw, 280px) !important;
+    max-width: min(72vw, 280px) !important;
+    box-sizing: border-box;
   }
 
   .mde-playground--mobile .mse-card--featured .mse-card__media {

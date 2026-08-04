@@ -342,6 +342,14 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Docs: `docs/sprint7-9-fullscreen-progress.md`
 - [x] Engine `0.7.9`
 
+### Sprint 7.10 — Card visible in mobile preview
+
+- [x] Featured card no longer uses `width:100%` inside FitStage (collapsed to a dot)
+- [x] Mobile card sized with viewport units (`min(72vw, 280px)`)
+- [x] FitStage sets definite max-width on measure + post-layout remeasure
+- [x] Docs: `docs/sprint7-10-card-mobile-preview.md`
+- [x] Engine `0.7.10`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).
