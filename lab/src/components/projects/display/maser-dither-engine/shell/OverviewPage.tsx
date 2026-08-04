@@ -9,28 +9,11 @@ import {
 import { MaterialCatalog } from "../materials/catalog";
 import { PresetCatalog } from "../presets/catalog";
 import type { AppRoute, ComponentId } from "../types";
-import { cn } from "@/lib/utils";
 
 type OverviewPageProps = {
   onOpenComponent: (id: ComponentId) => void;
   onNavigate: (route: AppRoute) => void;
 };
-
-/** Lightweight CSS thumb — avoids N WebGL contexts on the overview grid. */
-function DitherThumb({ seed }: { seed: number }) {
-  return (
-    <div
-      className="mde-thumb"
-      style={{
-        backgroundImage: `
-          radial-gradient(circle at ${20 + seed * 50}% ${30 + seed * 40}%, #f2f2f0 0%, transparent 42%),
-          linear-gradient(${120 + seed * 80}deg, #0a0a0a, #2a2a2a 45%, #cfcfc8)
-        `,
-      }}
-      aria-hidden
-    />
-  );
-}
 
 export function OverviewPage({
   onOpenComponent,
@@ -86,26 +69,21 @@ export function OverviewPage({
       <section className="mde-overview__grid-wrap">
         <div className="mde-overview__grid-head">
           <h2>Component demos</h2>
-          <p>Each card opens its own playground — shared engine, dedicated page.</p>
+          <p>Each item opens its own playground — shared engine, dedicated page.</p>
         </div>
-        <div className="mde-overview__grid">
-          {components.map((c, i) => (
+        <div className="mde-list mde-overview__list">
+          {components.map((c) => (
             <button
               key={c.id}
               type="button"
-              className={cn("mde-comp-card")}
+              className="mde-list__item mde-list__item--button"
               onClick={() => onOpenComponent(c.id)}
             >
-              <div className="mde-comp-card__preview">
-                <DitherThumb seed={(i + 1) / components.length} />
+              <div className="mde-comp-card__row">
+                <h3>{c.label}</h3>
+                <span className="mde-pill">{c.status}</span>
               </div>
-              <div className="mde-comp-card__meta">
-                <div className="mde-comp-card__row">
-                  <h3>{c.label}</h3>
-                  <span className="mde-pill">{c.status}</span>
-                </div>
-                <p>{c.description}</p>
-              </div>
+              <p>{c.description}</p>
             </button>
           ))}
         </div>

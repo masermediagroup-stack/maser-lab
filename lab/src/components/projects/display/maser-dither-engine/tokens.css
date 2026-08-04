@@ -322,10 +322,15 @@
 }
 
 .mde-comp-card__meta h3,
-.mde-list__item h2 {
+.mde-list__item h2,
+.mde-list__item h3 {
   margin: 0;
   font-size: 0.98rem;
   letter-spacing: -0.02em;
+}
+
+.mde-overview__list {
+  margin-top: 0;
 }
 
 .mde-comp-card__meta p,
