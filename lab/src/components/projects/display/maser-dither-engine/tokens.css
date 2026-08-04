@@ -506,12 +506,32 @@
 
 .mde-playground__fullscreen-close {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 2;
+  top: max(0.65rem, env(safe-area-inset-top, 0px));
+  right: max(0.65rem, env(safe-area-inset-right, 0px));
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
   border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, #fff 28%, transparent);
   color: #ffffff;
-  background: transparent;
+  background: color-mix(in oklab, #000 55%, transparent);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mde-playground__fullscreen-close:hover,
+.mde-playground__fullscreen-close:focus-visible {
+  background: color-mix(in oklab, #000 72%, transparent);
+  outline: none;
+}
+
+.mde-playground__fullscreen-close-icon {
+  width: 0.95rem;
+  height: 0.95rem;
 }
 
 .mde-playground__preview-stage {
@@ -522,10 +542,18 @@
   min-height: 280px;
 }
 
+.mde-playground__preview--fs-placeholder {
+  /* Stage keeps layout while the real overlay is portaled to body */
+  min-height: 280px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .mde-playground__preview--fullscreen {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: 200;
+  width: 100vw;
   min-height: 100dvh;
   max-height: none;
   border-radius: 0;
@@ -533,6 +561,37 @@
   padding: 0;
   background: #000000;
   place-items: stretch;
+  /* Cover lab chrome / mobile topbar / bottom nav on every viewport */
+  margin: 0;
+}
+
+html.mde-fs-open,
+html.mde-fs-open body {
+  overflow: hidden !important;
+}
+
+/* Hide editor chrome under the portaled fullscreen layer */
+.mde-playground--is-fullscreen .mde-mobile-topbar,
+.mde-playground--is-fullscreen .mde-mobile-nav,
+.mde-playground--is-fullscreen .mde-sheet,
+.mde-playground--is-fullscreen .mde-playground__header,
+.mde-playground--is-fullscreen .mde-playground__studio-bar,
+.mde-playground--is-fullscreen .mde-playground__panel {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mde-app:has(.mde-playground--is-fullscreen) .mde-app__chrome,
+.mde-app:has(.mde-playground--is-fullscreen) .mde-sidebar {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mde-playground__preview--fullscreen.mde-playground__preview--base-white
+  .mde-playground__fullscreen-close {
+  color: #111111;
+  border-color: color-mix(in oklab, #000 18%, transparent);
+  background: color-mix(in oklab, #fff 82%, transparent);
 }
 
 .mde-playground__preview--fullscreen .mde-playground__preview-stage {

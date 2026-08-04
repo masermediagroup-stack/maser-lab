@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { Maximize2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -667,6 +668,8 @@ export function ComponentPlayground({
   useEffect(() => {
     if (!isFullscreen) return;
     const previousOverflow = document.body.style.overflow;
+    const root = document.documentElement;
+    root.classList.add("mde-fs-open");
     document.body.style.overflow = "hidden";
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -677,6 +680,7 @@ export function ComponentPlayground({
     window.addEventListener("keydown", onKeyDown);
     closeFullscreenButtonRef.current?.focus();
     return () => {
+      root.classList.remove("mde-fs-open");
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
@@ -890,59 +894,82 @@ export function ComponentPlayground({
 
   const basePlate = resolveBasePlate(color.colors.background);
 
-  const previewFrame = (
-    <div
-      className={cn(
-        "mde-playground__preview",
-        `mde-playground__preview--base-${basePlate}`,
-        isNarrow && "mde-playground__preview--mobile-fit",
-        isFullscreen && "mde-playground__preview--fullscreen",
-      )}
-      data-base-plate={basePlate}
-      role={isFullscreen ? "dialog" : undefined}
-      aria-modal={isFullscreen ? true : undefined}
-      aria-label={
-        isFullscreen ? `${definition.label} fullscreen preview` : undefined
-      }
-    >
-      {isFullscreen ? (
-        <Button
-          ref={closeFullscreenButtonRef}
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          className="mde-playground__fullscreen-close text-white hover:bg-white/10 hover:text-white"
-          onClick={() => setIsFullscreen(false)}
-          aria-label="Close fullscreen preview"
-        >
-          <X className="size-5" />
-        </Button>
+  const previewStage = (
+    <div className="mde-playground__preview-stage">
+      {isNarrow && !isFullscreen ? (
+        <FitStage>{previewBody}</FitStage>
       ) : (
-        <div className="mde-playground__preview-toolbar">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mde-playground__fullscreen-btn border-white/15 bg-black/70 text-white hover:bg-white/10 hover:text-white"
-            onClick={() => {
-              setMobileTab("preview");
-              setIsFullscreen(true);
-            }}
-            aria-label="Enter fullscreen preview"
-          >
-            <Maximize2 className="size-4" />
-            <span className="mde-playground__fullscreen-label">Fullscreen</span>
-          </Button>
-        </div>
+        previewBody
       )}
-      <div className="mde-playground__preview-stage">
-        {isNarrow && !isFullscreen ? (
-          <FitStage>{previewBody}</FitStage>
-        ) : (
-          previewBody
-        )}
-      </div>
     </div>
+  );
+
+  const enterFullscreen = () => {
+    setMobileTab("preview");
+    setIsFullscreen(true);
+  };
+
+  const exitFullscreen = () => setIsFullscreen(false);
+
+  const fullscreenOverlay =
+    isFullscreen && typeof document !== "undefined"
+      ? createPortal(
+          <div
+            className={cn(
+              "mde-playground__preview",
+              "mde-playground__preview--fullscreen",
+              `mde-playground__preview--base-${basePlate}`,
+            )}
+            data-base-plate={basePlate}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${definition.label} fullscreen preview`}
+          >
+            <button
+              ref={closeFullscreenButtonRef}
+              type="button"
+              className="mde-playground__fullscreen-close"
+              onClick={exitFullscreen}
+              aria-label="Exit fullscreen"
+            >
+              <X aria-hidden className="mde-playground__fullscreen-close-icon" />
+            </button>
+            {previewStage}
+          </div>,
+          document.body,
+        )
+      : null;
+
+  const previewFrame = (
+    <>
+      <div
+        className={cn(
+          "mde-playground__preview",
+          `mde-playground__preview--base-${basePlate}`,
+          isNarrow && "mde-playground__preview--mobile-fit",
+          isFullscreen && "mde-playground__preview--fs-placeholder",
+        )}
+        data-base-plate={basePlate}
+      >
+        {!isFullscreen ? (
+          <div className="mde-playground__preview-toolbar">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mde-playground__fullscreen-btn border-white/15 bg-black/70 text-white hover:bg-white/10 hover:text-white"
+              onClick={enterFullscreen}
+              aria-label="Enter fullscreen preview"
+            >
+              <Maximize2 className="size-4" />
+              <span className="mde-playground__fullscreen-label">Fullscreen</span>
+            </Button>
+          </div>
+        ) : null}
+        {!isFullscreen ? previewStage : null}
+      </div>
+      {fullscreenOverlay}
+    </>
   );
 
   const materialDock = (
@@ -1001,6 +1028,7 @@ export function ComponentPlayground({
           "mde-playground--mobile",
           presentation && "mde-playground--presentation",
           sheetOpen && "mde-playground--sheet-open",
+          isFullscreen && "mde-playground--is-fullscreen",
         )}
       >
         <header className="mde-mobile-topbar">
@@ -1197,6 +1225,7 @@ export function ComponentPlayground({
       className={cn(
         "mde-playground",
         presentation && "mde-playground--presentation",
+        isFullscreen && "mde-playground--is-fullscreen",
       )}
     >
       <header className="mde-playground__header">
