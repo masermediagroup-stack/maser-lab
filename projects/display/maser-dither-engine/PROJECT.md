@@ -333,6 +333,15 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Docs: `docs/sprint7-8-featured-card.md`
 - [x] Engine `0.7.8`
 
+### Sprint 7.9 — Mobile fullscreen + progress stability
+
+- [x] Fullscreen wraps adapters in definite-width `fs-canvas` (no % shrink-wrap collapse)
+- [x] Avatar no longer hit by `width:auto !important` (keeps authored px size)
+- [x] Nav / input / scrollbar / progress readable widths in mobile fullscreen
+- [x] Progress fill uses `clip-path` (stable GL canvas — no resize flash on speed-up)
+- [x] Docs: `docs/sprint7-9-fullscreen-progress.md`
+- [x] Engine `0.7.9`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).

@@ -31,10 +31,10 @@ export default function MaserDitherEngineCanvas() {
           where it ships today, and where it can go next.
         </Text>
         <Row gap={8} wrap>
-          <Pill active>v0.7.8</Pill>
+          <Pill active>v0.7.9</Pill>
           <Pill>WebGL 1</Pill>
-          <Pill>Featured dither card</Pill>
-          <Pill>Solid overlay text</Pill>
+          <Pill>Mobile fullscreen fix</Pill>
+          <Pill>Stable progress clip</Pill>
         </Row>
       </Stack>
 
@@ -190,7 +190,7 @@ export default function MaserDitherEngineCanvas() {
       <Divider />
 
       <Stack gap={12}>
-        <H2>Shipped through v0.7.8</H2>
+        <H2>Shipped through v0.7.9</H2>
         <Table
           headers={["Sprint", "Outcome", "Status"]}
           rows={[
@@ -218,8 +218,14 @@ export default function MaserDitherEngineCanvas() {
               "Featured card · inset frame · scrim copy · dithered pill CTA",
               "done",
             ],
+            [
+              "7.9",
+              "Mobile FS shell · avatar size · progress clip-path (no GL flash)",
+              "done",
+            ],
           ]}
           rowTone={[
+            "success",
             "success",
             "success",
             "success",

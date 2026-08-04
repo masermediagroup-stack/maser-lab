@@ -9,9 +9,16 @@ import {
 } from "../../content/types";
 import { cn } from "@/lib/utils";
 
+function setFillProgress(el: HTMLDivElement, pct: number) {
+  const clamped = Math.min(100, Math.max(0, pct));
+  /* Full-width canvas + clip — never animate width (avoids GL resize flash). */
+  el.style.clipPath = `inset(0 ${100 - clamped}% 0 0)`;
+}
+
 /**
  * Progress bar — manual value or auto 0→100 loop (DOM-driven, no React thrash).
  * Speed changes update rate only — phase is continuous so the fill never flashes away.
+ * Fill uses clip-path so the dither canvas keeps a stable size while progress moves.
  */
 export function DitherProgressBar({
   params,
@@ -50,7 +57,7 @@ export function DitherProgressBar({
     if (!auto) {
       lastTsRef.current = null;
       phaseRef.current = manual / 100;
-      fill.style.width = `${manual}%`;
+      setFillProgress(fill, manual);
       if (label) label.textContent = `${Math.round(manual)}%`;
       return;
     }
@@ -58,18 +65,20 @@ export function DitherProgressBar({
     let raf = 0;
     const tick = (now: number) => {
       const last = lastTsRef.current ?? now;
+      /* Cap dt so tab-blur / long frames don't jump a full cycle */
       const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
       lastTsRef.current = now;
       // cyclesPerSec from speedRef — changing speed never resets phase
       phaseRef.current = (phaseRef.current + dt * speedRef.current) % 1;
       const pct = phaseRef.current * 100;
-      fill.style.width = `${pct}%`;
+      setFillProgress(fill, pct);
       if (label) label.textContent = `${Math.round(pct)}%`;
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
+      /* Keep lastTs so a remount from unrelated deps doesn't spike dt */
       lastTsRef.current = null;
     };
   }, [auto, manual]);

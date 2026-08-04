@@ -896,7 +896,14 @@ export function ComponentPlayground({
 
   const previewStage = (
     <div className="mde-playground__preview-stage">
-      {isNarrow && !isFullscreen ? (
+      {isFullscreen ? (
+        <div
+          className="mde-playground__fs-canvas"
+          data-component={componentId}
+        >
+          {previewBody}
+        </div>
+      ) : isNarrow ? (
         <FitStage>{previewBody}</FitStage>
       ) : (
         previewBody

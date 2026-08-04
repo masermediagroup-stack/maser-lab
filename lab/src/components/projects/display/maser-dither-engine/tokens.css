@@ -604,26 +604,77 @@ html.mde-fs-open body {
 }
 
 /*
- * Fullscreen must NOT force a shared width on .mde-adapter.
- * Compact chrome (button, badge, avatar, …) sizes to content in the
- * normal preview; a blanket width stretched them into long pills.
- * Let each adapter keep its authored dimensions and only center it.
+ * Definite containing block for fullscreen adapters.
+ * place-items:center alone makes % widths shrink-wrap to ~0.
  */
-.mde-playground__preview--fullscreen .mse-card,
-.mde-playground__preview--fullscreen .mde-adapter {
+.mde-playground__fs-canvas {
+  width: min(92vw, 480px);
   max-width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.mde-playground__fs-canvas > .mde-adapter--progress,
+.mde-playground__fs-canvas > .mde-adapter--input,
+.mde-playground__fs-canvas > .mde-adapter--nav,
+.mde-playground__fs-canvas > .mde-adapter--scrollbar,
+.mde-playground__fs-canvas > .mde-adapter--section,
+.mde-playground__fs-canvas > .mde-adapter--hero,
+.mde-playground__fs-canvas > .mde-adapter--frame,
+.mde-playground__fs-canvas > .mde-compare {
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: calc(100dvh - 5rem);
+  box-sizing: border-box;
+}
+
+.mde-playground__fs-canvas > .mse-card,
+.mde-playground__fs-canvas > .mse-card--featured {
+  width: min(100%, 340px) !important;
+  max-width: 100% !important;
   max-height: calc(100dvh - 5rem);
 }
 
-/* Kill mobile width:100% stretch for compact chrome in fullscreen */
-.mde-playground__preview--fullscreen .mde-adapter--button,
-.mde-playground__preview--fullscreen .mde-adapter--badge,
-.mde-playground__preview--fullscreen .mde-adapter--avatar,
-.mde-playground__preview--fullscreen .mde-adapter--loader {
-  width: auto !important;
-  max-width: max-content !important;
-  justify-self: center;
+.mde-playground__fs-canvas > .mde-adapter--button,
+.mde-playground__fs-canvas > .mde-adapter--badge,
+.mde-playground__fs-canvas > .mde-adapter--loader {
+  width: auto;
+  max-width: 100%;
   align-self: center;
+  flex-shrink: 0;
+}
+
+/* Avatar: keep authored px size — never width:auto !important */
+.mde-playground__fs-canvas > .mde-adapter--avatar {
+  width: auto;
+  max-width: none;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.mde-playground__preview--fullscreen .mde-adapter--nav {
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.mde-playground__preview--fullscreen .mde-adapter-nav__links {
+  margin-left: 0;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.mde-playground__preview--fullscreen .mde-adapter-scrollbar__pane {
+  max-height: min(42dvh, 280px);
+  min-height: min(36dvh, 200px);
+}
+
+.mde-playground__preview--fullscreen .mde-adapter-scrollbar__track {
+  min-height: min(36dvh, 200px);
 }
 
 .mde-playground__preview--fullscreen .mde-adapter--button,
@@ -1591,11 +1642,17 @@ html.mde-fs-open body {
   overflow: hidden;
 }
 
+/*
+ * Fill stays full track width; progress is clip-path only.
+ * Animating width resized the WebGL canvas every frame and flashed black.
+ */
 .mde-adapter-progress__fill {
   height: 100%;
+  width: 100%;
   overflow: hidden;
-  width: 0%;
-  min-width: 0;
+  transform-origin: left center;
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
 }
 
 .mde-adapter-progress__value {
