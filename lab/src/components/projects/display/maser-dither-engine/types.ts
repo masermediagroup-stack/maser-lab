@@ -194,6 +194,10 @@ export type AppRoute =
   | { view: "presets" }
   | { view: "projects" }
   | { view: "playground" }
+  | { view: "export" }
+  | { view: "present" }
+  | { view: "scene"; payload?: string }
+  | { view: "transfer-fixtures" }
   | { view: "docs"; topic?: string };
 
 export type WorkspaceMode = "beginner" | "advanced" | "presentation" | "debug";

@@ -1,34 +1,51 @@
 import { ENGINE_NAME, ENGINE_VERSION } from "../constants";
 import type { ComponentDefinition, MonochromeParams } from "../types";
+import {
+  buildRuntimeConfig,
+  generateReactComponentCode,
+} from "../export";
+import { MONOCHROME_DEFAULTS } from "../constants";
+import { DEFAULT_COMPONENT_CONTENT } from "../content/types";
+import { DEFAULT_ANIMATION_CONFIG } from "../engine/animation";
+import { DEFAULT_COLOR_MATERIAL } from "../engine/color";
+import { DEFAULT_DITHER_CONFIG } from "../engine/dither";
+import { DEFAULT_INTERACTION_CONFIG } from "../engine/interaction";
+import { DEFAULT_LIGHT_SHAPE } from "../engine/lighting";
+import { DEFAULT_MATERIAL_CONFIG } from "../engine/material";
 
+/**
+ * @deprecated Prefer export/generateReactComponentCode with a full runtime config.
+ * Kept for callers that only have MonochromeParams — wraps defaults for other domains.
+ */
 export function generateExportCode(
   component: ComponentDefinition,
   params: MonochromeParams,
 ): string {
-  const adapterName = component.label.replace(/\s+/g, "");
-  return `import { SurfaceCanvas, createMonochromeMaterial } from "@/components/projects/display/maser-dither-engine";
-
-// ${ENGINE_NAME} v${ENGINE_VERSION} — ${component.label}
-const params = createMonochromeMaterial(${JSON.stringify(params, null, 2)});
-
-export function Example() {
-  return (
-    <SurfaceCanvas
-      params={params}
-      aria-label="${component.label} dither surface"
-    />
-  );
-}
-
-// Adapter: ${adapterName} consumes the same shared engine — never duplicate shaders.
-`;
+  const runtime = buildRuntimeConfig({
+    componentId: component.id,
+    params: { ...MONOCHROME_DEFAULTS, ...params },
+    animation: { ...DEFAULT_ANIMATION_CONFIG },
+    interaction: { ...DEFAULT_INTERACTION_CONFIG },
+    color: { ...DEFAULT_COLOR_MATERIAL },
+    light: { ...DEFAULT_LIGHT_SHAPE },
+    dither: {
+      ...DEFAULT_DITHER_CONFIG,
+      matrixSize: params.ditherSize ?? DEFAULT_DITHER_CONFIG.matrixSize,
+    },
+    material: { ...DEFAULT_MATERIAL_CONFIG },
+    content: { ...DEFAULT_COMPONENT_CONTENT },
+    sourceUrl: null,
+    sourceLightMix: 0.45,
+    basePresetId: component.defaultPresetId || "custom",
+  });
+  return generateReactComponentCode(runtime, "shared-runtime", "minimal");
 }
 
 export const DOCS_TOPICS = [
   {
     id: "architecture",
     title: "Architecture",
-    body: `The Maser Dither Engine separates a shared WebGL2/Canvas2D renderer from UI adapters. Components never own shaders — they pass MonochromeParams into SurfaceCanvas. This module is the reference layout for future engines (Glass, Grain, Liquid, CRT, …).`,
+    body: `The Maser Dither Engine separates a shared WebGL2/Canvas2D renderer from UI adapters. Components never own shaders — they pass configs into SurfaceCanvas. Sprint 8 adds a portable export/ schema and runtime.ts barrel so transfers never include Lab shell chrome.`,
   },
   {
     id: "animation",
@@ -58,7 +75,7 @@ export const DOCS_TOPICS = [
   {
     id: "source-image",
     title: "Source Image Dither",
-    body: `Upload any photo from Content → Source image, or in-frame on Image Frame / Avatar (image mode): drag/drop, click upload, replace, remove. SurfaceCanvas loads texture unit 6 (uSource). Aspect ratios (1:1, 4:3, 3:2, 16:9, 9:16, 21:9, custom) and fit (cover/contain/fill) update live via content. Overlay mode composites material above or behind the photo. Light on image (uSourceLightMix) blends pure photo luminance with light-modulated luminance. Blob URLs are revoked on replace; project saves drop blob sources (persist as data URL / IndexedDB planned).`,
+    body: `Upload any photo from Content → Source image, or in-frame on Image Frame / Avatar (image mode): drag/drop, click upload, replace, remove. SurfaceCanvas loads texture unit 6 (uSource). Aspect ratios (1:1, 4:3, 3:2, 16:9, 9:16, 21:9, custom) and fit (cover/contain/fill) update live via content. Overlay mode composites material above or behind the photo. Light on image (uSourceLightMix) blends pure photo luminance with light-modulated luminance. Blob URLs are revoked on replace; exports strip blob sources (Reference / Include / Placeholder / Base64 strategies in Sprint 8 Export).`,
   },
   {
     id: "content-editing",
@@ -71,23 +88,28 @@ export const DOCS_TOPICS = [
     body: `Use createEngineParams / splitConfig / mergeConfig from engine/api.ts to group Material, Animation, Lighting, Colors, Interaction, Noise, and Dither. UniformStore + AnimationLoop damp material targets on rAF without React setState thrash. Pointer position is owned by InteractionController (not damp keys). ColorMaterialController owns palette/gradient uniforms. Timeline transport: play/pause/restart/reverse/loop/ping-pong/playbackSpeed/timeScale. Dither sizes: 2×2, 4×4, 8×8, 32×32, 64×64.`,
   },
   {
+    id: "export-transfer",
+    title: "Export & Transfer (Sprint 8)",
+    body: `${ENGINE_NAME} v${ENGINE_VERSION} ships schema 2.0.0 exports under export/: project files (.maser-dither.json), presets, runtime TS/JS/JSON, React components (shared-runtime vs standalone), component packages (ZIP via fflate), CSS tokens, shader snapshots, shareable scenes (#/scene — local-first), and component-specific TRANSFER.md. Runtime barrel is runtime.ts / product index.ts — shell stays in index.lab.ts. Import migrates v1 snapshots. Transfer fixtures: #/transfer-fixtures.`,
+  },
+  {
     id: "accessibility",
     title: "Accessibility",
-    body: `Honor prefers-reduced-motion (demo toggle + OS). Surfaces expose aria-labels; interactive adapters use native controls. Reduced motion pauses the animation timeline, disables interaction physics/lights motion, and freezes gradient behaviors. Material never replaces text contrast requirements.`,
+    body: `Honor prefers-reduced-motion (demo toggle + OS). Surfaces expose aria-labels; interactive adapters use native controls. Reduced motion pauses the animation timeline, disables interaction physics/lights motion, and freezes gradient behaviors. Material never replaces text contrast requirements. Exports stamp accessibility.reducedMotionPolicy.`,
   },
   {
     id: "performance",
     title: "Performance",
-    body: `DPR clamped to 2. Prefer pausing offscreen surfaces. Discrete dither size + seed snap avoid texture rebuild thrash. Animation + interaction + color uniforms update each frame without React re-renders. Object reuse in InteractionController (ripples, trail, light pack). Canvas2D fallback approximates color + motion when WebGL2 is unavailable. Target 120 FPS desktop / 60 FPS mobile.`,
+    body: `DPR clamped to 2. Prefer pausing offscreen surfaces. Discrete dither size + seed snap avoid texture rebuild thrash. Animation + interaction + color uniforms update each frame without React re-renders. Object reuse in InteractionController (ripples, trail, light pack). Canvas2D fallback approximates color + motion when WebGL2 is unavailable. Target 120 FPS desktop / 60 FPS mobile. Export codegen is debounced and never runs on rAF.`,
   },
   {
     id: "future-engines",
     title: "Future Engines",
-    body: `Follow this package shape: engine/ (immutable renderer), materials/, components/adapters/, presets/, shell/, docs/, projects/. New engines should mirror catalogs + playground routing. Animation, interaction, color, dither, and material modes extend by appending to their catalogs + GLSL branches — no giant UI switches. Sprint 8 candidates: cloud sync/share links, live dock thumbnails without extra WebGL contexts, timeline history UI, StudioSlider everywhere, component inspector dock targets.`,
+    body: `Follow this package shape: engine/ (immutable renderer), materials/, components/adapters/, presets/, shell/, export/, docs/, projects/. New engines should mirror catalogs + playground routing. Animation, interaction, color, dither, and material modes extend by appending to their catalogs + GLSL branches — no giant UI switches. Sprint 8.1 candidates: cloud sync, IndexedDB uploads, visual regression matrix.`,
   },
   {
     id: "preset-studio",
     title: "Preset Studio & Projects (Sprint 7)",
-    body: `Preset Studio (#/projects) separates immutable System Presets from editable User Projects. Snapshots capture animation, lighting, palette, material, dither, interaction, content, and sliders (schema v1). Save / Save As never overwrite system rows — they fork. Autosave writes only user projects to localStorage (mde:projects:v1). Thumbnails are JPEG captures from the live stage canvas. Playground adds Material Dock, Quick Actions, undo/redo, control search, workspace modes, and a mobile bottom nav + bottom sheet editor. See docs/sprint7-workspace.md. Sprint 7.2 stabilization: monochrome editor chrome, repaired Scrollbar/Avatar/Image Frame, animation composition gain, full color editors — docs/sprint7-2-stabilization.md.`,
+    body: `Preset Studio (#/projects) separates immutable System Presets from editable User Projects. Snapshots capture animation, lighting, palette, material, dither, interaction, content, and sliders (schema v1 → migrate to export 2.0.0). Save / Save As never overwrite system rows — they fork. Autosave writes only user projects to localStorage (mde:projects:v1). Thumbnails are JPEG captures from the live stage canvas. Playground adds Material Dock, Quick Actions, undo/redo, control search, workspace modes, and a mobile bottom nav + bottom sheet editor. See docs/sprint7-workspace.md.`,
   },
 ] as const;

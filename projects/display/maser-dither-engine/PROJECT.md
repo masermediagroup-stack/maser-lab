@@ -374,20 +374,41 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Docs: `docs/sprint7-13-cta-photo-independence.md`
 - [x] Engine `0.7.13`
 
+### Sprint 8.0 — Production Export, Packaging & Transfer
+
+- [x] Canonical export schema `2.0.0` (`export/`) evolved from `ProjectSnapshot`
+- [x] Soft runtime/editor boundary: `runtime.ts` + product `index.ts` (no shell); `index.lab.ts` for demos
+- [x] ESLint `no-dither-runtime-shell-imports` + Vitest import-graph checks
+- [x] v1 → 2.0.0 migrate; new saves stamp schema 2; nested CTA `blob:` strip
+- [x] Nine export modes + validation Ready/Warning/Blocked
+- [x] Export workspace UI (`#/export`) with debounced codegen; mobile sheet layout
+- [x] Component package ZIP (`fflate`), shareable scene (`#/scene`), presentation (`#/present`)
+- [x] Export history (metadata in localStorage)
+- [x] Transfer fixtures without shell (`#/transfer-fixtures`: Card / Button / Image Frame)
+- [x] Docs: `docs/sprint8-export.md`, updated `TRANSFER.md`
+- [x] Vitest round-trips; `npm run lint` / `npm run build` / `npm run test` pass
+- [x] Engine `0.8.0`
+
 ### Architecture notes
 
-`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).
+`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps). Sprint 8 adds `export/` (schema/migrate/validate/codegen/package) and splits product vs lab barrels — no physical `engine/` folder move.
 
-### Sprint 8 recommendations
+### Sprint 8.1 candidates
+
+- Cloud sync / real share backend
+- IndexedDB upload persistence by default
+- Visual regression matrix
+- Deeper standalone npm package publish
+- Canvas2D algorithm parity for all dither algorithms
+
+### Sprint 8 recommendations (deferred / adjacent)
 
 - Persist uploads (data URL / IndexedDB) across project save
 - Continuous FBO thumb refresh without JPEG churn
-- Cloud sync / share links for project JSON
 - Live Material Dock continuous animation (still one context)
 - Timeline snapshots / version history UI
 - Wire StudioSlider across every panel by default
 - Component inspector sheet (padding / radius / content) as first-class dock target
-- Visual regression suite for algorithms × materials × animations
 - Deeper frosted/clear glass variants with background sampling when available
 - Ceramic / newsprint / brushed aluminum as first-class IDs beyond presets
 

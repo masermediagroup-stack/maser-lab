@@ -19,7 +19,13 @@ import {
   loadPanelState,
   savePanelState,
 } from "../lib/persistence";
-import { generateExportCode } from "../docs/content";
+import {
+  buildCssVariables,
+  buildRuntimeConfig,
+  createExportDoc,
+  generateProjectFile,
+  generateReactComponentCode,
+} from "../export";
 import { adapters, ComponentCatalog } from "../components/registry";
 import { presetsForComponent, getPresetById } from "../presets/catalog";
 import { createMonochromeMaterial } from "../engine/materials/MonochromeMaterial";
@@ -694,21 +700,72 @@ export function ComponentPlayground({
     });
   };
 
-  const exportCode = generateExportCode(definition, params);
+  const exportRuntime = useMemo(
+    () =>
+      buildRuntimeConfig({
+        componentId,
+        params,
+        animation,
+        interaction,
+        color,
+        light,
+        dither,
+        material,
+        content,
+        sourceUrl: source.url,
+        sourceLightMix: source.lightMix,
+        basePresetId: presetId,
+      }),
+    [
+      componentId,
+      params,
+      animation,
+      interaction,
+      color,
+      light,
+      dither,
+      material,
+      content,
+      source.url,
+      source.lightMix,
+      presetId,
+    ],
+  );
+
+  const activeProject =
+    activeProjectId && library
+      ? getProject(library, activeProjectId)
+      : undefined;
+
+  const exportCode = generateReactComponentCode(
+    exportRuntime,
+    "shared-runtime",
+    "minimal",
+  );
 
   const exportProjectBundle = () => {
     const snapshot = buildSnapshot();
-    const payload = {
-      kind: "mde-project",
-      version: 1,
-      name: definition.label,
-      snapshot,
-      reactConfig: exportCode,
-      cssVariables: {
-        "--mde-contrast": String(params.contrast),
-        "--mde-brightness": String(params.brightness),
-        "--mde-bloom": String(params.bloom),
+    const doc = createExportDoc({
+      kind: "project",
+      runtime: exportRuntime,
+      project: {
+        name: activeProject?.name || definition.label,
+        description: activeProject?.description || "",
+        notes: activeProject?.notes || "",
+        tags: activeProject?.tags || [],
+        colorLabel: activeProject?.colorLabel || "none",
+        favorite: false,
+        thumbnailDataUrl: activeProject?.thumbnailDataUrl || null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        sourceProjectId: activeProject?.id,
       },
+    });
+    const payload = {
+      ...JSON.parse(generateProjectFile(doc)),
+      legacySnapshot: snapshot,
+      reactConfig: exportCode,
+      cssVariables: buildCssVariables(exportRuntime),
       shaderConfig: {
         materialId: material.materialId,
         ditherAlgorithm: dither.algorithm,

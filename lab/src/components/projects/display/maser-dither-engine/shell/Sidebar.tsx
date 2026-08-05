@@ -23,6 +23,7 @@ const NAV_PRIMARY: { route: AppRoute; label: string; shortcut: string }[] = [
   { route: { view: "projects" }, label: "Studio", shortcut: "4" },
   { route: { view: "presets" }, label: "System", shortcut: "5" },
   { route: { view: "playground" }, label: "Playground", shortcut: "6" },
+  { route: { view: "export" }, label: "Export", shortcut: "8" },
   { route: { view: "docs" }, label: "Documentation", shortcut: "7" },
 ];
 

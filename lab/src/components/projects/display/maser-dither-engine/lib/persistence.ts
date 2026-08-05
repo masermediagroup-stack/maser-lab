@@ -84,6 +84,14 @@ export function parseHash(hash: string): AppRoute {
   if (h === "presets") return { view: "presets" };
   if (h === "projects" || h === "studio") return { view: "projects" };
   if (h === "playground") return { view: "playground" };
+  if (h === "export") return { view: "export" };
+  if (h === "present") return { view: "present" };
+  if (h === "transfer-fixtures") return { view: "transfer-fixtures" };
+  if (h.startsWith("scene")) {
+    const q = h.includes("?") ? h.split("?")[1] : "";
+    const params = new URLSearchParams(q);
+    return { view: "scene", payload: params.get("c") ?? undefined };
+  }
   if (h === "docs" || h.startsWith("docs/")) {
     const topic = h.includes("/") ? h.split("/")[1] : undefined;
     return { view: "docs", topic };
@@ -115,6 +123,16 @@ export function routeToHash(route: AppRoute): string {
       return "#/projects";
     case "playground":
       return "#/playground";
+    case "export":
+      return "#/export";
+    case "present":
+      return "#/present";
+    case "scene":
+      return route.payload
+        ? `#/scene?c=${route.payload}`
+        : "#/scene";
+    case "transfer-fixtures":
+      return "#/transfer-fixtures";
     case "docs":
       return route.topic ? `#/docs/${route.topic}` : "#/docs";
     default:

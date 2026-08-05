@@ -2,7 +2,7 @@ import type { DitherSize, MonochromeParams } from "./types";
 
 export const ENGINE_NAME = "Maser Dither Engine";
 export const ENGINE_SLUG = "maser-dither-engine";
-export const ENGINE_VERSION = "0.7.13";
+export const ENGINE_VERSION = "0.8.0";
 export const ENGINE_TAGLINE =
   "Procedural materials for interfaces — lighting, color, and engineered tonal density.";
 
@@ -131,4 +131,5 @@ export const STORAGE_KEYS = {
   projects: "mde:projects:v1",
   materialFavorites: "mde:material-favorites:v1",
   controlFavorites: "mde:control-favorites:v1",
+  exportHistory: "mde:export-history:v1",
 } as const;
