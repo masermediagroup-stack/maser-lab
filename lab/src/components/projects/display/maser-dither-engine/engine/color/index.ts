@@ -37,3 +37,11 @@ export {
 export type { BehaviorDefinition } from "./behaviors";
 export { ColorMaterialController } from "./ColorMaterialController";
 export { COLOR_GLSL } from "./colorGlsl";
+export type { BasePlateId } from "./basePlate";
+export {
+  BASE_PLATE_OPTIONS,
+  BASE_PLATE_RGB,
+  rgbLuminance,
+  resolveBasePlate,
+  withBasePlate,
+} from "./basePlate";

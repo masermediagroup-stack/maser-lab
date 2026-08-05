@@ -24,15 +24,28 @@ export type ImageFitMode = "cover" | "contain" | "fill";
 
 export type ScrollbarOrientation = "vertical" | "horizontal";
 
+export type ChromeCorner = "pill" | "rounded" | "soft" | "square";
+export type LabelBlendMode = "solid" | "exclusion";
+
 export type ComponentContent = {
   buttonLabel: string;
   buttonIcon: string;
   badgeLabel: string;
   badgeSize: ChromeSizeToken;
+  /** Corner radius preset for button / badge (and similar chrome). */
+  chromeCorner: ChromeCorner;
+  /** Solid hex color for text sitting on dither fills. */
+  labelColor: string;
+  /** `solid` = opaque label; `exclusion` = invert against the fill. */
+  labelBlend: LabelBlendMode;
   cardTitle: string;
   cardSubtitle: string;
   cardDescription: string;
   cardButtonLabel: string;
+  /** Optional separate photo for the card CTA pill. Null = procedural fill (no card-photo reuse). */
+  cardCtaSourceUrl: string | null;
+  /** Light mix when CTA has its own photo. */
+  cardCtaLightMix: number;
   navBrand: string;
   navItems: string[];
   navActiveIndex: number;
@@ -83,11 +96,15 @@ export const DEFAULT_COMPONENT_CONTENT: ComponentContent = {
   buttonIcon: "→",
   badgeLabel: "Live",
   badgeSize: "md",
-  cardTitle: "Print Density",
-  cardSubtitle: "Ordered media",
-  cardDescription:
-    "Ordered dither media plane — shared engine, card adapter.",
+  chromeCorner: "pill",
+  labelColor: "#ffffff",
+  labelBlend: "solid",
+  cardTitle: "Fresh density",
+  cardSubtitle: "What's printing",
+  cardDescription: "",
   cardButtonLabel: "Explore",
+  cardCtaSourceUrl: null,
+  cardCtaLightMix: 0.45,
   navBrand: "Maser",
   navItems: ["Overview", "Components", "Docs"],
   navActiveIndex: 0,

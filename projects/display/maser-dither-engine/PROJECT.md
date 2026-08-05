@@ -305,6 +305,75 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Docs: `docs/sprint7-5-interaction-palette.md`
 - [x] Engine `0.7.5`
 
+### Sprint 7.6 — Component base plate
+
+- [x] Black / White component background as first playground control
+- [x] Preview stage matches base plate
+- [x] Palette apply preserves base plate
+- [x] Docs: `docs/sprint7-6-base-plate.md` + canvas briefing update
+- [x] Engine `0.7.6`
+- [x] Mobile: hide Material Dock thumb strip in bottom sheet (use Material panel)
+
+### Sprint 7.7 — Fullscreen, corners, solid labels
+
+- [x] Fullscreen mobile: compact adapters keep intrinsic width (no full-bleed button)
+- [x] Content: Corner (Pill/Round/Soft/Square) on button & badge
+- [x] Fullscreen touch: no iOS callout; pointer on button/badge/avatar
+- [x] Solid text color on dither fills (default); optional Invert blend
+- [x] Docs: `docs/sprint7-7-fullscreen-touch-labels.md`
+- [x] Engine `0.7.7`
+- [x] Overview component list: text rows only (no placeholder dither thumbs)
+
+### Sprint 7.8 — Featured card redesign
+
+- [x] Tall featured promo layout (inset frame, bottom scrim, eyebrow + headline)
+- [x] Pill CTA with live dither fill (cream plate + multiply)
+- [x] Content editor: Eyebrow / Headline / CTA + label color/blend
+- [x] Instrument Sans retained; no body-under-media stack
+- [x] Docs: `docs/sprint7-8-featured-card.md`
+- [x] Engine `0.7.8`
+
+### Sprint 7.9 — Mobile fullscreen + progress stability
+
+- [x] Fullscreen wraps adapters in definite-width `fs-canvas` (no % shrink-wrap collapse)
+- [x] Avatar no longer hit by `width:auto !important` (keeps authored px size)
+- [x] Nav / input / scrollbar / progress readable widths in mobile fullscreen
+- [x] Progress fill uses `clip-path` (stable GL canvas — no resize flash on speed-up)
+- [x] Docs: `docs/sprint7-9-fullscreen-progress.md`
+- [x] Engine `0.7.9`
+
+### Sprint 7.10 — Card visible in mobile preview
+
+- [x] Featured card no longer uses `width:100%` inside FitStage (collapsed to a dot)
+- [x] Mobile card sized with viewport units (`min(72vw, 280px)`)
+- [x] FitStage sets definite max-width on measure + post-layout remeasure
+- [x] Docs: `docs/sprint7-10-card-mobile-preview.md`
+- [x] Engine `0.7.10`
+
+### Sprint 7.11 — Card + CTA independent photos
+
+- [x] Content: `cardCtaSourceUrl` + `cardCtaLightMix`
+- [x] Content editor: “Card photo” + “CTA photo” upload fields
+- [x] SurfaceCard / DitherCard wire separate sources (CTA falls back to card photo)
+- [x] Docs: `docs/sprint7-11-card-cta-photos.md`
+- [x] Engine `0.7.11`
+
+### Sprint 7.12 — Palette presets + custom HEX (mobile + desktop)
+
+- [x] Pinned Palette & colors strip after Base Plate (all components, desktop)
+- [x] Mobile Color tab shows palette + hex editors + procedural material
+- [x] Color accordion → Color tone (no duplicate MaterialPanel)
+- [x] HEX draft editing; colors search hits → Color tab
+- [x] Docs: `docs/sprint7-12-palette-hex-access.md`
+- [x] Engine `0.7.12`
+
+### Sprint 7.13 — CTA photo independence + Remove photo contrast
+
+- [x] CTA does not reuse card photo when CTA photo is empty (procedural fill)
+- [x] Remove photo uses `mde-btn` with readable contrast (no white-on-white)
+- [x] Docs: `docs/sprint7-13-cta-photo-independence.md`
+- [x] Engine `0.7.13`
+
 ### Architecture notes
 
 `projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).

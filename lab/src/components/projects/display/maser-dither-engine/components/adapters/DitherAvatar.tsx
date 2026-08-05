@@ -13,6 +13,10 @@ import {
   DEFAULT_COMPONENT_CONTENT,
 } from "../../content/types";
 import { cn } from "@/lib/utils";
+import {
+  overlayLabelStyle,
+  useAdapterPointer,
+} from "./adapterInteraction";
 
 /**
  * True avatar chrome — shape, size, initials / image / placeholder, presence.
@@ -32,6 +36,7 @@ export function DitherAvatar({
   reducedMotion,
   className,
 }: DitherAdapterProps) {
+  const { pointer, handlers } = useAdapterPointer(reducedMotion);
   const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
   const size = AVATAR_SIZE_PX[c.avatarSize] ?? 80;
   const inputId = useId();
@@ -73,6 +78,7 @@ export function DitherAvatar({
               : undefined,
         } as CSSProperties
       }
+      {...handlers}
     >
       <div className="mde-adapter-avatar__fill">
         <SurfaceCanvas
@@ -88,6 +94,7 @@ export function DitherAvatar({
           light={light}
           dither={dither}
           material={material}
+          pointer={pointer}
           sourceUrl={showImage ? sourceUrl : null}
           sourceLightMix={sourceLightMix}
           reducedMotion={reducedMotion}
@@ -96,7 +103,11 @@ export function DitherAvatar({
       </div>
 
       {showInitials ? (
-        <span className="mde-adapter-avatar__initials" aria-hidden>
+        <span
+          className="mde-adapter-avatar__initials"
+          style={overlayLabelStyle(c)}
+          aria-hidden
+        >
           {c.avatarInitials.slice(0, 3)}
         </span>
       ) : null}

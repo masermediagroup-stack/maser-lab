@@ -31,6 +31,7 @@ type ContentEditorProps = {
 
 type Field =
   | { kind: "text"; key: keyof ComponentContent; label: string }
+  | { kind: "color"; key: keyof ComponentContent; label: string }
   | {
       kind: "number";
       key: keyof ComponentContent;
@@ -55,6 +56,27 @@ function fieldsFor(id: ComponentId): Field[] {
       return [
         { kind: "text", key: "buttonLabel", label: "Button label" },
         { kind: "text", key: "buttonIcon", label: "Icon / suffix" },
+        {
+          kind: "choice",
+          key: "chromeCorner",
+          label: "Corner",
+          options: [
+            { id: "pill", label: "Pill" },
+            { id: "rounded", label: "Round" },
+            { id: "soft", label: "Soft" },
+            { id: "square", label: "Square" },
+          ],
+        },
+        { kind: "color", key: "labelColor", label: "Text color" },
+        {
+          kind: "choice",
+          key: "labelBlend",
+          label: "Text on fill",
+          options: [
+            { id: "solid", label: "Solid" },
+            { id: "exclusion", label: "Invert" },
+          ],
+        },
       ];
     case "badge":
       return [
@@ -70,13 +92,44 @@ function fieldsFor(id: ComponentId): Field[] {
             { id: "xl", label: "XL" },
           ],
         },
+        {
+          kind: "choice",
+          key: "chromeCorner",
+          label: "Corner",
+          options: [
+            { id: "pill", label: "Pill" },
+            { id: "rounded", label: "Round" },
+            { id: "soft", label: "Soft" },
+            { id: "square", label: "Square" },
+          ],
+        },
+        { kind: "color", key: "labelColor", label: "Text color" },
+        {
+          kind: "choice",
+          key: "labelBlend",
+          label: "Text on fill",
+          options: [
+            { id: "solid", label: "Solid" },
+            { id: "exclusion", label: "Invert" },
+          ],
+        },
       ];
     case "card":
       return [
-        { kind: "text", key: "cardTitle", label: "Title" },
-        { kind: "text", key: "cardSubtitle", label: "Subtitle" },
+        { kind: "text", key: "cardSubtitle", label: "Eyebrow" },
+        { kind: "text", key: "cardTitle", label: "Headline" },
         { kind: "text", key: "cardDescription", label: "Description" },
-        { kind: "text", key: "cardButtonLabel", label: "Button" },
+        { kind: "text", key: "cardButtonLabel", label: "CTA label" },
+        { kind: "color", key: "labelColor", label: "CTA text color" },
+        {
+          kind: "choice",
+          key: "labelBlend",
+          label: "CTA text on fill",
+          options: [
+            { id: "solid", label: "Solid" },
+            { id: "exclusion", label: "Invert" },
+          ],
+        },
       ];
     case "navigation":
       return [
@@ -181,6 +234,16 @@ function fieldsFor(id: ComponentId): Field[] {
             { id: "md", label: "MD" },
             { id: "lg", label: "LG" },
             { id: "xl", label: "XL" },
+          ],
+        },
+        { kind: "color", key: "labelColor", label: "Text color" },
+        {
+          kind: "choice",
+          key: "labelBlend",
+          label: "Text on fill",
+          options: [
+            { id: "solid", label: "Solid" },
+            { id: "exclusion", label: "Invert" },
           ],
         },
         { kind: "toggle", key: "avatarShowPresence", label: "Presence" },
@@ -358,7 +421,31 @@ export function ContentEditor({
         onChange={onSourceChange}
         idPrefix={`${idPrefix}-source`}
         emphasize={componentId === "image-frame" || componentId === "avatar"}
+        label={componentId === "card" ? "Card photo" : "Source image"}
+        hint={
+          componentId === "card"
+            ? "Photo for the card media plane. The engine dithers luminance with your current material and lighting."
+            : undefined
+        }
       />
+      {componentId === "card" ? (
+        <SourceImageField
+          value={{
+            url: value.cardCtaSourceUrl,
+            lightMix: value.cardCtaLightMix,
+          }}
+          onChange={(next) =>
+            onChange({
+              ...value,
+              cardCtaSourceUrl: next.url,
+              cardCtaLightMix: next.lightMix,
+            })
+          }
+          idPrefix={`${idPrefix}-cta-source`}
+          label="CTA photo"
+          hint="Optional photo for the dithered button only. Leave empty for procedural fill — the card photo is never reused."
+        />
+      ) : null}
       {fields.map((field) => {
         if (field.kind === "text") {
           const current = String(value[field.key] ?? "");
@@ -372,6 +459,37 @@ export function ContentEditor({
                 value={current}
                 onChange={(e) => setText(field.key, e.target.value)}
               />
+            </div>
+          );
+        }
+        if (field.kind === "color") {
+          const current = String(value[field.key] ?? "#ffffff");
+          return (
+            <div key={field.key} className="mde-field">
+              <div className="mde-field__row">
+                <Label htmlFor={`${idPrefix}-${field.key}`}>{field.label}</Label>
+                <span className="mde-field__hint" style={{ margin: 0 }}>
+                  {current}
+                </span>
+              </div>
+              <div className="mde-color-row">
+                <input
+                  id={`${idPrefix}-${field.key}`}
+                  className="mde-color-input"
+                  type="color"
+                  value={/^#[0-9a-fA-F]{6}$/.test(current) ? current : "#ffffff"}
+                  onChange={(e) => setText(field.key, e.target.value)}
+                  aria-label={field.label}
+                />
+                <input
+                  className="mde-text-input"
+                  type="text"
+                  value={current}
+                  onChange={(e) => setText(field.key, e.target.value)}
+                  spellCheck={false}
+                  aria-label={`${field.label} hex`}
+                />
+              </div>
             </div>
           );
         }

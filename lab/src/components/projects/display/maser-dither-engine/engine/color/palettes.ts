@@ -532,7 +532,11 @@ export function applyPaletteToConfig(
   if (!p) return base;
   return {
     ...base,
-    colors: { ...p.colors },
+    colors: {
+      ...p.colors,
+      // Keep the user's Black/White component plate as the foundation.
+      background: { ...base.colors.background },
+    },
     colorEnabled: true,
     paletteId,
     gradientMode: p.gradientMode ?? base.gradientMode,

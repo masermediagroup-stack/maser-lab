@@ -322,10 +322,15 @@
 }
 
 .mde-comp-card__meta h3,
-.mde-list__item h2 {
+.mde-list__item h2,
+.mde-list__item h3 {
   margin: 0;
   font-size: 0.98rem;
   letter-spacing: -0.02em;
+}
+
+.mde-overview__list {
+  margin-top: 0;
 }
 
 .mde-comp-card__meta p,
@@ -416,6 +421,84 @@
   overflow: hidden;
 }
 
+.mde-playground__preview--base-black {
+  background: #000000;
+}
+
+.mde-playground__preview--base-white {
+  background: #ffffff;
+  border-color: color-mix(in oklab, #000 12%, transparent);
+}
+
+.mde-playground__preview--base-white .mde-playground__fullscreen-btn {
+  border-color: color-mix(in oklab, #000 18%, transparent);
+  background: color-mix(in oklab, #fff 88%, transparent);
+  color: #111111;
+}
+
+.mde-playground__preview--base-white .mde-playground__fullscreen-btn:hover {
+  background: color-mix(in oklab, #000 6%, transparent);
+  color: #000000;
+}
+
+.mde-playground__preview--fullscreen.mde-playground__preview--base-white {
+  background: #ffffff;
+}
+
+.mde-base-plate-strip {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--mde-line);
+  border-radius: 12px;
+  background: var(--mde-elevated);
+}
+
+.mde-palette-strip {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--mde-line);
+  border-radius: 12px;
+  background: var(--mde-elevated);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.mde-palette-strip > .mde-field__label {
+  margin: 0;
+}
+
+.mde-palette-strip > .mde-field__hint {
+  margin: 0;
+}
+
+.mde-base-plate__row {
+  margin-top: 0.4rem;
+}
+
+.mde-base-plate__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mde-base-plate__swatch {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, #fff 25%, transparent);
+  flex-shrink: 0;
+}
+
+.mde-base-plate__swatch--black {
+  background: #000000;
+}
+
+.mde-base-plate__swatch--white {
+  background: #ffffff;
+  border-color: color-mix(in oklab, #fff 55%, transparent);
+}
+
 .mde-playground__preview-toolbar {
   position: absolute;
   top: 0.75rem;
@@ -442,12 +525,32 @@
 
 .mde-playground__fullscreen-close {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 2;
+  top: max(0.65rem, env(safe-area-inset-top, 0px));
+  right: max(0.65rem, env(safe-area-inset-right, 0px));
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
   border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, #fff 28%, transparent);
   color: #ffffff;
-  background: transparent;
+  background: color-mix(in oklab, #000 55%, transparent);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mde-playground__fullscreen-close:hover,
+.mde-playground__fullscreen-close:focus-visible {
+  background: color-mix(in oklab, #000 72%, transparent);
+  outline: none;
+}
+
+.mde-playground__fullscreen-close-icon {
+  width: 0.95rem;
+  height: 0.95rem;
 }
 
 .mde-playground__preview-stage {
@@ -458,10 +561,18 @@
   min-height: 280px;
 }
 
+.mde-playground__preview--fs-placeholder {
+  /* Stage keeps layout while the real overlay is portaled to body */
+  min-height: 280px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .mde-playground__preview--fullscreen {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: 200;
+  width: 100vw;
   min-height: 100dvh;
   max-height: none;
   border-radius: 0;
@@ -469,6 +580,37 @@
   padding: 0;
   background: #000000;
   place-items: stretch;
+  /* Cover lab chrome / mobile topbar / bottom nav on every viewport */
+  margin: 0;
+}
+
+html.mde-fs-open,
+html.mde-fs-open body {
+  overflow: hidden !important;
+}
+
+/* Hide editor chrome under the portaled fullscreen layer */
+.mde-playground--is-fullscreen .mde-mobile-topbar,
+.mde-playground--is-fullscreen .mde-mobile-nav,
+.mde-playground--is-fullscreen .mde-sheet,
+.mde-playground--is-fullscreen .mde-playground__header,
+.mde-playground--is-fullscreen .mde-playground__studio-bar,
+.mde-playground--is-fullscreen .mde-playground__panel {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mde-app:has(.mde-playground--is-fullscreen) .mde-app__chrome,
+.mde-app:has(.mde-playground--is-fullscreen) .mde-sidebar {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mde-playground__preview--fullscreen.mde-playground__preview--base-white
+  .mde-playground__fullscreen-close {
+  color: #111111;
+  border-color: color-mix(in oklab, #000 18%, transparent);
+  background: color-mix(in oklab, #fff 82%, transparent);
 }
 
 .mde-playground__preview--fullscreen .mde-playground__preview-stage {
@@ -481,15 +623,93 @@
 }
 
 /*
- * Fullscreen must NOT force a shared width on .mde-adapter.
- * Compact chrome (button, badge, avatar, …) sizes to content in the
- * normal preview; a blanket width stretched them into long pills.
- * Let each adapter keep its authored dimensions and only center it.
+ * Definite containing block for fullscreen adapters.
+ * place-items:center alone makes % widths shrink-wrap to ~0.
  */
-.mde-playground__preview--fullscreen .mse-card,
-.mde-playground__preview--fullscreen .mde-adapter {
+.mde-playground__fs-canvas {
+  width: min(92vw, 480px);
   max-width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.mde-playground__fs-canvas > .mde-adapter--progress,
+.mde-playground__fs-canvas > .mde-adapter--input,
+.mde-playground__fs-canvas > .mde-adapter--nav,
+.mde-playground__fs-canvas > .mde-adapter--scrollbar,
+.mde-playground__fs-canvas > .mde-adapter--section,
+.mde-playground__fs-canvas > .mde-adapter--hero,
+.mde-playground__fs-canvas > .mde-adapter--frame,
+.mde-playground__fs-canvas > .mde-compare {
+  width: 100% !important;
+  max-width: 100% !important;
   max-height: calc(100dvh - 5rem);
+  box-sizing: border-box;
+}
+
+.mde-playground__fs-canvas > .mse-card,
+.mde-playground__fs-canvas > .mse-card--featured {
+  width: min(100%, 340px) !important;
+  max-width: 100% !important;
+  max-height: calc(100dvh - 5rem);
+}
+
+.mde-playground__fs-canvas > .mde-adapter--button,
+.mde-playground__fs-canvas > .mde-adapter--badge,
+.mde-playground__fs-canvas > .mde-adapter--loader {
+  width: auto;
+  max-width: 100%;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* Avatar: keep authored px size — never width:auto !important */
+.mde-playground__fs-canvas > .mde-adapter--avatar {
+  width: auto;
+  max-width: none;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.mde-playground__preview--fullscreen .mde-adapter--nav {
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.mde-playground__preview--fullscreen .mde-adapter-nav__links {
+  margin-left: 0;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.mde-playground__preview--fullscreen .mde-adapter-scrollbar__pane {
+  max-height: min(42dvh, 280px);
+  min-height: min(36dvh, 200px);
+}
+
+.mde-playground__preview--fullscreen .mde-adapter-scrollbar__track {
+  min-height: min(36dvh, 200px);
+}
+
+.mde-playground__preview--fullscreen .mde-adapter--button,
+.mde-playground__preview--fullscreen .mde-adapter--badge,
+.mde-playground__preview--fullscreen .mde-adapter--avatar,
+.mde-playground__preview--fullscreen .mde-adapter--loader,
+.mde-playground__preview--fullscreen .mde-adapter--progress,
+.mde-playground__preview--fullscreen .mde-adapter--input,
+.mde-playground__preview--fullscreen .mde-adapter--nav,
+.mde-playground__preview--fullscreen .mde-adapter--scrollbar,
+.mde-playground__preview--fullscreen .mse-card,
+.mde-playground__preview--fullscreen .mde-adapter--section,
+.mde-playground__preview--fullscreen .mde-adapter--hero {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .mde-playground__perf {
@@ -836,7 +1056,7 @@
   position: relative;
   isolation: isolate;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--mde-chrome-radius, 999px);
   min-height: 44px;
   min-width: 140px;
   padding: 0 1.25rem;
@@ -844,19 +1064,33 @@
   cursor: pointer;
   color: #0a0a0a;
   font-weight: 560;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+.mde-adapter--button:active {
+  transform: scale(0.98);
 }
 
 .mde-adapter-button__fill {
   position: absolute;
   inset: 0;
   z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
 }
 
 .mde-adapter-button__label {
   position: relative;
   z-index: 1;
-  mix-blend-mode: exclusion;
+  mix-blend-mode: normal;
   color: #fff;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
 }
 
 .mde-adapter--scrollbar {
@@ -1042,14 +1276,25 @@
   align-items: center;
   justify-content: center;
   min-width: 3.5em;
-  border-radius: 999px;
+  border-radius: var(--mde-chrome-radius, 999px);
   overflow: hidden;
   box-sizing: border-box;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+.mde-adapter--badge:active {
+  transform: scale(0.98);
 }
 
 .mde-adapter-badge__fill {
   position: absolute;
   inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
 }
 
 .mde-adapter-badge__label {
@@ -1057,9 +1302,13 @@
   z-index: 1;
   font-size: inherit;
   font-weight: 560;
-  mix-blend-mode: exclusion;
+  mix-blend-mode: normal;
   color: #fff;
   line-height: 1;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
 }
 
 .mde-adapter--avatar {
@@ -1068,10 +1317,19 @@
   height: 80px;
   border-radius: 999px;
   overflow: visible;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
   border-style: solid;
   border-color: color-mix(in oklab, #fff 22%, transparent);
   background: #0c0c0c;
   flex-shrink: 0;
+}
+
+.mde-adapter--avatar:active {
+  transform: scale(0.98);
 }
 
 .mde-adapter--avatar-circle {
@@ -1112,9 +1370,12 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   color: #fff;
-  mix-blend-mode: exclusion;
+  mix-blend-mode: normal;
   pointer-events: none;
   z-index: 1;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .mde-adapter-avatar__placeholder {
@@ -1361,6 +1622,25 @@
   gap: 0.5rem;
 }
 
+/* Outline shadcn buttons inherit lab --mde-fg on light bg → white-on-white.
+   Keep remove action on engine chrome tokens. */
+.mde-source-field__remove {
+  background: color-mix(in oklab, #fff 8%, transparent);
+  border-color: color-mix(in oklab, #fff 28%, transparent);
+  color: #f2f2f0;
+}
+
+.mde-source-field__remove:hover {
+  background: color-mix(in oklab, #fff 14%, transparent);
+  border-color: color-mix(in oklab, #fff 40%, transparent);
+  color: #ffffff;
+}
+
+.mde-source-field__remove:focus-visible {
+  outline: 2px solid #f2f2f0;
+  outline-offset: 2px;
+}
+
 .mde-source-field__input {
   position: absolute;
   width: 1px;
@@ -1400,11 +1680,17 @@
   overflow: hidden;
 }
 
+/*
+ * Fill stays full track width; progress is clip-path only.
+ * Animating width resized the WebGL canvas every frame and flashed black.
+ */
 .mde-adapter-progress__fill {
   height: 100%;
+  width: 100%;
   overflow: hidden;
-  width: 0%;
-  min-width: 0;
+  transform-origin: left center;
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
 }
 
 .mde-adapter-progress__value {
@@ -1556,21 +1842,48 @@
   height: 100%;
 }
 
-.mse-card {
-  display: flex;
-  flex-direction: column;
-  width: min(100%, 420px);
-  border-radius: 20px;
-  background: #141414;
-  border: 1px solid var(--mde-line);
-  overflow: hidden;
+/* Featured promo card — tall media plane, inset frame, dithered CTA */
+.mse-card,
+.mse-card--featured {
+  display: block;
+  width: min(100%, 340px);
+  background: transparent;
+  border: none;
+  overflow: visible;
+  border-radius: 0;
+  font-family: var(--mde-font);
+}
+
+.mse-card__frame {
+  position: relative;
+  border-radius: 28px;
+  padding: 2.5px;
+  background:
+    linear-gradient(
+      155deg,
+      rgba(255, 252, 247, 0.95) 0%,
+      rgba(236, 226, 210, 0.72) 42%,
+      rgba(255, 255, 255, 0.4) 100%
+    );
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 22px 48px rgba(0, 0, 0, 0.38);
 }
 
 .mse-card__media {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   width: 100%;
+  border-radius: 25.5px;
+  overflow: hidden;
   background: #050505;
+  isolation: isolate;
+}
+
+.mse-card__canvas-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
 .mse-card__canvas {
@@ -1578,18 +1891,56 @@
   inset: 0;
 }
 
-.mse-card__body {
+.mse-card__scrim {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
+  height: 58%;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(10, 7, 5, 0.94) 0%,
+    rgba(14, 10, 8, 0.62) 42%,
+    rgba(14, 10, 8, 0) 100%
+  );
+}
+
+.mse-card__copy {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  padding: 1.25rem 1.35rem 1.4rem;
+  gap: 0.85rem;
+  padding: 1.35rem 1.15rem 1.15rem;
+  pointer-events: none;
+}
+
+.mse-card__copy-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  max-width: 18ch;
+}
+
+.mse-card__eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .mse-card__title {
   margin: 0;
-  font-size: 1.35rem;
-  font-weight: 560;
-  letter-spacing: -0.02em;
+  font-size: clamp(1.55rem, 5vw, 1.95rem);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: #fff;
 }
 
 .mse-card__subtitle {
@@ -1601,11 +1952,76 @@
 }
 
 .mse-card__desc {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 28ch;
+}
+
+.mse-card__cta {
+  pointer-events: auto;
+  position: relative;
+  isolation: isolate;
+  display: block;
+  width: 100%;
+  min-height: 46px;
   margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.45;
-  color: var(--mde-muted);
-  max-width: 34ch;
+  padding: 0.75rem 1.2rem;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #ebe4d8;
+  font-family: inherit;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  transition: transform 140ms ease;
+}
+
+.mse-card__cta:active {
+  transform: scale(0.985);
+}
+
+.mse-card__cta:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 3px;
+}
+
+.mse-card__cta-fill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  /* Cream plate underneath + dither multiply = textured CTA */
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+}
+
+.mse-card__cta-label {
+  position: relative;
+  z-index: 1;
+  display: block;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Legacy body layout (unused by featured card; keep for safety) */
+.mse-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.25rem 1.35rem 1.4rem;
 }
 
 .mse-card__button {
@@ -1717,6 +2133,28 @@
 .mde-text-input:focus-visible {
   outline: 2px solid color-mix(in oklab, var(--mde-fg) 35%, transparent);
   outline-offset: 1px;
+}
+
+.mde-color-row {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.35rem;
+}
+
+.mde-color-input {
+  width: 2.5rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--mde-line);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mde-color-row .mde-text-input {
+  margin-top: 0;
 }
 
 /* Sprint 6 — material browser */
@@ -2680,15 +3118,27 @@
     right: 0.4rem;
   }
 
-  /* Contain adapters — no horizontal document overflow */
-  .mde-playground--mobile .mse-card,
-  .mde-playground--mobile .mde-adapter,
+  /* Contain wide adapters — compact chrome keeps intrinsic width.
+   * Featured card is excluded: width:100% inside FitStage (max-content)
+   * collapses % to ~0 and the card vanishes until fullscreen. */
   .mde-playground--mobile .mde-adapter--nav,
-  .mde-playground--mobile .mde-adapter--button,
   .mde-playground--mobile .mde-adapter--scrollbar,
+  .mde-playground--mobile .mde-adapter--progress,
+  .mde-playground--mobile .mde-adapter--section,
+  .mde-playground--mobile .mde-adapter--hero,
+  .mde-playground--mobile .mde-adapter--input,
   .mde-playground--mobile .mde-compare {
     max-width: 100% !important;
-    width: min(100%, 100%) !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .mde-playground--mobile .mde-adapter--button,
+  .mde-playground--mobile .mde-adapter--badge,
+  .mde-playground--mobile .mde-adapter--avatar,
+  .mde-playground--mobile .mde-adapter--loader {
+    max-width: 100%;
+    width: auto;
     box-sizing: border-box;
   }
 
@@ -2705,8 +3155,17 @@
     gap: 0.45rem;
   }
 
-  .mde-playground--mobile .mse-card__media {
-    max-height: 11rem;
+  /* Viewport units — definite size for FitStage measure (no % shrink-wrap) */
+  .mde-playground--mobile .mse-card,
+  .mde-playground--mobile .mse-card--featured {
+    width: min(72vw, 280px) !important;
+    max-width: min(72vw, 280px) !important;
+    box-sizing: border-box;
+  }
+
+  .mde-playground--mobile .mse-card--featured .mse-card__media {
+    max-height: none;
+    aspect-ratio: 3 / 4;
   }
 
   .mde-playground--mobile .mse-card__body {
@@ -2714,8 +3173,13 @@
     gap: 0.4rem;
   }
 
-  .mde-playground--mobile .mse-card__title {
-    font-size: 1.05rem;
+  .mde-playground--mobile .mse-card--featured .mse-card__title {
+    font-size: 1.45rem;
+  }
+
+  .mde-playground--mobile .mse-card--featured .mse-card__copy {
+    padding: 1.1rem 1rem 1rem;
+    gap: 0.7rem;
   }
 
   .mde-playground--mobile .mse-card__desc {

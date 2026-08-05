@@ -19,6 +19,7 @@ export function DitherCard({
   className,
 }: DitherAdapterProps) {
   const c = { ...DEFAULT_COMPONENT_CONTENT, ...content };
+
   return (
     <SurfaceCard
       title={c.cardTitle}
@@ -34,8 +35,12 @@ export function DitherCard({
       material={material}
       sourceUrl={sourceUrl}
       sourceLightMix={sourceLightMix}
+      ctaSourceUrl={c.cardCtaSourceUrl}
+      ctaSourceLightMix={c.cardCtaLightMix}
       reducedMotion={reducedMotion}
       className={className}
+      labelColor={c.labelColor}
+      labelBlend={c.labelBlend}
     />
   );
 }
