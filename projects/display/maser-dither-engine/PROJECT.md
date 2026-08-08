@@ -6,6 +6,12 @@
 **Created:** 2026-07-28  
 **Product kind:** lab
 
+## Active planning
+
+**Canonical product planning:** [`docs/roadmap/`](../../../docs/roadmap/README.md)  
+Milestones live in [`docs/roadmap/DEVELOPMENT-ROADMAP.md`](../../../docs/roadmap/DEVELOPMENT-ROADMAP.md) (v0.8 → v2.0).  
+Sprint notes remain a historical archive. The Sprint 8 / Sprint 5 leftover lists below are **superseded** by those milestones (see v0.8–v1.0 for upload persistence, inspector, npm pack, API freeze, etc.).
+
 ## Design reference
 
 - Figma: none
@@ -380,20 +386,24 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 
 ### Sprint 8 recommendations
 
-- Persist uploads (data URL / IndexedDB) across project save
-- Continuous FBO thumb refresh without JPEG churn
-- Cloud sync / share links for project JSON
-- Live Material Dock continuous animation (still one context)
-- Timeline snapshots / version history UI
-- Wire StudioSlider across every panel by default
-- Component inspector sheet (padding / radius / content) as first-class dock target
-- Visual regression suite for algorithms × materials × animations
-- Deeper frosted/clear glass variants with background sampling when available
-- Ceramic / newsprint / brushed aluminum as first-class IDs beyond presets
+> **Superseded** by [`docs/roadmap/DEVELOPMENT-ROADMAP.md`](../../../docs/roadmap/DEVELOPMENT-ROADMAP.md). Kept for history.
+
+- Persist uploads (data URL / IndexedDB) across project save → **v0.8**
+- Continuous FBO thumb refresh without JPEG churn → **v0.8**
+- Cloud sync / share links for project JSON → docs foreshadow only until a post-v1.0 sync milestone
+- Live Material Dock continuous animation (still one context) → **v0.8**
+- Timeline snapshots / version history UI → later / stub domains
+- Wire StudioSlider across every panel by default → **v0.8**
+- Component inspector sheet (padding / radius / content) as first-class dock target → **v0.8**
+- Visual regression suite for algorithms × materials × animations → **v0.9** foundation
+- Deeper frosted/clear glass variants with background sampling when available → post-v1.0 / v1.5 material depth
+- Ceramic / newsprint / brushed aluminum as first-class IDs beyond presets → post-v1.0 backlog
 
 ### Sprint 5 leftover recommendations (still open)
 
-- Canvas2D parity for non-Bayer algorithms
-- Log-mapped sliders for radius / exposure / pattern scale
-- Visual regression suite for algorithms × matrix sizes
-- Optional environment-band LUT for chrome without full cubemaps
+> Mapped into milestones; not v1.0 must-haves.
+
+- Canvas2D parity for non-Bayer algorithms → post-v1.0
+- Log-mapped sliders for radius / exposure / pattern scale → polish
+- Visual regression suite for algorithms × matrix sizes → **v0.9**
+- Optional environment-band LUT for chrome without full cubemaps → post-v1.0

@@ -30,7 +30,8 @@ Pick a **category** from `projects/categories.json` that matches the primary job
 | Responsive / touch Harden pass | `.agents/skills/maser-lab-responsive-qa/SKILL.md` |
 | Product vs lab CSS tokens | `.agents/skills/maser-lab-token-system/SKILL.md` |
 | Three.js, shaders, 3D, WebGL/WebGPU, scroll/pointer 3D | `.agents/skills/maser-lab-threejs/SKILL.md` |
-| **Maser Dither / Surface Engine** (`maser-dither-engine`) | `projects/display/maser-dither-engine/AGENTS.md` then `lab/src/components/projects/display/maser-dither-engine/engine/AGENTS.md` |
+| **Maser Dither / Surface Engine** (`maser-dither-engine`) | `docs/roadmap/README.md` (read order) → `projects/display/maser-dither-engine/AGENTS.md` → `lab/.../engine/AGENTS.md` |
+| Product milestones / future engines (roadmap) | `docs/roadmap/README.md` + `docs/roadmap/DEVELOPMENT-ROADMAP.md` — promote stubs in the same PR when shipping stubbed domains |
 | Figma reference, design-to-code, code-to-Figma, Code Connect | `.agents/skills/figma-design-workflow/SKILL.md` |
 | Discovering or installing more skills | `.agents/skills/find-skills/SKILL.md` |
 | End-to-end verification after implementation | `.agents/skills/verification/SKILL.md` |
@@ -53,6 +54,7 @@ Pick a **category** from `projects/categories.json` that matches the primary job
 ```text
 maser-lab/
 ├── AGENTS.md                          ← you are here
+├── docs/roadmap/                      ← Dither (and future engine) product milestones
 ├── projects/                          ← specs, acceptance criteria, lifecycle
 │   ├── categories.json                ← canonical web UI categories
 │   ├── registry.json                  ← index of all projects
@@ -107,13 +109,15 @@ See `.agents/skills/maser-lab-threejs/references/quality-gates.md`.
 
 This slug is a **shared WebGL2 procedural pipeline** (not Three.js). Before any edit to `engine/` or shaders:
 
-1. Read `projects/display/maser-dither-engine/AGENTS.md` and `lab/.../engine/AGENTS.md`.
-2. Read `lab/.../docs/engine-lessons.md` (Sprint 6 black-screen postmortem).
-3. **Do not** switch `VERT_SRC` off `gl_VertexID` without a VBO in `SurfaceRenderer`.
-4. **Do not** strip `SAMPLE_GLSL` helpers (`sampleBayer` / `sampleBlue` / `uPosterization`).
-5. **Do not** spawn many live WebGL thumbs (Materials grid = CSS swatches).
-6. **Do not** reintroduce Sprint 5 duplicate controls or Color “behavior” chips for structure.
-7. Verify `/demos/maser-dither-engine` renders a **non-black** surface after shader changes.
+1. Read `docs/roadmap/README.md` (task read-order) and the relevant roadmap docs for the change.
+2. Read `projects/display/maser-dither-engine/AGENTS.md` and `lab/.../engine/AGENTS.md`.
+3. Read `lab/.../docs/engine-lessons.md` (Sprint 6 black-screen postmortem).
+4. **Do not** switch `VERT_SRC` off `gl_VertexID` without a VBO in `SurfaceRenderer`.
+5. **Do not** strip `SAMPLE_GLSL` helpers (`sampleBayer` / `sampleBlue` / `uPosterization`).
+6. **Do not** spawn many live WebGL thumbs (Materials grid = CSS swatches).
+7. **Do not** reintroduce Sprint 5 duplicate controls or Color “behavior” chips for structure.
+8. Verify `/demos/maser-dither-engine` renders a **non-black** surface after shader changes.
+9. **Stub promotion:** if you ship code for a stubbed roadmap domain (`07`–`08`, `11`, etc.), promote that stub to full depth in the **same PR** (see `docs/roadmap/10-QA.md`). Horizon ideas in `11-V2-FUTURE.md` never waive sacred engine contracts.
 
 ## Branch naming (Cloud Agents)
 

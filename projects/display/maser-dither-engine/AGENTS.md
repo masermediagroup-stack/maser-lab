@@ -8,11 +8,26 @@ This project is a **shared procedural WebGL2 surface engine** (not Three.js). Lo
 
 ## Mandatory reads before editing
 
-1. This file
-2. `lab/.../engine/AGENTS.md` — sacred shader + uniform contracts
-3. `docs/engine-lessons.md` — Sprint 6 black-screen postmortem (do not repeat)
-4. `PROJECT.md` architecture + active sprint notes
-5. `docs/sprint5-control-audit.md` + `docs/sprint6-materials.md` when touching controls/materials
+1. Repo [`docs/roadmap/README.md`](../../../docs/roadmap/README.md) — task read-order, stable vs horizon, stub promotion
+2. This file
+3. `lab/.../engine/AGENTS.md` — sacred shader + uniform contracts
+4. `docs/engine-lessons.md` — Sprint 6 black-screen postmortem (do not repeat)
+5. Roadmap docs for the change type (see table below) + `PROJECT.md` for ACs
+6. Sprint notes under `docs/sprint*.md` are **historical archive** only — active planning is `docs/roadmap/`
+
+### Roadmap reads by change type
+
+| Change | Also read |
+| --- | --- |
+| Shader / pipeline | `docs/roadmap/02-RENDER-PIPELINE.md`, `01-ENGINE-ARCHITECTURE.md` |
+| Materials | `docs/roadmap/03-MATERIAL-SYSTEM.md` |
+| Adapters / components | `docs/roadmap/04-COMPONENT-SYSTEM.md`, `06-EXPORT-SYSTEM.md` |
+| Lab mobile / studio shell | `docs/roadmap/05-MOBILE-WORKSPACE.md` (lab-only; not packaged) |
+| Export / npm / TRANSFER | `docs/roadmap/06-EXPORT-SYSTEM.md` |
+| Milestones / priority | `docs/roadmap/DEVELOPMENT-ROADMAP.md` |
+| Assets / presets / future engines | Matching stub `07`–`08` / `11` — **promote stub in same PR when shipping code** |
+
+**Stable contracts win.** Horizon ideas in `docs/roadmap/11-V2-FUTURE.md` never authorize rewriting `SurfaceRenderer`, leaving `gl_VertexID`, or stripping `SAMPLE_GLSL`.
 
 ## What this engine is
 
@@ -83,6 +98,7 @@ Source-only review is **not** enough for this project.
 When working this slug, report loaded:
 
 - `maser-lab-web` (mode: …)
+- `docs/roadmap/README.md` (+ numbered docs for the change)
 - `projects/display/maser-dither-engine/AGENTS.md`
 - `lab/.../engine/AGENTS.md`
-- optional: `docs/engine-lessons.md`, sprint docs
+- optional: `docs/engine-lessons.md`; sprint docs as historical archive only
