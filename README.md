@@ -24,6 +24,7 @@ This repo follows Vercel's [product-design for agents](https://vercel.com/blog/t
 | Workflow & modes | `.agents/skills/maser-lab-web/SKILL.md` |
 | Rules & patterns | `.agents/skills/maser-lab-web/references/` |
 | Project specs | `projects/{category}/{slug}/PROJECT.md` |
+| Dither / engine milestones | [`docs/roadmap/`](./docs/roadmap/README.md) |
 | Figma / design sync | `projects/{category}/{slug}/FIGMA.md` + `figma-design-workflow` skill |
 | Deterministic checks | `tooling/eslint/` + `npm run lint` in `lab/` |
 | Eval fixtures | `tooling/scripts/evals/` |
