@@ -1,7 +1,6 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { StudioSlider } from "./studio/StudioSlider";
 import {
   ANIMATION_MODES,
   defaultModeParams,
@@ -21,11 +20,6 @@ type AnimationPanelProps = {
   /** When false, hide Time Scale (multiplies with Master Time Scale). */
   advanced?: boolean;
 };
-
-function formatValue(v: number): string {
-  if (Number.isInteger(v)) return String(v);
-  return v.toFixed(2);
-}
 
 /**
  * Professional animation controls — mode grid, mode-specific params, timeline.
@@ -94,47 +88,33 @@ export function AnimationPanel({
       <div className="mde-anim-panel__section">
         <span className="mde-field__label">{mode.label} Controls</span>
         {mode.controls.map((c) => (
-          <div key={c.key} className="mde-field">
-            <div className="mde-field__row">
-              <Label htmlFor={`${idPrefix}-${c.key}`}>{c.label}</Label>
-              <span>{formatValue(params[c.key] ?? c.defaultValue)}</span>
-            </div>
-            <Slider
-              id={`${idPrefix}-${c.key}`}
-              min={c.min}
-              max={c.max}
-              step={c.step}
-              value={[params[c.key] ?? c.defaultValue]}
-              onValueChange={(vals) => {
-                const next = Array.isArray(vals) ? vals[0] : vals;
-                if (typeof next !== "number") return;
-                setParam(c.key, next);
-              }}
-            />
-          </div>
+          <StudioSlider
+            key={c.key}
+            id={`${idPrefix}-${c.key}`}
+            label={c.label}
+            min={c.min}
+            max={c.max}
+            step={c.step}
+            value={params[c.key] ?? c.defaultValue}
+            defaultValue={c.defaultValue}
+            onChange={(v) => setParam(c.key, v)}
+          />
         ))}
       </div>
 
       <div className="mde-anim-panel__section">
         <span className="mde-field__label">Blend</span>
-        <div className="mde-field">
-          <div className="mde-field__row">
-            <Label htmlFor={`${idPrefix}-blend`}>Transition Duration</Label>
-            <span>{formatValue(value.blendDuration)}s</span>
-          </div>
-          <Slider
-            id={`${idPrefix}-blend`}
-            min={0.05}
-            max={2.5}
-            step={0.05}
-            value={[value.blendDuration]}
-            onValueChange={(vals) => {
-              const next = Array.isArray(vals) ? vals[0] : vals;
-              if (typeof next !== "number") return;
-              onChange({ ...value, blendDuration: next });
-            }}
-          />
-        </div>
+        <StudioSlider
+          id={`${idPrefix}-blend`}
+          label="Transition Duration"
+          unit="s"
+          min={0.05}
+          max={2.5}
+          step={0.05}
+          value={value.blendDuration}
+          defaultValue={0.35}
+          onChange={(v) => onChange({ ...value, blendDuration: v })}
+        />
       </div>
 
       <div className="mde-anim-panel__section">
@@ -202,55 +182,30 @@ export function AnimationPanel({
         </div>
         {advanced ? (
           <>
-            <div className="mde-field">
-              <div className="mde-field__row">
-                <Label
-                  htmlFor={`${idPrefix}-speed`}
-                  title="Timeline-level speed. Multiplies with Master Time Scale."
-                >
-                  Timeline Playback Speed
-                </Label>
-                <span>{formatValue(value.timeline.playbackSpeed)}×</span>
-              </div>
-              <p className="mde-field__hint">
-                Multiplies with Master Time Scale — avoid stacking extremes.
-              </p>
-              <Slider
-                id={`${idPrefix}-speed`}
-                min={0}
-                max={3}
-                step={0.05}
-                value={[value.timeline.playbackSpeed]}
-                onValueChange={(vals) => {
-                  const next = Array.isArray(vals) ? vals[0] : vals;
-                  if (typeof next !== "number") return;
-                  setTimeline({ playbackSpeed: next });
-                }}
-              />
-            </div>
-            <div className="mde-field">
-              <div className="mde-field__row">
-                <Label
-                  htmlFor={`${idPrefix}-scale`}
-                  title="Additional timeline scale. Prefer Master Time Scale for most work."
-                >
-                  Timeline Time Scale
-                </Label>
-                <span>{formatValue(value.timeline.timeScale)}×</span>
-              </div>
-              <Slider
-                id={`${idPrefix}-scale`}
-                min={0}
-                max={3}
-                step={0.05}
-                value={[value.timeline.timeScale]}
-                onValueChange={(vals) => {
-                  const next = Array.isArray(vals) ? vals[0] : vals;
-                  if (typeof next !== "number") return;
-                  setTimeline({ timeScale: next });
-                }}
-              />
-            </div>
+            <StudioSlider
+              id={`${idPrefix}-speed`}
+              label="Timeline Playback Speed"
+              unit="×"
+              hint="Multiplies with Master Time Scale — avoid stacking extremes."
+              min={0}
+              max={3}
+              step={0.05}
+              value={value.timeline.playbackSpeed}
+              defaultValue={1}
+              onChange={(v) => setTimeline({ playbackSpeed: v })}
+            />
+            <StudioSlider
+              id={`${idPrefix}-scale`}
+              label="Timeline Time Scale"
+              unit="×"
+              hint="Additional timeline scale. Prefer Master Time Scale for most work."
+              min={0}
+              max={3}
+              step={0.05}
+              value={value.timeline.timeScale}
+              defaultValue={1}
+              onChange={(v) => setTimeline({ timeScale: v })}
+            />
           </>
         ) : (
           <p className="mde-field__hint">

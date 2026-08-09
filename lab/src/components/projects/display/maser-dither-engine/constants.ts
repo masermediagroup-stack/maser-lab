@@ -132,4 +132,5 @@ export const STORAGE_KEYS = {
   materialFavorites: "mde:material-favorites:v1",
   controlFavorites: "mde:control-favorites:v1",
   exportHistory: "mde:export-history:v1",
+  assetsDb: "mde-assets-v1",
 } as const;

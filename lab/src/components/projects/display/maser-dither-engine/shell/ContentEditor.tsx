@@ -1,7 +1,7 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { StudioSlider } from "./studio/StudioSlider";
 import type { ComponentId } from "../types";
 import type {
   AvatarMode,
@@ -508,24 +508,16 @@ export function ContentEditor({
           }
           const current = Number(value[field.key] ?? 0);
           return (
-            <div key={field.key} className="mde-field">
-              <div className="mde-field__row">
-                <Label htmlFor={`${idPrefix}-${field.key}`}>{field.label}</Label>
-                <span>{current}</span>
-              </div>
-              <Slider
-                id={`${idPrefix}-${field.key}`}
-                min={field.min}
-                max={field.max}
-                step={field.step}
-                value={[current]}
-                onValueChange={(vals) => {
-                  const next = Array.isArray(vals) ? vals[0] : vals;
-                  if (typeof next !== "number") return;
-                  onChange({ ...value, [field.key]: next });
-                }}
-              />
-            </div>
+            <StudioSlider
+              key={field.key}
+              id={`${idPrefix}-${field.key}`}
+              label={field.label}
+              value={current}
+              min={field.min}
+              max={field.max}
+              step={field.step}
+              onChange={(next) => onChange({ ...value, [field.key]: next })}
+            />
           );
         }
         if (field.kind === "choice") {
@@ -653,24 +645,17 @@ export function ContentEditor({
           );
         }
         return (
-          <div key="activeIndex" className="mde-field">
-            <div className="mde-field__row">
-              <Label htmlFor={`${idPrefix}-active`}>{field.label}</Label>
-              <span>{value.navActiveIndex + 1}</span>
-            </div>
-            <Slider
-              id={`${idPrefix}-active`}
-              min={0}
-              max={Math.max(0, value.navItems.length - 1)}
-              step={1}
-              value={[value.navActiveIndex]}
-              onValueChange={(vals) => {
-                const next = Array.isArray(vals) ? vals[0] : vals;
-                if (typeof next !== "number") return;
-                onChange({ ...value, navActiveIndex: next });
-              }}
-            />
-          </div>
+          <StudioSlider
+            key="activeIndex"
+            id={`${idPrefix}-active`}
+            label={field.label}
+            min={0}
+            max={Math.max(0, value.navItems.length - 1)}
+            step={1}
+            value={value.navActiveIndex}
+            defaultValue={0}
+            onChange={(next) => onChange({ ...value, navActiveIndex: next })}
+          />
         );
       })}
     </div>
