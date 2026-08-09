@@ -70,6 +70,7 @@ import {
   canRedo,
   canUndo,
   captureSnapshot,
+  captureSnapshotAsync,
   createHistory,
   createUserProjectId,
   getProject,
@@ -102,6 +103,7 @@ import {
 } from "./studio";
 import { CreativeExplore, type CreativeLocks } from "./CreativeExplore";
 import { useLiveThumbCache } from "../react/useLiveThumbCache";
+import { useResolvedDisplayUrl } from "../react/useResolvedDisplayUrl";
 import { PROCEDURAL_MATERIALS } from "../engine/material/catalog";
 import type { EngineMaterialId } from "../engine/material/types";
 import {
@@ -309,6 +311,10 @@ export function ComponentPlayground({
     dockMaterialIds,
     dockThumbScene,
     dockThumbKey,
+    {
+      activeId: material.materialId,
+      live: !reducedMotion,
+    },
   );
   const [disabledPanels, setDisabledPanels] = useState<
     Partial<Record<ControlGroupId, boolean>>
@@ -346,6 +352,36 @@ export function ComponentPlayground({
 
   const buildSnapshot = useCallback((): ProjectSnapshot => {
     return captureSnapshot({
+      componentId,
+      params,
+      animation,
+      interaction,
+      color,
+      light,
+      dither,
+      material,
+      content,
+      sourceUrl: source.url,
+      sourceLightMix: source.lightMix,
+      basePresetId: presetId,
+    });
+  }, [
+    componentId,
+    params,
+    animation,
+    interaction,
+    color,
+    light,
+    dither,
+    material,
+    content,
+    source.url,
+    source.lightMix,
+    presetId,
+  ]);
+
+  const buildSnapshotAsync = useCallback(async (): Promise<ProjectSnapshot> => {
+    return captureSnapshotAsync({
       componentId,
       params,
       animation,
@@ -455,12 +491,22 @@ export function ComponentPlayground({
   );
 
   const saveCurrent = useCallback(
-    (opts?: { asNew?: boolean; name?: string }) => {
+    async (opts?: { asNew?: boolean; name?: string }) => {
       if (!library || !onLibraryChange) {
         window.alert("Project library is not available.");
         return;
       }
-      const snapshot = buildSnapshot();
+      const snapshot = await buildSnapshotAsync();
+      // If upload persisted, keep local state in sync with durable refs
+      if (snapshot.sourceUrl !== source.url) {
+        setSource((prev) => ({ ...prev, url: snapshot.sourceUrl }));
+      }
+      if (snapshot.content.cardCtaSourceUrl !== content.cardCtaSourceUrl) {
+        setContent((prev) => ({
+          ...prev,
+          cardCtaSourceUrl: snapshot.content.cardCtaSourceUrl,
+        }));
+      }
       const thumb = captureStageThumbnail(stageRef.current);
       const existing =
         !opts?.asNew && activeProjectId
@@ -515,12 +561,14 @@ export function ComponentPlayground({
     [
       library,
       onLibraryChange,
-      buildSnapshot,
+      buildSnapshotAsync,
       activeProjectId,
       definition.label,
       material.materialId,
       dither.algorithm,
       commitLibrary,
+      source.url,
+      content.cardCtaSourceUrl,
     ],
   );
 
@@ -535,17 +583,28 @@ export function ComponentPlayground({
       window.clearTimeout(autosaveTimer.current);
     }
     autosaveTimer.current = window.setTimeout(() => {
-      const snapshot = buildSnapshot();
-      const thumb = captureStageThumbnail(stageRef.current);
-      commitLibrary(
-        upsertUserProject(library, {
-          ...current,
-          materialId: material.materialId,
-          thumbnailDataUrl: thumb ?? current.thumbnailDataUrl,
-          updatedAt: Date.now(),
-          snapshot,
-        }),
-      );
+      void (async () => {
+        const snapshot = await buildSnapshotAsync();
+        if (snapshot.sourceUrl !== source.url) {
+          setSource((prev) => ({ ...prev, url: snapshot.sourceUrl }));
+        }
+        if (snapshot.content.cardCtaSourceUrl !== content.cardCtaSourceUrl) {
+          setContent((prev) => ({
+            ...prev,
+            cardCtaSourceUrl: snapshot.content.cardCtaSourceUrl,
+          }));
+        }
+        const thumb = captureStageThumbnail(stageRef.current);
+        commitLibrary(
+          upsertUserProject(library, {
+            ...current,
+            materialId: material.materialId,
+            thumbnailDataUrl: thumb ?? current.thumbnailDataUrl,
+            updatedAt: Date.now(),
+            snapshot,
+          }),
+        );
+      })();
     }, 2200);
     return () => {
       if (autosaveTimer.current != null) {
@@ -556,7 +615,7 @@ export function ComponentPlayground({
     library,
     activeProjectId,
     onLibraryChange,
-    buildSnapshot,
+    buildSnapshotAsync,
     material.materialId,
     params,
     animation,
@@ -874,7 +933,7 @@ export function ComponentPlayground({
           : mobileTab === "interaction"
             ? "Interaction"
             : mobileTab === "components"
-              ? "Component"
+              ? "Component · Inspector"
               : "Settings";
 
   const handleSourceChange = useCallback(
@@ -897,6 +956,16 @@ export function ComponentPlayground({
     [],
   );
 
+  const resolvedSourceUrl = useResolvedDisplayUrl(source.url);
+  const resolvedCtaUrl = useResolvedDisplayUrl(content.cardCtaSourceUrl);
+  const displayContent = useMemo(
+    () =>
+      resolvedCtaUrl === content.cardCtaSourceUrl
+        ? content
+        : { ...content, cardCtaSourceUrl: resolvedCtaUrl },
+    [content, resolvedCtaUrl],
+  );
+
   const previewBody =
     compareDither || compareMaterial ? (
       <div className="mde-compare" aria-label="Comparison">
@@ -912,8 +981,8 @@ export function ComponentPlayground({
             light={light}
             dither={dither}
             material={material}
-            content={content}
-            sourceUrl={source.url}
+            content={displayContent}
+            sourceUrl={resolvedSourceUrl}
             sourceLightMix={source.lightMix}
             onSourceChange={handleSourceChange}
             reducedMotion={reducedMotion}
@@ -934,8 +1003,8 @@ export function ComponentPlayground({
             light={light}
             dither={compareDither ?? dither}
             material={compareMaterial ?? material}
-            content={content}
-            sourceUrl={source.url}
+            content={displayContent}
+            sourceUrl={resolvedSourceUrl}
             sourceLightMix={source.lightMix}
             onSourceChange={handleSourceChange}
             reducedMotion={reducedMotion}
@@ -951,8 +1020,8 @@ export function ComponentPlayground({
         light={light}
         dither={dither}
         material={material}
-        content={content}
-        sourceUrl={source.url}
+        content={displayContent}
+        sourceUrl={resolvedSourceUrl}
         sourceLightMix={source.lightMix}
         onSourceChange={handleSourceChange}
         reducedMotion={reducedMotion}

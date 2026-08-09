@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { StudioSlider } from "./studio/StudioSlider";
 import {
   DEFAULT_LIGHT_SHAPE,
   LIGHTING_PRESETS,
@@ -34,11 +34,6 @@ const CURVES: { id: FalloffCurveId; label: string }[] = [
   { id: "power", label: "Power" },
   { id: "gaussian", label: "Gaussian" },
 ];
-
-function formatValue(v: number): string {
-  if (Number.isInteger(v)) return String(v);
-  return v.toFixed(2);
-}
 
 function matchesPreset(value: LightShapeConfig, config: LightShapeConfig): boolean {
   return (
@@ -119,37 +114,31 @@ export function LightingPanel({
 
       {(
         [
-          ["centerX", "Light Center X", 0, 1],
-          ["centerY", "Light Center Y", 0, 1],
-          ["radius", "Radius", 0.08, 1],
-          ["stretchX", "Stretch X", 0.35, 2],
-          ["stretchY", "Stretch Y", 0.35, 2],
-          ["rotation", "Rotation", 0, 360],
-          ["coreBrightness", "Core Brightness", 0.4, 1],
-          ["edgeDarkness", "Edge Darkness", 0, 0.55],
-          ["falloff", "Falloff", 0, 1],
-          ["lightContrast", "Light Contrast", 0.6, 2],
-          ["ditherResponse", "Dither Response", 0, 1],
-          ["pointerFollow", "Pointer Follow", 0, 1],
+          ["centerX", "Light Center X", 0, 1, 0.5],
+          ["centerY", "Light Center Y", 0, 1, 0.5],
+          ["radius", "Radius", 0.08, 1, 0.45],
+          ["stretchX", "Stretch X", 0.35, 2, 1],
+          ["stretchY", "Stretch Y", 0.35, 2, 1],
+          ["rotation", "Rotation", 0, 360, 0],
+          ["coreBrightness", "Core Brightness", 0.4, 1, 0.85],
+          ["edgeDarkness", "Edge Darkness", 0, 0.55, 0.2],
+          ["falloff", "Falloff", 0, 1, 0.55],
+          ["lightContrast", "Light Contrast", 0.6, 2, 1],
+          ["ditherResponse", "Dither Response", 0, 1, 0.5],
+          ["pointerFollow", "Pointer Follow", 0, 1, 0],
         ] as const
-      ).map(([key, label, min, max]) => (
-        <div key={key} className="mde-field">
-          <div className="mde-field__row">
-            <Label htmlFor={`${idPrefix}-${key}`}>{label}</Label>
-            <span>{formatValue(value[key])}</span>
-          </div>
-          <Slider
-            id={`${idPrefix}-${key}`}
-            min={min}
-            max={max}
-            step={key === "rotation" ? 1 : 0.01}
-            value={[value[key]]}
-            onValueChange={(vals) => {
-              const next = Array.isArray(vals) ? vals[0] : vals;
-              if (typeof next === "number") patch({ [key]: next });
-            }}
-          />
-        </div>
+      ).map(([key, label, min, max, def]) => (
+        <StudioSlider
+          key={key}
+          id={`${idPrefix}-${key}`}
+          label={label}
+          min={min}
+          max={max}
+          step={key === "rotation" ? 1 : 0.01}
+          value={value[key]}
+          defaultValue={def}
+          onChange={(v) => patch({ [key]: v })}
+        />
       ))}
 
       <div className="mde-field">

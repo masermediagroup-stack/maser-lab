@@ -2800,6 +2800,32 @@ html.mde-fs-open body {
   margin-bottom: 0.75rem;
 }
 
+.mde-studio-slider--disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.mde-inspector {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--mde-line, rgba(255, 255, 255, 0.12));
+}
+
+.mde-inspector__head {
+  margin-bottom: 0.65rem;
+}
+
+.mde-inspector__title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.mde-source-field__drop--busy {
+  opacity: 0.7;
+}
+
 .mde-studio-slider__row {
   display: flex;
   justify-content: space-between;

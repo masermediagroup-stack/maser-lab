@@ -397,27 +397,32 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 
 ### Architecture notes
 
-`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps). Sprint 8 adds `export/` (schema/migrate/validate/codegen/package) and splits product vs lab barrels — no physical `engine/` folder move.
+`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps). Sprint 8 adds `export/` (schema/migrate/validate/codegen/package) and splits product vs lab barrels — no physical `engine/` folder move. Sprint 8.1 adds lab-only IndexedDB assets without changing the renderer pipeline.
 
-### Sprint 8.1 candidates
+### Sprint 8.1 — v0.8 Studio Harden
 
-- Cloud sync / real share backend
-- IndexedDB upload persistence by default
-- Visual regression matrix
-- Deeper standalone npm package publish (`@maser/dither-engine` scaffold → v0.9 pack smoke)
-- Canvas2D algorithm parity for all dither algorithms
+- [x] IndexedDB upload persistence (`mde-asset:`) via `lib/asset-store.ts` + `SourceImageField`
+- [x] Lab snapshot keeps asset refs; portable export still strips them
+- [x] Component Inspector (padding / radius / chrome) in Content dock / mobile Comps sheet
+- [x] `StudioSlider` on Interaction, Animation, Lighting, Content numbers, tone params, source light-mix
+- [x] Thumb cache debounce + live active Material Dock blit (~6fps, one WebGL context)
+- [x] Promoted `docs/roadmap/07-ASSET-SYSTEM.md`; roadmap baseline `0.8.0`
+- [ ] Cloud sync / real share backend (deferred — post v1.0)
+- [ ] Visual regression matrix (→ v0.9)
+- [ ] Deeper standalone npm pack smoke (→ v0.9)
+- [ ] Canvas2D algorithm parity (deferred)
 
 ### Sprint 8 recommendations (deferred / adjacent)
 
 > **Superseded** by [`docs/roadmap/DEVELOPMENT-ROADMAP.md`](../../../docs/roadmap/DEVELOPMENT-ROADMAP.md). Kept for history.
 
-- Persist uploads (data URL / IndexedDB) across project save → **v0.8**
-- Continuous FBO thumb refresh without JPEG churn → **v0.8**
+- Persist uploads (data URL / IndexedDB) across project save → **v0.8 (done 8.1)**
+- Continuous FBO thumb refresh without JPEG churn → **v0.8 (done 8.1)**
 - Cloud sync / share links for project JSON → docs foreshadow only until a post-v1.0 sync milestone
-- Live Material Dock continuous animation (still one context) → **v0.8**
+- Live Material Dock continuous animation (still one context) → **v0.8 (done 8.1)**
 - Timeline snapshots / version history UI → later / stub domains
-- Wire StudioSlider across every panel by default → **v0.8**
-- Component inspector sheet (padding / radius / content) as first-class dock target → **v0.8**
+- Wire StudioSlider across every panel by default → **v0.8 (primary panels done 8.1)**
+- Component inspector sheet (padding / radius / content) as first-class dock target → **v0.8 (done 8.1)**
 - Visual regression suite for algorithms × materials × animations → **v0.9** foundation
 - Deeper frosted/clear glass variants with background sampling when available → post-v1.0 / v1.5 material depth
 - Ceramic / newsprint / brushed aluminum as first-class IDs beyond presets → post-v1.0 backlog

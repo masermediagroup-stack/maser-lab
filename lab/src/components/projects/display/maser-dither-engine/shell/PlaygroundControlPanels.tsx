@@ -46,10 +46,10 @@ import {
 import { LightingPanel } from "./LightingPanel";
 import { DitherPanel } from "./DitherPanel";
 import { ContentEditor } from "./ContentEditor";
+import { ComponentInspector } from "./ComponentInspector";
 import { BasePlateControl } from "./BasePlateControl";
 import type { SourceImageValue } from "./SourceImageField";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { StudioSlider } from "./studio/StudioSlider";
 import { cn } from "@/lib/utils";
 
 export type ControlPanelBundle = {
@@ -99,11 +99,6 @@ export type ControlPanelBundle = {
   /** When set, show these groups in addition to / instead of a single focusGroup match. */
   focusGroups?: Array<ControlGroupId | "presets" | "content" | "export">;
 };
-
-function formatValue(v: number): string {
-  if (Number.isInteger(v)) return String(v);
-  return v.toFixed(2);
-}
 
 function initialAnimation(): AnimationEngineConfig {
   return {
@@ -195,37 +190,18 @@ function renderParamFields(
     const tip = PARAM_TOOLTIPS[field.key];
     const def = MONOCHROME_DEFAULTS[field.key];
     return (
-      <div key={field.key} className="mde-field">
-        <div className="mde-field__row">
-          <Label htmlFor={`mde-${componentId}-${field.key}`} title={tip}>
-            {PARAM_LABELS[field.key] ?? field.key}
-          </Label>
-          <span className="mde-field__value-row">
-            <span>{formatValue(current)}</span>
-            <button
-              type="button"
-              className="mde-chip mde-chip--tiny"
-              title={`Reset to default (${formatValue(def)})`}
-              onClick={() => setParams((p) => ({ ...p, [field.key]: def }))}
-            >
-              ↺
-            </button>
-          </span>
-        </div>
-        {tip ? <p className="mde-field__hint">{tip}</p> : null}
-        <Slider
-          id={`mde-${componentId}-${field.key}`}
-          min={range.min}
-          max={range.max}
-          step={range.step}
-          value={[current]}
-          onValueChange={(vals) => {
-            const next = Array.isArray(vals) ? vals[0] : vals;
-            if (typeof next !== "number") return;
-            setParams((p) => ({ ...p, [field.key]: next }));
-          }}
-        />
-      </div>
+      <StudioSlider
+        key={field.key}
+        id={`mde-${componentId}-${field.key}`}
+        label={PARAM_LABELS[field.key] ?? field.key}
+        hint={tip}
+        min={range.min}
+        max={range.max}
+        step={range.step}
+        value={current}
+        defaultValue={def}
+        onChange={(next) => setParams((p) => ({ ...p, [field.key]: next }))}
+      />
     );
   });
 }
@@ -429,6 +405,12 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
   open={panels.content}
   onOpenChange={(open) => setPanel("content", open)}
 >
+  <ComponentInspector
+    componentId={componentId}
+    content={content}
+    onChange={setContent}
+    idPrefix={`mde-${componentId}-inspect`}
+  />
   <ContentEditor
     componentId={componentId}
     value={content}

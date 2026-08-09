@@ -56,7 +56,10 @@ export type ProjectSnapshot = {
   dither: DitherConfig;
   material: MaterialEngineConfig;
   content: ComponentContent;
-  /** Non-blob source URLs only; blob: uploads are omitted from persistence. */
+  /**
+   * Lab may store `mde-asset:` / data / http(s). Live `blob:` URLs are omitted.
+   * Portable exports strip `mde-asset:` (see export/assets.ts).
+   */
   sourceUrl: string | null;
   sourceLightMix: number;
   /** System preset id or "custom" / user project id when derived. */

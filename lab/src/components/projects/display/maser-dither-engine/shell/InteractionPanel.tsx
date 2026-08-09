@@ -1,7 +1,6 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { StudioSlider } from "./studio/StudioSlider";
 import {
   INTERACTION_MODES,
   createDefaultLights,
@@ -23,11 +22,6 @@ type InteractionPanelProps = {
   onChange: (next: InteractionEngineConfig) => void;
   idPrefix?: string;
 };
-
-function formatValue(v: number): string {
-  if (Number.isInteger(v)) return String(v);
-  return v.toFixed(2);
-}
 
 const HOLD_OPTIONS: { id: HoldBehaviorId; label: string }[] = [
   { id: "none", label: "None" },
@@ -565,6 +559,7 @@ function SliderField({
   step,
   value,
   onChange,
+  defaultValue,
 }: {
   id: string;
   label: string;
@@ -574,28 +569,20 @@ function SliderField({
   step: number;
   value: number;
   onChange: (v: number) => void;
+  defaultValue?: number;
 }) {
   return (
-    <div className="mde-field">
-      <div className="mde-field__row">
-        <Label htmlFor={id} title={tip}>
-          {label}
-        </Label>
-        <span>{formatValue(value)}</span>
-      </div>
-      {tip ? <p className="mde-field__hint">{tip}</p> : null}
-      <Slider
-        id={id}
-        min={min}
-        max={max}
-        step={step}
-        value={[value]}
-        onValueChange={(vals) => {
-          const next = Array.isArray(vals) ? vals[0] : vals;
-          if (typeof next === "number") onChange(next);
-        }}
-      />
-    </div>
+    <StudioSlider
+      id={id}
+      label={label}
+      hint={tip}
+      min={min}
+      max={max}
+      step={step}
+      value={value}
+      defaultValue={defaultValue}
+      onChange={onChange}
+    />
   );
 }
 

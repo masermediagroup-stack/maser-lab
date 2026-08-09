@@ -124,6 +124,24 @@ export class ThumbBlitEngine {
     return this.captureFrame(time);
   }
 
+  /** Low-cost frame for live dock refresh (fewer sim steps, lower JPEG quality). */
+  captureMaterialLive(
+    id: EngineMaterialId,
+    time: number,
+  ): string {
+    this.material.syncFromProps(materialConfig(id));
+    if (this.disposed) return "";
+    this.store.setResolution(this.size, this.size, 1);
+    this.store.snapCurrentToTargets();
+    this.drawOnce(1 / 30);
+    this.drawOnce(Math.max(0.02, time % 0.5));
+    try {
+      return this.canvas.toDataURL("image/jpeg", 0.62);
+    } catch {
+      return "";
+    }
+  }
+
   captureAnimation(modeId: AnimationModeId, time = 1.6): string {
     this.anim.syncFromProps({
       modeId,

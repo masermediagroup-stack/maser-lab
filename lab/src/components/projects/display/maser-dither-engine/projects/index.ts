@@ -6,7 +6,12 @@ export {
   type ProjectSortKey,
   type ProjectBrowserFilters,
 } from "./types";
-export { captureSnapshot, applySnapshot, cloneSnapshot } from "./snapshot";
+export {
+  captureSnapshot,
+  captureSnapshotAsync,
+  applySnapshot,
+  cloneSnapshot,
+} from "./snapshot";
 export type { CaptureInput, SnapshotApplier } from "./snapshot";
 export {
   loadLibrary,

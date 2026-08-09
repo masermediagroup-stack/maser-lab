@@ -2,14 +2,14 @@
 
 Living product milestones for Maser Dither Engine.  
 **Supersedes** Sprint 8+ recommendation lists in `PROJECT.md`.  
-Baseline: engine `0.7.13` · status `building`.
+Baseline: engine `0.8.0` · status `building`.
 
-Related: [00-VISION](./00-VISION.md) · [06-EXPORT-SYSTEM](./06-EXPORT-SYSTEM.md) · [10-QA](./10-QA.md) · [11-V2-FUTURE](./11-V2-FUTURE.md)
+Related: [00-VISION](./00-VISION.md) · [06-EXPORT-SYSTEM](./06-EXPORT-SYSTEM.md) · [07-ASSET-SYSTEM](./07-ASSET-SYSTEM.md) · [10-QA](./10-QA.md) · [11-V2-FUTURE](./11-V2-FUTURE.md)
 
 ## Milestone map
 
 ```text
-0.7.x (now) → v0.8 → v0.9 → v1.0 (ready) → v1.5 (multi-engine) → v2.0
+0.8.0 (export + npm scaffold) → v0.8 studio harden → v0.9 → v1.0 (ready) → v1.5 → v2.0
 ```
 
 | Milestone | Intent |
@@ -26,17 +26,21 @@ Related: [00-VISION](./00-VISION.md) · [06-EXPORT-SYSTEM](./06-EXPORT-SYSTEM.md
 
 ## v0.8 — Studio harden (export quality)
 
+### Status
+
+**In progress (Sprint 8.1)** — upload persistence, Component Inspector, StudioSlider on primary panels, live Material Dock within one WebGL context.
+
 ### Goals
 
 Make authoring reliable so exported components are designed with durable content and inspectable structure.
 
 ### Major features
 
-- Persist uploads (data URL / IndexedDB) across project save
-- Component inspector sheet (padding / radius / content) as dock target
-- Wire `StudioSlider` across panels by default
-- Continuous FBO thumb refresh without JPEG churn (still one context)
-- Live Material Dock animation within context budget
+- [x] Persist uploads (IndexedDB `mde-asset:`) across project save — see [07](./07-ASSET-SYSTEM.md)
+- [x] Component inspector sheet (padding / radius / content) as dock target
+- [x] Wire `StudioSlider` across primary panels by default
+- [x] Thumb refresh polish (debounce + live active material @ ~6fps, one context)
+- [x] Live Material Dock animation within context budget
 
 ### Architecture
 
