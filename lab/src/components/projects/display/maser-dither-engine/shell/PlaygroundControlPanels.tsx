@@ -619,14 +619,23 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
   open={panels.export}
   onOpenChange={(open) => setPanel("export", open)}
 >
+  <p className="mde-export-hint">
+    Production export lives in the Export workspace — project files, presets,
+    React components, packages, tokens, and shareable scenes.
+  </p>
   <pre className="mde-export">{exportCode}</pre>
-  <button
-    type="button"
-    className="mde-btn"
-    onClick={() => void navigator.clipboard?.writeText(exportCode)}
-  >
-    Copy code
-  </button>
+  <div className="mde-export-actions">
+    <button
+      type="button"
+      className="mde-btn"
+      onClick={() => void navigator.clipboard?.writeText(exportCode)}
+    >
+      Copy React snippet
+    </button>
+    <a className="mde-btn mde-btn--primary" href="#/export">
+      Open Export workspace
+    </a>
+  </div>
 </Collapsible>
 
 <section className="mde-docs-block" aria-label="Documentation">

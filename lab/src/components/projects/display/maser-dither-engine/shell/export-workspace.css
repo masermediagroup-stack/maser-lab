@@ -1,0 +1,278 @@
+/* Sprint 8 — Export workspace monochrome chrome */
+
+.mde-export-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 920px;
+  color: #f2f2f2;
+}
+
+.mde-export-workspace__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.mde-export-workspace__eyebrow,
+.mde-present__eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.mde-export-workspace__lede,
+.mde-export-hint {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+}
+
+.mde-export-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.mde-export-steps__item {
+  appearance: none;
+  border: 1px solid #333;
+  background: #0a0a0a;
+  color: #ddd;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.mde-export-steps__item.is-active {
+  background: #f2f2f2;
+  color: #0a0a0a;
+  border-color: #f2f2f2;
+}
+
+.mde-export-section {
+  border: 1px solid #222;
+  padding: 1rem;
+  background: #0c0c0c;
+}
+
+.mde-export-modes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mde-export-mode {
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  border: 1px solid #2a2a2a;
+  background: #080808;
+  color: inherit;
+  padding: 0.75rem;
+  cursor: pointer;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.mde-export-mode.is-active,
+.mde-export-mode:hover {
+  border-color: #888;
+}
+
+.mde-export-mode__label {
+  font-weight: 600;
+}
+
+.mde-export-mode__ext {
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.mde-export-mode__summary,
+.mde-export-mode__when {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.mde-field {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.75rem 0;
+}
+
+.mde-field input {
+  background: #050505;
+  border: 1px solid #333;
+  color: #f2f2f2;
+  padding: 0.6rem 0.7rem;
+  min-height: 44px;
+}
+
+.mde-fieldset {
+  border: 1px solid #222;
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.mde-check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  font-size: 0.85rem;
+}
+
+.mde-export-badge {
+  display: inline-block;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid #444;
+}
+
+.mde-export-badge--ready {
+  color: #eaeaea;
+  border-color: #ccc;
+}
+
+.mde-export-badge--warning {
+  color: #ddd;
+  border-color: #888;
+}
+
+.mde-export-badge--blocked {
+  color: #fff;
+  background: #1a1a1a;
+  border-color: #fff;
+}
+
+.mde-export-issues {
+  margin: 0.75rem 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+}
+
+.mde-export-issues li[data-severity="error"] {
+  color: #fff;
+}
+
+.mde-export-fix {
+  color: #999;
+}
+
+.mde-export-preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.mde-export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mde-export-code {
+  margin: 0.75rem 0 0;
+  padding: 0.85rem;
+  background: #050505;
+  border: 1px solid #222;
+  overflow: auto;
+  max-height: min(50vh, 480px);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  white-space: pre;
+}
+
+.mde-export-code--sm {
+  max-height: 200px;
+}
+
+.mde-export-status {
+  color: #ccc;
+  font-size: 0.85rem;
+}
+
+.mde-export-history ul,
+.mde-export-import {
+  font-size: 0.85rem;
+}
+
+.mde-export-history li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.4rem 0;
+}
+
+.mde-export-workspace--mobile {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.mde-export-workspace--mobile .mde-export-code {
+  max-height: 40vh;
+}
+
+.mde-present {
+  min-height: 100%;
+  padding: 1.25rem;
+  color: #f2f2f2;
+  background: #050505;
+}
+
+.mde-present__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.mde-present__meta {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.mde-present__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mde-present__stage {
+  border: 1px solid #1c1c1c;
+  padding: 1.5rem;
+  background: #000;
+  display: grid;
+  place-items: center;
+  min-height: 50vh;
+}
+
+.mde-transfer-fixtures section {
+  margin: 2rem 0;
+  padding: 1rem;
+  border: 1px solid #222;
+}
+
+.mde-transfer-fixtures h2 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+  .mde-export-page {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}

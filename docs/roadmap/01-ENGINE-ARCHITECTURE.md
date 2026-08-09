@@ -41,7 +41,7 @@ DemoHost
 | Projects store | `projects/` | Lab | Snapshots, history, `.mde.json` |
 | Shell | `shell/`, `shell/studio/` | **No** | Creative-software UI |
 | Tokens | `tokens.css` | Product tokens only | No `--lab-*` in package |
-| Barrel | `index.ts` | Trim for package | Today still re-exports `DitherEngineApp` — freeze must separate |
+| Barrel | `index.ts` / `@maser/dither-engine` | Product-only (shell via `index.lab.ts`) | Do not package `DitherEngineApp` |
 
 ## Ownership matrix (stable)
 
@@ -99,7 +99,7 @@ Details: [06-EXPORT-SYSTEM](./06-EXPORT-SYSTEM.md).
 
 | Debt | Severity | Notes |
 | --- | --- | --- |
-| Public barrel still exports `DitherEngineApp` | High for npm | Split product vs lab entry before freeze |
+| Public barrel still exports `DitherEngineApp` | High for npm | **Mitigated in 0.8.0** — product `index.ts` + `@maser/dither-engine`; shell via `index.lab.ts` |
 | Canvas2D parity for non-Bayer | Medium | Not v1.0 required |
 | Upload persistence | Medium | v0.8 |
 | Legacy `MATERIAL_BEHAVIORS` in color API | Medium | Keep out of structure UI |

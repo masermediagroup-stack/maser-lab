@@ -7,6 +7,7 @@ import type { InteractionEngineConfig } from "../engine/interaction/types";
 import type { LightShapeConfig } from "../engine/lighting/types";
 import type { MaterialEngineConfig } from "../engine/material/types";
 import type { ComponentId, MonochromeParams } from "../types";
+import { sanitizeContentAssets, sanitizeSourceUrl } from "../export/assets";
 import {
   PROJECT_SCHEMA_VERSION,
   type ProjectSnapshot,
@@ -27,12 +28,10 @@ export type CaptureInput = {
   basePresetId: string;
 };
 
-/** Persistable snapshot — drops blob: uploads (cannot survive reload). */
+/** Persistable snapshot — drops blob: uploads (top-level + CTA). */
 export function captureSnapshot(input: CaptureInput): ProjectSnapshot {
-  const sourceUrl =
-    input.sourceUrl && !input.sourceUrl.startsWith("blob:")
-      ? input.sourceUrl
-      : null;
+  const sourceUrl = sanitizeSourceUrl(input.sourceUrl);
+  const content = sanitizeContentAssets(structuredClone(input.content));
 
   return {
     schemaVersion: PROJECT_SCHEMA_VERSION,
@@ -44,7 +43,7 @@ export function captureSnapshot(input: CaptureInput): ProjectSnapshot {
     light: structuredClone(input.light),
     dither: structuredClone(input.dither),
     material: structuredClone(input.material),
-    content: structuredClone(input.content),
+    content,
     sourceUrl,
     sourceLightMix: input.sourceLightMix,
     basePresetId: input.basePresetId,

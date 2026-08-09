@@ -1,0 +1,57 @@
+{
+  "name": "@maser/dither-engine",
+  "version": "0.8.0",
+  "description": "Maser Dither Engine — portable WebGL2 procedural dither surfaces for React",
+  "license": "UNLICENSED",
+  "private": false,
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./tokens.css": "./src/tokens.css",
+    "./package.json": "./package.json"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "sync": "node ./scripts/sync-portable.mjs",
+    "prepack": "npm run sync",
+    "pack:dry": "npm run sync && npm pack --dry-run",
+    "verify:no-shell": "node ./scripts/verify-no-shell.mjs"
+  },
+  "peerDependencies": {
+    "react": "^19",
+    "react-dom": "^19"
+  },
+  "optionalDependencies": {
+    "fflate": "^0.8.3"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": false },
+    "react-dom": { "optional": false }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "dither",
+    "webgl2",
+    "react",
+    "maser",
+    "procedural"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masermediagroup-stack/maser-lab.git",
+    "directory": "packages/dither-engine"
+  }
+}

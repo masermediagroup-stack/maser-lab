@@ -30,12 +30,13 @@ Maser-Lab
 
 ## Public API freeze (v0.9 → v1.0)
 
-Today `index.ts` re-exports engine pieces **and** `DitherEngineApp`. Before registry `ready`:
+Today product `index.ts` is runtime-only (shell in `index.lab.ts`). Package scaffold:
 
-1. Define **product barrel** (engine + canvas + adapters + catalogs + types + tokens).
-2. Move lab app entry to a non-packaged path (e.g. demo-only import).
+1. Keep **product barrel** (engine + canvas + adapters + catalogs + types + tokens + `export/`).
+2. Lab app entry stays on `index.lab.ts` / demo registry (not packaged).
 3. Document exports in `TRANSFER.md` and this file.
 4. Add migration notes for any renamed exports.
+5. Prove install via `packages/dither-engine` → `npm pack` (v0.9).
 
 ## Project / preset / component export
 
@@ -44,7 +45,7 @@ Today `index.ts` re-exports engine pieces **and** `DitherEngineApp`. Before regi
 | Project | `.mde.json` import/export in lab | Remains lab interchange; not required for npm consumers |
 | Preset | System catalog in repo | Serializable preset objects consumers can pass as props |
 | Component | Source adapters | Packaged React components |
-| Package | Lab monorepo path | Single npm package (name TBD) |
+| Package | Lab monorepo path | `@maser/dither-engine` (`packages/dither-engine`) |
 
 ## Tokens & CSS rules
 
@@ -69,9 +70,11 @@ Today `index.ts` re-exports engine pieces **and** `DitherEngineApp`. Before regi
 
 ### Package identity
 
-- Docs use placeholder **`PACKAGE_NAME`** until packaging locks the name (grilled Q16).
+- Locked name: **`@maser/dither-engine`** (scaffold under `packages/dither-engine/`)
 - Peer dependencies: React / React DOM (match lab major).
 - No Three.js dependency.
+- Sync: `npm run sync --workspace @maser/dither-engine` copies the product allowlist from the lab tree (excludes `shell/`, `engine/preview`).
+- Local pack: `npm run pack:dry --workspace @maser/dither-engine`
 
 ### Workflow order (grilled Q7)
 
@@ -91,8 +94,8 @@ API freeze candidate → local npm pack → install in test app → fix leaks
 
 | Mechanism | Role |
 | --- | --- |
-| `ENGINE_VERSION` in `constants.ts` | In-engine identity (currently `0.7.13`) |
-| Package semver | Consumer-facing (set at npm time) |
+| `ENGINE_VERSION` in `constants.ts` | In-engine identity (currently `0.8.0`) |
+| Package semver | `@maser/dither-engine` — aligned at scaffold (`0.8.0`); public publish when v1.0 gates pass |
 | `engine/dither/migrate.ts` | Example of config migration — extend pattern for breaking uniform/API changes |
 | Roadmap milestones | Communicate breaking windows |
 

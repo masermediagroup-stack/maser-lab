@@ -1,5 +1,12 @@
 import { STORAGE_KEYS } from "../constants";
 import type { MaterialId } from "../types";
+import { parseAndMigrateImport } from "../export/migrate";
+import {
+  createExportDoc,
+  projectMetaFromRecord,
+  runtimeFromSnapshot,
+  snapshotFromRuntime,
+} from "../export/schema";
 import { SYSTEM_PROJECTS } from "./system-projects";
 import type {
   ProjectLibraryState,
@@ -208,26 +215,62 @@ export function setBrowserView(
 }
 
 export function exportProjectJson(project: ProjectRecord): string {
-  return JSON.stringify(project, null, 2);
+  // Sprint 8 — schema 2.0.0 envelope + legacy ProjectRecord fields
+  const doc = createExportDoc({
+    kind: "project",
+    runtime: runtimeFromSnapshot(project.snapshot),
+    project: projectMetaFromRecord(project),
+  });
+  return JSON.stringify(
+    {
+      ...doc,
+      id: project.id,
+      origin: project.origin,
+      name: project.name,
+      description: project.description,
+      notes: project.notes,
+      tags: project.tags,
+      colorLabel: project.colorLabel,
+      favorite: project.favorite,
+      materialId: project.materialId,
+      thumbnailDataUrl: project.thumbnailDataUrl,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt,
+      snapshot: project.snapshot,
+      readOnly: false,
+    },
+    null,
+    2,
+  );
 }
 
 export function importProjectJson(
   library: ProjectLibraryState,
   raw: string,
 ): ProjectLibraryState {
-  const parsed = JSON.parse(raw) as ProjectRecord;
-  if (!parsed?.snapshot || !parsed?.name) {
-    throw new Error("Invalid project file.");
+  const summary = parseAndMigrateImport(raw, "project");
+  if (summary.validation.status === "blocked") {
+    const first = summary.validation.issues.find((i) => i.severity === "error");
+    throw new Error(first?.message ?? "Import blocked by validation.");
   }
   const now = Date.now();
+  const runtime = summary.exportDoc.runtime;
+  const meta = summary.exportDoc.project;
   const project: ProjectRecord = {
-    ...parsed,
     id: createUserProjectId(),
     origin: "user",
     readOnly: false,
+    name: meta?.name?.trim() || "Imported project",
+    description: meta?.description ?? "",
+    notes: meta?.notes ?? "",
+    tags: meta?.tags ?? [],
+    colorLabel: meta?.colorLabel ?? "none",
+    favorite: false,
+    materialId: runtime.material.materialId,
+    thumbnailDataUrl: meta?.thumbnailDataUrl ?? null,
     createdAt: now,
     updatedAt: now,
-    favorite: false,
+    snapshot: snapshotFromRuntime(runtime),
   };
   return upsertUserProject(library, project);
 }
