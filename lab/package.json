@@ -11,6 +11,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@maser/dither-engine": "*",
     "@base-ui/react": "^1.6.0",
     "@gsap/react": "^2.1.2",
     "@react-three/drei": "^10.7.7",

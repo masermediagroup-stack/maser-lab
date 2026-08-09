@@ -43,6 +43,6 @@ Parse → validate → detect version → `migrateV1ToV2` → summary → import
 
 `localStorage` key `mde:export-history:v1` — metadata only; re-export regenerates from current runtime.
 
-## Non-goals (→ Sprint 8.1)
+## Non-goals (→ Sprint 8.1 / v0.9+)
 
-Cloud sync, IndexedDB upload persistence by default, visual regression matrix, npm package publish, Canvas2D algorithm parity.
+Cloud sync, IndexedDB upload persistence by default, visual regression matrix, public npm publish (scaffold `@maser/dither-engine` exists — local `npm pack` is the v0.9 proof), Canvas2D algorithm parity.

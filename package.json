@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "lab"
+    "lab",
+    "packages/*"
   ],
   "scripts": {
     "dev": "npm run dev --workspace maser-lab",
     "build": "npm run build --workspace maser-lab",
     "start": "npm run start --workspace maser-lab",
-    "lint": "npm run lint --workspace maser-lab"
+    "lint": "npm run lint --workspace maser-lab",
+    "pack:dither": "npm run pack:dry --workspace @maser/dither-engine",
+    "sync:dither": "npm run sync --workspace @maser/dither-engine"
   },
   "dependencies": {
     "next": "16.2.9",

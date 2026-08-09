@@ -1,0 +1,332 @@
+import type {
+  AnimationControlDef,
+  AnimationModeDefinition,
+  AnimationModeId,
+  AnimationModeParams,
+} from "../types";
+
+function ctrl(
+  key: string,
+  label: string,
+  min: number,
+  max: number,
+  step: number,
+  defaultValue: number,
+): AnimationControlDef {
+  return { key, label, min, max, step, defaultValue };
+}
+
+function mode(
+  partial: Omit<AnimationModeDefinition, "controls"> & {
+    controls: AnimationControlDef[];
+  },
+): AnimationModeDefinition {
+  return partial;
+}
+
+/**
+ * Animation mode catalog — each entry is independently documented.
+ * Shader branches by `index`. Add a new mode by appending here + a GLSL branch.
+ */
+export const ANIMATION_MODES: AnimationModeDefinition[] = [
+  mode({
+    id: "linear-horizontal",
+    label: "Linear Horizontal",
+    index: 0,
+    purpose: "Steady lateral print drift — premium UI chrome motion.",
+    approach: "Phase-shifted luminance band along aspect-corrected X with soft envelope.",
+    performance: "Trivial ALU.",
+    extension: "Add multi-band harmonics.",
+    controls: [
+      ctrl("speed", "Speed", 0.05, 3, 0.01, 0.85),
+      ctrl("amplitude", "Amplitude", 0, 0.85, 0.01, 0.38),
+      ctrl("softness", "Softness", 0.1, 1.5, 0.01, 0.7),
+      ctrl("phase", "Phase", 0, 6.28, 0.01, 0),
+    ],
+  }),
+  mode({
+    id: "linear-vertical",
+    label: "Linear Vertical",
+    index: 1,
+    purpose: "Vertical wash — editorial column reveals.",
+    approach: "Sinusoidal curtain along Y with independent falloff (not rotated horizontal).",
+    performance: "Trivial ALU.",
+    extension: "Staggered columns.",
+    controls: [
+      ctrl("speed", "Speed", 0.05, 3, 0.01, 0.7),
+      ctrl("amplitude", "Amplitude", 0, 0.85, 0.01, 0.42),
+      ctrl("bias", "Bias", -0.3, 0.3, 0.01, 0.05),
+      ctrl("shear", "Shear", 0, 0.4, 0.01, 0.12),
+    ],
+  }),
+  mode({
+    id: "diagonal",
+    label: "Diagonal",
+    index: 2,
+    purpose: "Oblique print stroke with traveling highlight.",
+    approach: "Skewed UV domain + traveling front (≠ 45° rotation of linear).",
+    performance: "Trivial ALU.",
+    extension: "Cross-hatch dual fronts.",
+    controls: [
+      ctrl("speed", "Speed", 0.05, 3, 0.01, 0.9),
+      ctrl("amplitude", "Amplitude", 0, 0.8, 0.01, 0.45),
+      ctrl("skew", "Skew", 0.2, 2.5, 0.01, 1.15),
+      ctrl("sharpness", "Sharpness", 0.5, 4, 0.01, 1.8),
+    ],
+  }),
+  mode({
+    id: "radial-pulse",
+    label: "Radial Pulse",
+    index: 3,
+    purpose: "Expanding concentric pulse fronts — loaders and CTAs.",
+    approach:
+      "Multi-front Gaussian rings with explicit width, falloff, and repeat (≠ ripple sine train).",
+    performance: "Low — up to 4 ring samples.",
+    extension: "Multi-focus pulses.",
+    controls: [
+      ctrl("speed", "Expansion Speed", 0.1, 3, 0.01, 1.15),
+      ctrl("radius", "Radius", 0.15, 1.35, 0.01, 0.72),
+      ctrl("width", "Pulse Width", 0.03, 0.35, 0.01, 0.09),
+      ctrl("strength", "Strength", 0, 1, 0.01, 0.62),
+      ctrl("falloff", "Falloff", 0.2, 3.5, 0.01, 1.4),
+      ctrl("repeat", "Repeat", 1, 4, 1, 2),
+    ],
+  }),
+  mode({
+    id: "ripple",
+    label: "Ripple",
+    index: 4,
+    purpose: "Water-like concentric expansion.",
+    approach: "Dispersion relation ω(k) via sin(k·r − ωt)/√r amplitude falloff.",
+    performance: "Low — length + sin.",
+    extension: "Obstacle reflections.",
+    controls: [
+      ctrl("speed", "Speed", 0.1, 3, 0.01, 1.2),
+      ctrl("frequency", "Frequency", 2, 18, 0.1, 8),
+      ctrl("amplitude", "Amplitude", 0, 0.75, 0.01, 0.4),
+      ctrl("damping", "Damping", 0.2, 3, 0.01, 1.1),
+    ],
+  }),
+  mode({
+    id: "wave",
+    label: "Wave",
+    index: 5,
+    purpose: "Soft flowing print — default premium feel.",
+    approach: "Sum of incommensurate traveling waves (not a single sinusoid).",
+    performance: "Low — 3 sines.",
+    extension: "Gerstner-style crest sharpening.",
+    controls: [
+      ctrl("speed", "Speed", 0.05, 3, 0.01, 0.75),
+      ctrl("amplitude", "Amplitude", 0, 0.85, 0.01, 0.48),
+      ctrl("frequency", "Frequency", 0.5, 6, 0.01, 2.2),
+      ctrl("phase", "Phase", 0, 6.28, 0.01, 0.4),
+      ctrl("direction", "Direction Mix", 0, 1, 0.01, 0.35),
+    ],
+  }),
+  mode({
+    id: "spiral",
+    label: "Spiral",
+    index: 6,
+    purpose: "Arms that visibly rotate around a center.",
+    approach:
+      "Archimedean log-spiral with angular advection, center offset, and UV scale zoom.",
+    performance: "atan + length.",
+    extension: "Multi-arm interference.",
+    controls: [
+      ctrl("speed", "Rotation Speed", 0.05, 3, 0.01, 0.85),
+      ctrl("arms", "Arm Count", 1, 8, 1, 3),
+      ctrl("tightness", "Spiral Tightness", 0.5, 4, 0.01, 1.75),
+      ctrl("amplitude", "Amplitude", 0, 0.9, 0.01, 0.55),
+      ctrl("centerX", "Center X", -0.45, 0.45, 0.01, 0),
+      ctrl("centerY", "Center Y", -0.45, 0.45, 0.01, 0),
+      ctrl("direction", "Direction", -1, 1, 1, 1),
+      ctrl("scale", "Scale", 0.35, 2.8, 0.01, 1),
+    ],
+  }),
+  mode({
+    id: "orbit",
+    label: "Orbit",
+    index: 7,
+    purpose: "Satellites of light orbiting a barycenter.",
+    approach: "Two orbiting Gaussians with independent angular velocities.",
+    performance: "Low — 2 distance fields.",
+    extension: "Elliptical orbits.",
+    controls: [
+      ctrl("radius", "Radius", 0.05, 0.55, 0.01, 0.28),
+      ctrl("angular", "Angular Velocity", 0.1, 3, 0.01, 0.9),
+      ctrl("offset", "Offset", 0, 3.14, 0.01, 1.2),
+      ctrl("strength", "Strength", 0, 0.9, 0.01, 0.58),
+    ],
+  }),
+  mode({
+    id: "breathing",
+    label: "Breathing",
+    index: 8,
+    purpose: "Subtle premium UI inhale/exhale.",
+    approach: "Smoothstep envelope on soft radial scale (ease-in-out, no snap).",
+    performance: "Trivial.",
+    extension: "Asymmetric inhale/exhale curves.",
+    controls: [
+      ctrl("speed", "Speed", 0.05, 2, 0.01, 0.45),
+      ctrl("depth", "Depth", 0, 0.45, 0.01, 0.16),
+      ctrl("center", "Center Softness", 0.1, 1.2, 0.01, 0.55),
+      ctrl("hold", "Hold", 0, 0.8, 0.01, 0.25),
+    ],
+  }),
+  mode({
+    id: "bloom",
+    label: "Bloom",
+    index: 9,
+    purpose: "Expanding energy bloom (distinct from material bloom stage).",
+    approach: "Time-gated radial energy with delayed secondary wave.",
+    performance: "Low.",
+    extension: "Color-channel stagger when color materials arrive.",
+    controls: [
+      ctrl("speed", "Speed", 0.1, 2.5, 0.01, 0.8),
+      ctrl("amount", "Bloom Amount", 0, 0.95, 0.01, 0.55),
+      ctrl("radius", "Radius", 0.15, 1.2, 0.01, 0.6),
+      ctrl("delay", "Secondary Delay", 0, 1.5, 0.01, 0.45),
+    ],
+  }),
+  mode({
+    id: "noise-drift",
+    label: "Noise Drift",
+    index: 10,
+    purpose: "Slow organic drift via value-noise domain warp.",
+    approach: "FBM domain offset evolving in time (simplex-style hash noise).",
+    performance: "Moderate — few noise taps.",
+    extension: "True simplex gradients.",
+    controls: [
+      ctrl("scale", "Noise Scale", 0.5, 6, 0.01, 2.2),
+      ctrl("strength", "Noise Strength", 0, 0.7, 0.01, 0.32),
+      ctrl("evolution", "Evolution Speed", 0.05, 2, 0.01, 0.55),
+      ctrl("octaves", "Detail", 1, 4, 0.1, 2.5),
+    ],
+  }),
+  mode({
+    id: "flow-field",
+    label: "Flow Field",
+    index: 11,
+    purpose: "Natural directional advection.",
+    approach: "Curl-like flow from finite-difference noise gradients (divergence-free feel).",
+    performance: "Moderate — 4 noise samples.",
+    extension: "Bake vector field texture.",
+    controls: [
+      ctrl("strength", "Flow Strength", 0, 0.85, 0.01, 0.42),
+      ctrl("scale", "Field Scale", 0.4, 5, 0.01, 1.8),
+      ctrl("rotation", "Rotation", 0, 6.28, 0.01, 0.7),
+      ctrl("velocity", "Velocity", 0.05, 2.5, 0.01, 0.85),
+    ],
+  }),
+  mode({
+    id: "magnetic",
+    label: "Magnetic",
+    index: 12,
+    purpose: "Field distortion toward / away from poles.",
+    approach: "Dipole potential ∇(1/r) style warp between two poles.",
+    performance: "Low.",
+    extension: "Multipole fields.",
+    controls: [
+      ctrl("strength", "Strength", 0, 0.9, 0.01, 0.5),
+      ctrl("separation", "Pole Separation", 0.1, 0.8, 0.01, 0.35),
+      ctrl("spin", "Spin", 0, 2, 0.01, 0.55),
+      ctrl("falloff", "Falloff", 0.5, 3, 0.01, 1.4),
+    ],
+  }),
+  mode({
+    id: "aurora",
+    label: "Aurora",
+    index: 13,
+    purpose: "Organic atmospheric curtains.",
+    approach: "Vertical sheets warped by layered noise with slow vertical scroll.",
+    performance: "Moderate.",
+    extension: "Ribbon secondary sheets.",
+    controls: [
+      ctrl("speed", "Speed", 0.05, 2, 0.01, 0.4),
+      ctrl("warp", "Warp", 0, 0.9, 0.01, 0.48),
+      ctrl("bands", "Bands", 1, 6, 0.1, 3.2),
+      ctrl("drift", "Drift", 0, 1.5, 0.01, 0.65),
+    ],
+  }),
+  mode({
+    id: "turbulence",
+    label: "Turbulence",
+    index: 14,
+    purpose: "Chaotic but controlled agitation.",
+    approach: "Domain-warped FBM with incommensurate time channels.",
+    performance: "Higher — nested noise.",
+    extension: "LOD reduce octaves on mobile.",
+    controls: [
+      ctrl("scale", "Scale", 0.5, 5, 0.01, 2.4),
+      ctrl("strength", "Strength", 0, 0.85, 0.01, 0.42),
+      ctrl("speed", "Speed", 0.1, 2.5, 0.01, 0.95),
+      ctrl("roughness", "Roughness", 0.3, 1.2, 0.01, 0.72),
+    ],
+  }),
+  mode({
+    id: "lava-lamp",
+    label: "Lava Lamp",
+    index: 15,
+    purpose: "Large soft organic blobs that rise and merge.",
+    approach:
+      "Metaball field with viscosity-slowed paths, surface tension threshold, and ∇field UV bulge.",
+    performance: "Moderate — N blobs × gradient samples.",
+    extension: "GPU particle seeds.",
+    controls: [
+      ctrl("speed", "Merge Speed", 0.05, 2, 0.01, 0.55),
+      ctrl("count", "Blob Count", 2, 7, 1, 5),
+      ctrl("size", "Blob Size", 0.12, 0.55, 0.01, 0.36),
+      ctrl("merge", "Merge", 0.4, 1.45, 0.01, 0.9),
+      ctrl("viscosity", "Viscosity", 0.25, 2.2, 0.01, 0.85),
+      ctrl("tension", "Surface Tension", 0.35, 2, 0.01, 1),
+      ctrl("distort", "Organic Distortion", 0, 1.35, 0.01, 0.55),
+    ],
+  }),
+];
+
+const byId = new Map(ANIMATION_MODES.map((m) => [m.id, m]));
+const byIndex = new Map(ANIMATION_MODES.map((m) => [m.index, m]));
+
+export function getAnimationMode(id: AnimationModeId): AnimationModeDefinition {
+  const m = byId.get(id);
+  if (!m) throw new Error(`Unknown animation mode: ${id}`);
+  return m;
+}
+
+export function getAnimationModeByIndex(index: number): AnimationModeDefinition | undefined {
+  return byIndex.get(index);
+}
+
+export function defaultModeParams(id: AnimationModeId): AnimationModeParams {
+  const m = getAnimationMode(id);
+  const out: AnimationModeParams = {};
+  for (const c of m.controls) out[c.key] = c.defaultValue;
+  return out;
+}
+
+/** Pack named controls into 8 floats (two vec4s) for the shader. */
+export function packModeParams(
+  id: AnimationModeId,
+  params: AnimationModeParams,
+): { p0: [number, number, number, number]; p1: [number, number, number, number] } {
+  const m = getAnimationMode(id);
+  const values = m.controls.map((c) => {
+    const v = params[c.key];
+    let n = typeof v === "number" ? v : c.defaultValue;
+    // Integer-step controls (arm count, blob count, …) must never ship fractional uniforms
+    if (c.step >= 1) n = Math.round(n);
+    return n;
+  });
+  while (values.length < 8) values.push(0);
+  return {
+    p0: [values[0]!, values[1]!, values[2]!, values[3]!],
+    p1: [values[4]!, values[5]!, values[6]!, values[7]!],
+  };
+}
+
+export const AnimationModeCatalog = {
+  list: () => ANIMATION_MODES.slice(),
+  get: getAnimationMode,
+  defaults: defaultModeParams,
+  pack: packModeParams,
+};

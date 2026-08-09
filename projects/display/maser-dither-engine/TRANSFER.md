@@ -20,14 +20,16 @@ import {
   PresetCatalog,
   MONOCHROME_DEFAULTS,
   ENGINE_VERSION,
-  // Sprint 8 export API
   buildRuntimeConfig,
   createExportDoc,
   generateExportOutput,
   parseAndMigrateImport,
   validateExportDoc,
-} from "@/components/projects/display/maser-dither-engine";
+} from "@maser/dither-engine";
+import "@maser/dither-engine/tokens.css";
 ```
+
+Monorepo package: `packages/dither-engine` (sync from lab via `npm run sync:dither`).
 
 Lab editor shell is **not** on the product barrel. For demos only:
 
