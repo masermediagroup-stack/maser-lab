@@ -46,10 +46,10 @@ export const CARD_MAX_WIDTH = 360;
 export const CARD_MIN_HEIGHT = 200;
 
 /**
- * Collapse: DOM trigger only after the single-pixel merge has expanded
- * into the full squircle.
+ * Collapse: DOM trigger crossfades in during the final portion of squircle grow
+ * (grow 0.72→1). Keeps icon/label continuous with the canvas plate.
  */
-export const SQUIRCLE_DOM_REVEAL_AT = 0.012;
+export const SQUIRCLE_DOM_REVEAL_GROW = 0.72;
 
 /**
  * Collapse timeline (collapseT = 1 - progress):

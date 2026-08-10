@@ -19,11 +19,12 @@ import {
 import {
   CARD_MAX_WIDTH,
   CARD_MIN_HEIGHT,
+  COLLAPSE_EXPAND_START,
   DEFAULT_TITLE,
   DEMO_BODY,
   GLIDE_TEXT_MS,
   PIC_DEFAULTS,
-  SQUIRCLE_DOM_REVEAL_AT,
+  SQUIRCLE_DOM_REVEAL_GROW,
   TRIGGER_BLUR_MAX,
   TRIGGER_SIZE,
 } from "./constants";
@@ -99,9 +100,12 @@ export function PixelInfoCard({
 
   const [glidePhase, setGlidePhase] = useState<AnimationPhase>("in");
   const [glidePlayKey, setGlidePlayKey] = useState(0);
+  /** True only after layout bump so GlideText never mounts then remounts one frame later. */
+  const [glideReady, setGlideReady] = useState(false);
   const [holdingForTextOut, setHoldingForTextOut] = useState(false);
   const textOutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingCloseRef = useRef(false);
+  const prevPhaseForGlideRef = useRef<typeof phase>(phase);
 
   const clearTextOutTimer = useCallback(() => {
     if (textOutTimerRef.current != null) {
@@ -114,13 +118,22 @@ export function PixelInfoCard({
 
   useEffect(() => () => clearTextOutTimer(), [clearTextOutTimer]);
 
-  // Play GlideText in when the plate settles
-  useEffect(() => {
-    if (phase === "expanded" && !holdingForTextOut) {
+  /**
+   * Start GlideText on the same frame the plate settles — useLayoutEffect so
+   * we bump playKey before paint (no idle frame, no restart stutter).
+   */
+  useLayoutEffect(() => {
+    const prev = prevPhaseForGlideRef.current;
+    prevPhaseForGlideRef.current = phase;
+
+    if (phase === "expanded" && prev !== "expanded" && !holdingForTextOut) {
       setGlidePhase("in");
       setGlidePlayKey((k) => k + 1);
+      setGlideReady(true);
+      return;
     }
     if (phase === "idle" || phase === "expanding") {
+      setGlideReady(false);
       clearTextOutTimer();
     }
   }, [phase, holdingForTextOut, clearTextOutTimer]);
@@ -134,10 +147,11 @@ export function PixelInfoCard({
     }
     if (phase === "expanding") {
       clearTextOutTimer();
+      setGlideReady(false);
       collapse();
       return;
     }
-    // expanded — exit copy, then dissolve
+    // expanded — exit copy immediately, then dissolve
     if (pendingCloseRef.current) return;
     if (reducedMotion) {
       collapse();
@@ -145,12 +159,14 @@ export function PixelInfoCard({
     }
     pendingCloseRef.current = true;
     setHoldingForTextOut(true);
+    setGlideReady(true);
     setGlidePhase("out");
     setGlidePlayKey((k) => k + 1);
     textOutTimerRef.current = setTimeout(() => {
       textOutTimerRef.current = null;
       pendingCloseRef.current = false;
       setHoldingForTextOut(false);
+      setGlideReady(false);
       collapse();
     }, GLIDE_TEXT_MS);
   }, [phase, collapse, clearTextOutTimer, reducedMotion]);
@@ -161,6 +177,7 @@ export function PixelInfoCard({
       return;
     }
     clearTextOutTimer();
+    setGlideReady(false);
     toggle();
   }, [phase, holdingForTextOut, requestClose, clearTextOutTimer, toggle]);
 
@@ -230,40 +247,36 @@ export function PixelInfoCard({
   }, [phase, holdingForTextOut, requestClose]);
 
   /**
-   * Squircle surface + chrome only after canvas has grown the merged pixel
-   * into the full squircle — never while the blast/suck is still running.
+   * Squircle surface + chrome crossfade with the canvas grow — same curve for
+   * plate, icon, and label so nothing pauses then pops.
    */
   const triggerSurfaceOpacity = (() => {
     if (reducedMotion) return phase === "idle" ? 1 : 0;
     if (phase === "idle") return 1;
     if (phase === "expanding" || phase === "expanded") {
-      return Math.max(0, 1 - progress / 0.08);
+      // Snap off with pixels — no CSS fade lag fighting progress
+      return progress < 0.02 ? 1 : 0;
     }
     if (phase === "collapsing") {
-      const t = clamp01(
-        (SQUIRCLE_DOM_REVEAL_AT - progress) / SQUIRCLE_DOM_REVEAL_AT,
+      const collapseT = 1 - progress;
+      if (collapseT < COLLAPSE_EXPAND_START) return 0;
+      const grow = easeOutCubic(
+        clamp01(
+          (collapseT - COLLAPSE_EXPAND_START) / (1 - COLLAPSE_EXPAND_START),
+        ),
       );
-      return easeOutCubic(t);
+      if (grow < SQUIRCLE_DOM_REVEAL_GROW) return 0;
+      return easeOutCubic(
+        (grow - SQUIRCLE_DOM_REVEAL_GROW) / (1 - SQUIRCLE_DOM_REVEAL_GROW),
+      );
     }
     return 0;
   })();
 
-  const triggerChromeOpacity = (() => {
-    if (reducedMotion) return phase === "idle" ? 1 : 0;
-    if (phase === "idle") return 1;
-    if (phase === "expanding" || phase === "expanded") {
-      return Math.max(0, 1 - progress / 0.06);
-    }
-    if (phase === "collapsing") {
-      // Icon + label only once expand-to-squircle has finished
-      return progress <= SQUIRCLE_DOM_REVEAL_AT * 0.5 ? 1 : 0;
-    }
-    return 0;
-  })();
+  const triggerChromeOpacity = triggerSurfaceOpacity;
 
   const triggerBlur = (() => {
-    if (reducedMotion || phase === "idle") return 0;
-    if (phase === "collapsing") return 0;
+    if (reducedMotion || phase === "idle" || phase === "collapsing") return 0;
     return Math.min(
       TRIGGER_BLUR_MAX,
       (1 - triggerSurfaceOpacity) * TRIGGER_BLUR_MAX,
@@ -287,7 +300,8 @@ export function PixelInfoCard({
     (phase === "collapsing" || progress > 0.01);
 
   const showGlide =
-    phase === "expanded" || holdingForTextOut || (reducedMotion && phase === "expanding");
+    ((phase === "expanded" || holdingForTextOut) && glideReady) ||
+    (reducedMotion && phase === "expanding");
 
   return (
     <div
@@ -328,11 +342,8 @@ export function PixelInfoCard({
               triggerSurfaceOpacity < 0.2 && triggerChromeOpacity < 0.2
                 ? "none"
                 : "auto",
-            transition: reducedMotion
-              ? "opacity 120ms ease"
-              : phase === "collapsing"
-                ? "none"
-                : `opacity var(--pic-dissipate-ms) ease-out, filter var(--pic-dissipate-ms) ease-out`,
+            // Progress-driven opacity only — CSS transitions cause the “stop then play” stutter
+            transition: "none",
           }}
           aria-hidden={triggerChromeOpacity < 0.2}
         >

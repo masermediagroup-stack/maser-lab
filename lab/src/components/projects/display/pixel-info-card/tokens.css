@@ -151,8 +151,9 @@
 }
 
 .pic-card--settled {
+  /* Snap shadow with the plate — no delayed second beat after text enters */
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
-  transition: box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: none;
 }
 
 .pic-card:not(.pic-card--visible) {

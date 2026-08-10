@@ -7,6 +7,7 @@ import {
   COLLAPSE_MERGE_END,
   PIXEL_PLATE_FILL_AT,
   PIXEL_PLATE_SOLID_AT,
+  SQUIRCLE_DOM_REVEAL_GROW,
   TRIGGER_RADIUS,
   TRIGGER_SIZE,
 } from "./constants";
@@ -418,27 +419,39 @@ export function PixelAssembleCanvas({
         ctx.restore();
       }
 
-      // After merge: one pixel → grow into squircle (no early full plate)
+      // After merge: one pixel → grow into the squircle, then crossfade to DOM
       if (collapseT >= COLLAPSE_EXPAND_START) {
         const grow = easeOutCubic(
           clamp01(
             (collapseT - COLLAPSE_EXPAND_START) / (1 - COLLAPSE_EXPAND_START),
           ),
         );
+        // Fade canvas plate as DOM trigger takes over (same grow window)
+        const domT =
+          grow < SQUIRCLE_DOM_REVEAL_GROW
+            ? 0
+            : clamp01(
+                (grow - SQUIRCLE_DOM_REVEAL_GROW) /
+                  (1 - SQUIRCLE_DOM_REVEAL_GROW),
+              );
+        const canvasAlpha = 1 - easeOutCubic(domT);
+        if (canvasAlpha < 0.02) return;
+
         if (grow < 0.02) {
-          // Single merged pixel at the squircle center
           ctx.fillStyle = fill;
+          ctx.globalAlpha = canvasAlpha;
           ctx.fillRect(
             Math.round(ox - size / 2),
             Math.round(oy - size / 2),
             size,
             size,
           );
+          ctx.globalAlpha = 1;
         } else {
           const grown = size + (side - size) * grow;
           const radius = TRIGGER_RADIUS * (grown / side);
           ctx.save();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = canvasAlpha;
           ctx.fillStyle = fill;
           roundRect(
             ctx,
@@ -452,29 +465,6 @@ export function PixelAssembleCanvas({
           ctx.restore();
         }
         return;
-      }
-
-      // Soft filled-disk underlay during blast→merge (covers residual gaps)
-      if (collapseT < COLLAPSE_MERGE_END) {
-        const blastT = clamp01(collapseT / COLLAPSE_BLAST_END);
-        const mergeT =
-          collapseT <= COLLAPSE_BLAST_END
-            ? 0
-            : easeOutCubic(
-                (collapseT - COLLAPSE_BLAST_END) /
-                  (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
-              );
-        const maxR = Math.min(w, h) * 0.22;
-        const diskR = maxR * (0.2 + 0.8 * easeOutCubic(blastT)) * (1 - mergeT);
-        if (diskR > size) {
-          ctx.save();
-          ctx.globalAlpha = 0.22 * (1 - mergeT * 0.85);
-          ctx.fillStyle = fill;
-          ctx.beginPath();
-          ctx.arc(ox, oy, diskR, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
       }
 
       // Flying pixels: filled-disk blast → converge to center (draw all — no hole)
@@ -508,23 +498,6 @@ export function PixelAssembleCanvas({
     const pixelFade =
       plateT > 0.4 ? clamp01(1 - (plateT - 0.4) / 0.6) : 1;
     if (pixelFade <= 0.02) return;
-
-    // Soft core during mid-assemble so the burst never reads as a ring
-    if (progress > 0.08 && progress < 0.7 && plateT < 0.15) {
-      const coreT = clamp01((progress - 0.08) / 0.28);
-      const fade = clamp01(1 - (progress - 0.42) / 0.28);
-      const coreR =
-        Math.min(w, h) * 0.1 * easeOutCubic(coreT) * Math.max(0.35, fade);
-      if (coreR > size && fade > 0.05) {
-        ctx.save();
-        ctx.globalAlpha = 0.18 * fade * pixelFade;
-        ctx.fillStyle = fill;
-        ctx.beginPath();
-        ctx.arc(ox, oy, coreR, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    }
 
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i]!;
