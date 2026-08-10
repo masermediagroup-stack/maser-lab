@@ -43,5 +43,14 @@ export const RETARGET_BLEND_MS = 160;
 export const CARD_MAX_WIDTH = 360;
 export const CARD_MIN_HEIGHT = 200;
 
+/** Progress below this on collapse: DOM squircle may take over. */
+export const SQUIRCLE_DOM_REVEAL_AT = 0.12;
+
+/** Collapse: solid mini-plate under converging pixels. */
+export const SQUIRCLE_PLATE_FILL_AT = 0.22;
+
+/** Collapse: mini-plate fully opaque. */
+export const SQUIRCLE_PLATE_SOLID_AT = 0.1;
+
 /** Max CSS blur (px) on trigger dissipate — keep subtle. */
 export const TRIGGER_BLUR_MAX = 4;

@@ -46,7 +46,8 @@ Pixels match surface polarity (white particles → white card in dark; black par
 
 - Open/close read as one continuous story: pixels **become** the card (no simultaneous pixel + card fade / double flash).
 - Pixel phase feels generative — individual particles burst from behind the squircle on random paths, then lock into a masked grid.
-- Content blur-ins only after the card plate is fully opaque (`expanded`).
+- Body copy uses a fast blur-uplift (~150ms) from below the baseline after the plate is opaque.
+- Collapse explodes pixels outward, then swiftly sucks them behind the squircle so they reconstitute the trigger (blue label handoff timed to convergence).
 - Pixel burst is readable (~720ms default assemble); trigger blur stays subtle (≤4px).
 - Mid-flight click retargets with ease-out cubic blend.
 - Theme toggle inverts colors cleanly.

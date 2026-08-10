@@ -17,6 +17,7 @@ import {
   DEFAULT_TITLE,
   DEMO_BODY,
   PIC_DEFAULTS,
+  SQUIRCLE_DOM_REVEAL_AT,
   TRIGGER_BLUR_MAX,
   TRIGGER_SIZE,
 } from "./constants";
@@ -27,6 +28,14 @@ import {
 } from "./use-pixel-info-machine";
 import type { PixelInfoCardProps, PixelInfoTheme } from "./types";
 import "./tokens.css";
+
+function clamp01(n: number): number {
+  return Math.max(0, Math.min(1, n));
+}
+
+function easeOutCubic(t: number): number {
+  return 1 - (1 - t) ** 3;
+}
 
 function themeVars(theme: PixelInfoTheme): CSSProperties {
   if (theme === "light") {
@@ -113,15 +122,31 @@ export function PixelInfoCard({
     return () => window.removeEventListener("keydown", onKey);
   }, [phase, collapse]);
 
-  // Fast, light dissipate — mostly opacity, tiny blur
+  /**
+   * Trigger visibility:
+   * - Expand: vanish quickly as pixels leave the squircle
+   * - Collapse: stay hidden until pixels suck in, then hand off with the blue label
+   */
   const triggerOpacity = (() => {
     if (reducedMotion) return phase === "idle" ? 1 : 0;
     if (phase === "idle") return 1;
-    return Math.max(0, 1 - progress / 0.08);
+    if (phase === "expanding" || phase === "expanded") {
+      return Math.max(0, 1 - progress / 0.08);
+    }
+    if (phase === "collapsing") {
+      const t = clamp01(
+        (SQUIRCLE_DOM_REVEAL_AT - progress) / SQUIRCLE_DOM_REVEAL_AT,
+      );
+      return easeOutCubic(t);
+    }
+    return 0;
   })();
 
   const triggerBlur = (() => {
     if (reducedMotion || phase === "idle") return 0;
+    if (phase === "collapsing") {
+      return (1 - triggerOpacity) * TRIGGER_BLUR_MAX * 0.6;
+    }
     return Math.min(TRIGGER_BLUR_MAX, (1 - triggerOpacity) * TRIGGER_BLUR_MAX);
   })();
 
@@ -134,18 +159,16 @@ export function PixelInfoCard({
     }
     if (phase === "expanded") return 1;
     if (phase === "expanding" && showCardDom) return 1;
-    // Collapse: hide DOM immediately so canvas owns the reverse dissolve
+    // Collapse: hide DOM immediately so canvas owns explode → suck-in
     return 0;
   })();
 
-  // Canvas owns the pixel→plate story; clear the same beat the DOM card appears
+  // Canvas owns assemble + collapse; clear when DOM card is the resting plate
   const pixelsActive =
     !reducedMotion &&
-    phase !== "idle" &&
-    phase !== "expanded" &&
-    !showCardDom &&
-    progress > 0.01 &&
-    progress < 0.995;
+    (phase === "expanding" || phase === "collapsing") &&
+    !(phase === "expanding" && showCardDom) &&
+    (phase === "collapsing" || progress > 0.01);
 
   const onTriggerClick = useCallback(() => {
     toggle();
@@ -177,6 +200,7 @@ export function PixelInfoCard({
           className="pic-canvas"
           active={pixelsActive}
           progress={progress}
+          phase={phase}
           theme={theme}
           pixelSize={tuning.pixelSize}
           snakeDensity={tuning.snakeDensity}
@@ -194,7 +218,9 @@ export function PixelInfoCard({
             pointerEvents: triggerOpacity < 0.2 ? "none" : "auto",
             transition: reducedMotion
               ? "opacity 120ms ease"
-              : `opacity var(--pic-dissipate-ms) ease-out, filter var(--pic-dissipate-ms) ease-out`,
+              : phase === "collapsing"
+                ? "none"
+                : `opacity var(--pic-dissipate-ms) ease-out, filter var(--pic-dissipate-ms) ease-out`,
           }}
           aria-hidden={triggerOpacity < 0.2}
         >
