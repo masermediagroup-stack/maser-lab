@@ -483,7 +483,7 @@ export function PixelInfoCard({
                 playKey={glidePlayKey}
                 phase={glidePhase}
                 direction="bottom"
-                glideDistance={GLIDE_DISTANCE_PX}
+                glideDistance={GLIDE_DISTANCE_PX * scale}
                 speed={GLIDE_TEXT_MS}
                 stagger={0}
                 blur={GLIDE_BLUR_PX}
@@ -503,7 +503,7 @@ export function PixelInfoCard({
                 playKey={glidePlayKey}
                 phase={glidePhase}
                 direction="bottom"
-                glideDistance={GLIDE_DISTANCE_PX}
+                glideDistance={GLIDE_DISTANCE_PX * scale}
                 speed={GLIDE_TEXT_MS}
                 stagger={0}
                 blur={GLIDE_BLUR_PX}

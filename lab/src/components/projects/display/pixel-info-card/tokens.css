@@ -407,6 +407,14 @@
   width: min(100%, 52rem);
 }
 
+.pic-demo__fullscreen-close {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  left: 16px;
+  right: auto;
+  z-index: 81;
+}
+
 @media (max-width: 640px) {
   .pic-demo__stage {
     padding: 88px 20px 40px;
