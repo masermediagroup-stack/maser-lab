@@ -5,6 +5,7 @@ import {
   COLLAPSE_BLAST_END,
   COLLAPSE_EXPAND_START,
   COLLAPSE_MERGE_END,
+  ASSEMBLE_FOOTPRINT_RULES,
   PIXEL_PLATE_FILL_AT,
   PIXEL_PLATE_SOLID_AT,
   SQUIRCLE_DOM_REVEAL_GROW,
@@ -122,6 +123,14 @@ function squircleCellCenters(
   return cells;
 }
 
+/**
+ * Build assemble particles for the card silhouette.
+ *
+ * Footprint rules (see ASSEMBLE_FOOTPRINT_RULES):
+ * - Grid stretches across the full cardW × cardH (settled pixels reach the plate).
+ * - Perimeter ring is never density-skipped — seed cannot thin the outline.
+ * - Seed only reshuffles burst paths / homes / delays.
+ */
 function buildParticles(
   width: number,
   height: number,
@@ -144,13 +153,13 @@ function buildParticles(
   const top = cy - cardH / 2;
   const step = Math.max(3, Math.round(pixelSize));
   const seed = motionSeed || 1;
+  const perimeter = Math.max(1, ASSEMBLE_FOOTPRINT_RULES.perimeterCells);
 
-  const cols = Math.max(1, Math.floor(cardW / step));
-  const rows = Math.max(1, Math.floor(cardH / step));
-  const gridW = cols * step;
-  const gridH = rows * step;
-  const gridLeft = cx - gridW / 2;
-  const gridTop = cy - gridH / 2;
+  // Span the full card — never a floor()'d smaller grid that leaves a thin outline
+  const cols = Math.max(1, Math.round(cardW / step));
+  const rows = Math.max(1, Math.round(cardH / step));
+  const cellW = cardW / cols;
+  const cellH = cardH / rows;
 
   const squircleCells = squircleCellCenters(
     ox,
@@ -165,23 +174,26 @@ function buildParticles(
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const cellX = gridLeft + col * step + step / 2;
-      const cellY = gridTop + row * step + step / 2;
+      const cellX = left + col * cellW + cellW / 2;
+      const cellY = top + row * cellH + cellH / 2;
       const lx = cellX - left;
       const ly = cellY - top;
 
-      const half = step / 2 - 0.5;
-      const insetOk =
-        pointInRoundedRect(lx - half, ly - half, cardW, cardH, cardRadius) &&
-        pointInRoundedRect(lx + half, ly - half, cardW, cardH, cardRadius) &&
-        pointInRoundedRect(lx - half, ly + half, cardW, cardH, cardRadius) &&
-        pointInRoundedRect(lx + half, ly + half, cardW, cardH, cardRadius);
-      if (!insetOk) continue;
+      // Center-in-shape so edge cells still land on the card silhouette
+      if (!pointInRoundedRect(lx, ly, cardW, cardH, cardRadius)) continue;
+
+      const onPerimeter =
+        col < perimeter ||
+        row < perimeter ||
+        col >= cols - perimeter ||
+        row >= rows - perimeter;
 
       const h = hashSeeded(col + 1, row + 3, seed);
       const h2 = hashSeeded(row + 7, col + 11, seed);
       const h3 = hashSeeded(col * 13 + 2, row * 17 + 5, seed);
-      if (h > density * 0.92 + 0.08) continue;
+
+      // Density may thin the interior only — never the outer ring
+      if (!onPerimeter && h > density * 0.92 + 0.08) continue;
 
       // Map each card cell to a filled squircle cell (solid plate, no ring hole)
       const home = squircleCells[
@@ -202,17 +214,20 @@ function buildParticles(
         diskR = maxBurst * Math.sqrt(u);
       }
 
+      const drawSize = Math.min(cellW, cellH);
       particles.push({
-        tx: cellX - step / 2,
-        ty: cellY - step / 2,
+        tx: cellX - drawSize / 2,
+        ty: cellY - drawSize / 2,
         sx: home.x,
         sy: home.y,
-        mx: ox + Math.cos(burstAngle) * diskR - step / 2,
-        my: oy + Math.sin(burstAngle) * diskR - step / 2,
-        opacity: 0.45 + h * 0.55,
+        mx: ox + Math.cos(burstAngle) * diskR - drawSize / 2,
+        my: oy + Math.sin(burstAngle) * diskR - drawSize / 2,
+        opacity: onPerimeter ? Math.max(0.72, 0.55 + h * 0.45) : 0.45 + h * 0.55,
         delay: Math.min(
-          0.32,
-          h * 0.22 + Math.hypot(col - cols / 2, row - rows / 2) * 0.01,
+          0.28,
+          onPerimeter
+            ? h * 0.12
+            : h * 0.22 + Math.hypot(col - cols / 2, row - rows / 2) * 0.01,
         ),
         seed: h3,
       });
