@@ -39,6 +39,8 @@ type PixelAssembleCanvasProps = {
   /** Squircle center in stage/canvas CSS pixels (not stage midpoint — label offsets it). */
   originX: number;
   originY: number;
+  /** Changes each open so burst paths / midpoints reshuffle. */
+  motionSeed: number;
   className?: string;
 };
 
@@ -60,6 +62,11 @@ function clamp01(n: number): number {
 function hash2(a: number, b: number): number {
   const n = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
   return n - Math.floor(n);
+}
+
+/** Deterministic 0–1 from indices + per-open motion seed. */
+function hashSeeded(a: number, b: number, seed: number): number {
+  return hash2(a + seed * 0.7133, b + seed * 1.6181);
 }
 
 function pointInRoundedRect(
@@ -126,6 +133,7 @@ function buildParticles(
   triggerSize: number,
   originX: number,
   originY: number,
+  motionSeed: number,
 ): PixelParticle[] {
   const particles: PixelParticle[] = [];
   const cx = width / 2;
@@ -135,6 +143,7 @@ function buildParticles(
   const left = cx - cardW / 2;
   const top = cy - cardH / 2;
   const step = Math.max(3, Math.round(pixelSize));
+  const seed = motionSeed || 1;
 
   const cols = Math.max(1, Math.floor(cardW / step));
   const rows = Math.max(1, Math.floor(cardH / step));
@@ -169,9 +178,9 @@ function buildParticles(
         pointInRoundedRect(lx + half, ly + half, cardW, cardH, cardRadius);
       if (!insetOk) continue;
 
-      const h = hash2(col + 1, row + 3);
-      const h2 = hash2(row + 7, col + 11);
-      const h3 = hash2(col * 13 + 2, row * 17 + 5);
+      const h = hashSeeded(col + 1, row + 3, seed);
+      const h2 = hashSeeded(row + 7, col + 11, seed);
+      const h3 = hashSeeded(col * 13 + 2, row * 17 + 5, seed);
       if (h > density * 0.92 + 0.08) continue;
 
       // Map each card cell to a filled squircle cell (solid plate, no ring hole)
@@ -216,8 +225,8 @@ function buildParticles(
   const centerFill = Math.min(48, Math.floor(particles.length * 0.22));
   for (let i = 0; i < centerFill; i++) {
     const p = particles[i]!;
-    const a = hash2(i + 3, i + 9) * Math.PI * 2;
-    const r = maxBurst * Math.sqrt(hash2(i + 1, 5) * 0.14);
+    const a = hashSeeded(i + 3, i + 9, seed) * Math.PI * 2;
+    const r = maxBurst * Math.sqrt(hashSeeded(i + 1, 5, seed) * 0.14);
     p.mx = ox + Math.cos(a) * r - half;
     p.my = oy + Math.sin(a) * r - half;
   }
@@ -305,6 +314,7 @@ export function PixelAssembleCanvas({
   triggerSize,
   originX,
   originY,
+  motionSeed,
   className,
 }: PixelAssembleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -361,6 +371,7 @@ export function PixelAssembleCanvas({
         triggerSize,
         ox,
         oy,
+        motionSeed,
       );
     };
 
@@ -377,6 +388,7 @@ export function PixelAssembleCanvas({
     triggerSize,
     originX,
     originY,
+    motionSeed,
   ]);
 
   useEffect(() => {

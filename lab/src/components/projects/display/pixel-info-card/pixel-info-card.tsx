@@ -49,6 +49,10 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
+function nextMotionSeed(): number {
+  return Math.floor(Math.random() * 0x7fffffff) + 1;
+}
+
 function themeVars(theme: PixelInfoTheme): CSSProperties {
   if (theme === "light") {
     return {
@@ -97,6 +101,7 @@ export function PixelInfoCard({
     h: CARD_MIN_HEIGHT,
   });
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
+  const [motionSeed, setMotionSeed] = useState(nextMotionSeed);
 
   const { phase, progress, showCardDom, toggle, collapse } =
     machine;
@@ -206,6 +211,7 @@ export function PixelInfoCard({
     clearTextOutTimer();
     setGlideReady(false);
     textStartedRef.current = false;
+    setMotionSeed(nextMotionSeed());
     toggle();
   }, [
     phase,
@@ -366,6 +372,7 @@ export function PixelInfoCard({
           triggerSize={TRIGGER_SIZE}
           originX={origin.x}
           originY={origin.y}
+          motionSeed={motionSeed}
         />
 
         <div
