@@ -2,7 +2,7 @@
 
 ## Status
 
-**Grilling complete** (2026-08-10). `PROJECT.md` is implementation-ready. Say **Implement** to build.
+**Implement complete** (2026-08-10). Demo at `/demos/pixel-info-card`.
 
 ## Grilling summary
 
@@ -13,11 +13,10 @@
 - Mid-flight retarget with ease-out cubic; focus card ↔ trigger
 - Demo body: fixed TypeScript explainer paragraph
 
-## Implement order
+## Shipped
 
-1. Scaffold `lab/.../display/pixel-info-card/`
-2. `use-pixel-info-machine` + `pixel-assemble-canvas`
-3. `pixel-info-card.tsx` (product, both themes)
-4. Demo shell (Blobby + theme toggle + sliders + export drawer)
-5. `demoRegistry` + registry `building`
-6. Render verify: open/close, interrupt, themes, reduced-motion, 320/1280
+1. `lab/src/components/projects/display/pixel-info-card/`
+2. `demoRegistry` + registry `building`
+3. Canvas snake assemble/dissolve + state machine
+4. Theme toggle, Export drawer, Reset, blue sliders
+5. Lint (project) + build pass; rendered verification PASS

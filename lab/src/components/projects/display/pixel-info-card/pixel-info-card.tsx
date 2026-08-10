@@ -32,6 +32,7 @@ function themeVars(theme: PixelInfoTheme): CSSProperties {
     return {
       ["--pic-surface" as string]: "#000000",
       ["--pic-accent" as string]: "#ffffff",
+      ["--pic-label" as string]: "#000000",
       ["--pic-body" as string]: "#ffffff",
       ["--pic-pixel" as string]: "#000000",
     };
@@ -39,6 +40,7 @@ function themeVars(theme: PixelInfoTheme): CSSProperties {
   return {
     ["--pic-surface" as string]: "#ffffff",
     ["--pic-accent" as string]: "#10a4ff",
+    ["--pic-label" as string]: "#10a4ff",
     ["--pic-body" as string]: "#0a0a0a",
     ["--pic-pixel" as string]: "#ffffff",
   };

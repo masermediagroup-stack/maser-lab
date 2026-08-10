@@ -4,6 +4,7 @@
   --pic-maser-blue: #10a4ff;
   --pic-surface: #ffffff;
   --pic-accent: var(--pic-maser-blue);
+  --pic-label: var(--pic-maser-blue);
   --pic-body: #0a0a0a;
   --pic-card-radius: 20px;
   --pic-dissipate-ms: 80ms;
@@ -47,7 +48,7 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  color: var(--pic-accent);
+  color: var(--pic-label);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -93,7 +94,7 @@
   font-size: 0.9375rem;
   font-weight: 500;
   letter-spacing: 0.01em;
-  color: var(--pic-accent);
+  color: var(--pic-label);
   line-height: 1;
 }
 
