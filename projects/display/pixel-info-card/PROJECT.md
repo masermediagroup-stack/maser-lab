@@ -14,7 +14,7 @@
 - Export pattern: [`page-transitions-lab`](../../layout/page-transitions-lab/) code-export drawer (usage snippet + settings + Copy)
 - Icon: `lucide-react` `Info` + `Sun` / `Moon` for theme toggle
 - Pixel assemble refs: Dirck Mulder Pixel Card; lab `tetris-pixel-text` controller (phase/in-out craft only)
-- Text: `BlurFocusRevealAnimation` / `tal-blur-focus` (compact, fast, `phase: "out"` on close)
+- Text: `GlideTextAnimation` (`phase: "in"|"out"`, `direction: "bottom"`, speed 650) for card title + body
 
 **Loaded skills:** `maser-lab-web` (Shape), `grill-me` / `grilling` (stress-test), `maser-lab-project-scaffold` (Implement wiring).
 
@@ -46,7 +46,7 @@ Pixels match surface polarity (white particles → white card in dark; black par
 
 - Open/close read as one continuous story: pixels **become** the card (no simultaneous pixel + card fade / double flash).
 - Pixel phase feels generative — individual particles burst from behind the squircle on random paths, then lock into a masked grid.
-- Body copy uses a soft blur-uplift (~480ms) from below the baseline after the plate rests (no second card flash).
+- Title + body use `GlideTextAnimation` (bottom glide, 650ms, blur 5) — out plays before pixel collapse.
 - Collapse explodes pixels, then sucks them into the **measured squircle** (solid fill, no hollow center / no ghost below); Info chrome waits until pixels finish.
 - Defaults: assemble **1400ms** (slider up to 2400ms), dissipate **160ms**; trigger blur ≤4px.
 - Mid-flight click retargets with ease-out cubic blend.
@@ -135,7 +135,7 @@ t0–~80ms  squircle + Info label blur-out (very fast)
 ~80–450ms surface-colored pixels, varied opacity, snake chains
 ~80%      DOM card opacity in (canvas still finishing)
 ~400ms    card settled
-~420–550ms header then body: BlurFocusReveal (~350–450ms, compact)
+~650ms GlideText in (title + body, stagger 0); on close GlideText out then pixel collapse.
 ```
 
 ### Close (reverse)
@@ -176,7 +176,7 @@ Mid-flight click **retargets** toward opposite resting state from current progre
 | Plate | Canvas transition overlay + DOM card at settle |
 | Dissipate | ≤80–100ms blur + opacity |
 | Assemble | ~300–450ms (slider-tunable) |
-| Text | `tal-blur-focus` / BlurFocusReveal, compact, fast |
+| Text | `GlideTextAnimation` bottom glide, 650ms, blur 5 |
 | Interrupt easing | ease-out cubic ~200ms retarget |
 | Reduced motion | Opacity crossfade; skip canvas |
 

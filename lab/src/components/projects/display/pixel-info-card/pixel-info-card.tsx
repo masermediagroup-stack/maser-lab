@@ -11,12 +11,17 @@ import {
 } from "react";
 import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { usePrefersReducedMotion } from "@/components/text-animations/shared";
+import { GlideTextAnimation } from "@/components/text-animations";
+import {
+  usePrefersReducedMotion,
+  type AnimationPhase,
+} from "@/components/text-animations/shared";
 import {
   CARD_MAX_WIDTH,
   CARD_MIN_HEIGHT,
   DEFAULT_TITLE,
   DEMO_BODY,
+  GLIDE_TEXT_MS,
   PIC_DEFAULTS,
   SQUIRCLE_DOM_REVEAL_AT,
   TRIGGER_BLUR_MAX,
@@ -29,6 +34,8 @@ import {
 } from "./use-pixel-info-machine";
 import type { PixelInfoCardProps, PixelInfoTheme } from "./types";
 import "./tokens.css";
+
+const GLIDE_EASE = "cubic-bezier(0.22, 1, 0.36, 1)" as const;
 
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
@@ -87,8 +94,75 @@ export function PixelInfoCard({
   });
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
 
-  const { phase, progress, showCardDom, showCardContent, toggle, collapse } =
+  const { phase, progress, showCardDom, toggle, collapse } =
     machine;
+
+  const [glidePhase, setGlidePhase] = useState<AnimationPhase>("in");
+  const [glidePlayKey, setGlidePlayKey] = useState(0);
+  const [holdingForTextOut, setHoldingForTextOut] = useState(false);
+  const textOutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingCloseRef = useRef(false);
+
+  const clearTextOutTimer = useCallback(() => {
+    if (textOutTimerRef.current != null) {
+      clearTimeout(textOutTimerRef.current);
+      textOutTimerRef.current = null;
+    }
+    pendingCloseRef.current = false;
+    setHoldingForTextOut(false);
+  }, []);
+
+  useEffect(() => () => clearTextOutTimer(), [clearTextOutTimer]);
+
+  // Play GlideText in when the plate settles
+  useEffect(() => {
+    if (phase === "expanded" && !holdingForTextOut) {
+      setGlidePhase("in");
+      setGlidePlayKey((k) => k + 1);
+    }
+    if (phase === "idle" || phase === "expanding") {
+      clearTextOutTimer();
+    }
+  }, [phase, holdingForTextOut, clearTextOutTimer]);
+
+  /** Close: GlideText out first, then pixel collapse. */
+  const requestClose = useCallback(() => {
+    if (phase === "idle") return;
+    if (phase === "collapsing") {
+      collapse();
+      return;
+    }
+    if (phase === "expanding") {
+      clearTextOutTimer();
+      collapse();
+      return;
+    }
+    // expanded — exit copy, then dissolve
+    if (pendingCloseRef.current) return;
+    if (reducedMotion) {
+      collapse();
+      return;
+    }
+    pendingCloseRef.current = true;
+    setHoldingForTextOut(true);
+    setGlidePhase("out");
+    setGlidePlayKey((k) => k + 1);
+    textOutTimerRef.current = setTimeout(() => {
+      textOutTimerRef.current = null;
+      pendingCloseRef.current = false;
+      setHoldingForTextOut(false);
+      collapse();
+    }, GLIDE_TEXT_MS);
+  }, [phase, collapse, clearTextOutTimer, reducedMotion]);
+
+  const requestToggle = useCallback(() => {
+    if (phase === "expanded" || holdingForTextOut) {
+      requestClose();
+      return;
+    }
+    clearTextOutTimer();
+    toggle();
+  }, [phase, holdingForTextOut, requestClose, clearTextOutTimer, toggle]);
 
   const measureOrigin = useCallback(() => {
     const stage = stageRef.current;
@@ -144,16 +218,16 @@ export function PixelInfoCard({
   }, [phase]);
 
   useEffect(() => {
-    if (phase === "idle") return;
+    if (phase === "idle" && !holdingForTextOut) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
-        collapse();
+        requestClose();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, collapse]);
+  }, [phase, holdingForTextOut, requestClose]);
 
   /**
    * Squircle surface + chrome only after canvas has grown the merged pixel
@@ -201,25 +275,19 @@ export function PixelInfoCard({
     if (reducedMotion) {
       return phase === "expanded" || phase === "expanding" ? 1 : 0;
     }
+    if (holdingForTextOut) return 1;
     return phase === "expanded" ? 1 : 0;
   })();
+
+  const cardVisible = showCardDom || holdingForTextOut;
 
   const pixelsActive =
     !reducedMotion &&
     (phase === "expanding" || phase === "collapsing") &&
     (phase === "collapsing" || progress > 0.01);
 
-  const onTriggerClick = useCallback(() => {
-    toggle();
-  }, [toggle]);
-
-  const onCardClick = useCallback(() => {
-    toggle();
-  }, [toggle]);
-
-  const contentVisible = reducedMotion
-    ? phase === "expanded" || phase === "expanding"
-    : showCardContent;
+  const showGlide =
+    phase === "expanded" || holdingForTextOut || (reducedMotion && phase === "expanding");
 
   return (
     <div
@@ -272,8 +340,8 @@ export function PixelInfoCard({
             ref={triggerRef}
             type="button"
             className="pic-trigger"
-            onClick={onTriggerClick}
-            aria-expanded={phase !== "idle"}
+            onClick={requestToggle}
+            aria-expanded={phase !== "idle" || holdingForTextOut}
             aria-controls={titleId}
             aria-label="Show info"
           >
@@ -305,41 +373,63 @@ export function PixelInfoCard({
           id={titleId}
           className={cn(
             "pic-card",
-            showCardDom && "pic-card--visible",
-            contentVisible && "pic-card--settled",
+            cardVisible && "pic-card--visible",
+            showGlide && "pic-card--settled",
           )}
-          onClick={onCardClick}
+          onClick={requestClose}
           aria-label="Hide info"
-          tabIndex={showCardDom && cardOpacity > 0.05 ? 0 : -1}
+          tabIndex={cardVisible && cardOpacity > 0.05 ? 0 : -1}
           style={{
             opacity: cardOpacity,
             pointerEvents: cardOpacity > 0.5 ? "auto" : "none",
             borderRadius: tuning.cardRadius,
-            visibility: showCardDom ? "visible" : "hidden",
+            visibility: cardVisible ? "visible" : "hidden",
           }}
         >
-          <span
-            className={cn(
-              "pic-card-header",
-              contentVisible && !reducedMotion && "pic-card-content--in",
-              !contentVisible && "pic-card-content--hidden",
-            )}
-          >
+          <span className="pic-card-header">
             <Info
               className="pic-icon pic-icon--sm"
               aria-hidden
               strokeWidth={2.25}
             />
-            <span className="pic-card-title">{title}</span>
-          </span>
-          <span
-            className={cn(
-              "pic-card-body",
-              contentVisible && !reducedMotion && "pic-card-content--in",
-              !contentVisible && "pic-card-content--hidden",
+            {showGlide ? (
+              <GlideTextAnimation
+                key={`title-${glidePlayKey}-${glidePhase}`}
+                text={title}
+                playKey={glidePlayKey}
+                phase={glidePhase}
+                direction="bottom"
+                glideDistance={24}
+                speed={GLIDE_TEXT_MS}
+                stagger={0}
+                blur={5}
+                ease={GLIDE_EASE}
+                compact
+                className="pic-glide-title"
+              />
+            ) : (
+              <span className="pic-card-title">{title}</span>
             )}
-          >
-            {body}
+          </span>
+          <span className="pic-card-body">
+            {showGlide ? (
+              <GlideTextAnimation
+                key={`body-${glidePlayKey}-${glidePhase}`}
+                text={body}
+                playKey={glidePlayKey}
+                phase={glidePhase}
+                direction="bottom"
+                glideDistance={24}
+                speed={GLIDE_TEXT_MS}
+                stagger={0}
+                blur={5}
+                ease={GLIDE_EASE}
+                compact
+                className="pic-glide-body"
+              />
+            ) : (
+              body
+            )}
           </span>
         </button>
       </div>

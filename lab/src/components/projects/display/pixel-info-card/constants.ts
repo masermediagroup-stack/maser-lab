@@ -61,5 +61,8 @@ export const COLLAPSE_BLAST_END = 0.36;
 export const COLLAPSE_MERGE_END = 0.78;
 export const COLLAPSE_EXPAND_START = 0.82;
 
+/** GlideText in/out duration for card title + body (matches GlideTextAnimation speed). */
+export const GLIDE_TEXT_MS = 650;
+
 /** Max CSS blur (px) on trigger dissipate — keep subtle. */
 export const TRIGGER_BLUR_MAX = 4;
