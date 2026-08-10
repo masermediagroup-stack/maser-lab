@@ -2,9 +2,10 @@
 
 **Slug:** `pixel-info-card`  
 **Category:** display  
-**Status:** draft  
+**Status:** building  
 **Created:** 2026-08-10  
-**Grilling:** complete (2026-08-10) — ready for **Implement**
+**Grilling:** complete (2026-08-10)  
+**Mode:** Implement (in progress)
 
 ## Design reference
 
