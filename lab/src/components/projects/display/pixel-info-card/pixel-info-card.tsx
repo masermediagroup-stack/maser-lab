@@ -36,6 +36,7 @@ import {
   mergeTuning,
   usePixelInfoMachine,
 } from "./use-pixel-info-machine";
+import { PIC_SFX, playPicSfx } from "./sfx";
 import type { PixelInfoCardProps, PixelInfoTheme } from "./types";
 import "./tokens.css";
 
