@@ -28,7 +28,7 @@ Related: [00-VISION](./00-VISION.md) · [06-EXPORT-SYSTEM](./06-EXPORT-SYSTEM.md
 
 ### Status
 
-**In progress (Sprint 8.1)** — upload persistence, Component Inspector, StudioSlider on primary panels, live Material Dock within one WebGL context.
+**In progress** — Sprint 8.1 complete; **Lab control IA** (shell-only) in progress.
 
 ### Goals
 
@@ -41,6 +41,7 @@ Make authoring reliable so exported components are designed with durable content
 - [x] Wire `StudioSlider` across primary panels by default
 - [x] Thumb refresh polish (debounce + live active material @ ~6fps, one context)
 - [x] Live Material Dock animation within context budget
+- [x] **Lab control IA (shell-only)** — desktop exclusive category rail; Palette vs Structure labels; preset browser without null-thumb frames; mobile nav ≤5 — see [05](./05-MOBILE-WORKSPACE.md), [08](./08-PRESET-STUDIO.md)
 
 ### Architecture
 

@@ -2,25 +2,20 @@
 
 import { cn } from "@/lib/utils";
 
+/** ≤5 destinations — see docs/roadmap/05-MOBILE-WORKSPACE.md */
 export type MobileTabId =
   | "preview"
-  | "materials"
-  | "animation"
-  | "lighting"
-  | "interaction"
-  | "components"
-  | "projects"
-  | "settings";
+  | "look"
+  | "light"
+  | "content"
+  | "more";
 
 const TABS: { id: MobileTabId; label: string }[] = [
   { id: "preview", label: "Preview" },
-  { id: "materials", label: "Color" },
-  { id: "animation", label: "Anim" },
-  { id: "lighting", label: "Light" },
-  { id: "interaction", label: "Touch" },
-  { id: "components", label: "Comps" },
-  { id: "projects", label: "Projects" },
-  { id: "settings", label: "More" },
+  { id: "look", label: "Look" },
+  { id: "light", label: "Light" },
+  { id: "content", label: "Content" },
+  { id: "more", label: "More" },
 ];
 
 type MobileBottomNavProps = {

@@ -51,10 +51,10 @@ Roadmap docs **must not contradict** those contracts.
 | [02-RENDER-PIPELINE.md](./02-RENDER-PIPELINE.md) | Deep | Stage I/O, uniforms, extension points |
 | [03-MATERIAL-SYSTEM.md](./03-MATERIAL-SYSTEM.md) | Deep | Material catalog, recipes, layering |
 | [04-COMPONENT-SYSTEM.md](./04-COMPONENT-SYSTEM.md) | Deep | Adapters, shared APIs, a11y |
-| [05-MOBILE-WORKSPACE.md](./05-MOBILE-WORKSPACE.md) | Medium | Ideal **lab** mobile shell (non-transferable) |
+| [05-MOBILE-WORKSPACE.md](./05-MOBILE-WORKSPACE.md) | Medium | Lab mobile + desktop playground IA (non-transferable) |
 | [06-EXPORT-SYSTEM.md](./06-EXPORT-SYSTEM.md) | Deep | Runtime/shell split, npm skill **spec**, tokens |
 | [07-ASSET-SYSTEM.md](./07-ASSET-SYSTEM.md) | Stub | Promote when asset work ships |
-| [08-PRESET-STUDIO.md](./08-PRESET-STUDIO.md) | Stub | Promote when preset redesign ships |
+| [08-PRESET-STUDIO.md](./08-PRESET-STUDIO.md) | Partial | Thumb policy + browser IA; collections still stub |
 | [09-PERFORMANCE.md](./09-PERFORMANCE.md) | Thin | Context budget + known constraints |
 | [10-QA.md](./10-QA.md) | Thin | Release + stub-promotion gates |
 | [11-V2-FUTURE.md](./11-V2-FUTURE.md) | Stub / horizon | Multi-engine brainstorm — not tickets |

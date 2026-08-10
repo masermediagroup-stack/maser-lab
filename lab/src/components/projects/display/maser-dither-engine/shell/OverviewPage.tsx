@@ -26,7 +26,9 @@ export function OverviewPage({
   return (
     <div className="mde-overview">
       <header className="mde-overview__hero">
-        <p className="mde-overview__eyebrow">Maser Lab · Procedural materials</p>
+        <p className="mde-overview__eyebrow">
+          Maser Lab · Dither structure materials
+        </p>
         <h1 className="mde-overview__title">{ENGINE_NAME}</h1>
         <p className="mde-overview__support">{ENGINE_TAGLINE}</p>
         <div className="mde-overview__actions">

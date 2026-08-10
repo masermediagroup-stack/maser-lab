@@ -16,6 +16,7 @@ import {
 } from "../constants";
 import {
   DEFAULT_PANEL_STATE,
+  PANEL_CATEGORY_ORDER,
   loadPanelState,
   savePanelState,
 } from "../lib/persistence";
@@ -336,6 +337,10 @@ export function ComponentPlayground({
     () => library?.favoriteControlIds ?? [],
   );
   const [mobileTab, setMobileTab] = useState<MobileTabId>("preview");
+  const [desktopCategory, setDesktopCategory] = useState<ControlGroupId>(
+    "material",
+  );
+  const [expandAllPanels, setExpandAllPanels] = useState(false);
   const [sheetSnap, setSheetSnap] = useState<SheetSnap>("half");
   const [isNarrow, setIsNarrow] = useState(false);
   const historyTimer = useRef<number | null>(null);
@@ -752,8 +757,36 @@ export function ComponentPlayground({
   }, [isFullscreen]);
 
   const setPanel = (id: ControlGroupId, open: boolean) => {
+    if (
+      open &&
+      !expandAllPanels &&
+      (PANEL_CATEGORY_ORDER as readonly string[]).includes(id)
+    ) {
+      setDesktopCategory(id);
+    }
     setPanels((prev) => {
-      const next = { ...prev, [id]: open };
+      let next: ControlGroupState;
+      if (open && !expandAllPanels) {
+        next = { ...DEFAULT_PANEL_STATE };
+        for (const key of Object.keys(next) as ControlGroupId[]) {
+          next[key] = key === id;
+        }
+      } else {
+        next = { ...prev, [id]: open };
+      }
+      savePanelState(next);
+      return next;
+    });
+  };
+
+  const selectDesktopCategory = (id: ControlGroupId) => {
+    setExpandAllPanels(false);
+    setDesktopCategory(id);
+    setPanels(() => {
+      const next = { ...DEFAULT_PANEL_STATE };
+      for (const key of Object.keys(next) as ControlGroupId[]) {
+        next[key] = key === id;
+      }
       savePanelState(next);
       return next;
     });
@@ -855,17 +888,13 @@ export function ComponentPlayground({
   };
 
   const sheetOpen =
-    isNarrow && mobileTab !== "preview" && mobileTab !== "projects";
+    isNarrow && mobileTab !== "preview";
 
   const mobilePanelFocus: Partial<
     Record<MobileTabId, ControlGroupId | "presets" | "content" | "export">
   > = {
-    materials: "material",
-    animation: "animation",
-    lighting: "lighting",
-    interaction: "interaction",
-    components: "content",
-    settings: "export",
+    light: "lighting",
+    content: "content",
   };
 
   const mobileFocusGroups: Partial<
@@ -874,8 +903,10 @@ export function ComponentPlayground({
       Array<ControlGroupId | "presets" | "content" | "export">
     >
   > = {
-    // Palette strip + procedural material + tone sliders
-    materials: ["colors", "material"],
+    // Palette + Structure
+    look: ["colors", "material"],
+    // Animation · Interaction · Finish · Export
+    more: ["animation", "interaction", "finish", "export", "presets"],
   };
 
   const panelProps: ControlPanelBundle = {
@@ -924,17 +955,13 @@ export function ComponentPlayground({
     : null;
 
   const sheetTitle =
-    mobileTab === "materials"
-      ? "Color & material"
-      : mobileTab === "animation"
-        ? "Animation"
-        : mobileTab === "lighting"
-          ? "Lighting"
-          : mobileTab === "interaction"
-            ? "Interaction"
-            : mobileTab === "components"
-              ? "Component · Inspector"
-              : "Settings";
+    mobileTab === "look"
+      ? "Look · Palette & Structure"
+      : mobileTab === "light"
+        ? "Lighting"
+        : mobileTab === "content"
+          ? "Component · Inspector"
+          : "More · Motion & export";
 
   const handleSourceChange = useCallback(
     (next: { url: string | null; lightMix?: number }) => {
@@ -1125,7 +1152,7 @@ export function ComponentPlayground({
       }}
       onSelect={(id) => {
         setMaterial(createInitialMaterialConfig(id));
-        setPanel("material", true);
+        selectDesktopCategory("material");
       }}
       onApply={(id) => {
         setMaterial(createInitialMaterialConfig(id));
@@ -1148,17 +1175,17 @@ export function ComponentPlayground({
     setControlQuery("");
     if (isNarrow) {
       const tab: MobileTabId =
-        hit.panel === "material" || hit.panel === "colors"
-          ? "materials"
-          : hit.panel === "animation"
-            ? "animation"
-            : hit.panel === "lighting"
-              ? "lighting"
-              : hit.panel === "interaction"
-                ? "interaction"
-                : "settings";
+        hit.panel === "material" ||
+        hit.panel === "colors" ||
+        hit.panel === "dither"
+          ? "look"
+          : hit.panel === "lighting"
+            ? "light"
+            : hit.panel === "content"
+              ? "content"
+              : "more";
       setMobileTab(tab);
-      setSheetSnap("expanded");
+      setSheetSnap(tab === "more" ? "expanded" : "half");
     }
   };
 
@@ -1236,7 +1263,7 @@ export function ComponentPlayground({
           onClose={() => setMobileTab("preview")}
         >
           <div className="mde-sheet__panels">
-            {mobileTab === "settings" ? (
+            {mobileTab === "more" ? (
               <div className="mde-sheet__search-block">
                 <CreativeExplore
                   locks={creativeLocks}
@@ -1352,17 +1379,16 @@ export function ComponentPlayground({
         <MobileBottomNav
           active={mobileTab}
           onChange={(id) => {
-            if (id === "projects") {
-              onOpenStudio?.();
-              return;
-            }
             setMobileTab(id);
             if (id === "preview") return;
-            if (id === "materials") {
-              setPanel("colors", true);
-              setPanel("material", true);
+            if (id === "light") {
+              setPanel("lighting", true);
+            } else if (id === "content") {
+              setPanel("content", true);
+            } else if (id === "look") {
+              setDesktopCategory("material");
             }
-            setSheetSnap(id === "settings" ? "expanded" : "half");
+            setSheetSnap(id === "more" ? "expanded" : "half");
           }}
         />
       </div>
@@ -1537,7 +1563,28 @@ export function ComponentPlayground({
 
         {!presentation ? (
           <aside className="mde-playground__panel" aria-label="Controls">
-            {renderControlPanels(panelProps)}
+            {workspaceMode === "debug" || workspaceMode === "advanced" ? (
+              <div className="mde-category-rail__meta">
+                <button
+                  type="button"
+                  className={cn(
+                    "mde-chip mde-chip--tiny",
+                    expandAllPanels && "mde-chip--active",
+                  )}
+                  aria-pressed={expandAllPanels}
+                  onClick={() => setExpandAllPanels((v) => !v)}
+                >
+                  {expandAllPanels ? "Expand all on" : "Expand all"}
+                </button>
+              </div>
+            ) : null}
+            {renderControlPanels({
+              ...panelProps,
+              showCategoryRail: !expandAllPanels,
+              exclusiveCategory: expandAllPanels ? undefined : desktopCategory,
+              onSelectCategory: selectDesktopCategory,
+              expandAll: expandAllPanels,
+            })}
           </aside>
         ) : null}
       </div>

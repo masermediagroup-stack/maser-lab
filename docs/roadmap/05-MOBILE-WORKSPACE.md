@@ -1,47 +1,72 @@
-# 05 — Mobile Workspace (Lab Only)
+# 05 — Lab Workspace (Mobile + Desktop Playground)
 
-> **Non-transferable.** This document describes the ideal **lab** mobile authoring shell.  
-> It is **not** part of the npm/export product surface. See [00-VISION](./00-VISION.md) · [06-EXPORT-SYSTEM](./06-EXPORT-SYSTEM.md).
+> **Non-transferable.** This document describes the ideal **lab** authoring shell.  
+> It is **not** part of the npm/export product surface. See [00-VISION](./00-VISION.md) · [06](./06-EXPORT-SYSTEM.md).  
+> Control ownership map: `lab/.../docs/control-ia-audit.md` · Sprint 5: `docs/sprint5-control-audit.md`
 
 **Depth:** medium (ideal lab UX + current anchors).  
-Related: [04](./04-COMPONENT-SYSTEM.md) · [09](./09-PERFORMANCE.md)  
-Code today: `shell/studio/` (`BottomSheet`, `MobileBottomNav`, `FitStage`, `MaterialDock`, `ProjectBrowser`, …)
+Code today: `shell/studio/` (`BottomSheet`, `MobileBottomNav`, `FitStage`, `MaterialDock`, `ProjectBrowser`, …) · `shell/PlaygroundControlPanels.tsx` · `shell/ComponentPlayground.tsx`
 
 ## Current vs target
 
-| Area | Current (approx.) | Target (ideal lab) |
-| --- | --- | --- |
-| Entry | ≤900px + playground → `mde-app--mobile-editor` | Same breakpoint family; clearer mode switch |
-| Chrome | Hides lab sidebar; bottom nav + sheet | Persistent bottom nav; one sheet stack |
-| Preview | `FitStage` scales component | Always visible preview; sheet never fully covers without peek |
-| Controls | Panels in sheet | Grouped sheets (Material / Dither / Content / Inspect) |
-| Projects | Project browser exists | Fast Save / Save As / Recent within thumb reach |
-| Thumbs | JPEG via ThumbBlitEngine | Stay single-context; no live thumb grid |
+| Area | Target (ideal lab) |
+| --- | --- |
+| Entry | ≤900px + playground → `mde-app--mobile-editor`; desktop uses same panel tree |
+| Mobile chrome | Bottom nav ≤5 + one sheet stack |
+| Desktop chrome | Right rail: **exclusive category list** + one panel body |
+| Preview | Always visible; sheet never fully covers without peek |
+| Labels | Palette (chroma) · Structure (material ID) · Color tone (sliders) |
+| Thumbs | Real data URLs only; no empty image placeholders ([08](./08-PRESET-STUDIO.md)) |
 
-## Ideal workspace
+## Desktop playground IA
+
+```text
+┌──────────────────────────────┬─────────────────────┐
+│  Preview + Material Dock     │ Category list       │
+│                              │ (single-select)     │
+│                              ├─────────────────────┤
+│                              │ Active panel body   │
+└──────────────────────────────┴─────────────────────┘
+```
+
+### Categories (single-open)
+
+Presets · Content · Structure · Palette · Dither · Lighting · Animation · Interaction · Finish · Export
+
+- Selecting a category opens **that** panel only (closes others).
+- Optional “Expand all” only in Advanced/Debug.
+- Base plate may stay pinned; full Palette body is not pinned on every category.
+- Material Dock = structure picker on the stage, not a second inspector.
+
+## Mobile workspace
 
 ```text
 ┌─────────────────────────────┐
 │  Preview (FitStage)         │
-│  component under edit       │
 ├─────────────────────────────┤
 │  Peek / Bottom sheet        │
-│  controls for active dock   │
+│  controls for active tab    │
 ├─────────────────────────────┤
-│  Nav: Browse · Edit · Lib   │
+│  Preview · Look · Light ·   │
+│  Content · More             │
 └─────────────────────────────┘
 ```
+
+### Bottom nav (≤5)
+
+| Tab | Focuses |
+| --- | --- |
+| Preview | Sheet closed |
+| Look | Palette + Structure |
+| Light | Lighting |
+| Content | Content / Component Inspector |
+| More | Animation · Interaction · Finish · Export (+ Projects action) |
 
 ### Bottom sheets
 
 - One primary sheet; nested sheets push/pop with clear dismiss.
 - Drag handle + Scrim; focus trap while open; restore focus on close.
 - Density: Beginner shows essentials; Advanced reveals full groups (`mde:density`).
-
-### Navigation
-
-- Bottom nav ≤5 destinations (e.g. Components, Materials, Project, Play, More).
-- Avoid hamburger-only IA for primary authoring actions.
 
 ### Preview
 
@@ -51,30 +76,30 @@ Code today: `shell/studio/` (`BottomSheet`, `MobileBottomNav`, `FitStage`, `Mate
 
 ### Touch
 
-- Sliders: large hit area; prefer `StudioSlider` pattern once wired widely (v0.8).
+- Sliders: large hit area; prefer `StudioSlider`.
 - No hover-only affordances.
-- Pointer → UV path already required for interaction engine — keep accurate under scroll/sheet drag.
+- Pointer → UV path accurate under scroll/sheet drag.
 
 ### Safe areas
 
 - Respect `env(safe-area-inset-*)` for nav and sheet.
-- Use `100dvh` (already used by mobile editor) to avoid URL-bar jumps.
+- Use `100dvh` to avoid URL-bar jumps.
 
 ### Performance
 
 - **One** live WebGL preview.
-- Pause/simplify when sheet fully covers preview if needed; never spawn extra contexts for docks.
+- Never spawn extra contexts for docks.
 - `uMatLowQ` on narrow viewports ([09](./09-PERFORMANCE.md)).
 
 ### Accessibility
 
 - Sheet labelled; nav items have accessible names.
 - Reduced motion: sheet transitions shorten/disable; CRT flicker muted.
-- Keyboard: desktop parity still required when not in mobile editor mode.
+- Keyboard: desktop category rail must be operable.
 
 ## Research anchors (lab UX)
 
-Borrow patterns from professional creative mobile tools (Figma, Procreate, Spline mobile, Rive): **preview-first**, **sheeted inspectors**, **limited top-level nav**, **large manipulators**. Do not copy their product scope — only interaction hygiene.
+Borrow patterns from professional creative tools (Figma, Procreate, Spline, Rive): **preview-first**, **sheeted / exclusive inspectors**, **limited top-level nav**, **large manipulators**. Do not copy their product scope.
 
 ## Out of scope for export
 
@@ -82,4 +107,4 @@ Consumers implement their own responsive layouts around adapters. Do not require
 
 ## Why (human)
 
-Mobile authoring keeps the lab usable on a phone, but the product you ship is still the adapter + engine — not the sheet chrome.
+Lab chrome exists so humans and agents can author dither materials; the product you ship is still the adapter + engine — not the sheet or category rail.
