@@ -1,20 +1,23 @@
 # Local notes — Pixel Info Card
 
-## Shape status
+## Status
 
-Brief locked in `PROJECT.md`. Do not implement until mode switches to **Implement**.
+**Grilling complete** (2026-08-10). `PROJECT.md` is implementation-ready. Say **Implement** to build.
 
-## Confirmed with human (2026-08-10)
+## Grilling summary
 
-1. Expanded card click plays the animation **in reverse** back to the squircle.
-2. Demo chrome matches Blobby Rotation Loader; control slider fill is **blue**, not yellow.
+- Portable `PixelInfoCard` + Blobby demo (blue sliders, Reset, Export)
+- Dark/light via `theme` prop + sun/moon top-right in demo
+- Maser blue `#10a4ff` accents in dark only; light uses white on black surfaces
+- 64px squircle; label `Info`; centered card; canvas overlay + DOM plate
+- Mid-flight retarget with ease-out cubic; focus card ↔ trigger
+- Demo body: fixed TypeScript explainer paragraph
 
-## Implement checklist (when requested)
+## Implement order
 
-1. Scaffold `lab/src/components/projects/display/pixel-info-card/`
-2. Register demo in `lab/src/components/projects/registry.ts`
-3. Flip registry status `draft` → `building`
-4. Build canvas pixel snake assemble/dissolve + state machine
-5. Wire BlurFocusReveal (or `tal-blur-focus` CSS) for text in/out
-6. Port Blobby demo shell CSS with `--pic-fill` blue
-7. Verify open/close, keyboard, reduced-motion at 320 / 1280
+1. Scaffold `lab/.../display/pixel-info-card/`
+2. `use-pixel-info-machine` + `pixel-assemble-canvas`
+3. `pixel-info-card.tsx` (product, both themes)
+4. Demo shell (Blobby + theme toggle + sliders + export drawer)
+5. `demoRegistry` + registry `building`
+6. Render verify: open/close, interrupt, themes, reduced-motion, 320/1280

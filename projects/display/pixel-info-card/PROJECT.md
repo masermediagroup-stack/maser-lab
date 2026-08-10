@@ -3,19 +3,19 @@
 **Slug:** `pixel-info-card`  
 **Category:** display  
 **Status:** draft  
-**Created:** 2026-08-10
+**Created:** 2026-08-10  
+**Grilling:** complete (2026-08-10) — ready for **Implement**
 
 ## Design reference
 
 - Figma: none (see `FIGMA.md`)
-- Other: Blobby Rotation Loader demo chrome (layout/style); Lucide/Heroicons-style circular info glyph; canvas pixel-card / particle-reveal references (Dirck Mulder Pixel Card, Disintegrate-style particle morph)
-- Adjacent lab patterns: `feedback/blobby-rotation-loader` (demo shell), `lab/src/components/text-animations/BlurFocusRevealAnimation.tsx` (card body blur-in), optional craft cues from `tetris-pixel-text` / `page-transitions-lab` pixel wormhole (not direct ports)
+- Demo chrome: [`blobby-rotation-loader`](../../feedback/blobby-rotation-loader/PROJECT.md) layout; Maser blue slider fill (not yellow)
+- Export pattern: [`page-transitions-lab`](../../layout/page-transitions-lab/) code-export drawer (usage snippet + settings + Copy)
+- Icon: `lucide-react` `Info` + `Sun` / `Moon` for theme toggle
+- Pixel assemble refs: Dirck Mulder Pixel Card; lab `tetris-pixel-text` controller (phase/in-out craft only)
+- Text: `BlurFocusRevealAnimation` / `tal-blur-focus` (compact, fast, `phase: "out"` on close)
 
-## Mode
-
-**Shape** (this document). No product implementation until Implement is requested.
-
-**Loaded skills / refs:** `maser-lab-web` (Shape), `maser-lab-section-shape`, `maser-lab-project-scaffold` (wiring when Implement starts), `references/decision-template.md`, `references/motion-judgment.md`.
+**Loaded skills:** `maser-lab-web` (Shape), `grill-me` / `grilling` (stress-test), `maser-lab-project-scaffold` (Implement wiring).
 
 ---
 
@@ -23,234 +23,241 @@
 
 ### User / trigger
 
-Lab visitors and portfolio viewers tap/click a compact info control to reveal detail, then tap the expanded card to collapse. Occasional / demo frequency (not a high-frequency chrome control).
+Lab visitors and portfolio viewers tap a compact **Info** control to reveal detail, then tap the expanded card to collapse. Occasional frequency — not high-frequency chrome.
 
 ### Job
 
-Communicate “more info available → here is the content” through a memorable open/close: trigger dissipates, white pixels snake-assemble into a card, copy blur-ins; reverse plays on second click.
+Communicate “more info available → here is the content” through a reversible open/close: trigger dissipates, pixel snakes assemble a card, copy blur-ins; second click on the card reverses.
 
 ### Brand signal
 
-Demo stage matches Blobby Rotation Loader: black field, centered stage, fixed back pill + title, bottom control strip. Accent fill is **blue** (not yellow). Product surface is white card + blue info chrome + black body copy — readable without the lab shell.
-
-### Current behavior
-
-Greenfield — no pixel-assemble info card in `display/`.
+Portable product works on any host background. Lab demo uses Blobby shell (black or white stage via theme toggle), centered stage, back pill top-left, **sun/moon theme pill top-right**, bottom blue sliders + Reset + **Export**.
 
 ### Desired outcome
 
-One composition on a black stage: idle squircle trigger → press → fast blur-out → white multi-opacity pixel snakes coalesce into a rounded white info card → header + body text blur in. Second press reverses the sequence back to the squircle. Bottom sliders (blue tracks) tune pixel/motion params like Blobby.
+**Dark (default):** black stage, white squircle + white card, Maser blue icon + `Info` label/header, black body text on card.
+
+**Light:** white stage, black squircle + black card, white icon + `Info` on black surfaces, white body text on card.
+
+Pixels match surface polarity (white particles → white card in dark; black particles → black card in light).
 
 ### Success signal
 
-- Open and close each read as one continuous story (not a hard cut).
-- Pixel phase feels generative / snake-like, not a simple scale morph.
-- Card content is legible within ~150–250ms of card settle.
-- Reduced-motion path still toggles content without the pixel spectacle.
-- Demo chrome is recognizably Blobby-family with blue accents.
+- Open/close read as one continuous story.
+- Pixel phase feels generative / snake-like.
+- Body legible within ~150–250ms of card settle.
+- Mid-flight click retargets with ease-out cubic blend.
+- Theme toggle inverts colors cleanly.
+- Export copies portable usage + current slider values.
+- Reduced-motion path toggles without pixel spectacle.
 
 ### Non-goals
 
-- Maser Dither Engine / WebGL2 pipeline (Canvas 2D only for v1).
-- Live HTML-under-shader dissolve libraries.
-- Multi-card stacks, markdown rich text, or CMS content.
-- Persisting slider prefs to localStorage (v1).
-- Yellow Blobby fill anywhere in this demo.
+- Maser Dither Engine / WebGL2 (Canvas 2D v1).
+- Disintegrate-style DOM particle libs.
+- Multi-card stacks, markdown, CMS.
+- localStorage persistence (v1).
+- Calibration preset buttons (sliders + Reset only).
+- Separate close (X) control — entire card closes.
 
 ---
 
-## First viewport / composition
+## Product API (portable)
 
-| Slot | Content |
+```tsx
+<PixelInfoCard
+  theme="dark" | "light"   // default "dark"
+  title="Info"             // default "Info" — capital I only
+  body={string}            // consumer copy; demo uses TypeScript explainer
+  className?
+/>
+```
+
+- **Demo-only:** sliders, Reset, Export drawer, sun/moon theme toggle (drives `theme` state).
+- Product has **no** dependency on black lab stage.
+
+### Demo placeholder body (fixed v1)
+
+> TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. It adds static types, interfaces, and tooling-friendly checks so teams can catch errors before runtime while still shipping to any browser or Node environment.
+
+---
+
+## Composition
+
+| Slot | Dark demo | Light demo |
+| --- | --- | --- |
+| Stage bg | `#000000` | `#ffffff` |
+| Squircle + card plate | White | Black |
+| Icon + `Info` chrome | Maser blue `#10a4ff` | White |
+| Body copy | Black on white card | White on black card |
+| Assemble pixels | White, varied opacity | Black, varied opacity |
+| Slider fill | Maser blue | Maser blue |
+
+| Chrome | Spec |
 | --- | --- |
-| Shell | Black `#000` full-bleed demo (Blobby layout) |
-| Header | Centered title “Pixel Info Card”; back pill top-left |
-| Stage | Single interaction: idle squircle **or** expanded card (never both as solid DOM) |
-| Controls | Bottom panel: blue-fill sliders + optional Reset |
+| Back | Top-left pill (Blobby) |
+| Title | Centered “Pixel Info Card” |
+| Theme | Top-right **40px circle** — **Sun** in dark (tap → light), **Moon** in light (tap → dark) |
+| Stage | Centered interaction |
+| Controls | Bottom panel: sliders + Reset + Export |
 
-Idle trigger (product):
+### Trigger
 
-- White squircle (~56–72px, large radius / near-square rounded square)
-- Blue circular **info** icon centered (standard “i” in circle)
-- Blue label `info` under the squircle (sentence or lowercase per copy decision — default: lowercase `info` under trigger; card header uses `INFO` all-caps)
+- **64×64px** white (dark) / black (light) squircle, large `border-radius`
+- Lucide `Info` centered; **`Info`** label below (capital **I** only)
+- `<button type="button">` — “Show info”
 
-Expanded card (product):
+### Expanded card
 
-- White rounded rectangle, normal card size (~min(360px, 92vw) × content)
-- Top-left: blue info icon + blue `INFO` all-caps
-- Body: black text (short placeholder paragraph in demo)
-- Entire card is the hit target to reverse
+- Centered; ~`min(360px, 92vw)` width
+- Top-left: icon + **`Info`** (same casing as trigger)
+- Body: theme-appropriate copy color
+- **Entire card** is close target — “Hide info”
+- Canvas overlay during transition; **DOM card** fades in at ~80% assemble (selectable text)
+
+### Spatial (locked)
+
+Centered card on stage. Pixels **originate from squircle** and snake into centered card silhouette (not anchored offset growth).
 
 ---
 
 ## Interaction timeline
 
-### Open (trigger → card)
+### Open
 
 ```text
-t0        pointerdown / Enter on trigger (pressed feedback optional)
-t0–~80ms  squircle + label blur-out / opacity collapse (very fast dissipate)
-~80ms     canvas pixel field active over stage bounds
-~80–450ms white pixels at varied opacities move in short snake-like chains,
-          coalescing into the card silhouette (rounded rect mask)
-~400ms    card DOM (or canvas-backed plate) reaches opacity/shape settle
-~420–600ms header (icon + INFO) then body text: fast blur-in + slight Y offset
-          (reuse BlurFocusReveal timing, sped up ~2× for card body)
+t0        pointerdown / Enter on trigger
+t0–~80ms  squircle + Info label blur-out (very fast)
+~80ms     canvas pixel field; snakes from squircle → card mask
+~80–450ms surface-colored pixels, varied opacity, snake chains
+~80%      DOM card opacity in (canvas still finishing)
+~400ms    card settled
+~420–550ms header then body: BlurFocusReveal (~350–450ms, compact)
 ```
 
-### Close (card → trigger) — reverse
+### Close (reverse)
 
 ```text
-t0        click / Enter on expanded card
-t0–~120ms body + header blur-out / fade (fast, reverse of enter)
-~100ms    card plate dissolves into pixel snakes (outward / scatter toward
-          trigger origin), white multi-opacity squares
-~350–500ms pixels collapse toward squircle footprint
-~480ms    squircle + `info` label blur/snap back in
+t0        click / Enter on entire card (Escape also collapses)
+t0–~120ms text blur-out (phase "out")
+~100ms    card dissolves to pixel snakes toward squircle
+~350–500ms pixels collapse to squircle footprint
+~480ms    squircle + Info label return
 ```
 
-Interruptibility: if user re-triggers mid-flight, retarget toward the opposite resting state from current progress (no double-DOM flash).
+### Interrupt (locked)
+
+Mid-flight click **retargets** toward opposite resting state from current progress. Blend with **ease-out cubic ~180–220ms** (no snap, no spring).
 
 ---
 
 ## States
 
-- [ ] default — idle white squircle + blue icon + `info` label
-- [ ] hover (pointer fine) — subtle scale or brightness on squircle only
-- [ ] focus-visible — blue focus ring on trigger / card
+- [ ] default — idle squircle + Info label
+- [ ] hover — subtle squircle scale/brightness (pointer fine)
+- [ ] focus-visible — accent focus ring (blue dark / white light)
 - [ ] active / pressed — brief press scale on trigger
-- [ ] expanding — pixel assemble in progress (inert to second open)
-- [ ] expanded — card resting; clickable to close
-- [ ] collapsing — reverse pixel dissolve in progress
-- [ ] prefers-reduced-motion — instant or crossfade toggle; no pixel snakes; text appears without blur spectacle
+- [ ] expanding — pixels assembling; retargetable
+- [ ] expanded — card resting; entire card closes
+- [ ] collapsing — reverse; retargetable
+- [ ] theme-dark / theme-light — product + demo
+- [ ] prefers-reduced-motion — crossfade ≤150ms; no pixels; no blur spectacle
 
 ---
 
 ## Motion decisions
 
-| Decision | Choice | Rationale |
-| --- | --- | --- |
-| Library | Canvas 2D + `requestAnimationFrame` for pixels; CSS/WAAPI for blur dissipate + text | Controllable particle snakes without WebGL/engine coupling; matches Blobby’s canvas tuning culture |
-| Pixel model | Grid cells / small squares; white `#fff` at ~0.15–1.0 opacity; short correlated paths (“snakes”) that settle into card AABB with rounded mask | Matches brief; inspired by pixel-card / particle-reveal patterns, not Bayer dither engine |
-| Dissipate | ≤80–100ms blur + opacity on trigger | “Really, really fast” per brief |
-| Assemble | ~300–450ms (demo-tunable) | Occasional delight; still interruptible |
-| Text | Port `tal-blur-focus` / `BlurFocusRevealAnimation` with shorter speed (~350–450ms) + small Y offset | Existing lab text pack; supports `phase: "out"` for reverse |
-| Reverse | Same systems, reversed timeline | Explicit product requirement |
-| Reduced motion | Skip pixel phase; opacity crossfade ≤150ms | `rule` a11y / motion-judgment |
-
-### Alternatives considered (Shape)
-
-| Approach | Pros | Cons | Verdict |
-| --- | --- | --- | --- |
-| A. Canvas 2D pixel snakes | Tunable, portable, no engine sacred contracts | Hand-authored particle logic | **Chosen for v1** |
-| B. Maser Dither Engine surface | Shared material language | Overkill; wrong pipeline for morphing card chrome | Reject for v1 |
-| C. CSS-only scale/blur morph | Tiny bundle | No generative pixel feel | Reject as primary |
-| D. Three.js wormhole particles | Existing lab scene | Heavy for a card micro-interaction | Reject for v1 |
+| Decision | Choice |
+| --- | --- |
+| Pixels | Canvas 2D + rAF; grid snakes; surface-matched color + opacity |
+| Plate | Canvas transition overlay + DOM card at settle |
+| Dissipate | ≤80–100ms blur + opacity |
+| Assemble | ~300–450ms (slider-tunable) |
+| Text | `tal-blur-focus` / BlurFocusReveal, compact, fast |
+| Interrupt easing | ease-out cubic ~200ms retarget |
+| Reduced motion | Opacity crossfade; skip canvas |
 
 ---
 
-## Demo chrome (Blobby match, blue accent)
-
-Mirror [`blobby-rotation-loader`](../../feedback/blobby-rotation-loader/PROJECT.md) structure:
-
-| Element | Spec |
-| --- | --- |
-| Background | `#000000` |
-| Text | `#ffffff` |
-| Track | `#2a2a2a` |
-| Fill (was yellow) | Blue — proposed `--pic-fill: #3b82f6` (tunable in controls) |
-| Thumb | `#ffffff` |
-| Panel | `rgba(0,0,0,0.96)` + top hairline |
-| Layout | `grid-template-rows: 1fr auto`; fixed back + title; stage centered; controls bottom |
-
-### Proposed demo controls (blue sliders)
+## Demo controls
 
 | Control | Maps to |
 | --- | --- |
-| Pixel size | Canvas cell size (px) |
-| Snake density | Active particle count / fill probability |
-| Assemble speed | Open pixel-phase duration |
-| Dissipate speed | Trigger blur-out duration |
-| Card radius | Final card corner radius |
-| Reset | Return params + collapse to idle |
+| Pixel size | Cell size (px) |
+| Snake density | Particle count / fill |
+| Assemble speed | Open duration |
+| Dissipate speed | Trigger blur-out |
+| Card radius | Corner radius |
+| Reset | Default params + collapse to idle |
 
-Optional v1.1: accent blue color picker (like Blobby’s color panel).
+**Export** (page-transitions-lab pattern): sheet with JSX usage snippet, current slider values as props, dependency list (`lucide-react`), Copy button. Not full canvas source.
 
 ---
 
-## Architecture (Implement preview)
+## Architecture (Implement)
 
 ```text
-projects/display/pixel-info-card/
-  PROJECT.md          ← this Shape brief
-  FIGMA.md
-  TRANSFER.md         ← later
-
 lab/src/components/projects/display/pixel-info-card/
-  index.ts            # product exports only
-  pixel-info-card.tsx # trigger + card shell + a11y
-  pixel-assemble-canvas.tsx  # rAF snake assemble/dissolve
-  use-pixel-info-machine.ts  # idle|expanding|expanded|collapsing
-  pixel-info-card-demo.tsx   # Blobby-like shell + blue sliders
-  tokens.css
+  index.ts                    # PixelInfoCard only
+  pixel-info-card.tsx         # trigger + card + theme prop + a11y
+  pixel-assemble-canvas.tsx   # rAF snakes
+  use-pixel-info-machine.ts   # idle|expanding|expanded|collapsing + retarget
+  code-export-drawer.tsx      # usage + settings export
+  pixel-info-card-demo.tsx    # Blobby shell + sliders + theme + export
+  tokens.css                  # dark/light + Maser blue
   constants.ts
   types.ts
 ```
 
-Wire: `projects/registry.json` → `lab/.../registry.ts` demoRegistry → `/demos/pixel-info-card` via DemoHost.
-
-Reuse:
-
-- Demo layout/CSS patterns from `blobby-rotation-loader/tokens.css` + demo structure (swap fill to blue).
-- Text from `BlurFocusRevealAnimation` / `text-animations.css` (`tal-blur-focus`), configured compact + fast; `phase="out"` on close.
-- Icon: `lucide-react` `Info` (lab standard) unless a static SVG is preferred for transfer weight.
+Reuse: `LoaderControlSlider` pattern from blobby (or shared slider styles), `page-transitions-lab` export drawer pattern.
 
 ---
 
 ## Accessibility
 
-- Trigger: `<button type="button">` with accessible name e.g. “Show info”.
-- Expanded card: button or focusable region named “Hide info”; `aria-expanded` on the control pair.
-- Focus moves to card on open and back to trigger on close (or stays logical with `aria-controls`).
-- Keyboard: Enter/Space toggle; Escape collapses when expanded.
-- `prefers-reduced-motion: reduce` honors non-spectacle path.
-- Body copy remains in the accessibility tree when expanded (not canvas-only text).
+- Trigger: button, `aria-expanded`, “Show info”
+- Card: focusable close region, “Hide info”; focus moves to card on open, back to trigger on close
+- Keyboard: Enter/Space toggle; Escape collapses when expanded
+- `prefers-reduced-motion`: non-spectacle path in both themes
+- Body in DOM when expanded (not canvas-only)
 
 ---
 
 ## Acceptance criteria
 
-- [ ] Demo route `/demos/pixel-info-card` renders idle, expanding, expanded, collapsing, reduced-motion
-- [ ] Click/keyboard open assembles via white multi-opacity pixel snakes; close reverses
-- [ ] Trigger: white squircle, blue info icon, blue `info` label
-- [ ] Card: white rounded plate, blue icon + `INFO`, black body text with fast blur-in
-- [ ] Demo chrome matches Blobby layout; slider fill is blue not yellow
-- [ ] `npm run lint` and `npm run build` pass in `lab/`
-- [ ] Motion review: no open P0/P1 findings
-- [ ] `prefers-reduced-motion` verified in browser
-- [ ] Product exported from `lab/src/components/projects/display/pixel-info-card/index.ts`
+- [ ] `/demos/pixel-info-card` — all states + both themes
+- [ ] Open/close pixel snakes; reverse on card click; mid-flight retarget with easing
+- [ ] 64px squircle; `Info` label casing; Maser blue accents in dark only
+- [ ] Light mode: inverted stage/surfaces; white chrome on black components
+- [ ] Sun/moon toggle top-right; Export copies usage + settings
+- [ ] Demo: Blobby layout, blue sliders, Reset
+- [ ] `prefers-reduced-motion` verified
+- [ ] Product in `index.ts`; works without demo chrome
+- [ ] `npm run lint` + `npm run build` pass
 
 ---
 
-## Open decisions
+## Accepted decisions (grilling 2026-08-10)
 
-Record with decision template before Implement if still unresolved:
-
-1. **Exact blue** — default `#3b82f6` vs brand Maser blue from page-transitions-lab; confirm in Implement.
-2. **Card body copy** — demo placeholder vs user-supplied string prop (recommend `title` + `children`/`body` props).
-3. **Canvas vs DOM card plate** — pixels only as transition overlay vs pixels drawing the plate until text mounts (recommend: canvas overlay + DOM card fade-in at settle for selectable text).
-4. **Squircle radius** — CSS `border-radius` ~28–32% of size vs `corner-shape` (stick to `border-radius` for support).
-
-## Accepted decisions (human)
-
-| Decision | Choice | Approver |
-| --- | --- | --- |
-| Reversibility | Second click on card plays reverse back to squircle | User (2026-08-10) |
-| Demo chrome | Match Blobby Rotation Loader; control fill blue not yellow | User (2026-08-10) |
-| Category / slug | `display` / `pixel-info-card` | Shape default |
-| Pixel pipeline | Canvas 2D snakes (not dither engine) | Shape default |
-| Text | Reuse BlurFocusReveal / `tal-blur-focus` | Shape default |
+| Topic | Choice |
+| --- | --- |
+| Accent blue | Maser `#10a4ff` (dark mode only) |
+| Card position | Centered; pixels from squircle |
+| Card plate | Canvas overlay + DOM at settle |
+| Scope | Portable product + demo + Export |
+| Interrupt | Retarget mid-flight, ease-out cubic ~200ms |
+| Focus | Card on open; trigger on close |
+| Label | `Info` (capital I only) |
+| Trigger size | 64px |
+| Presets | Sliders + Reset only |
+| Theme | `theme` prop + demo sun/moon top-right |
+| Light mode | Invert bg/surfaces; white chrome on black; no blue in light |
+| Export | Match page-transitions-lab drawer |
+| Close | Entire card only |
+| Demo body | Fixed TypeScript explainer paragraph |
+| Reversibility | Card click reverses to squircle |
+| Demo chrome | Blobby + blue sliders |
 
 ## Next mode
 
-When ready to build: switch to **Implement** — scaffold component folder, demoRegistry entry, canvas machine, blue Blobby chrome, then Harden + Motion-review.
+**Implement** — scaffold, canvas machine, themes, export drawer, demoRegistry, verify rendered demo.
