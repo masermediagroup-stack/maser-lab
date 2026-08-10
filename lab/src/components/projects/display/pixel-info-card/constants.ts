@@ -28,16 +28,16 @@ export const PIC_PARAM_RANGES = {
 } as const;
 
 /**
- * DOM card only mounts when assemble has finished (phase expanded).
- * Canvas keeps the solid plate until then — no mid-flight swap flash.
+ * DOM card + GlideText start once the pixel plate is mostly solid —
+ * do not wait for assemble to fully finish (avoids a long blank card).
  */
-export const CARD_DOM_REVEAL_AT = 1;
+export const CARD_CONTENT_REVEAL_AT = 0.78;
 
 /** Progress when canvas starts filling a solid rounded plate under pixels. */
-export const PIXEL_PLATE_FILL_AT = 0.72;
+export const PIXEL_PLATE_FILL_AT = 0.68;
 
 /** Progress when the plate must be fully opaque. */
-export const PIXEL_PLATE_SOLID_AT = 0.9;
+export const PIXEL_PLATE_SOLID_AT = 0.86;
 
 /** Ease-out cubic retarget blend when interrupting mid-flight. */
 export const RETARGET_BLEND_MS = 160;
@@ -61,8 +61,14 @@ export const COLLAPSE_BLAST_END = 0.36;
 export const COLLAPSE_MERGE_END = 0.78;
 export const COLLAPSE_EXPAND_START = 0.82;
 
-/** GlideText in/out duration for card title + body (matches GlideTextAnimation speed). */
-export const GLIDE_TEXT_MS = 650;
+/** GlideText in/out duration — keep snappy so the plate never sits blank. */
+export const GLIDE_TEXT_MS = 240;
+
+/** Glide travel (px) — short so copy lands quickly. */
+export const GLIDE_DISTANCE_PX = 10;
+
+/** Glide blur (px) — light so text reads sooner. */
+export const GLIDE_BLUR_PX = 2;
 
 /** Max CSS blur (px) on trigger dissipate — keep subtle. */
 export const TRIGGER_BLUR_MAX = 4;

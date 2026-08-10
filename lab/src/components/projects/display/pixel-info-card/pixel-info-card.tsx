@@ -17,11 +17,14 @@ import {
   type AnimationPhase,
 } from "@/components/text-animations/shared";
 import {
+  CARD_CONTENT_REVEAL_AT,
   CARD_MAX_WIDTH,
   CARD_MIN_HEIGHT,
   COLLAPSE_EXPAND_START,
   DEFAULT_TITLE,
   DEMO_BODY,
+  GLIDE_BLUR_PX,
+  GLIDE_DISTANCE_PX,
   GLIDE_TEXT_MS,
   PIC_DEFAULTS,
   SQUIRCLE_DOM_REVEAL_GROW,
@@ -105,7 +108,7 @@ export function PixelInfoCard({
   const [holdingForTextOut, setHoldingForTextOut] = useState(false);
   const textOutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingCloseRef = useRef(false);
-  const prevPhaseForGlideRef = useRef<typeof phase>(phase);
+  const textStartedRef = useRef(false);
 
   const clearTextOutTimer = useCallback(() => {
     if (textOutTimerRef.current != null) {
@@ -118,25 +121,31 @@ export function PixelInfoCard({
 
   useEffect(() => () => clearTextOutTimer(), [clearTextOutTimer]);
 
+  const contentReveal =
+    phase === "expanded" ||
+    (phase === "expanding" && progress >= CARD_CONTENT_REVEAL_AT);
+
   /**
-   * Start GlideText on the same frame the plate settles — useLayoutEffect so
-   * we bump playKey before paint (no idle frame, no restart stutter).
+   * Start GlideText as soon as the plate is solid enough — before assemble
+   * fully ends — so the card never sits blank.
    */
   useLayoutEffect(() => {
-    const prev = prevPhaseForGlideRef.current;
-    prevPhaseForGlideRef.current = phase;
+    if (holdingForTextOut) return;
 
-    if (phase === "expanded" && prev !== "expanded" && !holdingForTextOut) {
+    if (phase === "idle" || phase === "collapsing") {
+      textStartedRef.current = false;
+      setGlideReady(false);
+      clearTextOutTimer();
+      return;
+    }
+
+    if (contentReveal && !textStartedRef.current) {
+      textStartedRef.current = true;
       setGlidePhase("in");
       setGlidePlayKey((k) => k + 1);
       setGlideReady(true);
-      return;
     }
-    if (phase === "idle" || phase === "expanding") {
-      setGlideReady(false);
-      clearTextOutTimer();
-    }
-  }, [phase, holdingForTextOut, clearTextOutTimer]);
+  }, [phase, contentReveal, holdingForTextOut, clearTextOutTimer]);
 
   /** Close: GlideText out first, then pixel collapse. */
   const requestClose = useCallback(() => {
@@ -146,8 +155,25 @@ export function PixelInfoCard({
       return;
     }
     if (phase === "expanding") {
+      // If copy already entered, play out first; otherwise dissolve immediately
+      if (textStartedRef.current && glideReady && !pendingCloseRef.current) {
+        pendingCloseRef.current = true;
+        setHoldingForTextOut(true);
+        setGlidePhase("out");
+        setGlidePlayKey((k) => k + 1);
+        textOutTimerRef.current = setTimeout(() => {
+          textOutTimerRef.current = null;
+          pendingCloseRef.current = false;
+          setHoldingForTextOut(false);
+          setGlideReady(false);
+          textStartedRef.current = false;
+          collapse();
+        }, GLIDE_TEXT_MS);
+        return;
+      }
       clearTextOutTimer();
       setGlideReady(false);
+      textStartedRef.current = false;
       collapse();
       return;
     }
@@ -167,19 +193,28 @@ export function PixelInfoCard({
       pendingCloseRef.current = false;
       setHoldingForTextOut(false);
       setGlideReady(false);
+      textStartedRef.current = false;
       collapse();
     }, GLIDE_TEXT_MS);
-  }, [phase, collapse, clearTextOutTimer, reducedMotion]);
+  }, [phase, collapse, clearTextOutTimer, reducedMotion, glideReady]);
 
   const requestToggle = useCallback(() => {
-    if (phase === "expanded" || holdingForTextOut) {
+    if (phase === "expanded" || holdingForTextOut || contentReveal) {
       requestClose();
       return;
     }
     clearTextOutTimer();
     setGlideReady(false);
+    textStartedRef.current = false;
     toggle();
-  }, [phase, holdingForTextOut, requestClose, clearTextOutTimer, toggle]);
+  }, [
+    phase,
+    holdingForTextOut,
+    contentReveal,
+    requestClose,
+    clearTextOutTimer,
+    toggle,
+  ]);
 
   const measureOrigin = useCallback(() => {
     const stage = stageRef.current;
@@ -235,7 +270,7 @@ export function PixelInfoCard({
   }, [phase]);
 
   useEffect(() => {
-    if (phase === "idle" && !holdingForTextOut) return;
+    if (phase === "idle" && !holdingForTextOut && !contentReveal) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
@@ -244,7 +279,7 @@ export function PixelInfoCard({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, holdingForTextOut, requestClose]);
+  }, [phase, holdingForTextOut, contentReveal, requestClose]);
 
   /**
    * Squircle surface + chrome crossfade with the canvas grow — same curve for
@@ -254,8 +289,8 @@ export function PixelInfoCard({
     if (reducedMotion) return phase === "idle" ? 1 : 0;
     if (phase === "idle") return 1;
     if (phase === "expanding" || phase === "expanded") {
-      // Snap off with pixels — no CSS fade lag fighting progress
-      return progress < 0.02 ? 1 : 0;
+      // Progress-driven fade (no CSS transition) — stays in sync with the burst
+      return Math.max(0, 1 - progress / 0.1);
     }
     if (phase === "collapsing") {
       const collapseT = 1 - progress;
@@ -283,16 +318,16 @@ export function PixelInfoCard({
     );
   })();
 
-  /** DOM card only after assemble completes — canvas already shows the plate. */
+  /** DOM card + copy as soon as the plate is solid enough. */
   const cardOpacity = (() => {
     if (reducedMotion) {
       return phase === "expanded" || phase === "expanding" ? 1 : 0;
     }
-    if (holdingForTextOut) return 1;
-    return phase === "expanded" ? 1 : 0;
+    if (holdingForTextOut || contentReveal) return 1;
+    return 0;
   })();
 
-  const cardVisible = showCardDom || holdingForTextOut;
+  const cardVisible = showCardDom || holdingForTextOut || contentReveal;
 
   const pixelsActive =
     !reducedMotion &&
@@ -300,7 +335,7 @@ export function PixelInfoCard({
     (phase === "collapsing" || progress > 0.01);
 
   const showGlide =
-    ((phase === "expanded" || holdingForTextOut) && glideReady) ||
+    ((contentReveal || holdingForTextOut) && glideReady) ||
     (reducedMotion && phase === "expanding");
 
   return (
@@ -410,10 +445,10 @@ export function PixelInfoCard({
                 playKey={glidePlayKey}
                 phase={glidePhase}
                 direction="bottom"
-                glideDistance={24}
+                glideDistance={GLIDE_DISTANCE_PX}
                 speed={GLIDE_TEXT_MS}
                 stagger={0}
-                blur={5}
+                blur={GLIDE_BLUR_PX}
                 ease={GLIDE_EASE}
                 compact
                 className="pic-glide-title"
@@ -430,10 +465,10 @@ export function PixelInfoCard({
                 playKey={glidePlayKey}
                 phase={glidePhase}
                 direction="bottom"
-                glideDistance={24}
+                glideDistance={GLIDE_DISTANCE_PX}
                 speed={GLIDE_TEXT_MS}
                 stagger={0}
-                blur={5}
+                blur={GLIDE_BLUR_PX}
                 ease={GLIDE_EASE}
                 compact
                 className="pic-glide-body"
