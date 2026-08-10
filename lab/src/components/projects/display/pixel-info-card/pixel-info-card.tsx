@@ -153,9 +153,11 @@ export function PixelInfoCard({
     }
   }, [phase, contentReveal, holdingForTextOut, clearTextOutTimer]);
 
-  /** Close: GlideText out first, then pixel collapse (+ reassemble SFX). */
+  /** Close: GlideText out first, then pixel collapse (+ reassemble SFX, nudged ~25ms). */
   const beginPixelCollapse = useCallback(() => {
-    playPicSfx(PIC_SFX.collapse);
+    window.setTimeout(() => {
+      playPicSfx(PIC_SFX.collapse);
+    }, 25);
     collapse();
   }, [collapse]);
 
