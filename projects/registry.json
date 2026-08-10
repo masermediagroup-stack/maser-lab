@@ -77,6 +77,13 @@
       "status": "building",
       "category": "display",
       "description": "Procedural dither material module — shared WebGL engine, component playgrounds, materials, presets, and docs"
+    },
+    {
+      "slug": "pixel-info-card",
+      "title": "Pixel Info Card",
+      "status": "draft",
+      "category": "display",
+      "description": "White squircle info trigger that pixel-snake assembles into a reversible info card — Blobby chrome with blue controls"
     }
   ]
 }
