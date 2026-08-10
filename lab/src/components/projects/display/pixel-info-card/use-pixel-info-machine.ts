@@ -22,6 +22,8 @@ export type PixelInfoMachine = {
   /** 0 = idle/squircle, 1 = fully expanded card */
   progress: number;
   showCardDom: boolean;
+  /** True once card plate is fully opaque and text may enter */
+  showCardContent: boolean;
   toggle: () => void;
   collapse: () => void;
   reset: () => void;
@@ -140,13 +142,16 @@ export function usePixelInfoMachine({
 
   const showCardDom =
     phase === "expanded" ||
-    (phase === "expanding" && progress >= CARD_DOM_REVEAL_AT) ||
-    (phase === "collapsing" && progress >= CARD_DOM_REVEAL_AT * 0.5);
+    (phase === "expanding" && progress >= CARD_DOM_REVEAL_AT);
+
+  /** Content only after resting expanded — avoids text during pixel→plate handoff */
+  const showCardContent = phase === "expanded";
 
   return {
     phase,
     progress,
     showCardDom,
+    showCardContent,
     toggle,
     collapse,
     reset,
@@ -155,10 +160,10 @@ export function usePixelInfoMachine({
 
 export function mergeTuning(partial?: Partial<PixelInfoTuning>): PixelInfoTuning {
   const base: PixelInfoTuning = {
-    pixelSize: 6,
-    snakeDensity: 0.55,
-    assembleMs: 420,
-    dissipateMs: 80,
+    pixelSize: 5,
+    snakeDensity: 0.42,
+    assembleMs: 280,
+    dissipateMs: 45,
     cardRadius: 20,
   };
   return { ...base, ...partial };

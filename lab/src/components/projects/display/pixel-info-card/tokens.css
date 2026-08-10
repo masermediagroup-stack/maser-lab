@@ -7,7 +7,7 @@
   --pic-label: var(--pic-maser-blue);
   --pic-body: #0a0a0a;
   --pic-card-radius: 20px;
-  --pic-dissipate-ms: 80ms;
+  --pic-dissipate-ms: 45ms;
   width: 100%;
   max-width: 100%;
 }
@@ -179,19 +179,28 @@
   text-wrap: pretty;
 }
 
-.pic-card-body--in {
-  animation: pic-blur-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+.pic-card-content--hidden {
+  opacity: 0;
+  visibility: hidden;
 }
 
-.pic-card-body--out {
-  animation: pic-blur-out 120ms ease-in both;
+.pic-card-content--in {
+  animation: pic-blur-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.pic-card-header.pic-card-content--in {
+  animation-delay: 40ms;
+}
+
+.pic-card-body.pic-card-content--in {
+  animation-delay: 90ms;
 }
 
 @keyframes pic-blur-in {
   from {
     opacity: 0;
-    filter: blur(10px);
-    transform: translateY(6px);
+    filter: blur(3px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -208,15 +217,16 @@
   }
   to {
     opacity: 0;
-    filter: blur(8px);
-    transform: translateY(4px);
+    filter: blur(5px);
+    transform: translateY(3px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pic-card-body--in,
-  .pic-card-body--out {
+  .pic-card-content--in {
     animation: none;
+    opacity: 1;
+    visibility: visible;
   }
 
   .pic-squircle {

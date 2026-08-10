@@ -17,6 +17,7 @@ import {
   DEFAULT_TITLE,
   DEMO_BODY,
   PIC_DEFAULTS,
+  TRIGGER_BLUR_MAX,
   TRIGGER_SIZE,
 } from "./constants";
 import { PixelAssembleCanvas } from "./pixel-assemble-canvas";
@@ -47,7 +48,7 @@ function themeVars(theme: PixelInfoTheme): CSSProperties {
 }
 
 /**
- * Portable info trigger that pixel-snake assembles into a reversible info card.
+ * Portable info trigger that pixel-bursts from a squircle into a reversible info card.
  */
 export function PixelInfoCard({
   theme = "dark",
@@ -73,9 +74,9 @@ export function PixelInfoCard({
     h: CARD_MIN_HEIGHT,
   });
 
-  const { phase, progress, showCardDom, toggle, collapse } = machine;
+  const { phase, progress, showCardDom, showCardContent, toggle, collapse } =
+    machine;
 
-  // Measure card for canvas mask (hidden measure node when idle)
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
@@ -85,7 +86,6 @@ export function PixelInfoCard({
     }
   }, [showCardDom, body, title, tuning.cardRadius]);
 
-  // Focus management — only move after user-driven phase changes
   const prevPhaseRef = useRef<typeof phase>(phase);
   useEffect(() => {
     const prev = prevPhaseRef.current;
@@ -93,12 +93,14 @@ export function PixelInfoCard({
     if (prev === phase) return;
     if (phase === "expanded") {
       cardRef.current?.focus({ preventScroll: true });
-    } else if (phase === "idle" && (prev === "collapsing" || prev === "expanded")) {
+    } else if (
+      phase === "idle" &&
+      (prev === "collapsing" || prev === "expanded")
+    ) {
       triggerRef.current?.focus({ preventScroll: true });
     }
   }, [phase]);
 
-  // Escape collapses
   useEffect(() => {
     if (phase === "idle") return;
     const onKey = (e: KeyboardEvent) => {
@@ -111,35 +113,39 @@ export function PixelInfoCard({
     return () => window.removeEventListener("keydown", onKey);
   }, [phase, collapse]);
 
-  const triggerOpacity =
-    reducedMotion
-      ? phase === "idle"
-        ? 1
-        : 0
-      : phase === "idle"
-        ? 1
-        : Math.max(0, 1 - progress / 0.12);
-  const triggerBlur =
-    reducedMotion || phase === "idle"
-      ? 0
-      : Math.min(12, (1 - triggerOpacity) * 16);
-
-  const cardOpacity = (() => {
-    if (reducedMotion) return phase === "expanded" || phase === "expanding" ? 1 : 0;
-    if (!showCardDom) return 0;
-    if (phase === "expanded") return 1;
-    if (phase === "expanding") {
-      return Math.max(0, Math.min(1, (progress - 0.8) / 0.2));
-    }
-    // collapsing — fade out with progress
-    return Math.max(0, Math.min(1, (progress - 0.35) / 0.45));
+  // Fast, light dissipate — mostly opacity, tiny blur
+  const triggerOpacity = (() => {
+    if (reducedMotion) return phase === "idle" ? 1 : 0;
+    if (phase === "idle") return 1;
+    return Math.max(0, 1 - progress / 0.08);
   })();
 
+  const triggerBlur = (() => {
+    if (reducedMotion || phase === "idle") return 0;
+    return Math.min(TRIGGER_BLUR_MAX, (1 - triggerOpacity) * TRIGGER_BLUR_MAX);
+  })();
+
+  /**
+   * Card plate: snap on only at handoff. Never crossfade with flying pixels.
+   */
+  const cardOpacity = (() => {
+    if (reducedMotion) {
+      return phase === "expanded" || phase === "expanding" ? 1 : 0;
+    }
+    if (phase === "expanded") return 1;
+    if (phase === "expanding" && showCardDom) return 1;
+    // Collapse: hide DOM immediately so canvas owns the reverse dissolve
+    return 0;
+  })();
+
+  // Canvas owns the pixel→plate story; clear the same beat the DOM card appears
   const pixelsActive =
     !reducedMotion &&
-    (phase === "expanding" || phase === "collapsing") &&
-    progress > 0.02 &&
-    progress < 0.98;
+    phase !== "idle" &&
+    phase !== "expanded" &&
+    !showCardDom &&
+    progress > 0.01 &&
+    progress < 0.995;
 
   const onTriggerClick = useCallback(() => {
     toggle();
@@ -148,6 +154,10 @@ export function PixelInfoCard({
   const onCardClick = useCallback(() => {
     toggle();
   }, [toggle]);
+
+  const contentVisible = reducedMotion
+    ? phase === "expanded" || phase === "expanding"
+    : showCardContent;
 
   return (
     <div
@@ -176,7 +186,6 @@ export function PixelInfoCard({
           triggerSize={TRIGGER_SIZE}
         />
 
-        {/* Trigger */}
         <div
           className="pic-trigger-wrap"
           style={{
@@ -184,7 +193,7 @@ export function PixelInfoCard({
             filter: triggerBlur > 0 ? `blur(${triggerBlur}px)` : undefined,
             pointerEvents: triggerOpacity < 0.2 ? "none" : "auto",
             transition: reducedMotion
-              ? "opacity 150ms ease"
+              ? "opacity 120ms ease"
               : `opacity var(--pic-dissipate-ms) ease-out, filter var(--pic-dissipate-ms) ease-out`,
           }}
           aria-hidden={triggerOpacity < 0.2}
@@ -205,7 +214,6 @@ export function PixelInfoCard({
           </button>
         </div>
 
-        {/* Card — mount only when open path is active so it never covers the trigger */}
         {(phase !== "idle" || showCardDom) && (
           <button
             ref={cardRef}
@@ -217,19 +225,29 @@ export function PixelInfoCard({
             tabIndex={showCardDom && cardOpacity > 0.05 ? 0 : -1}
             style={{
               opacity: cardOpacity,
-              pointerEvents: cardOpacity > 0.2 ? "auto" : "none",
+              pointerEvents: cardOpacity > 0.5 ? "auto" : "none",
               borderRadius: tuning.cardRadius,
             }}
           >
-            <span className="pic-card-header">
-              <Info className="pic-icon pic-icon--sm" aria-hidden strokeWidth={2.25} />
+            <span
+              className={cn(
+                "pic-card-header",
+                contentVisible && !reducedMotion && "pic-card-content--in",
+                !contentVisible && "pic-card-content--hidden",
+              )}
+            >
+              <Info
+                className="pic-icon pic-icon--sm"
+                aria-hidden
+                strokeWidth={2.25}
+              />
               <span className="pic-card-title">{title}</span>
             </span>
             <span
               className={cn(
                 "pic-card-body",
-                !reducedMotion && showCardDom && phase !== "collapsing" && "pic-card-body--in",
-                !reducedMotion && phase === "collapsing" && "pic-card-body--out",
+                contentVisible && !reducedMotion && "pic-card-content--in",
+                !contentVisible && "pic-card-content--hidden",
               )}
             >
               {body}

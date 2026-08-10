@@ -44,9 +44,10 @@ Pixels match surface polarity (white particles → white card in dark; black par
 
 ### Success signal
 
-- Open/close read as one continuous story.
-- Pixel phase feels generative / snake-like.
-- Body legible within ~150–250ms of card settle.
+- Open/close read as one continuous story: pixels **become** the card (no simultaneous pixel + card fade / double flash).
+- Pixel phase feels generative — individual particles burst from behind the squircle on random paths, then lock into a masked grid.
+- Content blur-ins only after the card plate is fully opaque (`expanded`).
+- Open feels snappy (~280ms default); trigger blur stays subtle (≤4px).
 - Mid-flight click retargets with ease-out cubic blend.
 - Theme toggle inverts colors cleanly.
 - Export copies portable usage + current slider values.
