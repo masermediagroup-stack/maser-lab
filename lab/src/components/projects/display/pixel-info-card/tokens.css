@@ -7,7 +7,7 @@
   --pic-label: var(--pic-maser-blue);
   --pic-body: #0a0a0a;
   --pic-card-radius: 20px;
-  --pic-dissipate-ms: 45ms;
+  --pic-dissipate-ms: 160ms;
   width: 100%;
   max-width: 100%;
 }
@@ -140,15 +140,19 @@
   background: var(--pic-surface);
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  /* No shadow until settled — avoids a second “flash” on plate handoff */
+  box-shadow: none;
   -webkit-tap-highlight-color: transparent;
-  transition: opacity 120ms ease-out;
+  transition: none;
 }
 
-.pic-card[aria-hidden="true"],
-.pic-card[tabindex="-1"]:not(.pic-card--visible) {
-  /* Keep off-screen measure without covering the trigger label */
-  visibility: hidden !important;
+.pic-card--settled {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  transition: box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pic-card:not(.pic-card--visible) {
+  /* Measure off-flow without covering the trigger */
   pointer-events: none !important;
   opacity: 0 !important;
 }
@@ -182,27 +186,28 @@
 
 .pic-card-content--hidden {
   opacity: 0;
-  visibility: hidden;
+  filter: blur(6px);
+  transform: translateY(0.7em);
 }
 
 .pic-card-content--in {
-  animation: pic-blur-uplift 150ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: pic-blur-uplift 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .pic-card-header.pic-card-content--in {
-  animation-delay: 16ms;
+  animation-delay: 40ms;
 }
 
 .pic-card-body.pic-card-content--in {
-  animation-delay: 36ms;
+  animation-delay: 90ms;
 }
 
-/* Fast blur-uplift: rises from below the baseline into place */
+/* Slow, soft blur-uplift from below the baseline */
 @keyframes pic-blur-uplift {
   from {
     opacity: 0;
-    filter: blur(5px);
-    transform: translateY(0.65em);
+    filter: blur(6px);
+    transform: translateY(0.7em);
   }
   to {
     opacity: 1;
@@ -215,7 +220,12 @@
   .pic-card-content--in {
     animation: none;
     opacity: 1;
-    visibility: visible;
+    filter: none;
+    transform: none;
+  }
+
+  .pic-card--settled {
+    transition: none;
   }
 
   .pic-squircle {

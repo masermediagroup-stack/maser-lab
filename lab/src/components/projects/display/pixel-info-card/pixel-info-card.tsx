@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -75,16 +76,48 @@ export function PixelInfoCard({
     reducedMotion,
   });
 
+  const stageRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const squircleRef = useRef<HTMLSpanElement>(null);
   const cardRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const [cardSize, setCardSize] = useState({
     w: CARD_MAX_WIDTH,
     h: CARD_MIN_HEIGHT,
   });
+  const [origin, setOrigin] = useState({ x: 0, y: 0 });
 
   const { phase, progress, showCardDom, showCardContent, toggle, collapse } =
     machine;
+
+  const measureOrigin = useCallback(() => {
+    const stage = stageRef.current;
+    const squircle = squircleRef.current;
+    if (!stage || !squircle) return;
+    const sr = stage.getBoundingClientRect();
+    const qr = squircle.getBoundingClientRect();
+    if (sr.width <= 0 || qr.width <= 0) return;
+    setOrigin({
+      x: qr.left + qr.width / 2 - sr.left,
+      y: qr.top + qr.height / 2 - sr.top,
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    measureOrigin();
+  }, [measureOrigin, theme, phase]);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const ro = new ResizeObserver(() => measureOrigin());
+    ro.observe(stage);
+    window.addEventListener("resize", measureOrigin);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measureOrigin);
+    };
+  }, [measureOrigin]);
 
   useEffect(() => {
     const el = cardRef.current;
@@ -123,17 +156,17 @@ export function PixelInfoCard({
   }, [phase, collapse]);
 
   /**
-   * Trigger visibility:
-   * - Expand: vanish quickly as pixels leave the squircle
-   * - Collapse: stay hidden until pixels suck in, then hand off with the blue label
+   * Squircle surface only (white plate) — can appear with canvas handoff.
+   * Icon + label stay hidden until pixels fully settle into the squircle.
    */
-  const triggerOpacity = (() => {
+  const triggerSurfaceOpacity = (() => {
     if (reducedMotion) return phase === "idle" ? 1 : 0;
     if (phase === "idle") return 1;
     if (phase === "expanding" || phase === "expanded") {
       return Math.max(0, 1 - progress / 0.08);
     }
     if (phase === "collapsing") {
+      // Surface snaps with the canvas plate very late
       const t = clamp01(
         (SQUIRCLE_DOM_REVEAL_AT - progress) / SQUIRCLE_DOM_REVEAL_AT,
       );
@@ -142,32 +175,39 @@ export function PixelInfoCard({
     return 0;
   })();
 
-  const triggerBlur = (() => {
-    if (reducedMotion || phase === "idle") return 0;
-    if (phase === "collapsing") {
-      return (1 - triggerOpacity) * TRIGGER_BLUR_MAX * 0.6;
+  const triggerChromeOpacity = (() => {
+    if (reducedMotion) return phase === "idle" ? 1 : 0;
+    if (phase === "idle") return 1;
+    if (phase === "expanding" || phase === "expanded") {
+      return Math.max(0, 1 - progress / 0.06);
     }
-    return Math.min(TRIGGER_BLUR_MAX, (1 - triggerOpacity) * TRIGGER_BLUR_MAX);
+    // Icon + label only after squircle is fully reformed
+    if (phase === "collapsing") {
+      return progress <= 0.01 ? 1 : 0;
+    }
+    return 0;
   })();
 
-  /**
-   * Card plate: snap on only at handoff. Never crossfade with flying pixels.
-   */
+  const triggerBlur = (() => {
+    if (reducedMotion || phase === "idle") return 0;
+    if (phase === "collapsing") return 0;
+    return Math.min(
+      TRIGGER_BLUR_MAX,
+      (1 - triggerSurfaceOpacity) * TRIGGER_BLUR_MAX,
+    );
+  })();
+
+  /** DOM card only after assemble completes — canvas already shows the plate. */
   const cardOpacity = (() => {
     if (reducedMotion) {
       return phase === "expanded" || phase === "expanding" ? 1 : 0;
     }
-    if (phase === "expanded") return 1;
-    if (phase === "expanding" && showCardDom) return 1;
-    // Collapse: hide DOM immediately so canvas owns explode → suck-in
-    return 0;
+    return phase === "expanded" ? 1 : 0;
   })();
 
-  // Canvas owns assemble + collapse; clear when DOM card is the resting plate
   const pixelsActive =
     !reducedMotion &&
     (phase === "expanding" || phase === "collapsing") &&
-    !(phase === "expanding" && showCardDom) &&
     (phase === "collapsing" || progress > 0.01);
 
   const onTriggerClick = useCallback(() => {
@@ -195,7 +235,7 @@ export function PixelInfoCard({
         } as CSSProperties
       }
     >
-      <div className="pic-stage">
+      <div className="pic-stage" ref={stageRef}>
         <PixelAssembleCanvas
           className="pic-canvas"
           active={pixelsActive}
@@ -208,21 +248,26 @@ export function PixelInfoCard({
           cardWidth={cardSize.w}
           cardHeight={cardSize.h}
           triggerSize={TRIGGER_SIZE}
+          originX={origin.x}
+          originY={origin.y}
         />
 
         <div
           className="pic-trigger-wrap"
           style={{
-            opacity: triggerOpacity,
+            opacity: Math.max(triggerSurfaceOpacity, triggerChromeOpacity),
             filter: triggerBlur > 0 ? `blur(${triggerBlur}px)` : undefined,
-            pointerEvents: triggerOpacity < 0.2 ? "none" : "auto",
+            pointerEvents:
+              triggerSurfaceOpacity < 0.2 && triggerChromeOpacity < 0.2
+                ? "none"
+                : "auto",
             transition: reducedMotion
               ? "opacity 120ms ease"
               : phase === "collapsing"
                 ? "none"
                 : `opacity var(--pic-dissipate-ms) ease-out, filter var(--pic-dissipate-ms) ease-out`,
           }}
-          aria-hidden={triggerOpacity < 0.2}
+          aria-hidden={triggerChromeOpacity < 0.2}
         >
           <button
             ref={triggerRef}
@@ -233,53 +278,71 @@ export function PixelInfoCard({
             aria-controls={titleId}
             aria-label="Show info"
           >
-            <span className="pic-squircle">
-              <Info className="pic-icon" aria-hidden strokeWidth={2.25} />
+            <span
+              ref={squircleRef}
+              className="pic-squircle"
+              style={{ opacity: triggerSurfaceOpacity }}
+            >
+              <Info
+                className="pic-icon"
+                aria-hidden
+                strokeWidth={2.25}
+                style={{ opacity: triggerChromeOpacity }}
+              />
             </span>
-            <span className="pic-trigger-label">{title}</span>
+            <span
+              className="pic-trigger-label"
+              style={{ opacity: triggerChromeOpacity }}
+            >
+              {title}
+            </span>
           </button>
         </div>
 
-        {(phase !== "idle" || showCardDom) && (
-          <button
-            ref={cardRef}
-            type="button"
-            id={titleId}
-            className={cn("pic-card", showCardDom && "pic-card--visible")}
-            onClick={onCardClick}
-            aria-label="Hide info"
-            tabIndex={showCardDom && cardOpacity > 0.05 ? 0 : -1}
-            style={{
-              opacity: cardOpacity,
-              pointerEvents: cardOpacity > 0.5 ? "auto" : "none",
-              borderRadius: tuning.cardRadius,
-            }}
+        {/* Always mount (hidden) so we can measure card size before open */}
+        <button
+          ref={cardRef}
+          type="button"
+          id={titleId}
+          className={cn(
+            "pic-card",
+            showCardDom && "pic-card--visible",
+            contentVisible && "pic-card--settled",
+          )}
+          onClick={onCardClick}
+          aria-label="Hide info"
+          tabIndex={showCardDom && cardOpacity > 0.05 ? 0 : -1}
+          style={{
+            opacity: cardOpacity,
+            pointerEvents: cardOpacity > 0.5 ? "auto" : "none",
+            borderRadius: tuning.cardRadius,
+            visibility: showCardDom ? "visible" : "hidden",
+          }}
+        >
+          <span
+            className={cn(
+              "pic-card-header",
+              contentVisible && !reducedMotion && "pic-card-content--in",
+              !contentVisible && "pic-card-content--hidden",
+            )}
           >
-            <span
-              className={cn(
-                "pic-card-header",
-                contentVisible && !reducedMotion && "pic-card-content--in",
-                !contentVisible && "pic-card-content--hidden",
-              )}
-            >
-              <Info
-                className="pic-icon pic-icon--sm"
-                aria-hidden
-                strokeWidth={2.25}
-              />
-              <span className="pic-card-title">{title}</span>
-            </span>
-            <span
-              className={cn(
-                "pic-card-body",
-                contentVisible && !reducedMotion && "pic-card-content--in",
-                !contentVisible && "pic-card-content--hidden",
-              )}
-            >
-              {body}
-            </span>
-          </button>
-        )}
+            <Info
+              className="pic-icon pic-icon--sm"
+              aria-hidden
+              strokeWidth={2.25}
+            />
+            <span className="pic-card-title">{title}</span>
+          </span>
+          <span
+            className={cn(
+              "pic-card-body",
+              contentVisible && !reducedMotion && "pic-card-content--in",
+              !contentVisible && "pic-card-content--hidden",
+            )}
+          >
+            {body}
+          </span>
+        </button>
       </div>
     </div>
   );

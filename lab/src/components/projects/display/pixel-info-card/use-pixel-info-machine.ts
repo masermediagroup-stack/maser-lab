@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CARD_DOM_REVEAL_AT, RETARGET_BLEND_MS } from "./constants";
+import { RETARGET_BLEND_MS } from "./constants";
 import type { PixelInfoPhase, PixelInfoTuning } from "./types";
 
 function easeOutCubic(t: number): number {
@@ -140,11 +140,9 @@ export function usePixelInfoMachine({
 
   useEffect(() => () => stopRaf(), [stopRaf]);
 
-  const showCardDom =
-    phase === "expanded" ||
-    (phase === "expanding" && progress >= CARD_DOM_REVEAL_AT);
+  const showCardDom = phase === "expanded";
 
-  /** Content only after resting expanded — avoids text during pixel→plate handoff */
+  /** Content after plate is resting — smooth blur-uplift, no mid-handoff glitch */
   const showCardContent = phase === "expanded";
 
   return {
@@ -162,8 +160,8 @@ export function mergeTuning(partial?: Partial<PixelInfoTuning>): PixelInfoTuning
   const base: PixelInfoTuning = {
     pixelSize: 5,
     snakeDensity: 0.42,
-    assembleMs: 720,
-    dissipateMs: 70,
+    assembleMs: 1400,
+    dissipateMs: 160,
     cardRadius: 20,
   };
   return { ...base, ...partial };
