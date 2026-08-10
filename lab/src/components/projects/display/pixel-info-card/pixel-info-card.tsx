@@ -111,7 +111,6 @@ export function PixelInfoCard({
     return () => window.removeEventListener("keydown", onKey);
   }, [phase, collapse]);
 
-  const isIdleVisual = phase === "idle" || (phase === "collapsing" && progress < 0.15);
   const triggerOpacity =
     reducedMotion
       ? phase === "idle"
@@ -206,38 +205,37 @@ export function PixelInfoCard({
           </button>
         </div>
 
-        {/* Card — always in DOM for measure when expanded path; visually gated */}
-        <button
-          ref={cardRef}
-          type="button"
-          id={titleId}
-          className={cn("pic-card", showCardDom && "pic-card--visible")}
-          onClick={onCardClick}
-          aria-label="Hide info"
-          tabIndex={showCardDom && cardOpacity > 0.05 ? 0 : -1}
-          style={{
-            opacity: cardOpacity,
-            pointerEvents: cardOpacity > 0.2 ? "auto" : "none",
-            borderRadius: tuning.cardRadius,
-            visibility:
-              phase === "idle" && !showCardDom ? "hidden" : "visible",
-            position: isIdleVisual && !showCardDom ? "absolute" : undefined,
-          }}
-        >
-          <span className="pic-card-header">
-            <Info className="pic-icon pic-icon--sm" aria-hidden strokeWidth={2.25} />
-            <span className="pic-card-title">{title}</span>
-          </span>
-          <span
-            className={cn(
-              "pic-card-body",
-              !reducedMotion && showCardDom && phase !== "collapsing" && "pic-card-body--in",
-              !reducedMotion && phase === "collapsing" && "pic-card-body--out",
-            )}
+        {/* Card — mount only when open path is active so it never covers the trigger */}
+        {(phase !== "idle" || showCardDom) && (
+          <button
+            ref={cardRef}
+            type="button"
+            id={titleId}
+            className={cn("pic-card", showCardDom && "pic-card--visible")}
+            onClick={onCardClick}
+            aria-label="Hide info"
+            tabIndex={showCardDom && cardOpacity > 0.05 ? 0 : -1}
+            style={{
+              opacity: cardOpacity,
+              pointerEvents: cardOpacity > 0.2 ? "auto" : "none",
+              borderRadius: tuning.cardRadius,
+            }}
           >
-            {body}
-          </span>
-        </button>
+            <span className="pic-card-header">
+              <Info className="pic-icon pic-icon--sm" aria-hidden strokeWidth={2.25} />
+              <span className="pic-card-title">{title}</span>
+            </span>
+            <span
+              className={cn(
+                "pic-card-body",
+                !reducedMotion && showCardDom && phase !== "collapsing" && "pic-card-body--in",
+                !reducedMotion && phase === "collapsing" && "pic-card-body--out",
+              )}
+            >
+              {body}
+            </span>
+          </button>
+        )}
       </div>
     </div>
   );

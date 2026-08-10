@@ -29,7 +29,8 @@
 | Token | Dark | Light |
 | --- | --- | --- |
 | `--pic-surface` | `#ffffff` | `#000000` |
-| `--pic-accent` | `#10a4ff` | `#ffffff` |
+| `--pic-accent` | `#10a4ff` | `#ffffff` (icon + card header on surface) |
+| `--pic-label` | `#10a4ff` | `#000000` (trigger label on stage) |
 | `--pic-body` | `#0a0a0a` | `#ffffff` |
 | `--pic-pixel` | `#ffffff` | `#000000` |
 
