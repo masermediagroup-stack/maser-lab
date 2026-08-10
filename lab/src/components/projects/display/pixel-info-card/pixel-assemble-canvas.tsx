@@ -45,13 +45,12 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
-function easeInCubic(t: number): number {
-  return t * t * t;
-}
-
 function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
+
+/** Extra canvas margin past the stage so blast pixels aren't clipped. */
+const CANVAS_BLEED = 0.34;
 
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
@@ -180,17 +179,26 @@ function buildParticles(
       ]!;
 
       const burstAngle = h2 * Math.PI * 2;
-      // Variable radius → filled disk blast (not a hollow ring)
-      const burstDist =
-        Math.max(cardW, cardH) * (0.08 + h3 * 0.72) + pixelSize * 2;
+      // Cap vs canvas so the swarm stays inside the padded viewport
+      const maxBurst = Math.min(width, height) * 0.22;
+      const u = Math.min(0.999, Math.max(0, h3));
+      // Strong center bias: core / mid / outer bands (never a hollow ring)
+      let diskR: number;
+      if (h < 0.3) {
+        diskR = maxBurst * 0.2 * Math.sqrt(u);
+      } else if (h < 0.58) {
+        diskR = maxBurst * (0.12 + 0.48 * Math.sqrt(u));
+      } else {
+        diskR = maxBurst * Math.sqrt(u);
+      }
 
       particles.push({
         tx: cellX - step / 2,
         ty: cellY - step / 2,
         sx: home.x,
         sy: home.y,
-        mx: ox + Math.cos(burstAngle) * burstDist - step / 2,
-        my: oy + Math.sin(burstAngle) * burstDist - step / 2,
+        mx: ox + Math.cos(burstAngle) * diskR - step / 2,
+        my: oy + Math.sin(burstAngle) * diskR - step / 2,
         opacity: 0.45 + h * 0.55,
         delay: Math.min(
           0.32,
@@ -200,6 +208,26 @@ function buildParticles(
       });
     }
   }
+
+  const half = Math.max(3, Math.round(pixelSize)) / 2;
+  const maxBurst = Math.min(width, height) * 0.22;
+  // Dense core cluster (~22%) so mid-flight never shows a center hole
+  const centerFill = Math.min(48, Math.floor(particles.length * 0.22));
+  for (let i = 0; i < centerFill; i++) {
+    const p = particles[i]!;
+    const a = hash2(i + 3, i + 9) * Math.PI * 2;
+    const r = maxBurst * Math.sqrt(hash2(i + 1, 5) * 0.14);
+    p.mx = ox + Math.cos(a) * r - half;
+    p.my = oy + Math.sin(a) * r - half;
+  }
+  // Pin a few midpoints exactly on the origin
+  const pinCount = Math.min(8, particles.length);
+  for (let i = 0; i < pinCount; i++) {
+    const p = particles[particles.length - 1 - i]!;
+    p.mx = ox - half;
+    p.my = oy - half;
+  }
+
   return particles;
 }
 
@@ -245,14 +273,14 @@ function sampleCollapsePath(
   }
 
   if (collapseT < COLLAPSE_MERGE_END) {
-    const t = easeInCubic(
+    // Shrink the filled disk toward center (ease-out keeps the core dense)
+    const t = easeOutCubic(
       (collapseT - COLLAPSE_BLAST_END) /
         (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
     );
-    const snappy = t * t;
     return {
-      x: p.mx + (centerX - p.mx) * snappy,
-      y: p.my + (centerY - p.my) * snappy,
+      x: p.mx + (centerX - p.mx) * t,
+      y: p.my + (centerY - p.my) * t,
     };
   }
 
@@ -280,7 +308,16 @@ export function PixelAssembleCanvas({
 }: PixelAssembleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<PixelParticle[]>([]);
-  const sizeRef = useRef({ w: 0, h: 0, cardW: 0, cardH: 0 });
+  const sizeRef = useRef({
+    w: 0,
+    h: 0,
+    cardW: 0,
+    cardH: 0,
+    stageW: 0,
+    stageH: 0,
+    padX: 0,
+    padY: 0,
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -291,11 +328,15 @@ export function PixelAssembleCanvas({
     const resize = () => {
       const rect = parent.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = Math.max(1, Math.floor(rect.width));
-      const h = Math.max(1, Math.floor(rect.height));
-      const cardW = Math.min(cardWidth, w * 0.92);
-      const cardH = Math.min(cardHeight, h * 0.7);
-      sizeRef.current = { w, h, cardW, cardH };
+      const stageW = Math.max(1, Math.floor(rect.width));
+      const stageH = Math.max(1, Math.floor(rect.height));
+      const padX = Math.floor(stageW * CANVAS_BLEED);
+      const padY = Math.floor(stageH * CANVAS_BLEED);
+      const w = stageW + padX * 2;
+      const h = stageH + padY * 2;
+      const cardW = Math.min(cardWidth, stageW * 0.92);
+      const cardH = Math.min(cardHeight, stageH * 0.7);
+      sizeRef.current = { w, h, cardW, cardH, stageW, stageH, padX, padY };
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
       canvas.style.width = `${w}px`;
@@ -303,8 +344,10 @@ export function PixelAssembleCanvas({
       const ctx = canvas.getContext("2d");
       if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const ox = originX > 0 ? originX : w / 2;
-      const oy = originY > 0 ? originY : h / 2;
+      const ox =
+        (originX > 0 ? originX : stageW / 2) + padX;
+      const oy =
+        (originY > 0 ? originY : stageH / 2) + padY;
 
       particlesRef.current = buildParticles(
         w,
@@ -341,7 +384,7 @@ export function PixelAssembleCanvas({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const { w, h, cardW, cardH } = sizeRef.current;
+    const { w, h, cardW, cardH, stageW, stageH, padX, padY } = sizeRef.current;
     ctx.clearRect(0, 0, w || canvas.width, h || canvas.height);
 
     if (!active) return;
@@ -352,10 +395,10 @@ export function PixelAssembleCanvas({
     const fill = isDark ? "#ffffff" : "#000000";
     const size = Math.max(2, Math.round(pixelSize));
     const particles = particlesRef.current;
-    const cx = w / 2;
-    const cy = h / 2;
-    const ox = originX > 0 ? originX : cx;
-    const oy = originY > 0 ? originY : cy;
+    const cx = padX + (stageW || w) / 2;
+    const cy = padY + (stageH || h) / 2;
+    const ox = (originX > 0 ? originX : (stageW || w) / 2) + padX;
+    const oy = (originY > 0 ? originY : (stageH || h) / 2) + padY;
     const side = triggerSize || TRIGGER_SIZE;
     const collapsing = phase === "collapsing";
 
@@ -411,6 +454,29 @@ export function PixelAssembleCanvas({
         return;
       }
 
+      // Soft filled-disk underlay during blast→merge (covers residual gaps)
+      if (collapseT < COLLAPSE_MERGE_END) {
+        const blastT = clamp01(collapseT / COLLAPSE_BLAST_END);
+        const mergeT =
+          collapseT <= COLLAPSE_BLAST_END
+            ? 0
+            : easeOutCubic(
+                (collapseT - COLLAPSE_BLAST_END) /
+                  (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
+              );
+        const maxR = Math.min(w, h) * 0.22;
+        const diskR = maxR * (0.2 + 0.8 * easeOutCubic(blastT)) * (1 - mergeT);
+        if (diskR > size) {
+          ctx.save();
+          ctx.globalAlpha = 0.22 * (1 - mergeT * 0.85);
+          ctx.fillStyle = fill;
+          ctx.beginPath();
+          ctx.arc(ox, oy, diskR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
       // Flying pixels: filled-disk blast → converge to center (draw all — no hole)
       const explodeAlpha = cardShatter > 0.5 ? Math.max(0.55, 1 - cardShatter) : 1;
       if (explodeAlpha > 0.02) {
@@ -442,6 +508,23 @@ export function PixelAssembleCanvas({
     const pixelFade =
       plateT > 0.4 ? clamp01(1 - (plateT - 0.4) / 0.6) : 1;
     if (pixelFade <= 0.02) return;
+
+    // Soft core during mid-assemble so the burst never reads as a ring
+    if (progress > 0.08 && progress < 0.7 && plateT < 0.15) {
+      const coreT = clamp01((progress - 0.08) / 0.28);
+      const fade = clamp01(1 - (progress - 0.42) / 0.28);
+      const coreR =
+        Math.min(w, h) * 0.1 * easeOutCubic(coreT) * Math.max(0.35, fade);
+      if (coreR > size && fade > 0.05) {
+        ctx.save();
+        ctx.globalAlpha = 0.18 * fade * pixelFade;
+        ctx.fillStyle = fill;
+        ctx.beginPath();
+        ctx.arc(ox, oy, coreR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
 
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i]!;
