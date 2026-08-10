@@ -18,4 +18,9 @@ export type PixelInfoCardProps = {
   /** Demo / lab overrides for motion tuning */
   tuning?: Partial<PixelInfoTuning>;
   reducedMotion?: boolean;
+  /**
+   * Uniform UI scale (1 = default). Fullscreen demo uses 2 so the whole
+   * squircle + card + pixels read larger without a CSS transform fight.
+   */
+  scale?: number;
 };

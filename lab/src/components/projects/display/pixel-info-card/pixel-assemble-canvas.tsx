@@ -157,7 +157,7 @@ function buildParticles(
     oy,
     triggerSize,
     step,
-    TRIGGER_RADIUS,
+    triggerSize * (TRIGGER_RADIUS / TRIGGER_SIZE),
   );
   if (squircleCells.length === 0) {
     squircleCells.push({ x: ox - step / 2, y: oy - step / 2 });
@@ -413,6 +413,7 @@ export function PixelAssembleCanvas({
     const ox = (originX > 0 ? originX : (stageW || w) / 2) + padX;
     const oy = (originY > 0 ? originY : (stageH || h) / 2) + padY;
     const side = triggerSize || TRIGGER_SIZE;
+    const triggerRadius = side * (TRIGGER_RADIUS / TRIGGER_SIZE);
     const collapsing = phase === "collapsing";
 
     if (collapsing) {
@@ -461,7 +462,7 @@ export function PixelAssembleCanvas({
           ctx.globalAlpha = 1;
         } else {
           const grown = size + (side - size) * grow;
-          const radius = TRIGGER_RADIUS * (grown / side);
+          const radius = triggerRadius * (grown / side);
           ctx.save();
           ctx.globalAlpha = canvasAlpha;
           ctx.fillStyle = fill;

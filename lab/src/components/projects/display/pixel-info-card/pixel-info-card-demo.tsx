@@ -127,11 +127,12 @@ export function PixelInfoCardDemo() {
         )}
 
         <PixelInfoCard
-          key={resetKey}
+          key={`${resetKey}-fs-${fullscreen ? 2 : 1}`}
           theme={theme}
           title={DEFAULT_TITLE}
           body={DEMO_BODY}
           tuning={tuning}
+          scale={fullscreen ? 2 : 1}
         />
       </div>
 

@@ -83,7 +83,9 @@ export function PixelInfoCard({
   className,
   tuning: tuningPartial,
   reducedMotion: reducedMotionProp,
+  scale: scaleProp = 1,
 }: PixelInfoCardProps) {
+  const scale = Math.max(1, Math.min(3, scaleProp));
   const tuning = mergeTuning({ ...PIC_DEFAULTS, ...tuningPartial });
   const systemReduced = usePrefersReducedMotion();
   const reducedMotion = reducedMotionProp ?? systemReduced;
@@ -98,11 +100,15 @@ export function PixelInfoCard({
   const cardRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const [cardSize, setCardSize] = useState({
-    w: CARD_MAX_WIDTH,
-    h: CARD_MIN_HEIGHT,
+    w: CARD_MAX_WIDTH * scale,
+    h: CARD_MIN_HEIGHT * scale,
   });
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
   const [motionSeed, setMotionSeed] = useState(nextMotionSeed);
+
+  const triggerSize = TRIGGER_SIZE * scale;
+  const pixelSize = Math.max(2, Math.round(tuning.pixelSize * scale));
+  const cardRadius = tuning.cardRadius * scale;
 
   const { phase, progress, showCardDom, toggle, collapse } =
     machine;
@@ -274,7 +280,14 @@ export function PixelInfoCard({
     if (rect.width > 0 && rect.height > 0) {
       setCardSize({ w: rect.width, h: rect.height });
     }
-  }, [showCardDom, body, title, tuning.cardRadius]);
+  }, [showCardDom, body, title, cardRadius, scale]);
+
+  useEffect(() => {
+    setCardSize({
+      w: CARD_MAX_WIDTH * scale,
+      h: CARD_MIN_HEIGHT * scale,
+    });
+  }, [scale]);
 
   const prevPhaseRef = useRef<typeof phase>(phase);
   useEffect(() => {
@@ -365,10 +378,12 @@ export function PixelInfoCard({
       className={cn("pic-root", className)}
       data-theme={theme}
       data-phase={phase}
+      data-scale={scale === 1 ? undefined : String(scale)}
       style={
         {
           ...themeVars(theme),
-          ["--pic-card-radius" as string]: `${tuning.cardRadius}px`,
+          ["--pic-scale" as string]: String(scale),
+          ["--pic-card-radius" as string]: `${cardRadius}px`,
           ["--pic-dissipate-ms" as string]: `${tuning.dissipateMs}ms`,
         } as CSSProperties
       }
@@ -380,12 +395,12 @@ export function PixelInfoCard({
           progress={progress}
           phase={phase}
           theme={theme}
-          pixelSize={tuning.pixelSize}
+          pixelSize={pixelSize}
           snakeDensity={tuning.snakeDensity}
-          cardRadius={tuning.cardRadius}
+          cardRadius={cardRadius}
           cardWidth={cardSize.w}
           cardHeight={cardSize.h}
-          triggerSize={TRIGGER_SIZE}
+          triggerSize={triggerSize}
           originX={origin.x}
           originY={origin.y}
           motionSeed={motionSeed}
@@ -451,7 +466,7 @@ export function PixelInfoCard({
           style={{
             opacity: cardOpacity,
             pointerEvents: cardOpacity > 0.5 ? "auto" : "none",
-            borderRadius: tuning.cardRadius,
+            borderRadius: cardRadius,
             visibility: cardVisible ? "visible" : "hidden",
           }}
         >

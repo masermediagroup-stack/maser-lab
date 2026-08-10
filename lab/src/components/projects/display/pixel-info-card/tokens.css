@@ -8,6 +8,7 @@
   --pic-body: #0a0a0a;
   --pic-card-radius: 20px;
   --pic-dissipate-ms: 160ms;
+  --pic-scale: 1;
   width: 100%;
   max-width: 100%;
 }
@@ -65,7 +66,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: calc(10px * var(--pic-scale));
   padding: 0;
   border: none;
   background: transparent;
@@ -76,16 +77,16 @@
 
 .pic-trigger:focus-visible .pic-squircle {
   outline: 2px solid var(--pic-accent);
-  outline-offset: 3px;
+  outline-offset: calc(3px * var(--pic-scale));
 }
 
 .pic-squircle {
   display: flex;
-  width: 64px;
-  height: 64px;
+  width: calc(64px * var(--pic-scale));
+  height: calc(64px * var(--pic-scale));
   align-items: center;
   justify-content: center;
-  border-radius: 22px;
+  border-radius: calc(22px * var(--pic-scale));
   background: var(--pic-surface);
   transition: transform 140ms ease-out, filter 140ms ease-out;
 }
@@ -102,18 +103,18 @@
 }
 
 .pic-icon {
-  width: 28px;
-  height: 28px;
+  width: calc(28px * var(--pic-scale));
+  height: calc(28px * var(--pic-scale));
   color: var(--pic-accent);
 }
 
 .pic-icon--sm {
-  width: 18px;
-  height: 18px;
+  width: calc(18px * var(--pic-scale));
+  height: calc(18px * var(--pic-scale));
 }
 
 .pic-trigger-label {
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--pic-scale));
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--pic-label);
@@ -136,10 +137,11 @@
   transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  width: min(360px, 92vw);
-  min-height: 200px;
-  padding: 22px 24px 26px;
+  gap: calc(14px * var(--pic-scale));
+  width: min(calc(360px * var(--pic-scale)), 92vw);
+  min-height: calc(200px * var(--pic-scale));
+  padding: calc(22px * var(--pic-scale)) calc(24px * var(--pic-scale))
+    calc(26px * var(--pic-scale));
   border: none;
   background: var(--pic-surface);
   text-align: left;
@@ -164,25 +166,25 @@
 
 .pic-card:focus-visible {
   outline: 2px solid var(--pic-accent);
-  outline-offset: 3px;
+  outline-offset: calc(3px * var(--pic-scale));
 }
 
 .pic-card-header {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: calc(8px * var(--pic-scale));
   color: var(--pic-accent);
 }
 
 .pic-card-title {
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--pic-scale));
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--pic-accent);
 }
 
 .pic-card-body {
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--pic-scale));
   line-height: 1.55;
   font-weight: 400;
   color: var(--pic-body);
@@ -195,7 +197,7 @@
   align-items: center !important;
   gap: 0.25em !important;
   color: var(--pic-accent) !important;
-  font-size: 0.875rem !important;
+  font-size: calc(0.875rem * var(--pic-scale)) !important;
   font-weight: 600 !important;
   letter-spacing: 0.02em !important;
   line-height: 1.2 !important;
@@ -209,7 +211,7 @@
   flex-wrap: wrap !important;
   gap: 0.15em 0.35em !important;
   color: var(--pic-body) !important;
-  font-size: 0.9375rem !important;
+  font-size: calc(0.9375rem * var(--pic-scale)) !important;
   font-weight: 400 !important;
   line-height: 1.55 !important;
   letter-spacing: normal !important;
@@ -398,6 +400,11 @@
 
 .pic-demo__stage--fullscreen .pic-stage {
   min-height: min(88dvh, 960px);
+}
+
+.pic-demo__stage--fullscreen .pic-root {
+  /* Room for 2× squircle + card without clipping the blast */
+  width: min(100%, 52rem);
 }
 
 @media (max-width: 640px) {
