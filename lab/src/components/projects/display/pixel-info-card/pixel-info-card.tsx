@@ -153,7 +153,12 @@ export function PixelInfoCard({
     }
   }, [phase, contentReveal, holdingForTextOut, clearTextOutTimer]);
 
-  /** Close: GlideText out first, then pixel collapse. */
+  /** Close: GlideText out first, then pixel collapse (+ reassemble SFX). */
+  const beginPixelCollapse = useCallback(() => {
+    playPicSfx(PIC_SFX.collapse);
+    collapse();
+  }, [collapse]);
+
   const requestClose = useCallback(() => {
     if (phase === "idle") return;
     if (phase === "collapsing") {
@@ -173,20 +178,20 @@ export function PixelInfoCard({
           setHoldingForTextOut(false);
           setGlideReady(false);
           textStartedRef.current = false;
-          collapse();
+          beginPixelCollapse();
         }, GLIDE_TEXT_MS);
         return;
       }
       clearTextOutTimer();
       setGlideReady(false);
       textStartedRef.current = false;
-      collapse();
+      beginPixelCollapse();
       return;
     }
     // expanded — exit copy immediately, then dissolve
     if (pendingCloseRef.current) return;
     if (reducedMotion) {
-      collapse();
+      beginPixelCollapse();
       return;
     }
     pendingCloseRef.current = true;
@@ -200,9 +205,16 @@ export function PixelInfoCard({
       setHoldingForTextOut(false);
       setGlideReady(false);
       textStartedRef.current = false;
-      collapse();
+      beginPixelCollapse();
     }, GLIDE_TEXT_MS);
-  }, [phase, collapse, clearTextOutTimer, reducedMotion, glideReady]);
+  }, [
+    phase,
+    collapse,
+    beginPixelCollapse,
+    clearTextOutTimer,
+    reducedMotion,
+    glideReady,
+  ]);
 
   const requestToggle = useCallback(() => {
     if (phase === "expanded" || holdingForTextOut || contentReveal) {
@@ -213,6 +225,7 @@ export function PixelInfoCard({
     setGlideReady(false);
     textStartedRef.current = false;
     setMotionSeed(nextMotionSeed());
+    playPicSfx(PIC_SFX.assemble);
     toggle();
   }, [
     phase,

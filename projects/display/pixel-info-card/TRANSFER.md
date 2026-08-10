@@ -24,7 +24,8 @@ import { ComponentName } from "@/components/projects/{category}/{slug}";
 
 List files to copy from `lab/public/`:
 
-- 
+- `demos/pixel-info-card/assemble-open.mp3` — squircle click / assemble SFX
+- `demos/pixel-info-card/collapse-reassemble.mp3` — pixel collapse / squircle reassemble SFX
 
 ## Porting steps
 
