@@ -156,8 +156,8 @@ export function PixelInfoCard({
   }, [phase, collapse]);
 
   /**
-   * Squircle surface only (white plate) — can appear with canvas handoff.
-   * Icon + label stay hidden until pixels fully settle into the squircle.
+   * Squircle surface + chrome only after canvas has grown the merged pixel
+   * into the full squircle — never while the blast/suck is still running.
    */
   const triggerSurfaceOpacity = (() => {
     if (reducedMotion) return phase === "idle" ? 1 : 0;
@@ -166,7 +166,6 @@ export function PixelInfoCard({
       return Math.max(0, 1 - progress / 0.08);
     }
     if (phase === "collapsing") {
-      // Surface snaps with the canvas plate very late
       const t = clamp01(
         (SQUIRCLE_DOM_REVEAL_AT - progress) / SQUIRCLE_DOM_REVEAL_AT,
       );
@@ -181,9 +180,9 @@ export function PixelInfoCard({
     if (phase === "expanding" || phase === "expanded") {
       return Math.max(0, 1 - progress / 0.06);
     }
-    // Icon + label only after squircle is fully reformed
     if (phase === "collapsing") {
-      return progress <= 0.01 ? 1 : 0;
+      // Icon + label only once expand-to-squircle has finished
+      return progress <= SQUIRCLE_DOM_REVEAL_AT * 0.5 ? 1 : 0;
     }
     return 0;
   })();

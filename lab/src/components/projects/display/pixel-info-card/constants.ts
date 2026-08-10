@@ -46,16 +46,20 @@ export const CARD_MAX_WIDTH = 360;
 export const CARD_MIN_HEIGHT = 200;
 
 /**
- * Collapse: DOM trigger (icon + label) only after pixels have fully
- * reconstituted the squircle. Keep very late to avoid early chrome.
+ * Collapse: DOM trigger only after the single-pixel merge has expanded
+ * into the full squircle.
  */
-export const SQUIRCLE_DOM_REVEAL_AT = 0.025;
+export const SQUIRCLE_DOM_REVEAL_AT = 0.012;
 
-/** Collapse: solid squircle plate under converging pixels (no hollow center). */
-export const SQUIRCLE_PLATE_FILL_AT = 0.28;
-
-/** Collapse: squircle plate fully opaque. */
-export const SQUIRCLE_PLATE_SOLID_AT = 0.06;
+/**
+ * Collapse timeline (collapseT = 1 - progress):
+ * 0→BLAST: explode into a filled disk (not a ring)
+ * BLAST→MERGE: suck every pixel into one center point
+ * MERGE→1: that point expands into the squircle
+ */
+export const COLLAPSE_BLAST_END = 0.36;
+export const COLLAPSE_MERGE_END = 0.78;
+export const COLLAPSE_EXPAND_START = 0.82;
 
 /** Max CSS blur (px) on trigger dissipate — keep subtle. */
 export const TRIGGER_BLUR_MAX = 4;

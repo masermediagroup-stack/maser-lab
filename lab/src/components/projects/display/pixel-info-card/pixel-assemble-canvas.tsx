@@ -2,10 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import {
+  COLLAPSE_BLAST_END,
+  COLLAPSE_EXPAND_START,
+  COLLAPSE_MERGE_END,
   PIXEL_PLATE_FILL_AT,
   PIXEL_PLATE_SOLID_AT,
-  SQUIRCLE_PLATE_FILL_AT,
-  SQUIRCLE_PLATE_SOLID_AT,
   TRIGGER_RADIUS,
   TRIGGER_SIZE,
 } from "./constants";
@@ -179,8 +180,9 @@ function buildParticles(
       ]!;
 
       const burstAngle = h2 * Math.PI * 2;
+      // Variable radius → filled disk blast (not a hollow ring)
       const burstDist =
-        Math.max(cardW, cardH) * (0.22 + h3 * 0.7) + pixelSize * 4;
+        Math.max(cardW, cardH) * (0.08 + h3 * 0.72) + pixelSize * 2;
 
       particles.push({
         tx: cellX - step / 2,
@@ -220,29 +222,46 @@ function sampleAssemblePath(
   };
 }
 
+/**
+ * Collapse: card → filled-disk blast → all pixels merge to one center point.
+ * Squircle expansion is drawn separately after merge.
+ */
 function sampleCollapsePath(
   p: PixelParticle,
   collapseT: number,
+  ox: number,
+  oy: number,
+  pixelSize: number,
 ): { x: number; y: number } {
-  if (collapseT < 0.4) {
-    const t = easeOutCubic(collapseT / 0.4);
-    const overshoot = 1 + p.seed * 0.18;
+  const centerX = ox - pixelSize / 2;
+  const centerY = oy - pixelSize / 2;
+
+  if (collapseT < COLLAPSE_BLAST_END) {
+    const t = easeOutCubic(collapseT / COLLAPSE_BLAST_END);
     return {
-      x: p.tx + (p.mx - p.tx) * t * overshoot,
-      y: p.ty + (p.my - p.ty) * t * overshoot,
+      x: p.tx + (p.mx - p.tx) * t,
+      y: p.ty + (p.my - p.ty) * t,
     };
   }
-  const t = easeInCubic((collapseT - 0.4) / 0.6);
-  const snappy = t * t;
-  return {
-    x: p.mx + (p.sx - p.mx) * snappy,
-    y: p.my + (p.sy - p.my) * snappy,
-  };
+
+  if (collapseT < COLLAPSE_MERGE_END) {
+    const t = easeInCubic(
+      (collapseT - COLLAPSE_BLAST_END) /
+        (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
+    );
+    const snappy = t * t;
+    return {
+      x: p.mx + (centerX - p.mx) * snappy,
+      y: p.my + (centerY - p.my) * snappy,
+    };
+  }
+
+  return { x: centerX, y: centerY };
 }
 
 /**
- * Canvas overlay: assemble densifies into a card plate; collapse explodes then
- * sucks pixels into the measured squircle footprint (solid, no hollow center).
+ * Canvas overlay: assemble densifies into a card plate; collapse blasts into a
+ * filled disk, merges to one pixel, then expands that pixel into the squircle.
  */
 export function PixelAssembleCanvas({
   active,
@@ -356,42 +375,49 @@ export function PixelAssembleCanvas({
         ctx.restore();
       }
 
-      // Solid squircle plate at the REAL squircle origin (fills center — no hole)
-      const plateSpan = Math.max(
-        0.001,
-        SQUIRCLE_PLATE_FILL_AT - SQUIRCLE_PLATE_SOLID_AT,
-      );
-      const squirclePlateT = clamp01(
-        (SQUIRCLE_PLATE_FILL_AT - progress) / plateSpan,
-      );
-      if (squirclePlateT > 0) {
-        ctx.save();
-        ctx.globalAlpha = easeOutCubic(squirclePlateT);
-        ctx.fillStyle = fill;
-        roundRect(ctx, ox - side / 2, oy - side / 2, side, side, TRIGGER_RADIUS);
-        ctx.fill();
-        ctx.restore();
+      // After merge: one pixel → grow into squircle (no early full plate)
+      if (collapseT >= COLLAPSE_EXPAND_START) {
+        const grow = easeOutCubic(
+          clamp01(
+            (collapseT - COLLAPSE_EXPAND_START) / (1 - COLLAPSE_EXPAND_START),
+          ),
+        );
+        if (grow < 0.02) {
+          // Single merged pixel at the squircle center
+          ctx.fillStyle = fill;
+          ctx.fillRect(
+            Math.round(ox - size / 2),
+            Math.round(oy - size / 2),
+            size,
+            size,
+          );
+        } else {
+          const grown = size + (side - size) * grow;
+          const radius = TRIGGER_RADIUS * (grown / side);
+          ctx.save();
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = fill;
+          roundRect(
+            ctx,
+            ox - grown / 2,
+            oy - grown / 2,
+            grown,
+            grown,
+            radius,
+          );
+          ctx.fill();
+          ctx.restore();
+        }
+        return;
       }
 
-      const pixelFade =
-        progress < SQUIRCLE_PLATE_SOLID_AT
-          ? clamp01(progress / Math.max(0.001, SQUIRCLE_PLATE_SOLID_AT))
-          : 1;
-      const explodeAlpha = Math.max(pixelFade, cardShatter > 0 ? 0.55 : 0);
-
+      // Flying pixels: filled-disk blast → converge to center (draw all — no hole)
+      const explodeAlpha = cardShatter > 0.5 ? Math.max(0.55, 1 - cardShatter) : 1;
       if (explodeAlpha > 0.02) {
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i]!;
-          const leaveBias = p.delay * 0.55;
-          const local = clamp01(
-            (collapseT - leaveBias) / Math.max(0.001, 1 - leaveBias),
-          );
-          if (local <= 0) {
-            ctx.fillStyle = `rgba(${rgb},${(p.opacity * explodeAlpha).toFixed(3)})`;
-            ctx.fillRect(Math.round(p.tx), Math.round(p.ty), size, size);
-            continue;
-          }
-          const { x, y } = sampleCollapsePath(p, local);
+          // Keep the swarm in sync so the disk stays solid while sucking in
+          const { x, y } = sampleCollapsePath(p, collapseT, ox, oy, size);
           ctx.fillStyle = `rgba(${rgb},${(p.opacity * explodeAlpha).toFixed(3)})`;
           ctx.fillRect(Math.round(x), Math.round(y), size, size);
         }
