@@ -162,8 +162,8 @@ export function mergeTuning(partial?: Partial<PixelInfoTuning>): PixelInfoTuning
   const base: PixelInfoTuning = {
     pixelSize: 5,
     snakeDensity: 0.42,
-    assembleMs: 280,
-    dissipateMs: 45,
+    assembleMs: 720,
+    dissipateMs: 70,
     cardRadius: 20,
   };
   return { ...base, ...partial };
