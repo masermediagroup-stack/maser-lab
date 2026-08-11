@@ -45,6 +45,8 @@ type PixelAssembleCanvasProps = {
   originY: number;
   /** Changes each open so burst paths / midpoints reshuffle. */
   motionSeed: number;
+  /** DOM card is visible — stop drawing the canvas plate to avoid a seam line. */
+  domCardVisible?: boolean;
   className?: string;
 };
 
@@ -56,8 +58,8 @@ function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
 
-/** Extra canvas margin past the stage so blast pixels aren't clipped. */
-const CANVAS_BLEED = 0.34;
+/** Extra inset for burst particles — drawable margin inside the stage (no oversized canvas). */
+const STAGE_BURST_INSET = 0.22;
 
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
@@ -173,9 +175,9 @@ function buildParticles(
   const step = Math.max(3, Math.round(pixelSize));
   const seed = motionSeed || 1;
 
-  // Span the full card — never a floor()'d smaller grid that leaves a thin outline
-  const cols = Math.max(1, Math.round(cardW / step));
-  const rows = Math.max(1, Math.round(cardH / step));
+  // Span the full card — ceil so the grid never undershoots height/width
+  const cols = Math.max(1, Math.ceil(cardW / step));
+  const rows = Math.max(1, Math.ceil(cardH / step));
   const cellW = cardW / cols;
   const cellH = cardH / rows;
 
@@ -204,7 +206,12 @@ function buildParticles(
       const h2 = hashSeeded(row + 7, col + 11, seed);
       const h3 = hashSeeded(col * 13 + 2, row * 17 + 5, seed);
 
-      if (h > density * 0.92 + 0.08) continue;
+      // Boost keep rate in top/bottom bands only (not a perimeter ring) so every
+      // seed reaches full card height before the DOM handoff.
+      const rowT = rows <= 1 ? 0.5 : row / (rows - 1);
+      const verticalBand = rowT < 0.14 || rowT > 0.86;
+      const keepCutoff = density * 0.92 + 0.08 - (verticalBand ? 0.24 : 0);
+      if (h > keepCutoff) continue;
 
       // Map each card cell to a filled squircle cell (solid plate, no ring hole)
       const home = squircleCells[
@@ -212,8 +219,8 @@ function buildParticles(
       ]!;
 
       const burstAngle = h2 * Math.PI * 2;
-      // Cap vs canvas so the swarm stays inside the padded viewport
-      const maxBurst = Math.min(width, height) * 0.22;
+      const maxBurst =
+        Math.min(width, height) * STAGE_BURST_INSET;
       const u = Math.min(0.999, Math.max(0, h3));
       // Strong center bias: core / mid / outer bands (never a hollow ring)
       let diskR: number;
@@ -243,7 +250,7 @@ function buildParticles(
   }
 
   const half = Math.max(3, Math.round(pixelSize)) / 2;
-  const maxBurst = Math.min(width, height) * 0.22;
+  const maxBurst = Math.min(width, height) * STAGE_BURST_INSET;
   // Dense core cluster (~22%) so mid-flight never shows a center hole
   const centerFill = Math.min(48, Math.floor(particles.length * 0.22));
   for (let i = 0; i < centerFill; i++) {
@@ -337,6 +344,7 @@ export function PixelAssembleCanvas({
   originX,
   originY,
   motionSeed,
+  domCardVisible = false,
   className,
 }: PixelAssembleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -346,10 +354,6 @@ export function PixelAssembleCanvas({
     h: 0,
     cardW: 0,
     cardH: 0,
-    stageW: 0,
-    stageH: 0,
-    padX: 0,
-    padY: 0,
   });
 
   useEffect(() => {
@@ -363,28 +367,23 @@ export function PixelAssembleCanvas({
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const stageW = Math.max(1, Math.floor(rect.width));
       const stageH = Math.max(1, Math.floor(rect.height));
-      const padX = Math.floor(stageW * CANVAS_BLEED);
-      const padY = Math.floor(stageH * CANVAS_BLEED);
-      const w = stageW + padX * 2;
-      const h = stageH + padY * 2;
-      const cardW = Math.min(cardWidth, stageW * 0.92);
-      const cardH = Math.min(cardHeight, stageH * 0.7);
-      sizeRef.current = { w, h, cardW, cardH, stageW, stageH, padX, padY };
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
+      // Match measured DOM card exactly — no stage caps that undershoot height.
+      const cardW = Math.max(1, cardWidth);
+      const cardH = Math.max(1, cardHeight);
+      sizeRef.current = { w: stageW, h: stageH, cardW, cardH };
+      canvas.width = Math.floor(stageW * dpr);
+      canvas.height = Math.floor(stageH * dpr);
+      canvas.style.width = `${stageW}px`;
+      canvas.style.height = `${stageH}px`;
       const ctx = canvas.getContext("2d");
       if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const ox =
-        (originX > 0 ? originX : stageW / 2) + padX;
-      const oy =
-        (originY > 0 ? originY : stageH / 2) + padY;
+      const ox = originX > 0 ? originX : stageW / 2;
+      const oy = originY > 0 ? originY : stageH / 2;
 
       particlesRef.current = buildParticles(
-        w,
-        h,
+        stageW,
+        stageH,
         cardW,
         cardH,
         cardRadius,
@@ -419,7 +418,7 @@ export function PixelAssembleCanvas({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const { w, h, cardW, cardH, stageW, stageH, padX, padY } = sizeRef.current;
+    const { w, h, cardW, cardH } = sizeRef.current;
     ctx.clearRect(0, 0, w || canvas.width, h || canvas.height);
 
     if (!active) return;
@@ -429,10 +428,10 @@ export function PixelAssembleCanvas({
     const rgb = isDark ? "255,255,255" : "0,0,0";
     const fill = isDark ? "#ffffff" : "#000000";
     const particles = particlesRef.current;
-    const cx = padX + (stageW || w) / 2;
-    const cy = padY + (stageH || h) / 2;
-    const ox = (originX > 0 ? originX : (stageW || w) / 2) + padX;
-    const oy = (originY > 0 ? originY : (stageH || h) / 2) + padY;
+    const cx = w / 2;
+    const cy = h / 2;
+    const ox = originX > 0 ? originX : w / 2;
+    const oy = originY > 0 ? originY : h / 2;
     const side = triggerSize || TRIGGER_SIZE;
     const triggerRadius = side * (TRIGGER_RADIUS / TRIGGER_SIZE);
     const collapsing = phase === "collapsing";
@@ -442,13 +441,12 @@ export function PixelAssembleCanvas({
 
       // Brief card plate as DOM hands off
       const cardShatter = clamp01(1 - collapseT / 0.1);
-      if (cardShatter > 0.02) {
-        const left = cx - cardW / 2;
-        const top = cy - cardH / 2;
+      if (cardShatter > 0.02 && !domCardVisible) {
+        const { left, top, width, height } = cardPlateRect(cx, cy, cardW, cardH);
         ctx.save();
         ctx.globalAlpha = easeOutCubic(cardShatter);
         ctx.fillStyle = fill;
-        roundRect(ctx, left, top, cardW, cardH, cardRadius);
+        roundRect(ctx, left, top, width, height, cardRadius);
         ctx.fill();
         ctx.restore();
       }
@@ -529,13 +527,12 @@ export function PixelAssembleCanvas({
     // ── Assemble: keep drawing plate until phase becomes expanded (no DOM flash)
     const plateSpan = Math.max(0.001, PIXEL_PLATE_SOLID_AT - PIXEL_PLATE_FILL_AT);
     const plateT = clamp01((progress - PIXEL_PLATE_FILL_AT) / plateSpan);
-    if (plateT > 0) {
-      const left = cx - cardW / 2;
-      const top = cy - cardH / 2;
+    if (plateT > 0 && !domCardVisible) {
+      const { left, top, width, height } = cardPlateRect(cx, cy, cardW, cardH);
       ctx.save();
       ctx.globalAlpha = easeOutCubic(plateT);
       ctx.fillStyle = fill;
-      roundRect(ctx, left, top, cardW, cardH, cardRadius);
+      roundRect(ctx, left, top, width, height, cardRadius);
       ctx.fill();
       ctx.restore();
     }
@@ -568,9 +565,27 @@ export function PixelAssembleCanvas({
     triggerSize,
     originX,
     originY,
+    domCardVisible,
   ]);
 
   return <canvas ref={canvasRef} className={className} aria-hidden />;
+}
+
+/** Integer-aligned plate rect — avoids a 1px seam vs the DOM card on handoff. */
+function cardPlateRect(
+  cx: number,
+  cy: number,
+  cardW: number,
+  cardH: number,
+): { left: number; top: number; width: number; height: number } {
+  const width = Math.round(cardW);
+  const height = Math.round(cardH);
+  return {
+    left: Math.round(cx - width / 2),
+    top: Math.round(cy - height / 2),
+    width,
+    height,
+  };
 }
 
 function roundRect(

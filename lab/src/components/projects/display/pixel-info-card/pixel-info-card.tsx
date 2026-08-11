@@ -9,6 +9,7 @@ import {
   useState,
   type CSSProperties,
 } from "react";
+import { flushSync } from "react-dom";
 import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GlideTextAnimation } from "@/components/text-animations";
@@ -228,6 +229,19 @@ export function PixelInfoCard({
     glideReady,
   ]);
 
+  const measureCardSize = useCallback(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      setCardSize({ w: rect.width, h: rect.height });
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    measureCardSize();
+  }, [measureCardSize, body, title, cardRadius, scale]);
+
   const requestToggle = useCallback(() => {
     if (phase === "expanded" || holdingForTextOut || contentReveal) {
       requestClose();
@@ -236,6 +250,7 @@ export function PixelInfoCard({
     clearTextOutTimer();
     setGlideReady(false);
     textStartedRef.current = false;
+    flushSync(measureCardSize);
     setMotionSeed(nextMotionSeed());
     playPicSfx(PIC_SFX.assemble);
     toggle();
@@ -246,6 +261,7 @@ export function PixelInfoCard({
     requestClose,
     clearTextOutTimer,
     toggle,
+    measureCardSize,
   ]);
 
   const measureOrigin = useCallback(() => {
@@ -276,15 +292,6 @@ export function PixelInfoCard({
       window.removeEventListener("resize", measureOrigin);
     };
   }, [measureOrigin]);
-
-  useEffect(() => {
-    const el = cardRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.width > 0 && rect.height > 0) {
-      setCardSize({ w: rect.width, h: rect.height });
-    }
-  }, [showCardDom, body, title, cardRadius, scale]);
 
   useEffect(() => {
     setCardSize({
@@ -407,6 +414,7 @@ export function PixelInfoCard({
           originX={origin.x}
           originY={origin.y}
           motionSeed={motionSeed}
+          domCardVisible={cardVisible && cardOpacity > 0.05}
         />
 
         <div
