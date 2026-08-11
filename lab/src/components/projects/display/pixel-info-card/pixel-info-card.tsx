@@ -50,6 +50,10 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+}
+
 function nextMotionSeed(): number {
   return Math.floor(Math.random() * 0x7fffffff) + 1;
 }
@@ -330,10 +334,9 @@ export function PixelInfoCard({
     if (phase === "collapsing") {
       const collapseT = 1 - progress;
       if (collapseT < COLLAPSE_EXPAND_START) return 0;
-      const grow = easeOutCubic(
-        clamp01(
-          (collapseT - COLLAPSE_EXPAND_START) / (1 - COLLAPSE_EXPAND_START),
-        ),
+      const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
+      const grow = easeInOutCubic(
+        clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan),
       );
       if (grow < SQUIRCLE_DOM_REVEAL_GROW) return 0;
       return easeOutCubic(

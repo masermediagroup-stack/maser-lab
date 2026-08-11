@@ -31,13 +31,13 @@ export const PIC_PARAM_RANGES = {
  * DOM card + GlideText start once the pixel plate is mostly solid —
  * do not wait for assemble to fully finish (avoids a long blank card).
  */
-export const CARD_CONTENT_REVEAL_AT = 0.78;
+export const CARD_CONTENT_REVEAL_AT = 0.82;
 
 /** Progress when canvas starts filling a solid rounded plate under pixels. */
-export const PIXEL_PLATE_FILL_AT = 0.68;
+export const PIXEL_PLATE_FILL_AT = 0.78;
 
 /** Progress when the plate must be fully opaque. */
-export const PIXEL_PLATE_SOLID_AT = 0.86;
+export const PIXEL_PLATE_SOLID_AT = 0.92;
 
 /** Ease-out cubic retarget blend when interrupting mid-flight. */
 export const RETARGET_BLEND_MS = 160;
@@ -49,17 +49,24 @@ export const CARD_MIN_HEIGHT = 200;
  * Collapse: DOM trigger crossfades in during the final portion of squircle grow
  * (grow 0.72→1). Keeps icon/label continuous with the canvas plate.
  */
-export const SQUIRCLE_DOM_REVEAL_GROW = 0.72;
+/** DOM trigger fades in during the first half of squircle grow (not after). */
+export const SQUIRCLE_DOM_REVEAL_GROW = 0.42;
 
 /**
  * Collapse timeline (collapseT = 1 - progress):
  * 0→BLAST: explode into a filled disk (not a ring)
  * BLAST→MERGE: suck every pixel into one center point
- * MERGE→1: that point expands into the squircle
+ * MERGE→1: merged core expands into the squircle (no dead gap before grow)
  */
-export const COLLAPSE_BLAST_END = 0.36;
-export const COLLAPSE_MERGE_END = 0.78;
-export const COLLAPSE_EXPAND_START = 0.82;
+export const COLLAPSE_BLAST_END = 0.34;
+export const COLLAPSE_MERGE_END = 0.76;
+export const COLLAPSE_EXPAND_START = 0.68;
+
+/** Squircle grow starts at this fraction of trigger size (matches merged swarm). */
+export const COLLAPSE_EXPAND_MIN_SCALE = 0.14;
+
+/** Fade flying pixels out over this collapseT span once squircle grow begins. */
+export const COLLAPSE_SWARM_FADE_SPAN = 0.2;
 
 /** GlideText in/out duration — keep snappy so the plate never sits blank. */
 export const GLIDE_TEXT_MS = 240;
