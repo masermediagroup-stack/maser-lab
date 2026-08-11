@@ -406,7 +406,7 @@ export function PixelInfoCard({
           phase={phase}
           theme={theme}
           pixelSize={pixelSize}
-          snakeDensity={tuning.snakeDensity}
+          pixelDensity={tuning.pixelDensity}
           cardRadius={cardRadius}
           cardWidth={cardSize.w}
           cardHeight={cardSize.h}

@@ -13,7 +13,7 @@ export const DEMO_BODY =
 
 export const PIC_DEFAULTS: PixelInfoTuning = {
   pixelSize: 5,
-  snakeDensity: 0.42,
+  pixelDensity: 0.42,
   assembleMs: 1400,
   dissipateMs: 160,
   cardRadius: 20,
@@ -21,7 +21,7 @@ export const PIC_DEFAULTS: PixelInfoTuning = {
 
 export const PIC_PARAM_RANGES = {
   pixelSize: { min: 3, max: 12, step: 1 },
-  snakeDensity: { min: 0.2, max: 0.75, step: 0.05 },
+  pixelDensity: { min: 0.2, max: 0.75, step: 0.05 },
   assembleMs: { min: 400, max: 2400, step: 20 },
   dissipateMs: { min: 60, max: 280, step: 5 },
   cardRadius: { min: 8, max: 36, step: 1 },

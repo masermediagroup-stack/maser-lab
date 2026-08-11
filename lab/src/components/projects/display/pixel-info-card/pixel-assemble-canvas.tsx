@@ -35,7 +35,7 @@ type PixelAssembleCanvasProps = {
   phase: PixelInfoPhase;
   theme: PixelInfoTheme;
   pixelSize: number;
-  snakeDensity: number;
+  pixelDensity: number;
   cardRadius: number;
   cardWidth: number;
   cardHeight: number;
@@ -57,9 +57,6 @@ function easeOutCubic(t: number): number {
 function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
-
-/** Extra inset for burst particles — drawable margin inside the stage (no oversized canvas). */
-const STAGE_BURST_INSET = 0.22;
 
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
@@ -93,18 +90,10 @@ function pointInRoundedRect(
 }
 
 /**
- * Stagger from center outward — same density/opacity rules everywhere (no edge ring).
+ * Hash-only stagger — no center-out bias (that clusters visible fill in the middle).
  */
-function computeAssembleDelay(
-  col: number,
-  row: number,
-  cols: number,
-  rows: number,
-  h: number,
-): number {
-  const maxDist = Math.hypot(cols / 2, rows / 2) || 1;
-  const dist = Math.hypot(col - (cols - 1) / 2, row - (rows - 1) / 2);
-  return Math.min(0.28, h * 0.12 + (dist / maxDist) * 0.1);
+function computeAssembleDelay(h: number): number {
+  return h * 0.22;
 }
 
 /** Solid squircle cell centers (fills the whole shape — no hollow middle). */
@@ -194,26 +183,41 @@ function buildParticles(
     squircleCells.push({ x: ox - step / 2, y: oy - step / 2 });
   }
 
+  // Rounded rects have more valid cells in the middle rows — normalize per row
+  // so particle count is even top-to-bottom (not a dense horizontal band).
+  const validPerRow = new Array<number>(rows).fill(0);
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const tx = gridLeft + col * step;
       const ty = gridTop + row * step;
       const lx = tx - left + step / 2;
       const ly = ty - top + step / 2;
+      if (pointInRoundedRect(lx, ly, cardW, cardH, cardRadius)) {
+        validPerRow[row]!++;
+      }
+    }
+  }
+  const maxValidInRow = Math.max(1, ...validPerRow);
+  const targetPerRow = density * maxValidInRow;
 
-      // Center-in-shape so edge cells still land on the card silhouette
+  for (let row = 0; row < rows; row++) {
+    const rowValid = validPerRow[row]!;
+    if (rowValid === 0) continue;
+    const keepProb = Math.min(1, targetPerRow / rowValid);
+
+    for (let col = 0; col < cols; col++) {
+      const tx = gridLeft + col * step;
+      const ty = gridTop + row * step;
+      const lx = tx - left + step / 2;
+      const ly = ty - top + step / 2;
+
       if (!pointInRoundedRect(lx, ly, cardW, cardH, cardRadius)) continue;
 
       const h = hashSeeded(col + 1, row + 3, seed);
       const h2 = hashSeeded(row + 7, col + 11, seed);
       const h3 = hashSeeded(col * 13 + 2, row * 17 + 5, seed);
 
-      // Boost keep rate in top/bottom bands only (not a perimeter ring) so every
-      // seed reaches full card height before the DOM handoff.
-      const rowT = rows <= 1 ? 0.5 : row / (rows - 1);
-      const verticalBand = rowT < 0.14 || rowT > 0.86;
-      const keepCutoff = density * 0.92 + 0.08 - (verticalBand ? 0.24 : 0);
-      if (h > keepCutoff) continue;
+      if (h > keepProb) continue;
 
       // Map each card cell to a filled squircle cell (solid plate, no ring hole)
       const home = squircleCells[
@@ -221,19 +225,10 @@ function buildParticles(
       ]!;
 
       const burstAngle = h2 * Math.PI * 2;
-      const maxBurst =
-        Math.min(width, height) * STAGE_BURST_INSET;
-      const u = Math.min(0.999, Math.max(0, h3));
-      // Strong center bias: core / mid / outer bands (never a hollow ring)
-      let diskR: number;
-      if (h < 0.3) {
-        diskR = maxBurst * 0.2 * Math.sqrt(u);
-      } else if (h < 0.58) {
-        diskR = maxBurst * (0.12 + 0.48 * Math.sqrt(u));
-      } else {
-        diskR = maxBurst * Math.sqrt(u);
-      }
-
+      const cellCx = tx + step / 2;
+      const cellCy = ty + step / 2;
+      const maxBurst = Math.min(cardW, cardH) * 0.16;
+      const diskR = maxBurst * Math.sqrt(h3);
       const drawSize = step;
 
       particles.push({
@@ -241,33 +236,14 @@ function buildParticles(
         ty,
         sx: home.x,
         sy: home.y,
-        mx: ox + Math.cos(burstAngle) * diskR - drawSize / 2,
-        my: oy + Math.sin(burstAngle) * diskR - drawSize / 2,
+        mx: cellCx + Math.cos(burstAngle) * diskR - drawSize / 2,
+        my: cellCy + Math.sin(burstAngle) * diskR - drawSize / 2,
         drawSize,
         opacity: 0.45 + h * 0.55,
-        delay: computeAssembleDelay(col, row, cols, rows, h),
+        delay: computeAssembleDelay(h),
         seed: h3,
       });
     }
-  }
-
-  // Spread mid-flight cluster on the same step grid (no stacked overlaps at origin)
-  const centerFill = Math.min(48, Math.floor(particles.length * 0.22));
-  const spreadCols = 7;
-  for (let i = 0; i < centerFill; i++) {
-    const p = particles[i]!;
-    const spreadCol = (i % spreadCols) - Math.floor(spreadCols / 2);
-    const spreadRow = Math.floor(i / spreadCols) - 2;
-    p.mx = ox + spreadCol * step - step / 2;
-    p.my = oy + spreadRow * step - step / 2;
-  }
-  const pinCount = Math.min(8, particles.length);
-  for (let i = 0; i < pinCount; i++) {
-    const p = particles[particles.length - 1 - i]!;
-    const spreadCol = (i % 3) - 1;
-    const spreadRow = Math.floor(i / 3) - 1;
-    p.mx = ox + spreadCol * step - step / 2;
-    p.my = oy + spreadRow * step - step / 2;
   }
 
   return particles;
@@ -343,7 +319,7 @@ export function PixelAssembleCanvas({
   phase,
   theme,
   pixelSize,
-  snakeDensity,
+  pixelDensity,
   cardRadius,
   cardWidth,
   cardHeight,
@@ -395,7 +371,7 @@ export function PixelAssembleCanvas({
         cardH,
         cardRadius,
         pixelSize,
-        snakeDensity,
+        pixelDensity,
         triggerSize,
         ox,
         oy,
@@ -412,7 +388,7 @@ export function PixelAssembleCanvas({
     cardHeight,
     cardRadius,
     pixelSize,
-    snakeDensity,
+    pixelDensity,
     triggerSize,
     originX,
     originY,

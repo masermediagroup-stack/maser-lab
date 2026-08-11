@@ -164,13 +164,13 @@ export function PixelInfoCardDemo() {
             onChange={(v) => update("pixelSize", v)}
           />
           <ControlSlider
-            label="Snake density"
-            value={tuning.snakeDensity}
-            min={PIC_PARAM_RANGES.snakeDensity.min}
-            max={PIC_PARAM_RANGES.snakeDensity.max}
-            step={PIC_PARAM_RANGES.snakeDensity.step}
+            label="Pixel density"
+            value={tuning.pixelDensity}
+            min={PIC_PARAM_RANGES.pixelDensity.min}
+            max={PIC_PARAM_RANGES.pixelDensity.max}
+            step={PIC_PARAM_RANGES.pixelDensity.step}
             formatValue={(v) => v.toFixed(2)}
-            onChange={(v) => update("snakeDensity", v)}
+            onChange={(v) => update("pixelDensity", v)}
           />
           <ControlSlider
             label="Assemble speed"
