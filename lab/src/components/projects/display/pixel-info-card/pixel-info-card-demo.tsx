@@ -142,14 +142,16 @@ export function PixelInfoCardDemo() {
           </button>
         )}
 
-        <PixelInfoCard
-          key={`${resetKey}-fs-${fullscreen ? 2 : 1}`}
-          theme={theme}
-          title={DEFAULT_TITLE}
-          body={DEMO_BODY}
-          tuning={tuning}
-          scale={previewScale}
-        />
+        <div className="pic-demo__stage-focus">
+          <PixelInfoCard
+            key={`${resetKey}-fs-${fullscreen ? 2 : 1}`}
+            theme={theme}
+            title={DEFAULT_TITLE}
+            body={DEMO_BODY}
+            tuning={tuning}
+            scale={previewScale}
+          />
+        </div>
       </div>
 
       {!fullscreen && (

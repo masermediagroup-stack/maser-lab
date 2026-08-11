@@ -314,6 +314,21 @@
   outline-offset: 2px;
 }
 
+.pic-demo[data-fullscreen="true"] {
+  display: block;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.pic-demo__stage-focus {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
 .pic-demo__stage {
   position: relative;
   display: flex;
@@ -326,7 +341,7 @@
   overflow: visible;
 }
 
-.pic-demo__stage .pic-root {
+.pic-demo__stage-focus .pic-root {
   width: 100%;
   height: 100%;
   max-width: none;
@@ -388,54 +403,85 @@
   position: fixed;
   inset: 0;
   z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  box-sizing: border-box;
   min-height: 100dvh;
-  padding: max(72px, env(safe-area-inset-top)) 40px
-    max(40px, env(safe-area-inset-bottom));
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
   background: var(--pic-bg);
   overflow: hidden;
 }
 
-.pic-demo__stage--fullscreen .pic-stage {
-  min-height: min(88dvh, 960px);
+.pic-demo__stage--fullscreen .pic-demo__stage-focus {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.pic-demo__stage--fullscreen .pic-demo__stage-focus .pic-root {
+  width: min(100%, 52rem);
+  height: auto;
+  max-height: 100%;
+  flex: 0 1 auto;
 }
 
 .pic-demo__stage--fullscreen .pic-root {
-  /* Room for 2× squircle + card without clipping the blast */
   width: min(100%, 52rem);
+  height: auto;
+  max-height: 100%;
+  flex: 0 1 auto;
+}
+
+.pic-demo__stage--fullscreen .pic-stage {
+  width: 100%;
+  height: auto;
+  min-height: min(72dvh, 720px);
+  max-height: calc(
+    100dvh - max(24px, env(safe-area-inset-top)) -
+      max(24px, env(safe-area-inset-bottom)) - 16px
+  );
 }
 
 @media (max-width: 640px) {
   .pic-demo__stage--fullscreen {
-    padding: max(48px, env(safe-area-inset-top)) 16px
-      max(20px, env(safe-area-inset-bottom));
-    align-items: center;
-    justify-content: center;
-  }
-
-  .pic-demo__stage--fullscreen .pic-stage {
-    min-height: 0;
-    height: auto;
-    width: 100%;
-    max-height: min(70dvh, 560px);
+    padding:
+      max(12px, env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
   }
 
   .pic-demo__stage--fullscreen .pic-root {
-    width: 100%;
-    max-width: 100%;
+    width: min(100%, 360px);
+  }
+
+  .pic-demo__stage--fullscreen .pic-stage {
+    min-height: min(56dvh, 480px);
+    max-height: calc(
+      100dvh - max(56px, env(safe-area-inset-top)) -
+        max(20px, env(safe-area-inset-bottom)) - 24px
+    );
   }
 
   .pic-demo__stage--fullscreen .pic-card {
-    width: min(calc(100vw - 32px), 360px);
-    max-height: min(56dvh, 440px);
+    width: 100%;
+    max-height: min(46dvh, 380px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 }
 
 .pic-demo__fullscreen-close {
-  position: absolute;
+  position: fixed;
   top: max(12px, env(safe-area-inset-top));
-  left: 16px;
+  left: max(16px, env(safe-area-inset-left));
   right: auto;
   z-index: 81;
 }
