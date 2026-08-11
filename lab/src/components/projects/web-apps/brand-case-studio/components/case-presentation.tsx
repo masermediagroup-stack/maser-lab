@@ -172,7 +172,7 @@ export function CasePresentation({
         ) : null,
       )}
 
-      {study.comparison ? (
+      {study.comparison?.before.src && study.comparison?.after.src ? (
         <section className="border-t border-[var(--bcs-border)] bg-[var(--bcs-bg-elevated)]">
           <div className="mx-auto max-w-6xl px-[var(--bcs-pad)] py-[calc(3rem*var(--bcs-space-scale))]">
             <p className="bcs-kicker mb-6">Before & after</p>

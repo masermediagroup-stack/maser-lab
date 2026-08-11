@@ -34,6 +34,8 @@ export function CaseIntake({
   notice,
 }: CaseIntakeProps) {
   const heroInputRef = useRef<HTMLInputElement>(null);
+  const beforeInputRef = useRef<HTMLInputElement>(null);
+  const afterInputRef = useRef<HTMLInputElement>(null);
   const assetInputRef = useRef<HTMLInputElement>(null);
   const [servicesText, setServicesText] = useState(draft.services.join(", "));
   const [paletteText, setPaletteText] = useState(draft.palette.join(", "));
@@ -47,6 +49,38 @@ export function CaseIntake({
     patch({
       hero: { src: url, alt: draft.hero.alt || `${draft.client} hero` },
     });
+  };
+
+  const uploadComparison = async (side: "before" | "after", file: File) => {
+    const { url } = await uploadMediaFile(file);
+    const media = { src: url, alt: `${draft.client || "Brand"} ${side}` };
+    const comparison = draft.comparison ?? {
+      before: { src: "", alt: "Before" },
+      after: { src: "", alt: "After" },
+    };
+    patch({
+      comparison: {
+        ...comparison,
+        [side]: media,
+      },
+    });
+  };
+
+  const patchComparison = (side: "before" | "after", src: string) => {
+    const comparison = draft.comparison ?? {
+      before: { src: "", alt: "Before" },
+      after: { src: "", alt: "After" },
+    };
+    patch({
+      comparison: {
+        ...comparison,
+        [side]: { ...comparison[side], src },
+      },
+    });
+  };
+
+  const clearComparison = () => {
+    patch({ comparison: undefined });
   };
 
   const addAsset = async (file: File) => {
@@ -231,6 +265,79 @@ export function CaseIntake({
                 />
               </label>
             </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="intake-comparison-heading">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 id="intake-comparison-heading" className="bcs-display text-2xl">
+                Before / after
+              </h2>
+              <p className="mt-1 text-sm text-[var(--bcs-fg-muted)]">
+                Optional comparison slider in the presentation view.
+              </p>
+            </div>
+            {draft.comparison ? (
+              <button type="button" className="bcs-btn bcs-btn--ghost" onClick={clearComparison}>
+                Remove comparison
+              </button>
+            ) : null}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {(["before", "after"] as const).map((side) => {
+              const media = draft.comparison?.[side];
+              const inputRef = side === "before" ? beforeInputRef : afterInputRef;
+              const label = side === "before" ? "Before" : "After";
+              return (
+                <div key={side} className="bcs-card overflow-hidden">
+                  <div className="relative aspect-[4/3] bg-[var(--bcs-border)]">
+                    {media?.src ? (
+                      <Image
+                        src={media.src}
+                        alt={media.alt}
+                        fill
+                        className="object-cover"
+                        sizes="384px"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center px-4 text-center text-sm text-[var(--bcs-fg-soft)]">
+                        Upload {label.toLowerCase()} image
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2 border-t border-[var(--bcs-border)] p-4">
+                    <input
+                      ref={inputRef}
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) void uploadComparison(side, file);
+                        e.target.value = "";
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="bcs-btn"
+                      onClick={() => inputRef.current?.click()}
+                    >
+                      Upload {label.toLowerCase()}
+                    </button>
+                    <label className="bcs-field">
+                      <span className="bcs-label">Or image URL</span>
+                      <input
+                        className="bcs-input"
+                        value={media?.src.startsWith("data:") ? "" : (media?.src ?? "")}
+                        onChange={(e) => patchComparison(side, e.target.value)}
+                        placeholder="https://…"
+                      />
+                    </label>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 

@@ -29,9 +29,8 @@ Two clear layers: an **intake studio** for uploading copy, images, colors, and t
 User can create a case study, add assets via upload or URL, save locally, switch to presentation mode, and see a client-ready layout without manual layout work.
 
 ### Non-goals
-- Backend sync, multi-user auth, or client-facing share URLs (v1)
+- Multi-user auth or team permissions (v1 — Convex mutations are open)
 - Full CMS or block editor
-- PDF export (future)
 - Replacing Figma or DAM systems
 
 ## Kind
@@ -47,7 +46,7 @@ User can create a case study, add assets via upload or URL, save locally, switch
 - [x] hover (pointer fine only)
 - [x] focus
 - [x] active / pressed
-- [ ] loading — N/A until async upload/backend
+- [ ] loading — shown during cloud sync / media upload (future polish)
 - [x] success (save confirmation)
 - [x] error (storage / import failure)
 - [x] prefers-reduced-motion
@@ -72,8 +71,8 @@ User can create a case study, add assets via upload or URL, save locally, switch
 ## Open decisions
 
 - Whether v2 adds team auth for intake (Convex auth)
-- PDF export via server-side render vs print stylesheet (v1 uses print)
-- Interactive before/after on public share pages for reduced-motion users
+- Server-side PDF render vs print stylesheet (v1 uses print)
+- Static before/after split for reduced-motion users on public share pages (slider remains keyboard-accessible)
 
 ## Milestone — next steps shipped (2026-08-11)
 

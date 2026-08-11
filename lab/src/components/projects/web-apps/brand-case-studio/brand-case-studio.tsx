@@ -17,7 +17,12 @@ import {
   loadCaseStore,
   saveCaseStore,
 } from "./storage";
-import { useCloudCaseSync, useCloudCaseStudiesEnabled } from "./use-cloud-cases";
+import {
+  parseCloudCaseData,
+  useCloudCaseRecords,
+  useCloudCaseSync,
+  useCloudCaseStudiesEnabled,
+} from "./use-cloud-cases";
 import type {
   AppMode,
   BrandCaseStudioAppProps,
@@ -44,6 +49,8 @@ function BrandCaseStudioAppInner({
   const importRef = useRef<HTMLInputElement>(null);
   const cloudEnabled = useCloudCaseStudiesEnabled();
   const { syncCase, publishCase } = useCloudCaseSync();
+  const { records: cloudRecords } = useCloudCaseRecords();
+  const cloudMergedRef = useRef(false);
   const [mode, setMode] = useState<AppMode>(defaultMode);
   const [store, setStore] = useState<CaseStore>({});
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -68,6 +75,32 @@ function BrandCaseStudioAppInner({
     if (!hydrated) return;
     saveCaseStore(store);
   }, [store, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated || !cloudEnabled || cloudRecords === undefined || cloudMergedRef.current) {
+      return;
+    }
+    cloudMergedRef.current = true;
+    if (cloudRecords.length === 0) return;
+
+    setStore((prev) => {
+      const next = { ...prev };
+      for (const record of cloudRecords) {
+        const parsed = parseCloudCaseData(record.data);
+        if (!parsed) continue;
+        const local = next[parsed.id];
+        if (!local || record.updatedAt > local.updatedAt) {
+          next[parsed.id] = normalizeCaseStudy({
+            ...parsed,
+            shareSlug: record.shareSlug,
+            published: record.published,
+            cloudSyncedAt: record.updatedAt,
+          });
+        }
+      }
+      return next;
+    });
+  }, [hydrated, cloudEnabled, cloudRecords]);
 
   const cases = Object.values(store);
 
