@@ -15,6 +15,20 @@ import {
 import type { PixelInfoTheme, PixelInfoTuning } from "./types";
 import "./tokens.css";
 
+function useNarrowViewport(): boolean {
+  const [narrow, setNarrow] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const sync = () => setNarrow(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return narrow;
+}
+
 export function PixelInfoCardDemo() {
   const [theme, setTheme] = useState<PixelInfoTheme>("dark");
   const [tuning, setTuning] = useState<PixelInfoTuning>({ ...PIC_DEFAULTS });
@@ -22,6 +36,8 @@ export function PixelInfoCardDemo() {
   const [fullscreen, setFullscreen] = useState(false);
   const [resetKey, setResetKey] = useState(0);
   const cardKeyRef = useRef(0);
+  const isNarrow = useNarrowViewport();
+  const previewScale = fullscreen && !isNarrow ? 2 : 1;
 
   const update = useCallback(
     <K extends keyof PixelInfoTuning>(key: K, value: PixelInfoTuning[K]) => {
@@ -126,14 +142,16 @@ export function PixelInfoCardDemo() {
           </button>
         )}
 
-        <PixelInfoCard
-          key={`${resetKey}-fs-${fullscreen ? 2 : 1}`}
-          theme={theme}
-          title={DEFAULT_TITLE}
-          body={DEMO_BODY}
-          tuning={tuning}
-          scale={fullscreen ? 2 : 1}
-        />
+        <div className="pic-demo__stage-focus">
+          <PixelInfoCard
+            key={`${resetKey}-fs-${fullscreen ? 2 : 1}`}
+            theme={theme}
+            title={DEFAULT_TITLE}
+            body={DEMO_BODY}
+            tuning={tuning}
+            scale={previewScale}
+          />
+        </div>
       </div>
 
       {!fullscreen && (
@@ -164,13 +182,13 @@ export function PixelInfoCardDemo() {
             onChange={(v) => update("pixelSize", v)}
           />
           <ControlSlider
-            label="Snake density"
-            value={tuning.snakeDensity}
-            min={PIC_PARAM_RANGES.snakeDensity.min}
-            max={PIC_PARAM_RANGES.snakeDensity.max}
-            step={PIC_PARAM_RANGES.snakeDensity.step}
+            label="Pixel density"
+            value={tuning.pixelDensity}
+            min={PIC_PARAM_RANGES.pixelDensity.min}
+            max={PIC_PARAM_RANGES.pixelDensity.max}
+            step={PIC_PARAM_RANGES.pixelDensity.step}
             formatValue={(v) => v.toFixed(2)}
-            onChange={(v) => update("snakeDensity", v)}
+            onChange={(v) => update("pixelDensity", v)}
           />
           <ControlSlider
             label="Assemble speed"

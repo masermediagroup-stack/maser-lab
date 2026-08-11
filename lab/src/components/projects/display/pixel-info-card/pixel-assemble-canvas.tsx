@@ -3,9 +3,10 @@
 import { useEffect, useRef } from "react";
 import {
   COLLAPSE_BLAST_END,
+  COLLAPSE_EXPAND_MIN_SCALE,
   COLLAPSE_EXPAND_START,
   COLLAPSE_MERGE_END,
-  ASSEMBLE_FOOTPRINT_RULES,
+  COLLAPSE_SWARM_FADE_SPAN,
   PIXEL_PLATE_FILL_AT,
   PIXEL_PLATE_SOLID_AT,
   SQUIRCLE_DOM_REVEAL_GROW,
@@ -21,6 +22,8 @@ type PixelParticle = {
   sy: number;
   mx: number;
   my: number;
+  /** Render width/height — matches snapped cell footprint. */
+  drawSize: number;
   opacity: number;
   delay: number;
   seed: number;
@@ -32,7 +35,7 @@ type PixelAssembleCanvasProps = {
   phase: PixelInfoPhase;
   theme: PixelInfoTheme;
   pixelSize: number;
-  snakeDensity: number;
+  pixelDensity: number;
   cardRadius: number;
   cardWidth: number;
   cardHeight: number;
@@ -42,6 +45,8 @@ type PixelAssembleCanvasProps = {
   originY: number;
   /** Changes each open so burst paths / midpoints reshuffle. */
   motionSeed: number;
+  /** DOM card is visible — stop drawing the canvas plate to avoid a seam line. */
+  domCardVisible?: boolean;
   className?: string;
 };
 
@@ -52,9 +57,6 @@ function easeOutCubic(t: number): number {
 function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
-
-/** Extra canvas margin past the stage so blast pixels aren't clipped. */
-const CANVAS_BLEED = 0.34;
 
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
@@ -85,6 +87,13 @@ function pointInRoundedRect(
   const dx = lx - cx;
   const dy = ly - cy;
   return dx * dx + dy * dy <= radius * radius;
+}
+
+/**
+ * Hash-only stagger — no center-out bias (that clusters visible fill in the middle).
+ */
+function computeAssembleDelay(h: number): number {
+  return h * 0.22;
 }
 
 /** Solid squircle cell centers (fills the whole shape — no hollow middle). */
@@ -123,12 +132,53 @@ function squircleCellCenters(
   return cells;
 }
 
+type CardGrid = {
+  plateLeft: number;
+  plateTop: number;
+  plateW: number;
+  plateH: number;
+  step: number;
+  cols: number;
+  rows: number;
+  gridLeft: number;
+  gridTop: number;
+};
+
+/** Integer-aligned plate + pixel grid — shared by particles and canvas plate. */
+function computeCardGrid(
+  cx: number,
+  cy: number,
+  cardW: number,
+  cardH: number,
+  pixelSize: number,
+): CardGrid {
+  const { left: plateLeft, top: plateTop, width: plateW, height: plateH } =
+    cardPlateRect(cx, cy, cardW, cardH);
+  const step = Math.max(1, Math.round(pixelSize));
+  const cols = Math.max(1, Math.floor(plateW / step));
+  const rows = Math.max(1, Math.floor(plateH / step));
+  const gridW = cols * step;
+  const gridH = rows * step;
+  return {
+    plateLeft,
+    plateTop,
+    plateW,
+    plateH,
+    step,
+    cols,
+    rows,
+    gridLeft: plateLeft + Math.floor((plateW - gridW) / 2),
+    gridTop: plateTop + Math.floor((plateH - gridH) / 2),
+  };
+}
+
 /**
  * Build assemble particles for the card silhouette.
  *
- * Footprint rules (see ASSEMBLE_FOOTPRINT_RULES):
- * - Grid stretches across the full cardW × cardH (settled pixels reach the plate).
- * - Perimeter ring is never density-skipped — seed cannot thin the outline.
+ * Footprint rules:
+ * - Grid aligns to the same integer plate rect as the canvas/DOM card.
+ * - One uniform density pass — edges are not denser, snapped, or delayed
+ *   differently (that reads as a fake border during assemble).
  * - Seed only reshuffles burst paths / homes / delays.
  */
 function buildParticles(
@@ -145,21 +195,23 @@ function buildParticles(
   motionSeed: number,
 ): PixelParticle[] {
   const particles: PixelParticle[] = [];
-  const cx = width / 2;
-  const cy = height / 2;
+  const cx = Math.floor(width / 2);
+  const cy = Math.floor(height / 2);
   const ox = Number.isFinite(originX) && originX > 0 ? originX : cx;
   const oy = Number.isFinite(originY) && originY > 0 ? originY : cy;
-  const left = cx - cardW / 2;
-  const top = cy - cardH / 2;
-  const step = Math.max(3, Math.round(pixelSize));
   const seed = motionSeed || 1;
-  const perimeter = Math.max(1, ASSEMBLE_FOOTPRINT_RULES.perimeterCells);
 
-  // Span the full card — never a floor()'d smaller grid that leaves a thin outline
-  const cols = Math.max(1, Math.round(cardW / step));
-  const rows = Math.max(1, Math.round(cardH / step));
-  const cellW = cardW / cols;
-  const cellH = cardH / rows;
+  const {
+    plateLeft,
+    plateTop,
+    plateW,
+    plateH,
+    step,
+    cols,
+    rows,
+    gridLeft,
+    gridTop,
+  } = computeCardGrid(cx, cy, cardW, cardH, pixelSize);
 
   const squircleCells = squircleCellCenters(
     ox,
@@ -172,85 +224,73 @@ function buildParticles(
     squircleCells.push({ x: ox - step / 2, y: oy - step / 2 });
   }
 
+  // Collect every valid cell, then keep a stratified subset so fill is uniform
+  // across the whole silhouette (per-row caps left a dense horizontal band).
+  type CellCandidate = {
+    row: number;
+    col: number;
+    tx: number;
+    ty: number;
+    rank: number;
+    h: number;
+    h2: number;
+    h3: number;
+  };
+
+  const candidates: CellCandidate[] = [];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const cellX = left + col * cellW + cellW / 2;
-      const cellY = top + row * cellH + cellH / 2;
-      const lx = cellX - left;
-      const ly = cellY - top;
+      const tx = gridLeft + col * step;
+      const ty = gridTop + row * step;
+      const lx = tx - plateLeft + step / 2;
+      const ly = ty - plateTop + step / 2;
 
-      // Center-in-shape so edge cells still land on the card silhouette
-      if (!pointInRoundedRect(lx, ly, cardW, cardH, cardRadius)) continue;
-
-      const onPerimeter =
-        col < perimeter ||
-        row < perimeter ||
-        col >= cols - perimeter ||
-        row >= rows - perimeter;
+      if (!pointInRoundedRect(lx, ly, plateW, plateH, cardRadius)) continue;
 
       const h = hashSeeded(col + 1, row + 3, seed);
       const h2 = hashSeeded(row + 7, col + 11, seed);
       const h3 = hashSeeded(col * 13 + 2, row * 17 + 5, seed);
+      const rank = hashSeeded(col * 31 + 7, row * 37 + 11, seed);
 
-      // Density may thin the interior only — never the outer ring
-      if (!onPerimeter && h > density * 0.92 + 0.08) continue;
-
-      // Map each card cell to a filled squircle cell (solid plate, no ring hole)
-      const home = squircleCells[
-        Math.floor(h * squircleCells.length) % squircleCells.length
-      ]!;
-
-      const burstAngle = h2 * Math.PI * 2;
-      // Cap vs canvas so the swarm stays inside the padded viewport
-      const maxBurst = Math.min(width, height) * 0.22;
-      const u = Math.min(0.999, Math.max(0, h3));
-      // Strong center bias: core / mid / outer bands (never a hollow ring)
-      let diskR: number;
-      if (h < 0.3) {
-        diskR = maxBurst * 0.2 * Math.sqrt(u);
-      } else if (h < 0.58) {
-        diskR = maxBurst * (0.12 + 0.48 * Math.sqrt(u));
-      } else {
-        diskR = maxBurst * Math.sqrt(u);
-      }
-
-      const drawSize = Math.min(cellW, cellH);
-      particles.push({
-        tx: cellX - drawSize / 2,
-        ty: cellY - drawSize / 2,
-        sx: home.x,
-        sy: home.y,
-        mx: ox + Math.cos(burstAngle) * diskR - drawSize / 2,
-        my: oy + Math.sin(burstAngle) * diskR - drawSize / 2,
-        opacity: onPerimeter ? Math.max(0.72, 0.55 + h * 0.45) : 0.45 + h * 0.55,
-        delay: Math.min(
-          0.28,
-          onPerimeter
-            ? h * 0.12
-            : h * 0.22 + Math.hypot(col - cols / 2, row - rows / 2) * 0.01,
-        ),
-        seed: h3,
-      });
+      candidates.push({ row, col, tx, ty, rank, h, h2, h3 });
     }
   }
 
-  const half = Math.max(3, Math.round(pixelSize)) / 2;
-  const maxBurst = Math.min(width, height) * 0.22;
-  // Dense core cluster (~22%) so mid-flight never shows a center hole
-  const centerFill = Math.min(48, Math.floor(particles.length * 0.22));
-  for (let i = 0; i < centerFill; i++) {
-    const p = particles[i]!;
-    const a = hashSeeded(i + 3, i + 9, seed) * Math.PI * 2;
-    const r = maxBurst * Math.sqrt(hashSeeded(i + 1, 5, seed) * 0.14);
-    p.mx = ox + Math.cos(a) * r - half;
-    p.my = oy + Math.sin(a) * r - half;
-  }
-  // Pin a few midpoints exactly on the origin
-  const pinCount = Math.min(8, particles.length);
-  for (let i = 0; i < pinCount; i++) {
-    const p = particles[particles.length - 1 - i]!;
-    p.mx = ox - half;
-    p.my = oy - half;
+  if (candidates.length === 0) return particles;
+
+  candidates.sort((a, b) => a.rank - b.rank);
+  const targetCount = Math.max(
+    1,
+    Math.round(clamp01(density) * candidates.length),
+  );
+
+  for (let i = 0; i < targetCount; i++) {
+    const c = candidates[i]!;
+
+    // Map each card cell to a filled squircle cell (solid plate, no ring hole)
+    const home = squircleCells[
+      Math.floor(c.h * squircleCells.length) % squircleCells.length
+    ]!;
+
+    const burstAngle = c.h2 * Math.PI * 2;
+    const maxBurst = Math.min(plateW, plateH) * 0.12;
+    const diskR = maxBurst * Math.sqrt(c.h3);
+    const drawSize = step;
+    const burstDx = Math.round(Math.cos(burstAngle) * diskR);
+    const burstDy = Math.round(Math.sin(burstAngle) * diskR);
+
+    particles.push({
+      tx: c.tx,
+      ty: c.ty,
+      sx: home.x,
+      sy: home.y,
+      mx: c.tx + burstDx,
+      my: c.ty + burstDy,
+      drawSize,
+      opacity: 0.45 + c.h * 0.55,
+      delay: computeAssembleDelay(c.h),
+      seed: c.h3,
+    });
   }
 
   return particles;
@@ -260,6 +300,9 @@ function sampleAssemblePath(
   p: PixelParticle,
   local: number,
 ): { x: number; y: number } {
+  if (local >= 1) {
+    return { x: p.tx, y: p.ty };
+  }
   if (local < 0.38) {
     const t = easeOutCubic(local / 0.38);
     return {
@@ -268,10 +311,13 @@ function sampleAssemblePath(
     };
   }
   const t = easeInOutCubic((local - 0.38) / 0.62);
-  const jitter = (1 - t) * (p.seed - 0.5) * 5;
+  // Integer grid targets only — no jitter (breaks edge-to-edge alignment at larger steps).
+  if (t >= 1) {
+    return { x: p.tx, y: p.ty };
+  }
   return {
-    x: p.mx + (p.tx - p.mx) * t + jitter,
-    y: p.my + (p.ty - p.my) * t + jitter * 0.55,
+    x: Math.round(p.mx + (p.tx - p.mx) * t),
+    y: Math.round(p.my + (p.ty - p.my) * t),
   };
 }
 
@@ -284,10 +330,9 @@ function sampleCollapsePath(
   collapseT: number,
   ox: number,
   oy: number,
-  pixelSize: number,
 ): { x: number; y: number } {
-  const centerX = ox - pixelSize / 2;
-  const centerY = oy - pixelSize / 2;
+  const centerX = ox - p.drawSize / 2;
+  const centerY = oy - p.drawSize / 2;
 
   if (collapseT < COLLAPSE_BLAST_END) {
     const t = easeOutCubic(collapseT / COLLAPSE_BLAST_END);
@@ -322,7 +367,7 @@ export function PixelAssembleCanvas({
   phase,
   theme,
   pixelSize,
-  snakeDensity,
+  pixelDensity,
   cardRadius,
   cardWidth,
   cardHeight,
@@ -330,6 +375,7 @@ export function PixelAssembleCanvas({
   originX,
   originY,
   motionSeed,
+  domCardVisible = false,
   className,
 }: PixelAssembleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -339,10 +385,6 @@ export function PixelAssembleCanvas({
     h: 0,
     cardW: 0,
     cardH: 0,
-    stageW: 0,
-    stageH: 0,
-    padX: 0,
-    padY: 0,
   });
 
   useEffect(() => {
@@ -356,33 +398,31 @@ export function PixelAssembleCanvas({
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const stageW = Math.max(1, Math.floor(rect.width));
       const stageH = Math.max(1, Math.floor(rect.height));
-      const padX = Math.floor(stageW * CANVAS_BLEED);
-      const padY = Math.floor(stageH * CANVAS_BLEED);
-      const w = stageW + padX * 2;
-      const h = stageH + padY * 2;
-      const cardW = Math.min(cardWidth, stageW * 0.92);
-      const cardH = Math.min(cardHeight, stageH * 0.7);
-      sizeRef.current = { w, h, cardW, cardH, stageW, stageH, padX, padY };
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
+      // Match measured DOM card exactly — no stage caps that undershoot height.
+      const cardW = Math.max(1, cardWidth);
+      const cardH = Math.max(1, cardHeight);
+      sizeRef.current = { w: stageW, h: stageH, cardW, cardH };
+      canvas.width = Math.floor(stageW * dpr);
+      canvas.height = Math.floor(stageH * dpr);
+      canvas.style.width = `${stageW}px`;
+      canvas.style.height = `${stageH}px`;
       const ctx = canvas.getContext("2d");
-      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (ctx) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+      }
 
-      const ox =
-        (originX > 0 ? originX : stageW / 2) + padX;
-      const oy =
-        (originY > 0 ? originY : stageH / 2) + padY;
+      const ox = originX > 0 ? originX : stageW / 2;
+      const oy = originY > 0 ? originY : stageH / 2;
 
       particlesRef.current = buildParticles(
-        w,
-        h,
+        stageW,
+        stageH,
         cardW,
         cardH,
         cardRadius,
         pixelSize,
-        snakeDensity,
+        pixelDensity,
         triggerSize,
         ox,
         oy,
@@ -399,7 +439,7 @@ export function PixelAssembleCanvas({
     cardHeight,
     cardRadius,
     pixelSize,
-    snakeDensity,
+    pixelDensity,
     triggerSize,
     originX,
     originY,
@@ -411,8 +451,9 @@ export function PixelAssembleCanvas({
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    ctx.imageSmoothingEnabled = false;
 
-    const { w, h, cardW, cardH, stageW, stageH, padX, padY } = sizeRef.current;
+    const { w, h, cardW, cardH } = sizeRef.current;
     ctx.clearRect(0, 0, w || canvas.width, h || canvas.height);
 
     if (!active) return;
@@ -421,12 +462,11 @@ export function PixelAssembleCanvas({
     const isDark = theme === "dark";
     const rgb = isDark ? "255,255,255" : "0,0,0";
     const fill = isDark ? "#ffffff" : "#000000";
-    const size = Math.max(2, Math.round(pixelSize));
     const particles = particlesRef.current;
-    const cx = padX + (stageW || w) / 2;
-    const cy = padY + (stageH || h) / 2;
-    const ox = (originX > 0 ? originX : (stageW || w) / 2) + padX;
-    const oy = (originY > 0 ? originY : (stageH || h) / 2) + padY;
+    const cx = Math.floor(w / 2);
+    const cy = Math.floor(h / 2);
+    const ox = originX > 0 ? originX : w / 2;
+    const oy = originY > 0 ? originY : h / 2;
     const side = triggerSize || TRIGGER_SIZE;
     const triggerRadius = side * (TRIGGER_RADIUS / TRIGGER_SIZE);
     const collapsing = phase === "collapsing";
@@ -436,25 +476,22 @@ export function PixelAssembleCanvas({
 
       // Brief card plate as DOM hands off
       const cardShatter = clamp01(1 - collapseT / 0.1);
-      if (cardShatter > 0.02) {
-        const left = cx - cardW / 2;
-        const top = cy - cardH / 2;
+      if (cardShatter > 0.02 && !domCardVisible) {
+        const { left, top, width, height } = cardPlateRect(cx, cy, cardW, cardH);
         ctx.save();
         ctx.globalAlpha = easeOutCubic(cardShatter);
         ctx.fillStyle = fill;
-        roundRect(ctx, left, top, cardW, cardH, cardRadius);
+        roundRect(ctx, left, top, width, height, cardRadius);
         ctx.fill();
         ctx.restore();
       }
 
-      // After merge: one pixel → grow into the squircle, then crossfade to DOM
+      // After merge: grow merged core into squircle, crossfading the swarm out
       if (collapseT >= COLLAPSE_EXPAND_START) {
-        const grow = easeOutCubic(
-          clamp01(
-            (collapseT - COLLAPSE_EXPAND_START) / (1 - COLLAPSE_EXPAND_START),
-          ),
+        const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
+        const grow = easeInOutCubic(
+          clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan),
         );
-        // Fade canvas plate as DOM trigger takes over (same grow window)
         const domT =
           grow < SQUIRCLE_DOM_REVEAL_GROW
             ? 0
@@ -463,21 +500,24 @@ export function PixelAssembleCanvas({
                   (1 - SQUIRCLE_DOM_REVEAL_GROW),
               );
         const canvasAlpha = 1 - easeOutCubic(domT);
-        if (canvasAlpha < 0.02) return;
+        const swarmFade = easeOutCubic(
+          clamp01(
+            1 - (collapseT - COLLAPSE_EXPAND_START) / COLLAPSE_SWARM_FADE_SPAN,
+          ),
+        );
 
-        if (grow < 0.02) {
-          ctx.fillStyle = fill;
-          ctx.globalAlpha = canvasAlpha;
-          ctx.fillRect(
-            Math.round(ox - size / 2),
-            Math.round(oy - size / 2),
-            size,
-            size,
-          );
-          ctx.globalAlpha = 1;
-        } else {
-          const grown = size + (side - size) * grow;
-          const radius = triggerRadius * (grown / side);
+        // Match merged pixel cluster (~3 cells) so grow doesn't pop from a dot
+        const clusterSize =
+          particles.length > 0
+            ? Math.max(
+                particles[0]!.drawSize * 2.8,
+                side * COLLAPSE_EXPAND_MIN_SCALE,
+              )
+            : side * COLLAPSE_EXPAND_MIN_SCALE;
+        const grown = clusterSize + (side - clusterSize) * grow;
+        const radius = triggerRadius * (grown / side);
+
+        if (canvasAlpha > 0.02) {
           ctx.save();
           ctx.globalAlpha = canvasAlpha;
           ctx.fillStyle = fill;
@@ -492,6 +532,16 @@ export function PixelAssembleCanvas({
           ctx.fill();
           ctx.restore();
         }
+
+        if (swarmFade > 0.02) {
+          for (let i = 0; i < particles.length; i++) {
+            const p = particles[i]!;
+            const { x, y } = sampleCollapsePath(p, collapseT, ox, oy);
+            const ds = p.drawSize;
+            ctx.fillStyle = `rgba(${rgb},${(p.opacity * swarmFade * canvasAlpha).toFixed(3)})`;
+            ctx.fillRect(x, y, ds, ds);
+          }
+        }
         return;
       }
 
@@ -500,10 +550,10 @@ export function PixelAssembleCanvas({
       if (explodeAlpha > 0.02) {
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i]!;
-          // Keep the swarm in sync so the disk stays solid while sucking in
-          const { x, y } = sampleCollapsePath(p, collapseT, ox, oy, size);
+          const { x, y } = sampleCollapsePath(p, collapseT, ox, oy);
+          const ds = p.drawSize;
           ctx.fillStyle = `rgba(${rgb},${(p.opacity * explodeAlpha).toFixed(3)})`;
-          ctx.fillRect(Math.round(x), Math.round(y), size, size);
+          ctx.fillRect(Math.round(x), Math.round(y), ds, ds);
         }
       }
       return;
@@ -512,19 +562,18 @@ export function PixelAssembleCanvas({
     // ── Assemble: keep drawing plate until phase becomes expanded (no DOM flash)
     const plateSpan = Math.max(0.001, PIXEL_PLATE_SOLID_AT - PIXEL_PLATE_FILL_AT);
     const plateT = clamp01((progress - PIXEL_PLATE_FILL_AT) / plateSpan);
-    if (plateT > 0) {
-      const left = cx - cardW / 2;
-      const top = cy - cardH / 2;
+    if (plateT > 0 && !domCardVisible) {
+      const { left, top, width, height } = cardPlateRect(cx, cy, cardW, cardH);
       ctx.save();
       ctx.globalAlpha = easeOutCubic(plateT);
       ctx.fillStyle = fill;
-      roundRect(ctx, left, top, cardW, cardH, cardRadius);
+      roundRect(ctx, left, top, width, height, cardRadius);
       ctx.fill();
       ctx.restore();
     }
 
     const pixelFade =
-      plateT > 0.4 ? clamp01(1 - (plateT - 0.4) / 0.6) : 1;
+      plateT > 0.35 ? clamp01(1 - (plateT - 0.35) / 0.65) : 1;
     if (pixelFade <= 0.02) return;
 
     for (let i = 0; i < particles.length; i++) {
@@ -536,9 +585,10 @@ export function PixelAssembleCanvas({
       if (local <= 0) continue;
 
       const { x, y } = sampleAssemblePath(p, local);
+      const ds = p.drawSize;
       const alpha = p.opacity * Math.min(1, local * 2.4) * pixelFade;
       ctx.fillStyle = `rgba(${rgb},${alpha.toFixed(3)})`;
-      ctx.fillRect(Math.round(x), Math.round(y), size, size);
+      ctx.fillRect(x, y, ds, ds);
     }
   }, [
     active,
@@ -550,9 +600,27 @@ export function PixelAssembleCanvas({
     triggerSize,
     originX,
     originY,
+    domCardVisible,
   ]);
 
   return <canvas ref={canvasRef} className={className} aria-hidden />;
+}
+
+/** Integer-aligned plate rect — avoids a 1px seam vs the DOM card on handoff. */
+function cardPlateRect(
+  cx: number,
+  cy: number,
+  cardW: number,
+  cardH: number,
+): { left: number; top: number; width: number; height: number } {
+  const width = Math.round(cardW);
+  const height = Math.round(cardH);
+  return {
+    left: Math.round(cx - width / 2),
+    top: Math.round(cy - height / 2),
+    width,
+    height,
+  };
 }
 
 function roundRect(

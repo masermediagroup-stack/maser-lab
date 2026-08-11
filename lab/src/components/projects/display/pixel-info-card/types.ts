@@ -4,7 +4,7 @@ export type PixelInfoPhase = "idle" | "expanding" | "expanded" | "collapsing";
 
 export type PixelInfoTuning = {
   pixelSize: number;
-  snakeDensity: number;
+  pixelDensity: number;
   assembleMs: number;
   dissipateMs: number;
   cardRadius: number;

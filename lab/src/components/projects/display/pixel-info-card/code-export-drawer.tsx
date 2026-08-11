@@ -47,7 +47,7 @@ export function Example() {
       body={\`${escaped}\`}
       tuning={{
         pixelSize: ${tuning.pixelSize},
-        snakeDensity: ${tuning.snakeDensity},
+        pixelDensity: ${tuning.pixelDensity},
         assembleMs: ${tuning.assembleMs},
         dissipateMs: ${tuning.dissipateMs},
         cardRadius: ${tuning.cardRadius},
@@ -65,7 +65,7 @@ function generateSettingsSummary(
   return [
     `theme: ${theme}`,
     `pixelSize: ${tuning.pixelSize}`,
-    `snakeDensity: ${tuning.snakeDensity}`,
+    `pixelDensity: ${tuning.pixelDensity}`,
     `assembleMs: ${tuning.assembleMs}`,
     `dissipateMs: ${tuning.dissipateMs}`,
     `cardRadius: ${tuning.cardRadius}`,

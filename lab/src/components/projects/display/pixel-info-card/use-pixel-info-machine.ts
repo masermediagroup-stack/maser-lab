@@ -159,7 +159,7 @@ export function usePixelInfoMachine({
 export function mergeTuning(partial?: Partial<PixelInfoTuning>): PixelInfoTuning {
   const base: PixelInfoTuning = {
     pixelSize: 5,
-    snakeDensity: 0.42,
+    pixelDensity: 0.42,
     assembleMs: 1400,
     dissipateMs: 160,
     cardRadius: 20,
