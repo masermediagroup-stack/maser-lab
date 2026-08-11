@@ -90,30 +90,9 @@ function pointInRoundedRect(
   return dx * dx + dy * dy <= radius * radius;
 }
 
-/** Snap settled targets so edge cells touch the card bounds (not inset by half a cell). */
-function snapAssembleTarget(
-  tx: number,
-  ty: number,
-  drawSize: number,
-  col: number,
-  row: number,
-  cols: number,
-  rows: number,
-  left: number,
-  top: number,
-  cardW: number,
-  cardH: number,
-): { tx: number; ty: number } {
-  let x = tx;
-  let y = ty;
-  if (col === 0) x = left;
-  if (col === cols - 1) x = left + cardW - drawSize;
-  if (row === 0) y = top;
-  if (row === rows - 1) y = top + cardH - drawSize;
-  return { tx: x, ty: y };
-}
-
-/** Edge/corner cells settle earlier so width/height are covered before the plate handoff. */
+/**
+ * Stagger from center outward — same density/opacity rules everywhere (no edge ring).
+ */
 function computeAssembleDelay(
   col: number,
   row: number,
@@ -121,14 +100,9 @@ function computeAssembleDelay(
   rows: number,
   h: number,
 ): number {
-  const maxEdgeDist = Math.max(1, Math.floor(Math.min(cols, rows) / 2));
-  const distFromEdge = Math.min(col, cols - 1 - col, row, rows - 1 - row);
-  const edgeBias = 1 - distFromEdge / maxEdgeDist;
-  return Math.min(0.22, h * 0.1 + edgeBias * 0.14);
-}
-
-function isBoundaryCell(col: number, row: number, cols: number, rows: number): boolean {
-  return col === 0 || col === cols - 1 || row === 0 || row === rows - 1;
+  const maxDist = Math.hypot(cols / 2, rows / 2) || 1;
+  const dist = Math.hypot(col - (cols - 1) / 2, row - (rows - 1) / 2);
+  return Math.min(0.28, h * 0.12 + (dist / maxDist) * 0.1);
 }
 
 /** Solid squircle cell centers (fills the whole shape — no hollow middle). */
@@ -171,9 +145,9 @@ function squircleCellCenters(
  * Build assemble particles for the card silhouette.
  *
  * Footprint rules:
- * - Grid stretches across the full cardW × cardH (settled pixels reach the plate).
- * - Density thins every cell uniformly — no forced perimeter ring, so pixels
- *   still reach the card bounds organically without drawing an outline.
+ * - Grid stretches across the full cardW × cardH.
+ * - One uniform density pass — edges are not denser, snapped, or delayed
+ *   differently (that reads as a fake border during assemble).
  * - Seed only reshuffles burst paths / homes / delays.
  */
 function buildParticles(
@@ -230,10 +204,7 @@ function buildParticles(
       const h2 = hashSeeded(row + 7, col + 11, seed);
       const h3 = hashSeeded(col * 13 + 2, row * 17 + 5, seed);
 
-      const onBoundary = isBoundaryCell(col, row, cols, rows);
-      // Interior: uniform density thinning. Boundary: always keep so the
-      // footprint reaches card width/height without a forced outline ring.
-      if (!onBoundary && h > density * 0.92 + 0.08) continue;
+      if (h > density * 0.92 + 0.08) continue;
 
       // Map each card cell to a filled squircle cell (solid plate, no ring hole)
       const home = squircleCells[
@@ -255,33 +226,16 @@ function buildParticles(
       }
 
       const drawSize = Math.min(cellW, cellH);
-      const centered = {
-        tx: cellX - drawSize / 2,
-        ty: cellY - drawSize / 2,
-      };
-      const snapped = snapAssembleTarget(
-        centered.tx,
-        centered.ty,
-        drawSize,
-        col,
-        row,
-        cols,
-        rows,
-        left,
-        top,
-        cardW,
-        cardH,
-      );
 
       particles.push({
-        tx: snapped.tx,
-        ty: snapped.ty,
+        tx: cellX - drawSize / 2,
+        ty: cellY - drawSize / 2,
         sx: home.x,
         sy: home.y,
         mx: ox + Math.cos(burstAngle) * diskR - drawSize / 2,
         my: oy + Math.sin(burstAngle) * diskR - drawSize / 2,
         drawSize,
-        opacity: onBoundary ? 0.4 + h * 0.45 : 0.45 + h * 0.55,
+        opacity: 0.45 + h * 0.55,
         delay: computeAssembleDelay(col, row, cols, rows, h),
         seed: h3,
       });
