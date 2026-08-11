@@ -53,6 +53,10 @@ export type CaseStudy = {
     before: BrandMedia;
     after: BrandMedia;
   };
+  /** Public URL slug — set when published to cloud */
+  shareSlug?: string;
+  published?: boolean;
+  cloudSyncedAt?: number;
   updatedAt: number;
 };
 

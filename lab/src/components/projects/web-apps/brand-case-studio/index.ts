@@ -24,3 +24,8 @@ export {
   exportCasesJson,
   importCasesJson,
 } from "./storage";
+export { buildShareSlug, sharePath, shareUrl, slugifyShare } from "./share-slug";
+export { uploadMediaFile } from "./upload-media";
+export { BrandCaseConvexProvider, isConvexConfigured } from "./convex-provider";
+export { useCloudCaseSync, useCloudCaseStudiesEnabled } from "./use-cloud-cases";
+export { PublicCaseStudyPage } from "./public-case-page";

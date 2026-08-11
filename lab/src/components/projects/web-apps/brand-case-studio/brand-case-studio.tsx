@@ -7,7 +7,9 @@ import { CaseIndex } from "./components/case-index";
 import { CaseIntake } from "./components/case-intake";
 import { CasePresentation } from "./components/case-presentation";
 import { BCS_DEFAULTS } from "./constants";
+import { BrandCaseConvexProvider } from "./convex-provider";
 import { SAMPLE_CASES } from "./data";
+import { buildShareSlug, shareUrl } from "./share-slug";
 import { createEmptyCaseStudy, normalizeCaseStudy } from "./normalize";
 import {
   exportCasesJson,
@@ -15,6 +17,7 @@ import {
   loadCaseStore,
   saveCaseStore,
 } from "./storage";
+import { useCloudCaseSync, useCloudCaseStudiesEnabled } from "./use-cloud-cases";
 import type {
   AppMode,
   BrandCaseStudioAppProps,
@@ -32,13 +35,15 @@ const instrumentSerif = Instrument_Serif({
 
 type Notice = { kind: "success" | "error"; message: string };
 
-export function BrandCaseStudioApp({
+function BrandCaseStudioAppInner({
   initialCases = SAMPLE_CASES,
   forceReducedMotion = false,
   defaultMode = "index",
   className,
 }: BrandCaseStudioAppProps) {
   const importRef = useRef<HTMLInputElement>(null);
+  const cloudEnabled = useCloudCaseStudiesEnabled();
+  const { syncCase, publishCase } = useCloudCaseSync();
   const [mode, setMode] = useState<AppMode>(defaultMode);
   const [store, setStore] = useState<CaseStore>({});
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -91,11 +96,67 @@ export function BrandCaseStudioApp({
     setMode("present");
   };
 
-  const saveDraft = () => {
-    const normalized = normalizeCaseStudy({ ...draft, updatedAt: Date.now() });
+  const persistCase = (study: CaseStudy) => {
+    const normalized = normalizeCaseStudy({ ...study, updatedAt: Date.now() });
     setStore((prev) => ({ ...prev, [normalized.id]: normalized }));
     setDraft(normalized);
-    showNotice({ kind: "success", message: "Case study saved." });
+    return normalized;
+  };
+
+  const saveDraft = () => {
+    persistCase(draft);
+    showNotice({ kind: "success", message: "Case study saved locally." });
+  };
+
+  const syncDraftToCloud = async () => {
+    const normalized = persistCase(draft);
+    const slug = normalized.shareSlug ?? buildShareSlug(normalized.client, normalized.projectTitle, normalized.id);
+    try {
+      await syncCase({ ...normalized, shareSlug: slug });
+      const synced = { ...normalized, shareSlug: slug, cloudSyncedAt: Date.now() };
+      setStore((prev) => ({ ...prev, [synced.id]: synced }));
+      setDraft(synced);
+      showNotice({ kind: "success", message: "Synced to cloud." });
+    } catch {
+      showNotice({ kind: "error", message: "Cloud sync failed — is Convex running?" });
+    }
+  };
+
+  const publishActiveCase = async () => {
+    const item = activeId ? store[activeId] : null;
+    if (!item) return;
+    const slug = item.shareSlug ?? buildShareSlug(item.client, item.projectTitle, item.id);
+    try {
+      await publishCase(item, slug, true);
+      const published = {
+        ...item,
+        shareSlug: slug,
+        published: true,
+        cloudSyncedAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+      setStore((prev) => ({ ...prev, [published.id]: published }));
+      showNotice({ kind: "success", message: "Published — share link is live." });
+    } catch {
+      showNotice({ kind: "error", message: "Publish failed — sync to cloud first." });
+    }
+  };
+
+  const copyShareLink = async () => {
+    const item = activeId ? store[activeId] : null;
+    if (!item?.shareSlug) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl(item.shareSlug));
+      showNotice({ kind: "success", message: "Share link copied." });
+    } catch {
+      showNotice({ kind: "error", message: "Could not copy link." });
+    }
+  };
+
+  const exportPdf = () => {
+    document.body.classList.add("bcs-printing");
+    window.print();
+    window.setTimeout(() => document.body.classList.remove("bcs-printing"), 500);
   };
 
   const handleImportFile = async (file: File) => {
@@ -132,6 +193,8 @@ export function BrandCaseStudioApp({
 
   const activeCase = activeId ? store[activeId] : null;
   const normalizedActive = activeCase ? normalizeCaseStudy(activeCase) : null;
+  const activeShareUrl =
+    activeCase?.shareSlug && activeCase.published ? shareUrl(activeCase.shareSlug) : null;
 
   if (!hydrated) {
     return (
@@ -162,10 +225,22 @@ export function BrandCaseStudioApp({
         }}
       />
 
+      {notice && mode !== "intake" ? (
+        <p
+          className={`bcs-no-print fixed bottom-4 left-1/2 z-50 -translate-x-1/2 bcs-notice shadow-lg ${
+            notice.kind === "success" ? "bcs-notice--success" : "bcs-notice--error"
+          }`}
+          role="status"
+        >
+          {notice.message}
+        </p>
+      ) : null}
+
       {mode === "index" ? (
         <>
           <CaseIndex
             cases={cases}
+            cloudEnabled={cloudEnabled}
             onCreate={openCreate}
             onEdit={openEdit}
             onPresent={openPresent}
@@ -186,9 +261,10 @@ export function BrandCaseStudioApp({
           draft={draft}
           onChange={setDraft}
           onSave={saveDraft}
+          onSyncCloud={cloudEnabled ? syncDraftToCloud : undefined}
           onCancel={() => setMode("index")}
           onPreview={() => {
-            saveDraft();
+            persistCase(draft);
             setActiveId(draft.id);
             setMode("present");
           }}
@@ -201,9 +277,21 @@ export function BrandCaseStudioApp({
           study={normalizedActive}
           onBack={() => setMode("index")}
           onEdit={() => openEdit(normalizedActive.id)}
+          shareUrl={activeShareUrl}
+          onPublish={cloudEnabled ? publishActiveCase : undefined}
+          onCopyShareLink={activeShareUrl ? copyShareLink : undefined}
+          onExportPdf={exportPdf}
           reducedMotion={forceReducedMotion}
         />
       ) : null}
     </div>
+  );
+}
+
+export function BrandCaseStudioApp(props: BrandCaseStudioAppProps) {
+  return (
+    <BrandCaseConvexProvider>
+      <BrandCaseStudioAppInner {...props} />
+    </BrandCaseConvexProvider>
   );
 }

@@ -4,14 +4,20 @@ import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { AssetGrid } from "./asset-grid";
+import { BeforeAfterSlider } from "./before-after-slider";
 import { PaletteStrip } from "./palette-strip";
 import { TypeSpecimens } from "./type-specimens";
 import type { NormalizedCaseStudy } from "../types";
 
 type CasePresentationProps = {
   study: NormalizedCaseStudy;
-  onBack: () => void;
-  onEdit: () => void;
+  variant?: "studio" | "public";
+  onBack?: () => void;
+  onEdit?: () => void;
+  shareUrl?: string | null;
+  onPublish?: () => void;
+  onCopyShareLink?: () => void;
+  onExportPdf?: () => void;
   reducedMotion?: boolean;
 };
 
@@ -22,33 +28,63 @@ const reveal = {
 
 export function CasePresentation({
   study,
+  variant = "studio",
   onBack,
   onEdit,
+  shareUrl,
+  onPublish,
+  onCopyShareLink,
+  onExportPdf,
   reducedMotion = false,
 }: CasePresentationProps) {
   const prefersReduced = useReducedMotion();
   const reduce = reducedMotion || !!prefersReduced;
   const duration = reduce ? 0 : 0.45;
+  const isPublic = variant === "public";
 
   return (
     <article
-      className="min-h-screen"
+      className="bcs-presentation min-h-screen"
       style={{ "--bcs-accent": study.accentColor } as CSSProperties}
       aria-label={`${study.client} case study presentation`}
     >
-      <header className="sticky top-0 z-20 border-b border-[var(--bcs-border)] bg-[var(--bcs-bg)]/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-[var(--bcs-pad)] py-3">
-          <button type="button" className="bcs-btn bcs-btn--ghost" onClick={onBack}>
-            ← All cases
-          </button>
-          <p className="hidden truncate text-sm text-[var(--bcs-fg-muted)] sm:block">
-            {study.client} · {study.projectTitle}
-          </p>
-          <button type="button" className="bcs-btn" onClick={onEdit}>
-            Edit intake
-          </button>
-        </div>
-      </header>
+      {!isPublic ? (
+        <header className="bcs-no-print sticky top-0 z-20 border-b border-[var(--bcs-border)] bg-[var(--bcs-bg)]/90 backdrop-blur-md">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-[var(--bcs-pad)] py-3">
+            <button type="button" className="bcs-btn bcs-btn--ghost" onClick={onBack}>
+              ← All cases
+            </button>
+            <p className="hidden truncate text-sm text-[var(--bcs-fg-muted)] sm:block">
+              {study.client} · {study.projectTitle}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {onExportPdf ? (
+                <button type="button" className="bcs-btn" onClick={onExportPdf}>
+                  Export PDF
+                </button>
+              ) : null}
+              {onCopyShareLink && shareUrl ? (
+                <button type="button" className="bcs-btn" onClick={onCopyShareLink}>
+                  Copy share link
+                </button>
+              ) : null}
+              {onPublish ? (
+                <button type="button" className="bcs-btn bcs-btn--primary" onClick={onPublish}>
+                  {study.published ? "Update publish" : "Publish"}
+                </button>
+              ) : null}
+              <button type="button" className="bcs-btn" onClick={onEdit}>
+                Edit intake
+              </button>
+            </div>
+          </div>
+          {shareUrl && study.published ? (
+            <p className="bcs-no-print mx-auto max-w-6xl px-[var(--bcs-pad)] pb-3 font-mono text-xs text-[var(--bcs-success)]">
+              Live at {shareUrl}
+            </p>
+          ) : null}
+        </header>
+      ) : null}
 
       <section className="relative min-h-[70vh] overflow-hidden bg-[var(--bcs-fg)] text-white">
         {study.hero.src ? (
@@ -128,7 +164,7 @@ export function CasePresentation({
           >
             <div className="mx-auto grid max-w-6xl gap-8 px-[var(--bcs-pad)] py-[calc(3rem*var(--bcs-space-scale))] md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
               <h2 className="bcs-display text-3xl sm:text-4xl">{section.title}</h2>
-              <p className="text-lg leading-relaxed text-[var(--bcs-fg-muted)] whitespace-pre-wrap">
+              <p className="whitespace-pre-wrap text-lg leading-relaxed text-[var(--bcs-fg-muted)]">
                 {section.body}
               </p>
             </div>
@@ -140,27 +176,11 @@ export function CasePresentation({
         <section className="border-t border-[var(--bcs-border)] bg-[var(--bcs-bg-elevated)]">
           <div className="mx-auto max-w-6xl px-[var(--bcs-pad)] py-[calc(3rem*var(--bcs-space-scale))]">
             <p className="bcs-kicker mb-6">Before & after</p>
-            <div className="grid gap-4 md:grid-cols-2">
-              {(["before", "after"] as const).map((key) => {
-                const media = study.comparison![key];
-                return (
-                  <figure key={key} className="bcs-card overflow-hidden">
-                    <div className="relative aspect-[4/3] bg-[var(--bcs-border)]">
-                      <Image
-                        src={media.src}
-                        alt={media.alt}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                    </div>
-                    <figcaption className="border-t border-[var(--bcs-border)] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[var(--bcs-fg-soft)]">
-                      {key === "before" ? "Before" : "After"}
-                    </figcaption>
-                  </figure>
-                );
-              })}
-            </div>
+            <BeforeAfterSlider
+              before={study.comparison.before}
+              after={study.comparison.after}
+              reducedMotion={reduce}
+            />
           </div>
         </section>
       ) : null}

@@ -35,12 +35,7 @@ function dedupePalette(palette: string[]): string[] {
 }
 
 function featuredAssets(assets: BrandAsset[]): BrandAsset[] {
-  const priority: BrandAsset["kind"][] = ["logo", "photo", "guideline", "typography", "color", "video"];
-  return [...assets].sort((a, b) => {
-    const ai = priority.indexOf(a.kind);
-    const bi = priority.indexOf(b.kind);
-    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-  });
+  return assets.filter((a) => a.title.trim() || a.src);
 }
 
 /** Validates and optimizes raw intake data for the presentation layer. */

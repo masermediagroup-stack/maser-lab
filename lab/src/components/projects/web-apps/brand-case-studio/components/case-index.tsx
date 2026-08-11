@@ -5,6 +5,7 @@ import type { CaseStudy } from "../types";
 
 type CaseIndexProps = {
   cases: CaseStudy[];
+  cloudEnabled?: boolean;
   onCreate: () => void;
   onEdit: (id: string) => void;
   onPresent: (id: string) => void;
@@ -21,6 +22,7 @@ function formatDate(ts: number): string {
 
 export function CaseIndex({
   cases,
+  cloudEnabled = false,
   onCreate,
   onEdit,
   onPresent,
@@ -36,6 +38,7 @@ export function CaseIndex({
           <h1 className="bcs-display mt-2 text-4xl sm:text-5xl">Client case studies</h1>
           <p className="mt-3 max-w-xl text-[var(--bcs-fg-muted)]">
             Upload brand assets and narrative once — present a polished case study to clients.
+            {cloudEnabled ? " Cloud sync and share links are enabled." : ""}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -90,6 +93,11 @@ export function CaseIndex({
                     </h2>
                     {item.tagline ? (
                       <p className="mt-1 text-sm text-[var(--bcs-fg-muted)]">{item.tagline}</p>
+                    ) : null}
+                    {item.published ? (
+                      <span className="inline-flex items-center rounded-full bg-[rgba(45,106,79,0.12)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--bcs-success)]">
+                        Published
+                      </span>
                     ) : null}
                   </div>
                   <div className="mt-auto flex flex-wrap gap-2 pt-2">

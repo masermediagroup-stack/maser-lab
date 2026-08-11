@@ -191,3 +191,27 @@
 .brand-case-studio[data-reduced-motion="true"] .bcs-card--interactive:hover {
   transform: none;
 }
+
+.bcs-ba-handle:focus-visible {
+  outline: 2px solid var(--bcs-accent);
+  outline-offset: 4px;
+}
+
+@media print {
+  .bcs-no-print {
+    display: none !important;
+  }
+
+  body.bcs-printing .brand-case-studio {
+    background: #fff;
+  }
+
+  .bcs-presentation section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .bcs-presentation footer {
+    break-before: page;
+  }
+}

@@ -2,14 +2,15 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { ASSET_KIND_LABELS } from "../constants";
-import { readFileAsDataUrl } from "../storage";
-import type { BrandAsset, BrandAssetKind, CaseStudy, CaseStudySection } from "../types";
+import { uploadMediaFile } from "../upload-media";
+import type { BrandAsset, CaseStudy, CaseStudySection } from "../types";
+import { AssetListEditor } from "./asset-list-editor";
 
 type CaseIntakeProps = {
   draft: CaseStudy;
   onChange: (next: CaseStudy) => void;
   onSave: () => void;
+  onSyncCloud?: () => void;
   onCancel: () => void;
   onPreview: () => void;
   notice?: { kind: "success" | "error"; message: string } | null;
@@ -27,6 +28,7 @@ export function CaseIntake({
   draft,
   onChange,
   onSave,
+  onSyncCloud,
   onCancel,
   onPreview,
   notice,
@@ -41,19 +43,19 @@ export function CaseIntake({
   };
 
   const uploadHero = async (file: File) => {
-    const src = await readFileAsDataUrl(file);
+    const { url } = await uploadMediaFile(file);
     patch({
-      hero: { src, alt: draft.hero.alt || `${draft.client} hero` },
+      hero: { src: url, alt: draft.hero.alt || `${draft.client} hero` },
     });
   };
 
   const addAsset = async (file: File) => {
-    const src = await readFileAsDataUrl(file);
+    const { url } = await uploadMediaFile(file);
     const asset: BrandAsset = {
       id: `asset-${crypto.randomUUID().slice(0, 8)}`,
       kind: "photo",
       title: file.name.replace(/\.[^.]+$/, ""),
-      src,
+      src: url,
       alt: file.name,
     };
     patch({ assets: [...draft.assets, asset] });
@@ -92,6 +94,11 @@ export function CaseIntake({
           <button type="button" className="bcs-btn bcs-btn--primary" onClick={onSave}>
             Save
           </button>
+          {onSyncCloud ? (
+            <button type="button" className="bcs-btn" onClick={onSyncCloud}>
+              Sync to cloud
+            </button>
+          ) : null}
         </div>
       </header>
 
@@ -338,82 +345,23 @@ export function CaseIntake({
             ))}
           </div>
 
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <h3 className="font-semibold">Deliverable assets</h3>
-            <input
-              ref={assetInputRef}
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              multiple
-              onChange={(e) => {
-                const files = Array.from(e.target.files ?? []);
-                void Promise.all(files.map(addAsset));
-                e.target.value = "";
-              }}
-            />
-            <button
-              type="button"
-              className="bcs-btn"
-              onClick={() => assetInputRef.current?.click()}
-            >
-              Upload assets
-            </button>
-          </div>
-          <ul className="flex flex-col gap-3">
-            {draft.assets.map((asset, index) => (
-              <li key={asset.id} className="bcs-card flex flex-wrap items-center gap-3 p-3">
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded bg-[var(--bcs-border)]">
-                  {asset.src ? (
-                    <Image src={asset.src} alt="" fill className="object-cover" sizes="56px" />
-                  ) : null}
-                </div>
-                <label className="bcs-field min-w-[120px] flex-1">
-                  <span className="bcs-label">Title</span>
-                  <input
-                    className="bcs-input"
-                    value={asset.title}
-                    onChange={(e) => {
-                      const next = [...draft.assets];
-                      next[index] = { ...asset, title: e.target.value };
-                      patch({ assets: next });
-                    }}
-                  />
-                </label>
-                <label className="bcs-field w-32">
-                  <span className="bcs-label">Kind</span>
-                  <select
-                    className="bcs-input"
-                    value={asset.kind}
-                    onChange={(e) => {
-                      const next = [...draft.assets];
-                      next[index] = {
-                        ...asset,
-                        kind: e.target.value as BrandAssetKind,
-                      };
-                      patch({ assets: next });
-                    }}
-                  >
-                    {Object.entries(ASSET_KIND_LABELS).map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <button
-                  type="button"
-                  className="bcs-btn bcs-btn--ghost text-[var(--bcs-error)]"
-                  aria-label={`Remove ${asset.title}`}
-                  onClick={() =>
-                    patch({ assets: draft.assets.filter((a) => a.id !== asset.id) })
-                  }
-                >
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
+          <AssetListEditor
+            assets={draft.assets}
+            onChange={(assets) => patch({ assets })}
+            onUpload={() => assetInputRef.current?.click()}
+          />
+          <input
+            ref={assetInputRef}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            multiple
+            onChange={(e) => {
+              const files = Array.from(e.target.files ?? []);
+              void Promise.all(files.map(addAsset));
+              e.target.value = "";
+            }}
+          />
         </section>
       </div>
     </div>

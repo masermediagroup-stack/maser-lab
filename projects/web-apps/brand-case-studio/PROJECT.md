@@ -62,15 +62,24 @@ User can create a case study, add assets via upload or URL, save locally, switch
 
 ## Acceptance criteria
 
-- [ ] Demo route `/demos/brand-case-studio` renders index, intake, present, and empty states
-- [ ] `npm run lint` and `npm run build` pass in `lab/`
+- [x] Demo route `/demos/brand-case-studio` renders index, intake, present, and empty states
+- [x] `npm run lint` and `npm run build` pass in `lab/` (brand-case-studio scope; repo-wide lint has pre-existing pixel-info-card findings)
 - [ ] `prefers-reduced-motion` verified in browser
-- [ ] Product exported from `index.ts`; demo is lab-only
-- [ ] localStorage persistence with JSON import/export
-- [ ] Presentation layer derives from normalized intake data (no duplicate manual layout)
+- [x] Product exported from `index.ts`; demo is lab-only
+- [x] localStorage persistence with JSON import/export
+- [x] Presentation layer derives from normalized intake data (no duplicate manual layout)
 
 ## Open decisions
 
-- Whether v2 adds server-backed storage (Convex / Vercel Blob)
-- Whether presentation gets a public share slug per case study
-- PDF / slide export format
+- Whether v2 adds team auth for intake (Convex auth)
+- PDF export via server-side render vs print stylesheet (v1 uses print)
+- Interactive before/after on public share pages for reduced-motion users
+
+## Milestone — next steps shipped (2026-08-11)
+
+- [x] Convex cloud sync for case studies (`lab/convex/`)
+- [x] Vercel Blob upload API with local data-URL fallback
+- [x] Public share route `/case/[slug]` (published cases only)
+- [x] Interactive before/after slider in presentation
+- [x] Drag-and-drop asset ordering in intake
+- [x] PDF export via print stylesheet + Export PDF control
