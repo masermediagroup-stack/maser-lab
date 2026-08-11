@@ -132,11 +132,51 @@ function squircleCellCenters(
   return cells;
 }
 
+type CardGrid = {
+  plateLeft: number;
+  plateTop: number;
+  plateW: number;
+  plateH: number;
+  step: number;
+  cols: number;
+  rows: number;
+  gridLeft: number;
+  gridTop: number;
+};
+
+/** Integer-aligned plate + pixel grid — shared by particles and canvas plate. */
+function computeCardGrid(
+  cx: number,
+  cy: number,
+  cardW: number,
+  cardH: number,
+  pixelSize: number,
+): CardGrid {
+  const { left: plateLeft, top: plateTop, width: plateW, height: plateH } =
+    cardPlateRect(cx, cy, cardW, cardH);
+  const step = Math.max(1, Math.round(pixelSize));
+  const cols = Math.max(1, Math.floor(plateW / step));
+  const rows = Math.max(1, Math.floor(plateH / step));
+  const gridW = cols * step;
+  const gridH = rows * step;
+  return {
+    plateLeft,
+    plateTop,
+    plateW,
+    plateH,
+    step,
+    cols,
+    rows,
+    gridLeft: plateLeft + Math.floor((plateW - gridW) / 2),
+    gridTop: plateTop + Math.floor((plateH - gridH) / 2),
+  };
+}
+
 /**
  * Build assemble particles for the card silhouette.
  *
  * Footprint rules:
- * - Grid stretches across the full cardW × cardH.
+ * - Grid aligns to the same integer plate rect as the canvas/DOM card.
  * - One uniform density pass — edges are not denser, snapped, or delayed
  *   differently (that reads as a fake border during assemble).
  * - Seed only reshuffles burst paths / homes / delays.
@@ -155,22 +195,23 @@ function buildParticles(
   motionSeed: number,
 ): PixelParticle[] {
   const particles: PixelParticle[] = [];
-  const cx = width / 2;
-  const cy = height / 2;
+  const cx = Math.floor(width / 2);
+  const cy = Math.floor(height / 2);
   const ox = Number.isFinite(originX) && originX > 0 ? originX : cx;
   const oy = Number.isFinite(originY) && originY > 0 ? originY : cy;
-  const left = cx - cardW / 2;
-  const top = cy - cardH / 2;
-  const step = Math.max(3, Math.round(pixelSize));
   const seed = motionSeed || 1;
 
-  // Integer grid — each cell is exactly `step` px, edge-to-edge (no overlap).
-  const cols = Math.max(1, Math.floor(cardW / step));
-  const rows = Math.max(1, Math.floor(cardH / step));
-  const gridW = cols * step;
-  const gridH = rows * step;
-  const gridLeft = left + (cardW - gridW) / 2;
-  const gridTop = top + (cardH - gridH) / 2;
+  const {
+    plateLeft,
+    plateTop,
+    plateW,
+    plateH,
+    step,
+    cols,
+    rows,
+    gridLeft,
+    gridTop,
+  } = computeCardGrid(cx, cy, cardW, cardH, pixelSize);
 
   const squircleCells = squircleCellCenters(
     ox,
@@ -201,10 +242,10 @@ function buildParticles(
     for (let col = 0; col < cols; col++) {
       const tx = gridLeft + col * step;
       const ty = gridTop + row * step;
-      const lx = tx - left + step / 2;
-      const ly = ty - top + step / 2;
+      const lx = tx - plateLeft + step / 2;
+      const ly = ty - plateTop + step / 2;
 
-      if (!pointInRoundedRect(lx, ly, cardW, cardH, cardRadius)) continue;
+      if (!pointInRoundedRect(lx, ly, plateW, plateH, cardRadius)) continue;
 
       const h = hashSeeded(col + 1, row + 3, seed);
       const h2 = hashSeeded(row + 7, col + 11, seed);
@@ -232,19 +273,19 @@ function buildParticles(
     ]!;
 
     const burstAngle = c.h2 * Math.PI * 2;
-    const cellCx = c.tx + step / 2;
-    const cellCy = c.ty + step / 2;
-    const maxBurst = Math.min(cardW, cardH) * 0.16;
+    const maxBurst = Math.min(plateW, plateH) * 0.12;
     const diskR = maxBurst * Math.sqrt(c.h3);
     const drawSize = step;
+    const burstDx = Math.round(Math.cos(burstAngle) * diskR);
+    const burstDy = Math.round(Math.sin(burstAngle) * diskR);
 
     particles.push({
       tx: c.tx,
       ty: c.ty,
       sx: home.x,
       sy: home.y,
-      mx: cellCx + Math.cos(burstAngle) * diskR - drawSize / 2,
-      my: cellCy + Math.sin(burstAngle) * diskR - drawSize / 2,
+      mx: c.tx + burstDx,
+      my: c.ty + burstDy,
       drawSize,
       opacity: 0.45 + c.h * 0.55,
       delay: computeAssembleDelay(c.h),
@@ -270,12 +311,13 @@ function sampleAssemblePath(
     };
   }
   const t = easeInOutCubic((local - 0.38) / 0.62);
-  // Jitter only while in transit — snap to grid targets so neighbors touch, not stack
-  const jitterScale = t < 0.82 ? 1 - t / 0.82 : 0;
-  const jitter = jitterScale * (p.seed - 0.5) * 2;
+  // Integer grid targets only — no jitter (breaks edge-to-edge alignment at larger steps).
+  if (t >= 1) {
+    return { x: p.tx, y: p.ty };
+  }
   return {
-    x: p.mx + (p.tx - p.mx) * t + jitter,
-    y: p.my + (p.ty - p.my) * t + jitter * 0.55,
+    x: Math.round(p.mx + (p.tx - p.mx) * t),
+    y: Math.round(p.my + (p.ty - p.my) * t),
   };
 }
 
@@ -365,7 +407,10 @@ export function PixelAssembleCanvas({
       canvas.style.width = `${stageW}px`;
       canvas.style.height = `${stageH}px`;
       const ctx = canvas.getContext("2d");
-      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (ctx) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+      }
 
       const ox = originX > 0 ? originX : stageW / 2;
       const oy = originY > 0 ? originY : stageH / 2;
@@ -406,6 +451,7 @@ export function PixelAssembleCanvas({
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    ctx.imageSmoothingEnabled = false;
 
     const { w, h, cardW, cardH } = sizeRef.current;
     ctx.clearRect(0, 0, w || canvas.width, h || canvas.height);
@@ -417,8 +463,8 @@ export function PixelAssembleCanvas({
     const rgb = isDark ? "255,255,255" : "0,0,0";
     const fill = isDark ? "#ffffff" : "#000000";
     const particles = particlesRef.current;
-    const cx = w / 2;
-    const cy = h / 2;
+    const cx = Math.floor(w / 2);
+    const cy = Math.floor(h / 2);
     const ox = originX > 0 ? originX : w / 2;
     const oy = originY > 0 ? originY : h / 2;
     const side = triggerSize || TRIGGER_SIZE;
@@ -493,7 +539,7 @@ export function PixelAssembleCanvas({
             const { x, y } = sampleCollapsePath(p, collapseT, ox, oy);
             const ds = p.drawSize;
             ctx.fillStyle = `rgba(${rgb},${(p.opacity * swarmFade * canvasAlpha).toFixed(3)})`;
-            ctx.fillRect(Math.round(x), Math.round(y), ds, ds);
+            ctx.fillRect(x, y, ds, ds);
           }
         }
         return;
@@ -542,7 +588,7 @@ export function PixelAssembleCanvas({
       const ds = p.drawSize;
       const alpha = p.opacity * Math.min(1, local * 2.4) * pixelFade;
       ctx.fillStyle = `rgba(${rgb},${alpha.toFixed(3)})`;
-      ctx.fillRect(Math.round(x), Math.round(y), ds, ds);
+      ctx.fillRect(x, y, ds, ds);
     }
   }, [
     active,

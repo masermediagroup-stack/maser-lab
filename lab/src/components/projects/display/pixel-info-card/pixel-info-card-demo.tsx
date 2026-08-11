@@ -15,6 +15,20 @@ import {
 import type { PixelInfoTheme, PixelInfoTuning } from "./types";
 import "./tokens.css";
 
+function useNarrowViewport(): boolean {
+  const [narrow, setNarrow] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const sync = () => setNarrow(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return narrow;
+}
+
 export function PixelInfoCardDemo() {
   const [theme, setTheme] = useState<PixelInfoTheme>("dark");
   const [tuning, setTuning] = useState<PixelInfoTuning>({ ...PIC_DEFAULTS });
@@ -22,6 +36,8 @@ export function PixelInfoCardDemo() {
   const [fullscreen, setFullscreen] = useState(false);
   const [resetKey, setResetKey] = useState(0);
   const cardKeyRef = useRef(0);
+  const isNarrow = useNarrowViewport();
+  const previewScale = fullscreen && !isNarrow ? 2 : 1;
 
   const update = useCallback(
     <K extends keyof PixelInfoTuning>(key: K, value: PixelInfoTuning[K]) => {
@@ -132,7 +148,7 @@ export function PixelInfoCardDemo() {
           title={DEFAULT_TITLE}
           body={DEMO_BODY}
           tuning={tuning}
-          scale={fullscreen ? 2 : 1}
+          scale={previewScale}
         />
       </div>
 

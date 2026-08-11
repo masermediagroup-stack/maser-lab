@@ -234,7 +234,10 @@ export function PixelInfoCard({
     if (!el) return;
     const rect = el.getBoundingClientRect();
     if (rect.width > 0 && rect.height > 0) {
-      setCardSize({ w: rect.width, h: rect.height });
+      setCardSize({
+        w: Math.round(rect.width),
+        h: Math.round(rect.height),
+      });
     }
   }, []);
 
