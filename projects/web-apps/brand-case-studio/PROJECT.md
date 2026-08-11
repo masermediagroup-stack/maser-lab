@@ -1,0 +1,76 @@
+# Project: Brand Case Studio
+
+**Slug:** `brand-case-studio`  
+**Category:** web-apps  
+**Status:** building  
+**Created:** 2026-08-11
+
+## Design reference
+
+- Figma: none
+- Other: greenfield — in-house client brand asset presentation tool
+- Design spec: `FIGMA.md` in this folder
+
+## Brief
+
+### User / trigger
+Maser Media team preparing brand deliverables for a client review. Intake happens once per project; presentation is revisited many times during the engagement.
+
+### Job
+Collect brand assets and project narrative in one place, then auto-compose a polished case-study presentation clients can browse without seeing raw files or folder structure.
+
+### Current behavior
+Greenfield. No existing intake or presentation surface in the lab.
+
+### Desired outcome
+Two clear layers: an **intake studio** for uploading copy, images, colors, and typography; and a **presentation layer** that normalizes that data into a scrollable, editorial case study with hero, narrative sections, asset grid, palette, and type specimens.
+
+### Success signal
+User can create a case study, add assets via upload or URL, save locally, switch to presentation mode, and see a client-ready layout without manual layout work.
+
+### Non-goals
+- Backend sync, multi-user auth, or client-facing share URLs (v1)
+- Full CMS or block editor
+- PDF export (future)
+- Replacing Figma or DAM systems
+
+## Kind
+
+**app** — full interactive studio + presentation surface. Transfer via `TRANSFER.md`.
+
+## States
+
+- [x] default (case index)
+- [x] intake (create / edit case study)
+- [x] present (client-facing case study view)
+- [x] empty (no saved cases)
+- [x] hover (pointer fine only)
+- [x] focus
+- [x] active / pressed
+- [ ] loading — N/A until async upload/backend
+- [x] success (save confirmation)
+- [x] error (storage / import failure)
+- [x] prefers-reduced-motion
+
+## Motion decisions
+
+| Decision | Choice | Rationale |
+| --- | --- | --- |
+| Library | CSS + Framer Motion | Editorial reveals on presentation scroll; intake stays fast |
+| Duration | 200–400ms presentation reveals | Case studies feel considered, not flashy |
+| Easing | ease-out / custom deceleration | Content arrives and settles |
+
+## Acceptance criteria
+
+- [ ] Demo route `/demos/brand-case-studio` renders index, intake, present, and empty states
+- [ ] `npm run lint` and `npm run build` pass in `lab/`
+- [ ] `prefers-reduced-motion` verified in browser
+- [ ] Product exported from `index.ts`; demo is lab-only
+- [ ] localStorage persistence with JSON import/export
+- [ ] Presentation layer derives from normalized intake data (no duplicate manual layout)
+
+## Open decisions
+
+- Whether v2 adds server-backed storage (Convex / Vercel Blob)
+- Whether presentation gets a public share slug per case study
+- PDF / slide export format

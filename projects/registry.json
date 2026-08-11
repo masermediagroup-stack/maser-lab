@@ -84,6 +84,13 @@
       "status": "building",
       "category": "display",
       "description": "White squircle info trigger that pixel-snake assembles into a reversible info card — Blobby chrome with blue controls"
+    },
+    {
+      "slug": "brand-case-studio",
+      "title": "Brand Case Studio",
+      "status": "building",
+      "category": "web-apps",
+      "description": "In-house brand asset intake and client case-study presentation — upload narrative, logos, palette, and type; auto-compose editorial deliverable view"
     }
   ]
 }
