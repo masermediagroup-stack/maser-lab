@@ -187,7 +187,7 @@ Mid-flight click **retargets** toward opposite resting state from current progre
 | Control | Maps to |
 | --- | --- |
 | Pixel size | Cell size (px) |
-| Snake density | Particle count / fill |
+| Pixel density | Particle count / fill |
 | Assemble speed | Open duration |
 | Dissipate speed | Trigger blur-out |
 | Card radius | Corner radius |

@@ -183,28 +183,21 @@ function buildParticles(
     squircleCells.push({ x: ox - step / 2, y: oy - step / 2 });
   }
 
-  // Rounded rects have more valid cells in the middle rows — normalize per row
-  // so particle count is even top-to-bottom (not a dense horizontal band).
-  const validPerRow = new Array<number>(rows).fill(0);
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      const tx = gridLeft + col * step;
-      const ty = gridTop + row * step;
-      const lx = tx - left + step / 2;
-      const ly = ty - top + step / 2;
-      if (pointInRoundedRect(lx, ly, cardW, cardH, cardRadius)) {
-        validPerRow[row]!++;
-      }
-    }
-  }
-  const maxValidInRow = Math.max(1, ...validPerRow);
-  const targetPerRow = density * maxValidInRow;
+  // Collect every valid cell, then keep a stratified subset so fill is uniform
+  // across the whole silhouette (per-row caps left a dense horizontal band).
+  type CellCandidate = {
+    row: number;
+    col: number;
+    tx: number;
+    ty: number;
+    rank: number;
+    h: number;
+    h2: number;
+    h3: number;
+  };
 
+  const candidates: CellCandidate[] = [];
   for (let row = 0; row < rows; row++) {
-    const rowValid = validPerRow[row]!;
-    if (rowValid === 0) continue;
-    const keepProb = Math.min(1, targetPerRow / rowValid);
-
     for (let col = 0; col < cols; col++) {
       const tx = gridLeft + col * step;
       const ty = gridTop + row * step;
@@ -216,34 +209,47 @@ function buildParticles(
       const h = hashSeeded(col + 1, row + 3, seed);
       const h2 = hashSeeded(row + 7, col + 11, seed);
       const h3 = hashSeeded(col * 13 + 2, row * 17 + 5, seed);
+      const rank = hashSeeded(col * 31 + 7, row * 37 + 11, seed);
 
-      if (h > keepProb) continue;
-
-      // Map each card cell to a filled squircle cell (solid plate, no ring hole)
-      const home = squircleCells[
-        Math.floor(h * squircleCells.length) % squircleCells.length
-      ]!;
-
-      const burstAngle = h2 * Math.PI * 2;
-      const cellCx = tx + step / 2;
-      const cellCy = ty + step / 2;
-      const maxBurst = Math.min(cardW, cardH) * 0.16;
-      const diskR = maxBurst * Math.sqrt(h3);
-      const drawSize = step;
-
-      particles.push({
-        tx,
-        ty,
-        sx: home.x,
-        sy: home.y,
-        mx: cellCx + Math.cos(burstAngle) * diskR - drawSize / 2,
-        my: cellCy + Math.sin(burstAngle) * diskR - drawSize / 2,
-        drawSize,
-        opacity: 0.45 + h * 0.55,
-        delay: computeAssembleDelay(h),
-        seed: h3,
-      });
+      candidates.push({ row, col, tx, ty, rank, h, h2, h3 });
     }
+  }
+
+  if (candidates.length === 0) return particles;
+
+  candidates.sort((a, b) => a.rank - b.rank);
+  const targetCount = Math.max(
+    1,
+    Math.round(clamp01(density) * candidates.length),
+  );
+
+  for (let i = 0; i < targetCount; i++) {
+    const c = candidates[i]!;
+
+    // Map each card cell to a filled squircle cell (solid plate, no ring hole)
+    const home = squircleCells[
+      Math.floor(c.h * squircleCells.length) % squircleCells.length
+    ]!;
+
+    const burstAngle = c.h2 * Math.PI * 2;
+    const cellCx = c.tx + step / 2;
+    const cellCy = c.ty + step / 2;
+    const maxBurst = Math.min(cardW, cardH) * 0.16;
+    const diskR = maxBurst * Math.sqrt(c.h3);
+    const drawSize = step;
+
+    particles.push({
+      tx: c.tx,
+      ty: c.ty,
+      sx: home.x,
+      sy: home.y,
+      mx: cellCx + Math.cos(burstAngle) * diskR - drawSize / 2,
+      my: cellCy + Math.sin(burstAngle) * diskR - drawSize / 2,
+      drawSize,
+      opacity: 0.45 + c.h * 0.55,
+      delay: computeAssembleDelay(c.h),
+      seed: c.h3,
+    });
   }
 
   return particles;
