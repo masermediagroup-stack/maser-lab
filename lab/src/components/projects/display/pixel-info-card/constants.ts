@@ -72,15 +72,3 @@ export const GLIDE_BLUR_PX = 2;
 
 /** Max CSS blur (px) on trigger dissipate — keep subtle. */
 export const TRIGGER_BLUR_MAX = 4;
-
-/**
- * Assemble footprint rules (seed may reshuffle paths, never the card silhouette):
- * 1. Target grid spans the full card width × height (no undersized floor grid).
- * 2. Perimeter / edge ring cells are always kept — density only thins the interior.
- * 3. Random seed affects burst midpoints, home mapping, and delays — not whether
- *    the settled outline reaches the card bounds.
- */
-export const ASSEMBLE_FOOTPRINT_RULES = {
-  /** Edge ring depth in cells that density may not skip. */
-  perimeterCells: 1,
-} as const;
