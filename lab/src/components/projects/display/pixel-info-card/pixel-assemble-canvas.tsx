@@ -175,11 +175,13 @@ function buildParticles(
   const step = Math.max(3, Math.round(pixelSize));
   const seed = motionSeed || 1;
 
-  // Span the full card — ceil so the grid never undershoots height/width
-  const cols = Math.max(1, Math.ceil(cardW / step));
-  const rows = Math.max(1, Math.ceil(cardH / step));
-  const cellW = cardW / cols;
-  const cellH = cardH / rows;
+  // Integer grid — each cell is exactly `step` px, edge-to-edge (no overlap).
+  const cols = Math.max(1, Math.floor(cardW / step));
+  const rows = Math.max(1, Math.floor(cardH / step));
+  const gridW = cols * step;
+  const gridH = rows * step;
+  const gridLeft = left + (cardW - gridW) / 2;
+  const gridTop = top + (cardH - gridH) / 2;
 
   const squircleCells = squircleCellCenters(
     ox,
@@ -194,10 +196,10 @@ function buildParticles(
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const cellX = left + col * cellW + cellW / 2;
-      const cellY = top + row * cellH + cellH / 2;
-      const lx = cellX - left;
-      const ly = cellY - top;
+      const tx = gridLeft + col * step;
+      const ty = gridTop + row * step;
+      const lx = tx - left + step / 2;
+      const ly = ty - top + step / 2;
 
       // Center-in-shape so edge cells still land on the card silhouette
       if (!pointInRoundedRect(lx, ly, cardW, cardH, cardRadius)) continue;
@@ -232,11 +234,11 @@ function buildParticles(
         diskR = maxBurst * Math.sqrt(u);
       }
 
-      const drawSize = Math.min(cellW, cellH);
+      const drawSize = step;
 
       particles.push({
-        tx: cellX - drawSize / 2,
-        ty: cellY - drawSize / 2,
+        tx,
+        ty,
         sx: home.x,
         sy: home.y,
         mx: ox + Math.cos(burstAngle) * diskR - drawSize / 2,
@@ -249,23 +251,23 @@ function buildParticles(
     }
   }
 
-  const half = Math.max(3, Math.round(pixelSize)) / 2;
-  const maxBurst = Math.min(width, height) * STAGE_BURST_INSET;
-  // Dense core cluster (~22%) so mid-flight never shows a center hole
+  // Spread mid-flight cluster on the same step grid (no stacked overlaps at origin)
   const centerFill = Math.min(48, Math.floor(particles.length * 0.22));
+  const spreadCols = 7;
   for (let i = 0; i < centerFill; i++) {
     const p = particles[i]!;
-    const a = hashSeeded(i + 3, i + 9, seed) * Math.PI * 2;
-    const r = maxBurst * Math.sqrt(hashSeeded(i + 1, 5, seed) * 0.14);
-    p.mx = ox + Math.cos(a) * r - half;
-    p.my = oy + Math.sin(a) * r - half;
+    const spreadCol = (i % spreadCols) - Math.floor(spreadCols / 2);
+    const spreadRow = Math.floor(i / spreadCols) - 2;
+    p.mx = ox + spreadCol * step - step / 2;
+    p.my = oy + spreadRow * step - step / 2;
   }
-  // Pin a few midpoints exactly on the origin
   const pinCount = Math.min(8, particles.length);
   for (let i = 0; i < pinCount; i++) {
     const p = particles[particles.length - 1 - i]!;
-    p.mx = ox - half;
-    p.my = oy - half;
+    const spreadCol = (i % 3) - 1;
+    const spreadRow = Math.floor(i / 3) - 1;
+    p.mx = ox + spreadCol * step - step / 2;
+    p.my = oy + spreadRow * step - step / 2;
   }
 
   return particles;
@@ -275,6 +277,9 @@ function sampleAssemblePath(
   p: PixelParticle,
   local: number,
 ): { x: number; y: number } {
+  if (local >= 1) {
+    return { x: p.tx, y: p.ty };
+  }
   if (local < 0.38) {
     const t = easeOutCubic(local / 0.38);
     return {
@@ -283,7 +288,9 @@ function sampleAssemblePath(
     };
   }
   const t = easeInOutCubic((local - 0.38) / 0.62);
-  const jitter = (1 - t) * (p.seed - 0.5) * 5;
+  // Jitter only while in transit — snap to grid targets so neighbors touch, not stack
+  const jitterScale = t < 0.82 ? 1 - t / 0.82 : 0;
+  const jitter = jitterScale * (p.seed - 0.5) * 2;
   return {
     x: p.mx + (p.tx - p.mx) * t + jitter,
     y: p.my + (p.ty - p.my) * t + jitter * 0.55,
@@ -502,7 +509,7 @@ export function PixelAssembleCanvas({
           for (let i = 0; i < particles.length; i++) {
             const p = particles[i]!;
             const { x, y } = sampleCollapsePath(p, collapseT, ox, oy);
-            const ds = Math.max(2, Math.round(p.drawSize));
+            const ds = p.drawSize;
             ctx.fillStyle = `rgba(${rgb},${(p.opacity * swarmFade * canvasAlpha).toFixed(3)})`;
             ctx.fillRect(Math.round(x), Math.round(y), ds, ds);
           }
@@ -516,7 +523,7 @@ export function PixelAssembleCanvas({
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i]!;
           const { x, y } = sampleCollapsePath(p, collapseT, ox, oy);
-          const ds = Math.max(2, Math.round(p.drawSize));
+          const ds = p.drawSize;
           ctx.fillStyle = `rgba(${rgb},${(p.opacity * explodeAlpha).toFixed(3)})`;
           ctx.fillRect(Math.round(x), Math.round(y), ds, ds);
         }
@@ -550,7 +557,7 @@ export function PixelAssembleCanvas({
       if (local <= 0) continue;
 
       const { x, y } = sampleAssemblePath(p, local);
-      const ds = Math.max(2, Math.round(p.drawSize));
+      const ds = p.drawSize;
       const alpha = p.opacity * Math.min(1, local * 2.4) * pixelFade;
       ctx.fillStyle = `rgba(${rgb},${alpha.toFixed(3)})`;
       ctx.fillRect(Math.round(x), Math.round(y), ds, ds);
