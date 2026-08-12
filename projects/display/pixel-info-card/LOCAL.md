@@ -6,13 +6,13 @@
 
 ## Motion polish — collapse reassemble (2026-08-12)
 
-Ending felt jerky when pixels reformed the squircle. Fixes:
+Pixels vanish into the origin (no intermediate blob). Then the DOM squircle
+eases in from that same point (`scale` 0.22→1) as if coming into the page.
 
-- Piecewise collapse timeline: 50% of wall-clock reserved for squircle grow + DOM handoff
-- Grow is linear in collapseT (segment already ease-outs) — no compounded ease-out snap
-- Soft plate intro + longer swarm fade so pixels melt into the plate
-- Continuous particle positions; footprints swell while densifying
-- DOM chrome reveals later (`SQUIRCLE_DOM_REVEAL_GROW` 0.72)
+- Piecewise timeline: vanish completes at `collapseT` 0.7; last 42% wall-clock is squircle enter
+- Canvas does not draw a solid plate on close
+- Particle footprints shrink toward a vanishing point, then fade
+- Icon/label lag the plate slightly (`SQUIRCLE_CHROME_REVEAL_AT`)
 
 ## Grilling summary
 

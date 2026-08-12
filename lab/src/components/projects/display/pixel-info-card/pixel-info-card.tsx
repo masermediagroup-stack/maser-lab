@@ -28,7 +28,8 @@ import {
   GLIDE_DISTANCE_PX,
   GLIDE_TEXT_MS,
   PIC_DEFAULTS,
-  SQUIRCLE_DOM_REVEAL_GROW,
+  SQUIRCLE_CHROME_REVEAL_AT,
+  SQUIRCLE_ENTER_MIN_SCALE,
   TRIGGER_BLUR_MAX,
   TRIGGER_SIZE,
 } from "./constants";
@@ -327,31 +328,46 @@ export function PixelInfoCard({
   }, [phase, holdingForTextOut, contentReveal, requestClose]);
 
   /**
-   * Squircle surface + chrome crossfade with the canvas grow — same curve for
-   * plate, icon, and label so nothing pauses then pops.
+   * After pixels vanish into the origin, the squircle comes toward the viewer
+   * from that same point (scale + opacity). Chrome lags the plate slightly.
    */
+  const collapseEnter = (() => {
+    if (phase !== "collapsing") return 0;
+    const collapseT = 1 - progress;
+    if (collapseT < COLLAPSE_EXPAND_START) return 0;
+    const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
+    return easeOutCubic(
+      clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan),
+    );
+  })();
+
   const triggerSurfaceOpacity = (() => {
     if (reducedMotion) return phase === "idle" ? 1 : 0;
     if (phase === "idle") return 1;
     if (phase === "expanding" || phase === "expanded") {
-      // Progress-driven fade (no CSS transition) — stays in sync with the burst
       return Math.max(0, 1 - progress / 0.1);
     }
-    if (phase === "collapsing") {
-      const collapseT = 1 - progress;
-      if (collapseT < COLLAPSE_EXPAND_START) return 0;
-      const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
-      // Linear in collapseT — machine ease-outs the expand wall-clock segment
-      const grow = clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan);
-      if (grow < SQUIRCLE_DOM_REVEAL_GROW) return 0;
-      return easeOutCubic(
-        (grow - SQUIRCLE_DOM_REVEAL_GROW) / (1 - SQUIRCLE_DOM_REVEAL_GROW),
-      );
-    }
+    if (phase === "collapsing") return collapseEnter;
     return 0;
   })();
 
-  const triggerChromeOpacity = triggerSurfaceOpacity;
+  const triggerChromeOpacity = (() => {
+    if (phase !== "collapsing") return triggerSurfaceOpacity;
+    if (collapseEnter < SQUIRCLE_CHROME_REVEAL_AT) return 0;
+    return easeOutCubic(
+      (collapseEnter - SQUIRCLE_CHROME_REVEAL_AT) /
+        (1 - SQUIRCLE_CHROME_REVEAL_AT),
+    );
+  })();
+
+  const triggerScale = (() => {
+    if (reducedMotion || phase !== "collapsing") return 1;
+    if (collapseEnter <= 0) return SQUIRCLE_ENTER_MIN_SCALE;
+    return (
+      SQUIRCLE_ENTER_MIN_SCALE +
+      (1 - SQUIRCLE_ENTER_MIN_SCALE) * collapseEnter
+    );
+  })();
 
   const triggerBlur = (() => {
     if (reducedMotion || phase === "idle" || phase === "collapsing") return 0;
@@ -441,7 +457,15 @@ export function PixelInfoCard({
             <span
               ref={squircleRef}
               className="pic-squircle"
-              style={{ opacity: triggerSurfaceOpacity }}
+              style={{
+                opacity: triggerSurfaceOpacity,
+                transform:
+                  phase === "collapsing"
+                    ? `scale(${triggerScale})`
+                    : undefined,
+                transformOrigin: "center center",
+                transition: phase === "collapsing" ? "none" : undefined,
+              }}
             >
               <Info
                 className="pic-icon"

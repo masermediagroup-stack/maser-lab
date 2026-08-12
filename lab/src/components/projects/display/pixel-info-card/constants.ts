@@ -46,42 +46,31 @@ export const CARD_MAX_WIDTH = 360;
 export const CARD_MIN_HEIGHT = 200;
 
 /**
- * Collapse: DOM trigger crossfades in once the canvas squircle is mostly formed
- * (grow past this threshold → 1). Avoid revealing chrome while the plate is still
- * a small expanding blob (that read as a pop / double image).
- */
-export const SQUIRCLE_DOM_REVEAL_GROW = 0.72;
-
-/**
  * Collapse timeline (collapseT = 1 - progress):
- * 0→BLAST: explode into a filled disk (not a ring)
- * BLAST→MERGE: suck every pixel into one center point
- * EXPAND overlaps late merge slightly so the solid plate fades up as pixels densify
+ * 0→BLAST: explode into a filled disk
+ * BLAST→MERGE: suck every pixel into the origin
+ * MERGE→VANISH: shrink/fade the cluster into nothing (into the page)
+ * EXPAND: DOM squircle emerges from that same point (no canvas blob)
  *
- * Wall-clock: `COLLAPSE_EXPAND_WALL` of close duration is reserved for expand so
- * reassemble isn't crushed into ~100ms by a single global ease-out.
+ * Wall-clock: `COLLAPSE_EXPAND_WALL` reserved for the squircle entrance.
  */
-export const COLLAPSE_BLAST_END = 0.26;
-export const COLLAPSE_MERGE_END = 0.55;
-export const COLLAPSE_EXPAND_START = 0.48;
+export const COLLAPSE_BLAST_END = 0.22;
+export const COLLAPSE_MERGE_END = 0.52;
+/** Pixels fully gone before the squircle starts (tiny rest at the origin). */
+export const COLLAPSE_VANISH_END = 0.7;
+export const COLLAPSE_EXPAND_START = 0.7;
 
-/** Fraction of collapse duration spent on squircle grow + DOM handoff. */
-export const COLLAPSE_EXPAND_WALL = 0.5;
-
-/** Squircle grow starts at this fraction of trigger size (matches merged swarm). */
-export const COLLAPSE_EXPAND_MIN_SCALE = 0.22;
+/** Fraction of collapse duration spent on squircle coming into the page. */
+export const COLLAPSE_EXPAND_WALL = 0.42;
 
 /**
- * Fade flying pixels out over this collapseT span once squircle grow begins.
- * Longer so pixels visibly melt into the reforming plate across most of expand.
+ * DOM squircle starts at this scale (not 0 — spatial continuity with the
+ * vanished cluster) and eases to 1, as if coming toward the viewer.
  */
-export const COLLAPSE_SWARM_FADE_SPAN = 0.42;
+export const SQUIRCLE_ENTER_MIN_SCALE = 0.22;
 
-/**
- * First portion of grow used to fade the solid plate in (avoids a hard pop when
- * expand starts). Rest of grow is full-opacity canvas plate → DOM crossfade.
- */
-export const COLLAPSE_PLATE_INTRO_SPAN = 0.32;
+/** Icon + label fade in after the plate has started emerging. */
+export const SQUIRCLE_CHROME_REVEAL_AT = 0.32;
 
 /** GlideText in/out duration — keep snappy so the plate never sits blank. */
 export const GLIDE_TEXT_MS = 240;

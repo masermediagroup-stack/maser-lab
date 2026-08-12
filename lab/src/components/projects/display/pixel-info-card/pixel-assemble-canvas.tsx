@@ -3,14 +3,10 @@
 import { useEffect, useRef } from "react";
 import {
   COLLAPSE_BLAST_END,
-  COLLAPSE_EXPAND_MIN_SCALE,
-  COLLAPSE_EXPAND_START,
   COLLAPSE_MERGE_END,
-  COLLAPSE_PLATE_INTRO_SPAN,
-  COLLAPSE_SWARM_FADE_SPAN,
+  COLLAPSE_VANISH_END,
   PIXEL_PLATE_FILL_AT,
   PIXEL_PLATE_SOLID_AT,
-  SQUIRCLE_DOM_REVEAL_GROW,
   TRIGGER_RADIUS,
   TRIGGER_SIZE,
 } from "./constants";
@@ -323,10 +319,8 @@ function sampleAssemblePath(
 }
 
 /**
- * Collapse: card → filled-disk blast → all pixels merge to one center point.
- * Squircle expansion is drawn separately after merge.
- * Positions stay continuous (no per-frame integer snap) so converge/settle
- * doesn't stair-step when motion slows.
+ * Collapse: card → filled-disk blast → merge to origin → shrink into nothing.
+ * Positions stay continuous (no per-frame integer snap).
  */
 function sampleCollapsePath(
   p: PixelParticle,
@@ -346,7 +340,6 @@ function sampleCollapsePath(
   }
 
   if (collapseT < COLLAPSE_MERGE_END) {
-    // Ease-in-out on merge: soft leave from blast disk, settle into the core
     const t = easeInOutCubic(
       (collapseT - COLLAPSE_BLAST_END) /
         (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
@@ -360,26 +353,39 @@ function sampleCollapsePath(
   return { x: centerX, y: centerY };
 }
 
-/** Grow particle footprints as they densify so the swarm reads as a forming plate. */
+/**
+ * Recede into the page: hold size through the blast, then shrink toward a
+ * vanishing point so the cluster disappears instead of forming a blob.
+ */
 function collapseParticleScale(collapseT: number): number {
   if (collapseT < COLLAPSE_BLAST_END) return 1;
-  if (collapseT < COLLAPSE_EXPAND_START) {
-    const t = easeOutCubic(
+  if (collapseT < COLLAPSE_MERGE_END) {
+    const t = easeInOutCubic(
       (collapseT - COLLAPSE_BLAST_END) /
-        (COLLAPSE_EXPAND_START - COLLAPSE_BLAST_END),
+        (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
     );
-    return 1 + t * 1.35;
+    return 1 - t * 0.55;
   }
-  const after = clamp01(
-    (collapseT - COLLAPSE_EXPAND_START) / COLLAPSE_SWARM_FADE_SPAN,
+  const vanishSpan = Math.max(0.001, COLLAPSE_VANISH_END - COLLAPSE_MERGE_END);
+  const t = easeOutCubic(
+    clamp01((collapseT - COLLAPSE_MERGE_END) / vanishSpan),
   );
-  // Keep swelling slightly while fading into the solid plate
-  return 2.35 + easeOutCubic(after) * 0.9;
+  return Math.max(0, 0.45 * (1 - t));
+}
+
+function collapseParticleAlpha(collapseT: number, base: number): number {
+  if (collapseT < COLLAPSE_MERGE_END) return base;
+  const vanishSpan = Math.max(0.001, COLLAPSE_VANISH_END - COLLAPSE_MERGE_END);
+  const t = easeOutCubic(
+    clamp01((collapseT - COLLAPSE_MERGE_END) / vanishSpan),
+  );
+  return base * (1 - t);
 }
 
 /**
  * Canvas overlay: assemble densifies into a card plate; collapse blasts into a
- * filled disk, merges to one pixel, then expands that pixel into the squircle.
+ * filled disk, merges to the origin, then vanishes into the page. The DOM
+ * squircle emerges afterward — this canvas does not draw a solid blob.
  */
 export function PixelAssembleCanvas({
   active,
@@ -487,8 +493,6 @@ export function PixelAssembleCanvas({
     const cy = Math.floor(h / 2);
     const ox = originX > 0 ? originX : w / 2;
     const oy = originY > 0 ? originY : h / 2;
-    const side = triggerSize || TRIGGER_SIZE;
-    const triggerRadius = side * (TRIGGER_RADIUS / TRIGGER_SIZE);
     const collapsing = phase === "collapsing";
 
     if (collapsing) {
@@ -506,85 +510,26 @@ export function PixelAssembleCanvas({
         ctx.restore();
       }
 
-      // After merge: grow merged core into squircle, crossfading the swarm out
-      if (collapseT >= COLLAPSE_EXPAND_START) {
-        const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
-        // Linear in collapseT — machine already ease-outs the expand wall-clock
-        // segment, so compounded ease-out would finish the shape too early.
-        const grow = clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan);
-        const domT =
-          grow < SQUIRCLE_DOM_REVEAL_GROW
-            ? 0
-            : clamp01(
-                (grow - SQUIRCLE_DOM_REVEAL_GROW) /
-                  (1 - SQUIRCLE_DOM_REVEAL_GROW),
-              );
-        const canvasAlpha = 1 - easeOutCubic(domT);
-        const swarmFade = easeOutCubic(
-          clamp01(
-            1 - (collapseT - COLLAPSE_EXPAND_START) / COLLAPSE_SWARM_FADE_SPAN,
-          ),
-        );
-        // Soft plate intro — solid shape fades up instead of popping on
-        const plateIntro = easeOutCubic(
-          clamp01(grow / Math.max(0.001, COLLAPSE_PLATE_INTRO_SPAN)),
-        );
+      // Pixels vanish into the origin — no solid squircle plate on canvas
+      if (collapseT >= COLLAPSE_VANISH_END) return;
 
-        // Match merged pixel cluster so grow doesn't pop from a dot
-        const clusterSize =
-          particles.length > 0
-            ? Math.max(
-                particles[0]!.drawSize * 3.2,
-                side * COLLAPSE_EXPAND_MIN_SCALE,
-              )
-            : side * COLLAPSE_EXPAND_MIN_SCALE;
-        const grown = clusterSize + (side - clusterSize) * grow;
-        const radius = triggerRadius * (grown / side);
-        const sizeScale = collapseParticleScale(collapseT);
+      const explodeAlpha =
+        cardShatter > 0.5 ? Math.max(0.55, 1 - cardShatter) : 1;
+      if (explodeAlpha <= 0.02) return;
 
-        if (canvasAlpha > 0.02 && plateIntro > 0.02) {
-          ctx.save();
-          ctx.globalAlpha = canvasAlpha * plateIntro;
-          ctx.fillStyle = fill;
-          roundRect(
-            ctx,
-            ox - grown / 2,
-            oy - grown / 2,
-            grown,
-            grown,
-            radius,
-          );
-          ctx.fill();
-          ctx.restore();
-        }
+      const sizeScale = collapseParticleScale(collapseT);
+      if (sizeScale <= 0.02) return;
 
-        if (swarmFade > 0.02) {
-          for (let i = 0; i < particles.length; i++) {
-            const p = particles[i]!;
-            const { x, y } = sampleCollapsePath(p, collapseT, ox, oy);
-            const ds = p.drawSize * sizeScale;
-            const drawX = x + (p.drawSize - ds) / 2;
-            const drawY = y + (p.drawSize - ds) / 2;
-            ctx.fillStyle = `rgba(${rgb},${(p.opacity * swarmFade * canvasAlpha).toFixed(3)})`;
-            ctx.fillRect(drawX, drawY, ds, ds);
-          }
-        }
-        return;
-      }
-
-      // Flying pixels: filled-disk blast → converge to center (draw all — no hole)
-      const explodeAlpha = cardShatter > 0.5 ? Math.max(0.55, 1 - cardShatter) : 1;
-      if (explodeAlpha > 0.02) {
-        const sizeScale = collapseParticleScale(collapseT);
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i]!;
-          const { x, y } = sampleCollapsePath(p, collapseT, ox, oy);
-          const ds = p.drawSize * sizeScale;
-          const drawX = x + (p.drawSize - ds) / 2;
-          const drawY = y + (p.drawSize - ds) / 2;
-          ctx.fillStyle = `rgba(${rgb},${(p.opacity * explodeAlpha).toFixed(3)})`;
-          ctx.fillRect(drawX, drawY, ds, ds);
-        }
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i]!;
+        const { x, y } = sampleCollapsePath(p, collapseT, ox, oy);
+        const ds = p.drawSize * sizeScale;
+        const drawX = x + (p.drawSize - ds) / 2;
+        const drawY = y + (p.drawSize - ds) / 2;
+        const alpha = collapseParticleAlpha(collapseT, p.opacity) * explodeAlpha;
+        if (alpha <= 0.02) continue;
+        ctx.fillStyle = `rgba(${rgb},${alpha.toFixed(3)})`;
+        ctx.fillRect(drawX, drawY, ds, ds);
       }
       return;
     }
