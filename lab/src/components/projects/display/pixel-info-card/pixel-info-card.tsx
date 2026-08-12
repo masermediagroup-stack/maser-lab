@@ -51,8 +51,9 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
-function easeInOutCubic(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+/** Match canvas squircle grow — strong ease-out, no ease-in stall. */
+function easeOutQuint(t: number): number {
+  return 1 - (1 - t) ** 5;
 }
 
 function nextMotionSeed(): number {
@@ -345,7 +346,7 @@ export function PixelInfoCard({
       const collapseT = 1 - progress;
       if (collapseT < COLLAPSE_EXPAND_START) return 0;
       const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
-      const grow = easeInOutCubic(
+      const grow = easeOutQuint(
         clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan),
       );
       if (grow < SQUIRCLE_DOM_REVEAL_GROW) return 0;

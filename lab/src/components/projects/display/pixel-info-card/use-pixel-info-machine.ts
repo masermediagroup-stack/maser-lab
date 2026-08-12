@@ -8,6 +8,10 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+}
+
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
 }
@@ -71,7 +75,10 @@ export function usePixelInfoMachine({
         const anim = animRef.current;
         if (!anim) return;
         const t = anim.duration <= 0 ? 1 : clamp01((now - anim.start) / anim.duration);
-        const eased = easeOutCubic(t);
+        // Open: ease-out (responsive burst). Close: ease-in-out so reassemble
+        // settle isn't crushed by a heavy ease-out crawl on the final frames.
+        const eased =
+          anim.to < anim.from ? easeInOutCubic(t) : easeOutCubic(t);
         const value = anim.from + (anim.to - anim.from) * eased;
         progressRef.current = value;
         setProgress(value);

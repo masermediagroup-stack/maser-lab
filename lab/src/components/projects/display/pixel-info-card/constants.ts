@@ -46,27 +46,37 @@ export const CARD_MAX_WIDTH = 360;
 export const CARD_MIN_HEIGHT = 200;
 
 /**
- * Collapse: DOM trigger crossfades in during the final portion of squircle grow
- * (grow 0.72→1). Keeps icon/label continuous with the canvas plate.
+ * Collapse: DOM trigger crossfades in once the canvas squircle is mostly formed
+ * (grow past this threshold → 1). Avoid revealing chrome while the plate is still
+ * a small expanding blob (that read as a pop / double image).
  */
-/** DOM trigger fades in during the first half of squircle grow (not after). */
-export const SQUIRCLE_DOM_REVEAL_GROW = 0.42;
+export const SQUIRCLE_DOM_REVEAL_GROW = 0.58;
 
 /**
  * Collapse timeline (collapseT = 1 - progress):
  * 0→BLAST: explode into a filled disk (not a ring)
  * BLAST→MERGE: suck every pixel into one center point
- * MERGE→1: merged core expands into the squircle (no dead gap before grow)
+ * EXPAND overlaps late merge slightly so the solid plate fades up as pixels densify
+ * (no hard cut from swarm → squircle)
  */
-export const COLLAPSE_BLAST_END = 0.34;
-export const COLLAPSE_MERGE_END = 0.76;
-export const COLLAPSE_EXPAND_START = 0.68;
+export const COLLAPSE_BLAST_END = 0.3;
+export const COLLAPSE_MERGE_END = 0.64;
+export const COLLAPSE_EXPAND_START = 0.58;
 
 /** Squircle grow starts at this fraction of trigger size (matches merged swarm). */
-export const COLLAPSE_EXPAND_MIN_SCALE = 0.14;
+export const COLLAPSE_EXPAND_MIN_SCALE = 0.2;
 
-/** Fade flying pixels out over this collapseT span once squircle grow begins. */
-export const COLLAPSE_SWARM_FADE_SPAN = 0.2;
+/**
+ * Fade flying pixels out over this collapseT span once squircle grow begins.
+ * Longer than the old 0.2 so pixels visibly melt into the reforming plate.
+ */
+export const COLLAPSE_SWARM_FADE_SPAN = 0.34;
+
+/**
+ * First portion of grow used to fade the solid plate in (avoids a hard pop when
+ * expand starts). Rest of grow is full-opacity canvas plate → DOM crossfade.
+ */
+export const COLLAPSE_PLATE_INTRO_SPAN = 0.22;
 
 /** GlideText in/out duration — keep snappy so the plate never sits blank. */
 export const GLIDE_TEXT_MS = 240;

@@ -4,6 +4,16 @@
 
 **Implement complete** (2026-08-10). Demo at `/demos/pixel-info-card`.
 
+## Motion polish — collapse reassemble (2026-08-12)
+
+Ending felt jerky when pixels reformed the squircle. Fixes:
+
+- Squircle grow: `easeInOutCubic` → `easeOutQuint` (carry merge momentum, settle)
+- Collapse machine easing: `easeInOutCubic` (avoid double ease-out crawl on final frames)
+- Soft plate intro + longer swarm fade so pixels melt into the plate
+- Continuous particle positions (no integer snap mid-flight); footprints swell on merge
+- Timeline: expand starts earlier with soft overlap; DOM chrome reveals later (`SQUIRCLE_DOM_REVEAL_GROW` 0.58)
+
 ## Grilling summary
 
 - Portable `PixelInfoCard` + Blobby demo (blue sliders, Reset, Export)
