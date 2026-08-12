@@ -46,27 +46,42 @@ export const CARD_MAX_WIDTH = 360;
 export const CARD_MIN_HEIGHT = 200;
 
 /**
- * Collapse: DOM trigger crossfades in during the final portion of squircle grow
- * (grow 0.72→1). Keeps icon/label continuous with the canvas plate.
+ * Collapse timeline (collapseT = 1 - progress):
+ * 0→BLAST: explode into a filled disk
+ * BLAST→MERGE: suck every pixel into the origin while shrinking to nothing
+ * MERGE→VANISH: mop-up fade (no packed blob / mini-squircle)
+ * EXPAND: DOM squircle comes toward the viewer after a short empty beat
+ *
+ * Wall-clock: `COLLAPSE_EXPAND_WALL` reserved for the squircle entrance.
  */
-/** DOM trigger fades in during the first half of squircle grow (not after). */
-export const SQUIRCLE_DOM_REVEAL_GROW = 0.42;
+export const COLLAPSE_BLAST_END = 0.16;
+export const COLLAPSE_MERGE_END = 0.34;
+/** Pixels fully gone before the squircle starts. */
+export const COLLAPSE_VANISH_END = 0.36;
+/** Squircle starts immediately after vanish (short empty beat). */
+export const COLLAPSE_EXPAND_START = 0.36;
+
+/** Fraction of collapse duration until squircle may begin (1 - this = pixel phase). */
+export const COLLAPSE_EXPAND_WALL = 0.64;
 
 /**
- * Collapse timeline (collapseT = 1 - progress):
- * 0→BLAST: explode into a filled disk (not a ring)
- * BLAST→MERGE: suck every pixel into one center point
- * MERGE→1: merged core expands into the squircle (no dead gap before grow)
+ * CollapseT span for the squircle grow. Independent of the remaining
+ * timeline so the plate can finish in ~200ms at the default assemble speed
+ * instead of stretching across the whole second half of close.
  */
-export const COLLAPSE_BLAST_END = 0.34;
-export const COLLAPSE_MERGE_END = 0.76;
-export const COLLAPSE_EXPAND_START = 0.68;
+export const SQUIRCLE_ENTER_SPAN = 0.12;
 
-/** Squircle grow starts at this fraction of trigger size (matches merged swarm). */
-export const COLLAPSE_EXPAND_MIN_SCALE = 0.14;
+/**
+ * Near-zero so the plate is not a visible mini-squircle. Grows toward the
+ * viewer from the vanished point with ease-out.
+ */
+export const SQUIRCLE_ENTER_MIN_SCALE = 0.06;
 
-/** Fade flying pixels out over this collapseT span once squircle grow begins. */
-export const COLLAPSE_SWARM_FADE_SPAN = 0.2;
+/** Recede/approach depth in CSS px (paired with perspective on the plate). */
+export const SQUIRCLE_ENTER_Z_PX = 48;
+
+/** Icon + label fade in after the plate has started emerging. */
+export const SQUIRCLE_CHROME_REVEAL_AT = 0.18;
 
 /** GlideText in/out duration — keep snappy so the plate never sits blank. */
 export const GLIDE_TEXT_MS = 240;

@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { RETARGET_BLEND_MS } from "./constants";
+import {
+  COLLAPSE_EXPAND_START,
+  COLLAPSE_EXPAND_WALL,
+  RETARGET_BLEND_MS,
+} from "./constants";
 import type { PixelInfoPhase, PixelInfoTuning } from "./types";
 
 function easeOutCubic(t: number): number {
@@ -10,6 +14,36 @@ function easeOutCubic(t: number): number {
 
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
+}
+
+/**
+ * Piecewise collapseT(wall): first segment is linear so merge-to-nothing
+ * gets real time. Squircle segment is also linear — DOM ease-out owns arrival
+ * (double ease-out here made the plate pop).
+ */
+function collapseTAtWall(wall: number): number {
+  const w = clamp01(wall);
+  const expandWall = COLLAPSE_EXPAND_WALL;
+  const expandStart = COLLAPSE_EXPAND_START;
+  if (w < 1 - expandWall) {
+    return expandStart * (w / (1 - expandWall));
+  }
+  return (
+    expandStart +
+    (1 - expandStart) * ((w - (1 - expandWall)) / expandWall)
+  );
+}
+
+function wallAtCollapseT(target: number): number {
+  const goal = clamp01(target);
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 24; i++) {
+    const mid = (lo + hi) / 2;
+    if (collapseTAtWall(mid) < goal) lo = mid;
+    else hi = mid;
+  }
+  return (lo + hi) / 2;
 }
 
 type MachineOptions = {
@@ -66,13 +100,26 @@ export function usePixelInfoMachine({
       const from = progressRef.current;
       const start = performance.now();
       animRef.current = { from, to, start, duration, nextPhase };
+      const collapsing = to < from;
+      const wallFrom = collapsing ? wallAtCollapseT(1 - from) : 0;
+      const wallTo = collapsing ? wallAtCollapseT(1 - to) : 1;
 
       const tick = (now: number) => {
         const anim = animRef.current;
         if (!anim) return;
-        const t = anim.duration <= 0 ? 1 : clamp01((now - anim.start) / anim.duration);
-        const eased = easeOutCubic(t);
-        const value = anim.from + (anim.to - anim.from) * eased;
+        const t =
+          anim.duration <= 0 ? 1 : clamp01((now - anim.start) / anim.duration);
+
+        let value: number;
+        if (collapsing) {
+          // Reserve wall-clock for expand so reassemble can ease, not snap
+          const wall = wallFrom + (wallTo - wallFrom) * t;
+          value = 1 - collapseTAtWall(wall);
+        } else {
+          const eased = easeOutCubic(t);
+          value = anim.from + (anim.to - anim.from) * eased;
+        }
+
         progressRef.current = value;
         setProgress(value);
 

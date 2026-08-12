@@ -4,6 +4,19 @@
 
 **Implement complete** (2026-08-10). Demo at `/demos/pixel-info-card`.
 
+## Motion polish — collapse reassemble (2026-08-12)
+
+Pixels reassemble into nothing at the origin (no mini-squircle blob). After a
+short empty beat, the DOM squircle comes toward the viewer from that same
+point (`perspective` + `translateZ` + scale 0.06→1, ease-out).
+
+- Merge shrinks footprints to 0 while still spread; alpha fades on arrival so
+  stacked dots cannot form a solid plate
+- Rest beat: vanish ends at `collapseT` 0.36; squircle starts at 0.36
+- Squircle grow is `SQUIRCLE_ENTER_SPAN` (0.12 of collapseT, ease-out) so it
+  does not stretch across the rest of close
+- Icon/label lag the plate (`SQUIRCLE_CHROME_REVEAL_AT`)
+
 ## Grilling summary
 
 - Portable `PixelInfoCard` + Blobby demo (blue sliders, Reset, Export)

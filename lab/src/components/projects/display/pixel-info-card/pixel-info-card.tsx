@@ -28,7 +28,10 @@ import {
   GLIDE_DISTANCE_PX,
   GLIDE_TEXT_MS,
   PIC_DEFAULTS,
-  SQUIRCLE_DOM_REVEAL_GROW,
+  SQUIRCLE_CHROME_REVEAL_AT,
+  SQUIRCLE_ENTER_MIN_SCALE,
+  SQUIRCLE_ENTER_SPAN,
+  SQUIRCLE_ENTER_Z_PX,
   TRIGGER_BLUR_MAX,
   TRIGGER_SIZE,
 } from "./constants";
@@ -49,10 +52,6 @@ function clamp01(n: number): number {
 
 function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
-}
-
-function easeInOutCubic(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
 
 function nextMotionSeed(): number {
@@ -331,32 +330,51 @@ export function PixelInfoCard({
   }, [phase, holdingForTextOut, contentReveal, requestClose]);
 
   /**
-   * Squircle surface + chrome crossfade with the canvas grow — same curve for
-   * plate, icon, and label so nothing pauses then pops.
+   * After pixels vanish into the origin, the squircle comes toward the viewer
+   * from that same point. Grow uses `SQUIRCLE_ENTER_SPAN` so it does not
+   * stretch across the rest of close.
    */
+  const collapseEnter = (() => {
+    if (phase !== "collapsing") return 0;
+    const collapseT = 1 - progress;
+    if (collapseT < COLLAPSE_EXPAND_START) return 0;
+    return easeOutCubic(
+      clamp01((collapseT - COLLAPSE_EXPAND_START) / SQUIRCLE_ENTER_SPAN),
+    );
+  })();
+
   const triggerSurfaceOpacity = (() => {
     if (reducedMotion) return phase === "idle" ? 1 : 0;
     if (phase === "idle") return 1;
     if (phase === "expanding" || phase === "expanded") {
-      // Progress-driven fade (no CSS transition) — stays in sync with the burst
       return Math.max(0, 1 - progress / 0.1);
     }
-    if (phase === "collapsing") {
-      const collapseT = 1 - progress;
-      if (collapseT < COLLAPSE_EXPAND_START) return 0;
-      const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
-      const grow = easeInOutCubic(
-        clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan),
-      );
-      if (grow < SQUIRCLE_DOM_REVEAL_GROW) return 0;
-      return easeOutCubic(
-        (grow - SQUIRCLE_DOM_REVEAL_GROW) / (1 - SQUIRCLE_DOM_REVEAL_GROW),
-      );
-    }
+    if (phase === "collapsing") return collapseEnter;
     return 0;
   })();
 
-  const triggerChromeOpacity = triggerSurfaceOpacity;
+  const triggerChromeOpacity = (() => {
+    if (phase !== "collapsing") return triggerSurfaceOpacity;
+    if (collapseEnter < SQUIRCLE_CHROME_REVEAL_AT) return 0;
+    return easeOutCubic(
+      (collapseEnter - SQUIRCLE_CHROME_REVEAL_AT) /
+        (1 - SQUIRCLE_CHROME_REVEAL_AT),
+    );
+  })();
+
+  const triggerScale = (() => {
+    if (reducedMotion || phase !== "collapsing") return 1;
+    if (collapseEnter <= 0) return SQUIRCLE_ENTER_MIN_SCALE;
+    return (
+      SQUIRCLE_ENTER_MIN_SCALE +
+      (1 - SQUIRCLE_ENTER_MIN_SCALE) * collapseEnter
+    );
+  })();
+
+  const triggerZ = (() => {
+    if (reducedMotion || phase !== "collapsing") return 0;
+    return -SQUIRCLE_ENTER_Z_PX * (1 - collapseEnter);
+  })();
 
   const triggerBlur = (() => {
     if (reducedMotion || phase === "idle" || phase === "collapsing") return 0;
@@ -424,6 +442,12 @@ export function PixelInfoCard({
           className="pic-trigger-wrap"
           style={{
             opacity: Math.max(triggerSurfaceOpacity, triggerChromeOpacity),
+            visibility:
+              phase === "collapsing" &&
+              triggerSurfaceOpacity < 0.02 &&
+              triggerChromeOpacity < 0.02
+                ? "hidden"
+                : undefined,
             filter: triggerBlur > 0 ? `blur(${triggerBlur}px)` : undefined,
             pointerEvents:
               triggerSurfaceOpacity < 0.2 && triggerChromeOpacity < 0.2
@@ -446,7 +470,15 @@ export function PixelInfoCard({
             <span
               ref={squircleRef}
               className="pic-squircle"
-              style={{ opacity: triggerSurfaceOpacity }}
+              style={{
+                opacity: triggerSurfaceOpacity,
+                transform:
+                  phase === "collapsing"
+                    ? `perspective(280px) translateZ(${triggerZ}px) scale(${triggerScale})`
+                    : undefined,
+                transformOrigin: "center center",
+                transition: phase === "collapsing" ? "none" : undefined,
+              }}
             >
               <Info
                 className="pic-icon"

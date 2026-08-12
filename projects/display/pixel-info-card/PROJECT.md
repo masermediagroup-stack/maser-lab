@@ -47,7 +47,7 @@ Pixels match surface polarity (white particles → white card in dark; black par
 - Open/close read as one continuous story: pixels **become** the card (no simultaneous pixel + card fade / double flash).
 - Pixel phase feels generative — individual particles burst from behind the squircle on random paths, then lock into a masked grid.
 - Title + body use `GlideTextAnimation` (bottom glide, 650ms, blur 5) — out plays before pixel collapse.
-- Collapse explodes pixels, then sucks them into the **measured squircle** (solid fill, no hollow center / no ghost below); Info chrome waits until pixels finish.
+- Collapse explodes pixels, then sucks them into nothing at the origin; the squircle comes toward the viewer from that same point after a brief empty beat. Info chrome waits until the plate has started emerging.
 - Defaults: assemble **1400ms** (slider up to 2400ms), dissipate **160ms**; trigger blur ≤4px.
 - Mid-flight click retargets with ease-out cubic blend.
 - Theme toggle inverts colors cleanly.
@@ -143,9 +143,10 @@ t0–~80ms  squircle + Info label blur-out (very fast)
 ```text
 t0        click / Enter on entire card (Escape also collapses)
 t0–~120ms text blur-out (phase "out")
-~100ms    card dissolves to pixel snakes toward squircle
-~350–500ms pixels collapse to squircle footprint
-~480ms    squircle + Info label return
+~100ms    card dissolves to pixel snakes toward origin
+~350–500ms pixels converge and shrink into nothing (into the page)
+           brief empty beat at the origin
+~480ms    squircle comes toward the viewer from that point; Info chrome lags
 ```
 
 ### Interrupt (locked)
