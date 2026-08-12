@@ -30,6 +30,7 @@ import {
   PIC_DEFAULTS,
   SQUIRCLE_CHROME_REVEAL_AT,
   SQUIRCLE_ENTER_MIN_SCALE,
+  SQUIRCLE_ENTER_Z_PX,
   TRIGGER_BLUR_MAX,
   TRIGGER_SIZE,
 } from "./constants";
@@ -50,6 +51,10 @@ function clamp01(n: number): number {
 
 function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
+}
+
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
 
 function nextMotionSeed(): number {
@@ -329,14 +334,15 @@ export function PixelInfoCard({
 
   /**
    * After pixels vanish into the origin, the squircle comes toward the viewer
-   * from that same point (scale + opacity). Chrome lags the plate slightly.
+   * from that same point (scale + translateZ). Ease-in-out so the first frames
+   * stay a point, not a mini-plate. Chrome lags the plate slightly.
    */
   const collapseEnter = (() => {
     if (phase !== "collapsing") return 0;
     const collapseT = 1 - progress;
     if (collapseT < COLLAPSE_EXPAND_START) return 0;
     const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
-    return easeOutCubic(
+    return easeInOutCubic(
       clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan),
     );
   })();
@@ -347,7 +353,10 @@ export function PixelInfoCard({
     if (phase === "expanding" || phase === "expanded") {
       return Math.max(0, 1 - progress / 0.1);
     }
-    if (phase === "collapsing") return collapseEnter;
+    if (phase === "collapsing") {
+      // Stay invisible until the plate has left the vanishing point
+      return clamp01((collapseEnter - 0.08) / 0.42);
+    }
     return 0;
   })();
 
@@ -367,6 +376,11 @@ export function PixelInfoCard({
       SQUIRCLE_ENTER_MIN_SCALE +
       (1 - SQUIRCLE_ENTER_MIN_SCALE) * collapseEnter
     );
+  })();
+
+  const triggerZ = (() => {
+    if (reducedMotion || phase !== "collapsing") return 0;
+    return -SQUIRCLE_ENTER_Z_PX * (1 - collapseEnter);
   })();
 
   const triggerBlur = (() => {
@@ -435,6 +449,12 @@ export function PixelInfoCard({
           className="pic-trigger-wrap"
           style={{
             opacity: Math.max(triggerSurfaceOpacity, triggerChromeOpacity),
+            visibility:
+              phase === "collapsing" &&
+              triggerSurfaceOpacity < 0.02 &&
+              triggerChromeOpacity < 0.02
+                ? "hidden"
+                : undefined,
             filter: triggerBlur > 0 ? `blur(${triggerBlur}px)` : undefined,
             pointerEvents:
               triggerSurfaceOpacity < 0.2 && triggerChromeOpacity < 0.2
@@ -461,7 +481,7 @@ export function PixelInfoCard({
                 opacity: triggerSurfaceOpacity,
                 transform:
                   phase === "collapsing"
-                    ? `scale(${triggerScale})`
+                    ? `perspective(280px) translateZ(${triggerZ}px) scale(${triggerScale})`
                     : undefined,
                 transformOrigin: "center center",
                 transition: phase === "collapsing" ? "none" : undefined,

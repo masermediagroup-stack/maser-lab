@@ -51,6 +51,10 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
+function easeInCubic(t: number): number {
+  return t * t * t;
+}
+
 function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
@@ -355,8 +359,8 @@ function sampleCollapsePath(
 }
 
 /**
- * Recede into the page: hold size through the blast, then shrink toward a
- * vanishing point so the cluster disappears instead of forming a blob.
+ * Recede into the page: shrink while still spread (ease-out) so stacked
+ * footprints never form a mini-squircle at the origin.
  */
 function collapseParticleScale(collapseT: number): number {
   if (collapseT < COLLAPSE_BLAST_END) return 1;
@@ -365,27 +369,32 @@ function collapseParticleScale(collapseT: number): number {
       (collapseT - COLLAPSE_BLAST_END) /
         (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
     );
-    return 1 - t * 0.78;
+    return 1 - t;
   }
-  const vanishSpan = Math.max(0.001, COLLAPSE_VANISH_END - COLLAPSE_MERGE_END);
-  const t = easeOutCubic(
-    clamp01((collapseT - COLLAPSE_MERGE_END) / vanishSpan),
-  );
-  return Math.max(0, 0.22 * (1 - t));
+  return 0;
 }
 
+/**
+ * Stay readable in flight; fade as they arrive so overlapping dots cannot
+ * add up into a solid white plate.
+ */
 function collapseParticleAlpha(collapseT: number, base: number): number {
-  if (collapseT < COLLAPSE_MERGE_END) return base;
+  if (collapseT < COLLAPSE_BLAST_END) return base;
+  if (collapseT < COLLAPSE_MERGE_END) {
+    const t = easeInCubic(
+      (collapseT - COLLAPSE_BLAST_END) /
+        (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
+    );
+    return base * (1 - t);
+  }
   const vanishSpan = Math.max(0.001, COLLAPSE_VANISH_END - COLLAPSE_MERGE_END);
-  const t = easeOutCubic(
-    clamp01((collapseT - COLLAPSE_MERGE_END) / vanishSpan),
-  );
-  return base * (1 - t);
+  const t = clamp01((collapseT - COLLAPSE_MERGE_END) / vanishSpan);
+  return base * (1 - t) * 0.12;
 }
 
 /**
  * Canvas overlay: assemble densifies into a card plate; collapse blasts into a
- * filled disk, merges to the origin, then vanishes into the page. The DOM
+ * filled disk, merges to the origin while shrinking to nothing, then the DOM
  * squircle emerges afterward — this canvas does not draw a solid blob.
  */
 export function PixelAssembleCanvas({
@@ -519,16 +528,17 @@ export function PixelAssembleCanvas({
       if (explodeAlpha <= 0.02) return;
 
       const sizeScale = collapseParticleScale(collapseT);
-      if (sizeScale <= 0.02) return;
+      if (sizeScale <= 0.04) return;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i]!;
         const { x, y } = sampleCollapsePath(p, collapseT, ox, oy);
         const ds = p.drawSize * sizeScale;
+        if (ds < 0.45) continue;
         const drawX = x + (p.drawSize - ds) / 2;
         const drawY = y + (p.drawSize - ds) / 2;
         const alpha = collapseParticleAlpha(collapseT, p.opacity) * explodeAlpha;
-        if (alpha <= 0.02) continue;
+        if (alpha <= 0.03) continue;
         ctx.fillStyle = `rgba(${rgb},${alpha.toFixed(3)})`;
         ctx.fillRect(drawX, drawY, ds, ds);
       }

@@ -6,13 +6,15 @@
 
 ## Motion polish — collapse reassemble (2026-08-12)
 
-Pixels vanish into the origin (no intermediate blob). Then the DOM squircle
-eases in from that same point (`scale` 0.22→1) as if coming into the page.
+Pixels reassemble into nothing at the origin (no mini-squircle blob). After a
+short empty beat, the DOM squircle comes toward the viewer from that same
+point (`perspective` + `translateZ` + scale 0.06→1, ease-in-out).
 
-- Piecewise timeline: vanish completes at `collapseT` 0.7; last 42% wall-clock is squircle enter
-- Canvas does not draw a solid plate on close
-- Particle footprints shrink toward a vanishing point, then fade
-- Icon/label lag the plate slightly (`SQUIRCLE_CHROME_REVEAL_AT`)
+- Merge shrinks footprints to 0 while still spread; alpha fades on arrival so
+  stacked dots cannot form a solid plate
+- Rest beat: vanish ends at `collapseT` 0.62; squircle starts at 0.74
+- Last 38% wall-clock is squircle enter
+- Icon/label lag the plate (`SQUIRCLE_CHROME_REVEAL_AT`)
 
 ## Grilling summary
 
