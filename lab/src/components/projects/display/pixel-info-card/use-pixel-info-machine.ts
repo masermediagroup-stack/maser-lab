@@ -18,8 +18,8 @@ function clamp01(n: number): number {
 
 /**
  * Piecewise collapseT(wall): first segment is linear so merge-to-nothing
- * gets real time (ease-out here rushed a packed blob, then a long black pause).
- * Squircle segment stays ease-out so the plate arrives.
+ * gets real time. Squircle segment is also linear — DOM ease-out owns arrival
+ * (double ease-out here made the plate pop).
  */
 function collapseTAtWall(wall: number): number {
   const w = clamp01(wall);
@@ -30,7 +30,7 @@ function collapseTAtWall(wall: number): number {
   }
   return (
     expandStart +
-    (1 - expandStart) * easeOutCubic((w - (1 - expandWall)) / expandWall)
+    (1 - expandStart) * ((w - (1 - expandWall)) / expandWall)
   );
 }
 

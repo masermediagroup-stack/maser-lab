@@ -53,10 +53,6 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
-function easeInOutCubic(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
-}
-
 function nextMotionSeed(): number {
   return Math.floor(Math.random() * 0x7fffffff) + 1;
 }
@@ -334,15 +330,15 @@ export function PixelInfoCard({
 
   /**
    * After pixels vanish into the origin, the squircle comes toward the viewer
-   * from that same point (scale + translateZ). Ease-in-out so the first frames
-   * stay a point, not a mini-plate. Chrome lags the plate slightly.
+   * from that same point (scale + translateZ). Ease-out so it arrives promptly
+   * without the ease-in-out hang at the vanishing point.
    */
   const collapseEnter = (() => {
     if (phase !== "collapsing") return 0;
     const collapseT = 1 - progress;
     if (collapseT < COLLAPSE_EXPAND_START) return 0;
     const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
-    return easeInOutCubic(
+    return easeOutCubic(
       clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan),
     );
   })();
@@ -354,8 +350,7 @@ export function PixelInfoCard({
       return Math.max(0, 1 - progress / 0.1);
     }
     if (phase === "collapsing") {
-      // Stay invisible until the plate has left the vanishing point
-      return clamp01((collapseEnter - 0.08) / 0.42);
+      return clamp01((collapseEnter - 0.04) / 0.28);
     }
     return 0;
   })();

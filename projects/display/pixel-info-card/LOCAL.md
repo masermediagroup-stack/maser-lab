@@ -8,13 +8,12 @@
 
 Pixels reassemble into nothing at the origin (no mini-squircle blob). After a
 short empty beat, the DOM squircle comes toward the viewer from that same
-point (`perspective` + `translateZ` + scale 0.06→1, ease-in-out).
+point (`perspective` + `translateZ` + scale 0.06→1, ease-out).
 
 - Merge shrinks footprints to 0 while still spread; alpha fades on arrival so
   stacked dots cannot form a solid plate
 - Rest beat: vanish ends at `collapseT` 0.40; squircle starts at 0.42
-- Last 58% wall-clock is squircle enter (first segment is linear so merge
-  is not rushed into a blob + long black pause)
+- Last 58% wall-clock is squircle enter (ease-out so it arrives sooner)
 - Icon/label lag the plate (`SQUIRCLE_CHROME_REVEAL_AT`)
 
 ## Grilling summary

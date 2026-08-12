@@ -67,16 +67,15 @@ export const COLLAPSE_EXPAND_WALL = 0.58;
 
 /**
  * Near-zero so the plate is not a visible mini-squircle. Grows toward the
- * viewer from the vanished point (ease-in-out, not ease-out — ease-out
- * jumps to a solid blob on the first frames).
+ * viewer from the vanished point with ease-out so it arrives a beat sooner.
  */
 export const SQUIRCLE_ENTER_MIN_SCALE = 0.06;
 
 /** Recede/approach depth in CSS px (paired with perspective on the plate). */
-export const SQUIRCLE_ENTER_Z_PX = 72;
+export const SQUIRCLE_ENTER_Z_PX = 56;
 
 /** Icon + label fade in after the plate has started emerging. */
-export const SQUIRCLE_CHROME_REVEAL_AT = 0.42;
+export const SQUIRCLE_CHROME_REVEAL_AT = 0.28;
 
 /** GlideText in/out duration — keep snappy so the plate never sits blank. */
 export const GLIDE_TEXT_MS = 240;
