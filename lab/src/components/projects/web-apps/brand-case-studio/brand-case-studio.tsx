@@ -7,7 +7,7 @@ import { CaseIndex } from "./components/case-index";
 import { CaseIntake } from "./components/case-intake";
 import { CasePresentation } from "./components/case-presentation";
 import { BCS_DEFAULTS } from "./constants";
-import { BrandCaseConvexProvider } from "./convex-provider";
+import { BrandCaseConvexProvider, isConvexConfigured } from "./convex-provider";
 import { SAMPLE_CASES } from "./data";
 import { buildShareSlug, shareUrl } from "./share-slug";
 import { createEmptyCaseStudy, normalizeCaseStudy } from "./normalize";
@@ -40,16 +40,32 @@ const instrumentSerif = Instrument_Serif({
 
 type Notice = { kind: "success" | "error"; message: string };
 
+type CloudCaseRecord = {
+  caseId: string;
+  shareSlug: string;
+  published: boolean;
+  data: string;
+  updatedAt: number;
+};
+
+type BrandCaseStudioAppInnerProps = BrandCaseStudioAppProps & {
+  cloudEnabled?: boolean;
+  cloudRecords?: CloudCaseRecord[] | undefined;
+  syncCase?: (study: CaseStudy) => Promise<void>;
+  publishCase?: (study: CaseStudy, shareSlug: string, published: boolean) => Promise<void>;
+};
+
 function BrandCaseStudioAppInner({
   initialCases = SAMPLE_CASES,
   forceReducedMotion = false,
   defaultMode = "index",
   className,
-}: BrandCaseStudioAppProps) {
+  cloudEnabled = false,
+  cloudRecords,
+  syncCase,
+  publishCase,
+}: BrandCaseStudioAppInnerProps) {
   const importRef = useRef<HTMLInputElement>(null);
-  const cloudEnabled = useCloudCaseStudiesEnabled();
-  const { syncCase, publishCase } = useCloudCaseSync();
-  const { records: cloudRecords } = useCloudCaseRecords();
   const cloudMergedRef = useRef(false);
   const [mode, setMode] = useState<AppMode>(defaultMode);
   const [store, setStore] = useState<CaseStore>({});
@@ -142,6 +158,7 @@ function BrandCaseStudioAppInner({
   };
 
   const syncDraftToCloud = async () => {
+    if (!syncCase) return;
     const normalized = persistCase(draft);
     const slug = normalized.shareSlug ?? buildShareSlug(normalized.client, normalized.projectTitle, normalized.id);
     try {
@@ -156,6 +173,7 @@ function BrandCaseStudioAppInner({
   };
 
   const publishActiveCase = async () => {
+    if (!publishCase) return;
     const item = activeId ? store[activeId] : null;
     if (!item) return;
     const slug = item.shareSlug ?? buildShareSlug(item.client, item.projectTitle, item.id);
@@ -321,10 +339,30 @@ function BrandCaseStudioAppInner({
   );
 }
 
-export function BrandCaseStudioApp(props: BrandCaseStudioAppProps) {
+function BrandCaseStudioCloudBridge(props: BrandCaseStudioAppProps) {
+  const cloudEnabled = useCloudCaseStudiesEnabled();
+  const { syncCase, publishCase } = useCloudCaseSync();
+  const { records: cloudRecords } = useCloudCaseRecords();
+
   return (
-    <BrandCaseConvexProvider>
-      <BrandCaseStudioAppInner {...props} />
-    </BrandCaseConvexProvider>
+    <BrandCaseStudioAppInner
+      {...props}
+      cloudEnabled={cloudEnabled}
+      cloudRecords={cloudRecords}
+      syncCase={syncCase}
+      publishCase={publishCase}
+    />
   );
+}
+
+export function BrandCaseStudioApp(props: BrandCaseStudioAppProps) {
+  if (isConvexConfigured()) {
+    return (
+      <BrandCaseConvexProvider>
+        <BrandCaseStudioCloudBridge {...props} />
+      </BrandCaseConvexProvider>
+    );
+  }
+
+  return <BrandCaseStudioAppInner {...props} cloudEnabled={false} />;
 }
