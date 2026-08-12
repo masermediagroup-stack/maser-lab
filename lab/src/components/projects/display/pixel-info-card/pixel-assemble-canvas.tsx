@@ -344,14 +344,17 @@ function sampleCollapsePath(
   }
 
   if (collapseT < COLLAPSE_MERGE_END) {
-    // Ease-out: rush to the origin so the card silhouette doesn't linger as a mini-shape
-    const t = easeOutCubic(
+    // Ease-in: stay spread while fading, then the last ghosts suck to the origin
+    const t = easeInCubic(
       (collapseT - COLLAPSE_BLAST_END) /
         (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
     );
+    const spread = (1 - t) * 14;
+    const jx = (p.seed - 0.5) * spread;
+    const jy = (hash2(p.seed, p.delay) - 0.5) * spread;
     return {
-      x: p.mx + (centerX - p.mx) * t,
-      y: p.my + (centerY - p.my) * t,
+      x: p.mx + (centerX - p.mx) * t + jx,
+      y: p.my + (centerY - p.my) * t + jy,
     };
   }
 
@@ -375,13 +378,13 @@ function collapseParticleScale(collapseT: number): number {
 }
 
 /**
- * Stay readable in flight; fade as they arrive so overlapping dots cannot
+ * Stay readable in flight; fade out as they converge so overlapping dots cannot
  * add up into a solid white plate.
  */
 function collapseParticleAlpha(collapseT: number, base: number): number {
   if (collapseT < COLLAPSE_BLAST_END) return base;
   if (collapseT < COLLAPSE_MERGE_END) {
-    const t = easeInCubic(
+    const t = easeOutCubic(
       (collapseT - COLLAPSE_BLAST_END) /
         (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
     );
@@ -389,7 +392,7 @@ function collapseParticleAlpha(collapseT: number, base: number): number {
   }
   const vanishSpan = Math.max(0.001, COLLAPSE_VANISH_END - COLLAPSE_MERGE_END);
   const t = clamp01((collapseT - COLLAPSE_MERGE_END) / vanishSpan);
-  return base * (1 - t) * 0.12;
+  return base * (1 - t) * 0.08;
 }
 
 /**

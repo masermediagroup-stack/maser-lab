@@ -17,15 +17,16 @@ function clamp01(n: number): number {
 }
 
 /**
- * Piecewise collapseT(wall): blast/merge in the first segment, expand in the last
- * `COLLAPSE_EXPAND_WALL` of wall-clock — each segment ease-out.
+ * Piecewise collapseT(wall): first segment is linear so merge-to-nothing
+ * gets real time (ease-out here rushed a packed blob, then a long black pause).
+ * Squircle segment stays ease-out so the plate arrives.
  */
 function collapseTAtWall(wall: number): number {
   const w = clamp01(wall);
   const expandWall = COLLAPSE_EXPAND_WALL;
   const expandStart = COLLAPSE_EXPAND_START;
   if (w < 1 - expandWall) {
-    return expandStart * easeOutCubic(w / (1 - expandWall));
+    return expandStart * (w / (1 - expandWall));
   }
   return (
     expandStart +

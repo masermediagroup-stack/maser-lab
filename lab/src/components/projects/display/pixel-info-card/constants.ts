@@ -55,15 +55,15 @@ export const CARD_MIN_HEIGHT = 200;
  *
  * Wall-clock: `COLLAPSE_EXPAND_WALL` reserved for the squircle entrance.
  */
-export const COLLAPSE_BLAST_END = 0.2;
-export const COLLAPSE_MERGE_END = 0.54;
+export const COLLAPSE_BLAST_END = 0.16;
+export const COLLAPSE_MERGE_END = 0.38;
 /** Pixels fully gone before the rest beat. */
-export const COLLAPSE_VANISH_END = 0.62;
-/** Squircle starts after a true empty beat (pixels already gone). */
-export const COLLAPSE_EXPAND_START = 0.74;
+export const COLLAPSE_VANISH_END = 0.4;
+/** Squircle starts after a short empty beat (pixels already gone). */
+export const COLLAPSE_EXPAND_START = 0.42;
 
 /** Fraction of collapse duration spent on squircle coming into the page. */
-export const COLLAPSE_EXPAND_WALL = 0.38;
+export const COLLAPSE_EXPAND_WALL = 0.58;
 
 /**
  * Near-zero so the plate is not a visible mini-squircle. Grows toward the
