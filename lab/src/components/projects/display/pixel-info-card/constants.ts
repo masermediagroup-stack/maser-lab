@@ -50,32 +50,38 @@ export const CARD_MIN_HEIGHT = 200;
  * 0→BLAST: explode into a filled disk
  * BLAST→MERGE: suck every pixel into the origin while shrinking to nothing
  * MERGE→VANISH: mop-up fade (no packed blob / mini-squircle)
- * REST: empty beat at the origin
- * EXPAND: DOM squircle comes toward the viewer from that same point
+ * EXPAND: DOM squircle comes toward the viewer after a short empty beat
  *
  * Wall-clock: `COLLAPSE_EXPAND_WALL` reserved for the squircle entrance.
  */
 export const COLLAPSE_BLAST_END = 0.16;
-export const COLLAPSE_MERGE_END = 0.38;
-/** Pixels fully gone before the rest beat. */
-export const COLLAPSE_VANISH_END = 0.4;
-/** Squircle starts after a short empty beat (pixels already gone). */
-export const COLLAPSE_EXPAND_START = 0.42;
+export const COLLAPSE_MERGE_END = 0.34;
+/** Pixels fully gone before the squircle starts. */
+export const COLLAPSE_VANISH_END = 0.36;
+/** Squircle starts immediately after vanish (short empty beat). */
+export const COLLAPSE_EXPAND_START = 0.36;
 
-/** Fraction of collapse duration spent on squircle coming into the page. */
-export const COLLAPSE_EXPAND_WALL = 0.58;
+/** Fraction of collapse duration until squircle may begin (1 - this = pixel phase). */
+export const COLLAPSE_EXPAND_WALL = 0.64;
+
+/**
+ * CollapseT span for the squircle grow. Independent of the remaining
+ * timeline so the plate can finish in ~200ms at the default assemble speed
+ * instead of stretching across the whole second half of close.
+ */
+export const SQUIRCLE_ENTER_SPAN = 0.12;
 
 /**
  * Near-zero so the plate is not a visible mini-squircle. Grows toward the
- * viewer from the vanished point with ease-out so it arrives a beat sooner.
+ * viewer from the vanished point with ease-out.
  */
 export const SQUIRCLE_ENTER_MIN_SCALE = 0.06;
 
 /** Recede/approach depth in CSS px (paired with perspective on the plate). */
-export const SQUIRCLE_ENTER_Z_PX = 56;
+export const SQUIRCLE_ENTER_Z_PX = 48;
 
 /** Icon + label fade in after the plate has started emerging. */
-export const SQUIRCLE_CHROME_REVEAL_AT = 0.28;
+export const SQUIRCLE_CHROME_REVEAL_AT = 0.18;
 
 /** GlideText in/out duration — keep snappy so the plate never sits blank. */
 export const GLIDE_TEXT_MS = 240;

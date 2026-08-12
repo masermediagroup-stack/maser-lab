@@ -30,6 +30,7 @@ import {
   PIC_DEFAULTS,
   SQUIRCLE_CHROME_REVEAL_AT,
   SQUIRCLE_ENTER_MIN_SCALE,
+  SQUIRCLE_ENTER_SPAN,
   SQUIRCLE_ENTER_Z_PX,
   TRIGGER_BLUR_MAX,
   TRIGGER_SIZE,
@@ -330,16 +331,15 @@ export function PixelInfoCard({
 
   /**
    * After pixels vanish into the origin, the squircle comes toward the viewer
-   * from that same point (scale + translateZ). Ease-out so it arrives promptly
-   * without the ease-in-out hang at the vanishing point.
+   * from that same point. Grow uses `SQUIRCLE_ENTER_SPAN` so it does not
+   * stretch across the rest of close.
    */
   const collapseEnter = (() => {
     if (phase !== "collapsing") return 0;
     const collapseT = 1 - progress;
     if (collapseT < COLLAPSE_EXPAND_START) return 0;
-    const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
     return easeOutCubic(
-      clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan),
+      clamp01((collapseT - COLLAPSE_EXPAND_START) / SQUIRCLE_ENTER_SPAN),
     );
   })();
 
@@ -349,9 +349,7 @@ export function PixelInfoCard({
     if (phase === "expanding" || phase === "expanded") {
       return Math.max(0, 1 - progress / 0.1);
     }
-    if (phase === "collapsing") {
-      return clamp01((collapseEnter - 0.04) / 0.28);
-    }
+    if (phase === "collapsing") return collapseEnter;
     return 0;
   })();
 
