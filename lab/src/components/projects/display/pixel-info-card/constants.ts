@@ -50,33 +50,38 @@ export const CARD_MIN_HEIGHT = 200;
  * (grow past this threshold → 1). Avoid revealing chrome while the plate is still
  * a small expanding blob (that read as a pop / double image).
  */
-export const SQUIRCLE_DOM_REVEAL_GROW = 0.58;
+export const SQUIRCLE_DOM_REVEAL_GROW = 0.72;
 
 /**
  * Collapse timeline (collapseT = 1 - progress):
  * 0→BLAST: explode into a filled disk (not a ring)
  * BLAST→MERGE: suck every pixel into one center point
  * EXPAND overlaps late merge slightly so the solid plate fades up as pixels densify
- * (no hard cut from swarm → squircle)
+ *
+ * Wall-clock: `COLLAPSE_EXPAND_WALL` of close duration is reserved for expand so
+ * reassemble isn't crushed into ~100ms by a single global ease-out.
  */
-export const COLLAPSE_BLAST_END = 0.3;
-export const COLLAPSE_MERGE_END = 0.64;
-export const COLLAPSE_EXPAND_START = 0.58;
+export const COLLAPSE_BLAST_END = 0.26;
+export const COLLAPSE_MERGE_END = 0.55;
+export const COLLAPSE_EXPAND_START = 0.48;
+
+/** Fraction of collapse duration spent on squircle grow + DOM handoff. */
+export const COLLAPSE_EXPAND_WALL = 0.5;
 
 /** Squircle grow starts at this fraction of trigger size (matches merged swarm). */
-export const COLLAPSE_EXPAND_MIN_SCALE = 0.2;
+export const COLLAPSE_EXPAND_MIN_SCALE = 0.22;
 
 /**
  * Fade flying pixels out over this collapseT span once squircle grow begins.
- * Longer than the old 0.2 so pixels visibly melt into the reforming plate.
+ * Longer so pixels visibly melt into the reforming plate across most of expand.
  */
-export const COLLAPSE_SWARM_FADE_SPAN = 0.34;
+export const COLLAPSE_SWARM_FADE_SPAN = 0.42;
 
 /**
  * First portion of grow used to fade the solid plate in (avoids a hard pop when
  * expand starts). Rest of grow is full-opacity canvas plate → DOM crossfade.
  */
-export const COLLAPSE_PLATE_INTRO_SPAN = 0.22;
+export const COLLAPSE_PLATE_INTRO_SPAN = 0.32;
 
 /** GlideText in/out duration — keep snappy so the plate never sits blank. */
 export const GLIDE_TEXT_MS = 240;

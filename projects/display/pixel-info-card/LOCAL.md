@@ -8,11 +8,11 @@
 
 Ending felt jerky when pixels reformed the squircle. Fixes:
 
-- Squircle grow: `easeInOutCubic` → `easeOutQuint` (carry merge momentum, settle)
-- Collapse machine easing: `easeInOutCubic` (avoid double ease-out crawl on final frames)
+- Piecewise collapse timeline: 50% of wall-clock reserved for squircle grow + DOM handoff
+- Grow is linear in collapseT (segment already ease-outs) — no compounded ease-out snap
 - Soft plate intro + longer swarm fade so pixels melt into the plate
-- Continuous particle positions (no integer snap mid-flight); footprints swell on merge
-- Timeline: expand starts earlier with soft overlap; DOM chrome reveals later (`SQUIRCLE_DOM_REVEAL_GROW` 0.58)
+- Continuous particle positions; footprints swell while densifying
+- DOM chrome reveals later (`SQUIRCLE_DOM_REVEAL_GROW` 0.72)
 
 ## Grilling summary
 

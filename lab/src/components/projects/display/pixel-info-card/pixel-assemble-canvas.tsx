@@ -59,11 +59,6 @@ function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
 
-/** Strong ease-out — carry merge momentum into the squircle settle (no ease-in stall). */
-function easeOutQuint(t: number): number {
-  return 1 - (1 - t) ** 5;
-}
-
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
 }
@@ -514,10 +509,9 @@ export function PixelAssembleCanvas({
       // After merge: grow merged core into squircle, crossfading the swarm out
       if (collapseT >= COLLAPSE_EXPAND_START) {
         const expandSpan = Math.max(0.001, 1 - COLLAPSE_EXPAND_START);
-        // Strong ease-out: keep merge velocity, settle into the final squircle
-        const grow = easeOutQuint(
-          clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan),
-        );
+        // Linear in collapseT — machine already ease-outs the expand wall-clock
+        // segment, so compounded ease-out would finish the shape too early.
+        const grow = clamp01((collapseT - COLLAPSE_EXPAND_START) / expandSpan);
         const domT =
           grow < SQUIRCLE_DOM_REVEAL_GROW
             ? 0
