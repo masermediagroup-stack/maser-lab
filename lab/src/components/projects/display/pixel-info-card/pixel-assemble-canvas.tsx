@@ -340,7 +340,8 @@ function sampleCollapsePath(
   }
 
   if (collapseT < COLLAPSE_MERGE_END) {
-    const t = easeInOutCubic(
+    // Ease-out: rush to the origin so the card silhouette doesn't linger as a mini-shape
+    const t = easeOutCubic(
       (collapseT - COLLAPSE_BLAST_END) /
         (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
     );
@@ -360,17 +361,17 @@ function sampleCollapsePath(
 function collapseParticleScale(collapseT: number): number {
   if (collapseT < COLLAPSE_BLAST_END) return 1;
   if (collapseT < COLLAPSE_MERGE_END) {
-    const t = easeInOutCubic(
+    const t = easeOutCubic(
       (collapseT - COLLAPSE_BLAST_END) /
         (COLLAPSE_MERGE_END - COLLAPSE_BLAST_END),
     );
-    return 1 - t * 0.55;
+    return 1 - t * 0.78;
   }
   const vanishSpan = Math.max(0.001, COLLAPSE_VANISH_END - COLLAPSE_MERGE_END);
   const t = easeOutCubic(
     clamp01((collapseT - COLLAPSE_MERGE_END) / vanishSpan),
   );
-  return Math.max(0, 0.45 * (1 - t));
+  return Math.max(0, 0.22 * (1 - t));
 }
 
 function collapseParticleAlpha(collapseT: number, base: number): number {
