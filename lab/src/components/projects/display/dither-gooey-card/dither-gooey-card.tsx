@@ -162,6 +162,11 @@ export function DitherGooeyCard({
                     drawer.toggle();
                   }}
                   onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      drawer.toggle();
+                      return;
+                    }
                     if (event.key === "Escape" && drawer.open) {
                       event.preventDefault();
                       drawer.collapse();

@@ -132,7 +132,7 @@
   min-height: 2.75rem;
   padding: 0.7rem var(--dgc-handle-pad) 0.95rem;
   border: 0;
-  background: transparent;
+  background: linear-gradient(to top, rgba(20, 20, 22, 0.72), rgba(20, 20, 22, 0.08));
   color: var(--dgc-ink);
   font-size: 0.72rem;
   letter-spacing: 0.04em;
