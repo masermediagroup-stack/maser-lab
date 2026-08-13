@@ -24,7 +24,7 @@ export type ControlGroupDef = {
 export const CONTROL_GROUPS: ControlGroupDef[] = [
   {
     id: "material",
-    label: "Material",
+    label: "Structure",
     fields: [],
   },
   {

@@ -7,6 +7,20 @@ Related: [02](./02-RENDER-PIPELINE.md) · [08](./08-PRESET-STUDIO.md) · `engine
 
 Materials are **IDs + packed params + GLSL branches**, not separate shader programs. Layer recipe enable/bypass/solo uses bits; **value changes never recompile**.
 
+### Material ≠ Engine (locked)
+
+| Term | Meaning here | Not |
+| --- | --- | --- |
+| **Material** | Structure / UV / finish family inside **this** Dither pipeline (`engine/material/`) | A separate product engine |
+| **Dither algorithm** | Threshold / quantization family (`engine/dither/`) | A “material” |
+| **Palette / color tone** | Chroma only (`engine/color/` + tone sliders) | Structure |
+| **Preset** | Full look snapshot (material + dither + color + anim/interaction) | Architecture |
+| **Engine (future)** | Separate lab project / GLSL program (Glass Engine, Liquid Engine, …) | Nested studio under this slug |
+
+**Stay in `maser-dither-engine`.** Do not rename the slug to “Material Engine” and do not nest Glass/Liquid as inner projects. Peer engines land at **v1.5+** as new `{category}/{slug}` projects that reuse Dither contracts — see [11](./11-V2-FUTURE.md) and [DEVELOPMENT-ROADMAP](./DEVELOPMENT-ROADMAP.md).
+
+**Why material switches can feel subtle:** Changing Paper → Metal updates `uMatId` + packed structure uniforms. Changing Posterize / Bayer / a full preset updates quantization and many domains at once — a bigger visual jump. Strengthen structure cues in GLSL when needed; do not invent a second engine for that.
+
 ### Families
 
 | Family | Materials |
@@ -107,6 +121,18 @@ Do not document these as shipped in ACs until code + catalog exist.
 - Multi-material blending, node graphs — [11](./11-V2-FUTURE.md).
 - AI material generation — horizon only.
 
+## Distinctiveness notes (lab audit)
+
+Under identical lighting / dither / palette, structure materials should still read differently. Current relative strength (chrome-pass observation; GLSL tweaks are follow-on):
+
+| Priority | Materials | Note |
+| --- | --- | --- |
+| Stronger today | Paper, Ink, CRT, Smoke | Clear fiber / wet / scan / volume cues |
+| Weaker / similar | Glass ↔ Chrome, Fog ↔ Cloud, Metal ↔ Chrome | Finish-heavy; may need stronger UV/field contrast later |
+| Baseline | Monochrome | Intentionally minimal structure |
+
+Do **not** rename the engine API (`material` prop / `uMatId`) to “effect” — fix human labels (“Structure material”, “Surface look”) in lab chrome instead.
+
 ## Why (human)
 
-Materials are the creative heart of the engine. Keeping them ID-packed and ownership-clean is what lets adapters stay thin and exports stay portable.
+Materials are the creative heart of the **Dither** engine — structural looks on one shared program, not a hub of unrelated material engines. Keeping them ID-packed and ownership-clean is what lets adapters stay thin and exports stay portable.

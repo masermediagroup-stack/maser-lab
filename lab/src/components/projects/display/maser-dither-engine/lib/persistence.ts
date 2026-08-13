@@ -1,19 +1,48 @@
 import type { AppRoute, ComponentId, ControlGroupId, ControlGroupState } from "../types";
 import { STORAGE_KEYS } from "../constants";
 
+/** Exclusive-open defaults — one primary panel (Structure). */
 export const DEFAULT_PANEL_STATE: ControlGroupState = {
   material: true,
   animation: false,
-  lighting: true,
-  colors: true,
-  dither: true,
+  lighting: false,
+  colors: false,
+  dither: false,
   finish: false,
   interaction: false,
   noise: false,
   rendering: false,
-  content: true,
+  content: false,
   export: false,
-  presets: true,
+  presets: false,
+};
+
+export const PANEL_CATEGORY_ORDER = [
+  "presets",
+  "content",
+  "material",
+  "colors",
+  "dither",
+  "lighting",
+  "animation",
+  "interaction",
+  "finish",
+  "export",
+] as const satisfies readonly ControlGroupId[];
+
+export type PanelCategoryId = (typeof PANEL_CATEGORY_ORDER)[number];
+
+export const PANEL_CATEGORY_LABELS: Record<PanelCategoryId, string> = {
+  presets: "Presets",
+  content: "Content",
+  material: "Structure",
+  colors: "Palette",
+  dither: "Dither",
+  lighting: "Lighting",
+  animation: "Animation",
+  interaction: "Interaction",
+  finish: "Finish",
+  export: "Export",
 };
 
 export function loadPanelState(): ControlGroupState {

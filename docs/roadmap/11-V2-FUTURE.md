@@ -17,6 +17,10 @@ Ideas for engines that should **reuse Dither’s contracts** (one program · con
 
 First real expansion milestone: **v1.5** (e.g. Liquid / Glass), with this file promoted as those engines are specified.
 
+### “Material engine hub” is not this slug
+
+A Lab index that lets you open **Dither Studio**, **Glass Studio**, **Liquid Studio**, etc. is a **future multi-engine Lab shell** — separate projects under `projects/`, not a rename of `maser-dither-engine` and not nested “inner projects” inside the Dither package. Inside Dither, “materials” remain structure looks on the dither pipeline ([03](./03-MATERIAL-SYSTEM.md)).
+
 ## Creative systems (3–5 years)
 
 Node Material Editor · Visual Shader Graph · Procedural Noise Designer · Timeline Editor / Sequencer · Animation Curves · Multi-material blending · Procedural Typography · Theme / Design Tokens / Design System Generator · Motion / Transition Designer · Cursor Playground · Creative Coding Sandbox · Procedural Texture Baker · Plugin API

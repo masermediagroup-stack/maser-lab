@@ -144,7 +144,7 @@ export function ProceduralMaterialPanel({
   return (
     <div className="mde-proc-mat">
       <div className="mde-field">
-        <span className="mde-field__label">Material</span>
+        <span className="mde-field__label">Structure material</span>
         <p className="mde-field__hint">
           Procedural structure — not a palette swap. Color lives in the Color
           panel.

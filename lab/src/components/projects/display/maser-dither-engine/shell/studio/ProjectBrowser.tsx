@@ -222,21 +222,20 @@ export function ProjectBrowser({
             className={cn(
               "mde-studio__card",
               p.origin === "system" && "mde-studio__card--system",
+              !p.thumbnailDataUrl && "mde-studio__card--no-thumb",
             )}
           >
-            <button
-              type="button"
-              className="mde-studio__thumb"
-              onClick={() => onOpen(p)}
-              aria-label={`Open ${p.name}`}
-            >
-              {p.thumbnailDataUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element -- data URL thumbnails
+            {p.thumbnailDataUrl ? (
+              <button
+                type="button"
+                className="mde-studio__thumb"
+                onClick={() => onOpen(p)}
+                aria-label={`Open ${p.name}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- data URL thumbnails */}
                 <img src={p.thumbnailDataUrl} alt="" />
-              ) : (
-                <span className="mde-studio__thumb-fallback" data-material={p.materialId} />
-              )}
-            </button>
+              </button>
+            ) : null}
             <div className="mde-studio__meta">
               <div className="mde-comp-card__row">
                 <h2>{p.name}</h2>
@@ -244,12 +243,19 @@ export function ProjectBrowser({
                   {p.origin === "system" ? "System" : "User"}
                 </span>
               </div>
+              <p className="mde-studio__chips">
+                <span
+                  className="mde-studio__mat-chip"
+                  data-material={p.materialId}
+                >
+                  {p.materialId}
+                </span>
+              </p>
               <p>{p.description}</p>
               <p className="mde-muted">
-                {p.materialId}
                 {p.updatedAt
-                  ? ` · Edited ${new Date(p.updatedAt).toLocaleString()}`
-                  : " · Built-in"}
+                  ? `Edited ${new Date(p.updatedAt).toLocaleString()}`
+                  : "Built-in"}
                 {p.favorite ? " · ★" : ""}
               </p>
               <div className="mde-studio__actions">
