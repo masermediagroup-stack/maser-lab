@@ -1,16 +1,9 @@
 "use client";
 
-import {
-  applyPaletteToConfig,
-  DEFAULT_COLOR_MATERIAL,
-  defaultModeParams,
-  hexToRgb,
-  SurfaceCanvas,
-} from "@maser/dither-engine";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Liquid } from "liquid-gooey";
-import { useId, useMemo } from "react";
+import { useId } from "react";
 import {
   Card,
   CardContent,
@@ -21,33 +14,22 @@ import { cn } from "@/lib/utils";
 import {
   COLLAPSED_HEIGHT,
   COPY,
+  DEFAULT_BACKGROUND,
+  DEFAULT_TEXT,
   DRIP_SIZE,
   EXPANDED_HEIGHT,
-  RADIAL_PULSE_PARAMS,
 } from "./constants";
 import type { DitherGooeyCardProps } from "./types";
 import { useDrawerGesture } from "./use-drawer-gesture";
 import "./tokens.css";
 
-function mixRgb(
-  a: { r: number; g: number; b: number },
-  b: { r: number; g: number; b: number },
-  t: number,
-) {
-  return {
-    r: a.r + (b.r - a.r) * t,
-    g: a.g + (b.g - a.g) * t,
-    b: a.b + (b.b - a.b) * t,
-  };
-}
-
 export function DitherGooeyCard({
   title = COPY.title,
-  pullHint = COPY.pullHint,
   closeHint = COPY.closeHint,
   bodyTitle = COPY.bodyTitle,
   body = COPY.body,
-  accentColor,
+  backgroundColor = DEFAULT_BACKGROUND,
+  textColor = DEFAULT_TEXT,
   reducedMotion = false,
   className,
   style,
@@ -63,47 +45,39 @@ export function DitherGooeyCard({
     onOpenChange,
   });
 
-  const color = useMemo(() => {
-    const base = applyPaletteToConfig("monochrome", DEFAULT_COLOR_MATERIAL);
-    const hex = accentColor?.trim();
-    if (!hex) return base;
-    const tint = hexToRgb(hex);
-    return {
-      ...base,
-      colors: {
-        ...base.colors,
-        accent: tint,
-        glow: tint,
-        highlight: mixRgb(base.colors.highlight, tint, 0.4),
-        dither: mixRgb(base.colors.dither, tint, 0.55),
-        edgeTint: mixRgb(base.colors.edgeTint, tint, 0.35),
-      },
-      paletteId: "monochrome-tint",
-    };
-  }, [accentColor]);
-
-  const animation = useMemo(
-    () => ({
-      modeId: "radial-pulse" as const,
-      modeParams: {
-        ...defaultModeParams("radial-pulse"),
-        ...RADIAL_PULSE_PARAMS,
-      },
-      blendDuration: 0.2,
-    }),
-    [],
-  );
-
+  const fill = backgroundColor.trim() || DEFAULT_BACKGROUND;
+  const ink = textColor.trim() || DEFAULT_TEXT;
   const gooey = drawer.dragging || drawer.progress > 0.04;
-  const dripY = COLLAPSED_HEIGHT - DRIP_SIZE * 0.55 + drawer.progress * (EXPANDED_HEIGHT - COLLAPSED_HEIGHT);
+  const dripY =
+    COLLAPSED_HEIGHT -
+    DRIP_SIZE * 0.55 +
+    drawer.progress * (EXPANDED_HEIGHT - COLLAPSED_HEIGHT);
+  const chevronRotate = drawer.progress * 180;
+
+  const activate = () => {
+    if (drawer.consumeClick()) return;
+    drawer.toggle();
+  };
+
+  const collapse = () => {
+    if (drawer.consumeClick()) return;
+    drawer.collapse();
+  };
 
   return (
-    <div className={cn("dgc-root", className)} style={style}>
+    <div
+      className={cn("dgc-root", className)}
+      style={{
+        ...style,
+        ["--dgc-fill" as string]: fill,
+        ["--dgc-ink" as string]: ink,
+      }}
+    >
       <Liquid
         className="dgc-liquid"
         blur={gooey && !reducedMotion ? 16 : 7}
         contrast={20}
-        fill="var(--dgc-fill)"
+        fill={fill}
         shadow="0 16px 40px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.12)"
         filterPadding={36}
       >
@@ -127,40 +101,15 @@ export function DitherGooeyCard({
               className="dgc-card h-full w-full bg-transparent py-0 ring-0"
               aria-label={`${title} drawer`}
             >
-              <SurfaceCanvas
-                className="dgc-canvas"
-                reducedMotion={reducedMotion}
-                animation={animation}
-                color={color}
-                material={{ materialId: "monochrome" }}
-                dither={{ algorithm: "bayer", matrixSize: 8, patternScale: 1.15 }}
-                light={{
-                  shape: "radial",
-                  centerX: 0.28,
-                  centerY: 0.22,
-                  radius: 0.72,
-                  falloff: 0.85,
-                }}
-                params={{
-                  contrast: 1.15,
-                  brightness: 0.04,
-                  opacity: 0.92,
-                  grainAmount: 0.06,
-                  softEdge: 0.62,
-                }}
-              />
               <CardHeader className="p-0">
                 <button
                   type="button"
                   className="dgc-handle"
                   aria-expanded={drawer.open}
                   aria-controls={panelId}
-                  aria-label={`${title}. ${pullHint}`}
+                  aria-label={`${title}. Pull down to open`}
                   {...drawer.handleProps}
-                  onClick={() => {
-                    if (drawer.consumeClick()) return;
-                    drawer.toggle();
-                  }}
+                  onClick={activate}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
@@ -173,17 +122,7 @@ export function DitherGooeyCard({
                     }
                   }}
                 >
-                  <div className="dgc-title-row">
-                    <ChevronDown
-                      aria-hidden
-                      className="dgc-chevron"
-                      style={{
-                        transform: `rotate(${drawer.progress * 180}deg)`,
-                      }}
-                    />
-                    <span className="dgc-title">{title}</span>
-                  </div>
-                  <span className="dgc-hint">{pullHint}</span>
+                  <span className="dgc-title">{title}</span>
                 </button>
               </CardHeader>
               <CardContent
@@ -208,10 +147,7 @@ export function DitherGooeyCard({
                     pointerEvents: drawer.progress > 0.55 ? "auto" : "none",
                   }}
                   {...drawer.handleProps}
-                  onClick={() => {
-                    if (drawer.consumeClick()) return;
-                    drawer.collapse();
-                  }}
+                  onClick={collapse}
                 >
                   <ChevronUp aria-hidden className="dgc-chevron" />
                   {closeHint}
@@ -233,7 +169,17 @@ export function DitherGooeyCard({
           transition={reducedMotion ? { duration: 0 } : "bouncy"}
           radius={20}
         >
-          <div className="dgc-drip" aria-hidden />
+          <div
+            className="dgc-drip"
+            aria-hidden
+            {...drawer.handleProps}
+            onClick={activate}
+          >
+            <ChevronDown
+              className="dgc-chevron"
+              style={{ transform: `rotate(${chevronRotate}deg)` }}
+            />
+          </div>
         </Liquid.Item>
       </Liquid>
     </div>

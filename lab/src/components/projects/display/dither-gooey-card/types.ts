@@ -2,12 +2,13 @@ import type { CSSProperties, ReactNode } from "react";
 
 export type DitherGooeyCardProps = {
   title?: string;
-  pullHint?: string;
   closeHint?: string;
   bodyTitle?: string;
   body?: ReactNode;
-  /** Optional chroma tint. Omit or empty for black-and-white dither. */
-  accentColor?: string;
+  /** Card / liquid fill. CSS color. */
+  backgroundColor?: string;
+  /** Heading, body, and icon color. CSS color. */
+  textColor?: string;
   reducedMotion?: boolean;
   className?: string;
   style?: CSSProperties;

@@ -8,23 +8,48 @@ import {
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
 import { DitherGooeyCard } from "./dither-gooey-card";
-import { COPY } from "./constants";
+import { COPY, DEFAULT_BACKGROUND, DEFAULT_TEXT } from "./constants";
 
-const ACCENT_SWATCHES = [
-  { id: "none", label: "B&W", value: "" },
-  { id: "blue", label: "Blue", value: "#7eb8ff" },
-  { id: "amber", label: "Amber", value: "#e8c37a" },
-  { id: "mint", label: "Mint", value: "#8ee0c8" },
+const COLOR_PRESETS = [
+  { id: "grey", label: "Grey", background: DEFAULT_BACKGROUND, text: DEFAULT_TEXT },
+  { id: "ink", label: "Ink", background: "#1c1c1f", text: "#f4f4f2" },
+  { id: "cream", label: "Cream", background: "#e8e4d8", text: "#2a2a28" },
+  { id: "navy", label: "Navy", background: "#1e3a5f", text: "#f4f7fb" },
 ] as const;
+
+function ColorField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  return (
+    <label className="flex items-center gap-2 rounded-[var(--lab-radius-sm)] border border-[var(--lab-border)] bg-[var(--lab-surface)] px-2 py-1.5 font-mono text-xs text-[var(--lab-text-secondary)]">
+      <span>{label}</span>
+      <input
+        type="color"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        aria-label={label}
+        className="h-7 w-7 cursor-pointer rounded border-0 bg-transparent p-0"
+      />
+    </label>
+  );
+}
 
 export function DitherGooeyCardDemo() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [open, setOpen] = useState(false);
-  const [accentId, setAccentId] = useState<(typeof ACCENT_SWATCHES)[number]["id"]>(
-    "none",
-  );
+  const [backgroundColor, setBackgroundColor] = useState(DEFAULT_BACKGROUND);
+  const [textColor, setTextColor] = useState(DEFAULT_TEXT);
 
-  const accent = ACCENT_SWATCHES.find((s) => s.id === accentId)?.value ?? "";
+  const activePreset = COLOR_PRESETS.find(
+    (preset) =>
+      preset.background === backgroundColor && preset.text === textColor,
+  );
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#121214] text-[#f4f4f2]">
@@ -34,23 +59,32 @@ export function DitherGooeyCardDemo() {
           <LabButton
             variant={open ? "accent" : "ghost"}
             aria-pressed={open}
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setOpen((value) => !value)}
           >
             {open ? "Open" : "Collapsed"}
           </LabButton>
-          {ACCENT_SWATCHES.map((swatch) => (
+          {COLOR_PRESETS.map((preset) => (
             <LabButton
-              key={swatch.id}
-              variant={accentId === swatch.id ? "accent" : "ghost"}
-              aria-pressed={accentId === swatch.id}
-              onClick={() => setAccentId(swatch.id)}
+              key={preset.id}
+              variant={activePreset?.id === preset.id ? "accent" : "ghost"}
+              aria-pressed={activePreset?.id === preset.id}
+              onClick={() => {
+                setBackgroundColor(preset.background);
+                setTextColor(preset.text);
+              }}
             >
-              {swatch.label}
+              {preset.label}
             </LabButton>
           ))}
+          <ColorField
+            label="Background"
+            value={backgroundColor}
+            onChange={setBackgroundColor}
+          />
+          <ColorField label="Text" value={textColor} onChange={setTextColor} />
           <ReducedMotionToggle
             enabled={reducedMotion}
-            onToggle={() => setReducedMotion((v) => !v)}
+            onToggle={() => setReducedMotion((value) => !value)}
           />
         </div>
       </DemoControlBar>
@@ -61,19 +95,19 @@ export function DitherGooeyCardDemo() {
             Display
           </p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight">
-            Dither Gooey Card
+            Gooey Card
           </h1>
           <p className="mt-2 text-sm text-[var(--lab-text-secondary,#c4c4c4)]">
-            Pull the handle to open. Press the bottom to close. Dither pulse plus
-            liquid-gooey morph.
+            Pull the drip to open. Press the bottom to close. Tune fill and ink
+            from the bar.
           </p>
         </div>
 
         <DitherGooeyCard
           title={COPY.title}
-          pullHint={COPY.pullHint}
           reducedMotion={reducedMotion}
-          accentColor={accent}
+          backgroundColor={backgroundColor}
+          textColor={textColor}
           open={open}
           onOpenChange={setOpen}
         />

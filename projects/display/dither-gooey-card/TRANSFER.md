@@ -13,13 +13,12 @@ import { DitherGooeyCard } from "@/components/projects/display/dither-gooey-card
 ## Dependencies
 
 - `liquid-gooey`
-- `@maser/dither-engine`
 - `framer-motion`
 - shadcn `Card` primitives already in the lab
 
 ## Props
 
-See `DitherGooeyCardProps` in the product module. Complete this table in Transfer mode.
+See `DitherGooeyCardProps` in the product module. Host colors: `backgroundColor`, `textColor`.
 
 ## Public assets
 
@@ -36,3 +35,4 @@ None.
 ## Notes
 
 Lab demo chrome is not portable. Product barrel must stay demo-free.
+This slug does not depend on `@maser/dither-engine`.

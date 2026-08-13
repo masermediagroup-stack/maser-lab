@@ -9,7 +9,6 @@
 | --- | --- | --- |
 | Figma file | none | Code-first lab experiment |
 | Other | https://www.npmjs.com/package/liquid-gooey | Gooey morph / move API |
-| Other | `/demos/maser-dither-engine` | Radial pulse + monochrome palette |
 
 ## Figma file (team)
 
@@ -19,14 +18,15 @@ None.
 
 | Figma token / value | CSS variable | Notes |
 | --- | --- | --- |
-| Classic grey surface | `--dgc-fill` | Liquid silhouette |
-| White type / icons | `--dgc-ink` | Content layer (unfiltered) |
+| Card surface | `--dgc-fill` | Liquid silhouette; host `backgroundColor` |
+| Type / icons | `--dgc-ink` | Content layer (unfiltered); host `textColor` |
 
 ## Implementation sync
 
 | Date | Direction | Notes |
 | --- | --- | --- |
 | 2026-08-13 | code-first | Initial build |
+| 2026-08-13 | code-first | Removed dither; color props + drip chevron |
 
 ## Code Connect
 
