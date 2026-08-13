@@ -25,7 +25,9 @@ Work phase by phase. At the end of each implementation phase: lint, typecheck, t
 
 **This phase did not run** a Casework lint/typecheck/build (no app yet). Lab app was not modified.
 
-**Next:** Human creates the Casework repo and copies this packet plus the curated skills listed in architecture.md. Then approve Phase 1.
+**Handoff zip:** download [`casework-handoff.zip`](./casework-handoff.zip) — see [HANDOFF.md](./HANDOFF.md). Do not zip the whole maser-lab repo.
+
+**Next:** Human creates the empty Casework GitHub repo, unzips the handoff, pushes it, then approve Phase 1 **on that repo**.
 
 ---
 

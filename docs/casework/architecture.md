@@ -50,6 +50,8 @@ Existing marketing site (facts, not assumptions):
 
 This agent (and Phase 0 in maser-lab) does **not** edit maser-media. The `/p/[slug]` route is a later PR in that repo, after the renderer package exists.
 
+To start the Casework repo, download [`casework-handoff.zip`](./casework-handoff.zip) and follow [HANDOFF.md](./HANDOFF.md). Do not clone maser-lab as Casework.
+
 ## Casework folder structure (new repo, Phase 1)
 
 ```text
