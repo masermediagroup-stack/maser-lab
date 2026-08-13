@@ -98,8 +98,8 @@ export function DitherGooeyCardDemo() {
             Gooey Card
           </h1>
           <p className="mt-2 text-sm text-[var(--lab-text-secondary,#c4c4c4)]">
-            Pull the drip to open. Press the bottom to close. Tune fill and ink
-            from the bar.
+            Grab the arrow to pull open. Press the bottom to close. Tune fill
+            and ink from the bar.
           </p>
         </div>
 

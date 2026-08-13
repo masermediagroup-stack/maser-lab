@@ -1,6 +1,10 @@
 "use client";
 
-import { animate, useMotionValue, type AnimationPlaybackControls } from "framer-motion";
+import {
+  animate,
+  useMotionValue,
+  type AnimationPlaybackControls,
+} from "framer-motion";
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import {
   COLLAPSED_HEIGHT,
@@ -16,11 +20,9 @@ type GestureOptions = {
   onOpenChange?: (open: boolean) => void;
 };
 
-function rubber(value: number, min: number, max: number): number {
-  if (value < min) {
-    const overflow = min - value;
-    return min - overflow / (1 + overflow / 72);
-  }
+/** Rubber-band only past the open ceiling. Never shrink below collapsed. */
+function constrainHeight(value: number, min: number, max: number): number {
+  if (value < min) return min;
   if (value > max) {
     const overflow = value - max;
     return max + overflow / (1 + overflow / 72);
@@ -35,9 +37,10 @@ export function useDrawerGesture({
   onOpenChange,
 }: GestureOptions) {
   const height = useMotionValue(defaultOpen ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT);
+  const progress = useMotionValue(defaultOpen ? 1 : 0);
   const [open, setOpenState] = useState(defaultOpen);
   const [dragging, setDragging] = useState(false);
-  const [progress, setProgress] = useState(defaultOpen ? 1 : 0);
+  const [settling, setSettling] = useState(false);
 
   const openRef = useRef(open);
   const draggingRef = useRef(false);
@@ -62,23 +65,23 @@ export function useDrawerGesture({
 
   const range = EXPANDED_HEIGHT - COLLAPSED_HEIGHT;
 
-  const commitOpen = useCallback(
-    (next: boolean) => {
-      openRef.current = next;
-      setOpenState(next);
-      onOpenChangeRef.current?.(next);
-    },
-    [],
-  );
+  const commitOpen = useCallback((next: boolean) => {
+    openRef.current = next;
+    setOpenState(next);
+    onOpenChangeRef.current?.(next);
+  }, []);
 
   const springTo = useCallback(
     (target: number, velocity: number) => {
       springRef.current?.stop();
       if (reducedMotion) {
         height.set(target);
-        commitOpen(target >= COLLAPSED_HEIGHT + range * OPEN_THRESHOLD);
+        progress.set(target === EXPANDED_HEIGHT ? 1 : 0);
+        setSettling(false);
+        commitOpen(target === EXPANDED_HEIGHT);
         return;
       }
+      setSettling(true);
       springRef.current = animate(height, target, {
         type: "spring",
         stiffness: 380,
@@ -86,12 +89,13 @@ export function useDrawerGesture({
         mass: 0.85,
         velocity: velocity / 1000,
         onComplete: () => {
+          setSettling(false);
           commitOpen(target === EXPANDED_HEIGHT);
         },
       });
       commitOpen(target === EXPANDED_HEIGHT);
     },
-    [commitOpen, height, range, reducedMotion],
+    [commitOpen, height, progress, reducedMotion],
   );
 
   useEffect(() => {
@@ -102,17 +106,19 @@ export function useDrawerGesture({
 
   useEffect(() => {
     const unsub = height.on("change", (value) => {
-      setProgress(Math.max(0, Math.min(1, (value - COLLAPSED_HEIGHT) / range)));
+      progress.set(Math.max(0, Math.min(1, (value - COLLAPSED_HEIGHT) / range)));
     });
     return unsub;
-  }, [height, range]);
+  }, [height, progress, range]);
 
   const onPointerDown = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       if (event.button !== 0) return;
+      event.stopPropagation();
       event.currentTarget.setPointerCapture(event.pointerId);
       pointerIdRef.current = event.pointerId;
       springRef.current?.stop();
+      setSettling(false);
       draggingRef.current = true;
       setDragging(true);
       startYRef.current = event.clientY;
@@ -137,7 +143,9 @@ export function useDrawerGesture({
       velocityRef.current = velocityRef.current * 0.65 + inst * 0.35;
       lastYRef.current = event.clientY;
       lastTRef.current = now;
-      height.set(rubber(startHRef.current + dy, COLLAPSED_HEIGHT, EXPANDED_HEIGHT));
+      height.set(
+        constrainHeight(startHRef.current + dy, COLLAPSED_HEIGHT, EXPANDED_HEIGHT),
+      );
     },
     [height],
   );
@@ -206,9 +214,10 @@ export function useDrawerGesture({
 
   return {
     height,
+    progress,
     open,
     dragging,
-    progress,
+    settling,
     toggle,
     collapse,
     expand,

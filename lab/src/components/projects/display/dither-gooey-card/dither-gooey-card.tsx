@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useTransform } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Liquid } from "liquid-gooey";
 import { useId } from "react";
@@ -16,7 +16,7 @@ import {
   COPY,
   DEFAULT_BACKGROUND,
   DEFAULT_TEXT,
-  DRIP_SIZE,
+  DRIP_Y,
   EXPANDED_HEIGHT,
 } from "./constants";
 import type { DitherGooeyCardProps } from "./types";
@@ -47,21 +47,25 @@ export function DitherGooeyCard({
 
   const fill = backgroundColor.trim() || DEFAULT_BACKGROUND;
   const ink = textColor.trim() || DEFAULT_TEXT;
-  const gooey = drawer.dragging || drawer.progress > 0.04;
-  const dripY =
-    COLLAPSED_HEIGHT -
-    DRIP_SIZE * 0.55 +
-    drawer.progress * (EXPANDED_HEIGHT - COLLAPSED_HEIGHT);
-  const chevronRotate = drawer.progress * 180;
+  const live = drawer.dragging || drawer.settling;
+  const gooey = live && !reducedMotion;
+
+  const scaleY = useTransform(drawer.height, (value) => value / EXPANDED_HEIGHT);
+  const contentScaleY = useTransform(scaleY, (value) => (value === 0 ? 1 : 1 / value));
+  const chevronRotate = useTransform(
+    drawer.height,
+    [COLLAPSED_HEIGHT, EXPANDED_HEIGHT],
+    [0, 180],
+  );
+  const bodyOpacity = useTransform(
+    drawer.height,
+    [COLLAPSED_HEIGHT + 28, EXPANDED_HEIGHT - 12],
+    [0, 1],
+  );
 
   const activate = () => {
     if (drawer.consumeClick()) return;
     drawer.toggle();
-  };
-
-  const collapse = () => {
-    if (drawer.consumeClick()) return;
-    drawer.collapse();
   };
 
   return (
@@ -75,7 +79,7 @@ export function DitherGooeyCard({
     >
       <Liquid
         className="dgc-liquid"
-        blur={gooey && !reducedMotion ? 16 : 7}
+        blur={gooey ? 16 : 7}
         contrast={20}
         fill={fill}
         shadow="0 16px 40px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.12)"
@@ -95,91 +99,91 @@ export function DitherGooeyCard({
           observe
           radius={18}
         >
-          <motion.div style={{ height: drawer.height }}>
-            <Card
-              size="sm"
-              className="dgc-card h-full w-full bg-transparent py-0 ring-0"
-              aria-label={`${title} drawer`}
+          <motion.div
+            className="dgc-shell"
+            data-live={live ? "true" : "false"}
+            style={{
+              height: EXPANDED_HEIGHT,
+              scaleY,
+              originX: 0.5,
+              originY: 0,
+              z: 0,
+            }}
+          >
+            <motion.div
+              className="dgc-shell-inner"
+              style={{
+                scaleY: contentScaleY,
+                originX: 0.5,
+                originY: 0,
+                z: 0,
+              }}
             >
-              <CardHeader className="p-0">
-                <button
-                  type="button"
-                  className="dgc-handle"
-                  aria-expanded={drawer.open}
-                  aria-controls={panelId}
-                  aria-label={`${title}. Pull down to open`}
-                  {...drawer.handleProps}
-                  onClick={activate}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      drawer.toggle();
-                      return;
-                    }
-                    if (event.key === "Escape" && drawer.open) {
-                      event.preventDefault();
-                      drawer.collapse();
-                    }
-                  }}
-                >
-                  <span className="dgc-title">{title}</span>
-                </button>
-              </CardHeader>
-              <CardContent
-                id={panelId}
-                className="dgc-body"
-                style={{
-                  opacity: Math.max(0, (drawer.progress - 0.28) / 0.72),
-                  pointerEvents: drawer.open ? "auto" : "none",
-                }}
+              <Card
+                size="sm"
+                className="dgc-card h-full w-full bg-transparent py-0 ring-0"
+                aria-label={`${title} drawer`}
               >
-                <h3>{bodyTitle}</h3>
-                {typeof body === "string" ? <p>{body}</p> : body}
-              </CardContent>
-              <CardFooter className="mt-auto border-0 bg-transparent p-0">
-                <button
-                  type="button"
-                  className="dgc-close"
-                  tabIndex={drawer.open ? 0 : -1}
-                  aria-label={closeHint}
-                  style={{
-                    opacity: Math.max(0, (drawer.progress - 0.4) / 0.6),
-                    pointerEvents: drawer.progress > 0.55 ? "auto" : "none",
-                  }}
-                  {...drawer.handleProps}
-                  onClick={collapse}
+                <CardHeader className="p-0">
+                  <div className="dgc-title-wrap">
+                    <span className="dgc-title">{title}</span>
+                  </div>
+                </CardHeader>
+                <CardContent
+                  id={panelId}
+                  className="dgc-body"
+                  style={{ pointerEvents: drawer.open ? "auto" : "none" }}
                 >
-                  <ChevronUp aria-hidden className="dgc-chevron" />
-                  {closeHint}
-                </button>
-              </CardFooter>
-            </Card>
+                  <motion.div style={{ opacity: bodyOpacity }}>
+                    <h3>{bodyTitle}</h3>
+                    {typeof body === "string" ? <p>{body}</p> : body}
+                  </motion.div>
+                </CardContent>
+                <CardFooter className="mt-auto border-0 bg-transparent p-0">
+                  <motion.button
+                    type="button"
+                    className="dgc-close"
+                    tabIndex={drawer.open ? 0 : -1}
+                    aria-label={closeHint}
+                    style={{
+                      opacity: bodyOpacity,
+                      pointerEvents: drawer.open ? "auto" : "none",
+                    }}
+                    onClick={() => drawer.collapse()}
+                  >
+                    <ChevronUp aria-hidden className="dgc-chevron" />
+                    {closeHint}
+                  </motion.button>
+                </CardFooter>
+              </Card>
+            </motion.div>
           </motion.div>
         </Liquid.Item>
-        <Liquid.Item
-          className="dgc-drip-item"
-          y={dripY}
-          effect={gooey && !reducedMotion ? "move" : "morph"}
-          move={{ springiness: 0.38, trail: 0.62, stretch: 0.42, wobble: 0.4 }}
-          morph={{
-            shape: gooey && !reducedMotion,
-            bounce: 0.35,
-            contentBlur: 0,
-          }}
-          transition={reducedMotion ? { duration: 0 } : "bouncy"}
-          radius={20}
-        >
-          <div
+        <Liquid.Item className="dgc-drip-item" y={DRIP_Y} x={0} radius={24}>
+          <button
+            type="button"
             className="dgc-drip"
-            aria-hidden
+            aria-expanded={drawer.open}
+            aria-controls={panelId}
+            aria-label={`${title}. Pull down to open`}
             {...drawer.handleProps}
             onClick={activate}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                drawer.toggle();
+                return;
+              }
+              if (event.key === "Escape" && drawer.open) {
+                event.preventDefault();
+                drawer.collapse();
+              }
+            }}
           >
-            <ChevronDown
-              className="dgc-chevron"
-              style={{ transform: `rotate(${chevronRotate}deg)` }}
-            />
-          </div>
+            <motion.span className="dgc-chevron-wrap" style={{ rotate: chevronRotate }}>
+              <ChevronDown aria-hidden className="dgc-chevron" />
+            </motion.span>
+          </button>
         </Liquid.Item>
       </Liquid>
     </div>

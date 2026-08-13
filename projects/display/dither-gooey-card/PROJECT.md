@@ -23,10 +23,10 @@ Reveal more copy by pulling a thin card down; hide it by pressing the bottom. Th
 Greenfield drawer using `liquid-gooey`. Dither engine was removed so motion and layout can be tuned in isolation.
 
 ### Desired outcome
-A horizontal shadcn Card: heading **Learn More**, with a centered gooey drip and chevron as the pull affordance. Pull or tap-hold-and-drag opens a gooey drawer. Host can set card background and text color. Press the bottom to collapse.
+A horizontal shadcn Card: heading **Learn More**, with a centered gooey drip and chevron as the only pull affordance. Grab the arrow to open. Host can set card background and text color. Press the bottom to collapse. Stretch cannot go below the collapsed fill.
 
 ### Success signal
-Pointer-down tracking is 1:1 (`rule/direct-manipulation-continuity`). Release is velocity-aware. Gooey is visible during drag/open, not a blurry idle filter. Text stays crisp. Reduced motion snaps height.
+Pointer-down tracking is 1:1 (`rule/direct-manipulation-continuity`). Release is velocity-aware. Gooey is visible during drag/settle, not a blurry idle filter. Stretch is GPU `scaleY` (`rule/gpu-properties-only`). Text stays on the fill — height cannot go below collapsed. Reduced motion snaps.
 
 ### Non-goals
 - Not a page-level sheet, modal, or nav
@@ -37,7 +37,7 @@ Pointer-down tracking is 1:1 (`rule/direct-manipulation-continuity`). Release is
 
 - [ ] default (collapsed)
 - [ ] hover (pointer fine only)
-- [ ] focus (keyboard on pull handle)
+- [ ] focus (keyboard on drip / arrow)
 - [ ] active / dragging
 - [ ] open
 - [ ] prefers-reduced-motion
@@ -47,9 +47,11 @@ Pointer-down tracking is 1:1 (`rule/direct-manipulation-continuity`). Release is
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | `liquid-gooey` + Framer Motion springs | Gooey morph on height; interruptible spring for gesture |
+| Library | `liquid-gooey` + Framer Motion springs | Gooey morph on GPU `scaleY`; interruptible spring for gesture |
 | Duration | Gesture is 1:1; settle ~280–400ms spring | Occasional disclosure; settle can carry light bounce from the pull |
 | Easing | Spring stiffness ~380 / damping ~32; gooey bounce 0.42 | `rule/velocity-aware-gestures`; bounce only when the gesture had momentum |
+| Min size | Hard clamp at collapsed height | Fill never pulls off the heading |
+| Drip | Fixed center Y; arrow rotates | Droplet does not travel to the open footer |
 
 ## Three.js / 3D (optional)
 
@@ -59,8 +61,10 @@ Skip. Solid CSS fill via `liquid-gooey` `Liquid.fill`. No canvas.
 
 - [ ] Demo route `/demos/dither-gooey-card` renders all states above
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
-- [ ] Pull-down (or tap-hold-and-drag) opens; press/click the bottom closes
-- [ ] Keyboard: Enter/Space on the handle toggles
+- [ ] Pull-down starts only from the arrow/droplet hit area
+- [ ] Press/click the bottom closes; drag cannot shrink below collapsed height
+- [ ] Keyboard: Enter/Space on the drip toggles
+- [ ] Drip stays centered; chevron flips on open without traveling to the footer
 - [ ] No dither canvas or `@maser/dither-engine` import in this slug
 - [ ] Demo can change card background and text color
 - [ ] Pull-hint copy is absent; drip + chevron is the affordance
@@ -78,3 +82,5 @@ Skip. Solid CSS fill via `liquid-gooey` `Liquid.fill`. No canvas.
 
 - shadcn `Card` is the content structure; `liquid-gooey` `Liquid.fill` is the colored surface.
 - Center drip with chevron replaces “pull for more info” copy.
+- Stretch uses compositor `scaleY` (counter-scaled content so type does not squash).
+- Pull gesture is drip-only; collapsed height is a hard floor.
