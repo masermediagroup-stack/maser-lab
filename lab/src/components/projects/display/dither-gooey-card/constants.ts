@@ -12,5 +12,5 @@ export const COPY = {
   title: "Learn More",
   closeHint: "Press to close",
   bodyTitle: "More to read",
-  body: "Pull the drip to open this drawer. Press the bottom edge to collapse it. The grey surface goes gooey while it stretches.",
+  body: "Pull the drip to open this drawer. Press the bottom edge to collapse it. The surface goes gooey while it stretches.",
 } as const;
