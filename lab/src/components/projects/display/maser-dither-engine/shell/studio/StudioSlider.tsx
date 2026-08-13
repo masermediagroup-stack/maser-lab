@@ -15,6 +15,7 @@ type StudioSliderProps = {
   unit?: string;
   hint?: string;
   defaultValue?: number;
+  disabled?: boolean;
   onChange: (next: number) => void;
   className?: string;
 };
@@ -38,6 +39,7 @@ export function StudioSlider({
   unit,
   hint,
   defaultValue,
+  disabled = false,
   onChange,
   className,
 }: StudioSliderProps) {
@@ -50,6 +52,7 @@ export function StudioSlider({
   const clamp = (n: number) => Math.min(max, Math.max(min, n));
 
   const beginEdit = () => {
+    if (disabled) return;
     setDraft(formatValue(value, step));
     setEditing(true);
   };
@@ -66,10 +69,12 @@ export function StudioSlider({
   };
 
   const nudge = (dir: -1 | 1) => {
+    if (disabled) return;
     onChange(clamp(value + dir * step));
   };
 
   const reset = () => {
+    if (disabled) return;
     if (typeof defaultValue === "number") onChange(defaultValue);
   };
 
@@ -82,7 +87,13 @@ export function StudioSlider({
   };
 
   return (
-    <div className={cn("mde-studio-slider", className)}>
+    <div
+      className={cn(
+        "mde-studio-slider",
+        disabled && "mde-studio-slider--disabled",
+        className,
+      )}
+    >
       <div className="mde-studio-slider__row">
         <Label htmlFor={id} onPointerDown={onLabelPointer}>
           {label}
@@ -110,6 +121,7 @@ export function StudioSlider({
               type="button"
               className="mde-studio-slider__value"
               onClick={beginEdit}
+              disabled={disabled}
               aria-label={`Edit ${label} value`}
             >
               {formatValue(value, step)}
@@ -120,6 +132,7 @@ export function StudioSlider({
             type="button"
             className="mde-chip mde-chip--tiny"
             aria-label={`Decrease ${label}`}
+            disabled={disabled}
             onClick={() => nudge(-1)}
           >
             −
@@ -128,6 +141,7 @@ export function StudioSlider({
             type="button"
             className="mde-chip mde-chip--tiny"
             aria-label={`Increase ${label}`}
+            disabled={disabled}
             onClick={() => nudge(1)}
           >
             +
@@ -137,6 +151,7 @@ export function StudioSlider({
               type="button"
               className="mde-chip mde-chip--tiny"
               aria-label={`Reset ${label}`}
+              disabled={disabled}
               onClick={reset}
             >
               ↺
@@ -151,6 +166,7 @@ export function StudioSlider({
         max={max}
         step={step}
         value={[value]}
+        disabled={disabled}
         onValueChange={(vals) => {
           const next = Array.isArray(vals) ? vals[0] : vals;
           if (typeof next === "number") onChange(next);

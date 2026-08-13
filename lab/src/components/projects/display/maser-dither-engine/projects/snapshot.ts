@@ -8,6 +8,11 @@ import type { LightShapeConfig } from "../engine/lighting/types";
 import type { MaterialEngineConfig } from "../engine/material/types";
 import type { ComponentId, MonochromeParams } from "../types";
 import {
+  sanitizeLabContentAssets,
+  sanitizeLabSourceUrl,
+} from "../export/assets";
+import { persistUrlIfNeeded } from "../lib/asset-store";
+import {
   PROJECT_SCHEMA_VERSION,
   type ProjectSnapshot,
 } from "./types";
@@ -27,13 +32,11 @@ export type CaptureInput = {
   basePresetId: string;
 };
 
-/** Persistable snapshot — drops blob: uploads (cannot survive reload). */
-export function captureSnapshot(input: CaptureInput): ProjectSnapshot {
-  const sourceUrl =
-    input.sourceUrl && !input.sourceUrl.startsWith("blob:")
-      ? input.sourceUrl
-      : null;
-
+function snapshotFromSanitized(
+  input: CaptureInput,
+  sourceUrl: string | null,
+  content: ComponentContent,
+): ProjectSnapshot {
   return {
     schemaVersion: PROJECT_SCHEMA_VERSION,
     componentId: input.componentId,
@@ -44,11 +47,42 @@ export function captureSnapshot(input: CaptureInput): ProjectSnapshot {
     light: structuredClone(input.light),
     dither: structuredClone(input.dither),
     material: structuredClone(input.material),
-    content: structuredClone(input.content),
+    content,
     sourceUrl,
     sourceLightMix: input.sourceLightMix,
     basePresetId: input.basePresetId,
   };
+}
+
+/**
+ * Sync lab snapshot — keeps `mde-asset:` refs; drops leftover `blob:` URLs.
+ * Prefer uploading via SourceImageField (persists to IndexedDB) before save.
+ */
+export function captureSnapshot(input: CaptureInput): ProjectSnapshot {
+  const sourceUrl = sanitizeLabSourceUrl(input.sourceUrl);
+  const content = sanitizeLabContentAssets(structuredClone(input.content));
+  return snapshotFromSanitized(input, sourceUrl, content);
+}
+
+/**
+ * Async lab snapshot — persists any remaining `blob:` uploads into IndexedDB
+ * so reload / autosave keep source + CTA photos.
+ */
+export async function captureSnapshotAsync(
+  input: CaptureInput,
+): Promise<ProjectSnapshot> {
+  const sourceUrl = sanitizeLabSourceUrl(
+    await persistUrlIfNeeded(input.sourceUrl),
+  );
+  const content = structuredClone(input.content);
+  content.cardCtaSourceUrl = sanitizeLabSourceUrl(
+    await persistUrlIfNeeded(content.cardCtaSourceUrl),
+  );
+  return snapshotFromSanitized(
+    input,
+    sourceUrl,
+    sanitizeLabContentAssets(content),
+  );
 }
 
 export function cloneSnapshot(snapshot: ProjectSnapshot): ProjectSnapshot {

@@ -184,10 +184,12 @@ export function MaterialsPage({ onNavigate }: MaterialsPageProps) {
   return (
     <div className="mde-page mde-materials">
       <header className="mde-page__header">
-        <h1>Materials</h1>
+        <h1>Structure materials</h1>
         <p>
-          Live procedural previews from the shared renderer — material,
-          animation, lighting, palette, and dither in every thumb.
+          Dither surface looks (Paper, Ink, Glass abstraction, CRT…) — not
+          separate engines. Structure modulates UV/field/finish; dither algorithm
+          and presets change quantization more dramatically. Grid thumbs stay CSS
+          / single-context blit.
         </p>
       </header>
 

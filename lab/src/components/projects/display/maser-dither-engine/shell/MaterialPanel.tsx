@@ -166,7 +166,7 @@ export function MaterialPanel({
 
       <div className="mde-field">
         <div className="mde-field__row">
-          <Label htmlFor={`${idPrefix}-enabled`}>Color materials</Label>
+          <Label htmlFor={`${idPrefix}-enabled`}>Palette</Label>
           <button
             type="button"
             id={`${idPrefix}-enabled`}
@@ -183,8 +183,8 @@ export function MaterialPanel({
       </div>
 
       <div className="mde-field">
-        <span className="mde-field__label">Palette Studio</span>
-        <div className="mde-preset-row mde-mat-palettes" role="listbox" aria-label="Palette studio">
+        <span className="mde-field__label">Palettes</span>
+        <div className="mde-preset-row mde-mat-palettes" role="listbox" aria-label="Palettes">
           {MATERIAL_PALETTES.map((p) => {
             const selected = value.paletteId === p.id;
             return (
@@ -307,7 +307,7 @@ export function MaterialPanel({
       <div className="mde-field">
         <span className="mde-field__label">Color behavior</span>
         <p className="mde-field__hint">
-          Property presets for chroma response (structure still lives in Material).
+          Property presets for chroma response (structure lives under Structure).
         </p>
         <div className="mde-preset-row">
           {MATERIAL_BEHAVIORS.map((b) => (
@@ -329,7 +329,7 @@ export function MaterialPanel({
       </div>
 
       <div className="mde-field">
-        <span className="mde-field__label">Material Colors</span>
+        <span className="mde-field__label">Palette colors</span>
         <p className="mde-field__hint">
           Full palette slots — Primary/Highlight, Secondary/Accent, gradients,
           dither, bloom, glow, overlay. Live picker + HEX / RGB / HSL editors.

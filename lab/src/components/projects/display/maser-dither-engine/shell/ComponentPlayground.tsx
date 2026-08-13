@@ -16,10 +16,17 @@ import {
 } from "../constants";
 import {
   DEFAULT_PANEL_STATE,
+  PANEL_CATEGORY_ORDER,
   loadPanelState,
   savePanelState,
 } from "../lib/persistence";
-import { generateExportCode } from "../docs/content";
+import {
+  buildCssVariables,
+  buildRuntimeConfig,
+  createExportDoc,
+  generateProjectFile,
+  generateReactComponentCode,
+} from "../export";
 import { adapters, ComponentCatalog } from "../components/registry";
 import { presetsForComponent, getPresetById } from "../presets/catalog";
 import { createMonochromeMaterial } from "../engine/materials/MonochromeMaterial";
@@ -64,6 +71,7 @@ import {
   canRedo,
   canUndo,
   captureSnapshot,
+  captureSnapshotAsync,
   createHistory,
   createUserProjectId,
   getProject,
@@ -96,6 +104,7 @@ import {
 } from "./studio";
 import { CreativeExplore, type CreativeLocks } from "./CreativeExplore";
 import { useLiveThumbCache } from "../react/useLiveThumbCache";
+import { useResolvedDisplayUrl } from "../react/useResolvedDisplayUrl";
 import { PROCEDURAL_MATERIALS } from "../engine/material/catalog";
 import type { EngineMaterialId } from "../engine/material/types";
 import {
@@ -303,6 +312,10 @@ export function ComponentPlayground({
     dockMaterialIds,
     dockThumbScene,
     dockThumbKey,
+    {
+      activeId: material.materialId,
+      live: !reducedMotion,
+    },
   );
   const [disabledPanels, setDisabledPanels] = useState<
     Partial<Record<ControlGroupId, boolean>>
@@ -324,6 +337,10 @@ export function ComponentPlayground({
     () => library?.favoriteControlIds ?? [],
   );
   const [mobileTab, setMobileTab] = useState<MobileTabId>("preview");
+  const [desktopCategory, setDesktopCategory] = useState<ControlGroupId>(
+    "material",
+  );
+  const [expandAllPanels, setExpandAllPanels] = useState(false);
   const [sheetSnap, setSheetSnap] = useState<SheetSnap>("half");
   const [isNarrow, setIsNarrow] = useState(false);
   const historyTimer = useRef<number | null>(null);
@@ -340,6 +357,36 @@ export function ComponentPlayground({
 
   const buildSnapshot = useCallback((): ProjectSnapshot => {
     return captureSnapshot({
+      componentId,
+      params,
+      animation,
+      interaction,
+      color,
+      light,
+      dither,
+      material,
+      content,
+      sourceUrl: source.url,
+      sourceLightMix: source.lightMix,
+      basePresetId: presetId,
+    });
+  }, [
+    componentId,
+    params,
+    animation,
+    interaction,
+    color,
+    light,
+    dither,
+    material,
+    content,
+    source.url,
+    source.lightMix,
+    presetId,
+  ]);
+
+  const buildSnapshotAsync = useCallback(async (): Promise<ProjectSnapshot> => {
+    return captureSnapshotAsync({
       componentId,
       params,
       animation,
@@ -449,12 +496,22 @@ export function ComponentPlayground({
   );
 
   const saveCurrent = useCallback(
-    (opts?: { asNew?: boolean; name?: string }) => {
+    async (opts?: { asNew?: boolean; name?: string }) => {
       if (!library || !onLibraryChange) {
         window.alert("Project library is not available.");
         return;
       }
-      const snapshot = buildSnapshot();
+      const snapshot = await buildSnapshotAsync();
+      // If upload persisted, keep local state in sync with durable refs
+      if (snapshot.sourceUrl !== source.url) {
+        setSource((prev) => ({ ...prev, url: snapshot.sourceUrl }));
+      }
+      if (snapshot.content.cardCtaSourceUrl !== content.cardCtaSourceUrl) {
+        setContent((prev) => ({
+          ...prev,
+          cardCtaSourceUrl: snapshot.content.cardCtaSourceUrl,
+        }));
+      }
       const thumb = captureStageThumbnail(stageRef.current);
       const existing =
         !opts?.asNew && activeProjectId
@@ -509,12 +566,14 @@ export function ComponentPlayground({
     [
       library,
       onLibraryChange,
-      buildSnapshot,
+      buildSnapshotAsync,
       activeProjectId,
       definition.label,
       material.materialId,
       dither.algorithm,
       commitLibrary,
+      source.url,
+      content.cardCtaSourceUrl,
     ],
   );
 
@@ -529,17 +588,28 @@ export function ComponentPlayground({
       window.clearTimeout(autosaveTimer.current);
     }
     autosaveTimer.current = window.setTimeout(() => {
-      const snapshot = buildSnapshot();
-      const thumb = captureStageThumbnail(stageRef.current);
-      commitLibrary(
-        upsertUserProject(library, {
-          ...current,
-          materialId: material.materialId,
-          thumbnailDataUrl: thumb ?? current.thumbnailDataUrl,
-          updatedAt: Date.now(),
-          snapshot,
-        }),
-      );
+      void (async () => {
+        const snapshot = await buildSnapshotAsync();
+        if (snapshot.sourceUrl !== source.url) {
+          setSource((prev) => ({ ...prev, url: snapshot.sourceUrl }));
+        }
+        if (snapshot.content.cardCtaSourceUrl !== content.cardCtaSourceUrl) {
+          setContent((prev) => ({
+            ...prev,
+            cardCtaSourceUrl: snapshot.content.cardCtaSourceUrl,
+          }));
+        }
+        const thumb = captureStageThumbnail(stageRef.current);
+        commitLibrary(
+          upsertUserProject(library, {
+            ...current,
+            materialId: material.materialId,
+            thumbnailDataUrl: thumb ?? current.thumbnailDataUrl,
+            updatedAt: Date.now(),
+            snapshot,
+          }),
+        );
+      })();
     }, 2200);
     return () => {
       if (autosaveTimer.current != null) {
@@ -550,7 +620,7 @@ export function ComponentPlayground({
     library,
     activeProjectId,
     onLibraryChange,
-    buildSnapshot,
+    buildSnapshotAsync,
     material.materialId,
     params,
     animation,
@@ -687,28 +757,107 @@ export function ComponentPlayground({
   }, [isFullscreen]);
 
   const setPanel = (id: ControlGroupId, open: boolean) => {
+    if (
+      open &&
+      !expandAllPanels &&
+      (PANEL_CATEGORY_ORDER as readonly string[]).includes(id)
+    ) {
+      setDesktopCategory(id);
+    }
     setPanels((prev) => {
-      const next = { ...prev, [id]: open };
+      let next: ControlGroupState;
+      if (open && !expandAllPanels) {
+        next = { ...DEFAULT_PANEL_STATE };
+        for (const key of Object.keys(next) as ControlGroupId[]) {
+          next[key] = key === id;
+        }
+      } else {
+        next = { ...prev, [id]: open };
+      }
       savePanelState(next);
       return next;
     });
   };
 
-  const exportCode = generateExportCode(definition, params);
+  const selectDesktopCategory = (id: ControlGroupId) => {
+    setExpandAllPanels(false);
+    setDesktopCategory(id);
+    setPanels(() => {
+      const next = { ...DEFAULT_PANEL_STATE };
+      for (const key of Object.keys(next) as ControlGroupId[]) {
+        next[key] = key === id;
+      }
+      savePanelState(next);
+      return next;
+    });
+  };
+
+  const exportRuntime = useMemo(
+    () =>
+      buildRuntimeConfig({
+        componentId,
+        params,
+        animation,
+        interaction,
+        color,
+        light,
+        dither,
+        material,
+        content,
+        sourceUrl: source.url,
+        sourceLightMix: source.lightMix,
+        basePresetId: presetId,
+      }),
+    [
+      componentId,
+      params,
+      animation,
+      interaction,
+      color,
+      light,
+      dither,
+      material,
+      content,
+      source.url,
+      source.lightMix,
+      presetId,
+    ],
+  );
+
+  const activeProject =
+    activeProjectId && library
+      ? getProject(library, activeProjectId)
+      : undefined;
+
+  const exportCode = generateReactComponentCode(
+    exportRuntime,
+    "shared-runtime",
+    "minimal",
+  );
 
   const exportProjectBundle = () => {
     const snapshot = buildSnapshot();
-    const payload = {
-      kind: "mde-project",
-      version: 1,
-      name: definition.label,
-      snapshot,
-      reactConfig: exportCode,
-      cssVariables: {
-        "--mde-contrast": String(params.contrast),
-        "--mde-brightness": String(params.brightness),
-        "--mde-bloom": String(params.bloom),
+    const doc = createExportDoc({
+      kind: "project",
+      runtime: exportRuntime,
+      project: {
+        name: activeProject?.name || definition.label,
+        description: activeProject?.description || "",
+        notes: activeProject?.notes || "",
+        tags: activeProject?.tags || [],
+        colorLabel: activeProject?.colorLabel || "none",
+        favorite: false,
+        thumbnailDataUrl: activeProject?.thumbnailDataUrl || null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        sourceProjectId: activeProject?.id,
       },
+    });
+    const payload = {
+      ...JSON.parse(generateProjectFile(doc)),
+      legacySnapshot: snapshot,
+      reactConfig: exportCode,
+      cssVariables: buildCssVariables(exportRuntime),
       shaderConfig: {
         materialId: material.materialId,
         ditherAlgorithm: dither.algorithm,
@@ -739,17 +888,13 @@ export function ComponentPlayground({
   };
 
   const sheetOpen =
-    isNarrow && mobileTab !== "preview" && mobileTab !== "projects";
+    isNarrow && mobileTab !== "preview";
 
   const mobilePanelFocus: Partial<
     Record<MobileTabId, ControlGroupId | "presets" | "content" | "export">
   > = {
-    materials: "material",
-    animation: "animation",
-    lighting: "lighting",
-    interaction: "interaction",
-    components: "content",
-    settings: "export",
+    light: "lighting",
+    content: "content",
   };
 
   const mobileFocusGroups: Partial<
@@ -758,8 +903,10 @@ export function ComponentPlayground({
       Array<ControlGroupId | "presets" | "content" | "export">
     >
   > = {
-    // Palette strip + procedural material + tone sliders
-    materials: ["colors", "material"],
+    // Palette + Structure
+    look: ["colors", "material"],
+    // Animation · Interaction · Finish · Export
+    more: ["animation", "interaction", "finish", "export", "presets"],
   };
 
   const panelProps: ControlPanelBundle = {
@@ -808,17 +955,13 @@ export function ComponentPlayground({
     : null;
 
   const sheetTitle =
-    mobileTab === "materials"
-      ? "Color & material"
-      : mobileTab === "animation"
-        ? "Animation"
-        : mobileTab === "lighting"
-          ? "Lighting"
-          : mobileTab === "interaction"
-            ? "Interaction"
-            : mobileTab === "components"
-              ? "Component"
-              : "Settings";
+    mobileTab === "look"
+      ? "Look · Palette & Structure"
+      : mobileTab === "light"
+        ? "Lighting"
+        : mobileTab === "content"
+          ? "Component · Inspector"
+          : "More · Motion & export";
 
   const handleSourceChange = useCallback(
     (next: { url: string | null; lightMix?: number }) => {
@@ -840,6 +983,16 @@ export function ComponentPlayground({
     [],
   );
 
+  const resolvedSourceUrl = useResolvedDisplayUrl(source.url);
+  const resolvedCtaUrl = useResolvedDisplayUrl(content.cardCtaSourceUrl);
+  const displayContent = useMemo(
+    () =>
+      resolvedCtaUrl === content.cardCtaSourceUrl
+        ? content
+        : { ...content, cardCtaSourceUrl: resolvedCtaUrl },
+    [content, resolvedCtaUrl],
+  );
+
   const previewBody =
     compareDither || compareMaterial ? (
       <div className="mde-compare" aria-label="Comparison">
@@ -855,8 +1008,8 @@ export function ComponentPlayground({
             light={light}
             dither={dither}
             material={material}
-            content={content}
-            sourceUrl={source.url}
+            content={displayContent}
+            sourceUrl={resolvedSourceUrl}
             sourceLightMix={source.lightMix}
             onSourceChange={handleSourceChange}
             reducedMotion={reducedMotion}
@@ -877,8 +1030,8 @@ export function ComponentPlayground({
             light={light}
             dither={compareDither ?? dither}
             material={compareMaterial ?? material}
-            content={content}
-            sourceUrl={source.url}
+            content={displayContent}
+            sourceUrl={resolvedSourceUrl}
             sourceLightMix={source.lightMix}
             onSourceChange={handleSourceChange}
             reducedMotion={reducedMotion}
@@ -894,8 +1047,8 @@ export function ComponentPlayground({
         light={light}
         dither={dither}
         material={material}
-        content={content}
-        sourceUrl={source.url}
+        content={displayContent}
+        sourceUrl={resolvedSourceUrl}
         sourceLightMix={source.lightMix}
         onSourceChange={handleSourceChange}
         reducedMotion={reducedMotion}
@@ -999,7 +1152,7 @@ export function ComponentPlayground({
       }}
       onSelect={(id) => {
         setMaterial(createInitialMaterialConfig(id));
-        setPanel("material", true);
+        selectDesktopCategory("material");
       }}
       onApply={(id) => {
         setMaterial(createInitialMaterialConfig(id));
@@ -1022,17 +1175,17 @@ export function ComponentPlayground({
     setControlQuery("");
     if (isNarrow) {
       const tab: MobileTabId =
-        hit.panel === "material" || hit.panel === "colors"
-          ? "materials"
-          : hit.panel === "animation"
-            ? "animation"
-            : hit.panel === "lighting"
-              ? "lighting"
-              : hit.panel === "interaction"
-                ? "interaction"
-                : "settings";
+        hit.panel === "material" ||
+        hit.panel === "colors" ||
+        hit.panel === "dither"
+          ? "look"
+          : hit.panel === "lighting"
+            ? "light"
+            : hit.panel === "content"
+              ? "content"
+              : "more";
       setMobileTab(tab);
-      setSheetSnap("expanded");
+      setSheetSnap(tab === "more" ? "expanded" : "half");
     }
   };
 
@@ -1110,7 +1263,7 @@ export function ComponentPlayground({
           onClose={() => setMobileTab("preview")}
         >
           <div className="mde-sheet__panels">
-            {mobileTab === "settings" ? (
+            {mobileTab === "more" ? (
               <div className="mde-sheet__search-block">
                 <CreativeExplore
                   locks={creativeLocks}
@@ -1226,17 +1379,16 @@ export function ComponentPlayground({
         <MobileBottomNav
           active={mobileTab}
           onChange={(id) => {
-            if (id === "projects") {
-              onOpenStudio?.();
-              return;
-            }
             setMobileTab(id);
             if (id === "preview") return;
-            if (id === "materials") {
-              setPanel("colors", true);
-              setPanel("material", true);
+            if (id === "light") {
+              setPanel("lighting", true);
+            } else if (id === "content") {
+              setPanel("content", true);
+            } else if (id === "look") {
+              setDesktopCategory("material");
             }
-            setSheetSnap(id === "settings" ? "expanded" : "half");
+            setSheetSnap(id === "more" ? "expanded" : "half");
           }}
         />
       </div>
@@ -1411,7 +1563,28 @@ export function ComponentPlayground({
 
         {!presentation ? (
           <aside className="mde-playground__panel" aria-label="Controls">
-            {renderControlPanels(panelProps)}
+            {workspaceMode === "debug" || workspaceMode === "advanced" ? (
+              <div className="mde-category-rail__meta">
+                <button
+                  type="button"
+                  className={cn(
+                    "mde-chip mde-chip--tiny",
+                    expandAllPanels && "mde-chip--active",
+                  )}
+                  aria-pressed={expandAllPanels}
+                  onClick={() => setExpandAllPanels((v) => !v)}
+                >
+                  {expandAllPanels ? "Expand all on" : "Expand all"}
+                </button>
+              </div>
+            ) : null}
+            {renderControlPanels({
+              ...panelProps,
+              showCategoryRail: !expandAllPanels,
+              exclusiveCategory: expandAllPanels ? undefined : desktopCategory,
+              onSelectCategory: selectDesktopCategory,
+              expandAll: expandAllPanels,
+            })}
           </aside>
         ) : null}
       </div>

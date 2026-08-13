@@ -29,6 +29,10 @@ import {
   DEFAULT_COMPONENT_CONTENT,
   type ComponentContent,
 } from "../content/types";
+import {
+  PANEL_CATEGORY_LABELS,
+  PANEL_CATEGORY_ORDER,
+} from "../lib/persistence";
 import type {
   ComponentId,
   ControlGroupId,
@@ -46,10 +50,10 @@ import {
 import { LightingPanel } from "./LightingPanel";
 import { DitherPanel } from "./DitherPanel";
 import { ContentEditor } from "./ContentEditor";
+import { ComponentInspector } from "./ComponentInspector";
 import { BasePlateControl } from "./BasePlateControl";
 import type { SourceImageValue } from "./SourceImageField";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { StudioSlider } from "./studio/StudioSlider";
 import { cn } from "@/lib/utils";
 
 export type ControlPanelBundle = {
@@ -57,6 +61,13 @@ export type ControlPanelBundle = {
   advanced: boolean;
   panels: ControlGroupState;
   setPanel: (id: ControlGroupId, open: boolean) => void;
+  /** Exclusive category focus (desktop rail / mobile tab). */
+  exclusiveCategory?: ControlGroupId;
+  onSelectCategory?: (id: ControlGroupId) => void;
+  /** Desktop: show single-select category list. */
+  showCategoryRail?: boolean;
+  /** Advanced/Debug: allow multiple panels open (stack mode). */
+  expandAll?: boolean;
   presets: PresetDefinition[];
   presetId: string;
   setPresetId: (id: string) => void;
@@ -99,11 +110,6 @@ export type ControlPanelBundle = {
   /** When set, show these groups in addition to / instead of a single focusGroup match. */
   focusGroups?: Array<ControlGroupId | "presets" | "content" | "export">;
 };
-
-function formatValue(v: number): string {
-  if (Number.isInteger(v)) return String(v);
-  return v.toFixed(2);
-}
 
 function initialAnimation(): AnimationEngineConfig {
   return {
@@ -195,37 +201,18 @@ function renderParamFields(
     const tip = PARAM_TOOLTIPS[field.key];
     const def = MONOCHROME_DEFAULTS[field.key];
     return (
-      <div key={field.key} className="mde-field">
-        <div className="mde-field__row">
-          <Label htmlFor={`mde-${componentId}-${field.key}`} title={tip}>
-            {PARAM_LABELS[field.key] ?? field.key}
-          </Label>
-          <span className="mde-field__value-row">
-            <span>{formatValue(current)}</span>
-            <button
-              type="button"
-              className="mde-chip mde-chip--tiny"
-              title={`Reset to default (${formatValue(def)})`}
-              onClick={() => setParams((p) => ({ ...p, [field.key]: def }))}
-            >
-              ↺
-            </button>
-          </span>
-        </div>
-        {tip ? <p className="mde-field__hint">{tip}</p> : null}
-        <Slider
-          id={`mde-${componentId}-${field.key}`}
-          min={range.min}
-          max={range.max}
-          step={range.step}
-          value={[current]}
-          onValueChange={(vals) => {
-            const next = Array.isArray(vals) ? vals[0] : vals;
-            if (typeof next !== "number") return;
-            setParams((p) => ({ ...p, [field.key]: next }));
-          }}
-        />
-      </div>
+      <StudioSlider
+        key={field.key}
+        id={`mde-${componentId}-${field.key}`}
+        label={PARAM_LABELS[field.key] ?? field.key}
+        hint={tip}
+        min={range.min}
+        max={range.max}
+        step={range.step}
+        value={current}
+        defaultValue={def}
+        onChange={(next) => setParams((p) => ({ ...p, [field.key]: next }))}
+      />
     );
   });
 }
@@ -236,6 +223,10 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
     advanced,
     panels,
     setPanel,
+    exclusiveCategory,
+    onSelectCategory,
+    showCategoryRail,
+    expandAll,
     presets,
     presetId,
     setPresetId,
@@ -269,16 +260,66 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
     focusGroups,
   } = bundle;
 
+  const exclusive =
+    Boolean(exclusiveCategory) && !expandAll && !focusGroups?.length && !focusGroup;
+
+  const effectiveFocus = exclusive
+    ? exclusiveCategory
+    : focusGroup;
+  const effectiveFocusGroups = exclusive
+    ? exclusiveCategory === "colors"
+      ? (["colors"] as Array<ControlGroupId>)
+      : exclusiveCategory === "material"
+        ? (["material"] as Array<ControlGroupId>)
+        : undefined
+    : focusGroups;
+
   const groupVisible = (id: ControlGroupId | "presets" | "content" | "export") => {
-    if (focusGroups && focusGroups.length > 0) {
-      return focusGroups.includes(id);
+    if (effectiveFocusGroups && effectiveFocusGroups.length > 0) {
+      return effectiveFocusGroups.includes(id);
     }
-    if (!focusGroup) return true;
-    return focusGroup === id;
+    if (!effectiveFocus) return true;
+    return effectiveFocus === id;
   };
+
+  const panelOpen = (id: ControlGroupId) => {
+    if (exclusive || effectiveFocus || effectiveFocusGroups?.length) {
+      return groupVisible(id);
+    }
+    return panels[id] ?? false;
+  };
+
+  /** Palette strip: Look tab (mobile), Palette category (exclusive), or legacy stack. */
+  const paletteVisible = exclusive
+    ? exclusiveCategory === "colors"
+    : Boolean(focusGroups?.includes("colors")) ||
+      effectiveFocus === "colors" ||
+      (!effectiveFocus && !effectiveFocusGroups?.length);
 
   return (
     <>
+      {showCategoryRail ? (
+        <nav className="mde-category-rail" aria-label="Control categories">
+          {PANEL_CATEGORY_ORDER.map((id) => (
+            <button
+              key={id}
+              type="button"
+              className={cn(
+                "mde-category-rail__item",
+                (exclusiveCategory ?? "material") === id &&
+                  "mde-category-rail__item--active",
+              )}
+              aria-current={
+                (exclusiveCategory ?? "material") === id ? "true" : undefined
+              }
+              onClick={() => onSelectCategory?.(id)}
+            >
+              {PANEL_CATEGORY_LABELS[id]}
+            </button>
+          ))}
+        </nav>
+      ) : null}
+
       {/* Foundation choice — always first, before other settings */}
       <div className="mde-base-plate-strip">
         <BasePlateControl
@@ -289,20 +330,16 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
         />
       </div>
 
-      {/* Palette presets + HEX/RGB/HSL — always available on every component (mobile + desktop) */}
-      {(!focusGroup ||
-        focusGroup === "colors" ||
-        focusGroup === "material" ||
-        focusGroups?.includes("colors") ||
-        focusGroups?.includes("material")) ? (
+      {/* Palette — chroma only; not structure */}
+      {paletteVisible ? (
         <div
           className="mde-palette-strip"
           aria-label="Palette presets and custom colors"
         >
-          <span className="mde-field__label">Palette &amp; colors</span>
+          <span className="mde-field__label">Palette</span>
           <p className="mde-field__hint">
-            Choose a palette preset, then tune any slot with the picker or HEX /
-            RGB / HSL. Applies to this component on mobile and desktop.
+            Chroma only — structure looks live under Structure. Pick a palette,
+            then tune slots with HEX / RGB / HSL.
           </p>
           <MaterialPanel
             value={color}
@@ -318,7 +355,7 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
       {groupVisible("presets") ? (
 <Collapsible
   title="Presets"
-  open={panels.presets}
+  open={panelOpen("presets")}
   onOpenChange={(open) => setPanel("presets", open)}
 >
   <div className="mde-preset-row">
@@ -426,9 +463,15 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
       {groupVisible("content") ? (
 <Collapsible
   title="Content"
-  open={panels.content}
+  open={panelOpen("content")}
   onOpenChange={(open) => setPanel("content", open)}
 >
+  <ComponentInspector
+    componentId={componentId}
+    content={content}
+    onChange={setContent}
+    idPrefix={`mde-${componentId}-inspect`}
+  />
   <ContentEditor
     componentId={componentId}
     value={content}
@@ -443,12 +486,11 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
       ) : null}
 {CONTROL_GROUPS.filter((group) => {
             if (!groupVisible(group.id)) return false;
-            // Color studio is pinned above as "Palette & colors" — keep accordion
-            // slot only for tone sliders (brightness / contrast / gradient).
+            // Color studio is Palette strip — accordion slot only for tone sliders.
             if (
               beginner &&
-              !focusGroup &&
-              !focusGroups?.length &&
+              !effectiveFocus &&
+              !effectiveFocusGroups?.length &&
               (group.id === "noise" ||
                 group.id === "rendering" ||
                 group.id === "finish")
@@ -458,11 +500,17 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
             return true;
           }).map((group) => {
   const panelOff = Boolean(disabledPanels[group.id]);
+  const title =
+    group.id === "material"
+      ? "Structure"
+      : group.id === "colors"
+        ? "Color tone"
+        : group.label;
   return (
   <Collapsible
     key={group.id}
-    title={group.label}
-    open={panels[group.id] ?? false}
+    title={title}
+    open={panelOpen(group.id)}
     onOpenChange={(open) => setPanel(group.id, open)}
     trailing={
       <button
@@ -549,8 +597,8 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
     ) : group.id === "colors" ? (
       <>
         <p className="mde-field__hint">
-          Palette presets and HEX editors are in the Palette &amp; colors strip
-          above. These sliders adjust tone response.
+          Palette editors are in the Palette section. These sliders adjust tone
+          response only.
         </p>
         {renderParamFields(group.fields, {
           componentId,
@@ -616,17 +664,26 @@ export function renderControlPanels(bundle: ControlPanelBundle) {
 <>
 <Collapsible
   title="Export"
-  open={panels.export}
+  open={panelOpen("export")}
   onOpenChange={(open) => setPanel("export", open)}
 >
+  <p className="mde-export-hint">
+    Production export lives in the Export workspace — project files, presets,
+    React components, packages, tokens, and shareable scenes.
+  </p>
   <pre className="mde-export">{exportCode}</pre>
-  <button
-    type="button"
-    className="mde-btn"
-    onClick={() => void navigator.clipboard?.writeText(exportCode)}
-  >
-    Copy code
-  </button>
+  <div className="mde-export-actions">
+    <button
+      type="button"
+      className="mde-btn"
+      onClick={() => void navigator.clipboard?.writeText(exportCode)}
+    >
+      Copy React snippet
+    </button>
+    <a className="mde-btn mde-btn--primary" href="#/export">
+      Open Export workspace
+    </a>
+  </div>
 </Collapsible>
 
 <section className="mde-docs-block" aria-label="Documentation">

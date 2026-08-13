@@ -11,8 +11,18 @@ import { PresetsPage } from "./PresetsPage";
 import { DocsPage } from "./DocsPage";
 import { ComponentsIndex } from "./ComponentsIndex";
 import { ProjectBrowser, useProjectLibrary } from "./studio";
+import { ExportPage } from "./ExportPage";
+import { SceneViewer } from "./SceneViewer";
+import { PresentationView } from "./PresentationView";
+import { TransferFixturesPage } from "../fixtures/transfer/TransferFixturesPage";
 import type { AppRoute, ComponentId } from "../types";
 import type { ProjectRecord } from "../projects";
+import {
+  runtimeFromSnapshot,
+  snapshotFromRuntime,
+} from "../export";
+import { createUserProjectId, upsertUserProject, getProject, listAllProjects } from "../projects/store";
+import { SYSTEM_PROJECTS } from "../projects/system-projects";
 import {
   loadFavorites,
   loadRecent,
@@ -25,6 +35,7 @@ import {
 import { ComponentCatalog } from "../components/registry";
 import { cn } from "@/lib/utils";
 import "../tokens.css";
+import "./export-workspace.css";
 
 const MOBILE_WORKSPACE_MQ = "(max-width: 900px)";
 
@@ -249,6 +260,121 @@ export function DitherEngineApp() {
     );
   } else if (route.view === "docs") {
     main = <DocsPage topic={route.topic} />;
+  } else if (route.view === "export") {
+    main = (
+      <ExportPage
+        library={libraryApi.library}
+        reducedMotion={reducedMotion}
+        onNavigate={navigate}
+        onOpenPresentation={() => navigate({ view: "present" })}
+      />
+    );
+  } else if (route.view === "present") {
+    const id = libraryApi.library.lastOpenedProjectId;
+    const project =
+      (id ? getProject(libraryApi.library, id) : null) ??
+      listAllProjects(libraryApi.library)[0] ??
+      SYSTEM_PROJECTS[0] ??
+      null;
+    const runtime = runtimeFromSnapshot(project.snapshot);
+    main = (
+      <PresentationView
+        runtime={runtime}
+        title={project.name}
+        description={project.description}
+        reducedMotion={reducedMotion}
+        onOpenEditor={() => {
+          setPendingProjectId(project.origin === "user" ? project.id : null);
+          navigate({ view: "component", id: project.snapshot.componentId });
+        }}
+        onDuplicate={() => {
+          const now = Date.now();
+          const copy: ProjectRecord = {
+            ...structuredClone(project),
+            id: createUserProjectId(),
+            origin: "user",
+            readOnly: false,
+            name: `${project.name} Copy`,
+            favorite: false,
+            createdAt: now,
+            updatedAt: now,
+          };
+          libraryApi.setLibrary(
+            upsertUserProject(libraryApi.library, copy),
+          );
+          setPendingProjectId(copy.id);
+          navigate({ view: "component", id: copy.snapshot.componentId });
+        }}
+        onFullscreen={() => {
+          const el = document.documentElement;
+          if (!document.fullscreenElement) void el.requestFullscreen?.();
+          else void document.exitFullscreen?.();
+        }}
+      />
+    );
+  } else if (route.view === "scene") {
+    main = (
+      <SceneViewer
+        payload={route.payload}
+        reducedMotion={reducedMotion}
+        onOpenEditor={(doc) => {
+          const now = Date.now();
+          const project: ProjectRecord = {
+            id: createUserProjectId(),
+            origin: "user",
+            readOnly: false,
+            name: doc.project?.name || "Shared scene",
+            description: doc.project?.description || "",
+            notes: doc.project?.notes || "",
+            tags: doc.project?.tags || [],
+            colorLabel: doc.project?.colorLabel || "none",
+            favorite: false,
+            materialId: doc.runtime.material.materialId,
+            thumbnailDataUrl: null,
+            createdAt: now,
+            updatedAt: now,
+            snapshot: snapshotFromRuntime(doc.runtime),
+          };
+          libraryApi.setLibrary(
+            upsertUserProject(libraryApi.library, project),
+          );
+          setPendingProjectId(project.id);
+          navigate({
+            view: "component",
+            id: doc.runtime.componentId,
+          });
+        }}
+        onDuplicate={(doc) => {
+          const now = Date.now();
+          const project: ProjectRecord = {
+            id: createUserProjectId(),
+            origin: "user",
+            readOnly: false,
+            name: `${doc.project?.name || "Scene"} Copy`,
+            description: doc.project?.description || "",
+            notes: "",
+            tags: [],
+            colorLabel: "none",
+            favorite: false,
+            materialId: doc.runtime.material.materialId,
+            thumbnailDataUrl: null,
+            createdAt: now,
+            updatedAt: now,
+            snapshot: snapshotFromRuntime(doc.runtime),
+          };
+          libraryApi.setLibrary(
+            upsertUserProject(libraryApi.library, project),
+          );
+          setPendingProjectId(project.id);
+          navigate({
+            view: "component",
+            id: doc.runtime.componentId,
+          });
+        }}
+      />
+    );
+  } else if (route.view === "transfer-fixtures") {
+    main = <TransferFixturesPage reducedMotion={reducedMotion} />;
   }
 
   return (

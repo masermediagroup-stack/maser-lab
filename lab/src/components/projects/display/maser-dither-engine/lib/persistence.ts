@@ -1,19 +1,48 @@
 import type { AppRoute, ComponentId, ControlGroupId, ControlGroupState } from "../types";
 import { STORAGE_KEYS } from "../constants";
 
+/** Exclusive-open defaults — one primary panel (Structure). */
 export const DEFAULT_PANEL_STATE: ControlGroupState = {
   material: true,
   animation: false,
-  lighting: true,
-  colors: true,
-  dither: true,
+  lighting: false,
+  colors: false,
+  dither: false,
   finish: false,
   interaction: false,
   noise: false,
   rendering: false,
-  content: true,
+  content: false,
   export: false,
-  presets: true,
+  presets: false,
+};
+
+export const PANEL_CATEGORY_ORDER = [
+  "presets",
+  "content",
+  "material",
+  "colors",
+  "dither",
+  "lighting",
+  "animation",
+  "interaction",
+  "finish",
+  "export",
+] as const satisfies readonly ControlGroupId[];
+
+export type PanelCategoryId = (typeof PANEL_CATEGORY_ORDER)[number];
+
+export const PANEL_CATEGORY_LABELS: Record<PanelCategoryId, string> = {
+  presets: "Presets",
+  content: "Content",
+  material: "Structure",
+  colors: "Palette",
+  dither: "Dither",
+  lighting: "Lighting",
+  animation: "Animation",
+  interaction: "Interaction",
+  finish: "Finish",
+  export: "Export",
 };
 
 export function loadPanelState(): ControlGroupState {
@@ -84,6 +113,14 @@ export function parseHash(hash: string): AppRoute {
   if (h === "presets") return { view: "presets" };
   if (h === "projects" || h === "studio") return { view: "projects" };
   if (h === "playground") return { view: "playground" };
+  if (h === "export") return { view: "export" };
+  if (h === "present") return { view: "present" };
+  if (h === "transfer-fixtures") return { view: "transfer-fixtures" };
+  if (h.startsWith("scene")) {
+    const q = h.includes("?") ? h.split("?")[1] : "";
+    const params = new URLSearchParams(q);
+    return { view: "scene", payload: params.get("c") ?? undefined };
+  }
   if (h === "docs" || h.startsWith("docs/")) {
     const topic = h.includes("/") ? h.split("/")[1] : undefined;
     return { view: "docs", topic };
@@ -115,6 +152,16 @@ export function routeToHash(route: AppRoute): string {
       return "#/projects";
     case "playground":
       return "#/playground";
+    case "export":
+      return "#/export";
+    case "present":
+      return "#/present";
+    case "scene":
+      return route.payload
+        ? `#/scene?c=${route.payload}`
+        : "#/scene";
+    case "transfer-fixtures":
+      return "#/transfer-fixtures";
     case "docs":
       return route.topic ? `#/docs/${route.topic}` : "#/docs";
     default:

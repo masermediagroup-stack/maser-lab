@@ -6,6 +6,12 @@
 **Created:** 2026-07-28  
 **Product kind:** lab
 
+## Active planning
+
+**Canonical product planning:** [`docs/roadmap/`](../../../docs/roadmap/README.md)  
+Milestones live in [`docs/roadmap/DEVELOPMENT-ROADMAP.md`](../../../docs/roadmap/DEVELOPMENT-ROADMAP.md) (v0.8 → v2.0).  
+Sprint notes remain a historical archive. The Sprint 8 / Sprint 5 leftover lists below are **superseded** by those milestones (see v0.8–v1.0 for upload persistence, inspector, npm pack, API freeze, etc.).
+
 ## Design reference
 
 - Figma: none
@@ -374,26 +380,58 @@ Upload via Content → **Source image**. Texture unit 6 (`uSource`) drives lumin
 - [x] Docs: `docs/sprint7-13-cta-photo-independence.md`
 - [x] Engine `0.7.13`
 
+### Sprint 8.0 — Production Export, Packaging & Transfer
+
+- [x] Canonical export schema `2.0.0` (`export/`) evolved from `ProjectSnapshot`
+- [x] Soft runtime/editor boundary: `runtime.ts` + product `index.ts` (no shell); `index.lab.ts` for demos
+- [x] ESLint `no-dither-runtime-shell-imports` + Vitest import-graph checks
+- [x] v1 → 2.0.0 migrate; new saves stamp schema 2; nested CTA `blob:` strip
+- [x] Nine export modes + validation Ready/Warning/Blocked
+- [x] Export workspace UI (`#/export`) with debounced codegen; mobile sheet layout
+- [x] Component package ZIP (`fflate`), shareable scene (`#/scene`), presentation (`#/present`)
+- [x] Export history (metadata in localStorage)
+- [x] Transfer fixtures without shell (`#/transfer-fixtures`: Card / Button / Image Frame)
+- [x] Docs: `docs/sprint8-export.md`, updated `TRANSFER.md`
+- [x] Vitest round-trips; `npm run lint` / `npm run build` / `npm run test` pass
+- [x] Engine `0.8.0`
+
 ### Architecture notes
 
-`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps).
+`projects/` owns snapshot + store + history. `shell/studio/` owns browser, dock, sheet, nav, quick actions, FitStage. Renderer composition tweak only (anim UV/luma scale) — no VERT/`SAMPLE_GLSL` rewrite. Sprint 7.3 adds `engine/preview/ThumbBlitEngine` (single shared context for bitmaps). Sprint 8 adds `export/` (schema/migrate/validate/codegen/package) and splits product vs lab barrels — no physical `engine/` folder move. Sprint 8.1 adds lab-only IndexedDB assets without changing the renderer pipeline.
 
-### Sprint 8 recommendations
+### Sprint 8.1 — v0.8 Studio Harden
 
-- Persist uploads (data URL / IndexedDB) across project save
-- Continuous FBO thumb refresh without JPEG churn
-- Cloud sync / share links for project JSON
-- Live Material Dock continuous animation (still one context)
-- Timeline snapshots / version history UI
-- Wire StudioSlider across every panel by default
-- Component inspector sheet (padding / radius / content) as first-class dock target
-- Visual regression suite for algorithms × materials × animations
-- Deeper frosted/clear glass variants with background sampling when available
-- Ceramic / newsprint / brushed aluminum as first-class IDs beyond presets
+- [x] IndexedDB upload persistence (`mde-asset:`) via `lib/asset-store.ts` + `SourceImageField`
+- [x] Lab snapshot keeps asset refs; portable export still strips them
+- [x] Component Inspector (padding / radius / chrome) in Content dock / mobile Comps sheet
+- [x] `StudioSlider` on Interaction, Animation, Lighting, Content numbers, tone params, source light-mix
+- [x] Thumb cache debounce + live active Material Dock blit (~6fps, one WebGL context)
+- [x] Promoted `docs/roadmap/07-ASSET-SYSTEM.md`; roadmap baseline `0.8.0`
+- [ ] Cloud sync / real share backend (deferred — post v1.0)
+- [ ] Visual regression matrix (→ v0.9)
+- [ ] Deeper standalone npm pack smoke (→ v0.9)
+- [ ] Canvas2D algorithm parity (deferred)
+
+### Sprint 8 recommendations (deferred / adjacent)
+
+> **Superseded** by [`docs/roadmap/DEVELOPMENT-ROADMAP.md`](../../../docs/roadmap/DEVELOPMENT-ROADMAP.md). Kept for history.
+
+- Persist uploads (data URL / IndexedDB) across project save → **v0.8 (done 8.1)**
+- Continuous FBO thumb refresh without JPEG churn → **v0.8 (done 8.1)**
+- Cloud sync / share links for project JSON → docs foreshadow only until a post-v1.0 sync milestone
+- Live Material Dock continuous animation (still one context) → **v0.8 (done 8.1)**
+- Timeline snapshots / version history UI → later / stub domains
+- Wire StudioSlider across every panel by default → **v0.8 (primary panels done 8.1)**
+- Component inspector sheet (padding / radius / content) as first-class dock target → **v0.8 (done 8.1)**
+- Visual regression suite for algorithms × materials × animations → **v0.9** foundation
+- Deeper frosted/clear glass variants with background sampling when available → post-v1.0 / v1.5 material depth
+- Ceramic / newsprint / brushed aluminum as first-class IDs beyond presets → post-v1.0 backlog
 
 ### Sprint 5 leftover recommendations (still open)
 
-- Canvas2D parity for non-Bayer algorithms
-- Log-mapped sliders for radius / exposure / pattern scale
-- Visual regression suite for algorithms × matrix sizes
-- Optional environment-band LUT for chrome without full cubemaps
+> Mapped into milestones; not v1.0 must-haves.
+
+- Canvas2D parity for non-Bayer algorithms → post-v1.0
+- Log-mapped sliders for radius / exposure / pattern scale → polish
+- Visual regression suite for algorithms × matrix sizes → **v0.9**
+- Optional environment-band LUT for chrome without full cubemaps → post-v1.0

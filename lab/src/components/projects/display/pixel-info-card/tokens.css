@@ -1,0 +1,602 @@
+/* Product + demo tokens for pixel-info-card */
+
+.pic-root {
+  --pic-maser-blue: #10a4ff;
+  --pic-surface: #ffffff;
+  --pic-accent: var(--pic-maser-blue);
+  --pic-label: var(--pic-maser-blue);
+  --pic-body: #0a0a0a;
+  --pic-card-radius: 20px;
+  --pic-dissipate-ms: 160ms;
+  --pic-scale: 1;
+  width: 100%;
+  max-width: 100%;
+}
+
+.pic-root[data-theme="light"] {
+  --pic-surface: #000000;
+  --pic-accent: #ffffff;
+  --pic-label: #000000;
+  --pic-body: #ffffff;
+  --pic-pixel: #000000;
+}
+
+.pic-root[data-theme="dark"] {
+  --pic-surface: #ffffff;
+  --pic-accent: #10a4ff;
+  --pic-label: #10a4ff;
+  --pic-body: #0a0a0a;
+  --pic-pixel: #ffffff;
+}
+
+.pic-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: min(72dvh, 720px);
+  isolation: isolate;
+  overflow: visible;
+}
+
+.pic-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Behind trigger so collapse suck-in tucks under the reforming squircle */
+  z-index: 1;
+}
+
+.pic-trigger-wrap {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pic-trigger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(10px * var(--pic-scale));
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--pic-label);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pic-trigger:focus-visible .pic-squircle {
+  outline: 2px solid var(--pic-accent);
+  outline-offset: calc(3px * var(--pic-scale));
+}
+
+.pic-squircle {
+  display: flex;
+  width: calc(64px * var(--pic-scale));
+  height: calc(64px * var(--pic-scale));
+  align-items: center;
+  justify-content: center;
+  border-radius: calc(22px * var(--pic-scale));
+  background: var(--pic-surface);
+  transition: transform 140ms ease-out, filter 140ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pic-trigger:hover .pic-squircle {
+    transform: scale(1.04);
+    filter: brightness(1.05);
+  }
+}
+
+.pic-trigger:active .pic-squircle {
+  transform: scale(0.96);
+}
+
+.pic-icon {
+  width: calc(28px * var(--pic-scale));
+  height: calc(28px * var(--pic-scale));
+  color: var(--pic-accent);
+}
+
+.pic-icon--sm {
+  width: calc(18px * var(--pic-scale));
+  height: calc(18px * var(--pic-scale));
+}
+
+.pic-trigger-label {
+  font-size: calc(0.9375rem * var(--pic-scale));
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--pic-label);
+  line-height: 1;
+}
+
+.pic-root[data-theme="light"] .pic-trigger-label {
+  color: #000000;
+}
+
+.pic-root[data-theme="dark"] .pic-trigger-label {
+  color: #10a4ff;
+}
+
+.pic-card {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: calc(14px * var(--pic-scale));
+  width: min(calc(360px * var(--pic-scale)), 92vw);
+  min-height: calc(200px * var(--pic-scale));
+  padding: calc(22px * var(--pic-scale)) calc(24px * var(--pic-scale))
+    calc(26px * var(--pic-scale));
+  border: none;
+  background: var(--pic-surface);
+  text-align: left;
+  cursor: pointer;
+  /* No shadow until settled — avoids a second “flash” on plate handoff */
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: none;
+}
+
+.pic-card--settled {
+  /* Snap shadow with the plate — no delayed second beat after text enters */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  transition: none;
+}
+
+.pic-card:not(.pic-card--visible) {
+  /* Measure off-flow without covering the trigger */
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+.pic-card:focus-visible {
+  outline: 2px solid var(--pic-accent);
+  outline-offset: calc(3px * var(--pic-scale));
+}
+
+.pic-card-header {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8px * var(--pic-scale));
+  color: var(--pic-accent);
+}
+
+.pic-card-title {
+  font-size: calc(0.875rem * var(--pic-scale));
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--pic-accent);
+}
+
+.pic-card-body {
+  font-size: calc(0.9375rem * var(--pic-scale));
+  line-height: 1.55;
+  font-weight: 400;
+  color: var(--pic-body);
+  text-wrap: pretty;
+}
+
+/* GlideText overrides — keep card typography (component defaults are hero-sized) */
+.pic-glide-title {
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 0.25em !important;
+  color: var(--pic-accent) !important;
+  font-size: calc(0.875rem * var(--pic-scale)) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1.2 !important;
+  text-align: left;
+}
+
+.pic-glide-body {
+  display: inline-flex !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 0.15em 0.35em !important;
+  color: var(--pic-body) !important;
+  font-size: calc(0.9375rem * var(--pic-scale)) !important;
+  font-weight: 400 !important;
+  line-height: 1.55 !important;
+  letter-spacing: normal !important;
+  text-align: left;
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pic-card--settled {
+    transition: none;
+  }
+
+  .pic-squircle {
+    transition: none;
+  }
+}
+
+/* ── Demo shell (Blobby-matched, Maser blue) ─────────── */
+
+.pic-demo {
+  --pic-bg: #000000;
+  --pic-text: #ffffff;
+  --pic-track: #2a2a2a;
+  --pic-fill: #10a4ff;
+  --pic-thumb: #ffffff;
+  --pic-panel: rgba(0, 0, 0, 0.96);
+  --pic-chrome-border: rgba(255, 255, 255, 0.2);
+  --pic-chrome-bg: rgba(255, 255, 255, 0.06);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 100dvh;
+  background: var(--pic-bg);
+  color: var(--pic-text);
+  overflow: hidden;
+  transition: background-color 200ms ease-out, color 200ms ease-out;
+}
+
+.pic-demo[data-theme="light"] {
+  --pic-bg: #ffffff;
+  --pic-text: #000000;
+  --pic-track: #e5e5e5;
+  --pic-panel: rgba(255, 255, 255, 0.96);
+  --pic-chrome-border: rgba(0, 0, 0, 0.18);
+  --pic-chrome-bg: rgba(0, 0, 0, 0.04);
+}
+
+.pic-demo__header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(12px, env(safe-area-inset-top)) 16px 12px;
+  pointer-events: none;
+}
+
+.pic-demo__title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.pic-demo__back {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 16px;
+  z-index: 51;
+}
+
+.pic-demo__theme {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  right: 16px;
+  z-index: 51;
+}
+
+.pic-demo__pill {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--pic-chrome-border);
+  background: var(--pic-chrome-bg);
+  color: var(--pic-text);
+  font-size: 1.25rem;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+
+.pic-demo__pill:hover {
+  filter: brightness(1.08);
+}
+
+.pic-demo__pill:focus-visible {
+  outline: 2px solid var(--pic-fill);
+  outline-offset: 2px;
+}
+
+.pic-demo[data-fullscreen="true"] {
+  display: block;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.pic-demo__stage-focus {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.pic-demo__stage {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  /* Room for the oversized canvas bleed so demo overflow:hidden doesn't clip pixels */
+  padding: 96px 48px 56px;
+  overflow: visible;
+}
+
+.pic-demo__stage-focus .pic-root {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+.pic-demo__controls {
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: min(34dvh, 380px);
+  overflow-y: auto;
+  padding: 16px 20px max(20px, env(safe-area-inset-bottom));
+  background: var(--pic-panel);
+  border-top: 1px solid var(--pic-chrome-border);
+}
+
+.pic-demo__fullscreen-btn {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--pic-chrome-border);
+  border-radius: 9999px;
+  background: var(--pic-chrome-bg);
+  color: var(--pic-text);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+
+.pic-demo__fullscreen-btn:hover {
+  border-color: var(--pic-fill);
+  background: rgba(16, 164, 255, 0.12);
+}
+
+.pic-demo__fullscreen-btn:focus-visible {
+  outline: 2px solid var(--pic-fill);
+  outline-offset: 2px;
+}
+
+.pic-demo__fullscreen-label {
+  display: none;
+}
+
+@media (min-width: 480px) {
+  .pic-demo__fullscreen-label {
+    display: inline;
+  }
+}
+
+.pic-demo__stage--fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 100dvh;
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  background: var(--pic-bg);
+  overflow: hidden;
+}
+
+.pic-demo__stage--fullscreen .pic-demo__stage-focus {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.pic-demo__stage--fullscreen .pic-demo__stage-focus .pic-root {
+  width: min(100%, 52rem);
+  height: auto;
+  max-height: 100%;
+  flex: 0 1 auto;
+}
+
+.pic-demo__stage--fullscreen .pic-root {
+  width: min(100%, 52rem);
+  height: auto;
+  max-height: 100%;
+  flex: 0 1 auto;
+}
+
+.pic-demo__stage--fullscreen .pic-stage {
+  width: 100%;
+  height: auto;
+  min-height: min(72dvh, 720px);
+  max-height: calc(
+    100dvh - max(24px, env(safe-area-inset-top)) -
+      max(24px, env(safe-area-inset-bottom)) - 16px
+  );
+}
+
+@media (max-width: 640px) {
+  .pic-demo__stage--fullscreen {
+    padding:
+      max(12px, env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+  }
+
+  .pic-demo__stage--fullscreen .pic-root {
+    width: min(100%, 360px);
+  }
+
+  .pic-demo__stage--fullscreen .pic-stage {
+    min-height: min(56dvh, 480px);
+    max-height: calc(
+      100dvh - max(56px, env(safe-area-inset-top)) -
+        max(20px, env(safe-area-inset-bottom)) - 24px
+    );
+  }
+
+  .pic-demo__stage--fullscreen .pic-card {
+    width: 100%;
+    max-height: min(46dvh, 380px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.pic-demo__fullscreen-close {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(16px, env(safe-area-inset-left));
+  right: auto;
+  z-index: 81;
+}
+
+@media (max-width: 640px) {
+  .pic-demo__stage {
+    padding: 72px 16px 32px;
+  }
+
+  .pic-stage {
+    min-height: min(48dvh, 420px);
+  }
+
+  .pic-card {
+    width: min(calc(100vw - 32px), calc(360px * var(--pic-scale)));
+    max-height: min(62dvh, 480px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.pic-demo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pic-demo__action-btn {
+  border: 1px solid var(--pic-chrome-border);
+  border-radius: 9999px;
+  background: var(--pic-chrome-bg);
+  color: var(--pic-text);
+  font-family: ui-monospace, monospace;
+  font-size: 0.6875rem;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+
+.pic-demo__action-btn:hover {
+  border-color: var(--pic-fill);
+  background: rgba(16, 164, 255, 0.12);
+}
+
+.pic-demo__action-btn:focus-visible {
+  outline: 2px solid var(--pic-fill);
+  outline-offset: 2px;
+}
+
+.pic-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pic-slider__label {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--pic-text);
+}
+
+.pic-slider__track-wrap {
+  position: relative;
+  height: 28px;
+  border-radius: 9999px;
+  background: var(--pic-track);
+  overflow: hidden;
+}
+
+.pic-slider__fill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  background: var(--pic-fill);
+  border-radius: 9999px 0 0 9999px;
+  pointer-events: none;
+}
+
+.pic-slider__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.pic-slider__track-wrap::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(var(--thumb-percent, 0%) - 18px);
+  width: 36px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--pic-thumb);
+  transform: translateY(-50%);
+  pointer-events: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.pic-slider:has(.pic-slider__input:focus-visible) .pic-slider__track-wrap {
+  outline: 2px solid var(--pic-fill);
+  outline-offset: 2px;
+}
+
+.pic-demo[data-theme="light"] .pic-slider__track-wrap::after {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  background: #10a4ff;
+}
+
+@media (min-width: 768px) {
+  .pic-demo__controls {
+    gap: 18px;
+    padding-inline: 32px;
+  }
+}

@@ -2,8 +2,13 @@
 
 import { useId, useRef, useState, type DragEvent } from "react";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
+import {
+  isAssetRef,
+  putImageFile,
+} from "../lib/asset-store";
+import { useResolvedDisplayUrl } from "../react/useResolvedDisplayUrl";
+import { StudioSlider } from "./studio/StudioSlider";
 
 export type SourceImageValue = {
   url: string | null;
@@ -26,6 +31,7 @@ type SourceImageFieldProps = {
 /**
  * Upload a photo to drive surface luminance — dither / material / lighting
  * then recreate the look on top of the image.
+ * Persists uploads to IndexedDB (`mde-asset:`) so lab projects survive reload.
  */
 export function SourceImageField({
   value,
@@ -39,6 +45,9 @@ export function SourceImageField({
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const previewUrl = useResolvedDisplayUrl(value.url);
 
   const clear = () => {
     if (value.url?.startsWith("blob:")) {
@@ -48,11 +57,12 @@ export function SourceImageField({
         /* ignore */
       }
     }
+    setError(null);
     onChange({ ...value, url: null });
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const applyFile = (file: File | null | undefined) => {
+  const applyFile = async (file: File | null | undefined) => {
     if (!file || !file.type.startsWith("image/")) return;
     if (value.url?.startsWith("blob:")) {
       try {
@@ -61,13 +71,23 @@ export function SourceImageField({
         /* ignore */
       }
     }
-    onChange({ ...value, url: URL.createObjectURL(file) });
+    setBusy(true);
+    setError(null);
+    try {
+      const ref = await putImageFile(file);
+      onChange({ ...value, url: ref });
+    } catch {
+      setError("Could not store image. Try a smaller file.");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
   };
 
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
     setDragging(false);
-    applyFile(e.dataTransfer.files?.[0]);
+    void applyFile(e.dataTransfer.files?.[0]);
   };
 
   return (
@@ -85,6 +105,7 @@ export function SourceImageField({
             "mde-source-field__drop",
             dragging && "mde-source-field__drop--active",
             value.url && "mde-source-field__drop--filled",
+            busy && "mde-source-field__drop--busy",
           )}
           onDragEnter={(e) => {
             e.preventDefault();
@@ -103,55 +124,67 @@ export function SourceImageField({
             className="mde-source-field__input"
             type="file"
             accept="image/*"
-            onChange={(e) => applyFile(e.target.files?.[0])}
+            disabled={busy}
+            onChange={(e) => void applyFile(e.target.files?.[0])}
           />
           <div className="mde-source-field__row">
-            <label htmlFor={inputId} className="mde-btn mde-btn--primary">
-              {value.url ? "Replace image" : "Choose image"}
+            <label
+              htmlFor={inputId}
+              className={cn(
+                "mde-btn mde-btn--primary",
+                busy && "mde-btn--disabled",
+              )}
+              aria-disabled={busy}
+            >
+              {busy
+                ? "Saving…"
+                : value.url
+                  ? "Replace image"
+                  : "Choose image"}
             </label>
             {value.url ? (
               <button
                 type="button"
                 className="mde-btn mde-btn--compact mde-source-field__remove"
                 onClick={clear}
+                disabled={busy}
               >
                 Remove photo
               </button>
             ) : null}
           </div>
-          {value.url ? (
+          {previewUrl ? (
             <div className="mde-source-field__preview" aria-hidden>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={value.url} alt="" />
-              <span>Dithering active</span>
+              <img src={previewUrl} alt="" />
+              <span>
+                {isAssetRef(value.url) ? "Saved locally" : "Dithering active"}
+              </span>
             </div>
           ) : (
             <p className="mde-source-field__drop-hint">
-              PNG, JPG, WebP · local upload
+              PNG, JPG, WebP · stored in this browser
             </p>
           )}
+          {error ? (
+            <p className="mde-field__hint" role="alert">
+              {error}
+            </p>
+          ) : null}
         </div>
       </div>
       {showLightMix ? (
-        <div className="mde-field">
-          <div className="mde-field__row">
-            <Label htmlFor={`${idPrefix}-light-mix`}>Light on image</Label>
-            <span>{value.lightMix.toFixed(2)}</span>
-          </div>
-          <Slider
-            id={`${idPrefix}-light-mix`}
-            min={0}
-            max={1}
-            step={0.01}
-            value={[value.lightMix]}
-            disabled={!value.url}
-            onValueChange={(vals) => {
-              const next = Array.isArray(vals) ? vals[0] : vals;
-              if (typeof next !== "number") return;
-              onChange({ ...value, lightMix: next });
-            }}
-          />
-        </div>
+        <StudioSlider
+          id={`${idPrefix}-light-mix`}
+          label="Light on image"
+          value={value.lightMix}
+          min={0}
+          max={1}
+          step={0.01}
+          defaultValue={0.45}
+          onChange={(lightMix) => onChange({ ...value, lightMix })}
+          disabled={!value.url}
+        />
       ) : null}
     </div>
   );
