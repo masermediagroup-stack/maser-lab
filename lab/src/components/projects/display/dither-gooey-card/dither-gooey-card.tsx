@@ -50,7 +50,10 @@ export function DitherGooeyCard({
   const live = drawer.dragging || drawer.settling;
   const gooey = live && !reducedMotion;
 
-  const scaleY = useTransform(drawer.height, (value) => value / EXPANDED_HEIGHT);
+  const scaleY = useTransform(
+    drawer.height,
+    (value) => Math.max(COLLAPSED_HEIGHT, value) / EXPANDED_HEIGHT,
+  );
   const contentScaleY = useTransform(scaleY, (value) => (value === 0 ? 1 : 1 / value));
   const chevronRotate = useTransform(
     drawer.height,
@@ -75,6 +78,7 @@ export function DitherGooeyCard({
         ...style,
         ["--dgc-fill" as string]: fill,
         ["--dgc-ink" as string]: ink,
+        ["--dgc-drip-y" as string]: `${DRIP_Y}px`,
       }}
     >
       <Liquid
@@ -107,7 +111,7 @@ export function DitherGooeyCard({
               scaleY,
               originX: 0.5,
               originY: 0,
-              z: 0,
+              translateZ: 0,
             }}
           >
             <motion.div
@@ -116,7 +120,7 @@ export function DitherGooeyCard({
                 scaleY: contentScaleY,
                 originX: 0.5,
                 originY: 0,
-                z: 0,
+                translateZ: 0,
               }}
             >
               <Card
@@ -159,38 +163,34 @@ export function DitherGooeyCard({
             </motion.div>
           </motion.div>
         </Liquid.Item>
-        <Liquid.Item
-          className="dgc-drip-item"
-          y={DRIP_Y}
-          x={0}
-          radius={24}
-          style={{ zIndex: 20 }}
-        >
-          <button
-            type="button"
-            className="dgc-drip"
-            aria-expanded={drawer.open}
-            aria-controls={panelId}
-            aria-label={`${title}. Pull down to open`}
-            {...drawer.handleProps}
-            onClick={activate}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                drawer.toggle();
-                return;
-              }
-              if (event.key === "Escape" && drawer.open) {
-                event.preventDefault();
-                drawer.collapse();
-              }
-            }}
-          >
-            <motion.span className="dgc-chevron-wrap" style={{ rotate: chevronRotate }}>
-              <ChevronDown aria-hidden className="dgc-chevron" />
-            </motion.span>
-          </button>
-        </Liquid.Item>
+        <div className="dgc-drip-slot">
+          <Liquid.Item observe radius={24}>
+            <button
+              type="button"
+              className="dgc-drip"
+              aria-expanded={drawer.open}
+              aria-controls={panelId}
+              aria-label={`${title}. Pull down to open`}
+              {...drawer.handleProps}
+              onClick={activate}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  drawer.toggle();
+                  return;
+                }
+                if (event.key === "Escape" && drawer.open) {
+                  event.preventDefault();
+                  drawer.collapse();
+                }
+              }}
+            >
+              <motion.span className="dgc-chevron-wrap" style={{ rotate: chevronRotate }}>
+                <ChevronDown aria-hidden className="dgc-chevron" />
+              </motion.span>
+            </button>
+          </Liquid.Item>
+        </div>
       </Liquid>
     </div>
   );

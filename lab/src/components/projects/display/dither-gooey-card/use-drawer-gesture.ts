@@ -82,13 +82,19 @@ export function useDrawerGesture({
         return;
       }
       setSettling(true);
+      const collapsing = target === COLLAPSED_HEIGHT;
       springRef.current = animate(height, target, {
         type: "spring",
         stiffness: 380,
-        damping: velocity > 400 ? 26 : 34,
+        // Collapse is overdamped so the fill cannot bounce off the heading.
+        damping: collapsing ? 42 : velocity > 400 ? 26 : 34,
         mass: 0.85,
         velocity: velocity / 1000,
+        onUpdate: (latest) => {
+          if (latest < COLLAPSED_HEIGHT) height.set(COLLAPSED_HEIGHT);
+        },
         onComplete: () => {
+          if (height.get() < COLLAPSED_HEIGHT) height.set(COLLAPSED_HEIGHT);
           setSettling(false);
           commitOpen(target === EXPANDED_HEIGHT);
         },
@@ -106,6 +112,11 @@ export function useDrawerGesture({
 
   useEffect(() => {
     const unsub = height.on("change", (value) => {
+      if (value < COLLAPSED_HEIGHT) {
+        height.set(COLLAPSED_HEIGHT);
+        progress.set(0);
+        return;
+      }
       progress.set(Math.max(0, Math.min(1, (value - COLLAPSED_HEIGHT) / range)));
     });
     return unsub;

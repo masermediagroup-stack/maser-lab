@@ -6,6 +6,7 @@
   --dgc-ink-muted: color-mix(in srgb, var(--dgc-ink) 72%, transparent);
   --dgc-radius: 18px;
   --dgc-handle-pad: 14px;
+  --dgc-drip-y: 60px;
   width: 100%;
   max-width: 26.25rem;
 }
@@ -128,14 +129,16 @@
   outline-offset: -4px;
 }
 
-.dgc-drip-item {
+.dgc-drip-slot {
   position: absolute;
-  top: 0;
+  top: var(--dgc-drip-y);
   left: 50%;
   z-index: 20;
-  margin-left: -1.5rem;
-  isolation: isolate;
-  will-change: transform;
+  width: 3rem;
+  height: 3rem;
+  margin: 0 0 0 -1.5rem;
+  pointer-events: auto;
+  transform: translateZ(0);
 }
 
 .dgc-drip {
@@ -144,6 +147,7 @@
   place-items: center;
   width: 3rem;
   height: 3rem;
+  margin: 0;
   padding: 0;
   border: 0;
   border-radius: 999px;
@@ -154,6 +158,8 @@
   color: var(--dgc-ink);
   cursor: grab;
   touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .dgc-drip::before {
@@ -174,7 +180,7 @@
 @media (prefers-reduced-motion: reduce) {
   .dgc-shell,
   .dgc-shell-inner,
-  .dgc-drip-item,
+  .dgc-drip-slot,
   .dgc-chevron-wrap {
     will-change: auto;
   }
