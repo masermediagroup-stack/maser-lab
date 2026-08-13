@@ -132,8 +132,9 @@
   position: absolute;
   top: 0;
   left: 50%;
-  z-index: 2;
+  z-index: 20;
   margin-left: -1.5rem;
+  isolation: isolate;
   will-change: transform;
 }
 
@@ -146,7 +147,10 @@
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: transparent;
+  background: var(--dgc-fill);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
   color: var(--dgc-ink);
   cursor: grab;
   touch-action: none;

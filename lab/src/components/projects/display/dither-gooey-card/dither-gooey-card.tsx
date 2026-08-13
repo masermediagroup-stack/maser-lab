@@ -159,7 +159,13 @@ export function DitherGooeyCard({
             </motion.div>
           </motion.div>
         </Liquid.Item>
-        <Liquid.Item className="dgc-drip-item" y={DRIP_Y} x={0} radius={24}>
+        <Liquid.Item
+          className="dgc-drip-item"
+          y={DRIP_Y}
+          x={0}
+          radius={24}
+          style={{ zIndex: 20 }}
+        >
           <button
             type="button"
             className="dgc-drip"
