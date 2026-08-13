@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 352" role="img" aria-label="Maser Media mark">
+  <path
+    d="M36 176 V48 L100 128 L164 48 V176"
+    fill="none"
+    stroke="#0096FF"
+    stroke-width="56"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M36 176 V48 L100 128 L164 48 V176"
+    fill="none"
+    stroke="#004B70"
+    stroke-width="56"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    transform="translate(0 124)"
+  />
+</svg>

@@ -31,6 +31,7 @@ Patterns are added when a project ships to `review` or `ready`. Scaffolds exist 
 | --- | --- | --- |
 | Orthographic curtain strips | `layout/page-transitions-lab` | CanvasTexture of destination page → UV-sliced planes fall with stagger; CSS strip fallback without WebGL. See `curtain-fall-scene.tsx`. |
 | Shared procedural dither surface | `display/maser-dither-engine` | Custom WebGL2 (not Three.js). Single `stages.ts` program + lighting/color/dither/material/interaction/animation controllers. **Agent contract:** `projects/display/maser-dither-engine/AGENTS.md` + `engine/AGENTS.md`. Materials grid uses CSS thumbs (context budget). |
+| Scissor logo material gallery | `display/logo-material-gallery` | One WebGL context; DOM-tracked scissor views for six thumbs + studio; round-cap polyline → `ExtrudeGeometry`; procedural canvas PBR maps; `RoomEnvironment` IBL; transparent PNG export. |
 
 ## Planned patterns
 
