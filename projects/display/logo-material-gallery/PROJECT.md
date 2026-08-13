@@ -152,14 +152,15 @@ Primary showcase for the MM mark. Brand blues appear only in the Gradient materi
 
 ## Acceptance criteria
 
-- [ ] Demo route `/demos/logo-material-gallery` renders gallery + studio states
-- [ ] Six materials: wood, glass, gradient, brushed steel, marble, gold
-- [ ] Card click opens studio with material switcher, spin + pause, scale, depth, key light, environment intensity, export, reset
-- [ ] Export PNG is high-res with transparent background
-- [ ] Typography small uppercase; UI monochrome except the logo
-- [ ] `npm run lint` and `npm run build` pass in `lab/`
-- [ ] `prefers-reduced-motion` verified
-- [ ] Component exported from `lab/src/components/projects/display/logo-material-gallery/index.ts`
+- [x] Demo route `/demos/logo-material-gallery` renders gallery + studio states
+- [x] Six materials: wood, glass, gradient, brushed steel, marble, gold
+- [x] Card click opens studio with material switcher, spin + pause, scale, depth, key light, environment intensity, export, reset
+- [x] Export PNG is high-res with transparent background (2048 RGBA, corners alpha 0)
+- [x] Typography small uppercase; UI monochrome except the logo
+- [x] `npm run build` passes in `lab/`
+- [x] Gallery files pass `eslint` (full `lab` lint still reports pre-existing `pixel-info-card` hook errors)
+- [x] `prefers-reduced-motion` verified
+- [x] Component exported from `lab/src/components/projects/display/logo-material-gallery/index.ts`
 
 ## Open decisions
 

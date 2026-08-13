@@ -1,6 +1,5 @@
 import {
   ACESFilmicToneMapping,
-  Clock,
   Color,
   DirectionalLight,
   Group,
@@ -69,7 +68,7 @@ function isOffscreen(
 
 export class LogoGalleryEngine {
   private renderer: WebGLRenderer;
-  private clock = new Clock();
+  private lastTime = 0;
   private geometry: BufferGeometry;
   private textures: ProceduralTextures;
   private materials: MaterialMap;
@@ -98,7 +97,7 @@ export class LogoGalleryEngine {
     });
     this.renderer.outputColorSpace = SRGBColorSpace;
     this.renderer.toneMapping = ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.05;
+    this.renderer.toneMappingExposure = 1.12;
     this.renderer.setClearColor(0x000000, 0);
     this.renderer.setPixelRatio(this.currentDpr());
     this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
@@ -155,9 +154,13 @@ export class LogoGalleryEngine {
     const fill = new HemisphereLight(0xb9d4ea, 0x0a0a0c, 0.55);
     scene.add(fill);
 
-    const rim = new DirectionalLight(0x9ecfff, 0.35);
+    const rim = new DirectionalLight(0x9ecfff, 0.72);
     rim.position.set(-3.2, 1.2, -2.4);
     scene.add(rim);
+
+    const kick = new DirectionalLight(0xcfe9ff, 0.4);
+    kick.position.set(0.4, -2.2, -3.6);
+    scene.add(kick);
 
     return {
       id,
@@ -238,12 +241,17 @@ export class LogoGalleryEngine {
   start(): void {
     if (this.running) return;
     this.running = true;
-    this.clock.start();
+    this.lastTime = 0;
     this.renderer.setAnimationLoop(this.tick);
   }
 
   private tick = (): void => {
-    const dt = this.clock.getDelta();
+    const now = performance.now();
+    const dt =
+      this.lastTime === 0
+        ? 0
+        : Math.min(0.05, (now - this.lastTime) / 1000);
+    this.lastTime = now;
     const spinning = !this.reducedMotion && !this.params.paused;
     const gallerySpeed = spinning ? DEFAULT_STUDIO_PARAMS.spinSpeed : 0;
     const studioSpeed = spinning ? this.params.spinSpeed : 0;

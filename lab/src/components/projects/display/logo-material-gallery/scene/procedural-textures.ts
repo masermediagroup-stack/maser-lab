@@ -226,7 +226,7 @@ export function createProceduralTextures(size = 512): ProceduralTextures {
   const wood = paintWood(size);
   const marble = paintMarble(size);
   const steel = paintSteel(size);
-  return {
+  const textures = {
     woodAlbedo: canvasTexture(wood.albedo, true),
     woodRough: canvasTexture(wood.rough, false),
     marbleAlbedo: canvasTexture(marble.albedo, true),
@@ -237,6 +237,16 @@ export function createProceduralTextures(size = 512): ProceduralTextures {
     goldRough: canvasTexture(paintGold(size), false),
     gradientAlbedo: canvasTexture(paintGradient(size), true),
   };
+
+  textures.woodAlbedo.repeat.set(1.7, 1.7);
+  textures.woodRough.repeat.set(1.7, 1.7);
+  textures.marbleAlbedo.repeat.set(1.35, 1.35);
+  textures.marbleRough.repeat.set(1.35, 1.35);
+  textures.steelAlbedo.repeat.set(1.2, 2.4);
+  textures.steelRough.repeat.set(1.2, 2.4);
+  textures.steelAniso.repeat.set(1.2, 2.4);
+
+  return textures;
 }
 
 export function disposeProceduralTextures(textures: ProceduralTextures): void {

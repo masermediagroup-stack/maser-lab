@@ -30,24 +30,18 @@ export function createLogoGeometry(depth: number): BufferGeometry {
   const bottom = maserMShape(MARK_SVG.stackDy);
   const bevel = Math.min(0.05, depth * 0.14);
 
-  const topGeo = new ExtrudeGeometry(top, {
+  const extrude = {
     depth,
     bevelEnabled: true,
     bevelThickness: bevel,
     bevelSize: bevel * 0.85,
-    bevelSegments: 3,
-    curveSegments: 20,
+    bevelSegments: 5,
+    curveSegments: 24,
     steps: 1,
-  });
-  const bottomGeo = new ExtrudeGeometry(bottom, {
-    depth,
-    bevelEnabled: true,
-    bevelThickness: bevel,
-    bevelSize: bevel * 0.85,
-    bevelSegments: 3,
-    curveSegments: 20,
-    steps: 1,
-  });
+  } as const;
+
+  const topGeo = new ExtrudeGeometry(top, extrude);
+  const bottomGeo = new ExtrudeGeometry(bottom, extrude);
 
   const merged = mergeGeometries([topGeo, bottomGeo], false);
   topGeo.dispose();
@@ -59,10 +53,13 @@ export function createLogoGeometry(depth: number): BufferGeometry {
 
   merged.center();
   merged.computeVertexNormals();
-  try {
+  if (
+    merged.index &&
+    merged.getAttribute("position") &&
+    merged.getAttribute("normal") &&
+    merged.getAttribute("uv")
+  ) {
     merged.computeTangents();
-  } catch {
-    // Anisotropy can run without tangents; brushed steel still has streak maps.
   }
   merged.computeBoundingBox();
   merged.computeBoundingSphere();

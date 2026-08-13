@@ -47,19 +47,23 @@ export function createMaterials({
   });
 
   const glass = commonPhysical({
-    color: new Color("#d8eefc"),
+    color: new Color("#7ecfff"),
     metalness: 0,
-    roughness: 0.04,
-    transmission: 1,
-    thickness: Math.max(0.35, depth * 1.15),
+    roughness: 0.055,
+    transmission: 0.84,
+    thickness: Math.max(0.48, depth * 1.3),
     ior: 1.5,
-    attenuationColor: new Color("#7ec8ff"),
-    attenuationDistance: 1.8,
+    attenuationColor: new Color("#2f8fd4"),
+    attenuationDistance: 0.55,
     clearcoat: 1,
     clearcoatRoughness: 0.04,
     specularIntensity: 1,
+    specularColor: new Color("#e7f6ff"),
+    iridescence: 0.18,
+    iridescenceIOR: 1.28,
+    iridescenceThicknessRange: [120, 420],
     envMap: envMap ?? undefined,
-    envMapIntensity: envIntensity * 1.35,
+    envMapIntensity: envIntensity * 1.45,
     transparent: true,
     side: FrontSide,
     depthWrite: true,
@@ -122,7 +126,7 @@ export function applyEnvIntensity(
   envIntensity: number,
 ): void {
   materials.wood.envMapIntensity = envIntensity * 0.55;
-  materials.glass.envMapIntensity = envIntensity * 1.35;
+  materials.glass.envMapIntensity = envIntensity * 1.45;
   materials.gradient.envMapIntensity = envIntensity;
   materials.steel.envMapIntensity = envIntensity * 1.15;
   materials.marble.envMapIntensity = envIntensity * 0.7;
@@ -133,7 +137,9 @@ export function applyGlassThickness(
   materials: MaterialMap,
   depth: number,
 ): void {
-  materials.glass.thickness = Math.max(0.35, depth * 1.15);
+  if (materials.glass instanceof MeshPhysicalMaterial) {
+    materials.glass.thickness = Math.max(0.48, depth * 1.3);
+  }
 }
 
 export function disposeMaterials(materials: MaterialMap): void {
