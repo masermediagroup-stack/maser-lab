@@ -8,7 +8,7 @@ import {
   SurfaceCanvas,
 } from "@maser/dither-engine";
 import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Liquid } from "liquid-gooey";
 import { useId, useMemo } from "react";
 import {
@@ -156,17 +156,17 @@ export function DitherGooeyCard({
                   aria-expanded={drawer.open}
                   aria-controls={panelId}
                   aria-label={`${title}. ${pullHint}`}
+                  {...drawer.handleProps}
+                  onClick={() => {
+                    if (drawer.consumeClick()) return;
+                    drawer.toggle();
+                  }}
                   onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      drawer.toggle();
-                    }
                     if (event.key === "Escape" && drawer.open) {
                       event.preventDefault();
                       drawer.collapse();
                     }
                   }}
-                  {...drawer.handleProps}
                 >
                   <div className="dgc-title-row">
                     <ChevronDown
@@ -198,10 +198,17 @@ export function DitherGooeyCard({
                   className="dgc-close"
                   tabIndex={drawer.open ? 0 : -1}
                   aria-label={closeHint}
-                  style={{ opacity: Math.max(0, (drawer.progress - 0.55) / 0.45) }}
-                  onClick={() => drawer.collapse()}
+                  style={{
+                    opacity: Math.max(0, (drawer.progress - 0.4) / 0.6),
+                    pointerEvents: drawer.progress > 0.55 ? "auto" : "none",
+                  }}
                   {...drawer.handleProps}
+                  onClick={() => {
+                    if (drawer.consumeClick()) return;
+                    drawer.collapse();
+                  }}
                 >
+                  <ChevronUp aria-hidden className="dgc-chevron" />
                   {closeHint}
                 </button>
               </CardFooter>

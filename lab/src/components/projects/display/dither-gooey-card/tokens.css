@@ -129,10 +129,11 @@
   justify-content: center;
   gap: 0.4rem;
   width: 100%;
-  padding: 0.7rem var(--dgc-handle-pad) 0.9rem;
+  min-height: 2.75rem;
+  padding: 0.7rem var(--dgc-handle-pad) 0.95rem;
   border: 0;
   background: transparent;
-  color: var(--dgc-ink-muted);
+  color: var(--dgc-ink);
   font-size: 0.72rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;

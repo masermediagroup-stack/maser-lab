@@ -50,9 +50,15 @@ export function useDrawerGesture({
   const pointerIdRef = useRef<number | null>(null);
   const springRef = useRef<AnimationPlaybackControls | null>(null);
   const onOpenChangeRef = useRef(onOpenChange);
+  const skipClickRef = useRef(false);
 
-  openRef.current = open;
-  onOpenChangeRef.current = onOpenChange;
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+
+  useEffect(() => {
+    onOpenChangeRef.current = onOpenChange;
+  }, [onOpenChange]);
 
   const range = EXPANDED_HEIGHT - COLLAPSED_HEIGHT;
 
@@ -137,7 +143,7 @@ export function useDrawerGesture({
   );
 
   const finishGesture = useCallback(
-    (event: PointerEvent<HTMLElement>, treatAsClick: boolean) => {
+    (event: PointerEvent<HTMLElement>, applySnap: boolean) => {
       if (!draggingRef.current) return;
       if (pointerIdRef.current !== event.pointerId) return;
       draggingRef.current = false;
@@ -147,10 +153,8 @@ export function useDrawerGesture({
         event.currentTarget.releasePointerCapture(event.pointerId);
       }
 
-      if (treatAsClick && !movedRef.current) {
-        springTo(openRef.current ? COLLAPSED_HEIGHT : EXPANDED_HEIGHT, 0);
-        return;
-      }
+      skipClickRef.current = movedRef.current;
+      if (!applySnap || !movedRef.current) return;
 
       const p = (height.get() - COLLAPSED_HEIGHT) / range;
       const flickOpen = velocityRef.current > 720;
@@ -187,6 +191,12 @@ export function useDrawerGesture({
     springTo(EXPANDED_HEIGHT, 0);
   }, [springTo]);
 
+  const consumeClick = useCallback(() => {
+    if (!skipClickRef.current) return false;
+    skipClickRef.current = false;
+    return true;
+  }, []);
+
   const handleProps = {
     onPointerDown,
     onPointerMove,
@@ -202,6 +212,7 @@ export function useDrawerGesture({
     toggle,
     collapse,
     expand,
+    consumeClick,
     handleProps,
   };
 }
