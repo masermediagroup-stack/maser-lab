@@ -84,6 +84,13 @@
       "status": "building",
       "category": "display",
       "description": "White squircle info trigger that pixel-snake assembles into a reversible info card — Blobby chrome with blue controls"
+    },
+    {
+      "slug": "dither-gooey-card",
+      "title": "Dither Gooey Card",
+      "status": "building",
+      "category": "display",
+      "description": "Thin grey Learn More drawer — dither radial pulse with liquid-gooey pull-to-open"
     }
   ]
 }
