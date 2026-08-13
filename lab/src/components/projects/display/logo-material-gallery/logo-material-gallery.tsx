@@ -9,6 +9,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { StaticFallback } from "@/three/fallbacks/static-fallback";
@@ -61,7 +62,6 @@ export function LogoMaterialGallery({
   const [exporting, setExporting] = useState(false);
   const [liveMessage, setLiveMessage] = useState("");
   const [engineVersion, setEngineVersion] = useState(0);
-  const [webgl, setWebgl] = useState<boolean | null>(null);
 
   const title =
     mode === "studio" ? MATERIAL_LABEL[material] : "Material gallery";
@@ -149,9 +149,11 @@ export function LogoMaterialGallery({
     setLiveMessage("Studio reset");
   };
 
-  useEffect(() => {
-    setWebgl(isWebGLAvailable());
-  }, []);
+  const webgl = useSyncExternalStore(
+    () => () => {},
+    isWebGLAvailable,
+    () => true,
+  );
 
   const fallback = useMemo(
     () => (
@@ -215,11 +217,9 @@ export function LogoMaterialGallery({
         <div className="lmg-header-end">{headerEnd}</div>
       </header>
 
-      {webgl === false ? (
-        fallback
-      ) : (
+      {webgl ? (
         <>
-          {webgl === true ? <GalleryCanvas onEngine={handleEngine} /> : null}
+          <GalleryCanvas onEngine={handleEngine} />
 
           {mode === "gallery" ? (
             <div className="lmg-gallery">
@@ -263,6 +263,8 @@ export function LogoMaterialGallery({
             </div>
           )}
         </>
+      ) : (
+        fallback
       )}
     </div>
   );

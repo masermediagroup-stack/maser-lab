@@ -9,20 +9,18 @@ type GalleryCanvasProps = {
 
 export function GalleryCanvas({ onEngine }: GalleryCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const onEngineRef = useRef(onEngine);
-  onEngineRef.current = onEngine;
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const engine = new LogoGalleryEngine(canvas);
     engine.start();
-    onEngineRef.current(engine);
+    onEngine(engine);
     return () => {
       engine.dispose();
-      onEngineRef.current(null);
+      onEngine(null);
     };
-  }, []);
+  }, [onEngine]);
 
   return <canvas ref={canvasRef} className="lmg-canvas" aria-hidden="true" />;
 }
