@@ -140,7 +140,7 @@ export function DitherGooeyCardDemo() {
       }
       style={{ touchAction: focusMode ? "none" : undefined }}
     >
-      <DemoControlBar className="left-4 right-4 top-4 justify-between sm:left-6 sm:right-6">
+      <DemoControlBar className="left-4 right-4 top-4 justify-between gap-2 sm:left-6 sm:right-6">
         {focusMode ? (
           <>
             <LabButton variant="ghost" onClick={() => void exitFocus()}>
@@ -185,21 +185,17 @@ export function DitherGooeyCardDemo() {
         className={
           focusMode
             ? "flex min-h-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[calc(var(--lab-control-bar-bottom,5.5rem))]"
-            : "flex min-h-dvh flex-col px-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[calc(var(--lab-control-bar-bottom,7.5rem))] sm:items-center sm:px-4"
+            : "flex min-h-dvh flex-col items-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[calc(var(--lab-control-bar-bottom,7.5rem))]"
         }
       >
         {focusMode ? null : (
-          <div className="mb-6 max-w-md shrink-0 px-4 text-center">
-            <p className="font-mono text-xs tracking-[0.18em] text-[var(--lab-text-muted,#9a9a9a)] uppercase">
+          <div className="mb-3 max-w-sm shrink-0 px-1 text-center">
+            <p className="font-mono text-[10px] tracking-[0.18em] text-[var(--lab-text-muted,#9a9a9a)] uppercase">
               Display
             </p>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+            <h1 className="mt-1 text-lg font-semibold tracking-tight">
               Gooey Card
             </h1>
-            <p className="mt-2 text-sm text-[var(--lab-text-secondary,#c4c4c4)]">
-              Grab the arrow to pull open. Tap Fullscreen on mobile so the page
-              does not scroll with the gesture.
-            </p>
           </div>
         )}
 
@@ -207,7 +203,7 @@ export function DitherGooeyCardDemo() {
           className={
             focusMode
               ? "flex min-h-0 w-full flex-1 flex-col"
-              : "flex w-full flex-1 items-start justify-start sm:max-w-lg sm:items-center sm:justify-center"
+              : "flex w-full max-w-[22rem] flex-1 items-start justify-center"
           }
         >
           <DitherGooeyCard

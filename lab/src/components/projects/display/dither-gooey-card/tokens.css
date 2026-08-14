@@ -6,17 +6,11 @@
   --dgc-ink-muted: color-mix(in srgb, var(--dgc-ink) 72%, transparent);
   --dgc-radius: 18px;
   --dgc-handle-pad: 14px;
-  --dgc-expanded: 272px;
+  --dgc-expanded: 196px;
   width: 100%;
-  max-width: 26.25rem;
+  max-width: 22rem;
   touch-action: none;
   overscroll-behavior: none;
-}
-
-@media (max-width: 40rem) {
-  .dgc-root {
-    max-width: none;
-  }
 }
 
 .dgc-root[data-fill-viewport="true"] {
@@ -68,9 +62,9 @@
   position: absolute;
   top: 0;
   left: 50%;
-  z-index: 1;
-  width: 7.5rem;
-  height: 7.5rem;
+  z-index: 4;
+  width: 8.5rem;
+  height: 8.5rem;
   pointer-events: none;
   backface-visibility: hidden;
 }
@@ -100,23 +94,23 @@
 
 .dgc-gooey-bulge {
   top: 0;
-  width: 5.5rem;
-  height: 5.5rem;
-  margin-left: -2.75rem;
+  width: 6.25rem;
+  height: 6.25rem;
+  margin-left: -3.125rem;
 }
 
 .dgc-gooey-drop {
-  top: 1.85rem;
-  width: 3.35rem;
-  height: 3.35rem;
-  margin-left: -1.675rem;
+  top: 2.15rem;
+  width: 3.75rem;
+  height: 3.75rem;
+  margin-left: -1.875rem;
 }
 
 .dgc-gooey-tail {
-  top: 3.55rem;
-  width: 1.85rem;
-  height: 1.85rem;
-  margin-left: -0.925rem;
+  top: 4.35rem;
+  width: 2rem;
+  height: 2rem;
+  margin-left: -1rem;
 }
 
 .dgc-root[data-reduced="true"] .dgc-gooey-drop,
@@ -188,9 +182,9 @@
 }
 
 .dgc-chevron {
-  flex-shrink: 0;
-  width: 1.35rem;
-  height: 1.35rem;
+  display: block;
+  width: 5.5rem;
+  height: 5.5rem;
   color: var(--dgc-ink);
 }
 
@@ -219,19 +213,20 @@
 
 .dgc-handle {
   position: absolute;
-  top: 0;
+  top: 0.35rem;
   left: 50%;
-  z-index: 20;
+  z-index: 2;
   display: grid;
   place-items: center;
-  width: 3.25rem;
-  height: 2.75rem;
-  margin: 0;
+  width: 6.25rem;
+  height: 6.25rem;
+  margin: 0 0 0 -3.125rem;
   padding: 0;
   border: 0;
   background: transparent;
   color: var(--dgc-ink);
   cursor: grab;
+  pointer-events: auto;
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -240,7 +235,7 @@
 
 .dgc-handle::before {
   position: absolute;
-  inset: -14px -18px;
+  inset: -8px;
   content: "";
 }
 

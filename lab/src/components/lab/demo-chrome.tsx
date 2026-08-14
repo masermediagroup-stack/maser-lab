@@ -158,12 +158,20 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
+    const lab = node.closest(".maser-lab");
 
     const syncOffset = () => {
       const bottom = node.getBoundingClientRect().bottom;
+      const token = `${Math.ceil(bottom + 12)}px`;
+      /* Inline on `.maser-lab` beats the 5.5rem fallback in maser-lab-tokens.css.
+         `:root` alone is overridden by that class, so wrapped mobile bars
+         (Lab + Fullscreen + presets + color + reduced motion) overlap the demo. */
+      if (lab instanceof HTMLElement) {
+        lab.style.setProperty("--lab-control-bar-bottom", token);
+      }
       document.documentElement.style.setProperty(
         "--lab-control-bar-bottom",
-        `${bottom + 12}px`,
+        token,
       );
     };
 
@@ -175,6 +183,9 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", syncOffset);
+      if (lab instanceof HTMLElement) {
+        lab.style.removeProperty("--lab-control-bar-bottom");
+      }
       document.documentElement.style.removeProperty("--lab-control-bar-bottom");
     };
   }, []);

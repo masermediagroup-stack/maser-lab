@@ -1,16 +1,14 @@
-export const COLLAPSED_HEIGHT = 80;
-export const EXPANDED_HEIGHT = 272;
-/** Transparent hit target around the on-card chevron. */
-export const HANDLE_SIZE = 48;
+export const COLLAPSED_HEIGHT = 72;
+export const EXPANDED_HEIGHT = 196;
+/** Transparent hit target covering the hanging droplet. */
+export const HANDLE_SIZE = 100;
 /** Extra stage room for the static gooey bulge below the rect. */
-export const GOOEY_HANG = 72;
+export const GOOEY_HANG = 84;
 /** How far the gooey drip cluster overlaps the visual card bottom. */
-export const DRIP_OVERLAP = 46;
-/** Chevron sits on the fill, slightly above the visual bottom edge. */
-export const HANDLE_INSET = 32;
+export const DRIP_OVERLAP = 52;
 export const DRAG_CLICK_PX = 10;
 export const OPEN_THRESHOLD = 0.36;
-export const CARD_MAX_WIDTH = 420;
+export const CARD_MAX_WIDTH = 352;
 
 export const DEFAULT_BACKGROUND = "#4a4a4e";
 export const DEFAULT_TEXT = "#f6f6f4";

@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { ChevronDown } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -12,7 +11,6 @@ import {
   DEFAULT_TEXT,
   EXPANDED_HEIGHT,
   GOOEY_HANG,
-  HANDLE_INSET,
   DRIP_OVERLAP,
 } from "./constants";
 import type { DitherGooeyCardProps } from "./types";
@@ -83,10 +81,6 @@ export function DitherGooeyCard({
   const dripY = useTransform(
     drawer.height,
     (value) => Math.max(COLLAPSED_HEIGHT, value) - DRIP_OVERLAP,
-  );
-  const handleY = useTransform(
-    drawer.height,
-    (value) => Math.max(COLLAPSED_HEIGHT, value) - HANDLE_INSET,
   );
   const chevronRotate = useTransform(
     [drawer.height, expandedMV],
@@ -190,6 +184,51 @@ export function DitherGooeyCard({
             <div className="dgc-gooey-drop" />
             <div className="dgc-gooey-tail" />
           </div>
+          <motion.button
+            type="button"
+            className="dgc-handle"
+            data-live={live ? "true" : "false"}
+            aria-expanded={drawer.open}
+            aria-controls={panelId}
+            aria-label={
+              drawer.open
+                ? `${title}. ${closeHint}`
+                : `${title}. Pull down to open`
+            }
+            {...drawer.handleProps}
+            onClick={activate}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                drawer.toggle();
+                return;
+              }
+              if (event.key === "Escape" && drawer.open) {
+                event.preventDefault();
+                drawer.collapse();
+              }
+            }}
+          >
+            <motion.span
+              className="dgc-chevron-wrap"
+              style={{ rotate: chevronRotate }}
+            >
+              <svg
+                aria-hidden
+                className="dgc-chevron"
+                viewBox="0 0 48 48"
+                fill="none"
+              >
+                <path
+                  d="M6 10 L24 38 L42 10"
+                  stroke="currentColor"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </motion.span>
+          </motion.button>
         </motion.div>
 
         <motion.div
@@ -232,43 +271,6 @@ export function DitherGooeyCard({
           </motion.div>
         </motion.div>
 
-        <motion.button
-          type="button"
-          className="dgc-handle"
-          data-live={live ? "true" : "false"}
-          aria-expanded={drawer.open}
-          aria-controls={panelId}
-          aria-label={
-            drawer.open
-              ? `${title}. ${closeHint}`
-              : `${title}. Pull down to open`
-          }
-          style={{
-            x: "-50%",
-            y: handleY,
-            translateZ: 0,
-          }}
-          {...drawer.handleProps}
-          onClick={activate}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              drawer.toggle();
-              return;
-            }
-            if (event.key === "Escape" && drawer.open) {
-              event.preventDefault();
-              drawer.collapse();
-            }
-          }}
-        >
-          <motion.span
-            className="dgc-chevron-wrap"
-            style={{ rotate: chevronRotate }}
-          >
-            <ChevronDown aria-hidden className="dgc-chevron" />
-          </motion.span>
-        </motion.button>
       </div>
     </div>
   );
