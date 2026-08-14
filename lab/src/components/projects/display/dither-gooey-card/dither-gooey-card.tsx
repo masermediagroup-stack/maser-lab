@@ -34,7 +34,6 @@ export function DitherGooeyCard({
   onOpenChange,
 }: DitherGooeyCardProps) {
   const panelId = useId();
-  const filterId = `dgc-goo-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const stageRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(EXPANDED_HEIGHT);
   const expandedHeight = fillViewport ? viewportHeight : EXPANDED_HEIGHT;
@@ -128,31 +127,6 @@ export function DitherGooeyCard({
             : { height: expandedHeight + GOOEY_HANG }
         }
       >
-        <svg className="dgc-gooey-defs" aria-hidden width="0" height="0">
-          <defs>
-            <filter
-              id={filterId}
-              x="-32%"
-              y="-32%"
-              width="164%"
-              height="180%"
-              colorInterpolationFilters="sRGB"
-            >
-              <feGaussianBlur
-                in="SourceGraphic"
-                stdDeviation="8"
-                result="blur"
-              />
-              <feColorMatrix
-                in="blur"
-                type="matrix"
-                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9"
-                result="goo"
-              />
-            </filter>
-          </defs>
-        </svg>
-
         <motion.div
           className="dgc-gooey"
           data-live={live ? "true" : "false"}
@@ -162,14 +136,13 @@ export function DitherGooeyCard({
             originX: 0.5,
             originY: 0,
             translateZ: 0,
-            filter: reducedMotion
-              ? undefined
-              : `url(#${filterId}) drop-shadow(0 16px 32px rgba(0, 0, 0, 0.38))`,
           }}
         >
-          <div className="dgc-gooey-body" />
-          <div className="dgc-gooey-bulge" />
-          <div className="dgc-gooey-drop" />
+          <div className="dgc-gooey-fx">
+            <div className="dgc-gooey-body" />
+            <div className="dgc-gooey-bulge" />
+            <div className="dgc-gooey-drop" />
+          </div>
         </motion.div>
 
         <motion.div
