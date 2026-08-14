@@ -126,21 +126,6 @@ export function DitherGooeyCardDemo() {
         enabled={reducedMotion}
         onToggle={() => setReducedMotion((value) => !value)}
       />
-      <LabButton
-        variant={focusMode ? "accent" : "ghost"}
-        aria-pressed={focusMode}
-        aria-label={focusMode ? "Exit fullscreen" : "Enter fullscreen"}
-        onClick={() => {
-          void (focusMode ? exitFocus() : enterFocus());
-        }}
-      >
-        {focusMode ? (
-          <Minimize2 aria-hidden className="size-3.5" />
-        ) : (
-          <Maximize2 aria-hidden className="size-3.5" />
-        )}
-        {focusMode ? "Exit" : "Fullscreen"}
-      </LabButton>
     </div>
   );
 
@@ -155,7 +140,7 @@ export function DitherGooeyCardDemo() {
       }
       style={{ touchAction: focusMode ? "none" : undefined }}
     >
-      <DemoControlBar className="left-4 right-4 top-4 max-h-[36vh] justify-between overflow-y-auto sm:left-6 sm:right-6 sm:max-h-none">
+      <DemoControlBar className="left-4 right-4 top-4 justify-between sm:left-6 sm:right-6">
         {focusMode ? (
           <>
             <LabButton variant="ghost" onClick={() => void exitFocus()}>
@@ -179,7 +164,18 @@ export function DitherGooeyCardDemo() {
           </>
         ) : (
           <>
-            <DemoBackButton />
+            <div className="flex items-center gap-2">
+              <DemoBackButton />
+              <LabButton
+                variant="ghost"
+                aria-pressed={false}
+                aria-label="Enter fullscreen"
+                onClick={() => void enterFocus()}
+              >
+                <Maximize2 aria-hidden className="size-3.5" />
+                Fullscreen
+              </LabButton>
+            </div>
             {controls}
           </>
         )}
