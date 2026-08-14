@@ -1,0 +1,122 @@
+/* type-world product tokens — portable with the section */
+
+.type-world {
+  --type-world-bg: #fafaf7;
+  --type-world-ink: #1047c9;
+  --type-world-hint: color-mix(in srgb, var(--type-world-ink) 38%, var(--type-world-bg));
+  --type-world-serif: "Times New Roman", Times, serif;
+  --type-world-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --type-world-duration-hint: 420ms;
+  --type-world-track: 170svh;
+
+  background: var(--type-world-bg);
+  color: var(--type-world-ink);
+  font-family: var(--type-world-serif);
+}
+
+.type-world__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.type-world__track {
+  position: relative;
+  height: var(--type-world-track);
+  background: var(--type-world-bg);
+}
+
+.type-world__stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--type-world-bg);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.type-world__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.type-world__canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.type-world__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.type-world__hit[data-grabbing="true"] {
+  cursor: grabbing;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .type-world__hit {
+    cursor: grab;
+  }
+
+  .type-world__hit[data-grabbing="true"] {
+    cursor: grabbing;
+  }
+}
+
+.type-world__hint {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: max(1.75rem, 6svh);
+  margin: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+  color: var(--type-world-hint);
+  transition: opacity var(--type-world-duration-hint) var(--type-world-ease-out);
+}
+
+.type-world__fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 8vw 10vw;
+  background: var(--type-world-bg);
+}
+
+.type-world__fallback-quote {
+  margin: 0;
+  max-width: 18ch;
+  text-align: center;
+  font-size: clamp(1.75rem, 5.6vw, 3.75rem);
+  line-height: 1.12;
+  font-weight: 400;
+  color: var(--type-world-ink);
+}
+
+.type-world__fallback-line {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .type-world__hint {
+    transition-duration: 0.01ms;
+  }
+}
