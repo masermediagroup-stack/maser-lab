@@ -37,6 +37,13 @@
   height: 100%;
 }
 
+.dgc-gooey-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
 .dgc-gooey {
   position: absolute;
   top: 0;
@@ -55,8 +62,6 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-  isolation: isolate;
-  filter: blur(9px) contrast(22) drop-shadow(0 14px 28px rgba(0, 0, 0, 0.36));
   transform: translateZ(0);
 }
 
@@ -103,7 +108,7 @@
 }
 
 .dgc-root[data-reduced="true"] .dgc-gooey-fx {
-  filter: none;
+  filter: none !important;
 }
 
 .dgc-clip {

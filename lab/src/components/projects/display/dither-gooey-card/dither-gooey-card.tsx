@@ -34,6 +34,7 @@ export function DitherGooeyCard({
   onOpenChange,
 }: DitherGooeyCardProps) {
   const panelId = useId();
+  const filterId = `dgcgoo${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   const stageRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(EXPANDED_HEIGHT);
   const expandedHeight = fillViewport ? viewportHeight : EXPANDED_HEIGHT;
@@ -127,6 +128,24 @@ export function DitherGooeyCard({
             : { height: expandedHeight + GOOEY_HANG }
         }
       >
+        <svg className="dgc-gooey-defs" aria-hidden focusable="false">
+          <filter
+            id={filterId}
+            x="-40%"
+            y="-40%"
+            width="180%"
+            height="200%"
+            colorInterpolationFilters="sRGB"
+          >
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+            <feColorMatrix
+              in="blur"
+              type="matrix"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8"
+              result="goo"
+            />
+          </filter>
+        </svg>
         <motion.div
           className="dgc-gooey"
           data-live={live ? "true" : "false"}
@@ -138,7 +157,12 @@ export function DitherGooeyCard({
             translateZ: 0,
           }}
         >
-          <div className="dgc-gooey-fx">
+          <div
+            className="dgc-gooey-fx"
+            style={
+              reducedMotion ? undefined : { filter: `url("#${filterId}")` }
+            }
+          >
             <div className="dgc-gooey-body" />
             <div className="dgc-gooey-bulge" />
             <div className="dgc-gooey-drop" />
