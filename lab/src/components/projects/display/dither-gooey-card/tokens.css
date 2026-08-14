@@ -39,8 +39,8 @@
 
 .dgc-gooey-defs {
   position: absolute;
-  width: 0;
-  height: 0;
+  width: 1px;
+  height: 1px;
   overflow: hidden;
 }
 
@@ -57,32 +57,41 @@
   transform: translateZ(0);
 }
 
-.dgc-gooey-fx {
+.dgc-gooey-body {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--dgc-radius);
+  background: var(--dgc-fill);
+}
+
+.dgc-drip-goo {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  width: 7.5rem;
+  height: 7.5rem;
+  pointer-events: none;
+  backface-visibility: hidden;
+}
+
+.dgc-drip-fx {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: visible;
-  transform: translateZ(0);
 }
 
 .dgc-gooey[data-live="true"],
+.dgc-drip-goo[data-live="true"],
 .dgc-handle[data-live="true"],
 .dgc-root[data-live="true"] .dgc-clip {
   will-change: transform;
 }
 
-.dgc-gooey-body {
-  position: absolute;
-  top: 0;
-  right: -1.15rem;
-  bottom: 0;
-  left: -1.15rem;
-  border-radius: var(--dgc-radius);
-  background: var(--dgc-fill);
-}
-
 .dgc-gooey-bulge,
-.dgc-gooey-drop {
+.dgc-gooey-drop,
+.dgc-gooey-tail {
   position: absolute;
   left: 50%;
   border-radius: 50%;
@@ -90,27 +99,32 @@
 }
 
 .dgc-gooey-bulge {
-  bottom: 0;
-  width: 7.75rem;
-  height: 7.75rem;
-  margin-left: -3.875rem;
-  margin-bottom: -2.7rem;
+  top: 0;
+  width: 5.5rem;
+  height: 5.5rem;
+  margin-left: -2.75rem;
 }
 
 .dgc-gooey-drop {
-  bottom: 0;
-  width: 4rem;
-  height: 4rem;
-  margin-left: -2rem;
-  margin-bottom: -3.85rem;
+  top: 1.85rem;
+  width: 3.35rem;
+  height: 3.35rem;
+  margin-left: -1.675rem;
 }
 
-.dgc-root[data-reduced="true"] .dgc-gooey-bulge,
-.dgc-root[data-reduced="true"] .dgc-gooey-drop {
+.dgc-gooey-tail {
+  top: 3.55rem;
+  width: 1.85rem;
+  height: 1.85rem;
+  margin-left: -0.925rem;
+}
+
+.dgc-root[data-reduced="true"] .dgc-gooey-drop,
+.dgc-root[data-reduced="true"] .dgc-gooey-tail {
   display: none;
 }
 
-.dgc-root[data-reduced="true"] .dgc-gooey-fx {
+.dgc-root[data-reduced="true"] .dgc-drip-fx {
   filter: none !important;
 }
 
@@ -247,20 +261,21 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dgc-gooey-fx {
+  .dgc-drip-fx {
     filter: none !important;
   }
 
+  .dgc-gooey-drop,
+  .dgc-gooey-tail {
+    display: none;
+  }
+
   .dgc-gooey,
+  .dgc-drip-goo,
   .dgc-clip,
   .dgc-shell-inner,
   .dgc-handle,
   .dgc-chevron-wrap {
     will-change: auto;
-  }
-
-  .dgc-gooey-bulge,
-  .dgc-gooey-drop {
-    display: none;
   }
 }
