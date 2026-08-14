@@ -122,6 +122,28 @@ export function useDrawerGesture({
     return unsub;
   }, [height, progress, range]);
 
+  useEffect(() => {
+    if (!dragging) return;
+    const preventScroll = (event: TouchEvent) => {
+      event.preventDefault();
+    };
+    document.addEventListener("touchmove", preventScroll, { passive: false });
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevHtmlOverscroll = html.style.overscrollBehavior;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    html.style.overscrollBehavior = "none";
+    return () => {
+      document.removeEventListener("touchmove", preventScroll);
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      html.style.overscrollBehavior = prevHtmlOverscroll;
+    };
+  }, [dragging]);
+
   const onPointerDown = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       if (event.button !== 0) return;
@@ -146,6 +168,7 @@ export function useDrawerGesture({
     (event: PointerEvent<HTMLElement>) => {
       if (!draggingRef.current) return;
       if (pointerIdRef.current !== event.pointerId) return;
+      event.preventDefault();
       const dy = event.clientY - startYRef.current;
       if (Math.abs(dy) > DRAG_CLICK_PX) movedRef.current = true;
       const now = performance.now();

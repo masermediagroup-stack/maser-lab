@@ -1,22 +1,17 @@
 "use client";
 
 import { motion, useTransform } from "framer-motion";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { Liquid } from "liquid-gooey";
+import { ChevronDown } from "lucide-react";
 import { useId } from "react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   COLLAPSED_HEIGHT,
   COPY,
   DEFAULT_BACKGROUND,
   DEFAULT_TEXT,
-  DRIP_Y,
+  DRIP_HANG,
+  DRIP_OVERLAP,
   EXPANDED_HEIGHT,
 } from "./constants";
 import type { DitherGooeyCardProps } from "./types";
@@ -48,13 +43,16 @@ export function DitherGooeyCard({
   const fill = backgroundColor.trim() || DEFAULT_BACKGROUND;
   const ink = textColor.trim() || DEFAULT_TEXT;
   const live = drawer.dragging || drawer.settling;
-  const gooey = live && !reducedMotion;
 
   const scaleY = useTransform(
     drawer.height,
     (value) => Math.max(COLLAPSED_HEIGHT, value) / EXPANDED_HEIGHT,
   );
   const contentScaleY = useTransform(scaleY, (value) => (value === 0 ? 1 : 1 / value));
+  const dripY = useTransform(
+    drawer.height,
+    (value) => Math.max(COLLAPSED_HEIGHT, value) - DRIP_OVERLAP,
+  );
   const chevronRotate = useTransform(
     drawer.height,
     [COLLAPSED_HEIGHT, EXPANDED_HEIGHT],
@@ -74,124 +72,93 @@ export function DitherGooeyCard({
   return (
     <div
       className={cn("dgc-root", className)}
+      data-live={live ? "true" : "false"}
+      data-scroll-lock={live ? "true" : "false"}
       style={{
         ...style,
         ["--dgc-fill" as string]: fill,
         ["--dgc-ink" as string]: ink,
-        ["--dgc-drip-y" as string]: `${DRIP_Y}px`,
       }}
     >
-      <Liquid
-        className="dgc-liquid"
-        blur={gooey ? 16 : 7}
-        contrast={20}
-        fill={fill}
-        shadow="0 16px 40px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.12)"
-        filterPadding={36}
+      <div
+        className="dgc-stage"
+        style={{ height: EXPANDED_HEIGHT + DRIP_HANG }}
       >
-        <Liquid.Item
-          morph={
-            reducedMotion
-              ? undefined
-              : {
-                  shape: gooey,
-                  bounce: drawer.dragging ? 0.46 : 0.28,
-                  contentBlur: 0,
-                  advanced: { bridgeGrow: 10 },
-                }
-          }
-          observe
-          radius={18}
+        <motion.div
+          className="dgc-shell"
+          data-live={live ? "true" : "false"}
+          style={{
+            height: EXPANDED_HEIGHT,
+            scaleY,
+            originX: 0.5,
+            originY: 0,
+            translateZ: 0,
+          }}
         >
           <motion.div
-            className="dgc-shell"
-            data-live={live ? "true" : "false"}
+            className="dgc-shell-inner"
             style={{
-              height: EXPANDED_HEIGHT,
-              scaleY,
+              scaleY: contentScaleY,
               originX: 0.5,
               originY: 0,
               translateZ: 0,
             }}
           >
-            <motion.div
-              className="dgc-shell-inner"
-              style={{
-                scaleY: contentScaleY,
-                originX: 0.5,
-                originY: 0,
-                translateZ: 0,
-              }}
+            <Card
+              size="sm"
+              className="dgc-card h-full w-full bg-transparent py-0 ring-0"
+              aria-label={`${title} drawer`}
             >
-              <Card
-                size="sm"
-                className="dgc-card h-full w-full bg-transparent py-0 ring-0"
-                aria-label={`${title} drawer`}
+              <CardHeader className="p-0">
+                <div className="dgc-title-wrap">
+                  <span className="dgc-title">{title}</span>
+                </div>
+              </CardHeader>
+              <CardContent
+                id={panelId}
+                className="dgc-body"
+                style={{ pointerEvents: drawer.open ? "auto" : "none" }}
               >
-                <CardHeader className="p-0">
-                  <div className="dgc-title-wrap">
-                    <span className="dgc-title">{title}</span>
-                  </div>
-                </CardHeader>
-                <CardContent
-                  id={panelId}
-                  className="dgc-body"
-                  style={{ pointerEvents: drawer.open ? "auto" : "none" }}
-                >
-                  <motion.div style={{ opacity: bodyOpacity }}>
-                    <h3>{bodyTitle}</h3>
-                    {typeof body === "string" ? <p>{body}</p> : body}
-                  </motion.div>
-                </CardContent>
-                <CardFooter className="mt-auto border-0 bg-transparent p-0">
-                  <motion.button
-                    type="button"
-                    className="dgc-close"
-                    tabIndex={drawer.open ? 0 : -1}
-                    aria-label={closeHint}
-                    style={{
-                      opacity: bodyOpacity,
-                      pointerEvents: drawer.open ? "auto" : "none",
-                    }}
-                    onClick={() => drawer.collapse()}
-                  >
-                    <ChevronUp aria-hidden className="dgc-chevron" />
-                    {closeHint}
-                  </motion.button>
-                </CardFooter>
-              </Card>
-            </motion.div>
+                <motion.div style={{ opacity: bodyOpacity }}>
+                  <h3>{bodyTitle}</h3>
+                  {typeof body === "string" ? <p>{body}</p> : body}
+                </motion.div>
+              </CardContent>
+            </Card>
           </motion.div>
-        </Liquid.Item>
-        <div className="dgc-drip-slot">
-          <Liquid.Item observe radius={24}>
-            <button
-              type="button"
-              className="dgc-drip"
-              aria-expanded={drawer.open}
-              aria-controls={panelId}
-              aria-label={`${title}. Pull down to open`}
-              {...drawer.handleProps}
-              onClick={activate}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  drawer.toggle();
-                  return;
-                }
-                if (event.key === "Escape" && drawer.open) {
-                  event.preventDefault();
-                  drawer.collapse();
-                }
-              }}
-            >
-              <motion.span className="dgc-chevron-wrap" style={{ rotate: chevronRotate }}>
-                <ChevronDown aria-hidden className="dgc-chevron" />
-              </motion.span>
-            </button>
-          </Liquid.Item>
-        </div>
-      </Liquid>
+        </motion.div>
+        <motion.button
+          type="button"
+          className="dgc-drip"
+          aria-expanded={drawer.open}
+          aria-controls={panelId}
+          aria-label={
+            drawer.open ? `${title}. ${closeHint}` : `${title}. Pull down to open`
+          }
+          style={{
+            x: "-50%",
+            y: dripY,
+            translateZ: 0,
+          }}
+          {...drawer.handleProps}
+          onClick={activate}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              drawer.toggle();
+              return;
+            }
+            if (event.key === "Escape" && drawer.open) {
+              event.preventDefault();
+              drawer.collapse();
+            }
+          }}
+        >
+          <motion.span className="dgc-chevron-wrap" style={{ rotate: chevronRotate }}>
+            <ChevronDown aria-hidden className="dgc-chevron" />
+          </motion.span>
+        </motion.button>
+      </div>
     </div>
   );
 }

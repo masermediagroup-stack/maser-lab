@@ -12,7 +12,6 @@ import { DitherGooeyCard } from "@/components/projects/display/dither-gooey-card
 
 ## Dependencies
 
-- `liquid-gooey`
 - `framer-motion`
 - shadcn `Card` primitives already in the lab
 

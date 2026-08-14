@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Maximize2, Minimize2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DemoBackButton,
   DemoControlBar,
@@ -41,8 +42,10 @@ function ColorField({
 }
 
 export function DitherGooeyCardDemo() {
+  const stageRef = useRef<HTMLDivElement>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [open, setOpen] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
   const [backgroundColor, setBackgroundColor] = useState(DEFAULT_BACKGROUND);
   const [textColor, setTextColor] = useState(DEFAULT_TEXT);
 
@@ -51,66 +54,169 @@ export function DitherGooeyCardDemo() {
       preset.background === backgroundColor && preset.text === textColor,
   );
 
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (!document.fullscreenElement) setFocusMode(false);
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
+  }, []);
+
+  useEffect(() => {
+    if (!focusMode) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.overflow;
+    const prevBody = body.style.overflow;
+    const prevOverscroll = html.style.overscrollBehavior;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    html.style.overscrollBehavior = "none";
+    return () => {
+      html.style.overflow = prevHtml;
+      body.style.overflow = prevBody;
+      html.style.overscrollBehavior = prevOverscroll;
+    };
+  }, [focusMode]);
+
+  const exitFocus = useCallback(async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen().catch(() => undefined);
+    }
+    setFocusMode(false);
+  }, []);
+
+  const enterFocus = useCallback(async () => {
+    setFocusMode(true);
+    const node = stageRef.current;
+    if (node && "requestFullscreen" in node) {
+      await node.requestFullscreen().catch(() => undefined);
+    }
+  }, []);
+
+  const controls = (
+    <div className="flex flex-wrap items-center gap-2">
+      <LabButton
+        variant={open ? "accent" : "ghost"}
+        aria-pressed={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        {open ? "Open" : "Collapsed"}
+      </LabButton>
+      {COLOR_PRESETS.map((preset) => (
+        <LabButton
+          key={preset.id}
+          variant={activePreset?.id === preset.id ? "accent" : "ghost"}
+          aria-pressed={activePreset?.id === preset.id}
+          onClick={() => {
+            setBackgroundColor(preset.background);
+            setTextColor(preset.text);
+          }}
+        >
+          {preset.label}
+        </LabButton>
+      ))}
+      <ColorField
+        label="Background"
+        value={backgroundColor}
+        onChange={setBackgroundColor}
+      />
+      <ColorField label="Text" value={textColor} onChange={setTextColor} />
+      <ReducedMotionToggle
+        enabled={reducedMotion}
+        onToggle={() => setReducedMotion((value) => !value)}
+      />
+      <LabButton
+        variant={focusMode ? "accent" : "ghost"}
+        aria-pressed={focusMode}
+        aria-label={focusMode ? "Exit fullscreen" : "Enter fullscreen"}
+        onClick={() => {
+          void (focusMode ? exitFocus() : enterFocus());
+        }}
+      >
+        {focusMode ? (
+          <Minimize2 aria-hidden className="size-3.5" />
+        ) : (
+          <Maximize2 aria-hidden className="size-3.5" />
+        )}
+        {focusMode ? "Exit" : "Fullscreen"}
+      </LabButton>
+    </div>
+  );
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#121214] text-[#f4f4f2]">
-      <DemoControlBar className="left-4 right-4 top-4 justify-between sm:left-6 sm:right-6">
-        <DemoBackButton />
-        <div className="flex flex-wrap items-center gap-2">
-          <LabButton
-            variant={open ? "accent" : "ghost"}
-            aria-pressed={open}
-            onClick={() => setOpen((value) => !value)}
-          >
-            {open ? "Open" : "Collapsed"}
-          </LabButton>
-          {COLOR_PRESETS.map((preset) => (
-            <LabButton
-              key={preset.id}
-              variant={activePreset?.id === preset.id ? "accent" : "ghost"}
-              aria-pressed={activePreset?.id === preset.id}
-              onClick={() => {
-                setBackgroundColor(preset.background);
-                setTextColor(preset.text);
-              }}
-            >
-              {preset.label}
+    <div
+      ref={stageRef}
+      data-focus={focusMode ? "true" : "false"}
+      className={
+        focusMode
+          ? "fixed inset-0 z-[70] flex min-h-dvh flex-col overflow-hidden bg-[#121214] text-[#f4f4f2] overscroll-none"
+          : "relative min-h-dvh overflow-x-hidden bg-[#121214] text-[#f4f4f2]"
+      }
+      style={{ touchAction: focusMode ? "none" : undefined }}
+    >
+      <DemoControlBar className="left-4 right-4 top-4 max-h-[36vh] justify-between overflow-y-auto sm:left-6 sm:right-6 sm:max-h-none">
+        {focusMode ? (
+          <>
+            <LabButton variant="ghost" onClick={() => void exitFocus()}>
+              Exit
             </LabButton>
-          ))}
-          <ColorField
-            label="Background"
-            value={backgroundColor}
-            onChange={setBackgroundColor}
-          />
-          <ColorField label="Text" value={textColor} onChange={setTextColor} />
-          <ReducedMotionToggle
-            enabled={reducedMotion}
-            onToggle={() => setReducedMotion((value) => !value)}
-          />
-        </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <ReducedMotionToggle
+                enabled={reducedMotion}
+                onToggle={() => setReducedMotion((value) => !value)}
+              />
+              <LabButton
+                variant="accent"
+                aria-pressed
+                aria-label="Exit fullscreen"
+                onClick={() => void exitFocus()}
+              >
+                <Minimize2 aria-hidden className="size-3.5" />
+                Exit
+              </LabButton>
+            </div>
+          </>
+        ) : (
+          <>
+            <DemoBackButton />
+            {controls}
+          </>
+        )}
       </DemoControlBar>
 
-      <main className="flex min-h-screen flex-col items-center justify-center px-4 pb-16 pt-28">
-        <div className="mb-8 max-w-md text-center">
-          <p className="font-mono text-xs tracking-[0.18em] text-[var(--lab-text-muted,#9a9a9a)] uppercase">
-            Display
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight">
-            Gooey Card
-          </h1>
-          <p className="mt-2 text-sm text-[var(--lab-text-secondary,#c4c4c4)]">
-            Grab the arrow to pull open. Press the bottom to close. Tune fill
-            and ink from the bar.
-          </p>
-        </div>
+      <main
+        className={
+          focusMode
+            ? "flex min-h-0 flex-1 flex-col items-center justify-center px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[calc(var(--lab-control-bar-bottom,5.5rem))]"
+            : "flex min-h-dvh flex-col items-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[calc(var(--lab-control-bar-bottom,7.5rem))]"
+        }
+      >
+        {focusMode ? null : (
+          <div className="mb-6 max-w-md shrink-0 text-center">
+            <p className="font-mono text-xs tracking-[0.18em] text-[var(--lab-text-muted,#9a9a9a)] uppercase">
+              Display
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+              Gooey Card
+            </h1>
+            <p className="mt-2 text-sm text-[var(--lab-text-secondary,#c4c4c4)]">
+              Grab the arrow to pull open. Tap Fullscreen on mobile so the page
+              does not scroll with the gesture.
+            </p>
+          </div>
+        )}
 
-        <DitherGooeyCard
-          title={COPY.title}
-          reducedMotion={reducedMotion}
-          backgroundColor={backgroundColor}
-          textColor={textColor}
-          open={open}
-          onOpenChange={setOpen}
-        />
+        <div className="flex w-full flex-1 items-center justify-center">
+          <DitherGooeyCard
+            title={COPY.title}
+            reducedMotion={reducedMotion}
+            backgroundColor={backgroundColor}
+            textColor={textColor}
+            open={open}
+            onOpenChange={setOpen}
+          />
+        </div>
       </main>
     </div>
   );
