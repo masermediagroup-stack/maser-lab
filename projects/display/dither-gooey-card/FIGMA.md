@@ -18,7 +18,7 @@ None.
 
 | Figma token / value | CSS variable | Notes |
 | --- | --- | --- |
-| Card surface | `--dgc-fill` | CSS fill on the shell and drip; host `backgroundColor` |
+| Card surface | `--dgc-fill` | CSS fill on the gooey silhouette; host `backgroundColor` |
 | Type / icons | `--dgc-ink` | Content layer (unfiltered); host `textColor` |
 
 ## Implementation sync

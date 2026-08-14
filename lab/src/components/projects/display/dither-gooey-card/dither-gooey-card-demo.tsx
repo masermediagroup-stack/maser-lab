@@ -184,7 +184,7 @@ export function DitherGooeyCardDemo() {
       <main
         className={
           focusMode
-            ? "flex min-h-0 flex-1 flex-col items-center justify-center px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[calc(var(--lab-control-bar-bottom,5.5rem))]"
+            ? "flex min-h-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[calc(var(--lab-control-bar-bottom,5.5rem))]"
             : "flex min-h-dvh flex-col items-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[calc(var(--lab-control-bar-bottom,7.5rem))]"
         }
       >
@@ -203,7 +203,13 @@ export function DitherGooeyCardDemo() {
           </div>
         )}
 
-        <div className="flex w-full flex-1 items-center justify-center">
+        <div
+          className={
+            focusMode
+              ? "flex min-h-0 w-full flex-1 flex-col"
+              : "flex w-full max-w-md flex-1 items-start justify-start sm:max-w-lg sm:items-center sm:justify-center"
+          }
+        >
           <DitherGooeyCard
             title={COPY.title}
             reducedMotion={reducedMotion}
@@ -211,6 +217,7 @@ export function DitherGooeyCardDemo() {
             textColor={textColor}
             open={open}
             onOpenChange={setOpen}
+            fillViewport={focusMode}
           />
         </div>
       </main>

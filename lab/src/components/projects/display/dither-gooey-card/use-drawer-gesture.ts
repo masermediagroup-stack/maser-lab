@@ -18,6 +18,7 @@ type GestureOptions = {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  expandedHeight?: number;
 };
 
 /** Rubber-band only past the open ceiling. Never shrink below collapsed. */
@@ -35,8 +36,9 @@ export function useDrawerGesture({
   open: openProp,
   defaultOpen = false,
   onOpenChange,
+  expandedHeight = EXPANDED_HEIGHT,
 }: GestureOptions) {
-  const height = useMotionValue(defaultOpen ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT);
+  const height = useMotionValue(defaultOpen ? expandedHeight : COLLAPSED_HEIGHT);
   const progress = useMotionValue(defaultOpen ? 1 : 0);
   const [open, setOpenState] = useState(defaultOpen);
   const [dragging, setDragging] = useState(false);
@@ -54,6 +56,11 @@ export function useDrawerGesture({
   const springRef = useRef<AnimationPlaybackControls | null>(null);
   const onOpenChangeRef = useRef(onOpenChange);
   const skipClickRef = useRef(false);
+  const expandedRef = useRef(expandedHeight);
+
+  useEffect(() => {
+    expandedRef.current = expandedHeight;
+  }, [expandedHeight]);
 
   useEffect(() => {
     openRef.current = open;
@@ -63,7 +70,7 @@ export function useDrawerGesture({
     onOpenChangeRef.current = onOpenChange;
   }, [onOpenChange]);
 
-  const range = EXPANDED_HEIGHT - COLLAPSED_HEIGHT;
+  const range = Math.max(1, expandedHeight - COLLAPSED_HEIGHT);
 
   const commitOpen = useCallback((next: boolean) => {
     openRef.current = next;
@@ -74,15 +81,16 @@ export function useDrawerGesture({
   const springTo = useCallback(
     (target: number, velocity: number) => {
       springRef.current?.stop();
+      const max = expandedRef.current;
       if (reducedMotion) {
         height.set(target);
-        progress.set(target === EXPANDED_HEIGHT ? 1 : 0);
+        progress.set(target >= max - 0.5 ? 1 : 0);
         setSettling(false);
-        commitOpen(target === EXPANDED_HEIGHT);
+        commitOpen(target >= max - 0.5);
         return;
       }
       setSettling(true);
-      const collapsing = target === COLLAPSED_HEIGHT;
+      const collapsing = target <= COLLAPSED_HEIGHT + 0.5;
       springRef.current = animate(height, target, {
         type: "spring",
         stiffness: 380,
@@ -96,10 +104,10 @@ export function useDrawerGesture({
         onComplete: () => {
           if (height.get() < COLLAPSED_HEIGHT) height.set(COLLAPSED_HEIGHT);
           setSettling(false);
-          commitOpen(target === EXPANDED_HEIGHT);
+          commitOpen(target >= max - 0.5);
         },
       });
-      commitOpen(target === EXPANDED_HEIGHT);
+      commitOpen(target >= max - 0.5);
     },
     [commitOpen, height, progress, reducedMotion],
   );
@@ -107,8 +115,16 @@ export function useDrawerGesture({
   useEffect(() => {
     if (openProp === undefined) return;
     if (openProp === openRef.current && !draggingRef.current) return;
-    springTo(openProp ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT, 0);
+    springTo(openProp ? expandedRef.current : COLLAPSED_HEIGHT, 0);
   }, [openProp, springTo]);
+
+  useEffect(() => {
+    if (draggingRef.current) return;
+    if (!openRef.current) return;
+    const max = expandedHeight;
+    if (Math.abs(height.get() - max) < 1) return;
+    height.set(max);
+  }, [expandedHeight, height]);
 
   useEffect(() => {
     const unsub = height.on("change", (value) => {
@@ -178,7 +194,11 @@ export function useDrawerGesture({
       lastYRef.current = event.clientY;
       lastTRef.current = now;
       height.set(
-        constrainHeight(startHRef.current + dy, COLLAPSED_HEIGHT, EXPANDED_HEIGHT),
+        constrainHeight(
+          startHRef.current + dy,
+          COLLAPSED_HEIGHT,
+          expandedRef.current,
+        ),
       );
     },
     [height],
@@ -202,7 +222,10 @@ export function useDrawerGesture({
       const flickOpen = velocityRef.current > 720;
       const flickClose = velocityRef.current < -720;
       const nextOpen = flickClose ? false : flickOpen ? true : p >= OPEN_THRESHOLD;
-      springTo(nextOpen ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT, velocityRef.current);
+      springTo(
+        nextOpen ? expandedRef.current : COLLAPSED_HEIGHT,
+        velocityRef.current,
+      );
     },
     [height, range, springTo],
   );
@@ -222,7 +245,7 @@ export function useDrawerGesture({
   );
 
   const toggle = useCallback(() => {
-    springTo(openRef.current ? COLLAPSED_HEIGHT : EXPANDED_HEIGHT, 0);
+    springTo(openRef.current ? COLLAPSED_HEIGHT : expandedRef.current, 0);
   }, [springTo]);
 
   const collapse = useCallback(() => {
@@ -230,7 +253,7 @@ export function useDrawerGesture({
   }, [springTo]);
 
   const expand = useCallback(() => {
-    springTo(EXPANDED_HEIGHT, 0);
+    springTo(expandedRef.current, 0);
   }, [springTo]);
 
   const consumeClick = useCallback(() => {
