@@ -137,11 +137,11 @@ export function DitherGooeyCard({
             height="200%"
             colorInterpolationFilters="sRGB"
           >
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" />
             <feColorMatrix
               in="blur"
               type="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"
               result="goo"
             />
           </filter>

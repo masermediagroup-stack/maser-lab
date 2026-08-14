@@ -3,7 +3,7 @@ export const EXPANDED_HEIGHT = 272;
 /** Transparent hit target around the on-card chevron. */
 export const HANDLE_SIZE = 48;
 /** Extra stage room for the static gooey bulge below the rect. */
-export const GOOEY_HANG = 56;
+export const GOOEY_HANG = 64;
 /** Chevron sits on the fill, slightly above the visual bottom edge. */
 export const HANDLE_INSET = 32;
 export const DRAG_CLICK_PX = 10;
