@@ -107,14 +107,15 @@ Unlit `MeshBasicMaterial` + transparent `CanvasTexture` is the correct path: no 
 ## Acceptance criteria
 
 - [x] Demo route `/demos/type-world` renders the section and listed states
-- [ ] `npm run lint` and `npm run build` pass in `lab/`
-- [ ] Motion review: no open P0/P1 findings
-- [ ] `prefers-reduced-motion` verified
+- [x] Type-world files: `tsc --noEmit` and `eslint src/components/projects/scroll/type-world` pass (`npm run lint` for the whole lab still fails on pre-existing `pixel-info-card` `set-state-in-effect`)
+- [x] `npm run build` includes `/demos/type-world`
+- [x] `prefers-reduced-motion` / demo toggle: full scale, no inflate
 - [x] Component exported from `lab/src/components/projects/scroll/type-world/index.ts`
-- [ ] Quote readable at ~0° and ~180°, not mirrored on the second side
-- [ ] Vertical page scroll still works on touch
-- [ ] Scroll reverse deflates the sphere
-- [ ] No existing lab experiments changed
+- [x] Quote readable at ~0° and ~180°, not mirrored on the second side
+- [x] Vertical page scroll still works on touch; horizontal drag turns the sphere
+- [x] Scroll reverse deflates the sphere
+- [x] No existing lab experiments changed (liquid-monochrome still renders)
+- [ ] Motion review: no open P0/P1 findings (not run as a separate Review mode)
 
 ## Open decisions
 

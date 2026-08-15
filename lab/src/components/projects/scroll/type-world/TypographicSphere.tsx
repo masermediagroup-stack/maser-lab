@@ -102,7 +102,8 @@ export function TypographicSphere({
           overshoot,
           TYPE_WORLD_DEFAULTS.minScale,
         );
-    const fit = Math.min(viewport.width, viewport.height) * 0.34;
+    const fit =
+      Math.min(viewport.width, viewport.height) * (narrow ? 0.3 : 0.34);
     const nextScale = Math.max(
       TYPE_WORLD_DEFAULTS.minScale,
       reveal * drag.gripRef.current * fit,

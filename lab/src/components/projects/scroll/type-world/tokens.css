@@ -67,6 +67,12 @@
   cursor: grabbing;
 }
 
+.type-world__hit--off {
+  pointer-events: none;
+  cursor: auto;
+  touch-action: pan-y;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .type-world__hit {
     cursor: grab;

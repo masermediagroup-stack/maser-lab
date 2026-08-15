@@ -126,9 +126,11 @@ export function TypeWorld({
 
           <div
             ref={hitRef}
-            className="type-world__hit"
+            className={
+              webgl ? "type-world__hit" : "type-world__hit type-world__hit--off"
+            }
             aria-hidden="true"
-            {...drag.handlers}
+            {...(webgl ? drag.handlers : {})}
           />
 
           {webgl && hint && hintVisible ? (

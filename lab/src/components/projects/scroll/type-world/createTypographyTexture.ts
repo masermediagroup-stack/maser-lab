@@ -49,10 +49,10 @@ function drawQuotePanel(
   lines: string[],
   family: string,
 ): void {
-  // Keep the composition on the facing hemisphere so the rest state stays
-  // editorial, not a wraparound globe. ~58% of 180° ≈ 104° of longitude.
-  const maxWidth = width * 0.58;
-  const maxHeight = height * 0.28;
+  // Keep the composition on the facing cap so the rest state stays
+  // editorial, not a wraparound globe. ~46% of 180° ≈ 83° of longitude.
+  const maxWidth = width * 0.46;
+  const maxHeight = height * 0.3;
   const size = fitFontSize(ctx, lines, family, maxWidth, maxHeight);
   const leading = size * 1.12;
   const blockHeight = leading * lines.length;
