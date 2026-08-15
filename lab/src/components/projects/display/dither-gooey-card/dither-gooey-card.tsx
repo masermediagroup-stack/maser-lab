@@ -158,9 +158,6 @@ export function DitherGooeyCard({
           style={{
             height: expandedHeight,
             scaleY,
-            originX: 0.5,
-            originY: 0,
-            transformOrigin: "50% 0%",
             translateZ: 0,
           }}
         >
@@ -221,9 +218,9 @@ export function DitherGooeyCard({
                 fill="none"
               >
                 <path
-                  d="M6 10 L24 38 L42 10"
+                  d="M2 7 L24 41 L46 7"
                   stroke="currentColor"
-                  strokeWidth="5"
+                  strokeWidth="5.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -237,9 +234,6 @@ export function DitherGooeyCard({
           style={{
             height: expandedHeight,
             scaleY,
-            originX: 0.5,
-            originY: 0,
-            transformOrigin: "50% 0%",
             translateZ: 0,
             pointerEvents: drawer.open ? "auto" : "none",
           }}
@@ -248,8 +242,6 @@ export function DitherGooeyCard({
             className="dgc-shell-inner"
             style={{
               scaleY: contentScaleY,
-              originX: 0.5,
-              originY: 0,
               translateZ: 0,
             }}
           >

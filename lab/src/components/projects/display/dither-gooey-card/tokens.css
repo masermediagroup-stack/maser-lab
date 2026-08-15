@@ -38,6 +38,12 @@
   overflow: hidden;
 }
 
+.dgc-gooey,
+.dgc-clip,
+.dgc-shell-inner {
+  transform-origin: 50% 0% !important;
+}
+
 .dgc-gooey {
   position: absolute;
   top: 0;
@@ -180,8 +186,8 @@
 
 .dgc-chevron {
   display: block;
-  width: 5.5rem;
-  height: 5.5rem;
+  width: 6.1rem;
+  height: 6.1rem;
   color: var(--dgc-ink);
 }
 
