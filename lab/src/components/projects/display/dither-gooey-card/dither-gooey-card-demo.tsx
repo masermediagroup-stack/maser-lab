@@ -185,7 +185,7 @@ export function DitherGooeyCardDemo() {
         className={
           focusMode
             ? "flex min-h-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[calc(var(--lab-control-bar-bottom,5.5rem))]"
-            : "flex min-h-dvh flex-col items-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[calc(var(--lab-control-bar-bottom,7.5rem))]"
+            : "flex flex-col items-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[calc(var(--lab-control-bar-bottom,7.5rem))]"
         }
       >
         {focusMode ? null : (
@@ -203,7 +203,7 @@ export function DitherGooeyCardDemo() {
           className={
             focusMode
               ? "flex min-h-0 w-full flex-1 flex-col"
-              : "flex w-full max-w-[22rem] flex-1 items-start justify-center"
+              : "flex w-full max-w-[18.5rem] items-start justify-center"
           }
         >
           <DitherGooeyCard

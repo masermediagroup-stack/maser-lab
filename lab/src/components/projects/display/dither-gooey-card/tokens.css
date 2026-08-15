@@ -8,7 +8,7 @@
   --dgc-handle-pad: 14px;
   --dgc-expanded: 196px;
   width: 100%;
-  max-width: 22rem;
+  max-width: 18.5rem;
   touch-action: none;
   overscroll-behavior: none;
 }
@@ -47,8 +47,6 @@
   overflow: visible;
   pointer-events: none;
   backface-visibility: hidden;
-  transform-origin: 50% 0;
-  transform: translateZ(0);
 }
 
 .dgc-gooey-body {
@@ -131,7 +129,6 @@
   overflow: hidden;
   border-radius: var(--dgc-radius);
   backface-visibility: hidden;
-  transform-origin: 50% 0;
 }
 
 .dgc-shell-inner {
@@ -213,7 +210,7 @@
 
 .dgc-handle {
   position: absolute;
-  top: 0.35rem;
+  top: 1.15rem;
   left: 50%;
   z-index: 2;
   display: grid;

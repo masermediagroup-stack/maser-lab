@@ -8,7 +8,7 @@ export const GOOEY_HANG = 84;
 export const DRIP_OVERLAP = 52;
 export const DRAG_CLICK_PX = 10;
 export const OPEN_THRESHOLD = 0.36;
-export const CARD_MAX_WIDTH = 352;
+export const CARD_MAX_WIDTH = 296;
 
 export const DEFAULT_BACKGROUND = "#4a4a4e";
 export const DEFAULT_TEXT = "#f6f6f4";

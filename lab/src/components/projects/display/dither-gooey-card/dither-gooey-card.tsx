@@ -160,6 +160,7 @@ export function DitherGooeyCard({
             scaleY,
             originX: 0.5,
             originY: 0,
+            transformOrigin: "50% 0%",
             translateZ: 0,
           }}
         >
@@ -238,6 +239,7 @@ export function DitherGooeyCard({
             scaleY,
             originX: 0.5,
             originY: 0,
+            transformOrigin: "50% 0%",
             translateZ: 0,
             pointerEvents: drawer.open ? "auto" : "none",
           }}
