@@ -218,9 +218,9 @@ export function DitherGooeyCard({
                 fill="none"
               >
                 <path
-                  d="M2 7 L24 41 L46 7"
+                  d="M4 8 L24 36 L44 8"
                   stroke="currentColor"
-                  strokeWidth="5.5"
+                  strokeWidth="5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
