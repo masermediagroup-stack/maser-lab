@@ -122,7 +122,7 @@ export function TypographicSphere({
             map={texture}
             color={color}
             transparent
-            alphaTest={0.04}
+            alphaTest={0.02}
             depthWrite
             depthTest
             side={FrontSide}

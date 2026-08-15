@@ -125,3 +125,4 @@ Unlit `MeshBasicMaterial` + transparent `CanvasTexture` is the correct path: no 
 - Category `scroll` — the sticky reveal is the section job; the sphere is the object inside it.
 - Product kind: **section** (portable `TypeWorld` + tokens).
 - Exception to `rule/no-scale-zero`: reveal starts at `0.001` (not 0) as an explicit brand moment; reduced-motion skips it.
+- Demo chrome: editorial bar + collapsed Parameters `<details>` instead of `DemoControlBar`, so dark lab chrome does not sit on the cream field. Reduced-motion control still uses `aria-label="Toggle reduced motion"`.

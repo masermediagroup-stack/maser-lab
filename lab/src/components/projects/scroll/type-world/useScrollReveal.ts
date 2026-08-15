@@ -26,6 +26,7 @@ export function useScrollReveal(
   useEffect(() => {
     if (reducedMotion) {
       progressRef.current = 1;
+      if (trackRef.current) trackRef.current.dataset.revealed = "true";
       return;
     }
 
@@ -39,6 +40,7 @@ export function useScrollReveal(
       const viewHeight = window.innerHeight;
       const scrollable = Math.max(1, rect.height - viewHeight);
       progressRef.current = clamp(-rect.top / scrollable, 0, 1);
+      track.dataset.revealed = progressRef.current > 0.22 ? "true" : "false";
     };
 
     const requestMeasure = () => {

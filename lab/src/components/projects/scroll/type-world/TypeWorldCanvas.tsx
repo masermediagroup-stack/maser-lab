@@ -68,6 +68,9 @@ export function TypeWorldCanvas({
         gl={gl}
         camera={TYPE_WORLD_CAMERA}
         frameloop={inView ? "always" : "demand"}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0);
+        }}
         style={{
           width: "100%",
           height: "100%",

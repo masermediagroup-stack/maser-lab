@@ -89,7 +89,12 @@
   letter-spacing: 0.18em;
   text-transform: lowercase;
   color: var(--type-world-hint);
+  opacity: 0;
   transition: opacity var(--type-world-duration-hint) var(--type-world-ease-out);
+}
+
+.type-world__track[data-revealed="true"] .type-world__hint {
+  opacity: 1;
 }
 
 .type-world__fallback {
