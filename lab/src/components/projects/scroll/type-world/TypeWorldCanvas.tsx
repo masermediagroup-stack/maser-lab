@@ -7,11 +7,11 @@ import { getClampedPixelRatio } from "@/three/utils/capabilities";
 import { TYPE_WORLD_CAMERA, TYPE_WORLD_GL } from "./constants";
 import { TypographicSphere } from "./TypographicSphere";
 import type { DragRotationApi } from "./useDragRotation";
+import type { TypeWorldGradient } from "./types";
 import type { RefObject } from "react";
 
 type TypeWorldCanvasProps = {
   quote: string;
-  textColor: string;
   backgroundColor: string;
   fontFamily: string;
   reducedMotion: boolean;
@@ -20,11 +20,11 @@ type TypeWorldCanvasProps = {
   progressRef: RefObject<number>;
   drag: DragRotationApi;
   narrow: boolean;
+  gradient: TypeWorldGradient;
 };
 
 export function TypeWorldCanvas({
   quote,
-  textColor,
   backgroundColor,
   fontFamily,
   reducedMotion,
@@ -33,6 +33,7 @@ export function TypeWorldCanvas({
   progressRef,
   drag,
   narrow,
+  gradient,
 }: TypeWorldCanvasProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(true);
@@ -81,7 +82,6 @@ export function TypeWorldCanvas({
       >
         <TypographicSphere
           quote={quote}
-          textColor={textColor}
           fontFamily={fontFamily}
           reducedMotion={reducedMotion}
           revealEnd={revealEnd}
@@ -89,6 +89,7 @@ export function TypeWorldCanvas({
           progressRef={progressRef}
           drag={drag}
           narrow={narrow}
+          gradient={gradient}
         />
       </Canvas>
     </div>

@@ -10,7 +10,7 @@ import {
   type CSSProperties,
 } from "react";
 import { isWebGLAvailable } from "@/three/utils/capabilities";
-import { TYPE_WORLD_DEFAULTS } from "./constants";
+import { GRADIENT_CYCLE_SECONDS, TYPE_WORLD_DEFAULTS } from "./constants";
 import { TypeWorldFallback } from "./TypeWorldFallback";
 import { useDragRotation } from "./useDragRotation";
 import {
@@ -19,7 +19,7 @@ import {
   usePrefersReducedMotion,
   useScrollReveal,
 } from "./useScrollReveal";
-import type { TypeWorldProps } from "./types";
+import type { TypeWorldGradient, TypeWorldProps } from "./types";
 import "./tokens.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -46,6 +46,13 @@ export function TypeWorld({
   reducedMotion: reducedMotionProp,
   forceFallback = false,
   hint = TYPE_WORLD_DEFAULTS.hint,
+  gradientColor1,
+  gradientColor2 = TYPE_WORLD_DEFAULTS.gradientColor2,
+  gradientColor3 = TYPE_WORLD_DEFAULTS.gradientColor3,
+  gradientSpeed = TYPE_WORLD_DEFAULTS.gradientSpeed,
+  gradientAngle = TYPE_WORLD_DEFAULTS.gradientAngle,
+  gradientSpread = TYPE_WORLD_DEFAULTS.gradientSpread,
+  gradientReverse = TYPE_WORLD_DEFAULTS.gradientReverse,
   className,
 }: TypeWorldProps) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -58,6 +65,28 @@ export function TypeWorld({
 
   const resolvedFont = fontFamily ?? instrumentSerif.style.fontFamily;
   const webgl = mounted && isWebGLAvailable() && !forceFallback;
+  const color1 = gradientColor1 ?? textColor;
+
+  const gradient = useMemo<TypeWorldGradient>(
+    () => ({
+      color1,
+      color2: gradientColor2,
+      color3: gradientColor3,
+      speed: gradientSpeed,
+      angle: gradientAngle,
+      spread: gradientSpread,
+      reverse: gradientReverse,
+    }),
+    [
+      color1,
+      gradientAngle,
+      gradientColor2,
+      gradientColor3,
+      gradientReverse,
+      gradientSpeed,
+      gradientSpread,
+    ],
+  );
 
   const progressRef = useScrollReveal(trackRef, { reducedMotion });
 
@@ -88,14 +117,27 @@ export function TypeWorld({
     .filter(Boolean)
     .join(" ");
 
+  const cycleSeconds =
+    reducedMotion || gradient.speed <= 0
+      ? 0
+      : GRADIENT_CYCLE_SECONDS / Math.max(0.05, gradient.speed);
+
   return (
     <section
       className={rootClass}
       aria-label="Type World"
+      data-gradient-motion={cycleSeconds > 0 ? "on" : "off"}
       style={
         {
           "--type-world-bg": backgroundColor,
-          "--type-world-ink": textColor,
+          "--type-world-ink": color1,
+          "--type-world-g1": gradient.color1,
+          "--type-world-g2": gradient.color2,
+          "--type-world-g3": gradient.color3,
+          "--type-world-g-angle": `${gradient.angle}deg`,
+          "--type-world-g-spread": String(gradient.spread),
+          "--type-world-g-cycle": cycleSeconds ? `${cycleSeconds}s` : "0s",
+          "--type-world-g-dir": gradient.reverse ? "reverse" : "normal",
         } as CSSProperties
       }
     >
@@ -106,7 +148,6 @@ export function TypeWorld({
           {webgl ? (
             <TypeWorldCanvas
               quote={quote}
-              textColor={textColor}
               backgroundColor={backgroundColor}
               fontFamily={resolvedFont}
               reducedMotion={reducedMotion}
@@ -115,13 +156,10 @@ export function TypeWorld({
               progressRef={progressRef}
               drag={drag}
               narrow={narrow}
+              gradient={gradient}
             />
           ) : mounted ? (
-            <TypeWorldFallback
-              quote={quote}
-              textColor={textColor}
-              fontFamily={resolvedFont}
-            />
+            <TypeWorldFallback quote={quote} fontFamily={resolvedFont} />
           ) : null}
 
           <div

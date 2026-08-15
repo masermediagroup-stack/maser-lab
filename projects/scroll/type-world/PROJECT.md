@@ -9,7 +9,7 @@
 ## Design reference
 
 - Figma: none
-- Other: Editorial still — warm-white field (`#FAFAF7`), saturated royal-blue high-contrast serif quote, generous negative space. No cards, gloss, gradients, or dashboard chrome.
+- Other: Editorial still — warm-white field (`#FAFAF7`), commanding serif quote with a slow three-stop pigment gradient (`#1047C9` → `#6B42FF` → `#E052A0`). No cards, gloss, bloom, or dashboard chrome on the artwork.
 - Design spec: `FIGMA.md` in this folder
 
 ## Brief
@@ -69,7 +69,8 @@ Resting frame reads as flat editorial type. ~90° shows fragments. ~180° shows 
 | Library | Three.js + React Three Fiber `useFrame` | Real sphere + texture; high-frequency transforms stay off React state |
 | Scroll | CSS sticky + scroll-progress ref (not GSAP pin) | Matches requested 170svh / 100svh structure; liquid-monochrome pin is a different job |
 | Reveal | First 20–30% of section progress; cubic inflate + short overshoot | Decisive, not a hero zoom |
-| Drag | Pointer → target yaw/pitch → damped actual; release velocity × friction | Weighted, not 1:1 slippery |
+| Drag | Pointer → target yaw/pitch → damped actual; drag right follows right | Weighted grab, not inverted |
+| Gradient | Shader UV palette × glyph alpha; phase in `useFrame` | Independent of rotation; no canvas uploads |
 | Pitch | Clamped ±20° | Prevents upside-down globe |
 | Reduced motion | Skip reveal + inertia | `rule/reduced-motion-required` |
 
@@ -83,12 +84,12 @@ Resting frame reads as flat editorial type. ~90° shows fragments. ~180° shows 
 | Fallback | Centered Instrument Serif quote on the same cream field |
 | Mobile strategy | `touch-action: pan-y`; horizontal intent captures rotation; DPR clamp; 64×48 sphere on narrow viewports |
 | Reduced motion | Full scale immediately; no inflate; no coast |
-| Research docs checked | [SphereGeometry](https://threejs.org/docs/#api/en/geometries/SphereGeometry), [CanvasTexture](https://threejs.org/docs/#api/en/textures/CanvasTexture), [MeshBasicMaterial](https://threejs.org/docs/#api/en/materials/MeshBasicMaterial), [Texture](https://threejs.org/docs/#api/en/textures/Texture), [SRGBColorSpace](https://threejs.org/docs/#api/en/constants/Textures) |
-| CloudAI-X skills used | threejs-fundamentals, threejs-geometry, threejs-textures, threejs-materials, threejs-interaction |
+| Research docs checked | [SphereGeometry](https://threejs.org/docs/#api/en/geometries/SphereGeometry), [CanvasTexture](https://threejs.org/docs/#api/en/textures/CanvasTexture), [ShaderMaterial](https://threejs.org/docs/#api/en/materials/ShaderMaterial), [Texture](https://threejs.org/docs/#api/en/textures/Texture), [SRGBColorSpace](https://threejs.org/docs/#api/en/constants/Textures) |
+| CloudAI-X skills used | threejs-fundamentals, threejs-geometry, threejs-textures, threejs-materials, threejs-shaders, threejs-interaction |
 
 ## Research summary
 
-Unlit `MeshBasicMaterial` + transparent `CanvasTexture` is the correct path: no lights, no PBR, glyphs define the silhouette via `alphaTest` + `FrontSide`. Two identical quote compositions packed into the left/right halves of a 2:1 texture map to 180° longitude each. Default SphereGeometry UV places u=0.25 on +Z, so the first copy faces a camera on +Z without a UV flip; the second copy at u=0.75 becomes readable after yaw π and is not mirrored because we still sample the outside of the mesh. Low FOV (~28°) and origin-centered framing keep the rest state near-editorial. R3F already exists in the lab (kinetic-perspective-bars); do not add a second renderer stack.
+Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the canvas is a static white mask (never repainted for motion); a 3-stop cosine palette travels in UV via `uPhase` in `useFrame`. No lights, no PBR, no bloom. Glyphs define the silhouette via alpha discard + `FrontSide`. Two identical quote compositions packed into the left/right halves of a 2:1 texture map to 180° longitude each. Default SphereGeometry UV places u=0.25 on +Z, so the first copy faces a camera on +Z without a UV flip; the second copy at u=0.75 becomes readable after yaw π and is not mirrored because we still sample the outside of the mesh. Low FOV (~24°) and origin-centered framing keep the rest state near-editorial. Sphere fit targets ~86% vw on mobile / ~68% vw on desktop. R3F already exists in the lab (kinetic-perspective-bars); do not add a second renderer stack.
 
 ## Skills loaded
 
@@ -99,7 +100,7 @@ Unlit `MeshBasicMaterial` + transparent `CanvasTexture` is the correct path: no 
 - `maser-lab-export` (product-only barrel)
 - `maser-lab-token-system`
 - `maser-lab-section-shape` (brief fields)
-- `threejs-fundamentals`, `threejs-textures`, `threejs-materials`, `threejs-interaction`
+- `threejs-fundamentals`, `threejs-textures`, `threejs-materials`, `threejs-shaders`, `threejs-interaction`
 - `gsap-framer-scroll-animation` (sticky/scrub patterns; CSS sticky chosen over GSAP pin)
 - `vercel-react-best-practices` (dynamic `ssr: false`, no rAF in React state)
 - `web-design-guidelines` (SR quote, reduced motion)
@@ -113,6 +114,10 @@ Unlit `MeshBasicMaterial` + transparent `CanvasTexture` is the correct path: no 
 - [x] Component exported from `lab/src/components/projects/scroll/type-world/index.ts`
 - [x] Quote readable at ~0° and ~180°, not mirrored on the second side
 - [x] Vertical page scroll still works on touch; horizontal drag turns the sphere
+- [x] Drag right moves the grabbed surface right; inertia keeps that sign
+- [x] Glyph-only animated gradient; cream field unchanged
+- [x] Leva Gradient folder: Color 1–3, Speed, Angle, Spread, Reverse — live, no remount
+- [x] Gradient continues while the sphere rotates; both 0° and 180° copies share one UV material
 - [x] Scroll reverse deflates the sphere
 - [x] No existing lab experiments changed (liquid-monochrome still renders)
 - [ ] Motion review: no open P0/P1 findings (not run as a separate Review mode)
@@ -126,4 +131,4 @@ Unlit `MeshBasicMaterial` + transparent `CanvasTexture` is the correct path: no 
 - Category `scroll` — the sticky reveal is the section job; the sphere is the object inside it.
 - Product kind: **section** (portable `TypeWorld` + tokens).
 - Exception to `rule/no-scale-zero`: reveal starts at `0.001` (not 0) as an explicit brand moment; reduced-motion skips it.
-- Demo chrome: editorial bar + collapsed Parameters `<details>` instead of `DemoControlBar`, so dark lab chrome does not sit on the cream field. Reduced-motion control still uses `aria-label="Toggle reduced motion"`.
+- Demo chrome: editorial bar + Leva (same floating panel language as Kinetic Bars). Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask.

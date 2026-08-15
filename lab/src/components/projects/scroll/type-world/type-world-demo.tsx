@@ -1,42 +1,69 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useState } from "react";
+import { Leva, levaStore } from "leva";
 import { TypeWorld } from "./TypeWorld";
+import { TypeWorldControls, type TypeWorldDemoParams } from "./TypeWorldControls";
 import { TYPE_WORLD_DEFAULTS, TYPE_WORLD_QUOTE } from "./constants";
-import { usePrefersReducedMotion } from "./useScrollReveal";
+import {
+  useClientMounted,
+  useIsNarrow,
+  usePrefersReducedMotion,
+} from "./useScrollReveal";
 import "./type-world-demo.css";
+
+const INITIAL_PARAMS: TypeWorldDemoParams = {
+  quote: TYPE_WORLD_QUOTE,
+  dragSensitivity: TYPE_WORLD_DEFAULTS.dragSensitivity,
+  inertia: TYPE_WORLD_DEFAULTS.inertia,
+  pitchLimit: TYPE_WORLD_DEFAULTS.pitchLimit,
+  revealEnd: TYPE_WORLD_DEFAULTS.revealEnd,
+  forceFallback: false,
+  gradientColor1: TYPE_WORLD_DEFAULTS.gradientColor1,
+  gradientColor2: TYPE_WORLD_DEFAULTS.gradientColor2,
+  gradientColor3: TYPE_WORLD_DEFAULTS.gradientColor3,
+  gradientSpeed: TYPE_WORLD_DEFAULTS.gradientSpeed,
+  gradientAngle: TYPE_WORLD_DEFAULTS.gradientAngle,
+  gradientSpread: TYPE_WORLD_DEFAULTS.gradientSpread,
+  gradientReverse: TYPE_WORLD_DEFAULTS.gradientReverse,
+};
 
 export function TypeWorldDemo() {
   const osReduced = usePrefersReducedMotion();
+  const mounted = useClientMounted();
+  const narrow = useIsNarrow();
   const [reducedPreview, setReducedPreview] = useState(false);
-  const [forceFallback, setForceFallback] = useState(false);
-  const [quote, setQuote] = useState<string>(TYPE_WORLD_QUOTE);
-  const [textColor, setTextColor] = useState<string>(TYPE_WORLD_DEFAULTS.textColor);
-  const [dragSensitivity, setDragSensitivity] = useState<number>(
-    TYPE_WORLD_DEFAULTS.dragSensitivity,
-  );
-  const [inertia, setInertia] = useState<number>(TYPE_WORLD_DEFAULTS.inertia);
-  const [pitchLimit, setPitchLimit] = useState<number>(TYPE_WORLD_DEFAULTS.pitchLimit);
-  const [revealEnd, setRevealEnd] = useState<number>(TYPE_WORLD_DEFAULTS.revealEnd);
+  const [params, setParams] = useState<TypeWorldDemoParams>(INITIAL_PARAMS);
 
   const reducedMotion = osReduced || reducedPreview;
 
-  const reset = () => {
-    setQuote(TYPE_WORLD_QUOTE);
-    setTextColor(TYPE_WORLD_DEFAULTS.textColor);
-    setDragSensitivity(TYPE_WORLD_DEFAULTS.dragSensitivity);
-    setInertia(TYPE_WORLD_DEFAULTS.inertia);
-    setPitchLimit(TYPE_WORLD_DEFAULTS.pitchLimit);
-    setRevealEnd(TYPE_WORLD_DEFAULTS.revealEnd);
-    setForceFallback(false);
-    setReducedPreview(false);
-  };
+  const patchParams = useCallback((patch: Partial<TypeWorldDemoParams>) => {
+    setParams((prev) => ({ ...prev, ...patch }));
+  }, []);
 
-  const sensitivityLabel = useMemo(
-    () => dragSensitivity.toFixed(4),
-    [dragSensitivity],
-  );
+  const reset = useCallback(() => {
+    setParams(INITIAL_PARAMS);
+    setReducedPreview(false);
+    levaStore.set(
+      {
+        quote: INITIAL_PARAMS.quote,
+        forceFallback: false,
+        dragSensitivity: INITIAL_PARAMS.dragSensitivity,
+        inertia: INITIAL_PARAMS.inertia,
+        pitchLimit: INITIAL_PARAMS.pitchLimit,
+        revealEnd: INITIAL_PARAMS.revealEnd,
+        gradientColor1: INITIAL_PARAMS.gradientColor1,
+        gradientColor2: INITIAL_PARAMS.gradientColor2,
+        gradientColor3: INITIAL_PARAMS.gradientColor3,
+        gradientSpeed: INITIAL_PARAMS.gradientSpeed,
+        gradientAngle: INITIAL_PARAMS.gradientAngle,
+        gradientSpread: INITIAL_PARAMS.gradientSpread,
+        gradientReverse: INITIAL_PARAMS.gradientReverse,
+      },
+      false,
+    );
+  }, []);
 
   return (
     <div className="type-world-demo">
@@ -65,106 +92,51 @@ export function TypeWorldDemo() {
       </div>
 
       <TypeWorld
-        quote={quote}
-        textColor={textColor}
-        dragSensitivity={dragSensitivity}
-        inertia={inertia}
-        pitchLimit={pitchLimit}
-        revealEnd={revealEnd}
+        quote={params.quote}
+        textColor={params.gradientColor1}
+        gradientColor1={params.gradientColor1}
+        gradientColor2={params.gradientColor2}
+        gradientColor3={params.gradientColor3}
+        gradientSpeed={params.gradientSpeed}
+        gradientAngle={params.gradientAngle}
+        gradientSpread={params.gradientSpread}
+        gradientReverse={params.gradientReverse}
+        dragSensitivity={params.dragSensitivity}
+        inertia={params.inertia}
+        pitchLimit={params.pitchLimit}
+        revealEnd={params.revealEnd}
         reducedMotion={reducedMotion}
-        forceFallback={forceFallback}
+        forceFallback={params.forceFallback}
       />
 
       <footer className="type-world-demo__after">
         <p>The same sentence exists on the far side of the world.</p>
       </footer>
 
-      <details className="type-world-demo__tune">
-        <summary>Parameters</summary>
-        <div className="type-world-demo__tune-grid">
-          <label className="type-world-demo__field">
-            <span>Quote</span>
-            <textarea
-              rows={4}
-              value={quote}
-              onChange={(event) => setQuote(event.target.value)}
-            />
-          </label>
-          <label className="type-world-demo__field">
-            <span>Ink</span>
-            <input
-              type="color"
-              value={textColor}
-              onChange={(event) => setTextColor(event.target.value)}
-            />
-          </label>
-          <label className="type-world-demo__field">
-            <span>Drag {sensitivityLabel}</span>
-            <input
-              type="range"
-              min={0.002}
-              max={0.012}
-              step={0.0002}
-              value={dragSensitivity}
-              onChange={(event) =>
-                setDragSensitivity(Number(event.target.value))
-              }
-            />
-          </label>
-          <label className="type-world-demo__field">
-            <span>Inertia {inertia.toFixed(2)}</span>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={inertia}
-              onChange={(event) => setInertia(Number(event.target.value))}
-            />
-          </label>
-          <label className="type-world-demo__field">
-            <span>Pitch {pitchLimit}°</span>
-            <input
-              type="range"
-              min={8}
-              max={28}
-              step={1}
-              value={pitchLimit}
-              onChange={(event) => setPitchLimit(Number(event.target.value))}
-            />
-          </label>
-          <label className="type-world-demo__field">
-            <span>Reveal {(revealEnd * 100).toFixed(0)}%</span>
-            <input
-              type="range"
-              min={0.16}
-              max={0.4}
-              step={0.01}
-              value={revealEnd}
-              onChange={(event) => setRevealEnd(Number(event.target.value))}
-            />
-          </label>
-          <label className="type-world-demo__check">
-            <input
-              type="checkbox"
-              checked={forceFallback}
-              onChange={(event) => setForceFallback(event.target.checked)}
-            />
-            Static fallback
-          </label>
-          <button
-            type="button"
-            className="type-world-demo__reset"
-            onClick={reset}
-          >
-            Reset
-          </button>
-        </div>
-        <p className="type-world-demo__api">
-          Product:{" "}
-          <code>{`import { TypeWorld } from "@/components/projects/scroll/type-world"`}</code>
-        </p>
-      </details>
+      {mounted ? (
+        <>
+          <TypeWorldControls onChange={patchParams} onReset={reset} />
+          <Leva
+            collapsed={narrow}
+            titleBar={{ title: "TYPE WORLD", filter: false }}
+            theme={{
+              sizes: { rootWidth: "280px" },
+              colors: {
+                elevation1: "#0c0c0e",
+                elevation2: "#121216",
+                elevation3: "#1a1a20",
+                accent1: "#c8c8d0",
+                accent2: "#a8a8b4",
+                accent3: "#888894",
+                highlight1: "#e8e8ec",
+                highlight2: "#c8c8d0",
+                highlight3: "#a0a0aa",
+                vivid1: "#6B42FF",
+              },
+            }}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

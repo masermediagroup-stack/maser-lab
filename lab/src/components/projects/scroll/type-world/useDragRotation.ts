@@ -152,7 +152,8 @@ export function useDragRotation(
 
       const opts = optionsRef.current;
       const pitchLimit = opts.pitchLimit * DEG;
-      yawTargetRef.current -= dx * opts.yawSensitivity;
+      // Grab the surface: drag right → that point follows right (yaw+).
+      yawTargetRef.current += dx * opts.yawSensitivity;
       pitchTargetRef.current = clamp(
         pitchTargetRef.current + dy * opts.pitchSensitivity,
         -pitchLimit,
@@ -160,7 +161,7 @@ export function useDragRotation(
       );
 
       if (!opts.reducedMotion) {
-        velYawRef.current = (-dx * opts.yawSensitivity) / dt;
+        velYawRef.current = (dx * opts.yawSensitivity) / dt;
         velPitchRef.current = (dy * opts.pitchSensitivity) / dt;
       }
 

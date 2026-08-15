@@ -4,7 +4,13 @@
   --type-world-bg: #fafaf7;
   --type-world-ink: #1047c9;
   --type-world-hint: color-mix(in srgb, var(--type-world-ink) 38%, var(--type-world-bg));
-  --type-world-serif: "Times New Roman", Times, serif;
+  --type-world-g1: #1047c9;
+  --type-world-g2: #6b42ff;
+  --type-world-g3: #e052a0;
+  --type-world-g-angle: 25deg;
+  --type-world-g-spread: 1;
+  --type-world-g-cycle: 11s;
+  --type-world-g-dir: normal;
   --type-world-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --type-world-duration-hint: 420ms;
   --type-world-track: 170svh;
@@ -114,12 +120,36 @@
 
 .type-world__fallback-quote {
   margin: 0;
-  max-width: 18ch;
+  max-width: 22ch;
   text-align: center;
-  font-size: clamp(1.75rem, 5.6vw, 3.75rem);
-  line-height: 1.12;
+  font-size: clamp(2.35rem, 9vw, 5.75rem);
+  line-height: 1.08;
   font-weight: 400;
-  color: var(--type-world-ink);
+  background-image: linear-gradient(
+    var(--type-world-g-angle),
+    var(--type-world-g1),
+    var(--type-world-g2),
+    var(--type-world-g3),
+    var(--type-world-g1)
+  );
+  background-size: calc(var(--type-world-g-spread) * 220%)
+    calc(var(--type-world-g-spread) * 220%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: type-world-ink-shift var(--type-world-g-cycle) linear infinite;
+  animation-direction: var(--type-world-g-dir);
+}
+
+.type-world[data-gradient-motion="off"] .type-world__fallback-quote {
+  animation: none;
+  background-position: 30% 40%;
+}
+
+@keyframes type-world-ink-shift {
+  to {
+    background-position: 100% 100%;
+  }
 }
 
 .type-world__fallback-line {
@@ -129,5 +159,9 @@
 @media (prefers-reduced-motion: reduce) {
   .type-world__hint {
     transition-duration: 0.01ms;
+  }
+
+  .type-world__fallback-quote {
+    animation: none;
   }
 }

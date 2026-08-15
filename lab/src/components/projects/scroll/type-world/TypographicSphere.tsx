@@ -1,26 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+/* ShaderMaterial.uniforms are GPU handles updated in useFrame, not React state. */
+/* eslint-disable react-hooks/immutability */
+
+import { useEffect, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import {
-  CanvasTexture,
-  Color,
-  FrontSide,
-  Group,
-} from "three";
-import { SPHERE_SEGMENTS, TYPE_WORLD_DEFAULTS } from "./constants";
+import { CanvasTexture, FrontSide, Group, ShaderMaterial } from "three";
+import { GRADIENT_CYCLE_SECONDS, SPHERE_FIT, SPHERE_SEGMENTS, TYPE_WORLD_DEFAULTS } from "./constants";
 import {
   createTypographyTexture,
   ensureFontLoaded,
   pickTextureSize,
 } from "./createTypographyTexture";
-import { revealScale } from "./math";
+import {
+  createGlyphGradientUniforms,
+  GLYPH_FRAG,
+  GLYPH_VERT,
+  type GlyphGradientUniforms,
+} from "./glyphGradient";
+import { revealScale, sphereFitRadius } from "./math";
 import type { DragRotationApi } from "./useDragRotation";
+import type { TypeWorldGradient } from "./types";
 import type { RefObject } from "react";
 
 type TypographicSphereProps = {
   quote: string;
-  textColor: string;
   fontFamily: string;
   reducedMotion: boolean;
   revealEnd: number;
@@ -28,11 +32,11 @@ type TypographicSphereProps = {
   progressRef: RefObject<number>;
   drag: DragRotationApi;
   narrow: boolean;
+  gradient: TypeWorldGradient;
 };
 
 export function TypographicSphere({
   quote,
-  textColor,
   fontFamily,
   reducedMotion,
   revealEnd,
@@ -40,12 +44,41 @@ export function TypographicSphere({
   progressRef,
   drag,
   narrow,
+  gradient,
 }: TypographicSphereProps) {
   const groupRef = useRef<Group>(null);
   const { gl, viewport } = useThree();
   const [texture, setTexture] = useState<CanvasTexture | null>(null);
-  const color = useMemo(() => new Color(textColor), [textColor]);
+  const [material] = useState(
+    () =>
+      new ShaderMaterial({
+        uniforms: createGlyphGradientUniforms(),
+        vertexShader: GLYPH_VERT,
+        fragmentShader: GLYPH_FRAG,
+        transparent: true,
+        depthWrite: true,
+        depthTest: true,
+        side: FrontSide,
+        toneMapped: false,
+      }),
+  );
   const segments = narrow ? SPHERE_SEGMENTS.mobile : SPHERE_SEGMENTS.desktop;
+  const gradientRef = useRef(gradient);
+  const reducedRef = useRef(reducedMotion);
+
+  useEffect(() => {
+    return () => {
+      material.dispose();
+    };
+  }, [material]);
+
+  useEffect(() => {
+    gradientRef.current = gradient;
+  }, [gradient]);
+
+  useEffect(() => {
+    reducedRef.current = reducedMotion;
+  }, [reducedMotion]);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,18 +116,38 @@ export function TypographicSphere({
   }, [texture]);
 
   useEffect(() => {
-    color.set(textColor);
-  }, [color, textColor]);
+    const uniforms = material.uniforms as GlyphGradientUniforms;
+    uniforms.uGlyphs.value = texture;
+  }, [material, texture]);
+
+  useEffect(() => {
+    const g = gradient;
+    const uniforms = material.uniforms as GlyphGradientUniforms;
+    uniforms.uColorA.value.set(g.color1);
+    uniforms.uColorB.value.set(g.color2);
+    uniforms.uColorC.value.set(g.color3);
+    const rad = (g.angle * Math.PI) / 180;
+    uniforms.uDir.value.set(Math.cos(rad), Math.sin(rad));
+    uniforms.uSpread.value = g.spread;
+  }, [gradient, material]);
 
   useFrame((_, delta) => {
     const dt = Math.min(0.05, delta);
     drag.tick(dt);
 
+    const uniforms = material.uniforms as GlyphGradientUniforms;
+    const g = gradientRef.current;
+    const speed = reducedRef.current ? 0 : g.speed;
+    const sign = g.reverse ? -1 : 1;
+    const next =
+      uniforms.uPhase.value + (dt * speed * sign) / GRADIENT_CYCLE_SECONDS;
+    uniforms.uPhase.value = next - Math.floor(next);
+
     const group = groupRef.current;
     if (!group) return;
 
-    const progress = reducedMotion ? 1 : progressRef.current;
-    const reveal = reducedMotion
+    const progress = reducedRef.current ? 1 : progressRef.current;
+    const reveal = reducedRef.current
       ? 1
       : revealScale(
           progress,
@@ -102,8 +155,12 @@ export function TypographicSphere({
           overshoot,
           TYPE_WORLD_DEFAULTS.minScale,
         );
-    const fit =
-      Math.min(viewport.width, viewport.height) * (narrow ? 0.3 : 0.34);
+    const fit = sphereFitRadius(
+      viewport.width,
+      viewport.height,
+      narrow ? SPHERE_FIT.mobileWidth : SPHERE_FIT.desktopWidth,
+      narrow ? SPHERE_FIT.mobileHeight : SPHERE_FIT.desktopHeight,
+    );
     const nextScale = Math.max(
       TYPE_WORLD_DEFAULTS.minScale,
       reveal * drag.gripRef.current * fit,
@@ -119,16 +176,7 @@ export function TypographicSphere({
       {texture ? (
         <mesh frustumCulled={false}>
           <sphereGeometry args={[segments[0], segments[1], segments[2]]} />
-          <meshBasicMaterial
-            map={texture}
-            color={color}
-            transparent
-            alphaTest={0.02}
-            depthWrite
-            depthTest
-            side={FrontSide}
-            toneMapped={false}
-          />
+          <primitive object={material} attach="material" />
         </mesh>
       ) : null}
     </group>

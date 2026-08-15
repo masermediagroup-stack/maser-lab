@@ -1,7 +1,20 @@
+export type TypeWorldGradient = {
+  color1: string;
+  color2: string;
+  color3: string;
+  speed: number;
+  angle: number;
+  spread: number;
+  reverse: boolean;
+};
+
 export type TypeWorldProps = {
   /** Quote body. Newlines become separate centered lines on the sphere. */
   quote?: string;
-  /** Glyph color. Applied as an unlit material tint over a white texture. */
+  /**
+   * Fallback / Color 1 when `gradientColor1` is omitted.
+   * Gradient Color 1 is the royal-blue identity stop.
+   */
   textColor?: string;
   /** Section field color (CSS + renderer clear). */
   backgroundColor?: string;
@@ -29,6 +42,17 @@ export type TypeWorldProps = {
   forceFallback?: boolean;
   /** Understated discoverability line. Empty string hides it. */
   hint?: string;
+  gradientColor1?: string;
+  gradientColor2?: string;
+  gradientColor3?: string;
+  /** 0 = static, 1 = default traversal, 2 = 2×. */
+  gradientSpeed?: number;
+  /** Direction of travel in degrees (0 = +U). Default 25. */
+  gradientAngle?: number;
+  /** 0.5 = broad fields, 3 = tighter stripes. */
+  gradientSpread?: number;
+  /** Reverse pigment travel only — does not affect drag. */
+  gradientReverse?: boolean;
   className?: string;
 };
 

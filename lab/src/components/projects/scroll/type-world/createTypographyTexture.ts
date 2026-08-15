@@ -5,6 +5,7 @@ import {
   LinearMipmapLinearFilter,
   SRGBColorSpace,
 } from "three";
+import { TEXTURE_SIZE } from "./constants";
 import type { TypographyTextureOptions } from "./types";
 
 function quoteLines(quote: string): string[] {
@@ -32,7 +33,7 @@ function fitFontSize(
       (w, line) => Math.max(w, ctx.measureText(line).width),
       0,
     );
-    const blockHeight = mid * 1.12 * lines.length;
+    const blockHeight = mid * 1.08 * lines.length;
     if (widest <= maxWidth && blockHeight <= maxHeight) lo = mid;
     else hi = mid;
   }
@@ -49,12 +50,13 @@ function drawQuotePanel(
   lines: string[],
   family: string,
 ): void {
-  // Keep the composition on the facing cap so the rest state stays
-  // editorial, not a wraparound globe. ~46% of 180° ≈ 83° of longitude.
-  const maxWidth = width * 0.46;
-  const maxHeight = height * 0.3;
+  // Facing cap: ~72% of 180° ≈ 130° of longitude. With an ~86% width
+  // sphere this reads as a commanding editorial block (~75–80% vw on
+  // mobile) without wrapping the rest quote off the silhouette.
+  const maxWidth = width * 0.72;
+  const maxHeight = height * 0.42;
   const size = fitFontSize(ctx, lines, family, maxWidth, maxHeight);
-  const leading = size * 1.12;
+  const leading = size * 1.08;
   const blockHeight = leading * lines.length;
   const cx = x + width / 2;
   const cy = y + height / 2;
@@ -133,10 +135,7 @@ export async function ensureFontLoaded(fontFamily: string): Promise<void> {
 }
 
 export function pickTextureSize(): { width: number; height: number } {
-  if (typeof window === "undefined") {
-    return { width: 2048, height: 1024 };
-  }
-  return window.innerWidth < 640
-    ? { width: 1024, height: 512 }
-    : { width: 2048, height: 1024 };
+  // 2048×1024 on mobile and desktop so the larger rest type stays crisp
+  // on Retina. Both TEXTURE_SIZE entries match this atlas.
+  return TEXTURE_SIZE.desktop;
 }
