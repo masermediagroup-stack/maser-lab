@@ -18,18 +18,14 @@ import {
   GLYPH_VERT,
   type GlyphGradientUniforms,
 } from "./glyphGradient";
-import { revealScale, sphereFitRadius } from "./math";
+import { sphereFitRadius } from "./math";
 import type { DragRotationApi } from "./useDragRotation";
 import type { TypeWorldGradient } from "./types";
-import type { RefObject } from "react";
 
 type TypographicSphereProps = {
   quote: string;
   fontFamily: string;
   reducedMotion: boolean;
-  revealEnd: number;
-  overshoot: number;
-  progressRef: RefObject<number>;
   drag: DragRotationApi;
   narrow: boolean;
   gradient: TypeWorldGradient;
@@ -39,9 +35,6 @@ export function TypographicSphere({
   quote,
   fontFamily,
   reducedMotion,
-  revealEnd,
-  overshoot,
-  progressRef,
   drag,
   narrow,
   gradient,
@@ -63,6 +56,12 @@ export function TypographicSphere({
       }),
   );
   const segments = narrow ? SPHERE_SEGMENTS.mobile : SPHERE_SEGMENTS.desktop;
+  const restScale = sphereFitRadius(
+    viewport.width,
+    viewport.height,
+    narrow ? SPHERE_FIT.mobileWidth : SPHERE_FIT.desktopWidth,
+    narrow ? SPHERE_FIT.mobileHeight : SPHERE_FIT.desktopHeight,
+  );
   const gradientRef = useRef(gradient);
   const reducedRef = useRef(reducedMotion);
 
@@ -146,24 +145,9 @@ export function TypographicSphere({
     const group = groupRef.current;
     if (!group) return;
 
-    const progress = reducedRef.current ? 1 : progressRef.current;
-    const reveal = reducedRef.current
-      ? 1
-      : revealScale(
-          progress,
-          revealEnd,
-          overshoot,
-          TYPE_WORLD_DEFAULTS.minScale,
-        );
-    const fit = sphereFitRadius(
-      viewport.width,
-      viewport.height,
-      narrow ? SPHERE_FIT.mobileWidth : SPHERE_FIT.desktopWidth,
-      narrow ? SPHERE_FIT.mobileHeight : SPHERE_FIT.desktopHeight,
-    );
     const nextScale = Math.max(
       TYPE_WORLD_DEFAULTS.minScale,
-      reveal * drag.gripRef.current * fit,
+      drag.gripRef.current * restScale,
     );
     group.scale.setScalar(nextScale);
     group.rotation.order = "YXZ";
@@ -172,7 +156,7 @@ export function TypographicSphere({
   });
 
   return (
-    <group ref={groupRef} scale={TYPE_WORLD_DEFAULTS.minScale}>
+    <group ref={groupRef} scale={restScale}>
       {texture ? (
         <mesh frustumCulled={false}>
           <sphereGeometry args={[segments[0], segments[1], segments[2]]} />

@@ -17,7 +17,6 @@ import {
   useClientMounted,
   useIsNarrow,
   usePrefersReducedMotion,
-  useScrollReveal,
 } from "./useScrollReveal";
 import type { TypeWorldGradient, TypeWorldProps } from "./types";
 import "./tokens.css";
@@ -38,8 +37,6 @@ export function TypeWorld({
   textColor = TYPE_WORLD_DEFAULTS.textColor,
   backgroundColor = TYPE_WORLD_DEFAULTS.backgroundColor,
   fontFamily,
-  revealEnd = TYPE_WORLD_DEFAULTS.revealEnd,
-  overshoot = TYPE_WORLD_DEFAULTS.overshoot,
   dragSensitivity = TYPE_WORLD_DEFAULTS.dragSensitivity,
   inertia = TYPE_WORLD_DEFAULTS.inertia,
   pitchLimit = TYPE_WORLD_DEFAULTS.pitchLimit,
@@ -55,7 +52,6 @@ export function TypeWorld({
   gradientReverse = TYPE_WORLD_DEFAULTS.gradientReverse,
   className,
 }: TypeWorldProps) {
-  const trackRef = useRef<HTMLDivElement>(null);
   const hitRef = useRef<HTMLDivElement>(null);
   const mounted = useClientMounted();
   const osReduced = usePrefersReducedMotion();
@@ -87,8 +83,6 @@ export function TypeWorld({
       gradientSpread,
     ],
   );
-
-  const progressRef = useScrollReveal(trackRef, { reducedMotion });
 
   const onInteract = useCallback(() => {
     setHintVisible(false);
@@ -143,7 +137,7 @@ export function TypeWorld({
     >
       <blockquote className="type-world__sr">{accessibleQuote}</blockquote>
 
-      <div ref={trackRef} className="type-world__track">
+      <div className="type-world__track">
         <div className="type-world__stage">
           {webgl ? (
             <TypeWorldCanvas
@@ -151,9 +145,6 @@ export function TypeWorld({
               backgroundColor={backgroundColor}
               fontFamily={resolvedFont}
               reducedMotion={reducedMotion}
-              revealEnd={revealEnd}
-              overshoot={overshoot}
-              progressRef={progressRef}
               drag={drag}
               narrow={narrow}
               gradient={gradient}

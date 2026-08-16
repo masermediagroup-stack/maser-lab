@@ -8,8 +8,6 @@ export const TYPE_WORLD_DEFAULTS = {
   quote: TYPE_WORLD_QUOTE,
   textColor: "#1047C9",
   backgroundColor: "#FAFAF7",
-  revealEnd: 0.26,
-  overshoot: 1.04,
   dragSensitivity: 0.0054,
   inertia: 0.55,
   pitchLimit: 20,

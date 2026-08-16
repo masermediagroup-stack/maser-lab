@@ -20,13 +20,6 @@ export type TypeWorldProps = {
   backgroundColor?: string;
   /** Font-family stack used by CanvasTexture and the static fallback. */
   fontFamily?: string;
-  /**
-   * Section scroll progress (0–1) at which reveal scale reaches 1.
-   * Default ~0.26 so inflation is the first 20–30% of the sticky travel.
-   */
-  revealEnd?: number;
-  /** Peak scale during the inflate overshoot (then settles to 1). */
-  overshoot?: number;
   /** Radians of yaw per CSS pixel of horizontal drag. */
   dragSensitivity?: number;
   /**

@@ -1,66 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useSyncExternalStore,
-  type RefObject,
-} from "react";
-import { clamp } from "./math";
-
-type ScrollRevealOptions = {
-  reducedMotion: boolean;
-};
-
-/**
- * Maps the sticky track through the viewport to 0–1 without GSAP pin.
- * Progress 0 = track top at the viewport top (sticky lock begins).
- */
-export function useScrollReveal(
-  trackRef: RefObject<HTMLElement | null>,
-  { reducedMotion }: ScrollRevealOptions,
-): RefObject<number> {
-  const progressRef = useRef(reducedMotion ? 1 : 0);
-
-  useEffect(() => {
-    if (reducedMotion) {
-      progressRef.current = 1;
-      if (trackRef.current) trackRef.current.dataset.revealed = "true";
-      return;
-    }
-
-    let raf = 0;
-
-    const measure = () => {
-      raf = 0;
-      const track = trackRef.current;
-      if (!track) return;
-      const rect = track.getBoundingClientRect();
-      const viewHeight = window.innerHeight;
-      const scrollable = Math.max(1, rect.height - viewHeight);
-      progressRef.current = clamp(-rect.top / scrollable, 0, 1);
-      track.dataset.revealed = progressRef.current > 0.22 ? "true" : "false";
-    };
-
-    const requestMeasure = () => {
-      if (raf) return;
-      raf = window.requestAnimationFrame(measure);
-    };
-
-    measure();
-    window.addEventListener("scroll", requestMeasure, { passive: true });
-    window.addEventListener("resize", requestMeasure, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", requestMeasure);
-      window.removeEventListener("resize", requestMeasure);
-      if (raf) window.cancelAnimationFrame(raf);
-    };
-  }, [reducedMotion, trackRef]);
-
-  return progressRef;
-}
+import { useCallback, useSyncExternalStore } from "react";
 
 function subscribeReducedMotion(onStoreChange: () => void): () => void {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");

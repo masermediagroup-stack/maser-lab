@@ -66,6 +66,10 @@
   outline-offset: 4px;
 }
 
+.type-world-demo .type-world {
+  height: 100svh;
+}
+
 .type-world-demo__lead,
 .type-world-demo__after {
   min-height: 52svh;

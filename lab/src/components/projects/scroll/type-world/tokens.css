@@ -13,8 +13,10 @@
   --type-world-g-dir: normal;
   --type-world-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --type-world-duration-hint: 420ms;
-  --type-world-track: 170svh;
+  --type-world-stage-min: 12rem;
 
+  height: 100%;
+  min-height: var(--type-world-stage-min);
   background: var(--type-world-bg);
   color: var(--type-world-ink);
   font-family: var(--type-world-serif);
@@ -34,14 +36,15 @@
 
 .type-world__track {
   position: relative;
-  height: var(--type-world-track);
+  height: 100%;
+  min-height: inherit;
   background: var(--type-world-bg);
 }
 
 .type-world__stage {
-  position: sticky;
-  top: 0;
-  height: 100svh;
+  position: relative;
+  height: 100%;
+  min-height: inherit;
   width: 100%;
   overflow: hidden;
   background: var(--type-world-bg);
@@ -101,12 +104,8 @@
   letter-spacing: 0.18em;
   text-transform: lowercase;
   color: var(--type-world-hint);
-  opacity: 0;
-  transition: opacity var(--type-world-duration-hint) var(--type-world-ease-out);
-}
-
-.type-world__track[data-revealed="true"] .type-world__hint {
   opacity: 1;
+  transition: opacity var(--type-world-duration-hint) var(--type-world-ease-out);
 }
 
 .type-world__fallback {

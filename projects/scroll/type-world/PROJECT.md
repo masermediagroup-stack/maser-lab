@@ -15,10 +15,10 @@
 ## Brief
 
 ### User / trigger
-A visitor scrolling a marketing or portfolio page. They enter a pinned typographic stage, then drag the object (mouse or horizontal touch) to turn it.
+A visitor on a marketing, portfolio, or chrome surface. The typographic globe is already at rest; they drag it (mouse or horizontal touch) to turn it.
 
 ### Job
-Make editorial type feel like a physical world: at rest it reads as a quiet magazine spread; in motion it reveals that the same sentence exists twice around an invisible sphere.
+Make editorial type feel like a physical world: at rest it reads as a quiet magazine spread; in motion it reveals that the same sentence exists twice around an invisible sphere. Portable enough to drop into a full stage, a corner, or a nav slot — the mesh fits its canvas.
 
 ### Brand signal
 If lab chrome is removed: cream field, royal-blue Instrument Serif quote, empty space. No other UI required.
@@ -33,33 +33,31 @@ If lab chrome is removed: cream field, royal-blue Instrument Serif quote, empty 
 
 ### Section map (one job each)
 
-1. TYPE WORLD — scroll-reveal + drag-rotate spherical quote
+1. TYPE WORLD — rest-state spherical quote (drag to turn)
 
 ### Current behavior
 Greenfield.
 
 ### Desired outcome
-A genuine `SphereGeometry` whose visible surface is a transparent `CanvasTexture` of the quote, duplicated at 0° and 180° longitude. CSS-sticky 100svh stage inside ~170svh. Fast scale reveal with overshoot. Weighted drag with decaying inertia. Invisible sphere body.
+A genuine `SphereGeometry` whose visible surface is a transparent glyph-alpha `CanvasTexture` of the quote, duplicated at 0° and 180° longitude. The object mounts at full rest scale (no scroll inflate). Hosts size it by giving `.type-world` a height; the sphere fits the canvas. Weighted drag with decaying inertia. Invisible sphere body.
 
 ### Success signal
-Resting frame reads as flat editorial type. ~90° shows fragments. ~180° shows the same composition, not mirrored. Scroll reverse deflates coherently. Vertical touch still scrolls the page.
+Resting frame reads as flat editorial type as soon as the canvas is in view. ~90° shows fragments. ~180° shows the same composition, not mirrored. Vertical touch still scrolls the page.
 
 ### Non-goals
 - Flat DOM `rotateY`, word carousels, back-to-back planes, CSS fake globes
 - Glossy materials, lighting, atmosphere, post-processing
 - Permanent settings dashboard on the artwork
 - Free tumble / OrbitControls
-- `scale(0)` (use ~0.001; documented brand-moment exception to `rule/no-scale-zero`)
 
 ## States
 
-- [x] default (full-size editorial rest after reveal)
+- [x] default (full-size editorial rest on mount)
 - [x] hover (grab cursor, pointer fine)
 - [x] active / pressed (grabbing cursor + ~1.015 grip scale)
-- [x] scroll reveal (0.001 → overshoot → 1, first ~25% of section)
 - [x] inertia settle after release
 - [x] hint dismissed after first successful drag
-- [x] prefers-reduced-motion (full scale, no inflate, inertia off)
+- [x] prefers-reduced-motion (gradient freeze, inertia off)
 - [x] WebGL unavailable (static serif quote)
 
 ## Motion decisions
@@ -67,23 +65,22 @@ Resting frame reads as flat editorial type. ~90° shows fragments. ~180° shows 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
 | Library | Three.js + React Three Fiber `useFrame` | Real sphere + texture; high-frequency transforms stay off React state |
-| Scroll | CSS sticky + scroll-progress ref (not GSAP pin) | Matches requested 170svh / 100svh structure; liquid-monochrome pin is a different job |
-| Reveal | First 20–30% of section progress; cubic inflate + short overshoot | Decisive, not a hero zoom |
-| Drag | Pointer → target yaw/pitch → damped actual; drag right follows right | Weighted grab, not inverted |
+| Scroll | None — rest scale on mount | Reuse in corners / nav; demo still has lead/after copy |
+| Drag | Pointer → target yaw/pitch → damped actual; drag right follows right; drag down follows down | Weighted grab, not inverted |
 | Gradient | Shader UV palette × glyph alpha; phase in `useFrame` | Independent of rotation; no canvas uploads |
 | Pitch | Clamped ±20° | Prevents upside-down globe |
-| Reduced motion | Skip reveal + inertia | `rule/reduced-motion-required` |
+| Reduced motion | Freeze gradient; no coast | `rule/reduced-motion-required` |
 
 ## Three.js / 3D
 
 | Field | Value |
 | --- | --- |
-| Target type | Interactive object + scroll-driven scale |
+| Target type | Interactive object (canvas-fit scale) |
 | Renderer | WebGL via R3F `Canvas` (`WebGLRenderer`) |
 | Decorative? | no — 3D is the piece; static quote fallback if WebGL missing |
 | Fallback | Centered Instrument Serif quote on the same cream field |
 | Mobile strategy | `touch-action: pan-y`; horizontal intent captures rotation; DPR clamp; 64×48 sphere on narrow viewports |
-| Reduced motion | Full scale immediately; no inflate; no coast |
+| Reduced motion | Freeze gradient; no coast |
 | Research docs checked | [SphereGeometry](https://threejs.org/docs/#api/en/geometries/SphereGeometry), [CanvasTexture](https://threejs.org/docs/#api/en/textures/CanvasTexture), [ShaderMaterial](https://threejs.org/docs/#api/en/materials/ShaderMaterial), [Texture](https://threejs.org/docs/#api/en/textures/Texture), [SRGBColorSpace](https://threejs.org/docs/#api/en/constants/Textures) |
 | CloudAI-X skills used | threejs-fundamentals, threejs-geometry, threejs-textures, threejs-materials, threejs-shaders, threejs-interaction |
 
@@ -101,7 +98,7 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - `maser-lab-token-system`
 - `maser-lab-section-shape` (brief fields)
 - `threejs-fundamentals`, `threejs-textures`, `threejs-materials`, `threejs-shaders`, `threejs-interaction`
-- `gsap-framer-scroll-animation` (sticky/scrub patterns; CSS sticky chosen over GSAP pin)
+- `gsap-framer-scroll-animation` (not used — rest-scale object, no pin)
 - `vercel-react-best-practices` (dynamic `ssr: false`, no rAF in React state)
 - `web-design-guidelines` (SR quote, reduced motion)
 
@@ -110,15 +107,15 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Demo route `/demos/type-world` renders the section and listed states
 - [x] Type-world files: `tsc --noEmit` and `eslint src/components/projects/scroll/type-world` pass (`npm run lint` for the whole lab still fails on pre-existing `pixel-info-card` `set-state-in-effect`)
 - [x] `npm run build` includes `/demos/type-world`
-- [x] `prefers-reduced-motion` / demo toggle: full scale, no inflate
+- [x] `prefers-reduced-motion` / demo toggle: freeze gradient, no coast
 - [x] Component exported from `lab/src/components/projects/scroll/type-world/index.ts`
 - [x] Quote readable at ~0° and ~180°, not mirrored on the second side
 - [x] Vertical page scroll still works on touch; horizontal drag turns the sphere
-- [x] Drag right moves the grabbed surface right; inertia keeps that sign
+- [x] Drag right moves the grabbed surface right; drag down moves it down; inertia keeps those signs
 - [x] Glyph-only animated gradient; cream field unchanged
 - [x] Leva Gradient folder: Color 1–3, Speed, Angle, Spread, Reverse — live, no remount
 - [x] Gradient continues while the sphere rotates; both 0° and 180° copies share one UV material
-- [x] Scroll reverse deflates the sphere
+- [x] Sphere is at rest scale on mount (no scroll inflate); host height sizes the canvas
 - [x] No existing lab experiments changed (liquid-monochrome still renders)
 - [ ] Motion review: no open P0/P1 findings (not run as a separate Review mode)
 
@@ -128,7 +125,8 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 
 ## Accepted decisions
 
-- Category `scroll` — the sticky reveal is the section job; the sphere is the object inside it.
-- Product kind: **section** (portable `TypeWorld` + tokens).
-- Exception to `rule/no-scale-zero`: reveal starts at `0.001` (not 0) as an explicit brand moment; reduced-motion skips it.
+- Category `scroll` remains for registry continuity; the product is a rest-scale object (canvas-fit), not a sticky inflate.
+- Product kind: **section** (portable `TypeWorld` + tokens). Hosts size it with `.type-world` height — full stage, corner, or nav slot.
+- No `rule/no-scale-zero` exception: there is no reveal from near-zero. `minScale` is only a numeric floor for grip/fit.
+- Pitch follows the same grab model as yaw: drag down moves the grabbed surface down.
 - Demo chrome: editorial bar + Leva (same floating panel language as Kinetic Bars). Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask.

@@ -18,7 +18,6 @@ const INITIAL_PARAMS: TypeWorldDemoParams = {
   dragSensitivity: TYPE_WORLD_DEFAULTS.dragSensitivity,
   inertia: TYPE_WORLD_DEFAULTS.inertia,
   pitchLimit: TYPE_WORLD_DEFAULTS.pitchLimit,
-  revealEnd: TYPE_WORLD_DEFAULTS.revealEnd,
   forceFallback: false,
   gradientColor1: TYPE_WORLD_DEFAULTS.gradientColor1,
   gradientColor2: TYPE_WORLD_DEFAULTS.gradientColor2,
@@ -52,7 +51,6 @@ export function TypeWorldDemo() {
         dragSensitivity: INITIAL_PARAMS.dragSensitivity,
         inertia: INITIAL_PARAMS.inertia,
         pitchLimit: INITIAL_PARAMS.pitchLimit,
-        revealEnd: INITIAL_PARAMS.revealEnd,
         gradientColor1: INITIAL_PARAMS.gradientColor1,
         gradientColor2: INITIAL_PARAMS.gradientColor2,
         gradientColor3: INITIAL_PARAMS.gradientColor3,
@@ -88,7 +86,7 @@ export function TypeWorldDemo() {
 
       <div className="type-world-demo__lead">
         <p>An editorial sphere.</p>
-        <p>Scroll until the sentence arrives.</p>
+        <p>Already here — drag to turn it.</p>
       </div>
 
       <TypeWorld
@@ -104,7 +102,6 @@ export function TypeWorldDemo() {
         dragSensitivity={params.dragSensitivity}
         inertia={params.inertia}
         pitchLimit={params.pitchLimit}
-        revealEnd={params.revealEnd}
         reducedMotion={reducedMotion}
         forceFallback={params.forceFallback}
       />

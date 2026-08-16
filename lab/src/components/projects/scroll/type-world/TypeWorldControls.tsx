@@ -9,7 +9,6 @@ export type TypeWorldDemoParams = {
   dragSensitivity: number;
   inertia: number;
   pitchLimit: number;
-  revealEnd: number;
   forceFallback: boolean;
   gradientColor1: string;
   gradientColor2: string;
@@ -77,13 +76,6 @@ export function TypeWorldControls({
         step: 1,
         label: "Pitch",
       },
-      revealEnd: {
-        value: TYPE_WORLD_DEFAULTS.revealEnd,
-        min: 0.16,
-        max: 0.4,
-        step: 0.01,
-        label: "Reveal",
-      },
     }),
     Gradient: folder({
       gradientColor1: {
@@ -144,7 +136,6 @@ export function TypeWorldControls({
       dragSensitivity: Number(v.dragSensitivity),
       inertia: Number(v.inertia),
       pitchLimit: Number(v.pitchLimit),
-      revealEnd: Number(v.revealEnd),
       gradientColor1: asHex(v.gradientColor1, TYPE_WORLD_DEFAULTS.gradientColor1),
       gradientColor2: asHex(v.gradientColor2, TYPE_WORLD_DEFAULTS.gradientColor2),
       gradientColor3: asHex(v.gradientColor3, TYPE_WORLD_DEFAULTS.gradientColor3),

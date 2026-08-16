@@ -8,16 +8,12 @@ import { TYPE_WORLD_CAMERA, TYPE_WORLD_GL } from "./constants";
 import { TypographicSphere } from "./TypographicSphere";
 import type { DragRotationApi } from "./useDragRotation";
 import type { TypeWorldGradient } from "./types";
-import type { RefObject } from "react";
 
 type TypeWorldCanvasProps = {
   quote: string;
   backgroundColor: string;
   fontFamily: string;
   reducedMotion: boolean;
-  revealEnd: number;
-  overshoot: number;
-  progressRef: RefObject<number>;
   drag: DragRotationApi;
   narrow: boolean;
   gradient: TypeWorldGradient;
@@ -28,9 +24,6 @@ export function TypeWorldCanvas({
   backgroundColor,
   fontFamily,
   reducedMotion,
-  revealEnd,
-  overshoot,
-  progressRef,
   drag,
   narrow,
   gradient,
@@ -84,9 +77,6 @@ export function TypeWorldCanvas({
           quote={quote}
           fontFamily={fontFamily}
           reducedMotion={reducedMotion}
-          revealEnd={revealEnd}
-          overshoot={overshoot}
-          progressRef={progressRef}
           drag={drag}
           narrow={narrow}
           gradient={gradient}
