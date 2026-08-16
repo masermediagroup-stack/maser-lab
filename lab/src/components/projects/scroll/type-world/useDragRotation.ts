@@ -152,18 +152,18 @@ export function useDragRotation(
 
       const opts = optionsRef.current;
       const pitchLimit = opts.pitchLimit * DEG;
-      // Grab the surface: drag right → that point follows right (yaw+);
-      // drag down → that point follows down (pitch− in this camera).
+      // Grab the facing glyphs: the point under the pointer follows it.
+      // Screen +X (right) → +yaw; screen +Y (down) → +pitch (Three rotation.x).
       yawTargetRef.current += dx * opts.yawSensitivity;
       pitchTargetRef.current = clamp(
-        pitchTargetRef.current - dy * opts.pitchSensitivity,
+        pitchTargetRef.current + dy * opts.pitchSensitivity,
         -pitchLimit,
         pitchLimit,
       );
 
       if (!opts.reducedMotion) {
         velYawRef.current = (dx * opts.yawSensitivity) / dt;
-        velPitchRef.current = (-dy * opts.pitchSensitivity) / dt;
+        velPitchRef.current = (dy * opts.pitchSensitivity) / dt;
       }
 
       session.lastX = event.clientX;
