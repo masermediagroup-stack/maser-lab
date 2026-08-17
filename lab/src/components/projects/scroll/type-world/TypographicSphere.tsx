@@ -6,7 +6,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { CanvasTexture, FrontSide, Group, Quaternion, ShaderMaterial, Vector3 } from "three";
-import { GRADIENT_CYCLE_SECONDS, SPHERE_FIT, SPHERE_SEGMENTS, TYPE_WORLD_DEFAULTS } from "./constants";
+import {
+  GRADIENT_CYCLE_SECONDS,
+  MAX_SURFACE_ORBS,
+  SPHERE_FIT,
+  SPHERE_SEGMENTS,
+  TYPE_WORLD_DEFAULTS,
+} from "./constants";
 import {
   createTypographyTexture,
   ensureFontLoaded,
@@ -19,8 +25,9 @@ import {
   type GlyphGradientUniforms,
 } from "./glyphGradient";
 import { sphereFitRadius } from "./math";
+import { SurfaceOrbSim } from "./surfaceOrbs";
 import type { DragRotationApi } from "./useDragRotation";
-import type { TypeWorldGradient } from "./types";
+import type { TypeWorldGradient, TypeWorldOrbs, TypeWorldStageTheme } from "./types";
 
 type TypographicSphereProps = {
   quote: string;
@@ -30,6 +37,8 @@ type TypographicSphereProps = {
   narrow: boolean;
   gradient: TypeWorldGradient;
   scale?: number;
+  theme: TypeWorldStageTheme;
+  orbs: TypeWorldOrbs;
 };
 
 export function TypographicSphere({
@@ -40,6 +49,8 @@ export function TypographicSphere({
   narrow,
   gradient,
   scale = TYPE_WORLD_DEFAULTS.scale,
+  theme,
+  orbs,
 }: TypographicSphereProps) {
   const groupRef = useRef<Group>(null);
   const { gl, viewport } = useThree();
@@ -66,6 +77,9 @@ export function TypographicSphere({
   );
   const gradientRef = useRef(gradient);
   const reducedRef = useRef(reducedMotion);
+  const orbsRef = useRef(orbs);
+  const scaleRef = useRef(scale);
+  const [sim] = useState(() => new SurfaceOrbSim(orbs.seed));
   const yawAxis = useRef(new Vector3(0, 1, 0));
   const pitchAxis = useRef(new Vector3(1, 0, 0));
   const qYaw = useRef(new Quaternion());
@@ -84,6 +98,18 @@ export function TypographicSphere({
   useEffect(() => {
     reducedRef.current = reducedMotion;
   }, [reducedMotion]);
+
+  useEffect(() => {
+    orbsRef.current = orbs;
+  }, [orbs]);
+
+  useEffect(() => {
+    scaleRef.current = scale;
+  }, [scale]);
+
+  useEffect(() => {
+    sim.reseed(orbs.seed);
+  }, [orbs.seed, sim]);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,6 +162,19 @@ export function TypographicSphere({
     uniforms.uSpread.value = g.spread;
   }, [gradient, material]);
 
+  useEffect(() => {
+    const uniforms = material.uniforms as GlyphGradientUniforms;
+    const body = theme === "dark" ? orbs.colorDark : orbs.colorLight;
+    const textA = theme === "dark" ? orbs.textColor2 : orbs.textColor;
+    const textB = theme === "dark" ? orbs.textColor : orbs.textColor2;
+    uniforms.uOrbColor.value.set(body);
+    uniforms.uOrbTextA.value.set(textA);
+    uniforms.uOrbTextB.value.set(textB);
+    uniforms.uOrbEdge.value = orbs.edgeSoftness;
+    uniforms.uInvertText.value = orbs.invertText ? 1 : 0;
+    uniforms.uRenderOrbBody.value = orbs.renderBody ? 1 : 0;
+  }, [material, orbs.colorDark, orbs.colorLight, orbs.edgeSoftness, orbs.invertText, orbs.renderBody, orbs.textColor, orbs.textColor2, theme]);
+
   useFrame((_, delta) => {
     const dt = Math.min(0.05, delta);
     drag.tick(dt);
@@ -148,12 +187,30 @@ export function TypographicSphere({
       uniforms.uPhase.value + (dt * speed * sign) / GRADIENT_CYCLE_SECONDS;
     uniforms.uPhase.value = next - Math.floor(next);
 
+    const orbCfg = orbsRef.current;
+    if (!reducedRef.current && orbCfg.enabled) {
+      sim.step(dt, orbCfg);
+    }
+    const count = orbCfg.enabled
+      ? Math.max(0, Math.min(MAX_SURFACE_ORBS, Math.round(orbCfg.count)))
+      : 0;
+    uniforms.uOrbCount.value = count;
+    const packed = uniforms.uOrbs.value;
+    for (let i = 0; i < MAX_SURFACE_ORBS; i++) {
+      const slot = packed[i];
+      const state = sim.orbs[i];
+      if (!slot || !state) continue;
+      const radius =
+        i < count ? sim.radiusFor(i, orbCfg.sizeMin, orbCfg.sizeMax) : 0;
+      slot.set(state.pos.x, state.pos.y, state.pos.z, radius);
+    }
+
     const group = groupRef.current;
     if (!group) return;
 
     const nextScale = Math.max(
       TYPE_WORLD_DEFAULTS.minScale,
-      drag.gripRef.current * restScale * scale,
+      drag.gripRef.current * restScale * scaleRef.current,
     );
     group.scale.setScalar(nextScale);
     // Yaw around world up, then nod around camera-right (world X) so the

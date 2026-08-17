@@ -10,7 +10,7 @@ import {
   type CSSProperties,
 } from "react";
 import { isWebGLAvailable } from "@/three/utils/capabilities";
-import { GRADIENT_CYCLE_SECONDS, TYPE_WORLD_DEFAULTS } from "./constants";
+import { GRADIENT_CYCLE_SECONDS, TYPE_WORLD_DEFAULTS, TYPE_WORLD_ORB_DEFAULTS } from "./constants";
 import { TypeWorldFallback } from "./TypeWorldFallback";
 import { useDragRotation } from "./useDragRotation";
 import {
@@ -18,7 +18,7 @@ import {
   useIsNarrow,
   usePrefersReducedMotion,
 } from "./useScrollReveal";
-import type { TypeWorldGradient, TypeWorldProps } from "./types";
+import type { TypeWorldGradient, TypeWorldOrbs, TypeWorldProps } from "./types";
 import "./tokens.css";
 
 const geistSans = Geist({
@@ -51,6 +51,8 @@ export function TypeWorld({
   gradientReverse = TYPE_WORLD_DEFAULTS.gradientReverse,
   captureVerticalDrag = false,
   scale = TYPE_WORLD_DEFAULTS.scale,
+  theme = "light",
+  orbs: orbsProp,
   className,
 }: TypeWorldProps) {
   const hitRef = useRef<HTMLDivElement>(null);
@@ -82,6 +84,47 @@ export function TypeWorld({
       gradientReverse,
       gradientSpeed,
       gradientSpread,
+    ],
+  );
+
+  const orbs = useMemo<TypeWorldOrbs>(
+    () => ({
+      enabled: orbsProp?.enabled ?? TYPE_WORLD_ORB_DEFAULTS.enabled,
+      count: orbsProp?.count ?? TYPE_WORLD_ORB_DEFAULTS.count,
+      seed: orbsProp?.seed ?? TYPE_WORLD_ORB_DEFAULTS.seed,
+      sizeMin: orbsProp?.sizeMin ?? TYPE_WORLD_ORB_DEFAULTS.sizeMin,
+      sizeMax: orbsProp?.sizeMax ?? TYPE_WORLD_ORB_DEFAULTS.sizeMax,
+      edgeSoftness: orbsProp?.edgeSoftness ?? TYPE_WORLD_ORB_DEFAULTS.edgeSoftness,
+      speedMin: orbsProp?.speedMin ?? TYPE_WORLD_ORB_DEFAULTS.speedMin,
+      speedMax: orbsProp?.speedMax ?? TYPE_WORLD_ORB_DEFAULTS.speedMax,
+      steerAmount: orbsProp?.steerAmount ?? TYPE_WORLD_ORB_DEFAULTS.steerAmount,
+      speedNoise: orbsProp?.speedNoise ?? TYPE_WORLD_ORB_DEFAULTS.speedNoise,
+      driftNoise: orbsProp?.driftNoise ?? TYPE_WORLD_ORB_DEFAULTS.driftNoise,
+      colorLight: orbsProp?.colorLight ?? TYPE_WORLD_ORB_DEFAULTS.colorLight,
+      colorDark: orbsProp?.colorDark ?? TYPE_WORLD_ORB_DEFAULTS.colorDark,
+      textColor: orbsProp?.textColor ?? TYPE_WORLD_ORB_DEFAULTS.textColor,
+      textColor2: orbsProp?.textColor2 ?? TYPE_WORLD_ORB_DEFAULTS.textColor2,
+      invertText: orbsProp?.invertText ?? TYPE_WORLD_ORB_DEFAULTS.invertText,
+      renderBody: orbsProp?.renderBody ?? TYPE_WORLD_ORB_DEFAULTS.renderBody,
+    }),
+    [
+      orbsProp?.colorDark,
+      orbsProp?.colorLight,
+      orbsProp?.count,
+      orbsProp?.driftNoise,
+      orbsProp?.edgeSoftness,
+      orbsProp?.enabled,
+      orbsProp?.invertText,
+      orbsProp?.renderBody,
+      orbsProp?.seed,
+      orbsProp?.sizeMax,
+      orbsProp?.sizeMin,
+      orbsProp?.speedMax,
+      orbsProp?.speedMin,
+      orbsProp?.speedNoise,
+      orbsProp?.steerAmount,
+      orbsProp?.textColor,
+      orbsProp?.textColor2,
     ],
   );
 
@@ -153,6 +196,8 @@ export function TypeWorld({
               narrow={narrow}
               gradient={gradient}
               scale={scale}
+              theme={theme}
+              orbs={orbs}
             />
           ) : mounted ? (
             <TypeWorldFallback quote={quote} fontFamily={resolvedFont} />

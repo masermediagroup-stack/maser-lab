@@ -9,7 +9,7 @@ import {
   type TypeWorldDemoParams,
   type TypeWorldStageTheme,
 } from "./TypeWorldControls";
-import { TYPE_WORLD_DEFAULTS, TYPE_WORLD_QUOTE } from "./constants";
+import { TYPE_WORLD_DEFAULTS, TYPE_WORLD_ORB_DEFAULTS, TYPE_WORLD_QUOTE } from "./constants";
 import {
   useClientMounted,
   useIsNarrow,
@@ -71,6 +71,23 @@ const INITIAL_PARAMS: TypeWorldDemoParams = {
   gradientAngle: TYPE_WORLD_DEFAULTS.gradientAngle,
   gradientSpread: TYPE_WORLD_DEFAULTS.gradientSpread,
   gradientReverse: TYPE_WORLD_DEFAULTS.gradientReverse,
+  orbsEnabled: TYPE_WORLD_ORB_DEFAULTS.enabled,
+  orbCount: TYPE_WORLD_ORB_DEFAULTS.count,
+  orbSeed: TYPE_WORLD_ORB_DEFAULTS.seed,
+  orbSizeMin: TYPE_WORLD_ORB_DEFAULTS.sizeMin,
+  orbSizeMax: TYPE_WORLD_ORB_DEFAULTS.sizeMax,
+  orbEdgeSoftness: TYPE_WORLD_ORB_DEFAULTS.edgeSoftness,
+  orbSpeedMin: TYPE_WORLD_ORB_DEFAULTS.speedMin,
+  orbSpeedMax: TYPE_WORLD_ORB_DEFAULTS.speedMax,
+  orbSteerAmount: TYPE_WORLD_ORB_DEFAULTS.steerAmount,
+  orbSpeedNoise: TYPE_WORLD_ORB_DEFAULTS.speedNoise,
+  orbDriftNoise: TYPE_WORLD_ORB_DEFAULTS.driftNoise,
+  orbColorLight: TYPE_WORLD_ORB_DEFAULTS.colorLight,
+  orbColorDark: TYPE_WORLD_ORB_DEFAULTS.colorDark,
+  orbTextColor: TYPE_WORLD_ORB_DEFAULTS.textColor,
+  orbTextColor2: TYPE_WORLD_ORB_DEFAULTS.textColor2,
+  orbInvertText: TYPE_WORLD_ORB_DEFAULTS.invertText,
+  orbRenderBody: TYPE_WORLD_ORB_DEFAULTS.renderBody,
 };
 
 function syncLeva(params: TypeWorldDemoParams) {
@@ -91,6 +108,23 @@ function syncLeva(params: TypeWorldDemoParams) {
       gradientAngle: params.gradientAngle,
       gradientSpread: params.gradientSpread,
       gradientReverse: params.gradientReverse,
+      orbsEnabled: params.orbsEnabled,
+      orbCount: params.orbCount,
+      orbSeed: params.orbSeed,
+      orbSizeMin: params.orbSizeMin,
+      orbSizeMax: params.orbSizeMax,
+      orbEdgeSoftness: params.orbEdgeSoftness,
+      orbSpeedMin: params.orbSpeedMin,
+      orbSpeedMax: params.orbSpeedMax,
+      orbSteerAmount: params.orbSteerAmount,
+      orbSpeedNoise: params.orbSpeedNoise,
+      orbDriftNoise: params.orbDriftNoise,
+      orbColorLight: params.orbColorLight,
+      orbColorDark: params.orbColorDark,
+      orbTextColor: params.orbTextColor,
+      orbTextColor2: params.orbTextColor2,
+      orbInvertText: params.orbInvertText,
+      orbRenderBody: params.orbRenderBody,
     },
     false,
   );
@@ -186,6 +220,26 @@ export function TypeWorldDemo() {
         forceFallback={params.forceFallback}
         captureVerticalDrag={fillViewport}
         scale={params.scale}
+        theme={theme}
+        orbs={{
+          enabled: params.orbsEnabled,
+          count: params.orbCount,
+          seed: params.orbSeed,
+          sizeMin: params.orbSizeMin,
+          sizeMax: params.orbSizeMax,
+          edgeSoftness: params.orbEdgeSoftness,
+          speedMin: params.orbSpeedMin,
+          speedMax: params.orbSpeedMax,
+          steerAmount: params.orbSteerAmount,
+          speedNoise: params.orbSpeedNoise,
+          driftNoise: params.orbDriftNoise,
+          colorLight: params.orbColorLight,
+          colorDark: params.orbColorDark,
+          textColor: params.orbTextColor,
+          textColor2: params.orbTextColor2,
+          invertText: params.orbInvertText,
+          renderBody: params.orbRenderBody,
+        }}
       />
 
       <footer className="type-world-demo__after">

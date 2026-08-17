@@ -24,6 +24,29 @@ export const TYPE_WORLD_DEFAULTS = {
   scale: 1,
 } as const;
 
+/** Max orbs uploaded to the glyph shader. Keep modest for mobile GPUs. */
+export const MAX_SURFACE_ORBS = 12;
+
+export const TYPE_WORLD_ORB_DEFAULTS = {
+  enabled: true,
+  count: 6,
+  seed: 1047,
+  sizeMin: 0.2,
+  sizeMax: 0.34,
+  edgeSoftness: 0.14,
+  speedMin: 0.07,
+  speedMax: 0.18,
+  steerAmount: 0.55,
+  speedNoise: 0.35,
+  driftNoise: 0.22,
+  colorLight: "#0C0C0E",
+  colorDark: "#FAFAF7",
+  textColor: "#FAFAF7",
+  textColor2: "#0C0C0E",
+  invertText: false,
+  renderBody: true,
+} as const;
+
 /** Seconds for one noticeable pigment traversal at gradient speed = 1. */
 export const GRADIENT_CYCLE_SECONDS = 11;
 

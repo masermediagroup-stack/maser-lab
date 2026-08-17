@@ -1,10 +1,16 @@
 "use client";
 
-import { useControls, folder, button } from "leva";
+import { useControls, folder, button, levaStore } from "leva";
 import { useEffect, useRef } from "react";
-import { TYPE_WORLD_DEFAULTS, TYPE_WORLD_QUOTE } from "./constants";
+import {
+  MAX_SURFACE_ORBS,
+  TYPE_WORLD_DEFAULTS,
+  TYPE_WORLD_ORB_DEFAULTS,
+  TYPE_WORLD_QUOTE,
+} from "./constants";
+import type { TypeWorldStageTheme } from "./types";
 
-export type TypeWorldStageTheme = "light" | "dark";
+export type { TypeWorldStageTheme };
 
 export type TypeWorldDemoParams = {
   quote: string;
@@ -22,6 +28,23 @@ export type TypeWorldDemoParams = {
   gradientAngle: number;
   gradientSpread: number;
   gradientReverse: boolean;
+  orbsEnabled: boolean;
+  orbCount: number;
+  orbSeed: number;
+  orbSizeMin: number;
+  orbSizeMax: number;
+  orbEdgeSoftness: number;
+  orbSpeedMin: number;
+  orbSpeedMax: number;
+  orbSteerAmount: number;
+  orbSpeedNoise: number;
+  orbDriftNoise: number;
+  orbColorLight: string;
+  orbColorDark: string;
+  orbTextColor: string;
+  orbTextColor2: string;
+  orbInvertText: boolean;
+  orbRenderBody: boolean;
 };
 
 function asHex(value: unknown, fallback: string): string {
@@ -40,6 +63,11 @@ function asHex(value: unknown, fallback: string): string {
 
 function asTheme(value: unknown): TypeWorldStageTheme {
   return value === "dark" ? "dark" : "light";
+}
+
+function randomizeOrbSeed(): void {
+  const next = Math.floor(Math.random() * 1_000_000);
+  levaStore.set({ orbSeed: next }, false);
 }
 
 type TypeWorldControlsProps = {
@@ -146,6 +174,109 @@ export function TypeWorldControls({
         label: "Reverse Gradient",
       },
     }),
+    Orbs: folder({
+      orbsEnabled: {
+        value: TYPE_WORLD_ORB_DEFAULTS.enabled,
+        label: "Enabled",
+      },
+      orbCount: {
+        value: TYPE_WORLD_ORB_DEFAULTS.count,
+        min: 1,
+        max: MAX_SURFACE_ORBS,
+        step: 1,
+        label: "Count",
+      },
+      orbSeed: {
+        value: TYPE_WORLD_ORB_DEFAULTS.seed,
+        min: 0,
+        max: 999999,
+        step: 1,
+        label: "Seed",
+      },
+      "Randomize Seed": button(randomizeOrbSeed),
+      orbSizeMin: {
+        value: TYPE_WORLD_ORB_DEFAULTS.sizeMin,
+        min: 0.08,
+        max: 0.55,
+        step: 0.01,
+        label: "Size Min",
+      },
+      orbSizeMax: {
+        value: TYPE_WORLD_ORB_DEFAULTS.sizeMax,
+        min: 0.08,
+        max: 0.55,
+        step: 0.01,
+        label: "Size Max",
+      },
+      orbEdgeSoftness: {
+        value: TYPE_WORLD_ORB_DEFAULTS.edgeSoftness,
+        min: 0.02,
+        max: 0.45,
+        step: 0.01,
+        label: "Edge Softness",
+      },
+      orbSpeedMin: {
+        value: TYPE_WORLD_ORB_DEFAULTS.speedMin,
+        min: 0,
+        max: 0.45,
+        step: 0.005,
+        label: "Speed Min",
+      },
+      orbSpeedMax: {
+        value: TYPE_WORLD_ORB_DEFAULTS.speedMax,
+        min: 0,
+        max: 0.45,
+        step: 0.005,
+        label: "Speed Max",
+      },
+      orbSteerAmount: {
+        value: TYPE_WORLD_ORB_DEFAULTS.steerAmount,
+        min: 0,
+        max: 2,
+        step: 0.01,
+        label: "Steer Amount",
+      },
+      orbSpeedNoise: {
+        value: TYPE_WORLD_ORB_DEFAULTS.speedNoise,
+        min: 0,
+        max: 1.5,
+        step: 0.01,
+        label: "Speed Noise",
+      },
+      orbDriftNoise: {
+        value: TYPE_WORLD_ORB_DEFAULTS.driftNoise,
+        min: 0,
+        max: 1.5,
+        step: 0.01,
+        label: "Drift Noise",
+      },
+    }),
+    "Orb Colors": folder({
+      orbColorLight: {
+        value: TYPE_WORLD_ORB_DEFAULTS.colorLight,
+        label: "Orb Color Light",
+      },
+      orbColorDark: {
+        value: TYPE_WORLD_ORB_DEFAULTS.colorDark,
+        label: "Orb Color Dark",
+      },
+      orbTextColor: {
+        value: TYPE_WORLD_ORB_DEFAULTS.textColor,
+        label: "Orb Text Color",
+      },
+      orbTextColor2: {
+        value: TYPE_WORLD_ORB_DEFAULTS.textColor2,
+        label: "Orb Text Color 2",
+      },
+      orbInvertText: {
+        value: TYPE_WORLD_ORB_DEFAULTS.invertText,
+        label: "Invert Text In Orb",
+      },
+      orbRenderBody: {
+        value: TYPE_WORLD_ORB_DEFAULTS.renderBody,
+        label: "Render Orb Body",
+      },
+    }),
     Reset: button(onReset),
   });
 
@@ -176,6 +307,23 @@ export function TypeWorldControls({
       gradientAngle: Number(v.gradientAngle),
       gradientSpread: Number(v.gradientSpread),
       gradientReverse: Boolean(v.gradientReverse),
+      orbsEnabled: Boolean(v.orbsEnabled),
+      orbCount: Number(v.orbCount),
+      orbSeed: Number(v.orbSeed),
+      orbSizeMin: Number(v.orbSizeMin),
+      orbSizeMax: Number(v.orbSizeMax),
+      orbEdgeSoftness: Number(v.orbEdgeSoftness),
+      orbSpeedMin: Number(v.orbSpeedMin),
+      orbSpeedMax: Number(v.orbSpeedMax),
+      orbSteerAmount: Number(v.orbSteerAmount),
+      orbSpeedNoise: Number(v.orbSpeedNoise),
+      orbDriftNoise: Number(v.orbDriftNoise),
+      orbColorLight: asHex(v.orbColorLight, TYPE_WORLD_ORB_DEFAULTS.colorLight),
+      orbColorDark: asHex(v.orbColorDark, TYPE_WORLD_ORB_DEFAULTS.colorDark),
+      orbTextColor: asHex(v.orbTextColor, TYPE_WORLD_ORB_DEFAULTS.textColor),
+      orbTextColor2: asHex(v.orbTextColor2, TYPE_WORLD_ORB_DEFAULTS.textColor2),
+      orbInvertText: Boolean(v.orbInvertText),
+      orbRenderBody: Boolean(v.orbRenderBody),
     };
     const serialized = JSON.stringify(patch);
     if (serialized === lastSerializedRef.current) return;

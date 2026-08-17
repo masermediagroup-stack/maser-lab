@@ -8,6 +8,31 @@ export type TypeWorldGradient = {
   reverse: boolean;
 };
 
+export type TypeWorldStageTheme = "light" | "dark";
+
+/** Surface discs that glide on the implied sphere (shader-masked, not extra meshes). */
+export type TypeWorldOrbs = {
+  enabled: boolean;
+  count: number;
+  seed: number;
+  /** Angular radius on the unit sphere (radians). */
+  sizeMin: number;
+  sizeMax: number;
+  /** Soft edge as a fraction of radius. Graphic, not a glow. */
+  edgeSoftness: number;
+  speedMin: number;
+  speedMax: number;
+  steerAmount: number;
+  speedNoise: number;
+  driftNoise: number;
+  colorLight: string;
+  colorDark: string;
+  textColor: string;
+  textColor2: string;
+  invertText: boolean;
+  renderBody: boolean;
+};
+
 export type TypeWorldProps = {
   /** Quote body. Newlines become separate centered lines on the sphere. */
   quote?: string;
@@ -56,6 +81,10 @@ export type TypeWorldProps = {
    * Hosts and the demo Scale slider use this; grip press still stacks on top.
    */
   scale?: number;
+  /** Picks orb body / in-orb text defaults (light = black discs, dark = white). */
+  theme?: TypeWorldStageTheme;
+  /** Surface orbs. Omitted fields use `TYPE_WORLD_ORB_DEFAULTS`. */
+  orbs?: Partial<TypeWorldOrbs>;
   className?: string;
 };
 

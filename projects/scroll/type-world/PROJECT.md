@@ -29,7 +29,7 @@ If lab chrome is removed: cream field, royal-blue Geist quote, empty space. No o
 - Headline: `Build worlds / break rules / stay curious`
 - Support: optional microcopy `drag to turn the world` (dismisses after first drag)
 - CTA: none
-- Visual: typographic sphere (glyphs only)
+- Visual: typographic sphere (glyphs + geodesic surface discs)
 
 ### Section map (one job each)
 
@@ -57,11 +57,12 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 - [x] active / pressed (grabbing cursor + ~1.015 grip scale)
 - [x] inertia settle after release
 - [x] hint dismissed after first successful drag
-- [x] prefers-reduced-motion (gradient freeze, inertia off)
+- [x] prefers-reduced-motion (gradient freeze, orb freeze, inertia off)
 - [x] WebGL unavailable (static Geist quote)
 - [x] demo light / dark stage (Leva Appearance → Mode)
 - [x] demo fill viewport (Leva Appearance → Fill viewport; Escape exits)
 - [x] demo scale (Leva Appearance → Scale; 0.35–2, default 1)
+- [x] surface orbs (Leva Orbs / Orb Colors; seed-deterministic glide)
 
 ## Motion decisions
 
@@ -72,7 +73,8 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 | Drag | Pointer → target yaw/pitch → damped actual; drag right follows right; drag down follows down | Weighted grab, not inverted |
 | Gradient | Shader UV palette × glyph alpha; phase in `useFrame` | Independent of rotation; no canvas uploads |
 | Pitch | Clamped ±20° | Prevents upside-down globe |
-| Reduced motion | Freeze gradient; no coast | `rule/reduced-motion-required` |
+| Reduced motion | Freeze gradient and orbs; no coast | `rule/reduced-motion-required` |
+| Surface orbs | Geodesic discs in the glyph shader; seeded tangent glide | Attached to the implied sphere; no extra meshes |
 
 ## Three.js / 3D
 
@@ -83,7 +85,7 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 | Decorative? | no — 3D is the piece; static quote fallback if WebGL missing |
 | Fallback | Centered Geist quote on the same cream field |
 | Mobile strategy | `touch-action: pan-y`; horizontal intent captures rotation; DPR clamp; 64×48 sphere on narrow viewports |
-| Reduced motion | Freeze gradient; no coast |
+| Reduced motion | Freeze gradient and orbs; no coast |
 | Research docs checked | [SphereGeometry](https://threejs.org/docs/#api/en/geometries/SphereGeometry), [CanvasTexture](https://threejs.org/docs/#api/en/textures/CanvasTexture), [ShaderMaterial](https://threejs.org/docs/#api/en/materials/ShaderMaterial), [Texture](https://threejs.org/docs/#api/en/textures/Texture), [SRGBColorSpace](https://threejs.org/docs/#api/en/constants/Textures) |
 | CloudAI-X skills used | threejs-fundamentals, threejs-geometry, threejs-textures, threejs-materials, threejs-shaders, threejs-interaction |
 
@@ -122,6 +124,8 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Sphere is at rest scale on mount (no scroll inflate); host height sizes the canvas
 - [x] Desktop rest scale ~40% of stage width (mobile still ~86%)
 - [x] Leva Appearance: Light/Dark stage (page + sphere field + panel), Fill viewport (no page scroll; Escape exits), Scale (0.35–2 × canvas-fit rest size; default 1)
+- [x] Surface orbs: geodesic discs in the glyph shader (not extra meshes); light = black discs, dark = white discs; text inside an orb uses Orb Text Color / Color 2 (or invert)
+- [x] Orb motion is seeded (same seed → same layout/feel); Randomize Seed reshuffles; count 1–12 (default 6)
 - [x] Fill viewport on touch: vertical drag pitches the sphere (no pan-y handoff); drag down follows the finger
 - [x] No existing lab experiments changed (liquid-monochrome still renders)
 - [ ] Motion review: no open P0/P1 findings (not run as a separate Review mode)
@@ -136,4 +140,4 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - Product kind: **section** (portable `TypeWorld` + tokens). Hosts size it with `.type-world` height — full stage, corner, or nav slot.
 - No `rule/no-scale-zero` exception: there is no reveal from near-zero. `minScale` is only a numeric floor for grip/fit.
 - Pitch is a camera-right nod composed after yaw (`qPitch * qYaw`), so the back copy is not inverted. Drag down follows on both faces. Fill viewport sets `captureVerticalDrag` so touch is not limited to left/right.
-- Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field), Fill viewport, and Scale (rest-size multiplier; grip still stacks). Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask.
+- Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field), Fill viewport, and Scale (rest-size multiplier; grip still stacks). Orbs / Orb Colors folders own the surface discs. Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask. Orbs are geodesic masks in that same material.

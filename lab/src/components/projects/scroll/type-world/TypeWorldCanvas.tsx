@@ -7,7 +7,7 @@ import { getClampedPixelRatio } from "@/three/utils/capabilities";
 import { TYPE_WORLD_CAMERA, TYPE_WORLD_DEFAULTS, TYPE_WORLD_GL } from "./constants";
 import { TypographicSphere } from "./TypographicSphere";
 import type { DragRotationApi } from "./useDragRotation";
-import type { TypeWorldGradient } from "./types";
+import type { TypeWorldGradient, TypeWorldOrbs, TypeWorldStageTheme } from "./types";
 
 type TypeWorldCanvasProps = {
   quote: string;
@@ -18,6 +18,8 @@ type TypeWorldCanvasProps = {
   narrow: boolean;
   gradient: TypeWorldGradient;
   scale?: number;
+  theme: TypeWorldStageTheme;
+  orbs: TypeWorldOrbs;
 };
 
 export function TypeWorldCanvas({
@@ -29,6 +31,8 @@ export function TypeWorldCanvas({
   narrow,
   gradient,
   scale = TYPE_WORLD_DEFAULTS.scale,
+  theme,
+  orbs,
 }: TypeWorldCanvasProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(true);
@@ -83,6 +87,8 @@ export function TypeWorldCanvas({
           narrow={narrow}
           gradient={gradient}
           scale={scale}
+          theme={theme}
+          orbs={orbs}
         />
       </Canvas>
     </div>
