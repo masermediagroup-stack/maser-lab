@@ -56,9 +56,10 @@ void main() {
     float ang = acos(clamp(dot(dir, center), -1.0, 1.0));
     float aa = fwidth(ang);
     float art = radius * clamp(uOrbEdge, 0.0, 0.35);
-    float halfW = max(art, aa);
+    // Pixel AA plus a small artistic rim — not a blur blob.
+    float halfW = aa * 1.05 + art * 0.55;
     float inner = max(radius - halfW, 0.0);
-    float outer = radius + aa * 0.35;
+    float outer = radius + aa * 0.25;
     if (outer <= inner) {
       outer = inner + max(aa, 1e-5);
     }
@@ -81,7 +82,13 @@ void main() {
   float inOrb = step(0.02, orbMask);
   vec3 textRgb = mix(gradient, uOrbText, inOrb);
 
-  float aText = glyph;
+  // Outside the orb, keep the atlas coverage (soft gradient type).
+  // Inside, collapse the mipmap alpha tail so white/black letters do not
+  // pick up a gray or gradient "stroke" around a solid fill.
+  float gW = max(fwidth(glyph), 0.02);
+  float sharpGlyph = smoothstep(0.32 - gW, 0.52 + gW, glyph);
+  float aText = mix(glyph, sharpGlyph, inOrb);
+
   float aUnder = body * (1.0 - aText);
   float alpha = min(1.0, aText + aUnder);
   vec3 color = (textRgb * aText + uOrbColor * aUnder) / max(alpha, 1e-5);
