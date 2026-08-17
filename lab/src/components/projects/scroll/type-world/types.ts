@@ -46,6 +46,11 @@ export type TypeWorldProps = {
   gradientSpread?: number;
   /** Reverse pigment travel only — does not affect drag. */
   gradientReverse?: boolean;
+  /**
+   * Capture vertical drags as pitch (no page-scroll handoff).
+   * Use in fill-viewport / chrome hosts where the canvas is the only scroller.
+   */
+  captureVerticalDrag?: boolean;
   className?: string;
 };
 
@@ -62,5 +67,7 @@ export type DragRotationOptions = {
   pitchLimit: number;
   inertia: number;
   reducedMotion: boolean;
+  /** When true, touch pitch is live; vertical-first does not yield to the page. */
+  captureVertical: boolean;
   onInteract?: () => void;
 };

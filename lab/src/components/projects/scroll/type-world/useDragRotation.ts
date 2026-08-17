@@ -42,7 +42,8 @@ type PointerSession = {
 
 /**
  * Pointer → target rotation → damped actual rotation.
- * Touch: vertical intent scrolls the page; horizontal intent turns the sphere.
+ * Default touch: vertical-first scrolls the page; horizontal-first turns the sphere.
+ * `captureVertical`: any direction turns the sphere (fill-viewport / locked hosts).
  */
 export function useDragRotation(
   surfaceRef: RefObject<HTMLElement | null>,
@@ -66,12 +67,16 @@ export function useDragRotation(
   const sessionRef = useRef<PointerSession | null>(null);
   const interactedRef = useRef(false);
 
+  const idleTouchAction = useCallback(() => {
+    return optionsRef.current.captureVertical ? "none" : "pan-y";
+  }, []);
+
   const markGrabbing = useCallback((node: HTMLElement, grabbing: boolean) => {
     grabbingRef.current = grabbing;
     gripTargetRef.current = grabbing ? TYPE_WORLD_DEFAULTS.gripScale : 1;
     node.dataset.grabbing = grabbing ? "true" : "false";
-    node.style.touchAction = grabbing ? "none" : "pan-y";
-  }, []);
+    node.style.touchAction = grabbing ? "none" : idleTouchAction();
+  }, [idleTouchAction]);
 
   const endSession = useCallback(
     (node: HTMLElement, pointerId: number) => {
@@ -133,8 +138,8 @@ export function useDragRotation(
         const adx = Math.abs(event.clientX - session.startX);
         const ady = Math.abs(event.clientY - session.startY);
         if (adx < INTENT_PX && ady < INTENT_PX) return;
-        if (ady >= adx) {
-          // Vertical-first: let the page scroll.
+        if (ady >= adx && !optionsRef.current.captureVertical) {
+          // Vertical-first on a scrolling page: let the document pan.
           sessionRef.current = null;
           return;
         }
@@ -152,18 +157,18 @@ export function useDragRotation(
 
       const opts = optionsRef.current;
       const pitchLimit = opts.pitchLimit * DEG;
-      // Grab the facing glyphs: the point under the pointer follows it.
-      // Screen +X (right) → +yaw; screen +Y (down) → +pitch (Three rotation.x).
+      // Facing glyphs track the pointer (same grab as yaw).
+      // Downward finger motion uses −pitch so the front follows down on this camera.
       yawTargetRef.current += dx * opts.yawSensitivity;
       pitchTargetRef.current = clamp(
-        pitchTargetRef.current + dy * opts.pitchSensitivity,
+        pitchTargetRef.current - dy * opts.pitchSensitivity,
         -pitchLimit,
         pitchLimit,
       );
 
       if (!opts.reducedMotion) {
         velYawRef.current = (dx * opts.yawSensitivity) / dt;
-        velPitchRef.current = (dy * opts.pitchSensitivity) / dt;
+        velPitchRef.current = (-dy * opts.pitchSensitivity) / dt;
       }
 
       session.lastX = event.clientX;
@@ -227,9 +232,19 @@ export function useDragRotation(
   useEffect(() => {
     const node = surfaceRef.current;
     if (!node) return;
+    node.style.touchAction = options.captureVertical ? "none" : "pan-y";
+  }, [options.captureVertical, surfaceRef]);
+
+  useEffect(() => {
+    const node = surfaceRef.current;
+    if (!node) return;
     const preventScrollWhenGrabbing = (event: TouchEvent) => {
-      if (!grabbingRef.current) return;
-      event.preventDefault();
+      if (
+        grabbingRef.current ||
+        (optionsRef.current.captureVertical && sessionRef.current)
+      ) {
+        event.preventDefault();
+      }
     };
     node.addEventListener("touchmove", preventScrollWhenGrabbing, {
       passive: false,

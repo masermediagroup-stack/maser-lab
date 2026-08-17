@@ -72,6 +72,10 @@
   cursor: grab;
 }
 
+.type-world__hit[data-drag-capture="all"] {
+  touch-action: none;
+}
+
 .type-world__hit[data-grabbing="true"] {
   cursor: grabbing;
 }

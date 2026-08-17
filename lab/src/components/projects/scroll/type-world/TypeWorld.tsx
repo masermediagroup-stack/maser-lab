@@ -50,6 +50,7 @@ export function TypeWorld({
   gradientAngle = TYPE_WORLD_DEFAULTS.gradientAngle,
   gradientSpread = TYPE_WORLD_DEFAULTS.gradientSpread,
   gradientReverse = TYPE_WORLD_DEFAULTS.gradientReverse,
+  captureVerticalDrag = false,
   className,
 }: TypeWorldProps) {
   const hitRef = useRef<HTMLDivElement>(null);
@@ -90,10 +91,11 @@ export function TypeWorld({
 
   const drag = useDragRotation(hitRef, {
     yawSensitivity: dragSensitivity,
-    pitchSensitivity: dragSensitivity * 0.42,
+    pitchSensitivity: dragSensitivity * (captureVerticalDrag ? 1 : 0.42),
     pitchLimit,
     inertia,
     reducedMotion,
+    captureVertical: captureVerticalDrag,
     onInteract,
   });
 
@@ -158,6 +160,7 @@ export function TypeWorld({
             className={
               webgl ? "type-world__hit" : "type-world__hit type-world__hit--off"
             }
+            data-drag-capture={captureVerticalDrag ? "all" : "pan-y"}
             aria-hidden="true"
             {...(webgl ? drag.handlers : {})}
           />

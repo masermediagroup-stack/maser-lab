@@ -182,6 +182,7 @@ export function TypeWorldDemo() {
         pitchLimit={params.pitchLimit}
         reducedMotion={reducedMotion}
         forceFallback={params.forceFallback}
+        captureVerticalDrag={fillViewport}
       />
 
       <footer className="type-world-demo__after">
@@ -192,7 +193,7 @@ export function TypeWorldDemo() {
         <>
           <TypeWorldControls onChange={patchParams} onReset={reset} />
           <Leva
-            collapsed={narrow && !fillViewport}
+            collapsed={narrow}
             titleBar={{ title: "TYPE WORLD", filter: false }}
             theme={LEVA_THEME[theme]}
           />

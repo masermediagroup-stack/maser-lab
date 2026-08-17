@@ -121,6 +121,7 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Sphere is at rest scale on mount (no scroll inflate); host height sizes the canvas
 - [x] Desktop rest scale ~40% of stage width (mobile still ~86%)
 - [x] Leva Appearance: Light/Dark stage (page + sphere field + panel), Fill viewport (no page scroll; Escape exits)
+- [x] Fill viewport on touch: vertical drag pitches the sphere (no pan-y handoff); drag down follows the finger
 - [x] No existing lab experiments changed (liquid-monochrome still renders)
 - [ ] Motion review: no open P0/P1 findings (not run as a separate Review mode)
 
@@ -133,5 +134,5 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - Category `scroll` remains for registry continuity; the product is a rest-scale object (canvas-fit), not a sticky inflate.
 - Product kind: **section** (portable `TypeWorld` + tokens). Hosts size it with `.type-world` height — full stage, corner, or nav slot.
 - No `rule/no-scale-zero` exception: there is no reveal from near-zero. `minScale` is only a numeric floor for grip/fit.
-- Pitch follows the same grab model as yaw: drag down moves the grabbed surface down.
+- Pitch follows the same grab model as yaw: drag down moves the grabbed surface down. Fill viewport sets `captureVerticalDrag` so touch is not limited to left/right.
 - Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field) and Fill viewport. Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask.
