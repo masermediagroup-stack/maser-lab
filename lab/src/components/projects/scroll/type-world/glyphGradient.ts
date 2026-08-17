@@ -82,12 +82,9 @@ void main() {
   float inOrb = step(0.02, orbMask);
   vec3 textRgb = mix(gradient, uOrbText, inOrb);
 
-  // Outside the orb, keep the atlas coverage (soft gradient type).
-  // Inside, collapse the mipmap alpha tail so white/black letters do not
-  // pick up a gray or gradient "stroke" around a solid fill.
-  float gW = max(fwidth(glyph), 0.02);
-  float sharpGlyph = smoothstep(0.32 - gW, 0.52 + gW, glyph);
-  float aText = mix(glyph, sharpGlyph, inOrb);
+  // Keep atlas coverage. RGB is already a single invert; crushing alpha
+  // here ate letter interiors on mipmapped sphere UVs.
+  float aText = glyph;
 
   float aUnder = body * (1.0 - aText);
   float alpha = min(1.0, aText + aUnder);
