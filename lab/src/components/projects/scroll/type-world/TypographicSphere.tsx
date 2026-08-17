@@ -29,6 +29,7 @@ type TypographicSphereProps = {
   drag: DragRotationApi;
   narrow: boolean;
   gradient: TypeWorldGradient;
+  scale?: number;
 };
 
 export function TypographicSphere({
@@ -38,6 +39,7 @@ export function TypographicSphere({
   drag,
   narrow,
   gradient,
+  scale = TYPE_WORLD_DEFAULTS.scale,
 }: TypographicSphereProps) {
   const groupRef = useRef<Group>(null);
   const { gl, viewport } = useThree();
@@ -151,7 +153,7 @@ export function TypographicSphere({
 
     const nextScale = Math.max(
       TYPE_WORLD_DEFAULTS.minScale,
-      drag.gripRef.current * restScale,
+      drag.gripRef.current * restScale * scale,
     );
     group.scale.setScalar(nextScale);
     // Yaw around world up, then nod around camera-right (world X) so the
@@ -162,7 +164,7 @@ export function TypographicSphere({
   });
 
   return (
-    <group ref={groupRef} scale={restScale}>
+    <group ref={groupRef} scale={restScale * scale}>
       {texture ? (
         <mesh frustumCulled={false}>
           <sphereGeometry args={[segments[0], segments[1], segments[2]]} />

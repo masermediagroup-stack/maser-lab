@@ -61,6 +61,7 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 - [x] WebGL unavailable (static Geist quote)
 - [x] demo light / dark stage (Leva Appearance → Mode)
 - [x] demo fill viewport (Leva Appearance → Fill viewport; Escape exits)
+- [x] demo scale (Leva Appearance → Scale; 0.35–2, default 1)
 
 ## Motion decisions
 
@@ -120,7 +121,7 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Gradient continues while the sphere rotates; both 0° and 180° copies share one UV material
 - [x] Sphere is at rest scale on mount (no scroll inflate); host height sizes the canvas
 - [x] Desktop rest scale ~40% of stage width (mobile still ~86%)
-- [x] Leva Appearance: Light/Dark stage (page + sphere field + panel), Fill viewport (no page scroll; Escape exits)
+- [x] Leva Appearance: Light/Dark stage (page + sphere field + panel), Fill viewport (no page scroll; Escape exits), Scale (0.35–2 × canvas-fit rest size; default 1)
 - [x] Fill viewport on touch: vertical drag pitches the sphere (no pan-y handoff); drag down follows the finger
 - [x] No existing lab experiments changed (liquid-monochrome still renders)
 - [ ] Motion review: no open P0/P1 findings (not run as a separate Review mode)
@@ -135,4 +136,4 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - Product kind: **section** (portable `TypeWorld` + tokens). Hosts size it with `.type-world` height — full stage, corner, or nav slot.
 - No `rule/no-scale-zero` exception: there is no reveal from near-zero. `minScale` is only a numeric floor for grip/fit.
 - Pitch is a camera-right nod composed after yaw (`qPitch * qYaw`), so the back copy is not inverted. Drag down follows on both faces. Fill viewport sets `captureVerticalDrag` so touch is not limited to left/right.
-- Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field) and Fill viewport. Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask.
+- Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field), Fill viewport, and Scale (rest-size multiplier; grip still stacks). Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask.

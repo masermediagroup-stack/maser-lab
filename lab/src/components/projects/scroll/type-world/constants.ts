@@ -21,6 +21,7 @@ export const TYPE_WORLD_DEFAULTS = {
   gradientAngle: 25,
   gradientSpread: 1,
   gradientReverse: false,
+  scale: 1,
 } as const;
 
 /** Seconds for one noticeable pigment traversal at gradient speed = 1. */

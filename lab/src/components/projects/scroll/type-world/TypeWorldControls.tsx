@@ -14,6 +14,7 @@ export type TypeWorldDemoParams = {
   forceFallback: boolean;
   theme: TypeWorldStageTheme;
   fillViewport: boolean;
+  scale: number;
   gradientColor1: string;
   gradientColor2: string;
   gradientColor3: string;
@@ -67,6 +68,13 @@ export function TypeWorldControls({
       fillViewport: {
         value: false,
         label: "Fill viewport",
+      },
+      scale: {
+        value: TYPE_WORLD_DEFAULTS.scale,
+        min: 0.35,
+        max: 2,
+        step: 0.01,
+        label: "Scale",
       },
     }),
     Typography: folder({
@@ -157,6 +165,7 @@ export function TypeWorldControls({
       forceFallback: Boolean(v.forceFallback),
       theme: asTheme(v.theme),
       fillViewport: Boolean(v.fillViewport),
+      scale: Number(v.scale),
       dragSensitivity: Number(v.dragSensitivity),
       inertia: Number(v.inertia),
       pitchLimit: Number(v.pitchLimit),

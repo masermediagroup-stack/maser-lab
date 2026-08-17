@@ -50,6 +50,7 @@ export function TypeWorld({
   gradientSpread = TYPE_WORLD_DEFAULTS.gradientSpread,
   gradientReverse = TYPE_WORLD_DEFAULTS.gradientReverse,
   captureVerticalDrag = false,
+  scale = TYPE_WORLD_DEFAULTS.scale,
   className,
 }: TypeWorldProps) {
   const hitRef = useRef<HTMLDivElement>(null);
@@ -125,6 +126,8 @@ export function TypeWorld({
       style={
         {
           "--type-world-serif": resolvedFont,
+          "--type-world-bg": backgroundColor,
+          "--type-world-scale": String(scale),
           "--type-world-ink": color1,
           "--type-world-g1": gradient.color1,
           "--type-world-g2": gradient.color2,
@@ -149,6 +152,7 @@ export function TypeWorld({
               drag={drag}
               narrow={narrow}
               gradient={gradient}
+              scale={scale}
             />
           ) : mounted ? (
             <TypeWorldFallback quote={quote} fontFamily={resolvedFont} />

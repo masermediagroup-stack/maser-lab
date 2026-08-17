@@ -63,6 +63,7 @@ const INITIAL_PARAMS: TypeWorldDemoParams = {
   forceFallback: false,
   theme: "light",
   fillViewport: false,
+  scale: TYPE_WORLD_DEFAULTS.scale,
   gradientColor1: TYPE_WORLD_DEFAULTS.gradientColor1,
   gradientColor2: TYPE_WORLD_DEFAULTS.gradientColor2,
   gradientColor3: TYPE_WORLD_DEFAULTS.gradientColor3,
@@ -79,6 +80,7 @@ function syncLeva(params: TypeWorldDemoParams) {
       forceFallback: params.forceFallback,
       theme: params.theme,
       fillViewport: params.fillViewport,
+      scale: params.scale,
       dragSensitivity: params.dragSensitivity,
       inertia: params.inertia,
       pitchLimit: params.pitchLimit,
@@ -183,6 +185,7 @@ export function TypeWorldDemo() {
         reducedMotion={reducedMotion}
         forceFallback={params.forceFallback}
         captureVerticalDrag={fillViewport}
+        scale={params.scale}
       />
 
       <footer className="type-world-demo__after">

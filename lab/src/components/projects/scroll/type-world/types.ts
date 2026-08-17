@@ -51,6 +51,11 @@ export type TypeWorldProps = {
    * Use in fill-viewport / chrome hosts where the canvas is the only scroller.
    */
   captureVerticalDrag?: boolean;
+  /**
+   * Multiplier on canvas-fit rest size. 1 = default fit.
+   * Hosts and the demo Scale slider use this; grip press still stacks on top.
+   */
+  scale?: number;
   className?: string;
 };
 

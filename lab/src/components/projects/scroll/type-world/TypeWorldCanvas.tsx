@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { NoToneMapping } from "three";
 import { getClampedPixelRatio } from "@/three/utils/capabilities";
-import { TYPE_WORLD_CAMERA, TYPE_WORLD_GL } from "./constants";
+import { TYPE_WORLD_CAMERA, TYPE_WORLD_DEFAULTS, TYPE_WORLD_GL } from "./constants";
 import { TypographicSphere } from "./TypographicSphere";
 import type { DragRotationApi } from "./useDragRotation";
 import type { TypeWorldGradient } from "./types";
@@ -17,6 +17,7 @@ type TypeWorldCanvasProps = {
   drag: DragRotationApi;
   narrow: boolean;
   gradient: TypeWorldGradient;
+  scale?: number;
 };
 
 export function TypeWorldCanvas({
@@ -27,6 +28,7 @@ export function TypeWorldCanvas({
   drag,
   narrow,
   gradient,
+  scale = TYPE_WORLD_DEFAULTS.scale,
 }: TypeWorldCanvasProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(true);
@@ -80,6 +82,7 @@ export function TypeWorldCanvas({
           drag={drag}
           narrow={narrow}
           gradient={gradient}
+          scale={scale}
         />
       </Canvas>
     </div>
