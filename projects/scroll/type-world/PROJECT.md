@@ -114,7 +114,7 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Component exported from `lab/src/components/projects/scroll/type-world/index.ts`
 - [x] Quote readable at ~0° and ~180°, not mirrored on the second side
 - [x] Vertical page scroll still works on touch; horizontal drag turns the sphere
-- [x] Drag right moves the grabbed surface right; drag down moves it down; inertia keeps those signs
+- [x] Drag right moves the grabbed surface right; drag down moves it down on both the front and 180° copies
 - [x] Glyph-only animated gradient; cream field unchanged
 - [x] Leva Gradient folder: Color 1–3, Speed, Angle, Spread, Reverse — live, no remount
 - [x] Gradient continues while the sphere rotates; both 0° and 180° copies share one UV material
@@ -134,5 +134,5 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - Category `scroll` remains for registry continuity; the product is a rest-scale object (canvas-fit), not a sticky inflate.
 - Product kind: **section** (portable `TypeWorld` + tokens). Hosts size it with `.type-world` height — full stage, corner, or nav slot.
 - No `rule/no-scale-zero` exception: there is no reveal from near-zero. `minScale` is only a numeric floor for grip/fit.
-- Pitch follows the same grab model as yaw: drag down moves the grabbed surface down. Fill viewport sets `captureVerticalDrag` so touch is not limited to left/right.
+- Pitch is a camera-right nod composed after yaw (`qPitch * qYaw`), so the back copy is not inverted. Drag down follows on both faces. Fill viewport sets `captureVerticalDrag` so touch is not limited to left/right.
 - Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field) and Fill viewport. Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask.

@@ -158,7 +158,8 @@ export function useDragRotation(
       const opts = optionsRef.current;
       const pitchLimit = opts.pitchLimit * DEG;
       // Grab the facing glyphs: the point under the pointer follows it.
-      // Screen +X (right) → +yaw; screen +Y (down) → +pitch (rotation.x).
+      // Pitch is a camera-right nod (applied after yaw in the mesh), so the
+      // 180° copy is not inverted relative to the front.
       yawTargetRef.current += dx * opts.yawSensitivity;
       pitchTargetRef.current = clamp(
         pitchTargetRef.current + dy * opts.pitchSensitivity,

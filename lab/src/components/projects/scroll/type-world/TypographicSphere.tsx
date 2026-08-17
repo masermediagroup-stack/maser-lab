@@ -5,7 +5,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { CanvasTexture, FrontSide, Group, ShaderMaterial } from "three";
+import { CanvasTexture, FrontSide, Group, Quaternion, ShaderMaterial, Vector3 } from "three";
 import { GRADIENT_CYCLE_SECONDS, SPHERE_FIT, SPHERE_SEGMENTS, TYPE_WORLD_DEFAULTS } from "./constants";
 import {
   createTypographyTexture,
@@ -64,6 +64,10 @@ export function TypographicSphere({
   );
   const gradientRef = useRef(gradient);
   const reducedRef = useRef(reducedMotion);
+  const yawAxis = useRef(new Vector3(0, 1, 0));
+  const pitchAxis = useRef(new Vector3(1, 0, 0));
+  const qYaw = useRef(new Quaternion());
+  const qPitch = useRef(new Quaternion());
 
   useEffect(() => {
     return () => {
@@ -150,9 +154,11 @@ export function TypographicSphere({
       drag.gripRef.current * restScale,
     );
     group.scale.setScalar(nextScale);
-    group.rotation.order = "YXZ";
-    group.rotation.y = drag.yawRef.current;
-    group.rotation.x = drag.pitchRef.current;
+    // Yaw around world up, then nod around camera-right (world X) so the
+    // facing glyphs follow the pointer on both the 0° and 180° copies.
+    qYaw.current.setFromAxisAngle(yawAxis.current, drag.yawRef.current);
+    qPitch.current.setFromAxisAngle(pitchAxis.current, drag.pitchRef.current);
+    group.quaternion.copy(qPitch.current).multiply(qYaw.current);
   });
 
   return (
