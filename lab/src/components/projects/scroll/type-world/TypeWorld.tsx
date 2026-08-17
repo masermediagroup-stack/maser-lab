@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Instrument_Serif } from "next/font/google";
+import { Geist } from "next/font/google";
 import {
   useCallback,
   useMemo,
@@ -21,9 +21,8 @@ import {
 import type { TypeWorldGradient, TypeWorldProps } from "./types";
 import "./tokens.css";
 
-const instrumentSerif = Instrument_Serif({
+const geistSans = Geist({
   subsets: ["latin"],
-  weight: "400",
   display: "swap",
 });
 
@@ -60,7 +59,7 @@ export function TypeWorld({
   const reducedMotion = reducedMotionProp ?? osReduced;
   const [hintVisible, setHintVisible] = useState(true);
 
-  const resolvedFont = fontFamily ?? instrumentSerif.style.fontFamily;
+  const resolvedFont = fontFamily ?? geistSans.style.fontFamily;
   const webgl = mounted && isWebGLAvailable() && !forceFallback;
   const color1 = gradientColor1 ?? textColor;
 
@@ -109,7 +108,7 @@ export function TypeWorld({
     [quote],
   );
 
-  const rootClass = ["type-world", instrumentSerif.className, className]
+  const rootClass = ["type-world", geistSans.className, className]
     .filter(Boolean)
     .join(" ");
 
@@ -125,7 +124,7 @@ export function TypeWorld({
       data-gradient-motion={cycleSeconds > 0 ? "on" : "off"}
       style={
         {
-          "--type-world-bg": backgroundColor,
+          "--type-world-serif": resolvedFont,
           "--type-world-ink": color1,
           "--type-world-g1": gradient.color1,
           "--type-world-g2": gradient.color2,

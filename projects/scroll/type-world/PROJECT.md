@@ -9,7 +9,7 @@
 ## Design reference
 
 - Figma: none
-- Other: Editorial still — warm-white field (`#FAFAF7`), commanding serif quote with a slow three-stop pigment gradient (`#1047C9` → `#6B42FF` → `#E052A0`). No cards, gloss, bloom, or dashboard chrome on the artwork.
+- Other: Editorial still — warm-white field (`#FAFAF7`), commanding Geist quote with a slow three-stop pigment gradient (`#1047C9` → `#6B42FF` → `#E052A0`). No cards, gloss, bloom, or dashboard chrome on the artwork.
 - Design spec: `FIGMA.md` in this folder
 
 ## Brief
@@ -21,7 +21,7 @@ A visitor on a marketing, portfolio, or chrome surface. The typographic globe is
 Make editorial type feel like a physical world: at rest it reads as a quiet magazine spread; in motion it reveals that the same sentence exists twice around an invisible sphere. Portable enough to drop into a full stage, a corner, or a nav slot — the mesh fits its canvas.
 
 ### Brand signal
-If lab chrome is removed: cream field, royal-blue Instrument Serif quote, empty space. No other UI required.
+If lab chrome is removed: cream field, royal-blue Geist quote, empty space. No other UI required.
 
 ### First viewport contents (max)
 
@@ -58,7 +58,7 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 - [x] inertia settle after release
 - [x] hint dismissed after first successful drag
 - [x] prefers-reduced-motion (gradient freeze, inertia off)
-- [x] WebGL unavailable (static serif quote)
+- [x] WebGL unavailable (static Geist quote)
 - [x] demo light / dark stage (Leva Appearance → Mode)
 - [x] demo fill viewport (Leva Appearance → Fill viewport; Escape exits)
 
@@ -80,7 +80,7 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 | Target type | Interactive object (canvas-fit scale) |
 | Renderer | WebGL via R3F `Canvas` (`WebGLRenderer`) |
 | Decorative? | no — 3D is the piece; static quote fallback if WebGL missing |
-| Fallback | Centered Instrument Serif quote on the same cream field |
+| Fallback | Centered Geist quote on the same cream field |
 | Mobile strategy | `touch-action: pan-y`; horizontal intent captures rotation; DPR clamp; 64×48 sphere on narrow viewports |
 | Reduced motion | Freeze gradient; no coast |
 | Research docs checked | [SphereGeometry](https://threejs.org/docs/#api/en/geometries/SphereGeometry), [CanvasTexture](https://threejs.org/docs/#api/en/textures/CanvasTexture), [ShaderMaterial](https://threejs.org/docs/#api/en/materials/ShaderMaterial), [Texture](https://threejs.org/docs/#api/en/textures/Texture), [SRGBColorSpace](https://threejs.org/docs/#api/en/constants/Textures) |
@@ -127,7 +127,7 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 
 ## Open decisions
 
-- None blocking. Font: Instrument Serif via `next/font/google` (lab has Instrument Sans only; no existing editorial serif).
+- None blocking. Font: Geist via `next/font/google` (same face as the lab shell).
 
 ## Accepted decisions
 

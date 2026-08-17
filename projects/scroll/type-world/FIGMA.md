@@ -8,7 +8,7 @@
 | Source | URL | Notes |
 | --- | --- | --- |
 | Figma file | none | No team file |
-| Other | Editorial still (agent prompt) | Warm-white `#FAFAF7`, royal-blue `#1047C9`, high-contrast serif quote, generous negative space |
+| Other | Editorial still (agent prompt) | Warm-white `#FAFAF7`, royal-blue `#1047C9`, high-contrast Geist quote, generous negative space |
 
 ## Figma file (team)
 
@@ -24,7 +24,7 @@
 | --- | --- | --- |
 | Warm white field | `--type-world-bg` | `#FAFAF7` |
 | Royal blue glyphs | `--type-world-ink` | `#1047C9` |
-| Instrument Serif | `--type-world-serif` | next/font, product-scoped |
+| Geist | `--type-world-serif` | `next/font/google` Geist, product-scoped |
 
 ## Implementation sync
 
@@ -42,5 +42,5 @@
 
 - [ ] Mobile viewport keeps the resting quote uncropped
 - [ ] Hover / pressed (grab) documented as code-only
-- [ ] Typography character matches high-contrast serif reference
+- [ ] Typography character matches Geist (Vercel) reference
 - [ ] No glass / blur / shadow on the artwork
