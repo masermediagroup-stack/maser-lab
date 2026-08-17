@@ -62,10 +62,12 @@ export function TypographicSphere({
         vertexShader: GLYPH_VERT,
         fragmentShader: GLYPH_FRAG,
         transparent: true,
+        premultipliedAlpha: true,
         depthWrite: true,
         depthTest: true,
         side: FrontSide,
         toneMapped: false,
+        derivatives: true,
       }),
   );
   const segments = narrow ? SPHERE_SEGMENTS.mobile : SPHERE_SEGMENTS.desktop;
@@ -165,13 +167,18 @@ export function TypographicSphere({
   useEffect(() => {
     const uniforms = material.uniforms as GlyphGradientUniforms;
     const body = theme === "dark" ? orbs.colorDark : orbs.colorLight;
-    const textA = theme === "dark" ? orbs.textColor2 : orbs.textColor;
-    const textB = theme === "dark" ? orbs.textColor : orbs.textColor2;
+    // Default (invert off): light → solid white in-orb, dark → solid black.
+    // Invert swaps the pair for experiments; both paths stay one solid.
+    const textInOrb = orbs.invertText
+      ? theme === "dark"
+        ? orbs.textColor
+        : orbs.textColor2
+      : theme === "dark"
+        ? orbs.textColor2
+        : orbs.textColor;
     uniforms.uOrbColor.value.set(body);
-    uniforms.uOrbTextA.value.set(textA);
-    uniforms.uOrbTextB.value.set(textB);
+    uniforms.uOrbText.value.set(textInOrb);
     uniforms.uOrbEdge.value = orbs.edgeSoftness;
-    uniforms.uInvertText.value = orbs.invertText ? 1 : 0;
     uniforms.uRenderOrbBody.value = orbs.renderBody ? 1 : 0;
   }, [material, orbs.colorDark, orbs.colorLight, orbs.edgeSoftness, orbs.invertText, orbs.renderBody, orbs.textColor, orbs.textColor2, theme]);
 

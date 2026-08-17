@@ -210,9 +210,9 @@ export function TypeWorldControls({
       },
       orbEdgeSoftness: {
         value: TYPE_WORLD_ORB_DEFAULTS.edgeSoftness,
-        min: 0.02,
+        min: 0.01,
         max: 0.45,
-        step: 0.01,
+        step: 0.005,
         label: "Edge Softness",
       },
       orbSpeedMin: {

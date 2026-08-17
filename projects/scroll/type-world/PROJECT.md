@@ -124,7 +124,7 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Sphere is at rest scale on mount (no scroll inflate); host height sizes the canvas
 - [x] Desktop rest scale ~40% of stage width (mobile still ~86%)
 - [x] Leva Appearance: Light/Dark stage (page + sphere field + panel), Fill viewport (no page scroll; Escape exits), Scale (0.35–2 × canvas-fit rest size; default 1)
-- [x] Surface orbs: geodesic discs in the glyph shader (not extra meshes); light = black discs, dark = white discs; text inside an orb uses Orb Text Color / Color 2 (or invert)
+- [x] Surface orbs: geodesic discs in the glyph shader (not extra meshes); light = black discs, dark = white discs; text inside an orb is one solid invert (light `#FFFFFF`, dark `#000000`) — no stroke/fill split or gradient mix
 - [x] Orb motion is seeded (same seed → same layout/feel); Randomize Seed reshuffles; count 1–12 (default 6)
 - [x] Fill viewport on touch: vertical drag pitches the sphere (no pan-y handoff); drag down follows the finger
 - [x] No existing lab experiments changed (liquid-monochrome still renders)
@@ -140,4 +140,4 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - Product kind: **section** (portable `TypeWorld` + tokens). Hosts size it with `.type-world` height — full stage, corner, or nav slot.
 - No `rule/no-scale-zero` exception: there is no reveal from near-zero. `minScale` is only a numeric floor for grip/fit.
 - Pitch is a camera-right nod composed after yaw (`qPitch * qYaw`), so the back copy is not inverted. Drag down follows on both faces. Fill viewport sets `captureVerticalDrag` so touch is not limited to left/right.
-- Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field), Fill viewport, and Scale (rest-size multiplier; grip still stacks). Orbs / Orb Colors folders own the surface discs. Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask. Orbs are geodesic masks in that same material.
+- Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field), Fill viewport, and Scale (rest-size multiplier; grip still stacks). Orbs / Orb Colors folders own the surface discs. Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask. Orbs are geodesic masks in that same material. In-orb glyphs resolve to one solid inverted RGB (alpha may soften; RGB does not mix).

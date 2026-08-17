@@ -18,7 +18,7 @@ export type TypeWorldOrbs = {
   /** Angular radius on the unit sphere (radians). */
   sizeMin: number;
   sizeMax: number;
-  /** Soft edge as a fraction of radius. Graphic, not a glow. */
+  /** Soft edge as a fraction of radius. Tight graphic rim, not a glow. */
   edgeSoftness: number;
   speedMin: number;
   speedMax: number;

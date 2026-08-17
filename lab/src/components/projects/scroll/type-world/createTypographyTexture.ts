@@ -3,7 +3,7 @@ import {
   ClampToEdgeWrapping,
   LinearFilter,
   LinearMipmapLinearFilter,
-  SRGBColorSpace,
+  NoColorSpace,
 } from "three";
 import { TEXTURE_SIZE } from "./constants";
 import type { TypographyTextureOptions } from "./types";
@@ -108,7 +108,8 @@ export function createTypographyTexture({
   drawQuotePanel(ctx, panelWidth, 0, panelWidth, height, lines, fontFamily);
 
   const texture = new CanvasTexture(canvas);
-  texture.colorSpace = SRGBColorSpace;
+  // Coverage mask, not color — skip sRGB decode so edge alpha stays linear.
+  texture.colorSpace = NoColorSpace;
   texture.generateMipmaps = true;
   texture.minFilter = LinearMipmapLinearFilter;
   texture.magFilter = LinearFilter;
