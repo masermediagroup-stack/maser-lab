@@ -67,7 +67,6 @@ export function TypographicSphere({
         depthTest: true,
         side: FrontSide,
         toneMapped: false,
-        derivatives: true,
       }),
   );
   const segments = narrow ? SPHERE_SEGMENTS.mobile : SPHERE_SEGMENTS.desktop;
