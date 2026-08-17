@@ -157,18 +157,18 @@ export function useDragRotation(
 
       const opts = optionsRef.current;
       const pitchLimit = opts.pitchLimit * DEG;
-      // Facing glyphs track the pointer (same grab as yaw).
-      // Downward finger motion uses −pitch so the front follows down on this camera.
+      // Grab the facing glyphs: the point under the pointer follows it.
+      // Screen +X (right) → +yaw; screen +Y (down) → +pitch (rotation.x).
       yawTargetRef.current += dx * opts.yawSensitivity;
       pitchTargetRef.current = clamp(
-        pitchTargetRef.current - dy * opts.pitchSensitivity,
+        pitchTargetRef.current + dy * opts.pitchSensitivity,
         -pitchLimit,
         pitchLimit,
       );
 
       if (!opts.reducedMotion) {
         velYawRef.current = (dx * opts.yawSensitivity) / dt;
-        velPitchRef.current = (-dy * opts.pitchSensitivity) / dt;
+        velPitchRef.current = (dy * opts.pitchSensitivity) / dt;
       }
 
       session.lastX = event.clientX;
