@@ -24,7 +24,7 @@ import "./type-world-demo.css";
 
 const STAGE_BACKGROUND: Record<TypeWorldStageTheme, string> = {
   light: "#FAFAF7",
-  dark: "#0C0C0E",
+  dark: "#000000",
 };
 
 const LEVA_THEME = {
@@ -46,7 +46,7 @@ const LEVA_THEME = {
   dark: {
     sizes: { rootWidth: "280px" },
     colors: {
-      elevation1: "#0c0c0e",
+      elevation1: "#000000",
       elevation2: "#121216",
       elevation3: "#1a1a20",
       accent1: "#c8c8d0",

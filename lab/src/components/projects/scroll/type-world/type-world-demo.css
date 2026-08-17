@@ -11,7 +11,7 @@
 }
 
 .type-world-demo[data-theme="dark"] {
-  --type-world-demo-bg: #0c0c0e;
+  --type-world-demo-bg: #000000;
   --type-world-demo-ink: #fafaf7;
 }
 
@@ -89,7 +89,7 @@
 }
 
 .type-world-demo[data-theme="dark"] .type-world__hint {
-  color: color-mix(in srgb, #fafaf7 52%, #0c0c0e);
+  color: color-mix(in srgb, #fafaf7 52%, #000000);
 }
 
 .type-world-demo__lead,
