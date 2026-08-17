@@ -10,7 +10,12 @@ import {
   type CSSProperties,
 } from "react";
 import { isWebGLAvailable } from "@/three/utils/capabilities";
-import { GRADIENT_CYCLE_SECONDS, TYPE_WORLD_DEFAULTS, TYPE_WORLD_ORB_DEFAULTS } from "./constants";
+import {
+  GRADIENT_CYCLE_SECONDS,
+  TYPE_WORLD_AUTO_DEFAULTS,
+  TYPE_WORLD_DEFAULTS,
+  TYPE_WORLD_ORB_DEFAULTS,
+} from "./constants";
 import { TypeWorldFallback } from "./TypeWorldFallback";
 import { useDragRotation } from "./useDragRotation";
 import {
@@ -53,6 +58,9 @@ export function TypeWorld({
   scale = TYPE_WORLD_DEFAULTS.scale,
   theme = "light",
   orbs: orbsProp,
+  autoRotate = TYPE_WORLD_AUTO_DEFAULTS.enabled,
+  autoRotateSpeed = TYPE_WORLD_AUTO_DEFAULTS.speed,
+  autoResumeDelay = TYPE_WORLD_AUTO_DEFAULTS.resumeDelay,
   className,
 }: TypeWorldProps) {
   const hitRef = useRef<HTMLDivElement>(null);
@@ -139,6 +147,9 @@ export function TypeWorld({
     inertia,
     reducedMotion,
     captureVertical: captureVerticalDrag,
+    autoRotate,
+    autoRotateSpeed,
+    autoResumeDelay,
     onInteract,
   });
 

@@ -85,6 +85,15 @@ export type TypeWorldProps = {
   theme?: TypeWorldStageTheme;
   /** Surface orbs. Omitted fields use `TYPE_WORLD_ORB_DEFAULTS`. */
   orbs?: Partial<TypeWorldOrbs>;
+  /**
+   * Slow idle yaw when the visitor is not holding the sphere.
+   * Forced off when `reducedMotion` is on.
+   */
+  autoRotate?: boolean;
+  /** Signed yaw speed in rad/s. 0 = stopped. ±2 = fast. */
+  autoRotateSpeed?: number;
+  /** Seconds after release (and inertia settle) before autoplay blends in. */
+  autoResumeDelay?: number;
   className?: string;
 };
 
@@ -103,5 +112,8 @@ export type DragRotationOptions = {
   reducedMotion: boolean;
   /** When true, touch pitch is live; vertical-first does not yield to the page. */
   captureVertical: boolean;
+  autoRotate: boolean;
+  autoRotateSpeed: number;
+  autoResumeDelay: number;
   onInteract?: () => void;
 };

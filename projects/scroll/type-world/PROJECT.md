@@ -15,7 +15,7 @@
 ## Brief
 
 ### User / trigger
-A visitor on a marketing, portfolio, or chrome surface. The typographic globe is already at rest; they drag it (mouse or horizontal touch) to turn it.
+A visitor on a marketing, portfolio, or chrome surface. The typographic globe is already turning slowly; they grab it (mouse or horizontal touch) to take physical control.
 
 ### Job
 Make editorial type feel like a physical world: at rest it reads as a quiet magazine spread; in motion it reveals that the same sentence exists twice around an invisible sphere. Portable enough to drop into a full stage, a corner, or a nav slot — the mesh fits its canvas.
@@ -39,7 +39,7 @@ If lab chrome is removed: cream field, royal-blue Geist quote, empty space. No o
 Greenfield.
 
 ### Desired outcome
-A genuine `SphereGeometry` whose visible surface is a transparent glyph-alpha `CanvasTexture` of the quote, duplicated at 0° and 180° longitude. The object mounts at full rest scale (no scroll inflate). Hosts size it by giving `.type-world` a height; the sphere fits the canvas. Weighted drag with decaying inertia. Invisible sphere body.
+A genuine `SphereGeometry` whose visible surface is a transparent glyph-alpha `CanvasTexture` of the quote, duplicated at 0° and 180° longitude. The object mounts at full rest scale (no scroll inflate). Hosts size it by giving `.type-world` a height; the sphere fits the canvas. Slow idle yaw when untouched; weighted drag with decaying inertia that fully owns the sphere while held. Invisible sphere body.
 
 ### Success signal
 Resting frame reads as flat editorial type as soon as the canvas is in view. ~90° shows fragments. ~180° shows the same composition, not mirrored. Vertical touch still scrolls the page.
@@ -56,8 +56,9 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 - [x] hover (grab cursor, pointer fine)
 - [x] active / pressed (grabbing cursor + ~1.015 grip scale)
 - [x] inertia settle after release
+- [x] idle auto yaw (pauses on pointer down; resumes after inertia + delay)
 - [x] hint dismissed after first successful drag
-- [x] prefers-reduced-motion (gradient freeze, orb freeze, inertia off)
+- [x] prefers-reduced-motion (gradient freeze, orb freeze, inertia off, auto yaw off)
 - [x] WebGL unavailable (static Geist quote)
 - [x] demo light / dark stage (Leva Appearance → Mode)
 - [x] demo fill viewport (Leva Appearance → Fill viewport; Escape exits)
@@ -71,9 +72,12 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 | Library | Three.js + React Three Fiber `useFrame` | Real sphere + texture; high-frequency transforms stay off React state |
 | Scroll | None — rest scale on mount | Reuse in corners / nav; demo still has lead/after copy |
 | Drag | Pointer → target yaw/pitch → damped actual; drag right follows right; drag down follows down | Weighted grab, not inverted |
+| Auto yaw | Velocity in `useDragRotation.tick` (`speed × influence × dt`); no auto pitch | Planet-slow idle; frame-rate independent |
+| Grab override | Pointer down zeros `autoInfluence` and user velocity; session hold freezes | Point under the finger stays put |
+| Resume | Inertia decays → settle → Resume Delay → damp influence 0→1 | No snap back to autoplay speed |
 | Gradient | Shader UV palette × glyph alpha; phase in `useFrame` | Independent of rotation; no canvas uploads |
 | Pitch | Clamped ±20° | Prevents upside-down globe |
-| Reduced motion | Freeze gradient and orbs; no coast | `rule/reduced-motion-required` |
+| Reduced motion | Freeze gradient and orbs; no coast; no auto yaw | `rule/reduced-motion-required` |
 | Surface orbs | Geodesic discs in the glyph shader; seeded tangent glide | Attached to the implied sphere; no extra meshes |
 
 ## Three.js / 3D
@@ -85,7 +89,7 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 | Decorative? | no — 3D is the piece; static quote fallback if WebGL missing |
 | Fallback | Centered Geist quote on the same cream field |
 | Mobile strategy | `touch-action: pan-y`; horizontal intent captures rotation; DPR clamp; 64×48 sphere on narrow viewports |
-| Reduced motion | Freeze gradient and orbs; no coast |
+| Reduced motion | Freeze gradient and orbs; no coast; no auto yaw |
 | Research docs checked | [SphereGeometry](https://threejs.org/docs/#api/en/geometries/SphereGeometry), [CanvasTexture](https://threejs.org/docs/#api/en/textures/CanvasTexture), [ShaderMaterial](https://threejs.org/docs/#api/en/materials/ShaderMaterial), [Texture](https://threejs.org/docs/#api/en/textures/Texture), [SRGBColorSpace](https://threejs.org/docs/#api/en/constants/Textures) |
 | CloudAI-X skills used | threejs-fundamentals, threejs-geometry, threejs-textures, threejs-materials, threejs-shaders, threejs-interaction |
 
@@ -113,7 +117,7 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Demo route `/demos/type-world` renders the section and listed states
 - [x] Type-world files: `tsc --noEmit` and `eslint src/components/projects/scroll/type-world` pass (`npm run lint` for the whole lab still fails on pre-existing `pixel-info-card` `set-state-in-effect`)
 - [x] `npm run build` includes `/demos/type-world`
-- [x] `prefers-reduced-motion` / demo toggle: freeze gradient, no coast
+- [x] `prefers-reduced-motion` / demo toggle: freeze gradient, no coast, no auto yaw
 - [x] Component exported from `lab/src/components/projects/scroll/type-world/index.ts`
 - [x] Quote readable at ~0° and ~180°, not mirrored on the second side
 - [x] Vertical page scroll still works on touch; horizontal drag turns the sphere
@@ -127,6 +131,10 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Surface orbs: geodesic discs in the glyph shader (not extra meshes); light = black discs, dark = white discs; text inside an orb is one solid invert (light `#FFFFFF`, dark `#000000`) — no stroke/fill split or gradient mix
 - [x] Orb motion is seeded (same seed → same layout/feel); Randomize Seed reshuffles; count 1–12 (default 6)
 - [x] Fill viewport on touch: vertical drag pitches the sphere (no pan-y handoff); drag down follows the finger
+- [x] Idle auto yaw (~0.35 rad/s default); signed Auto Speed −2…+2 (0 = stopped); Auto Rotate toggle
+- [x] Pointer down (mouse/finger) immediately stops auto yaw; hold-without-move keeps the sphere still
+- [x] User inertia takes priority after release; autoplay blends in only after settle + Resume Delay (default 1s)
+- [x] Orbs stay mesh-local (world yaw and surface glide remain separate systems)
 - [x] No existing lab experiments changed (liquid-monochrome still renders)
 - [ ] Motion review: no open P0/P1 findings (not run as a separate Review mode)
 
@@ -140,4 +148,5 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - Product kind: **section** (portable `TypeWorld` + tokens). Hosts size it with `.type-world` height — full stage, corner, or nav slot.
 - No `rule/no-scale-zero` exception: there is no reveal from near-zero. `minScale` is only a numeric floor for grip/fit.
 - Pitch is a camera-right nod composed after yaw (`qPitch * qYaw`), so the back copy is not inverted. Drag down follows on both faces. Fill viewport sets `captureVerticalDrag` so touch is not limited to left/right.
-- Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field), Fill viewport, and Scale (rest-size multiplier; grip still stacks). Orbs / Orb Colors folders own the surface discs. Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask. Orbs are geodesic masks in that same material. In-orb glyphs resolve to one solid inverted RGB (alpha may soften; RGB does not mix).
+- Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field), Fill viewport, and Scale (rest-size multiplier; grip still stacks). Auto Motion folder owns Auto Rotate, signed Auto Speed, and Resume Delay (blend lambda stays internal). Orbs / Orb Colors folders own the surface discs. Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask. Orbs are geodesic masks in that same material. In-orb glyphs resolve to one solid inverted RGB (alpha may soften; RGB does not mix).
+- Auto yaw is a velocity term in the existing drag tick, not a second loop. Positive Auto Speed matches drag-right (front glyphs travel right). Theme does not change direction or speed.

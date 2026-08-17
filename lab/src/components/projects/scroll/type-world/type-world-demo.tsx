@@ -9,7 +9,12 @@ import {
   type TypeWorldDemoParams,
   type TypeWorldStageTheme,
 } from "./TypeWorldControls";
-import { TYPE_WORLD_DEFAULTS, TYPE_WORLD_ORB_DEFAULTS, TYPE_WORLD_QUOTE } from "./constants";
+import {
+  TYPE_WORLD_AUTO_DEFAULTS,
+  TYPE_WORLD_DEFAULTS,
+  TYPE_WORLD_ORB_DEFAULTS,
+  TYPE_WORLD_QUOTE,
+} from "./constants";
 import {
   useClientMounted,
   useIsNarrow,
@@ -60,6 +65,9 @@ const INITIAL_PARAMS: TypeWorldDemoParams = {
   dragSensitivity: TYPE_WORLD_DEFAULTS.dragSensitivity,
   inertia: TYPE_WORLD_DEFAULTS.inertia,
   pitchLimit: TYPE_WORLD_DEFAULTS.pitchLimit,
+  autoRotate: TYPE_WORLD_AUTO_DEFAULTS.enabled,
+  autoRotateSpeed: TYPE_WORLD_AUTO_DEFAULTS.speed,
+  autoResumeDelay: TYPE_WORLD_AUTO_DEFAULTS.resumeDelay,
   forceFallback: false,
   theme: "light",
   fillViewport: false,
@@ -101,6 +109,9 @@ function syncLeva(params: TypeWorldDemoParams) {
       dragSensitivity: params.dragSensitivity,
       inertia: params.inertia,
       pitchLimit: params.pitchLimit,
+      autoRotate: params.autoRotate,
+      autoRotateSpeed: params.autoRotateSpeed,
+      autoResumeDelay: params.autoResumeDelay,
       gradientColor1: params.gradientColor1,
       gradientColor2: params.gradientColor2,
       gradientColor3: params.gradientColor3,
@@ -216,6 +227,9 @@ export function TypeWorldDemo() {
         dragSensitivity={params.dragSensitivity}
         inertia={params.inertia}
         pitchLimit={params.pitchLimit}
+        autoRotate={params.autoRotate}
+        autoRotateSpeed={params.autoRotateSpeed}
+        autoResumeDelay={params.autoResumeDelay}
         reducedMotion={reducedMotion}
         forceFallback={params.forceFallback}
         captureVerticalDrag={fillViewport}

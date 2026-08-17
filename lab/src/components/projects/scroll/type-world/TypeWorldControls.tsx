@@ -4,6 +4,7 @@ import { useControls, folder, button, levaStore } from "leva";
 import { useEffect, useRef } from "react";
 import {
   MAX_SURFACE_ORBS,
+  TYPE_WORLD_AUTO_DEFAULTS,
   TYPE_WORLD_DEFAULTS,
   TYPE_WORLD_ORB_DEFAULTS,
   TYPE_WORLD_QUOTE,
@@ -17,6 +18,9 @@ export type TypeWorldDemoParams = {
   dragSensitivity: number;
   inertia: number;
   pitchLimit: number;
+  autoRotate: boolean;
+  autoRotateSpeed: number;
+  autoResumeDelay: number;
   forceFallback: boolean;
   theme: TypeWorldStageTheme;
   fillViewport: boolean;
@@ -68,6 +72,13 @@ function asTheme(value: unknown): TypeWorldStageTheme {
 function randomizeOrbSeed(): void {
   const next = Math.floor(Math.random() * 1_000_000);
   levaStore.set({ orbSeed: next }, false);
+}
+
+/** Positive speed matches drag-right (front glyphs travel right). */
+function formatAutoSpeed(value: number): string {
+  if (Math.abs(value) < 0.005) return "0.00 STOPPED";
+  const signed = `${value > 0 ? "+" : ""}${value.toFixed(2)}`;
+  return `${signed} ${value > 0 ? "CW" : "CCW"}`;
 }
 
 type TypeWorldControlsProps = {
@@ -133,6 +144,27 @@ export function TypeWorldControls({
         max: 28,
         step: 1,
         label: "Pitch",
+      },
+    }),
+    "Auto Motion": folder({
+      autoRotate: {
+        value: TYPE_WORLD_AUTO_DEFAULTS.enabled,
+        label: "Auto Rotate",
+      },
+      autoRotateSpeed: {
+        value: TYPE_WORLD_AUTO_DEFAULTS.speed,
+        min: -2,
+        max: 2,
+        step: 0.01,
+        label: "Auto Speed",
+        format: formatAutoSpeed,
+      },
+      autoResumeDelay: {
+        value: TYPE_WORLD_AUTO_DEFAULTS.resumeDelay,
+        min: 0,
+        max: 4,
+        step: 0.05,
+        label: "Resume Delay",
       },
     }),
     Gradient: folder({
@@ -300,6 +332,9 @@ export function TypeWorldControls({
       dragSensitivity: Number(v.dragSensitivity),
       inertia: Number(v.inertia),
       pitchLimit: Number(v.pitchLimit),
+      autoRotate: Boolean(v.autoRotate),
+      autoRotateSpeed: Number(v.autoRotateSpeed),
+      autoResumeDelay: Number(v.autoResumeDelay),
       gradientColor1: asHex(v.gradientColor1, TYPE_WORLD_DEFAULTS.gradientColor1),
       gradientColor2: asHex(v.gradientColor2, TYPE_WORLD_DEFAULTS.gradientColor2),
       gradientColor3: asHex(v.gradientColor3, TYPE_WORLD_DEFAULTS.gradientColor3),

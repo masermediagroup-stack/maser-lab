@@ -24,6 +24,22 @@ export const TYPE_WORLD_DEFAULTS = {
   scale: 1,
 } as const;
 
+/**
+ * Idle yaw on the globe axis. Speed is radians / second at influence = 1.
+ * Sign matches drag-right (positive) so the grabbed surface still follows.
+ */
+export const TYPE_WORLD_AUTO_DEFAULTS = {
+  enabled: true,
+  speed: 0.35,
+  resumeDelay: 1,
+} as const;
+
+/** User yaw/pitch below this (rad/s) may blend back into autoplay. */
+export const AUTO_ROTATE_SETTLE = 0.03;
+
+/** Exponential approach for autoInfluence 0→1 after settle + delay. */
+export const AUTO_ROTATE_BLEND = 2.4;
+
 /** Max orbs uploaded to the glyph shader. Keep modest for mobile GPUs. */
 export const MAX_SURFACE_ORBS = 12;
 

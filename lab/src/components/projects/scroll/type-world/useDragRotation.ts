@@ -7,7 +7,11 @@ import {
   type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from "react";
-import { TYPE_WORLD_DEFAULTS } from "./constants";
+import {
+  AUTO_ROTATE_BLEND,
+  AUTO_ROTATE_SETTLE,
+  TYPE_WORLD_DEFAULTS,
+} from "./constants";
 import { clamp, damp, inertiaDecay } from "./math";
 import type { DragRotationOptions } from "./types";
 
@@ -42,6 +46,7 @@ type PointerSession = {
 
 /**
  * Pointer → target rotation → damped actual rotation.
+ * Idle yaw (autoplay) lives in `tick` so grab/inertia/auto share one velocity model.
  * Default touch: vertical-first scrolls the page; horizontal-first turns the sphere.
  * `captureVertical`: any direction turns the sphere (fill-viewport / locked hosts).
  */
@@ -66,9 +71,21 @@ export function useDragRotation(
   const grabbingRef = useRef(false);
   const sessionRef = useRef<PointerSession | null>(null);
   const interactedRef = useRef(false);
+  const autoInfluenceRef = useRef(1);
+  /** 0 = not settled since last grab. >0 = timestamp when inertia dropped below settle. */
+  const settledAtRef = useRef(1);
 
   const idleTouchAction = useCallback(() => {
     return optionsRef.current.captureVertical ? "none" : "pan-y";
+  }, []);
+
+  const haltAuto = useCallback(() => {
+    autoInfluenceRef.current = 0;
+    yawTargetRef.current = yawRef.current;
+    pitchTargetRef.current = pitchRef.current;
+    velYawRef.current = 0;
+    velPitchRef.current = 0;
+    settledAtRef.current = 0;
   }, []);
 
   const markGrabbing = useCallback((node: HTMLElement, grabbing: boolean) => {
@@ -111,15 +128,14 @@ export function useDragRotation(
         startX: event.clientX,
         startY: event.clientY,
       };
-      velYawRef.current = 0;
-      velPitchRef.current = 0;
+      haltAuto();
 
       if (isMouse) {
         node.setPointerCapture(event.pointerId);
         markGrabbing(node, true);
       }
     },
-    [markGrabbing, surfaceRef],
+    [haltAuto, markGrabbing, surfaceRef],
   );
 
   const onPointerMove = useCallback(
@@ -206,8 +222,12 @@ export function useDragRotation(
     const opts = optionsRef.current;
     const pitchLimit = opts.pitchLimit * DEG;
     const grabbing = grabbingRef.current;
+    const held = sessionRef.current !== null;
+    const wantsAuto = opts.autoRotate && !opts.reducedMotion;
 
-    if (!grabbing && !opts.reducedMotion) {
+    if (held) {
+      autoInfluenceRef.current = 0;
+    } else if (!opts.reducedMotion) {
       const decay = Math.exp(-inertiaDecay(opts.inertia) * dt);
       velYawRef.current *= decay;
       velPitchRef.current *= decay;
@@ -219,9 +239,40 @@ export function useDragRotation(
         -pitchLimit,
         pitchLimit,
       );
-    } else if (opts.reducedMotion && !grabbing) {
+
+      const settled =
+        Math.abs(velYawRef.current) < AUTO_ROTATE_SETTLE &&
+        Math.abs(velPitchRef.current) < AUTO_ROTATE_SETTLE;
+      if (!settled) {
+        settledAtRef.current = 0;
+      } else if (settledAtRef.current === 0) {
+        settledAtRef.current = performance.now();
+      }
+
+      const delayMs = Math.max(0, opts.autoResumeDelay) * 1000;
+      const waited =
+        settledAtRef.current > 0 &&
+        performance.now() - settledAtRef.current >= delayMs;
+
+      if (wantsAuto && settled && waited) {
+        autoInfluenceRef.current = damp(
+          autoInfluenceRef.current,
+          1,
+          AUTO_ROTATE_BLEND,
+          dt,
+        );
+      } else if (!wantsAuto) {
+        autoInfluenceRef.current = 0;
+      }
+    } else {
       velYawRef.current = 0;
       velPitchRef.current = 0;
+      autoInfluenceRef.current = 0;
+    }
+
+    if (!held && wantsAuto && autoInfluenceRef.current > 0) {
+      yawTargetRef.current +=
+        opts.autoRotateSpeed * autoInfluenceRef.current * dt;
     }
 
     const follow = grabbing ? 18 : 11;
