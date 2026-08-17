@@ -26,7 +26,7 @@ If lab chrome is removed: cream field, royal-blue Geist quote, empty space. No o
 ### First viewport contents (max)
 
 - Brand: the quote itself
-- Headline: `the world is designed. / you get to design / what comes next.`
+- Headline: `Build worlds / break rules / stay curious`
 - Support: optional microcopy `drag to turn the world` (dismisses after first drag)
 - CTA: none
 - Visual: typographic sphere (glyphs only)

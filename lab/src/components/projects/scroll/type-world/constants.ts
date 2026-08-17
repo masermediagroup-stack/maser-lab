@@ -1,7 +1,7 @@
 export const TYPE_WORLD_QUOTE = [
-  "the world is designed.",
-  "you get to design",
-  "what comes next.",
+  "Build worlds",
+  "break rules",
+  "stay curious",
 ].join("\n");
 
 export const TYPE_WORLD_DEFAULTS = {
