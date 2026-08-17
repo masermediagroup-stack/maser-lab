@@ -59,6 +59,8 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 - [x] hint dismissed after first successful drag
 - [x] prefers-reduced-motion (gradient freeze, inertia off)
 - [x] WebGL unavailable (static serif quote)
+- [x] demo light / dark stage (Leva Appearance → Mode)
+- [x] demo fill viewport (Leva Appearance → Fill viewport; Escape exits)
 
 ## Motion decisions
 
@@ -86,7 +88,7 @@ Resting frame reads as flat editorial type as soon as the canvas is in view. ~90
 
 ## Research summary
 
-Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the canvas is a static white mask (never repainted for motion); a 3-stop cosine palette travels in UV via `uPhase` in `useFrame`. No lights, no PBR, no bloom. Glyphs define the silhouette via alpha discard + `FrontSide`. Two identical quote compositions packed into the left/right halves of a 2:1 texture map to 180° longitude each. Default SphereGeometry UV places u=0.25 on +Z, so the first copy faces a camera on +Z without a UV flip; the second copy at u=0.75 becomes readable after yaw π and is not mirrored because we still sample the outside of the mesh. Low FOV (~24°) and origin-centered framing keep the rest state near-editorial. Sphere fit targets ~86% vw on mobile / ~68% vw on desktop. R3F already exists in the lab (kinetic-perspective-bars); do not add a second renderer stack.
+Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the canvas is a static white mask (never repainted for motion); a 3-stop cosine palette travels in UV via `uPhase` in `useFrame`. No lights, no PBR, no bloom. Glyphs define the silhouette via alpha discard + `FrontSide`. Two identical quote compositions packed into the left/right halves of a 2:1 texture map to 180° longitude each. Default SphereGeometry UV places u=0.25 on +Z, so the first copy faces a camera on +Z without a UV flip; the second copy at u=0.75 becomes readable after yaw π and is not mirrored because we still sample the outside of the mesh. Low FOV (~24°) and origin-centered framing keep the rest state near-editorial. Sphere fit targets ~86% vw on mobile / ~40% vw on desktop. R3F already exists in the lab (kinetic-perspective-bars); do not add a second renderer stack.
 
 ## Skills loaded
 
@@ -94,6 +96,7 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - `maser-lab-threejs` (Research + Implementation + Interaction UX + Performance)
 - `maser-lab-project-scaffold`
 - `maser-lab-demo-chrome`
+- `web-design-guidelines` (SR quote, reduced motion, dark-stage contrast)
 - `maser-lab-export` (product-only barrel)
 - `maser-lab-token-system`
 - `maser-lab-section-shape` (brief fields)
@@ -116,6 +119,8 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Leva Gradient folder: Color 1–3, Speed, Angle, Spread, Reverse — live, no remount
 - [x] Gradient continues while the sphere rotates; both 0° and 180° copies share one UV material
 - [x] Sphere is at rest scale on mount (no scroll inflate); host height sizes the canvas
+- [x] Desktop rest scale ~40% of stage width (mobile still ~86%)
+- [x] Leva Appearance: Light/Dark stage (page + sphere field + panel), Fill viewport (no page scroll; Escape exits)
 - [x] No existing lab experiments changed (liquid-monochrome still renders)
 - [ ] Motion review: no open P0/P1 findings (not run as a separate Review mode)
 
@@ -129,4 +134,4 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - Product kind: **section** (portable `TypeWorld` + tokens). Hosts size it with `.type-world` height — full stage, corner, or nav slot.
 - No `rule/no-scale-zero` exception: there is no reveal from near-zero. `minScale` is only a numeric floor for grip/fit.
 - Pitch follows the same grab model as yaw: drag down moves the grabbed surface down.
-- Demo chrome: editorial bar + Leva (same floating panel language as Kinetic Bars). Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask.
+- Demo chrome: editorial bar + Leva. Appearance folder owns Light/Dark (stage + Leva theme + `TypeWorld` field) and Fill viewport. Reduced-motion control still uses `aria-label="Toggle reduced motion"`. Glyph color is a 3-stop UV shader gradient; canvas stays a static alpha mask.

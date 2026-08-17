@@ -4,12 +4,16 @@ import { useControls, folder, button } from "leva";
 import { useEffect, useRef } from "react";
 import { TYPE_WORLD_DEFAULTS, TYPE_WORLD_QUOTE } from "./constants";
 
+export type TypeWorldStageTheme = "light" | "dark";
+
 export type TypeWorldDemoParams = {
   quote: string;
   dragSensitivity: number;
   inertia: number;
   pitchLimit: number;
   forceFallback: boolean;
+  theme: TypeWorldStageTheme;
+  fillViewport: boolean;
   gradientColor1: string;
   gradientColor2: string;
   gradientColor3: string;
@@ -33,6 +37,10 @@ function asHex(value: unknown, fallback: string): string {
   return fallback;
 }
 
+function asTheme(value: unknown): TypeWorldStageTheme {
+  return value === "dark" ? "dark" : "light";
+}
+
 type TypeWorldControlsProps = {
   onChange: (patch: Partial<TypeWorldDemoParams>) => void;
   onReset: () => void;
@@ -47,6 +55,20 @@ export function TypeWorldControls({
   onReset,
 }: TypeWorldControlsProps) {
   const values = useControls({
+    Appearance: folder({
+      theme: {
+        value: "light" as TypeWorldStageTheme,
+        options: {
+          Light: "light",
+          Dark: "dark",
+        },
+        label: "Mode",
+      },
+      fillViewport: {
+        value: false,
+        label: "Fill viewport",
+      },
+    }),
     Typography: folder({
       quote: { value: TYPE_WORLD_QUOTE, rows: true },
       forceFallback: {
@@ -133,6 +155,8 @@ export function TypeWorldControls({
     const patch: Partial<TypeWorldDemoParams> = {
       quote: String(v.quote ?? TYPE_WORLD_QUOTE),
       forceFallback: Boolean(v.forceFallback),
+      theme: asTheme(v.theme),
+      fillViewport: Boolean(v.fillViewport),
       dragSensitivity: Number(v.dragSensitivity),
       inertia: Number(v.inertia),
       pitchLimit: Number(v.pitchLimit),

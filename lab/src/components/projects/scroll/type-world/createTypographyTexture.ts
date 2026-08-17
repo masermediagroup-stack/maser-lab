@@ -50,9 +50,8 @@ function drawQuotePanel(
   lines: string[],
   family: string,
 ): void {
-  // Facing cap: ~72% of 180° ≈ 130° of longitude. With an ~86% width
-  // sphere this reads as a commanding editorial block (~75–80% vw on
-  // mobile) without wrapping the rest quote off the silhouette.
+  // Facing cap: ~72% of 180° ≈ 130° of longitude. Sphere fit (not this
+  // atlas occupancy) is what sizes the quote on desktop vs mobile.
   const maxWidth = width * 0.72;
   const maxHeight = height * 0.42;
   const size = fitFontSize(ctx, lines, family, maxWidth, maxHeight);

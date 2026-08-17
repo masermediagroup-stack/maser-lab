@@ -1,12 +1,30 @@
 /* Demo chrome only — not required by the product section. */
 
 .type-world-demo {
+  --type-world-demo-bg: #fafaf7;
   --type-world-demo-ink: #1047c9;
-  --type-world-demo-muted: color-mix(in srgb, #1047c9 42%, #fafaf7);
-  --type-world-demo-line: color-mix(in srgb, #1047c9 14%, #fafaf7);
+  --type-world-demo-muted: color-mix(in srgb, var(--type-world-demo-ink) 42%, var(--type-world-demo-bg));
+  --type-world-demo-line: color-mix(in srgb, var(--type-world-demo-ink) 14%, var(--type-world-demo-bg));
   min-height: 100svh;
-  background: #fafaf7;
-  color: #1047c9;
+  background: var(--type-world-demo-bg);
+  color: var(--type-world-demo-ink);
+}
+
+.type-world-demo[data-theme="dark"] {
+  --type-world-demo-bg: #0c0c0e;
+  --type-world-demo-ink: #fafaf7;
+}
+
+.type-world-demo[data-stage="fill"] {
+  height: 100svh;
+  min-height: 100svh;
+  overflow: hidden;
+}
+
+.type-world-demo[data-stage="fill"] .type-world-demo__bar,
+.type-world-demo[data-stage="fill"] .type-world-demo__lead,
+.type-world-demo[data-stage="fill"] .type-world-demo__after {
+  display: none;
 }
 
 .type-world-demo__bar {
@@ -68,6 +86,10 @@
 
 .type-world-demo .type-world {
   height: 100svh;
+}
+
+.type-world-demo[data-theme="dark"] .type-world__hint {
+  color: color-mix(in srgb, #fafaf7 52%, #0c0c0e);
 }
 
 .type-world-demo__lead,

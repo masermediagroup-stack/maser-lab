@@ -39,15 +39,15 @@ export const SPHERE_SEGMENTS = {
 };
 
 /**
- * Sphere diameter vs the R3F viewport. Height caps are intentionally loose
- * so width is the binding constraint; poles are empty and may leave the
- * stage as long as the facing quote stays inside.
+ * Sphere diameter vs the R3F viewport. Desktop stays an editorial object
+ * (~40% of stage width) so the quote is not a billboard. Mobile still
+ * fills most of the width. Height caps keep poles from dominating.
  */
 export const SPHERE_FIT = {
   mobileWidth: 0.86,
-  desktopWidth: 0.68,
+  desktopWidth: 0.4,
   mobileHeight: 0.94,
-  desktopHeight: 1.35,
+  desktopHeight: 0.52,
 } as const;
 
 /** Stable R3F camera — new literals reconfigure the canvas. */
