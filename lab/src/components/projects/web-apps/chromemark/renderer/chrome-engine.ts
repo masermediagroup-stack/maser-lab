@@ -27,6 +27,12 @@ import {
 } from "./create-chrome-material";
 import { createLogoGeometry, disposeLogoGroup } from "./create-logo-geometry";
 import { createChromeRenderer } from "./create-renderer";
+import {
+  EXPORT_GEOMETRY_QUALITY,
+  INTERACTIVE_GEOMETRY_QUALITY,
+  tessellateGeometry,
+  type GeometryQualityId,
+} from "./geometry-quality";
 import { createStudioEnvironment } from "./create-studio-environment";
 import { createProductCamera, applyCameraSettings, fitLogoToCamera } from "./fit-camera";
 import { loadSvgLogo } from "./load-svg-logo";
@@ -73,6 +79,7 @@ export class ChromeEngine {
   private pinchDistance0 = 0;
   private geomKey = "";
   private envKey = "";
+  private geometryQuality: GeometryQualityId = INTERACTIVE_GEOMETRY_QUALITY;
   private container: HTMLElement | null = null;
   private resizeObserver: ResizeObserver | null = null;
 
@@ -151,6 +158,7 @@ export class ChromeEngine {
     const geomKey = JSON.stringify({
       g: next.geometry,
       t: next.trace,
+      q: this.geometryQuality,
     });
     if (this.shapes && geomKey !== this.geomKey) {
       if (this.rasterBlob && rasterTraceChanged(prev.trace, next.trace)) {
@@ -280,6 +288,18 @@ export class ChromeEngine {
     this.orientation.quaternion.copy(q);
   }
 
+  async withExportGeometry<T>(fn: () => Promise<T>): Promise<T> {
+    const previous = this.geometryQuality;
+    this.geometryQuality = EXPORT_GEOMETRY_QUALITY;
+    this.rebuildGeometry();
+    try {
+      return await fn();
+    } finally {
+      this.geometryQuality = previous;
+      this.rebuildGeometry();
+    }
+  }
+
   snapshotSpin(): { quaternion: Quaternion; spinAngle: number } {
     return {
       quaternion: this.orientation.quaternion.clone(),
@@ -299,13 +319,14 @@ export class ChromeEngine {
     disposeLogoGroup(this.logoGroup);
     this.logoGroup = createLogoGeometry(
       this.shapes,
-      this.settings.geometry,
+      tessellateGeometry(this.settings.geometry, this.geometryQuality),
       this.materials,
     );
     this.pose.add(this.logoGroup);
     this.geomKey = JSON.stringify({
       g: this.settings.geometry,
       t: this.settings.trace,
+      q: this.geometryQuality,
     });
   }
 

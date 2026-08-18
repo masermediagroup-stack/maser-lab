@@ -1,4 +1,4 @@
-import { Color, MeshPhysicalMaterial } from "three";
+import { Color, FrontSide, MeshPhysicalMaterial } from "three";
 import type { MaterialSettings } from "../types";
 
 export type ChromeMaterials = {
@@ -11,6 +11,8 @@ function sharedPhysical(settings: MaterialSettings, roughness: number) {
     color: new Color(settings.tint),
     metalness: settings.metalness,
     roughness,
+    flatShading: false,
+    side: FrontSide,
     clearcoat: 0,
     clearcoatRoughness: 0.04,
     ior: 1.5,
@@ -49,6 +51,7 @@ export function applyChromeMaterials(
     material.roughness = roughness;
     material.anisotropy = settings.brushedAmount;
     material.anisotropyRotation = rotation;
+    material.flatShading = false;
     material.needsUpdate = true;
   }
 }

@@ -130,13 +130,15 @@ export function ChromeMarkApp({ forceReducedMotion = false }: ChromeMarkAppProps
     if (!engine || !logo) return;
     setError(null);
     try {
-      const blob = await exportStillPng({
-        renderer: engine.renderer,
-        scene: engine.scene,
-        camera: engine.camera,
-        width: settings.export.width,
-        height: settings.export.height,
-      });
+      const blob = await engine.withExportGeometry(() =>
+        exportStillPng({
+          renderer: engine.renderer,
+          scene: engine.scene,
+          camera: engine.camera,
+          width: settings.export.width,
+          height: settings.export.height,
+        }),
+      );
       downloadBlob(blob, "chromemark-logo.png");
     } catch (err) {
       handleError(err);
@@ -157,23 +159,25 @@ export function ChromeMarkApp({ forceReducedMotion = false }: ChromeMarkAppProps
     });
     try {
       const start = engine.getOrientation();
-      const result = await exportPngSequence({
-        renderer: engine.renderer,
-        scene: engine.scene,
-        camera: engine.camera,
-        settings,
-        start,
-        signal: abort.signal,
-        setOrientation: (q) => engine.setOrientation(q),
-        onProgress: ({ current, total }) => {
-          setExportState((prev) => ({
-            ...prev,
-            current,
-            total,
-            message: `Rendering ${current} / ${total} frames`,
-          }));
-        },
-      });
+      const result = await engine.withExportGeometry(() =>
+        exportPngSequence({
+          renderer: engine.renderer,
+          scene: engine.scene,
+          camera: engine.camera,
+          settings,
+          start,
+          signal: abort.signal,
+          setOrientation: (q) => engine.setOrientation(q),
+          onProgress: ({ current, total }) => {
+            setExportState((prev) => ({
+              ...prev,
+              current,
+              total,
+              message: `Rendering ${current} / ${total} frames`,
+            }));
+          },
+        }),
+      );
       const blob = await zipSequenceFiles(result.files, result.settingsJson);
       setExportState({
         open: true,
@@ -215,23 +219,25 @@ export function ChromeMarkApp({ forceReducedMotion = false }: ChromeMarkAppProps
     try {
       const start = engine.getOrientation();
       const frames: Blob[] = [];
-      const result = await exportPngSequence({
-        renderer: engine.renderer,
-        scene: engine.scene,
-        camera: engine.camera,
-        settings,
-        start,
-        signal: abort.signal,
-        setOrientation: (q) => engine.setOrientation(q),
-        onProgress: ({ current, total: t }) => {
-          setExportState((prev) => ({
-            ...prev,
-            current,
-            total: t,
-            message: `Frame ${current} / ${t}`,
-          }));
-        },
-      });
+      const result = await engine.withExportGeometry(() =>
+        exportPngSequence({
+          renderer: engine.renderer,
+          scene: engine.scene,
+          camera: engine.camera,
+          settings,
+          start,
+          signal: abort.signal,
+          setOrientation: (q) => engine.setOrientation(q),
+          onProgress: ({ current, total: t }) => {
+            setExportState((prev) => ({
+              ...prev,
+              current,
+              total: t,
+              message: `Frame ${current} / ${t}`,
+            }));
+          },
+        }),
+      );
       for (const bytes of Object.values(result.files)) {
         frames.push(new Blob([bytes.buffer as ArrayBuffer], { type: "image/png" }));
       }
@@ -319,7 +325,7 @@ export function ChromeMarkApp({ forceReducedMotion = false }: ChromeMarkAppProps
           <SheetHeader>
             <SheetTitle>ChromeMark controls</SheetTitle>
           </SheetHeader>
-          <div className="chromemark-panel" style={{ border: 0 }}>
+          <div className="chromemark-panel chromemark-sheet-panel">
             {panel}
           </div>
         </SheetContent>

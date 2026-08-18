@@ -26,7 +26,7 @@ export async function exportStillPng(options: {
     );
   }
 
-  const samples = Math.min(4, renderer.capabilities.maxSamples || 0);
+  const samples = Math.min(8, renderer.capabilities.maxSamples || 0);
   const target = new WebGLRenderTarget(width, height, {
     format: RGBAFormat,
     type: UnsignedByteType,

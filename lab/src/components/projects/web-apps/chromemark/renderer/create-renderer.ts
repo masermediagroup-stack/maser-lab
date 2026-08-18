@@ -17,7 +17,7 @@ export function createChromeRenderer(canvas: HTMLCanvasElement): WebGLRenderer {
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
   renderer.setClearColor(0x000000, 0);
-  renderer.setPixelRatio(1);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.autoClear = true;
   return renderer;
 }

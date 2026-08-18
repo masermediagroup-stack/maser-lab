@@ -59,8 +59,8 @@ export function GeometryControls({
         <NumberSlider
           label="Bevel segments"
           value={geometry.bevelSegments}
-          min={1}
-          max={12}
+          min={4}
+          max={16}
           step={1}
           format={(v) => String(Math.round(v))}
           onChange={(bevelSegments) =>
@@ -70,8 +70,8 @@ export function GeometryControls({
         <NumberSlider
           label="Curve detail"
           value={geometry.curveDetail}
-          min={4}
-          max={32}
+          min={16}
+          max={128}
           step={1}
           format={(v) => String(Math.round(v))}
           onChange={(curveDetail) =>

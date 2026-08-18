@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   DemoControlBar,
@@ -20,9 +20,25 @@ type ChromeMarkDemoProps = {
 export function ChromeMarkDemo({ minimal = false }: ChromeMarkDemoProps) {
   const [forceReducedMotion, setForceReducedMotion] = useState(false);
 
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevHtmlOverscroll = html.style.overscrollBehavior;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    html.style.overscrollBehavior = "none";
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      html.style.overscrollBehavior = prevHtmlOverscroll;
+    };
+  }, []);
+
   return (
     <div
-      className="maser-lab chromemark min-h-screen bg-[#0a0a0a] text-[#f3f3f3]"
+      className="maser-lab chromemark h-dvh max-h-dvh overflow-hidden bg-[#0a0a0a] text-[#f3f3f3]"
       data-reduced-motion={forceReducedMotion ? "true" : undefined}
     >
       {!minimal ? (

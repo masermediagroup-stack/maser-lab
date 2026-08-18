@@ -206,7 +206,7 @@ export async function tracePngLogo(
 
   const srcW = bitmap.width;
   const srcH = bitmap.height;
-  const maxDim = Math.round(lerp(160, 720, settings.traceDetail));
+  const maxDim = Math.round(lerp(280, 1024, settings.traceDetail));
   const scale = Math.min(1, maxDim / Math.max(srcW, srcH));
   const width = Math.max(8, Math.round(srcW * scale));
   const height = Math.max(8, Math.round(srcH * scale));
@@ -243,7 +243,7 @@ export async function tracePngLogo(
   }
 
   const rawRings = marchingSquares(mask, width, height);
-  const epsilon = lerp(1.8, 0.25, settings.traceDetail);
+  const epsilon = lerp(1.1, 0.12, settings.traceDetail);
   const smoothPasses = Math.round(settings.smoothing * 3);
   const rings = rawRings
     .map((ring) => {

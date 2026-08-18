@@ -4,12 +4,31 @@ import {
   Group,
   Mesh,
   Vector3,
+  type BufferGeometry,
   type ExtrudeGeometryOptions,
 } from "three";
 import type { Shape } from "three";
+import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 import type { ChromeMaterials } from "./create-chrome-material";
+import { CREASE_ANGLE_RAD } from "./geometry-quality";
 import { measureShapes } from "./normalize-logo";
 import { LogoLoadError, type GeometrySettings } from "../types";
+
+function withCreasedNormals(geometry: ExtrudeGeometry): BufferGeometry {
+  const groups = geometry.groups.map((group) => ({
+    start: group.start,
+    count: group.count,
+    materialIndex: group.materialIndex,
+  }));
+  const creased = toCreasedNormals(geometry, CREASE_ANGLE_RAD);
+  if (creased !== geometry) geometry.dispose();
+  if (creased.groups.length === 0) {
+    for (const group of groups) {
+      creased.addGroup(group.start, group.count, group.materialIndex);
+    }
+  }
+  return creased;
+}
 
 export function createLogoGeometry(
   shapes: Shape[],
@@ -36,8 +55,8 @@ export function createLogoGeometry(
 
   const inner = new Group();
   for (const shape of shapes) {
-    const geometry = new ExtrudeGeometry(shape, options);
-    geometry.computeVertexNormals();
+    const extruded = new ExtrudeGeometry(shape, options);
+    const geometry = withCreasedNormals(extruded);
     const mesh = new Mesh(geometry, [materials.lids, materials.sides]);
     mesh.castShadow = false;
     mesh.receiveShadow = false;

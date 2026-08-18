@@ -16,8 +16,8 @@ export const GEOMETRY_DEFAULTS: GeometrySettings = {
   bevel: true,
   bevelSize: 0.032,
   bevelThickness: 0.04,
-  bevelSegments: 6,
-  curveDetail: 12,
+  bevelSegments: 10,
+  curveDetail: 64,
 };
 
 export const TRACE_DEFAULTS: TraceSettings = {
