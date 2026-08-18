@@ -60,6 +60,7 @@ export function TypeWorld({
   orbs: orbsProp,
   autoRotate = TYPE_WORLD_AUTO_DEFAULTS.enabled,
   autoRotateSpeed = TYPE_WORLD_AUTO_DEFAULTS.speed,
+  autoRotateDirection = TYPE_WORLD_AUTO_DEFAULTS.direction,
   autoResumeDelay = TYPE_WORLD_AUTO_DEFAULTS.resumeDelay,
   className,
 }: TypeWorldProps) {
@@ -149,6 +150,7 @@ export function TypeWorld({
     captureVertical: captureVerticalDrag,
     autoRotate,
     autoRotateSpeed,
+    autoRotateDirection,
     autoResumeDelay,
     onInteract,
   });

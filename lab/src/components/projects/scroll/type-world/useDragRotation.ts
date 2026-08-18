@@ -271,8 +271,11 @@ export function useDragRotation(
     }
 
     if (!held && wantsAuto && autoInfluenceRef.current > 0) {
-      yawTargetRef.current +=
-        opts.autoRotateSpeed * autoInfluenceRef.current * dt;
+      const signedSpeed =
+        opts.autoRotateDirection === "ccw"
+          ? -opts.autoRotateSpeed
+          : opts.autoRotateSpeed;
+      yawTargetRef.current += signedSpeed * autoInfluenceRef.current * dt;
     }
 
     const follow = grabbing ? 18 : 11;

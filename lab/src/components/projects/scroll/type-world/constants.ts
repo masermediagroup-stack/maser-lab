@@ -30,7 +30,9 @@ export const TYPE_WORLD_DEFAULTS = {
  */
 export const TYPE_WORLD_AUTO_DEFAULTS = {
   enabled: true,
+  /** Unsigned magnitude in rad/s; sign comes from `direction`. */
   speed: 0.35,
+  direction: "cw" as const,
   resumeDelay: 1,
 } as const;
 

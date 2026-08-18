@@ -67,6 +67,7 @@ const INITIAL_PARAMS: TypeWorldDemoParams = {
   pitchLimit: TYPE_WORLD_DEFAULTS.pitchLimit,
   autoRotate: TYPE_WORLD_AUTO_DEFAULTS.enabled,
   autoRotateSpeed: TYPE_WORLD_AUTO_DEFAULTS.speed,
+  autoRotateDirection: TYPE_WORLD_AUTO_DEFAULTS.direction,
   autoResumeDelay: TYPE_WORLD_AUTO_DEFAULTS.resumeDelay,
   forceFallback: false,
   theme: "light",
@@ -110,6 +111,7 @@ function syncLeva(params: TypeWorldDemoParams) {
       inertia: params.inertia,
       pitchLimit: params.pitchLimit,
       autoRotate: params.autoRotate,
+      autoRotateDirection: params.autoRotateDirection,
       autoRotateSpeed: params.autoRotateSpeed,
       autoResumeDelay: params.autoResumeDelay,
       gradientColor1: params.gradientColor1,
@@ -228,6 +230,7 @@ export function TypeWorldDemo() {
         inertia={params.inertia}
         pitchLimit={params.pitchLimit}
         autoRotate={params.autoRotate}
+        autoRotateDirection={params.autoRotateDirection}
         autoRotateSpeed={params.autoRotateSpeed}
         autoResumeDelay={params.autoResumeDelay}
         reducedMotion={reducedMotion}

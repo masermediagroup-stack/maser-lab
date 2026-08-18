@@ -9,7 +9,11 @@ import {
   TYPE_WORLD_ORB_DEFAULTS,
   TYPE_WORLD_QUOTE,
 } from "./constants";
-import type { TypeWorldStageTheme } from "./types";
+import {
+  pickRandomTypeWorldPalette,
+  paletteToPatch,
+} from "./colorPalettes";
+import type { TypeWorldAutoRotateDirection, TypeWorldStageTheme } from "./types";
 
 export type { TypeWorldStageTheme };
 
@@ -20,6 +24,7 @@ export type TypeWorldDemoParams = {
   pitchLimit: number;
   autoRotate: boolean;
   autoRotateSpeed: number;
+  autoRotateDirection: TypeWorldAutoRotateDirection;
   autoResumeDelay: number;
   forceFallback: boolean;
   theme: TypeWorldStageTheme;
@@ -69,16 +74,23 @@ function asTheme(value: unknown): TypeWorldStageTheme {
   return value === "dark" ? "dark" : "light";
 }
 
+function asAutoDirection(value: unknown): TypeWorldAutoRotateDirection {
+  return value === "ccw" ? "ccw" : "cw";
+}
+
 function randomizeOrbSeed(): void {
   const next = Math.floor(Math.random() * 1_000_000);
   levaStore.set({ orbSeed: next }, false);
 }
 
-/** Positive speed matches drag-right (front glyphs travel right). */
+function randomizeColorPalette(): void {
+  const patch = paletteToPatch(pickRandomTypeWorldPalette());
+  levaStore.set(patch, false);
+}
+
 function formatAutoSpeed(value: number): string {
-  if (Math.abs(value) < 0.005) return "0.00 STOPPED";
-  const signed = `${value > 0 ? "+" : ""}${value.toFixed(2)}`;
-  return `${signed} ${value > 0 ? "CW" : "CCW"}`;
+  if (value < 0.005) return "0.00 stopped";
+  return value.toFixed(2);
 }
 
 type TypeWorldControlsProps = {
@@ -151,9 +163,17 @@ export function TypeWorldControls({
         value: TYPE_WORLD_AUTO_DEFAULTS.enabled,
         label: "Auto Rotate",
       },
+      autoRotateDirection: {
+        value: TYPE_WORLD_AUTO_DEFAULTS.direction,
+        options: {
+          CW: "cw",
+          CCW: "ccw",
+        },
+        label: "Direction",
+      },
       autoRotateSpeed: {
         value: TYPE_WORLD_AUTO_DEFAULTS.speed,
-        min: -2,
+        min: 0,
         max: 2,
         step: 0.01,
         label: "Auto Speed",
@@ -168,6 +188,7 @@ export function TypeWorldControls({
       },
     }),
     Gradient: folder({
+      "Randomize Colors": button(randomizeColorPalette),
       gradientColor1: {
         value: TYPE_WORLD_DEFAULTS.gradientColor1,
         label: "Color 1",
@@ -333,7 +354,8 @@ export function TypeWorldControls({
       inertia: Number(v.inertia),
       pitchLimit: Number(v.pitchLimit),
       autoRotate: Boolean(v.autoRotate),
-      autoRotateSpeed: Number(v.autoRotateSpeed),
+      autoRotateDirection: asAutoDirection(v.autoRotateDirection),
+      autoRotateSpeed: Math.abs(Number(v.autoRotateSpeed)),
       autoResumeDelay: Number(v.autoResumeDelay),
       gradientColor1: asHex(v.gradientColor1, TYPE_WORLD_DEFAULTS.gradientColor1),
       gradientColor2: asHex(v.gradientColor2, TYPE_WORLD_DEFAULTS.gradientColor2),

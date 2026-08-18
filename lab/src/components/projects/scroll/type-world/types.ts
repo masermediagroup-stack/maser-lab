@@ -10,6 +10,9 @@ export type TypeWorldGradient = {
 
 export type TypeWorldStageTheme = "light" | "dark";
 
+/** Auto yaw direction when speed magnitude is non-zero. CW matches drag-right. */
+export type TypeWorldAutoRotateDirection = "cw" | "ccw";
+
 /** Surface discs that glide on the implied sphere (shader-masked, not extra meshes). */
 export type TypeWorldOrbs = {
   enabled: boolean;
@@ -90,8 +93,10 @@ export type TypeWorldProps = {
    * Forced off when `reducedMotion` is on.
    */
   autoRotate?: boolean;
-  /** Signed yaw speed in rad/s. 0 = stopped. ±2 = fast. */
+  /** Yaw speed magnitude in rad/s (0–2). Sign from `autoRotateDirection`. */
   autoRotateSpeed?: number;
+  /** Clockwise vs counter-clockwise idle yaw. */
+  autoRotateDirection?: TypeWorldAutoRotateDirection;
   /** Seconds after release (and inertia settle) before autoplay blends in. */
   autoResumeDelay?: number;
   className?: string;
@@ -114,6 +119,7 @@ export type DragRotationOptions = {
   captureVertical: boolean;
   autoRotate: boolean;
   autoRotateSpeed: number;
+  autoRotateDirection: TypeWorldAutoRotateDirection;
   autoResumeDelay: number;
   onInteract?: () => void;
 };
