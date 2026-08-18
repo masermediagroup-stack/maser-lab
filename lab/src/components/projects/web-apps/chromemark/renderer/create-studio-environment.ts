@@ -34,13 +34,17 @@ function addCard(
   disposables.push(geometry, material);
 }
 
+function gray(value: number): Color {
+  return new Color().setRGB(value, value, value * 1.01);
+}
+
 function disposeList(items: Array<{ dispose: () => void }>): void {
   for (const item of items) item.dispose();
 }
 
 /**
- * Product-studio reflection rig. Cards are HDR (color > 1) so chrome gets
- * clipped white streaks and near-black blockers. Never added to the main scene.
+ * Product-studio reflection rig. Cards are mildly HDR so chrome keeps
+ * white streaks without collapsing into binary black/white.
  */
 export function createStudioEnvironment(
   pmrem: PMREMGenerator,
@@ -48,80 +52,98 @@ export function createStudioEnvironment(
   previous?: WebGLRenderTarget | null,
 ): { target: WebGLRenderTarget; texture: Texture } {
   const envScene = new Scene();
-  envScene.background = new Color().setScalar(0.045);
+  envScene.background = gray(0.16);
   const disposables: Array<{ dispose: () => void }> = [];
 
-  const keyRadius = 4.9;
+  const keyRadius = 5.1;
   const keyRad = (settings.keyAngle * Math.PI) / 180;
   const keyPos = new Vector3(
     -Math.sin(keyRad) * keyRadius,
-    1.35,
+    1.55,
     Math.cos(keyRad) * keyRadius,
   );
 
   addCard(envScene, disposables, {
+    width: 11.5,
+    height: 8.5,
+    color: gray(0.58),
+    position: new Vector3(-2.4, 1.1, 5.4),
+  });
+  addCard(envScene, disposables, {
+    width: 8.2,
+    height: 7.4,
+    color: gray(0.38),
+    position: new Vector3(5.1, 0.7, 2.8),
+  });
+  addCard(envScene, disposables, {
+    width: 9.4,
+    height: 7.8,
+    color: gray(0.24),
+    position: new Vector3(1.6, 0.9, -5.2),
+  });
+  addCard(envScene, disposables, {
+    width: 4.2,
+    height: 4.2,
+    color: gray(0.5),
+    position: new Vector3(0.15, 0.35, 3.35),
+  });
+
+  addCard(envScene, disposables, {
     width: settings.keyWidth,
-    height: 7.2,
-    color: new Color().setRGB(9, 9, 9),
+    height: 6.8,
+    color: gray(4.2),
     position: keyPos,
   });
 
   addCard(envScene, disposables, {
-    width: 3.4,
-    height: 6.2,
-    color: new Color().setRGB(0.55, 0.55, 0.58),
-    position: new Vector3(4.4, 0.55, 2.6),
+    width: 9.2,
+    height: 4.8,
+    color: gray(2.05),
+    position: new Vector3(-0.4, 6.2, 1.3),
   });
-
   addCard(envScene, disposables, {
-    width: 8.5,
-    height: 4.4,
-    color: new Color().setRGB(3.4, 3.4, 3.5),
-    position: new Vector3(0.2, 6.4, 0.8),
+    width: 12,
+    height: 12,
+    color: gray(0.2),
+    position: new Vector3(0.2, -6.4, 0.4),
   });
 
   const strip = Math.max(0.08, settings.stripWidth);
-  const hot = 10 * settings.stripStrength;
+  const hot = 5.4 * settings.stripStrength;
   addCard(envScene, disposables, {
     width: strip,
-    height: 6.4,
-    color: new Color().setRGB(hot, hot, hot),
-    position: new Vector3(2.6, 1.8, 4.6),
+    height: 6.6,
+    color: gray(hot),
+    position: new Vector3(2.35, 1.7, 4.85),
   });
   addCard(envScene, disposables, {
-    width: strip * 0.72,
-    height: 5.2,
-    color: new Color().setRGB(hot * 0.85, hot * 0.85, hot * 0.9),
-    position: new Vector3(-1.8, 2.6, 5.1),
+    width: strip * 0.7,
+    height: 5.1,
+    color: gray(hot * 0.62),
+    position: new Vector3(-2.15, 2.4, 5.05),
   });
   addCard(envScene, disposables, {
-    width: strip * 0.55,
-    height: 7,
-    color: new Color().setRGB(hot * 0.7, hot * 0.7, hot * 0.72),
-    position: new Vector3(5.4, 0.2, 0.4),
+    width: strip * 0.5,
+    height: 6.8,
+    color: gray(hot * 0.42),
+    position: new Vector3(5.15, 0.35, 0.85),
   });
 
-  const block = 0.02 + (1 - settings.blockerStrength) * 0.12;
+  const block = 0.07 + (1 - settings.blockerStrength) * 0.14;
   addCard(envScene, disposables, {
-    width: 14,
-    height: 10,
-    color: new Color().setRGB(block, block, block),
-    position: new Vector3(0.4, 0.2, -6.4),
+    width: 8.5,
+    height: 7.2,
+    color: gray(block),
+    position: new Vector3(-5.8, -0.15, -2.6),
   });
   addCard(envScene, disposables, {
-    width: 10,
-    height: 10,
-    color: new Color().setRGB(block * 0.4, block * 0.4, block * 0.45),
-    position: new Vector3(-6.6, -0.4, -2.2),
-  });
-  addCard(envScene, disposables, {
-    width: 16,
-    height: 16,
-    color: new Color().setRGB(block * 0.25, block * 0.25, block * 0.25),
-    position: new Vector3(0, -6.2, 0),
+    width: 6.4,
+    height: 5.8,
+    color: gray(block * 1.35),
+    position: new Vector3(5.6, 1.8, -3.2),
   });
 
-  const target = pmrem.fromScene(envScene, 0.028, 0.1, 40);
+  const target = pmrem.fromScene(envScene, 0.046, 0.1, 40);
   disposeList(disposables);
   previous?.dispose();
 

@@ -42,7 +42,7 @@ export function ChromeMarkDemo({ minimal = false }: ChromeMarkDemoProps) {
       data-reduced-motion={forceReducedMotion ? "true" : undefined}
     >
       {!minimal ? (
-        <DemoControlBar className="left-4 right-4 top-4 z-20 justify-between gap-2">
+        <DemoControlBar className="chromemark-lab-bar left-3 right-3 z-20 justify-between gap-1.5 p-1.5 sm:left-4 sm:right-4 sm:gap-2 sm:p-2 top-[max(0.85rem,calc(env(safe-area-inset-top)+0.75rem))] sm:top-4">
           <DemoLabBrand />
           <ReducedMotionToggle
             enabled={forceReducedMotion}

@@ -4,7 +4,7 @@ export type GeometryQualityId = "draft" | "high" | "ultra";
 
 export const GEOMETRY_QUALITY = {
   draft: { curveSegments: 32, bevelSegments: 6 },
-  high: { curveSegments: 64, bevelSegments: 10 },
+  high: { curveSegments: 64, bevelSegments: 12 },
   ultra: { curveSegments: 128, bevelSegments: 16 },
 } as const;
 

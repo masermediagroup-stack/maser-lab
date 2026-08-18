@@ -1,34 +1,11 @@
-import {
-  Box3,
-  ExtrudeGeometry,
-  Group,
-  Mesh,
-  Vector3,
-  type BufferGeometry,
-  type ExtrudeGeometryOptions,
-} from "three";
+import { Box3, ExtrudeGeometry, Group, Mesh, Vector3 } from "three";
 import type { Shape } from "three";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 import type { ChromeMaterials } from "./create-chrome-material";
 import { CREASE_ANGLE_RAD } from "./geometry-quality";
 import { measureShapes } from "./normalize-logo";
+import { splitExtrudeSurfaces } from "./surface-groups";
 import { LogoLoadError, type GeometrySettings } from "../types";
-
-function withCreasedNormals(geometry: ExtrudeGeometry): BufferGeometry {
-  const groups = geometry.groups.map((group) => ({
-    start: group.start,
-    count: group.count,
-    materialIndex: group.materialIndex,
-  }));
-  const creased = toCreasedNormals(geometry, CREASE_ANGLE_RAD);
-  if (creased !== geometry) geometry.dispose();
-  if (creased.groups.length === 0) {
-    for (const group of groups) {
-      creased.addGroup(group.start, group.count, group.materialIndex);
-    }
-  }
-  return creased;
-}
 
 export function createLogoGeometry(
   shapes: Shape[],
@@ -43,24 +20,46 @@ export function createLogoGeometry(
     );
   }
 
-  const options: ExtrudeGeometryOptions = {
+  const bevelEnabled = settings.bevel;
+  const bevelSegments = bevelEnabled ? settings.bevelSegments : 0;
+  const steps = 1;
+  const options = {
     depth: settings.depth * maxXY,
-    bevelEnabled: settings.bevel,
+    bevelEnabled,
     bevelThickness: settings.bevelThickness * maxXY,
     bevelSize: settings.bevelSize * maxXY,
-    bevelSegments: settings.bevel ? settings.bevelSegments : 0,
+    bevelSegments,
     curveSegments: settings.curveDetail,
-    steps: 1,
+    steps,
   };
 
   const inner = new Group();
   for (const shape of shapes) {
     const extruded = new ExtrudeGeometry(shape, options);
-    const geometry = withCreasedNormals(extruded);
-    const mesh = new Mesh(geometry, [materials.lids, materials.sides]);
-    mesh.castShadow = false;
-    mesh.receiveShadow = false;
-    inner.add(mesh);
+    const { lids, shell } = splitExtrudeSurfaces(extruded, {
+      bevelEnabled,
+      bevelSegments,
+      steps,
+    });
+    extruded.dispose();
+
+    const lidMesh = new Mesh(lids, materials.lids);
+    lidMesh.castShadow = false;
+    lidMesh.receiveShadow = false;
+    inner.add(lidMesh);
+
+    if (shell) {
+      const creased = toCreasedNormals(shell, CREASE_ANGLE_RAD);
+      if (creased !== shell) shell.dispose();
+      const hasBevelGroup = creased.groups.some((group) => group.materialIndex === 0);
+      const shellMesh = new Mesh(
+        creased,
+        hasBevelGroup ? [materials.bevels, materials.sides] : materials.sides,
+      );
+      shellMesh.castShadow = false;
+      shellMesh.receiveShadow = false;
+      inner.add(shellMesh);
+    }
   }
 
   const scale = 1 / maxXY;

@@ -14,9 +14,9 @@ import type {
 export const GEOMETRY_DEFAULTS: GeometrySettings = {
   depth: 0.18,
   bevel: true,
-  bevelSize: 0.032,
-  bevelThickness: 0.04,
-  bevelSegments: 10,
+  bevelSize: 0.036,
+  bevelThickness: 0.046,
+  bevelSegments: 12,
   curveDetail: 64,
 };
 
@@ -32,7 +32,7 @@ export const MATERIAL_PRESETS: Record<
 > = {
   "mirror-chrome": {
     metalness: 1,
-    roughness: 0.11,
+    roughness: 0.14,
     tint: "#f4f6f8",
     brushedAmount: 0,
     brushedDirection: 0,
@@ -46,7 +46,7 @@ export const MATERIAL_PRESETS: Record<
   },
   "dark-chrome": {
     metalness: 1,
-    roughness: 0.13,
+    roughness: 0.16,
     tint: "#6d7178",
     brushedAmount: 0,
     brushedDirection: 0,
@@ -66,13 +66,13 @@ export const MATERIAL_DEFAULTS: MaterialSettings = {
 };
 
 export const ENVIRONMENT_DEFAULTS: EnvironmentSettings = {
-  envIntensity: 1.8,
-  exposure: 1.1,
-  keyWidth: 4.8,
-  keyAngle: 38,
-  stripStrength: 1.15,
-  stripWidth: 0.28,
-  blockerStrength: 0.92,
+  envIntensity: 1.42,
+  exposure: 1.08,
+  keyWidth: 5.4,
+  keyAngle: 32,
+  stripStrength: 0.9,
+  stripWidth: 0.22,
+  blockerStrength: 0.7,
   envRotation: 0,
 };
 
@@ -167,6 +167,12 @@ export const SAMPLE_FIXTURES = [
     label: "Curve (S)",
     href: "/chromemark/fixtures/curve-mark.svg",
     filename: "curve-mark.svg",
+  },
+  {
+    id: "word",
+    label: "Wordmark",
+    href: "/chromemark/fixtures/word-mark.svg",
+    filename: "word-mark.svg",
   },
   {
     id: "png",
