@@ -123,7 +123,7 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Vertical page scroll still works on touch; horizontal drag turns the sphere
 - [x] Drag right moves the grabbed surface right; drag down moves it down on both the front and 180° copies
 - [x] Glyph-only animated gradient; cream field unchanged
-- [x] Leva Gradient folder: Color 1–3, Speed, Angle, Spread, Reverse — live, no remount
+- [x] Leva Gradient: Randomize Colors (curated palette studio — gradient + orb body + in-orb invert)
 - [x] Gradient continues while the sphere rotates; both 0° and 180° copies share one UV material
 - [x] Sphere is at rest scale on mount (no scroll inflate); host height sizes the canvas
 - [x] Desktop rest scale ~40% of stage width (mobile still ~86%)
@@ -131,7 +131,7 @@ Unlit `ShaderMaterial` × glyph-alpha `CanvasTexture` is the correct path: the c
 - [x] Surface orbs: geodesic discs in the glyph shader (not extra meshes); light = black discs, dark = white discs; text inside an orb is one solid invert (light `#FFFFFF`, dark `#000000`) — no stroke/fill split or gradient mix
 - [x] Orb motion is seeded (same seed → same layout/feel); Randomize Seed reshuffles; count 1–12 (default 6)
 - [x] Fill viewport on touch: vertical drag pitches the sphere (no pan-y handoff); drag down follows the finger
-- [x] Idle auto yaw (~0.35 rad/s default); signed Auto Speed −2…+2 (0 = stopped); Auto Rotate toggle
+- [x] Idle auto yaw (~0.35 rad/s default); Auto Speed 0–2; Direction CW/CCW; Auto Rotate toggle
 - [x] Pointer down (mouse/finger) immediately stops auto yaw; hold-without-move keeps the sphere still
 - [x] User inertia takes priority after release; autoplay blends in only after settle + Resume Delay (default 1s)
 - [x] Orbs stay mesh-local (world yaw and surface glide remain separate systems)
