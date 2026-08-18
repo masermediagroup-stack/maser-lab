@@ -58,7 +58,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  max-width: min(72%, 28rem);
+  max-width: min(92%, 42rem);
 }
 
 .chromemark-viewport {
