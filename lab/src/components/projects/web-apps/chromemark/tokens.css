@@ -1,0 +1,422 @@
+.chromemark-app {
+  --chromemark-bg: #0a0a0a;
+  --chromemark-panel: #111111;
+  --chromemark-panel-2: #161616;
+  --chromemark-border: #2a2a2a;
+  --chromemark-border-strong: #3a3a3a;
+  --chromemark-text: #f3f3f3;
+  --chromemark-muted: #8a8a8a;
+  --chromemark-faint: #5c5c5c;
+  --chromemark-accent: #d8d8d8;
+  --chromemark-danger: #ff6b6b;
+  --chromemark-radius: 4px;
+  --chromemark-font: Inter, ui-sans-serif, system-ui, sans-serif;
+  --chromemark-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--chromemark-bg);
+  color: var(--chromemark-text);
+  font-family: var(--chromemark-font);
+  color-scheme: dark;
+}
+
+.chromemark-app * {
+  box-sizing: border-box;
+}
+
+.chromemark-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.chromemark-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(var(--lab-control-bar-bottom, 4.75rem) + 2.6rem);
+}
+
+.chromemark-toolbar {
+  position: absolute;
+  z-index: 4;
+  top: calc(var(--lab-control-bar-bottom, 4.75rem) + 0.35rem);
+  left: 0.85rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-width: min(92%, 42rem);
+}
+
+.chromemark-viewport {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chromemark-viewport-host {
+  position: absolute;
+  inset: 0;
+}
+
+.chromemark-canvas-slot {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.chromemark-viewport canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.chromemark-backdrop-black {
+  background: #000;
+}
+
+.chromemark-backdrop-charcoal {
+  background: #1a1a1a;
+}
+
+.chromemark-backdrop-white {
+  background: #f4f4f4;
+}
+
+.chromemark-backdrop-checker,
+.chromemark-backdrop-transparent {
+  background-color: #2a2a2a;
+  background-image:
+    linear-gradient(45deg, #3a3a3a 25%, transparent 25%),
+    linear-gradient(-45deg, #3a3a3a 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #3a3a3a 75%),
+    linear-gradient(-45deg, transparent 75%, #3a3a3a 75%);
+  background-size: 24px 24px;
+  background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+}
+
+.chromemark-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  pointer-events: none;
+}
+
+.chromemark-empty-card {
+  pointer-events: auto;
+  width: min(28rem, 100%);
+  border: 1px dashed var(--chromemark-border-strong);
+  background: rgba(14, 14, 14, 0.92);
+  padding: 1.25rem;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.chromemark-empty-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 560;
+}
+
+.chromemark-empty-card p {
+  margin: 0 0 0.85rem;
+  color: var(--chromemark-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.chromemark-panel {
+  border-left: 1px solid var(--chromemark-border);
+  background: var(--chromemark-panel);
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.chromemark-panel-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.65rem 0.75rem 1.25rem;
+}
+
+.chromemark-sheet-panel {
+  border-left: 0;
+  height: 100%;
+  min-height: 0;
+}
+
+.chromemark-panel h1 {
+  margin: 0.15rem 0 0.15rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.chromemark-panel .chromemark-lede {
+  margin: 0 0 0.75rem;
+  color: var(--chromemark-muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.chromemark-section {
+  border-top: 1px solid var(--chromemark-border);
+  padding: 0.45rem 0 0.2rem;
+}
+
+.chromemark-section > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--chromemark-accent);
+  padding: 0.35rem 0;
+}
+
+.chromemark-section > summary::-webkit-details-marker {
+  display: none;
+}
+
+.chromemark-section > summary::after {
+  content: "+";
+  color: var(--chromemark-faint);
+  font-weight: 400;
+}
+
+.chromemark-section[open] > summary::after {
+  content: "–";
+}
+
+.chromemark-fields {
+  display: grid;
+  gap: 0.45rem;
+  padding-bottom: 0.45rem;
+}
+
+.chromemark-field {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.chromemark-field-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.chromemark-field label,
+.chromemark-label {
+  font-size: 0.72rem;
+  color: var(--chromemark-text);
+}
+
+.chromemark-value {
+  font-family: var(--chromemark-mono);
+  font-size: 0.68rem;
+  color: var(--chromemark-muted);
+}
+
+.chromemark-field input[type="range"] {
+  width: 100%;
+  accent-color: #cfcfcf;
+  height: 1.1rem;
+}
+
+.chromemark-field input[type="number"],
+.chromemark-field input[type="text"],
+.chromemark-field select {
+  width: 100%;
+  height: 1.7rem;
+  border: 1px solid var(--chromemark-border);
+  background: var(--chromemark-panel-2);
+  color: var(--chromemark-text);
+  border-radius: var(--chromemark-radius);
+  padding: 0 0.45rem;
+  font-size: 0.75rem;
+}
+
+.chromemark-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 1.85rem;
+  border: 1px solid var(--chromemark-border);
+  background: var(--chromemark-panel-2);
+  color: var(--chromemark-text);
+  border-radius: var(--chromemark-radius);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.chromemark-btn:hover {
+  border-color: var(--chromemark-border-strong);
+  background: #1c1c1c;
+}
+
+.chromemark-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.chromemark-btn[aria-pressed="true"],
+.chromemark-btn-active {
+  border-color: #d0d0d0;
+  background: #222;
+}
+
+.chromemark-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.chromemark-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.chromemark-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.chromemark-notice {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--chromemark-muted);
+}
+
+.chromemark-notice-warn {
+  color: #e0b36a;
+}
+
+.chromemark-error {
+  color: var(--chromemark-danger);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.chromemark-meta {
+  font-size: 0.68rem;
+  color: var(--chromemark-muted);
+  line-height: 1.4;
+}
+
+.chromemark-mobile-bar {
+  display: none;
+  position: absolute;
+  z-index: 5;
+  right: 0.85rem;
+  bottom: 0.85rem;
+}
+
+.chromemark-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.62);
+  padding: 1rem;
+}
+
+.chromemark-modal-card {
+  width: min(26rem, 100%);
+  background: var(--chromemark-panel);
+  border: 1px solid var(--chromemark-border);
+  padding: 1rem;
+}
+
+.chromemark-progress {
+  height: 6px;
+  background: #222;
+  overflow: hidden;
+  margin: 0.75rem 0;
+}
+
+.chromemark-progress > span {
+  display: block;
+  height: 100%;
+  background: #e8e8e8;
+}
+
+.chromemark-drop {
+  outline: 2px dashed #888;
+  outline-offset: -8px;
+}
+
+@media (max-width: 900px) {
+  .chromemark-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chromemark-desktop-panel {
+    display: none;
+  }
+
+  .chromemark-stage {
+    min-height: 0;
+  }
+
+  .chromemark-mobile-bar {
+    display: block;
+  }
+
+  .chromemark-toolbar {
+    top: calc(var(--lab-control-bar-bottom, 5.25rem) + 0.45rem);
+    left: 0.7rem;
+    max-width: calc(100% - 1.4rem);
+  }
+
+  .chromemark-stage {
+    padding-top: calc(var(--lab-control-bar-bottom, 5.25rem) + 2.8rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chromemark-app * {
+    scroll-behavior: auto;
+  }
+}
