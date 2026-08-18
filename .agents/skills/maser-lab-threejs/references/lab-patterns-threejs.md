@@ -31,6 +31,7 @@ Patterns are added when a project ships to `review` or `ready`. Scaffolds exist 
 | --- | --- | --- |
 | Orthographic curtain strips | `layout/page-transitions-lab` | CanvasTexture of destination page → UV-sliced planes fall with stagger; CSS strip fallback without WebGL. See `curtain-fall-scene.tsx`. |
 | Shared procedural dither surface | `display/maser-dither-engine` | Custom WebGL2 (not Three.js). Single `stages.ts` program + lighting/color/dither/material/interaction/animation controllers. **Agent contract:** `projects/display/maser-dither-engine/AGENTS.md` + `engine/AGENTS.md`. Materials grid uses CSS thumbs (context budget). |
+| Persistent chrome product engine | `web-apps/chromemark` | Keep `WebGLRenderer` alive across resize (`setSize` only). Custom HDR studio cards → `PMREMGenerator.fromScene`; spin the logo group so reflections travel. Export from a separate MSAA render target, never by resizing the on-screen canvas. Do not use `use-three-canvas.ts` here — it remounts on resize. |
 
 ## Planned patterns
 

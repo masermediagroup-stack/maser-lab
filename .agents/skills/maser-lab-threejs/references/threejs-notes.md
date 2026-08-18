@@ -95,6 +95,7 @@ _Patterns ship with projects; document in `lab-patterns-threejs.md`._
 | Static fallback component | Scaffold in `lab/src/three/fallbacks/` |
 | R3F kinetic bar sculpture | Shipped: `display/kinetic-perspective-bars` — shared `useFrame`, mode blend, pointer ripple |
 | Shared procedural dither surface | Shipped: `display/maser-dither-engine` — **not Three.js**; see project + `engine/AGENTS.md` |
+| Persistent chrome product engine | Shipped (building): `web-apps/chromemark` — keep renderer alive; custom PMREM studio; export from offscreen RT |
 | Cache `isWebGLAvailable()` | Required — probe must not allocate a WebGL context per React render (`capabilities.ts`); lose probe context after check |
 
 ## Maser Dither Engine (non-Three.js WebGL2)
