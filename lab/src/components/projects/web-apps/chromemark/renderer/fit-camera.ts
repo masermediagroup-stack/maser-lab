@@ -40,7 +40,7 @@ export function applyCameraSettings(
 export function fitDistanceForObject(
   camera: PerspectiveCamera,
   object: Object3D,
-  padding = 0.13,
+  padding = 0.18,
 ): number {
   const box = new Box3().setFromObject(object);
   if (box.isEmpty()) return 2.4;

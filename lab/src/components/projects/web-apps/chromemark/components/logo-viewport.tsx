@@ -65,7 +65,6 @@ export function LogoViewport({
       }
     >
       <div
-        ref={containerRef}
         className={`chromemark-viewport-host ${backdropClass}${dragging ? " chromemark-drop" : ""}`}
         onDragOver={(event) => {
           event.preventDefault();
@@ -75,18 +74,20 @@ export function LogoViewport({
           const file = event.dataTransfer.files[0];
           if (file) onDropFile(file);
         }}
-      />
-      {!hasLogo ? (
-        <div className="chromemark-empty">
-          <div className="chromemark-empty-card">
-            <h2>Drop an SVG or PNG</h2>
-            <p>
-              Filled SVG paths become real extruded chrome. Transparent PNGs are
-              traced into silhouettes. Preview backgrounds never enter the export.
-            </p>
+      >
+        <div ref={containerRef} className="chromemark-canvas-slot" />
+        {!hasLogo ? (
+          <div className="chromemark-empty">
+            <div className="chromemark-empty-card">
+              <h2>Drop an SVG or PNG</h2>
+              <p>
+                Filled SVG paths become real extruded chrome. Transparent PNGs are
+                traced into silhouettes. Preview backgrounds never enter the export.
+              </p>
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </ThreeCanvas>
   );
 }

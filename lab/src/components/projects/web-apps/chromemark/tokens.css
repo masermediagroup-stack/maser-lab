@@ -35,6 +35,7 @@
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  padding-top: 7.25rem;
 }
 
 .chromemark-toolbar {
@@ -58,6 +59,12 @@
 .chromemark-viewport-host {
   position: absolute;
   inset: 0;
+}
+
+.chromemark-canvas-slot {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
 .chromemark-viewport canvas {
@@ -94,7 +101,7 @@
 .chromemark-empty {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -106,9 +113,10 @@
   pointer-events: auto;
   width: min(28rem, 100%);
   border: 1px dashed var(--chromemark-border-strong);
-  background: rgba(10, 10, 10, 0.72);
+  background: rgba(14, 14, 14, 0.92);
   padding: 1.25rem;
   text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
 
 .chromemark-empty-card h2 {

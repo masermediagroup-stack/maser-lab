@@ -203,8 +203,9 @@ export class ChromeEngine {
     };
     this.logoInfo = info;
     this.rebuildGeometry();
-    this.fitLogo();
     this.resetGrab();
+    this.resize();
+    this.fitLogo();
     return info;
   }
 
@@ -221,8 +222,9 @@ export class ChromeEngine {
     };
     this.logoInfo = info;
     this.rebuildGeometry();
-    this.fitLogo();
     this.resetGrab();
+    this.resize();
+    this.fitLogo();
     return info;
   }
 
