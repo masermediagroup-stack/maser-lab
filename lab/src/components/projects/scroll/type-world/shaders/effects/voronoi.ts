@@ -12,10 +12,11 @@
  */
 
 export const EFFECT_VORONOI_GLSL = /* glsl */ `
-float twWorleyF1(vec3 p, float distortion, float t) {
+vec2 twWorley(vec3 p, float distortion, float t) {
   vec3 i = floor(p);
   vec3 f = fract(p);
   float d = 8.0;
+  float cell = 0.0;
   for (int z = -1; z <= 1; z++) {
     for (int y = -1; y <= 1; y++) {
       for (int x = -1; x <= 1; x++) {
@@ -23,23 +24,29 @@ float twWorleyF1(vec3 p, float distortion, float t) {
         vec3 h = twHash33(i + g);
         vec3 o = 0.5 + distortion * sin(t + TW_TAU * h);
         vec3 r = g + o - f;
-        d = min(d, dot(r, r));
+        float dist2 = dot(r, r);
+        if (dist2 < d) {
+          d = dist2;
+          cell = h.x;
+        }
       }
     }
   }
-  return sqrt(d);
+  return vec2(sqrt(d), cell);
 }
 
 EffectResult twEffect(vec3 sphereDir, float time) {
   vec3 p = normalize(sphereDir);
-  float sc = max(uScale, 0.15) * 3.2;
+  float sc = max(uScale, 0.2) * 1.65;
   vec3 q = p * sc;
   q += vec3(uSeed * 0.00013);
-  float F1 = twWorleyF1(q, clamp(uDistortion, 0.0, 0.5), time);
-  float edge = max(uEdge, 0.01) * max(fwidth(F1), 1.0e-4);
-  float mask = 1.0 - smoothstep(uThreshold - edge, uThreshold + edge, F1);
+  vec2 cell = twWorley(q, clamp(uDistortion, 0.0, 0.5), time);
+  float F1 = cell.x;
+  float w = max(fwidth(F1), 1.0e-4) * max(uEdge, 0.2);
+  float localT = uThreshold * mix(0.84, 1.14, cell.y);
+  float fill = 1.0 - smoothstep(localT - w, localT + w, F1);
   EffectResult r;
-  r.mask = mask;
+  r.mask = fill;
   r.color = uOrbColor;
   return r;
 }

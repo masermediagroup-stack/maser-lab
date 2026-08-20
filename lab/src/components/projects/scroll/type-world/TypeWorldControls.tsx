@@ -23,6 +23,7 @@ import {
   TYPE_WORLD_SURFACE_DEFAULTS,
   type TypeWorldSurface,
 } from "./surface";
+import { levaControlValue } from "./levaSurface";
 import type { TypeWorldAutoRotateDirection, TypeWorldStageTheme } from "./types";
 
 export type { TypeWorldStageTheme };
@@ -153,11 +154,23 @@ function formatEffectSpeed(value: number): string {
 type LevaGet = (key: string) => unknown;
 
 function effectOn(get: LevaGet): boolean {
-  return Boolean(get("surfaceEnabled")) && get("surfaceType") !== "none";
+  return (
+    Boolean(levaControlValue(get, "surfaceEnabled")) &&
+    levaControlValue(get, "surfaceType") !== "none"
+  );
 }
 
 function effectIs(get: LevaGet, id: SurfaceEffectId): boolean {
-  return Boolean(get("surfaceEnabled")) && get("surfaceType") === id;
+  return (
+    Boolean(levaControlValue(get, "surfaceEnabled")) &&
+    levaControlValue(get, "surfaceType") === id
+  );
+}
+
+function effectHasSeed(get: LevaGet): boolean {
+  if (!effectOn(get)) return false;
+  const type = levaControlValue(get, "surfaceType");
+  return type === "orbs" || type === "metaballs" || type === "voronoi" || type === "perlin";
 }
 
 export function surfaceFromDemoParams(params: TypeWorldDemoParams): TypeWorldSurface {
@@ -551,8 +564,8 @@ export function TypeWorldControls({
       },
       mbSoftness: {
         value: MB.softness,
-        min: 0.04,
-        max: 3,
+        min: 0,
+        max: 1,
         step: 0.01,
         label: "Effect Softness",
         render: (get) => effectIs(get, "metaballs"),
@@ -567,7 +580,7 @@ export function TypeWorldControls({
       },
       mbThreshold: {
         value: MB.threshold,
-        min: 0.15,
+        min: 0.08,
         max: 1.2,
         step: 0.01,
         label: "Threshold",
@@ -736,7 +749,10 @@ export function TypeWorldControls({
         label: "Seed",
         render: (get) => effectIs(get, "perlin"),
       },
-      "Randomize Seed": button(randomizeActiveSeed),
+      "Randomize Seed": {
+        ...button(randomizeActiveSeed),
+        render: (get) => effectHasSeed(get),
+      },
     }),
     Reset: button(onReset),
   });

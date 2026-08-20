@@ -37,7 +37,7 @@ void twCompose(EffectResult fx, float glyph) {
   if (glyph < 0.001 && body < 0.001) discard;
 
   vec3 gradient = twTextGradient(vUv);
-  float inEffect = step(0.02, effectMask);
+  float inEffect = step(0.04, effectMask);
   vec3 textRgb = mix(gradient, uOrbText, inEffect);
 
   float aText = glyph;

@@ -41,5 +41,26 @@ float twEdgeWidth(float field, float softness) {
   return max(fwidth(field), 1.0e-4) * max(softness, 0.04);
 }
 
+vec3 twHashDir(float n) {
+  float a = TW_TAU * twHash11(n);
+  float z = 2.0 * twHash11(n + 19.13) - 1.0;
+  float r = sqrt(max(0.0, 1.0 - z * z));
+  return vec3(r * cos(a), z, r * sin(a));
+}
+
+vec3 twRotateAxis(vec3 v, vec3 axis, float ang) {
+  vec3 k = normalize(axis);
+  float c = cos(ang);
+  float s = sin(ang);
+  return v * c + cross(k, v) * s + k * dot(k, v) * (1.0 - c);
+}
+
+vec3 twFibonacciDir(float i, float n) {
+  float z = 1.0 - 2.0 * (i + 0.5) / max(n, 1.0);
+  float rr = sqrt(max(0.0, 1.0 - z * z));
+  float phi = 2.399963229728653 * i;
+  return vec3(rr * cos(phi), z, rr * sin(phi));
+}
+
 #endif
 `
