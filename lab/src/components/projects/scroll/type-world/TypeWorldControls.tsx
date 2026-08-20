@@ -23,7 +23,7 @@ import {
   TYPE_WORLD_SURFACE_DEFAULTS,
   type TypeWorldSurface,
 } from "./surface";
-import { withLevaFolderPaths } from "./levaSurface";
+import { withLevaFolderPaths, levaControlValue } from "./levaSurface";
 import type { TypeWorldAutoRotateDirection, TypeWorldStageTheme } from "./types";
 
 export type { TypeWorldStageTheme };
@@ -211,14 +211,36 @@ function formatEffectSpeed(value: number): string {
   return value.toFixed(2);
 }
 
-function surfaceParamSchema(
-  type: SurfaceEffectId,
-  enabled: boolean,
-): Record<string, object> {
-  if (!enabled || type === "none") return {};
-  const seedButton = {
-    "Randomize Seed": button(randomizeActiveSeed),
-  };
+type LevaGet = (key: string) => unknown;
+
+function whenEffect(id: SurfaceEffectId) {
+  return (get: LevaGet) =>
+    Boolean(levaControlValue(get, "surfaceEnabled")) &&
+    asEffect(levaControlValue(get, "surfaceType")) === id;
+}
+
+function whenSeededEffect(get: LevaGet) {
+  if (!Boolean(levaControlValue(get, "surfaceEnabled"))) return false;
+  const type = asEffect(levaControlValue(get, "surfaceType"));
+  return (
+    type === "orbs" ||
+    type === "metaballs" ||
+    type === "voronoi" ||
+    type === "perlin"
+  );
+}
+
+function visibleFields(id: SurfaceEffectId): Record<string, object> {
+  const fields = effectFields(id);
+  const out: Record<string, object> = {};
+  for (const [key, spec] of Object.entries(fields)) {
+    out[key] = { ...spec, render: whenEffect(id) };
+  }
+  return out;
+}
+
+function effectFields(type: SurfaceEffectId): Record<string, object> {
+  if (type === "none") return {};
   if (type === "orbs") {
     return {
       orbAnimSpeed: {
@@ -306,7 +328,6 @@ function surfaceParamSchema(
         step: 0.01,
         label: "Drift Noise",
       },
-      ...seedButton,
     };
   }
   if (type === "metaballs") {
@@ -354,7 +375,6 @@ function surfaceParamSchema(
         step: 1,
         label: "Seed",
       },
-      ...seedButton,
     };
   }
   if (type === "waves") {
@@ -456,7 +476,6 @@ function surfaceParamSchema(
         step: 1,
         label: "Seed",
       },
-      ...seedButton,
     };
   }
   return {
@@ -503,7 +522,6 @@ function surfaceParamSchema(
       step: 1,
       label: "Seed",
     },
-    ...seedButton,
   };
 }
 
@@ -779,21 +797,18 @@ export function TypeWorldControls({
         value: TYPE_WORLD_ORB_DEFAULTS.textColor2,
         render: () => false,
       },
+      ...visibleFields("orbs"),
+      ...visibleFields("metaballs"),
+      ...visibleFields("waves"),
+      ...visibleFields("voronoi"),
+      ...visibleFields("perlin"),
+      "Randomize Seed": {
+        ...button(randomizeActiveSeed),
+        render: whenSeededEffect,
+      },
     }),
     Reset: button(onReset),
   });
-
-  const surfaceType = asEffect(
-    (values as Record<string, unknown>).surfaceType,
-  );
-  const surfaceEnabled = Boolean(
-    (values as Record<string, unknown>).surfaceEnabled,
-  );
-  const [effectValues] = useControls(
-    "Surface Effect",
-    (() => surfaceParamSchema(surfaceType, surfaceEnabled)) as never,
-    [surfaceType, surfaceEnabled],
-  ) as unknown as [Record<string, unknown>];
 
   const lastSerializedRef = useRef("");
   const pendingRef = useRef<Partial<TypeWorldDemoParams> | null>(null);
@@ -810,11 +825,10 @@ export function TypeWorldControls({
 
   useEffect(() => {
     const held = extrasHeldRef.current;
-    holdSurfaceExtras(held, effectValues as Record<string, unknown>);
+    holdSurfaceExtras(held, values as Record<string, unknown>);
     const v = {
       ...held,
       ...(values as Record<string, unknown>),
-      ...(effectValues as Record<string, unknown>),
     };
     const surfaceType = asEffect(v.surfaceType);
     activeEffectForSeed = surfaceType;
@@ -928,7 +942,7 @@ export function TypeWorldControls({
       pendingRef.current = null;
       if (next) onChangeRef.current(next);
     });
-  }, [values, effectValues]);
+  }, [values]);
 
   useEffect(() => {
     return () => {

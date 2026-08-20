@@ -26,6 +26,7 @@ describe("assembleTypeWorldFragment", () => {
     expect(metaballs).toContain("twBallShape");
     expect(metaballs).toContain("twFibonacciDir");
     expect(metaballs).toContain("asin(clamp(chord");
+    expect(metaballs).toContain("pow(1.0 - r, 1.5)");
     expect(metaballs).not.toContain("uOrbs[i]");
 
     const waves = assembleTypeWorldFragment("waves");

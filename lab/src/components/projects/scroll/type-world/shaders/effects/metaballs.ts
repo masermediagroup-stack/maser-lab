@@ -5,18 +5,16 @@
  * https://github.com/paper-design/shaders (Apache-2.0)
  * Powered by Paper Shaders: https://shaders.paper.design
  *
- * Paper’s 2D `pow(1 - clamp(0.5 * length, 0, 1), p)` becomes a Wyvill
- * kernel of geodesic angle so masses stay large, merge, and never seam
- * at UV wrap. Cap 12 balls (Paper allows 20). Value-noise replaces the
- * noise texture. No dynamic `break` / zero-length cross (ANGLE-safe).
+ * Paper’s 2D `pow(1 - clamp(0.5 * length, 0, 1), p)` becomes a falloff
+ * of geodesic angle so masses stay large, merge, and never seam at UV
+ * wrap. Cap 12 balls (Paper allows 20). Value-noise replaces the noise
+ * texture. No dynamic `break` / zero-length cross (ANGLE-safe).
  */
 
 export const EFFECT_METABALLS_GLSL = /* glsl */ `
 float twBallShape(float ang, float radius) {
-  float r = ang / max(radius, 0.12);
-  if (r >= 1.0) return 0.0;
-  float x = 1.0 - r * r;
-  return x * x;
+  float r = clamp(ang / max(radius, 0.25), 0.0, 1.0);
+  return pow(1.0 - r, 1.5);
 }
 
 vec3 twSafeTilt(vec3 axis, vec3 dir) {
@@ -51,23 +49,19 @@ EffectResult twEffect(vec3 sphereDir, float time) {
   float count = clamp(uDensity, 1.0, 12.0);
   float size = clamp(uScale, 0.35, 2.4);
   for (int i = 0; i < 12; i++) {
-    if (float(i) >= count) {
-      continue;
-    }
-    float sizeFrac = 1.0;
-    if (float(i) > floor(count - 1.0)) {
-      sizeFrac = fract(count);
-      if (sizeFrac < 0.001) {
-        continue;
+    if (float(i) < count) {
+      float sizeFrac = 1.0;
+      if (float(i) > floor(count - 1.0)) {
+        sizeFrac = max(fract(count), 0.2);
       }
+      vec3 c = twMetaballCenter(float(i), max(count, 1.0), t);
+      float radius = (1.35 + 0.25 * sizeFrac) * size;
+      float chord = length(p - c);
+      float ang = 2.0 * asin(clamp(chord * 0.5, 0.0, 1.0));
+      total += twBallShape(ang, radius) * sizeFrac;
     }
-    vec3 c = twMetaballCenter(float(i), max(count, 1.0), t);
-    float radius = (0.88 + 0.42 * sizeFrac) * size;
-    float chord = length(p - c);
-    float ang = 2.0 * asin(clamp(chord * 0.5, 0.0, 1.0));
-    total += twBallShape(ang, radius) * sizeFrac;
   }
-  float w = min(0.10, max(fwidth(total), 0.003)) + 0.05 * clamp(uSoftness, 0.0, 1.0);
+  float w = min(0.08, max(fwidth(total), 0.004)) + 0.04 * clamp(uSoftness, 0.0, 1.0);
   float mask = smoothstep(uThreshold - w, uThreshold + w, total);
   EffectResult r;
   r.mask = mask;
