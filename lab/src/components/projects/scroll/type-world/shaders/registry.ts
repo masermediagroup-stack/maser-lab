@@ -67,10 +67,10 @@ export const SURFACE_EFFECT_DEFAULTS: Record<SurfaceEffectId, SurfaceEffectDefau
   },
   metaballs: {
     speed: 0.4,
-    scale: 1.2,
+    scale: 1,
     softness: 0.22,
     seed: 3,
-    threshold: 0.34,
+    threshold: 0.58,
     density: 7,
     amplitude: 0.2,
     direction: 0.4,
