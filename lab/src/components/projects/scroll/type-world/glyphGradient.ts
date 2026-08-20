@@ -1,5 +1,6 @@
 import { Color, Vector2, Vector4, type IUniform, type Texture } from "three";
 import { MAX_SURFACE_ORBS } from "./constants";
+import { assembleTypeWorldFragment } from "./shaders/assemble";
 
 export const GLYPH_VERT = /* glsl */ `
 varying vec2 vUv;
@@ -12,89 +13,8 @@ void main() {
 }
 `;
 
-/**
- * Glyph alpha × 3-stop cosine palette, plus geodesic orb discs.
- *
- * Overlap RGB is a hard membership pick (gradient vs one solid invert).
- * Glyph coverage still antialiases via alpha, but those two RGBs never mix.
- * Letter coverage composites over the disc so fringes AA against the orb
- * instead of punching a second color ring (the old stroke/fill outline).
- */
-export const GLYPH_FRAG = /* glsl */ `
-#include <common>
-uniform sampler2D uGlyphs;
-uniform vec3 uColorA;
-uniform vec3 uColorB;
-uniform vec3 uColorC;
-uniform vec2 uDir;
-uniform float uSpread;
-uniform float uPhase;
-uniform vec4 uOrbs[${MAX_SURFACE_ORBS}];
-uniform float uOrbCount;
-uniform float uOrbEdge;
-uniform vec3 uOrbColor;
-uniform vec3 uOrbText;
-uniform float uRenderOrbBody;
-varying vec2 vUv;
-varying vec3 vSphereDir;
-
-void main() {
-  float glyph = texture2D(uGlyphs, vUv).a;
-  vec3 dir = normalize(vSphereDir);
-
-  float orbMask = 0.0;
-  for (int i = 0; i < ${MAX_SURFACE_ORBS}; i++) {
-    if (float(i) >= uOrbCount) {
-      continue;
-    }
-    vec4 orb = uOrbs[i];
-    float radius = orb.w;
-    if (radius <= 0.0001) {
-      continue;
-    }
-    vec3 center = normalize(orb.xyz);
-    float ang = acos(clamp(dot(dir, center), -1.0, 1.0));
-    float aa = fwidth(ang);
-    float art = radius * clamp(uOrbEdge, 0.0, 0.35);
-    // Pixel AA plus a small artistic rim — not a blur blob.
-    float halfW = aa * 1.05 + art * 0.55;
-    float inner = max(radius - halfW, 0.0);
-    float outer = radius + aa * 0.25;
-    if (outer <= inner) {
-      outer = inner + max(aa, 1e-5);
-    }
-    orbMask = max(orbMask, 1.0 - smoothstep(inner, outer, ang));
-  }
-
-  float body = orbMask * uRenderOrbBody;
-  if (glyph < 0.001 && body < 0.001) discard;
-
-  float t = fract(dot(vUv, uDir) * uSpread + uPhase);
-  float a = t * PI2;
-  float wA = pow(0.5 + 0.5 * cos(a), 1.35);
-  float wB = pow(0.5 + 0.5 * cos(a - 2.09439510239), 1.35);
-  float wC = pow(0.5 + 0.5 * cos(a + 2.09439510239), 1.35);
-  float wSum = max(0.0001, wA + wB + wC);
-  vec3 gradient = (uColorA * wA + uColorB * wB + uColorC * wC) / wSum;
-
-  // Any disc coverage inverts the glyph to one solid. Soft orb edges still
-  // fade the body; they must not fade glyph RGB toward the gradient.
-  float inOrb = step(0.02, orbMask);
-  vec3 textRgb = mix(gradient, uOrbText, inOrb);
-
-  // Keep atlas coverage. RGB is already a single invert; crushing alpha
-  // here ate letter interiors on mipmapped sphere UVs.
-  float aText = glyph;
-
-  float aUnder = body * (1.0 - aText);
-  float alpha = min(1.0, aText + aUnder);
-  vec3 color = (textRgb * aText + uOrbColor * aUnder) / max(alpha, 1e-5);
-
-  gl_FragColor = vec4(color, alpha);
-  #include <colorspace_fragment>
-  gl_FragColor.rgb *= gl_FragColor.a;
-}
-`;
+/** Default fragment (Orbs) — other effects are assembled on selection. */
+export const GLYPH_FRAG = assembleTypeWorldFragment("orbs");
 
 export type GlyphGradientUniforms = {
   uGlyphs: IUniform<Texture | null>;
@@ -110,6 +30,19 @@ export type GlyphGradientUniforms = {
   uOrbColor: IUniform<Color>;
   uOrbText: IUniform<Color>;
   uRenderOrbBody: IUniform<number>;
+  uTime: IUniform<number>;
+  uSeed: IUniform<number>;
+  uScale: IUniform<number>;
+  uSoftness: IUniform<number>;
+  uThreshold: IUniform<number>;
+  uDensity: IUniform<number>;
+  uAmplitude: IUniform<number>;
+  uDirection: IUniform<number>;
+  uDistortion: IUniform<number>;
+  uEdge: IUniform<number>;
+  uContrast: IUniform<number>;
+  uFrequency: IUniform<number>;
+  uThickness: IUniform<number>;
 };
 
 export function createGlyphGradientUniforms(): GlyphGradientUniforms {
@@ -129,5 +62,18 @@ export function createGlyphGradientUniforms(): GlyphGradientUniforms {
     uOrbColor: { value: new Color() },
     uOrbText: { value: new Color() },
     uRenderOrbBody: { value: 1 },
+    uTime: { value: 0 },
+    uSeed: { value: 1 },
+    uScale: { value: 1 },
+    uSoftness: { value: 1 },
+    uThreshold: { value: 0.4 },
+    uDensity: { value: 7 },
+    uAmplitude: { value: 0.22 },
+    uDirection: { value: 0.55 },
+    uDistortion: { value: 0.32 },
+    uEdge: { value: 1.1 },
+    uContrast: { value: 0.14 },
+    uFrequency: { value: 1.15 },
+    uThickness: { value: 0.55 },
   };
 }

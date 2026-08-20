@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Leva, levaStore } from "leva";
 import { TypeWorld } from "./TypeWorld";
 import {
   TypeWorldControls,
+  surfaceFromDemoParams,
   type TypeWorldDemoParams,
   type TypeWorldStageTheme,
 } from "./TypeWorldControls";
@@ -15,6 +16,8 @@ import {
   TYPE_WORLD_ORB_DEFAULTS,
   TYPE_WORLD_QUOTE,
 } from "./constants";
+import { SURFACE_EFFECT_DEFAULTS } from "./shaders/registry";
+import { TYPE_WORLD_SURFACE_DEFAULTS } from "./surface";
 import {
   useClientMounted,
   useIsNarrow,
@@ -80,9 +83,12 @@ const INITIAL_PARAMS: TypeWorldDemoParams = {
   gradientAngle: TYPE_WORLD_DEFAULTS.gradientAngle,
   gradientSpread: TYPE_WORLD_DEFAULTS.gradientSpread,
   gradientReverse: TYPE_WORLD_DEFAULTS.gradientReverse,
-  orbsEnabled: TYPE_WORLD_ORB_DEFAULTS.enabled,
+  surfaceEnabled: TYPE_WORLD_SURFACE_DEFAULTS.enabled,
+  surfaceType: TYPE_WORLD_SURFACE_DEFAULTS.type,
   orbCount: TYPE_WORLD_ORB_DEFAULTS.count,
   orbSeed: TYPE_WORLD_ORB_DEFAULTS.seed,
+  orbAnimSpeed: SURFACE_EFFECT_DEFAULTS.orbs.speed,
+  orbScale: SURFACE_EFFECT_DEFAULTS.orbs.scale,
   orbSizeMin: TYPE_WORLD_ORB_DEFAULTS.sizeMin,
   orbSizeMax: TYPE_WORLD_ORB_DEFAULTS.sizeMax,
   orbEdgeSoftness: TYPE_WORLD_ORB_DEFAULTS.edgeSoftness,
@@ -97,6 +103,31 @@ const INITIAL_PARAMS: TypeWorldDemoParams = {
   orbTextColor2: TYPE_WORLD_ORB_DEFAULTS.textColor2,
   orbInvertText: TYPE_WORLD_ORB_DEFAULTS.invertText,
   orbRenderBody: TYPE_WORLD_ORB_DEFAULTS.renderBody,
+  mbSpeed: SURFACE_EFFECT_DEFAULTS.metaballs.speed,
+  mbScale: SURFACE_EFFECT_DEFAULTS.metaballs.scale,
+  mbSoftness: SURFACE_EFFECT_DEFAULTS.metaballs.softness,
+  mbDensity: SURFACE_EFFECT_DEFAULTS.metaballs.density,
+  mbThreshold: SURFACE_EFFECT_DEFAULTS.metaballs.threshold,
+  mbSeed: SURFACE_EFFECT_DEFAULTS.metaballs.seed,
+  waveSpeed: SURFACE_EFFECT_DEFAULTS.waves.speed,
+  waveScale: SURFACE_EFFECT_DEFAULTS.waves.scale,
+  waveSoftness: SURFACE_EFFECT_DEFAULTS.waves.softness,
+  waveFrequency: SURFACE_EFFECT_DEFAULTS.waves.frequency,
+  waveThickness: SURFACE_EFFECT_DEFAULTS.waves.thickness,
+  waveAmplitude: SURFACE_EFFECT_DEFAULTS.waves.amplitude,
+  waveDirection: SURFACE_EFFECT_DEFAULTS.waves.direction,
+  voronoiSpeed: SURFACE_EFFECT_DEFAULTS.voronoi.speed,
+  voronoiScale: SURFACE_EFFECT_DEFAULTS.voronoi.scale,
+  voronoiThreshold: SURFACE_EFFECT_DEFAULTS.voronoi.threshold,
+  voronoiEdge: SURFACE_EFFECT_DEFAULTS.voronoi.edge,
+  voronoiDistortion: SURFACE_EFFECT_DEFAULTS.voronoi.distortion,
+  voronoiSeed: SURFACE_EFFECT_DEFAULTS.voronoi.seed,
+  perlinSpeed: SURFACE_EFFECT_DEFAULTS.perlin.speed,
+  perlinScale: SURFACE_EFFECT_DEFAULTS.perlin.scale,
+  perlinSoftness: SURFACE_EFFECT_DEFAULTS.perlin.softness,
+  perlinThreshold: SURFACE_EFFECT_DEFAULTS.perlin.threshold,
+  perlinContrast: SURFACE_EFFECT_DEFAULTS.perlin.contrast,
+  perlinSeed: SURFACE_EFFECT_DEFAULTS.perlin.seed,
 };
 
 function syncLeva(params: TypeWorldDemoParams) {
@@ -121,9 +152,12 @@ function syncLeva(params: TypeWorldDemoParams) {
       gradientAngle: params.gradientAngle,
       gradientSpread: params.gradientSpread,
       gradientReverse: params.gradientReverse,
-      orbsEnabled: params.orbsEnabled,
+      surfaceEnabled: params.surfaceEnabled,
+      surfaceType: params.surfaceType,
       orbCount: params.orbCount,
       orbSeed: params.orbSeed,
+      orbAnimSpeed: params.orbAnimSpeed,
+      orbScale: params.orbScale,
       orbSizeMin: params.orbSizeMin,
       orbSizeMax: params.orbSizeMax,
       orbEdgeSoftness: params.orbEdgeSoftness,
@@ -137,7 +171,31 @@ function syncLeva(params: TypeWorldDemoParams) {
       orbTextColor: params.orbTextColor,
       orbTextColor2: params.orbTextColor2,
       orbInvertText: params.orbInvertText,
-      orbRenderBody: params.orbRenderBody,
+      mbSpeed: params.mbSpeed,
+      mbScale: params.mbScale,
+      mbSoftness: params.mbSoftness,
+      mbDensity: params.mbDensity,
+      mbThreshold: params.mbThreshold,
+      mbSeed: params.mbSeed,
+      waveSpeed: params.waveSpeed,
+      waveScale: params.waveScale,
+      waveSoftness: params.waveSoftness,
+      waveFrequency: params.waveFrequency,
+      waveThickness: params.waveThickness,
+      waveAmplitude: params.waveAmplitude,
+      waveDirection: params.waveDirection,
+      voronoiSpeed: params.voronoiSpeed,
+      voronoiScale: params.voronoiScale,
+      voronoiThreshold: params.voronoiThreshold,
+      voronoiEdge: params.voronoiEdge,
+      voronoiDistortion: params.voronoiDistortion,
+      voronoiSeed: params.voronoiSeed,
+      perlinSpeed: params.perlinSpeed,
+      perlinScale: params.perlinScale,
+      perlinSoftness: params.perlinSoftness,
+      perlinThreshold: params.perlinThreshold,
+      perlinContrast: params.perlinContrast,
+      perlinSeed: params.perlinSeed,
     },
     false,
   );
@@ -153,6 +211,29 @@ export function TypeWorldDemo() {
   const reducedMotion = osReduced || reducedPreview;
   const fillViewport = params.fillViewport;
   const theme = params.theme;
+  const surface = useMemo(() => surfaceFromDemoParams(params), [params]);
+  const orbs = useMemo(
+    () => ({
+      enabled: params.surfaceEnabled && params.surfaceType === "orbs",
+      count: params.orbCount,
+      seed: params.orbSeed,
+      sizeMin: params.orbSizeMin,
+      sizeMax: params.orbSizeMax,
+      edgeSoftness: params.orbEdgeSoftness,
+      speedMin: params.orbSpeedMin,
+      speedMax: params.orbSpeedMax,
+      steerAmount: params.orbSteerAmount,
+      speedNoise: params.orbSpeedNoise,
+      driftNoise: params.orbDriftNoise,
+      colorLight: params.orbColorLight,
+      colorDark: params.orbColorDark,
+      textColor: params.orbTextColor,
+      textColor2: params.orbTextColor2,
+      invertText: params.orbInvertText,
+      renderBody: params.orbRenderBody,
+    }),
+    [params],
+  );
 
   const patchParams = useCallback((patch: Partial<TypeWorldDemoParams>) => {
     setParams((prev) => ({ ...prev, ...patch }));
@@ -238,25 +319,8 @@ export function TypeWorldDemo() {
         captureVerticalDrag={fillViewport}
         scale={params.scale}
         theme={theme}
-        orbs={{
-          enabled: params.orbsEnabled,
-          count: params.orbCount,
-          seed: params.orbSeed,
-          sizeMin: params.orbSizeMin,
-          sizeMax: params.orbSizeMax,
-          edgeSoftness: params.orbEdgeSoftness,
-          speedMin: params.orbSpeedMin,
-          speedMax: params.orbSpeedMax,
-          steerAmount: params.orbSteerAmount,
-          speedNoise: params.orbSpeedNoise,
-          driftNoise: params.orbDriftNoise,
-          colorLight: params.orbColorLight,
-          colorDark: params.orbColorDark,
-          textColor: params.orbTextColor,
-          textColor2: params.orbTextColor2,
-          invertText: params.orbInvertText,
-          renderBody: params.orbRenderBody,
-        }}
+        surface={surface}
+        orbs={orbs}
       />
 
       <footer className="type-world-demo__after">

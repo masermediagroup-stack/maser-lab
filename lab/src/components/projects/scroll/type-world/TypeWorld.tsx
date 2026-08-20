@@ -24,6 +24,7 @@ import {
   usePrefersReducedMotion,
 } from "./useScrollReveal";
 import type { TypeWorldGradient, TypeWorldOrbs, TypeWorldProps } from "./types";
+import { resolveSurface } from "./surface";
 import "./tokens.css";
 
 const geistSans = Geist({
@@ -58,6 +59,7 @@ export function TypeWorld({
   scale = TYPE_WORLD_DEFAULTS.scale,
   theme = "light",
   orbs: orbsProp,
+  surface: surfaceProp,
   autoRotate = TYPE_WORLD_AUTO_DEFAULTS.enabled,
   autoRotateSpeed = TYPE_WORLD_AUTO_DEFAULTS.speed,
   autoRotateDirection = TYPE_WORLD_AUTO_DEFAULTS.direction,
@@ -137,6 +139,8 @@ export function TypeWorld({
     ],
   );
 
+  const surface = useMemo(() => resolveSurface(surfaceProp), [surfaceProp]);
+
   const onInteract = useCallback(() => {
     setHintVisible(false);
   }, []);
@@ -211,6 +215,7 @@ export function TypeWorld({
               scale={scale}
               theme={theme}
               orbs={orbs}
+              surface={surface}
             />
           ) : mounted ? (
             <TypeWorldFallback quote={quote} fontFamily={resolvedFont} />

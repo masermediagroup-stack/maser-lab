@@ -20,12 +20,16 @@ import {
 } from "./createTypographyTexture";
 import {
   createGlyphGradientUniforms,
-  GLYPH_FRAG,
   GLYPH_VERT,
   type GlyphGradientUniforms,
 } from "./glyphGradient";
 import { sphereFitRadius } from "./math";
+import { assembleTypeWorldFragment } from "./shaders/assemble";
 import { SurfaceOrbSim } from "./surfaceOrbs";
+import {
+  activeSurfaceEffect,
+  type TypeWorldSurface,
+} from "./surface";
 import type { DragRotationApi } from "./useDragRotation";
 import type { TypeWorldGradient, TypeWorldOrbs, TypeWorldStageTheme } from "./types";
 
@@ -39,6 +43,7 @@ type TypographicSphereProps = {
   scale?: number;
   theme: TypeWorldStageTheme;
   orbs: TypeWorldOrbs;
+  surface: TypeWorldSurface;
 };
 
 export function TypographicSphere({
@@ -51,16 +56,18 @@ export function TypographicSphere({
   scale = TYPE_WORLD_DEFAULTS.scale,
   theme,
   orbs,
+  surface,
 }: TypographicSphereProps) {
   const groupRef = useRef<Group>(null);
   const { gl, viewport } = useThree();
   const [texture, setTexture] = useState<CanvasTexture | null>(null);
+  const initialEffect = activeSurfaceEffect(surface, orbs.enabled);
   const [material] = useState(
     () =>
       new ShaderMaterial({
         uniforms: createGlyphGradientUniforms(),
         vertexShader: GLYPH_VERT,
-        fragmentShader: GLYPH_FRAG,
+        fragmentShader: assembleTypeWorldFragment(initialEffect),
         transparent: true,
         premultipliedAlpha: true,
         depthWrite: true,
@@ -79,7 +86,9 @@ export function TypographicSphere({
   const gradientRef = useRef(gradient);
   const reducedRef = useRef(reducedMotion);
   const orbsRef = useRef(orbs);
+  const surfaceRef = useRef(surface);
   const scaleRef = useRef(scale);
+  const effectRef = useRef(initialEffect);
   const [sim] = useState(() => new SurfaceOrbSim(orbs.seed));
   const yawAxis = useRef(new Vector3(0, 1, 0));
   const pitchAxis = useRef(new Vector3(1, 0, 0));
@@ -105,12 +114,24 @@ export function TypographicSphere({
   }, [orbs]);
 
   useEffect(() => {
+    surfaceRef.current = surface;
+  }, [surface]);
+
+  useEffect(() => {
     scaleRef.current = scale;
   }, [scale]);
 
   useEffect(() => {
     sim.reseed(orbs.seed);
   }, [orbs.seed, sim]);
+
+  useEffect(() => {
+    const next = activeSurfaceEffect(surface, orbs.enabled);
+    if (next === effectRef.current) return;
+    effectRef.current = next;
+    material.fragmentShader = assembleTypeWorldFragment(next);
+    material.needsUpdate = true;
+  }, [material, orbs.enabled, surface]);
 
   useEffect(() => {
     let cancelled = false;
@@ -166,8 +187,6 @@ export function TypographicSphere({
   useEffect(() => {
     const uniforms = material.uniforms as GlyphGradientUniforms;
     const body = theme === "dark" ? orbs.colorDark : orbs.colorLight;
-    // Default (invert off): light → solid white in-orb, dark → solid black.
-    // Invert swaps the pair for experiments; both paths stay one solid.
     const textInOrb = orbs.invertText
       ? theme === "dark"
         ? orbs.textColor
@@ -181,6 +200,22 @@ export function TypographicSphere({
     uniforms.uRenderOrbBody.value = orbs.renderBody ? 1 : 0;
   }, [material, orbs.colorDark, orbs.colorLight, orbs.edgeSoftness, orbs.invertText, orbs.renderBody, orbs.textColor, orbs.textColor2, theme]);
 
+  useEffect(() => {
+    const uniforms = material.uniforms as GlyphGradientUniforms;
+    uniforms.uSeed.value = surface.seed;
+    uniforms.uScale.value = surface.scale;
+    uniforms.uSoftness.value = surface.softness;
+    uniforms.uThreshold.value = surface.threshold;
+    uniforms.uDensity.value = surface.density;
+    uniforms.uAmplitude.value = surface.amplitude;
+    uniforms.uDirection.value = surface.direction;
+    uniforms.uDistortion.value = surface.distortion;
+    uniforms.uEdge.value = surface.edge;
+    uniforms.uContrast.value = surface.contrast;
+    uniforms.uFrequency.value = surface.frequency;
+    uniforms.uThickness.value = surface.thickness;
+  }, [material, surface]);
+
   useFrame((_, delta) => {
     const dt = Math.min(0.05, delta);
     drag.tick(dt);
@@ -193,21 +228,33 @@ export function TypographicSphere({
       uniforms.uPhase.value + (dt * speed * sign) / GRADIENT_CYCLE_SECONDS;
     uniforms.uPhase.value = next - Math.floor(next);
 
+    const surf = surfaceRef.current;
+    const effect = effectRef.current;
+    const effectSpeed = reducedRef.current ? 0 : surf.speed;
+    let shaderTime = uniforms.uTime.value + dt * effectSpeed;
+    if (shaderTime > 100000) shaderTime -= 100000;
+    if (shaderTime < -100000) shaderTime += 100000;
+    uniforms.uTime.value = shaderTime;
+
     const orbCfg = orbsRef.current;
-    if (!reducedRef.current && orbCfg.enabled) {
-      sim.step(dt, orbCfg);
+    const orbsActive = effect === "orbs";
+    if (orbsActive && !reducedRef.current) {
+      sim.step(dt * surf.speed, orbCfg);
     }
-    const count = orbCfg.enabled
+    const count = orbsActive
       ? Math.max(0, Math.min(MAX_SURFACE_ORBS, Math.round(orbCfg.count)))
       : 0;
     uniforms.uOrbCount.value = count;
     const packed = uniforms.uOrbs.value;
+    const radiusScale = orbsActive ? Math.max(0.15, surf.scale) : 1;
     for (let i = 0; i < MAX_SURFACE_ORBS; i++) {
       const slot = packed[i];
       const state = sim.orbs[i];
       if (!slot || !state) continue;
       const radius =
-        i < count ? sim.radiusFor(i, orbCfg.sizeMin, orbCfg.sizeMax) : 0;
+        i < count
+          ? sim.radiusFor(i, orbCfg.sizeMin, orbCfg.sizeMax) * radiusScale
+          : 0;
       slot.set(state.pos.x, state.pos.y, state.pos.z, radius);
     }
 
@@ -219,8 +266,6 @@ export function TypographicSphere({
       drag.gripRef.current * restScale * scaleRef.current,
     );
     group.scale.setScalar(nextScale);
-    // Yaw around world up, then nod around camera-right (world X) so the
-    // facing glyphs follow the pointer on both the 0° and 180° copies.
     qYaw.current.setFromAxisAngle(yawAxis.current, drag.yawRef.current);
     qPitch.current.setFromAxisAngle(pitchAxis.current, drag.pitchRef.current);
     group.quaternion.copy(qPitch.current).multiply(qYaw.current);

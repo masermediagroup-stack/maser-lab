@@ -8,6 +8,7 @@ import { TYPE_WORLD_CAMERA, TYPE_WORLD_DEFAULTS, TYPE_WORLD_GL } from "./constan
 import { TypographicSphere } from "./TypographicSphere";
 import type { DragRotationApi } from "./useDragRotation";
 import type { TypeWorldGradient, TypeWorldOrbs, TypeWorldStageTheme } from "./types";
+import type { TypeWorldSurface } from "./surface";
 
 type TypeWorldCanvasProps = {
   quote: string;
@@ -20,6 +21,7 @@ type TypeWorldCanvasProps = {
   scale?: number;
   theme: TypeWorldStageTheme;
   orbs: TypeWorldOrbs;
+  surface: TypeWorldSurface;
 };
 
 export function TypeWorldCanvas({
@@ -33,6 +35,7 @@ export function TypeWorldCanvas({
   scale = TYPE_WORLD_DEFAULTS.scale,
   theme,
   orbs,
+  surface,
 }: TypeWorldCanvasProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(true);
@@ -89,6 +92,7 @@ export function TypeWorldCanvas({
           scale={scale}
           theme={theme}
           orbs={orbs}
+          surface={surface}
         />
       </Canvas>
     </div>

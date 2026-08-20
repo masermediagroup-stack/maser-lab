@@ -121,7 +121,7 @@ export class SurfaceOrbSim {
   }
 
   step(dt: number, params: SurfaceOrbMotionParams): void {
-    if (dt <= 0) return;
+    if (dt === 0) return;
     this.time += dt;
 
     const speedLo = Math.min(params.speedMin, params.speedMax);

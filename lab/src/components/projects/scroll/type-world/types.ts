@@ -1,3 +1,6 @@
+import type { SurfaceEffectId } from "./shaders/registry";
+import type { TypeWorldSurface } from "./surface";
+
 export type TypeWorldGradient = {
   color1: string;
   color2: string;
@@ -35,6 +38,8 @@ export type TypeWorldOrbs = {
   invertText: boolean;
   renderBody: boolean;
 };
+
+export type { SurfaceEffectId, TypeWorldSurface };
 
 export type TypeWorldProps = {
   /** Quote body. Newlines become separate centered lines on the sphere. */
@@ -88,6 +93,11 @@ export type TypeWorldProps = {
   theme?: TypeWorldStageTheme;
   /** Surface orbs. Omitted fields use `TYPE_WORLD_ORB_DEFAULTS`. */
   orbs?: Partial<TypeWorldOrbs>;
+  /**
+   * Spherical surface-effect compositor (none / orbs / metaballs / waves /
+   * voronoi / perlin). Omitted fields use `TYPE_WORLD_SURFACE_DEFAULTS`.
+   */
+  surface?: Partial<TypeWorldSurface>;
   /**
    * Slow idle yaw when the visitor is not holding the sphere.
    * Forced off when `reducedMotion` is on.
