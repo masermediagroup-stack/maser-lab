@@ -55,7 +55,7 @@ EffectResult twEffect(vec3 sphereDir, float time) {
         sizeFrac = max(fract(count), 0.2);
       }
       vec3 c = twMetaballCenter(float(i), max(count, 1.0), t);
-      float radius = (1.35 + 0.25 * sizeFrac) * size;
+      float radius = (0.92 + 0.22 * sizeFrac) * size;
       float chord = length(p - c);
       float ang = 2.0 * asin(clamp(chord * 0.5, 0.0, 1.0));
       total += twBallShape(ang, radius) * sizeFrac;
