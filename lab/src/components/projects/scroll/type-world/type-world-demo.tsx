@@ -18,6 +18,7 @@ import {
 } from "./constants";
 import { SURFACE_EFFECT_DEFAULTS } from "./shaders/registry";
 import { TYPE_WORLD_SURFACE_DEFAULTS } from "./surface";
+import { withLevaFolderPaths } from "./levaSurface";
 import {
   useClientMounted,
   useIsNarrow,
@@ -132,7 +133,7 @@ const INITIAL_PARAMS: TypeWorldDemoParams = {
 
 function syncLeva(params: TypeWorldDemoParams) {
   levaStore.set(
-    {
+    withLevaFolderPaths({
       quote: params.quote,
       forceFallback: params.forceFallback,
       theme: params.theme,
@@ -196,7 +197,7 @@ function syncLeva(params: TypeWorldDemoParams) {
       perlinThreshold: params.perlinThreshold,
       perlinContrast: params.perlinContrast,
       perlinSeed: params.perlinSeed,
-    },
+    }),
     false,
   );
 }

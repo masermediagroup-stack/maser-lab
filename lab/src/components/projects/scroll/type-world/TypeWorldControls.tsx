@@ -23,7 +23,7 @@ import {
   TYPE_WORLD_SURFACE_DEFAULTS,
   type TypeWorldSurface,
 } from "./surface";
-import { levaControlValue } from "./levaSurface";
+import { withLevaFolderPaths } from "./levaSurface";
 import type { TypeWorldAutoRotateDirection, TypeWorldStageTheme } from "./types";
 
 export type { TypeWorldStageTheme };
@@ -100,6 +100,47 @@ const WAVE = SURFACE_EFFECT_DEFAULTS.waves;
 const VORONOI = SURFACE_EFFECT_DEFAULTS.voronoi;
 const PERLIN = SURFACE_EFFECT_DEFAULTS.perlin;
 
+const DEFAULT_SURFACE_EXTRAS: Record<string, unknown> = {
+  orbAnimSpeed: SURFACE_EFFECT_DEFAULTS.orbs.speed,
+  orbScale: SURFACE_EFFECT_DEFAULTS.orbs.scale,
+  orbCount: TYPE_WORLD_ORB_DEFAULTS.count,
+  orbSeed: TYPE_WORLD_ORB_DEFAULTS.seed,
+  orbSizeMin: TYPE_WORLD_ORB_DEFAULTS.sizeMin,
+  orbSizeMax: TYPE_WORLD_ORB_DEFAULTS.sizeMax,
+  orbEdgeSoftness: TYPE_WORLD_ORB_DEFAULTS.edgeSoftness,
+  orbSpeedMin: TYPE_WORLD_ORB_DEFAULTS.speedMin,
+  orbSpeedMax: TYPE_WORLD_ORB_DEFAULTS.speedMax,
+  orbSteerAmount: TYPE_WORLD_ORB_DEFAULTS.steerAmount,
+  orbSpeedNoise: TYPE_WORLD_ORB_DEFAULTS.speedNoise,
+  orbDriftNoise: TYPE_WORLD_ORB_DEFAULTS.driftNoise,
+  mbSpeed: MB.speed,
+  mbScale: MB.scale,
+  mbSoftness: MB.softness,
+  mbDensity: MB.density,
+  mbThreshold: MB.threshold,
+  mbSeed: MB.seed,
+  waveSpeed: WAVE.speed,
+  waveScale: WAVE.scale,
+  waveSoftness: WAVE.softness,
+  waveFrequency: WAVE.frequency,
+  waveThickness: WAVE.thickness,
+  waveAmplitude: WAVE.amplitude,
+  waveDirection: WAVE.direction,
+  voronoiSpeed: VORONOI.speed,
+  voronoiScale: VORONOI.scale,
+  voronoiThreshold: VORONOI.threshold,
+  voronoiEdge: VORONOI.edge,
+  voronoiDistortion: VORONOI.distortion,
+  voronoiSeed: VORONOI.seed,
+  perlinSpeed: PERLIN.speed,
+  perlinScale: PERLIN.scale,
+  perlinSoftness: PERLIN.softness,
+  perlinThreshold: PERLIN.threshold,
+  perlinContrast: PERLIN.contrast,
+  perlinSeed: PERLIN.seed,
+};
+
+
 function asHex(value: unknown, fallback: string): string {
   if (typeof value === "string") {
     if (value.startsWith("#")) return value;
@@ -126,19 +167,38 @@ function asEffect(value: unknown): SurfaceEffectId {
   return isSurfaceEffectId(value) ? value : "orbs";
 }
 
+function asFinite(value: unknown, fallback: number): number {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function holdSurfaceExtras(
+  held: Record<string, unknown>,
+  incoming: Record<string, unknown>,
+): void {
+  for (const key of Object.keys(DEFAULT_SURFACE_EXTRAS)) {
+    if (incoming[key] !== undefined) held[key] = incoming[key];
+  }
+}
+
 let activeEffectForSeed: SurfaceEffectId = "orbs";
 
 function randomizeActiveSeed(): void {
   const next = Math.floor(Math.random() * 1_000_000);
-  if (activeEffectForSeed === "orbs") levaStore.set({ orbSeed: next }, false);
-  else if (activeEffectForSeed === "metaballs") levaStore.set({ mbSeed: next }, false);
-  else if (activeEffectForSeed === "voronoi") levaStore.set({ voronoiSeed: next }, false);
-  else if (activeEffectForSeed === "perlin") levaStore.set({ perlinSeed: next }, false);
+  const key =
+    activeEffectForSeed === "orbs"
+      ? "orbSeed"
+      : activeEffectForSeed === "metaballs"
+        ? "mbSeed"
+        : activeEffectForSeed === "voronoi"
+          ? "voronoiSeed"
+          : "perlinSeed";
+  levaStore.set(withLevaFolderPaths({ [key]: next }), false);
 }
 
 function randomizeColorPalette(): void {
   const patch = paletteToPatch(pickRandomTypeWorldPalette());
-  levaStore.set(patch, false);
+  levaStore.set(withLevaFolderPaths(patch as Record<string, unknown>), false);
 }
 
 function formatAutoSpeed(value: number): string {
@@ -151,26 +211,300 @@ function formatEffectSpeed(value: number): string {
   return value.toFixed(2);
 }
 
-type LevaGet = (key: string) => unknown;
-
-function effectOn(get: LevaGet): boolean {
-  return (
-    Boolean(levaControlValue(get, "surfaceEnabled")) &&
-    levaControlValue(get, "surfaceType") !== "none"
-  );
-}
-
-function effectIs(get: LevaGet, id: SurfaceEffectId): boolean {
-  return (
-    Boolean(levaControlValue(get, "surfaceEnabled")) &&
-    levaControlValue(get, "surfaceType") === id
-  );
-}
-
-function effectHasSeed(get: LevaGet): boolean {
-  if (!effectOn(get)) return false;
-  const type = levaControlValue(get, "surfaceType");
-  return type === "orbs" || type === "metaballs" || type === "voronoi" || type === "perlin";
+function surfaceParamSchema(
+  type: SurfaceEffectId,
+  enabled: boolean,
+): Record<string, object> {
+  if (!enabled || type === "none") return {};
+  const seedButton = {
+    "Randomize Seed": button(randomizeActiveSeed),
+  };
+  if (type === "orbs") {
+    return {
+      orbAnimSpeed: {
+        value: SURFACE_EFFECT_DEFAULTS.orbs.speed,
+        min: -2,
+        max: 2,
+        step: 0.01,
+        label: "Speed",
+        format: formatEffectSpeed,
+      },
+      orbScale: {
+        value: SURFACE_EFFECT_DEFAULTS.orbs.scale,
+        min: 0.35,
+        max: 2,
+        step: 0.01,
+        label: "Scale",
+      },
+      orbCount: {
+        value: TYPE_WORLD_ORB_DEFAULTS.count,
+        min: 1,
+        max: MAX_SURFACE_ORBS,
+        step: 1,
+        label: "Count",
+      },
+      orbSeed: {
+        value: TYPE_WORLD_ORB_DEFAULTS.seed,
+        min: 0,
+        max: 999999,
+        step: 1,
+        label: "Seed",
+      },
+      orbSizeMin: {
+        value: TYPE_WORLD_ORB_DEFAULTS.sizeMin,
+        min: 0.08,
+        max: 0.55,
+        step: 0.01,
+        label: "Size Min",
+      },
+      orbSizeMax: {
+        value: TYPE_WORLD_ORB_DEFAULTS.sizeMax,
+        min: 0.08,
+        max: 0.55,
+        step: 0.01,
+        label: "Size Max",
+      },
+      orbEdgeSoftness: {
+        value: TYPE_WORLD_ORB_DEFAULTS.edgeSoftness,
+        min: 0.01,
+        max: 0.45,
+        step: 0.005,
+        label: "Effect Softness",
+      },
+      orbSpeedMin: {
+        value: TYPE_WORLD_ORB_DEFAULTS.speedMin,
+        min: 0,
+        max: 0.45,
+        step: 0.005,
+        label: "Speed Min",
+      },
+      orbSpeedMax: {
+        value: TYPE_WORLD_ORB_DEFAULTS.speedMax,
+        min: 0,
+        max: 0.45,
+        step: 0.005,
+        label: "Speed Max",
+      },
+      orbSteerAmount: {
+        value: TYPE_WORLD_ORB_DEFAULTS.steerAmount,
+        min: 0,
+        max: 2,
+        step: 0.01,
+        label: "Steer",
+      },
+      orbSpeedNoise: {
+        value: TYPE_WORLD_ORB_DEFAULTS.speedNoise,
+        min: 0,
+        max: 1.5,
+        step: 0.01,
+        label: "Speed Noise",
+      },
+      orbDriftNoise: {
+        value: TYPE_WORLD_ORB_DEFAULTS.driftNoise,
+        min: 0,
+        max: 1.5,
+        step: 0.01,
+        label: "Drift Noise",
+      },
+      ...seedButton,
+    };
+  }
+  if (type === "metaballs") {
+    return {
+      mbSpeed: {
+        value: MB.speed,
+        min: -2,
+        max: 2,
+        step: 0.01,
+        label: "Speed",
+        format: formatEffectSpeed,
+      },
+      mbScale: {
+        value: MB.scale,
+        min: 0.35,
+        max: 2.4,
+        step: 0.01,
+        label: "Scale",
+      },
+      mbSoftness: {
+        value: MB.softness,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        label: "Effect Softness",
+      },
+      mbDensity: {
+        value: MB.density,
+        min: 1,
+        max: 12,
+        step: 1,
+        label: "Density",
+      },
+      mbThreshold: {
+        value: MB.threshold,
+        min: 0.08,
+        max: 1.2,
+        step: 0.01,
+        label: "Threshold",
+      },
+      mbSeed: {
+        value: MB.seed,
+        min: 0,
+        max: 999999,
+        step: 1,
+        label: "Seed",
+      },
+      ...seedButton,
+    };
+  }
+  if (type === "waves") {
+    return {
+      waveSpeed: {
+        value: WAVE.speed,
+        min: -2,
+        max: 2,
+        step: 0.01,
+        label: "Speed",
+        format: formatEffectSpeed,
+      },
+      waveScale: {
+        value: WAVE.scale,
+        min: 0.35,
+        max: 2.4,
+        step: 0.01,
+        label: "Scale",
+      },
+      waveSoftness: {
+        value: WAVE.softness,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        label: "Effect Softness",
+      },
+      waveFrequency: {
+        value: WAVE.frequency,
+        min: 0.15,
+        max: 2.5,
+        step: 0.01,
+        label: "Frequency",
+      },
+      waveThickness: {
+        value: WAVE.thickness,
+        min: 0.08,
+        max: 0.92,
+        step: 0.01,
+        label: "Thickness",
+      },
+      waveAmplitude: {
+        value: WAVE.amplitude,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        label: "Amplitude",
+      },
+      waveDirection: {
+        value: WAVE.direction,
+        min: 0,
+        max: Math.PI * 2,
+        step: 0.01,
+        label: "Direction",
+      },
+    };
+  }
+  if (type === "voronoi") {
+    return {
+      voronoiSpeed: {
+        value: VORONOI.speed,
+        min: -2,
+        max: 2,
+        step: 0.01,
+        label: "Speed",
+        format: formatEffectSpeed,
+      },
+      voronoiScale: {
+        value: VORONOI.scale,
+        min: 0.35,
+        max: 2.4,
+        step: 0.01,
+        label: "Cell Scale",
+      },
+      voronoiThreshold: {
+        value: VORONOI.threshold,
+        min: 0.15,
+        max: 0.9,
+        step: 0.01,
+        label: "Threshold",
+      },
+      voronoiEdge: {
+        value: VORONOI.edge,
+        min: 0.2,
+        max: 3,
+        step: 0.01,
+        label: "Edge",
+      },
+      voronoiDistortion: {
+        value: VORONOI.distortion,
+        min: 0,
+        max: 0.5,
+        step: 0.01,
+        label: "Distortion",
+      },
+      voronoiSeed: {
+        value: VORONOI.seed,
+        min: 0,
+        max: 999999,
+        step: 1,
+        label: "Seed",
+      },
+      ...seedButton,
+    };
+  }
+  return {
+    perlinSpeed: {
+      value: PERLIN.speed,
+      min: -2,
+      max: 2,
+      step: 0.01,
+      label: "Speed",
+      format: formatEffectSpeed,
+    },
+    perlinScale: {
+      value: PERLIN.scale,
+      min: 0.35,
+      max: 2.6,
+      step: 0.01,
+      label: "Noise Scale",
+    },
+    perlinSoftness: {
+      value: PERLIN.softness,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      label: "Effect Softness",
+    },
+    perlinThreshold: {
+      value: PERLIN.threshold,
+      min: 0.15,
+      max: 0.85,
+      step: 0.01,
+      label: "Threshold",
+    },
+    perlinContrast: {
+      value: PERLIN.contrast,
+      min: 0.02,
+      max: 0.5,
+      step: 0.01,
+      label: "Contrast",
+    },
+    perlinSeed: {
+      value: PERLIN.seed,
+      min: 0,
+      max: 999999,
+      step: 1,
+      label: "Seed",
+    },
+    ...seedButton,
+  };
 }
 
 export function surfaceFromDemoParams(params: TypeWorldDemoParams): TypeWorldSurface {
@@ -428,17 +762,14 @@ export function TypeWorldControls({
       orbColorLight: {
         value: TYPE_WORLD_ORB_DEFAULTS.colorLight,
         label: "Effect Color Light",
-        render: (get) => effectOn(get),
       },
       orbColorDark: {
         value: TYPE_WORLD_ORB_DEFAULTS.colorDark,
         label: "Effect Color Dark",
-        render: (get) => effectOn(get),
       },
       orbInvertText: {
         value: TYPE_WORLD_ORB_DEFAULTS.invertText,
         label: "Invert",
-        render: (get) => effectOn(get),
       },
       orbTextColor: {
         value: TYPE_WORLD_ORB_DEFAULTS.textColor,
@@ -448,326 +779,43 @@ export function TypeWorldControls({
         value: TYPE_WORLD_ORB_DEFAULTS.textColor2,
         render: () => false,
       },
-      orbAnimSpeed: {
-        value: SURFACE_EFFECT_DEFAULTS.orbs.speed,
-        min: -2,
-        max: 2,
-        step: 0.01,
-        label: "Speed",
-        format: formatEffectSpeed,
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbScale: {
-        value: SURFACE_EFFECT_DEFAULTS.orbs.scale,
-        min: 0.35,
-        max: 2,
-        step: 0.01,
-        label: "Scale",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbCount: {
-        value: TYPE_WORLD_ORB_DEFAULTS.count,
-        min: 1,
-        max: MAX_SURFACE_ORBS,
-        step: 1,
-        label: "Count",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbSeed: {
-        value: TYPE_WORLD_ORB_DEFAULTS.seed,
-        min: 0,
-        max: 999999,
-        step: 1,
-        label: "Seed",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbSizeMin: {
-        value: TYPE_WORLD_ORB_DEFAULTS.sizeMin,
-        min: 0.08,
-        max: 0.55,
-        step: 0.01,
-        label: "Size Min",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbSizeMax: {
-        value: TYPE_WORLD_ORB_DEFAULTS.sizeMax,
-        min: 0.08,
-        max: 0.55,
-        step: 0.01,
-        label: "Size Max",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbEdgeSoftness: {
-        value: TYPE_WORLD_ORB_DEFAULTS.edgeSoftness,
-        min: 0.01,
-        max: 0.45,
-        step: 0.005,
-        label: "Effect Softness",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbSpeedMin: {
-        value: TYPE_WORLD_ORB_DEFAULTS.speedMin,
-        min: 0,
-        max: 0.45,
-        step: 0.005,
-        label: "Speed Min",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbSpeedMax: {
-        value: TYPE_WORLD_ORB_DEFAULTS.speedMax,
-        min: 0,
-        max: 0.45,
-        step: 0.005,
-        label: "Speed Max",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbSteerAmount: {
-        value: TYPE_WORLD_ORB_DEFAULTS.steerAmount,
-        min: 0,
-        max: 2,
-        step: 0.01,
-        label: "Steer",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbSpeedNoise: {
-        value: TYPE_WORLD_ORB_DEFAULTS.speedNoise,
-        min: 0,
-        max: 1.5,
-        step: 0.01,
-        label: "Speed Noise",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      orbDriftNoise: {
-        value: TYPE_WORLD_ORB_DEFAULTS.driftNoise,
-        min: 0,
-        max: 1.5,
-        step: 0.01,
-        label: "Drift Noise",
-        render: (get) => effectIs(get, "orbs"),
-      },
-      mbSpeed: {
-        value: MB.speed,
-        min: -2,
-        max: 2,
-        step: 0.01,
-        label: "Speed",
-        format: formatEffectSpeed,
-        render: (get) => effectIs(get, "metaballs"),
-      },
-      mbScale: {
-        value: MB.scale,
-        min: 0.35,
-        max: 2.2,
-        step: 0.01,
-        label: "Scale",
-        render: (get) => effectIs(get, "metaballs"),
-      },
-      mbSoftness: {
-        value: MB.softness,
-        min: 0,
-        max: 1,
-        step: 0.01,
-        label: "Effect Softness",
-        render: (get) => effectIs(get, "metaballs"),
-      },
-      mbDensity: {
-        value: MB.density,
-        min: 1,
-        max: 12,
-        step: 1,
-        label: "Density",
-        render: (get) => effectIs(get, "metaballs"),
-      },
-      mbThreshold: {
-        value: MB.threshold,
-        min: 0.08,
-        max: 1.2,
-        step: 0.01,
-        label: "Threshold",
-        render: (get) => effectIs(get, "metaballs"),
-      },
-      mbSeed: {
-        value: MB.seed,
-        min: 0,
-        max: 999999,
-        step: 1,
-        label: "Seed",
-        render: (get) => effectIs(get, "metaballs"),
-      },
-      waveSpeed: {
-        value: WAVE.speed,
-        min: -2,
-        max: 2,
-        step: 0.01,
-        label: "Speed",
-        format: formatEffectSpeed,
-        render: (get) => effectIs(get, "waves"),
-      },
-      waveScale: {
-        value: WAVE.scale,
-        min: 0.35,
-        max: 2.4,
-        step: 0.01,
-        label: "Scale",
-        render: (get) => effectIs(get, "waves"),
-      },
-      waveSoftness: {
-        value: WAVE.softness,
-        min: 0,
-        max: 1,
-        step: 0.01,
-        label: "Effect Softness",
-        render: (get) => effectIs(get, "waves"),
-      },
-      waveFrequency: {
-        value: WAVE.frequency,
-        min: 0.15,
-        max: 2.5,
-        step: 0.01,
-        label: "Frequency",
-        render: (get) => effectIs(get, "waves"),
-      },
-      waveThickness: {
-        value: WAVE.thickness,
-        min: 0.08,
-        max: 0.92,
-        step: 0.01,
-        label: "Thickness",
-        render: (get) => effectIs(get, "waves"),
-      },
-      waveAmplitude: {
-        value: WAVE.amplitude,
-        min: 0,
-        max: 1,
-        step: 0.01,
-        label: "Amplitude",
-        render: (get) => effectIs(get, "waves"),
-      },
-      waveDirection: {
-        value: WAVE.direction,
-        min: 0,
-        max: Math.PI * 2,
-        step: 0.01,
-        label: "Direction",
-        render: (get) => effectIs(get, "waves"),
-      },
-      voronoiSpeed: {
-        value: VORONOI.speed,
-        min: -2,
-        max: 2,
-        step: 0.01,
-        label: "Speed",
-        format: formatEffectSpeed,
-        render: (get) => effectIs(get, "voronoi"),
-      },
-      voronoiScale: {
-        value: VORONOI.scale,
-        min: 0.35,
-        max: 2.4,
-        step: 0.01,
-        label: "Cell Scale",
-        render: (get) => effectIs(get, "voronoi"),
-      },
-      voronoiThreshold: {
-        value: VORONOI.threshold,
-        min: 0.15,
-        max: 0.9,
-        step: 0.01,
-        label: "Threshold",
-        render: (get) => effectIs(get, "voronoi"),
-      },
-      voronoiEdge: {
-        value: VORONOI.edge,
-        min: 0.2,
-        max: 3,
-        step: 0.01,
-        label: "Edge",
-        render: (get) => effectIs(get, "voronoi"),
-      },
-      voronoiDistortion: {
-        value: VORONOI.distortion,
-        min: 0,
-        max: 0.5,
-        step: 0.01,
-        label: "Distortion",
-        render: (get) => effectIs(get, "voronoi"),
-      },
-      voronoiSeed: {
-        value: VORONOI.seed,
-        min: 0,
-        max: 999999,
-        step: 1,
-        label: "Seed",
-        render: (get) => effectIs(get, "voronoi"),
-      },
-      perlinSpeed: {
-        value: PERLIN.speed,
-        min: -2,
-        max: 2,
-        step: 0.01,
-        label: "Speed",
-        format: formatEffectSpeed,
-        render: (get) => effectIs(get, "perlin"),
-      },
-      perlinScale: {
-        value: PERLIN.scale,
-        min: 0.35,
-        max: 2.6,
-        step: 0.01,
-        label: "Noise Scale",
-        render: (get) => effectIs(get, "perlin"),
-      },
-      perlinSoftness: {
-        value: PERLIN.softness,
-        min: 0,
-        max: 1,
-        step: 0.01,
-        label: "Effect Softness",
-        render: (get) => effectIs(get, "perlin"),
-      },
-      perlinThreshold: {
-        value: PERLIN.threshold,
-        min: 0.15,
-        max: 0.85,
-        step: 0.01,
-        label: "Threshold",
-        render: (get) => effectIs(get, "perlin"),
-      },
-      perlinContrast: {
-        value: PERLIN.contrast,
-        min: 0.02,
-        max: 0.5,
-        step: 0.01,
-        label: "Contrast",
-        render: (get) => effectIs(get, "perlin"),
-      },
-      perlinSeed: {
-        value: PERLIN.seed,
-        min: 0,
-        max: 999999,
-        step: 1,
-        label: "Seed",
-        render: (get) => effectIs(get, "perlin"),
-      },
-      "Randomize Seed": {
-        ...button(randomizeActiveSeed),
-        render: (get) => effectHasSeed(get),
-      },
     }),
     Reset: button(onReset),
   });
 
+  const surfaceType = asEffect(
+    (values as Record<string, unknown>).surfaceType,
+  );
+  const surfaceEnabled = Boolean(
+    (values as Record<string, unknown>).surfaceEnabled,
+  );
+  const [effectValues] = useControls(
+    "Surface Effect",
+    (() => surfaceParamSchema(surfaceType, surfaceEnabled)) as never,
+    [surfaceType, surfaceEnabled],
+  ) as unknown as [Record<string, unknown>];
+
   const lastSerializedRef = useRef("");
   const pendingRef = useRef<Partial<TypeWorldDemoParams> | null>(null);
   const rafRef = useRef<number | null>(null);
+  const extrasHeldRef = useRef<Record<string, unknown>>({
+    ...DEFAULT_SURFACE_EXTRAS,
+  });
   const onChangeRef = useRef(onChange);
 
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
 
+
   useEffect(() => {
-    const v = values as Record<string, unknown>;
+    const held = extrasHeldRef.current;
+    holdSurfaceExtras(held, effectValues as Record<string, unknown>);
+    const v = {
+      ...held,
+      ...(values as Record<string, unknown>),
+      ...(effectValues as Record<string, unknown>),
+    };
     const surfaceType = asEffect(v.surfaceType);
     activeEffectForSeed = surfaceType;
     const patch: Partial<TypeWorldDemoParams> = {
@@ -775,66 +823,98 @@ export function TypeWorldControls({
       forceFallback: Boolean(v.forceFallback),
       theme: asTheme(v.theme),
       fillViewport: Boolean(v.fillViewport),
-      scale: Number(v.scale),
-      dragSensitivity: Number(v.dragSensitivity),
-      inertia: Number(v.inertia),
-      pitchLimit: Number(v.pitchLimit),
+      scale: asFinite(v.scale, TYPE_WORLD_DEFAULTS.scale),
+      dragSensitivity: asFinite(
+        v.dragSensitivity,
+        TYPE_WORLD_DEFAULTS.dragSensitivity,
+      ),
+      inertia: asFinite(v.inertia, TYPE_WORLD_DEFAULTS.inertia),
+      pitchLimit: asFinite(v.pitchLimit, TYPE_WORLD_DEFAULTS.pitchLimit),
       autoRotate: Boolean(v.autoRotate),
       autoRotateDirection: asAutoDirection(v.autoRotateDirection),
-      autoRotateSpeed: Math.abs(Number(v.autoRotateSpeed)),
-      autoResumeDelay: Number(v.autoResumeDelay),
+      autoRotateSpeed: Math.abs(
+        asFinite(v.autoRotateSpeed, TYPE_WORLD_AUTO_DEFAULTS.speed),
+      ),
+      autoResumeDelay: asFinite(
+        v.autoResumeDelay,
+        TYPE_WORLD_AUTO_DEFAULTS.resumeDelay,
+      ),
       gradientColor1: asHex(v.gradientColor1, TYPE_WORLD_DEFAULTS.gradientColor1),
       gradientColor2: asHex(v.gradientColor2, TYPE_WORLD_DEFAULTS.gradientColor2),
       gradientColor3: asHex(v.gradientColor3, TYPE_WORLD_DEFAULTS.gradientColor3),
-      gradientSpeed: Number(v.gradientSpeed),
-      gradientAngle: Number(v.gradientAngle),
-      gradientSpread: Number(v.gradientSpread),
+      gradientSpeed: asFinite(
+        v.gradientSpeed,
+        TYPE_WORLD_DEFAULTS.gradientSpeed,
+      ),
+      gradientAngle: asFinite(
+        v.gradientAngle,
+        TYPE_WORLD_DEFAULTS.gradientAngle,
+      ),
+      gradientSpread: asFinite(
+        v.gradientSpread,
+        TYPE_WORLD_DEFAULTS.gradientSpread,
+      ),
       gradientReverse: Boolean(v.gradientReverse),
       surfaceEnabled: Boolean(v.surfaceEnabled),
       surfaceType,
-      orbCount: Number(v.orbCount),
-      orbSeed: Number(v.orbSeed),
-      orbAnimSpeed: Number(v.orbAnimSpeed),
-      orbScale: Number(v.orbScale),
-      orbSizeMin: Number(v.orbSizeMin),
-      orbSizeMax: Number(v.orbSizeMax),
-      orbEdgeSoftness: Number(v.orbEdgeSoftness),
-      orbSpeedMin: Number(v.orbSpeedMin),
-      orbSpeedMax: Number(v.orbSpeedMax),
-      orbSteerAmount: Number(v.orbSteerAmount),
-      orbSpeedNoise: Number(v.orbSpeedNoise),
-      orbDriftNoise: Number(v.orbDriftNoise),
+      orbCount: asFinite(v.orbCount, TYPE_WORLD_ORB_DEFAULTS.count),
+      orbSeed: asFinite(v.orbSeed, TYPE_WORLD_ORB_DEFAULTS.seed),
+      orbAnimSpeed: asFinite(
+        v.orbAnimSpeed,
+        SURFACE_EFFECT_DEFAULTS.orbs.speed,
+      ),
+      orbScale: asFinite(v.orbScale, SURFACE_EFFECT_DEFAULTS.orbs.scale),
+      orbSizeMin: asFinite(v.orbSizeMin, TYPE_WORLD_ORB_DEFAULTS.sizeMin),
+      orbSizeMax: asFinite(v.orbSizeMax, TYPE_WORLD_ORB_DEFAULTS.sizeMax),
+      orbEdgeSoftness: asFinite(
+        v.orbEdgeSoftness,
+        TYPE_WORLD_ORB_DEFAULTS.edgeSoftness,
+      ),
+      orbSpeedMin: asFinite(v.orbSpeedMin, TYPE_WORLD_ORB_DEFAULTS.speedMin),
+      orbSpeedMax: asFinite(v.orbSpeedMax, TYPE_WORLD_ORB_DEFAULTS.speedMax),
+      orbSteerAmount: asFinite(
+        v.orbSteerAmount,
+        TYPE_WORLD_ORB_DEFAULTS.steerAmount,
+      ),
+      orbSpeedNoise: asFinite(
+        v.orbSpeedNoise,
+        TYPE_WORLD_ORB_DEFAULTS.speedNoise,
+      ),
+      orbDriftNoise: asFinite(
+        v.orbDriftNoise,
+        TYPE_WORLD_ORB_DEFAULTS.driftNoise,
+      ),
       orbColorLight: asHex(v.orbColorLight, TYPE_WORLD_ORB_DEFAULTS.colorLight),
       orbColorDark: asHex(v.orbColorDark, TYPE_WORLD_ORB_DEFAULTS.colorDark),
       orbTextColor: asHex(v.orbTextColor, TYPE_WORLD_ORB_DEFAULTS.textColor),
       orbTextColor2: asHex(v.orbTextColor2, TYPE_WORLD_ORB_DEFAULTS.textColor2),
       orbInvertText: Boolean(v.orbInvertText),
       orbRenderBody: true,
-      mbSpeed: Number(v.mbSpeed),
-      mbScale: Number(v.mbScale),
-      mbSoftness: Number(v.mbSoftness),
-      mbDensity: Number(v.mbDensity),
-      mbThreshold: Number(v.mbThreshold),
-      mbSeed: Number(v.mbSeed),
-      waveSpeed: Number(v.waveSpeed),
-      waveScale: Number(v.waveScale),
-      waveSoftness: Number(v.waveSoftness),
-      waveFrequency: Number(v.waveFrequency),
-      waveThickness: Number(v.waveThickness),
-      waveAmplitude: Number(v.waveAmplitude),
-      waveDirection: Number(v.waveDirection),
-      voronoiSpeed: Number(v.voronoiSpeed),
-      voronoiScale: Number(v.voronoiScale),
-      voronoiThreshold: Number(v.voronoiThreshold),
-      voronoiEdge: Number(v.voronoiEdge),
-      voronoiDistortion: Number(v.voronoiDistortion),
-      voronoiSeed: Number(v.voronoiSeed),
-      perlinSpeed: Number(v.perlinSpeed),
-      perlinScale: Number(v.perlinScale),
-      perlinSoftness: Number(v.perlinSoftness),
-      perlinThreshold: Number(v.perlinThreshold),
-      perlinContrast: Number(v.perlinContrast),
-      perlinSeed: Number(v.perlinSeed),
+      mbSpeed: asFinite(v.mbSpeed, MB.speed),
+      mbScale: asFinite(v.mbScale, MB.scale),
+      mbSoftness: asFinite(v.mbSoftness, MB.softness),
+      mbDensity: asFinite(v.mbDensity, MB.density),
+      mbThreshold: asFinite(v.mbThreshold, MB.threshold),
+      mbSeed: asFinite(v.mbSeed, MB.seed),
+      waveSpeed: asFinite(v.waveSpeed, WAVE.speed),
+      waveScale: asFinite(v.waveScale, WAVE.scale),
+      waveSoftness: asFinite(v.waveSoftness, WAVE.softness),
+      waveFrequency: asFinite(v.waveFrequency, WAVE.frequency),
+      waveThickness: asFinite(v.waveThickness, WAVE.thickness),
+      waveAmplitude: asFinite(v.waveAmplitude, WAVE.amplitude),
+      waveDirection: asFinite(v.waveDirection, WAVE.direction),
+      voronoiSpeed: asFinite(v.voronoiSpeed, VORONOI.speed),
+      voronoiScale: asFinite(v.voronoiScale, VORONOI.scale),
+      voronoiThreshold: asFinite(v.voronoiThreshold, VORONOI.threshold),
+      voronoiEdge: asFinite(v.voronoiEdge, VORONOI.edge),
+      voronoiDistortion: asFinite(v.voronoiDistortion, VORONOI.distortion),
+      voronoiSeed: asFinite(v.voronoiSeed, VORONOI.seed),
+      perlinSpeed: asFinite(v.perlinSpeed, PERLIN.speed),
+      perlinScale: asFinite(v.perlinScale, PERLIN.scale),
+      perlinSoftness: asFinite(v.perlinSoftness, PERLIN.softness),
+      perlinThreshold: asFinite(v.perlinThreshold, PERLIN.threshold),
+      perlinContrast: asFinite(v.perlinContrast, PERLIN.contrast),
+      perlinSeed: asFinite(v.perlinSeed, PERLIN.seed),
     };
     const serialized = JSON.stringify(patch);
     if (serialized === lastSerializedRef.current) return;
@@ -848,7 +928,7 @@ export function TypeWorldControls({
       pendingRef.current = null;
       if (next) onChangeRef.current(next);
     });
-  }, [values]);
+  }, [values, effectValues]);
 
   useEffect(() => {
     return () => {

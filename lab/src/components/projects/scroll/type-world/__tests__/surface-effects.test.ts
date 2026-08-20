@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { assembleTypeWorldFragment } from "../shaders/assemble";
 import { SURFACE_EFFECT_IDS } from "../shaders/registry";
-import { levaControlValue } from "../levaSurface";
+import { levaControlValue, withLevaFolderPaths } from "../levaSurface";
 import { activeSurfaceEffect, TYPE_WORLD_SURFACE_DEFAULTS } from "../surface";
 
 describe("assembleTypeWorldFragment", () => {
@@ -25,7 +25,7 @@ describe("assembleTypeWorldFragment", () => {
     const metaballs = assembleTypeWorldFragment("metaballs");
     expect(metaballs).toContain("twBallShape");
     expect(metaballs).toContain("twFibonacciDir");
-    expect(metaballs).toContain("acos(clamp(dot(p, c)");
+    expect(metaballs).toContain("asin(clamp(chord");
     expect(metaballs).not.toContain("uOrbs[i]");
 
     const waves = assembleTypeWorldFragment("waves");
@@ -67,6 +67,20 @@ describe("levaControlValue", () => {
       key === "surfaceEnabled" ? true : key === "surfaceType" ? "waves" : undefined;
     expect(levaControlValue(get, "surfaceEnabled")).toBe(true);
     expect(levaControlValue(get, "surfaceType")).toBe("waves");
+  });
+});
+
+describe("withLevaFolderPaths", () => {
+  it("dual-writes Surface Effect nested keys", () => {
+    const patch = withLevaFolderPaths({
+      mbDensity: 9,
+      surfaceType: "metaballs",
+      theme: "dark",
+    });
+    expect(patch["Surface Effect.mbDensity"]).toBe(9);
+    expect(patch["Surface Effect.surfaceType"]).toBe("metaballs");
+    expect(patch["Appearance.theme"]).toBe("dark");
+    expect(patch.mbDensity).toBe(9);
   });
 });
 
