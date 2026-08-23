@@ -6,6 +6,7 @@ export default defineConfig({
     environment: "node",
     include: [
       "src/components/projects/display/maser-dither-engine/export/__tests__/**/*.test.ts",
+      "src/components/projects/feedback/agent-swarm/engine/__tests__/**/*.test.ts",
     ],
   },
   resolve: {

@@ -30,6 +30,13 @@
       "description": "Morphable rotating superellipse loader with blur, corner, power, and chromatic aberration controls"
     },
     {
+      "slug": "agent-swarm",
+      "title": "Agent Swarm",
+      "status": "building",
+      "category": "feedback",
+      "description": "Seeded multi-agent choreography primitive — luminous triangular nodes exchanging work"
+    },
+    {
       "slug": "liquid-monochrome",
       "title": "Liquid Monochrome Reveal",
       "status": "building",

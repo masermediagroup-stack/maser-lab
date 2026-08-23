@@ -11,10 +11,12 @@ import { KineticPerspectiveBarsDemo } from "./display/kinetic-perspective-bars";
 import { MaserDitherEngineDemo } from "./display/maser-dither-engine/maser-dither-engine-demo";
 import { ServiceShowcaseDemo } from "./marketing/service-showcase";
 import { PixelInfoCardDemo } from "./display/pixel-info-card/pixel-info-card-demo";
+import { AgentSwarmDemo } from "./feedback/agent-swarm/agent-swarm-demo";
 
 export const demoRegistry: Record<string, ComponentType> = {
   "liquid-monochrome": LiquidMonochromeDemo,
   "blobby-rotation-loader": BlobbyRotationDemo,
+  "agent-swarm": AgentSwarmDemo,
   "makeyourday-calendar": MakeYourDayCalendarDemo,
   "plotline-tab-nav": PlotlineTabNavDemo,
   prism: PrismNavDemo,
