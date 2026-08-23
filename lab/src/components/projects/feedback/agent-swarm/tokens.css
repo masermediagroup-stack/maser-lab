@@ -82,7 +82,8 @@
 
 .agent-swarm-demo__stage .agent-swarm {
   width: min(100%, 720px);
-  height: min(52dvh, 520px);
+  height: 100%;
+  max-height: min(58dvh, 560px);
 }
 
 .agent-swarm-demo__controls {
@@ -119,7 +120,7 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.72rem;
   padding: 8px 12px;
-  min-height: 36px;
+  min-height: 44px;
   cursor: pointer;
   transition:
     background-color var(--agent-swarm-duration-ui) ease-out,
@@ -209,7 +210,7 @@
 .agent-swarm-field select,
 .agent-swarm-field input[type="text"],
 .agent-swarm-field input[type="color"] {
-  min-height: 36px;
+  min-height: 44px;
   border: 1px solid var(--as-line);
   border-radius: 8px;
   background: #111114;
@@ -256,7 +257,7 @@
 
 .agent-swarm-slider__track {
   position: relative;
-  height: 28px;
+  height: 44px;
   border-radius: 999px;
   background: var(--as-track);
   overflow: hidden;
@@ -313,7 +314,7 @@
   }
 
   .agent-swarm-demo__stage .agent-swarm {
-    height: min(46dvh, 360px);
+    max-height: none;
   }
 
   .agent-swarm-demo__controls {
@@ -331,7 +332,7 @@
   }
 
   .agent-swarm-demo__stage .agent-swarm {
-    height: min(58dvh, 560px);
+    max-height: min(62dvh, 600px);
   }
 }
 

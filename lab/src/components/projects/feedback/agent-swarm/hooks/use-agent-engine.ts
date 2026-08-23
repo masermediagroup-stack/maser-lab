@@ -199,7 +199,7 @@ export function useAgentEngine({
           els.core.setAttribute("fill", error && i < 2 ? WARNING_TINT : baseColor);
         }
         if (els?.bloom) els.bloom.setAttribute("opacity", String(0.85 + bloom * 0.35));
-        if (els?.halo) els.halo.setAttribute("opacity", String(0.07 * current.atmosphericGlow));
+        if (els?.halo) els.halo.setAttribute("opacity", String(current.atmosphericGlow));
 
         const trailCount = Math.max(0, Math.min(MAX_TRAIL, Math.round(current.trailLength)));
         const history = trails[i] ?? [];
