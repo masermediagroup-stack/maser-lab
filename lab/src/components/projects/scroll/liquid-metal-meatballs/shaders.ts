@@ -80,19 +80,19 @@ float field(vec2 p, out float crease) {
 /* Shared wet mercury. Equal spec lift on every stop so a solo disc is a
    continuous wash — never a UV spec cone, never a facing hotspot. */
 vec3 metalWash(vec2 uv) {
-  float wet = 0.28;
+  float wet = 0.34;
   vec3 stops[PAL_COUNT];
   stops[0] = mix(uAlbedo, uSpec, wet);
-  stops[1] = mix(mix(uAlbedo, uCrease, 0.34), uSpec, wet);
-  stops[2] = mix(mix(uAlbedo, uCrease, 0.52), uSpec, wet);
-  stops[3] = mix(mix(uAlbedo, uCrease, 0.70), uSpec, wet);
-  stops[4] = mix(mix(uAlbedo, uCrease, 0.16), uSpec, wet);
+  stops[1] = mix(mix(uAlbedo, uCrease, 0.12), uSpec, wet);
+  stops[2] = mix(mix(uAlbedo, uCrease, 0.20), uSpec, wet);
+  stops[3] = mix(mix(uAlbedo, uCrease, 0.28), uSpec, wet);
+  stops[4] = mix(mix(uAlbedo, uCrease, 0.08), uSpec, wet);
 
   vec3 color = vec3(0.0);
   float totalWeight = 0.0;
   for (int i = 0; i < PAL_COUNT; i++) {
     float dist = length(uv - PAL_POS[i]);
-    dist = pow(max(dist, 1e-4), 3.5);
+    dist = pow(max(dist, 1e-4), 2.0);
     float w = 1.0 / (dist + 1e-3);
     color += stops[i] * w;
     totalWeight += w;
@@ -123,7 +123,7 @@ void main() {
   vec2 gd = vec2(dFdx(d), dFdy(d));
   float gLen = length(gd);
   float alive = smoothstep(0.08, 0.42, gLen / max(fwidth(d), 1e-6));
-  float wall = alive * smoothstep(0.006, 0.022, length(vec2(dFdx(crease), dFdy(crease))));
+  float wall = alive * smoothstep(0.012, 0.034, length(vec2(dFdx(crease), dFdy(crease))));
   vec2 n2 = gd / max(gLen, 1e-8);
   float ndl = max(dot(n2, LIGHT_DIR), 0.0);
   float spec = pow(ndl, 8.0) * pow(clamp(crease, 0.0, 1.0), 1.35) * alive;
