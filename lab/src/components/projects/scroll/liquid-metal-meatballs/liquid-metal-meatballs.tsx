@@ -4,8 +4,8 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { LiquidMetalFallback } from "./fallback";
 import { MeatballRenderer, isWebGL2Available } from "./renderer";
 import { MeatballSimulation } from "./simulation";
-import { SPAWN_OFF_DWELL } from "./constants";
-import type { LiquidMetalMeatballsProps, SequencePhase } from "./types";
+import { SPAWN_OFF_DWELL, LIQUID_METAL_MEATBALLS_DEFAULTS } from "./constants";
+import type { LiquidMetalLook, LiquidMetalMeatballsProps, SequencePhase } from "./types";
 import "./tokens.css";
 
 function subscribeNever(): () => void {
@@ -57,6 +57,7 @@ export function LiquidMetalMeatballs({
   replayKey = 0,
   className,
   onPhaseChange,
+  lookRef,
 }: LiquidMetalMeatballsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const osReduced = usePrefersReducedMotion();
@@ -64,6 +65,7 @@ export function LiquidMetalMeatballs({
   const reducedRef = useRef(reduced);
   const replayKeyRef = useRef(replayKey);
   const onPhaseChangeRef = useRef(onPhaseChange);
+  const lookSourceRef = lookRef;
 
   const freezeStillRef = useRef<() => void>(() => {});
   const restartLiveRef = useRef<() => void>(() => {});
@@ -88,6 +90,16 @@ export function LiquidMetalMeatballs({
       return;
     }
 
+    const lockedLook: LiquidMetalLook = {
+      hue: LIQUID_METAL_MEATBALLS_DEFAULTS.hue,
+      sat: LIQUID_METAL_MEATBALLS_DEFAULTS.sat,
+      mergeK: LIQUID_METAL_MEATBALLS_DEFAULTS.mergeK,
+      wetness: LIQUID_METAL_MEATBALLS_DEFAULTS.wetness,
+    };
+
+    const syncLook = () => {
+      renderer.applyLook(lookSourceRef?.current ?? lockedLook);
+    };
     const sim = new MeatballSimulation();
     let raf = 0;
     let last = performance.now();
@@ -143,6 +155,7 @@ export function LiquidMetalMeatballs({
 
     const freezeStill = () => {
       sim.loadStillCluster(width, height);
+      syncLook();
       renderer.draw(sim.charges);
       reportPhase("still");
       ensureLoop();
@@ -154,6 +167,7 @@ export function LiquidMetalMeatballs({
       sim.reset();
       offDwell = 0;
       sampleGate(0);
+      syncLook();
       renderer.draw(sim.charges);
       if (spawning) reportPhase("sequence");
       else reportPhase("idle");
@@ -176,6 +190,7 @@ export function LiquidMetalMeatballs({
         freezeStill();
         return;
       }
+      syncLook();
       renderer.draw(sim.charges);
     };
 
@@ -190,12 +205,14 @@ export function LiquidMetalMeatballs({
       const dt = Math.min(0.033, (now - last) / 1000);
       last = now;
       if (reducedRef.current) {
+        syncLook();
         renderer.draw(sim.charges);
         reportPhase("still");
         return;
       }
       sampleGate(dt);
       sim.step(dt, width, height);
+      syncLook();
       renderer.draw(sim.charges);
       if (spawning) reportPhase("sequence");
       else if (sim.aliveCount > 0) reportPhase("finishing");
@@ -233,6 +250,8 @@ export function LiquidMetalMeatballs({
       replaySimRef.current = () => {};
       renderer.dispose();
     };
+    // lookRef is sampled in rAF; adding it here remounts the GL program.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [webgl, triggerRef]);
 
   useEffect(() => {
@@ -264,4 +283,4 @@ export function LiquidMetalMeatballs({
   );
 }
 
-export type { LiquidMetalMeatballsProps, SequencePhase };
+export type { LiquidMetalLook, LiquidMetalMeatballsProps, SequencePhase };

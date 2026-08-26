@@ -48,6 +48,8 @@ type LabButtonProps = {
   onClick?: () => void;
   "aria-label"?: string;
   "aria-pressed"?: boolean;
+  "aria-expanded"?: boolean;
+  "aria-controls"?: string;
 };
 
 export function LabButton({
@@ -58,6 +60,8 @@ export function LabButton({
   onClick,
   "aria-label": ariaLabel,
   "aria-pressed": ariaPressed,
+  "aria-expanded": ariaExpanded,
+  "aria-controls": ariaControls,
 }: LabButtonProps) {
   return (
     <button
@@ -65,6 +69,8 @@ export function LabButton({
       onClick={onClick}
       aria-label={ariaLabel}
       aria-pressed={ariaPressed}
+      aria-expanded={ariaExpanded}
+      aria-controls={ariaControls}
       className={cn(
         "min-h-11 shrink-0 whitespace-nowrap rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-[color,background-color,box-shadow,transform] duration-150 max-sm:px-2.5 max-sm:text-xs",
         variant === "ghost" &&
@@ -86,6 +92,49 @@ type ReducedMotionToggleProps = {
   onToggle: () => void;
   className?: string;
 };
+
+type LabRangeProps = {
+  id: string;
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  display: string;
+  onChange: (value: number) => void;
+  className?: string;
+};
+
+export function LabRange({
+  id,
+  label,
+  value,
+  min,
+  max,
+  step,
+  display,
+  onChange,
+  className,
+}: LabRangeProps) {
+  return (
+    <div className={cn("flex min-w-0 flex-col gap-1", className)}>
+      <div className="flex items-baseline justify-between gap-2 font-mono text-xs text-[var(--lab-text-secondary)]">
+        <label htmlFor={id}>{label}</label>
+        <span className="tabular-nums text-[var(--lab-text-muted)]">{display}</span>
+      </div>
+      <input
+        id={id}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="h-11 w-full min-w-0 accent-[var(--lab-accent-primary)]"
+      />
+    </div>
+  );
+}
 
 export function ReducedMotionToggle({
   enabled,
@@ -250,8 +299,8 @@ export function DemoControlMenu({
   return (
     <DemoControlBar
       className={cn(
-        "left-2 top-2 w-max max-w-[calc(100vw-1rem)] flex-col items-stretch sm:left-4 sm:top-4",
-        !open && "gap-0 p-1.5",
+        "left-2 top-2 w-[min(20.5rem,calc(100vw-1rem))] max-w-[calc(100vw-1rem)] flex-col items-stretch sm:left-4 sm:top-4",
+        !open && "w-max gap-0 p-1.5",
         className,
       )}
     >
@@ -267,7 +316,10 @@ export function DemoControlMenu({
         <DemoMenuIcon open={open} />
       </LabButton>
       {open ? (
-        <div id={panelId} className="flex flex-col gap-1.5">
+        <div
+          id={panelId}
+          className="flex max-h-[min(72vh,34rem)] flex-col gap-1.5 overflow-y-auto overscroll-contain"
+        >
           {children}
         </div>
       ) : null}

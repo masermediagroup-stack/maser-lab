@@ -98,7 +98,7 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 - [x] Edge spawn / different-edge exit / sticky merge / shared mercury wash match the thesis (rendered) — isolated discs read wet mercury on white (limb graze, no vinyl, no center pin); merged blobs stay mercury with no sheen banding; isolated balls stay circular in screen space (neck only while smin-merging)
 - [x] Demo reduced-motion toggle freezes a still cluster; toggling RM off and Replay both restart the sim without a full reload (rendered)
 - [x] Demo Light / Dark grounds let the same metal be judged on white and black (rendered)
-- [x] Mobile lab chrome is a compact chip that does not cover the hero headline or the meatball field (rendered)
+- [x] Mobile lab chrome is a compact hamburger that does not cover the hero headline or the meatball field (rendered). Open panel stacks Hue / Saturation / Merge k / Wetness; Light/Dark/Replay/RM stay. No light-angle knob.
 - [x] Hidden tab pauses rAF (source + visibility handler)
 - [x] Copy sits on the canvas with no frosted/dimmed plate (`pointer-events: none` on canvas; glyph ink halo on Light and Dark; rendered)
 - [x] Component exported from `lab/src/components/projects/scroll/liquid-metal-meatballs/index.ts` (product-only)
@@ -106,7 +106,7 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 ## Open decisions
 
 - Texture-packed 1×N centers (4rknova) vs `uniform vec4 uBalls[16]` — uniforms are enough at this charge count. Revisit only if charge count grows.
-- Exact `k` (merge tension) is locked from the timed canvas pass (`LMM_MERGE_K = 24`). Coloring is IDW in object UV after smin (Paper MeshGradient structure, Maser palette). No per-ball facing spec.
+- Exact `k` (merge tension) defaults to `LMM_MERGE_K = 24`. Lab demo chrome may retune k/hue/sat/wetness; product defaults stay locked. No per-ball facing spec.
 
 ## Accepted decisions
 

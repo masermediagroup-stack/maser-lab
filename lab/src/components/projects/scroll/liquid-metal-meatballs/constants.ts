@@ -40,4 +40,10 @@ export const STILL_CLUSTER: readonly { x: number; y: number; r: number }[] = [
 export const LIQUID_METAL_MEATBALLS_DEFAULTS = {
   mergeK: LMM_MERGE_K,
   maxPrimaries: MAX_PRIMARIES,
+  hue: 0,
+  sat: 1,
+  /** Dark-ground locked metal. Light ground uses satin (see demo). */
+  wetness: 0.78,
+  wetnessSatin: 0.28,
+  wetnessWet: 0.78,
 } as const;

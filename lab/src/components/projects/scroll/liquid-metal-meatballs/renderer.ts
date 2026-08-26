@@ -3,9 +3,11 @@ import {
   LMM_CREASE_RGB,
   LMM_MERGE_K,
   LMM_SPEC_RGB,
+  LIQUID_METAL_MEATBALLS_DEFAULTS,
   MAX_CHARGES,
 } from "./constants";
 import { FRAG_SRC, VERT_SRC } from "./shaders";
+import type { LiquidMetalLook } from "./types";
 
 function createShader(
   gl: WebGL2RenderingContext,
@@ -65,11 +67,15 @@ export class MeatballRenderer {
   private readonly ballsLoc: WebGLUniformLocation | null;
   private readonly resolutionLoc: WebGLUniformLocation | null;
   private readonly mergeKLoc: WebGLUniformLocation | null;
+  private readonly hueLoc: WebGLUniformLocation | null;
+  private readonly satLoc: WebGLUniformLocation | null;
+  private readonly wetnessLoc: WebGLUniformLocation | null;
   private readonly deviceCharges = new Float32Array(MAX_CHARGES * 4);
   private dpr = 1;
   private bufferW = 0;
   private bufferH = 0;
   private disposed = false;
+  private mergeKCss = LMM_MERGE_K;
 
   constructor(canvas: HTMLCanvasElement) {
     const gl = canvas.getContext("webgl2", {
@@ -89,6 +95,9 @@ export class MeatballRenderer {
     this.ballsLoc = gl.getUniformLocation(this.program, "uBalls[0]");
     this.resolutionLoc = gl.getUniformLocation(this.program, "uResolution");
     this.mergeKLoc = gl.getUniformLocation(this.program, "uMergeK");
+    this.hueLoc = gl.getUniformLocation(this.program, "uHueShift");
+    this.satLoc = gl.getUniformLocation(this.program, "uSatMul");
+    this.wetnessLoc = gl.getUniformLocation(this.program, "uWetness");
 
     gl.uniform3f(
       gl.getUniformLocation(this.program, "uAlbedo"),
@@ -108,6 +117,21 @@ export class MeatballRenderer {
       LMM_SPEC_RGB[1],
       LMM_SPEC_RGB[2],
     );
+    this.applyLook({
+      hue: LIQUID_METAL_MEATBALLS_DEFAULTS.hue,
+      sat: LIQUID_METAL_MEATBALLS_DEFAULTS.sat,
+      mergeK: LMM_MERGE_K,
+      wetness: LIQUID_METAL_MEATBALLS_DEFAULTS.wetness,
+    });
+  }
+
+  applyLook(look: LiquidMetalLook): void {
+    const gl = this.gl;
+    this.mergeKCss = look.mergeK;
+    gl.uniform1f(this.hueLoc, look.hue / 360);
+    gl.uniform1f(this.satLoc, look.sat);
+    gl.uniform1f(this.wetnessLoc, look.wetness);
+    gl.uniform1f(this.mergeKLoc, this.mergeKCss * this.dpr);
   }
 
   setSize(cssWidth: number, cssHeight: number, dpr: number): void {
@@ -130,7 +154,7 @@ export class MeatballRenderer {
     }
     gl.viewport(0, 0, w, h);
     gl.uniform2f(this.resolutionLoc, w, h);
-    gl.uniform1f(this.mergeKLoc, LMM_MERGE_K * dpr);
+    gl.uniform1f(this.mergeKLoc, this.mergeKCss * dpr);
   }
 
   draw(cssCharges: Float32Array): void {

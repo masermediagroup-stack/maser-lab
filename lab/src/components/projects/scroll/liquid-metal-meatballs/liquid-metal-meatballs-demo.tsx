@@ -5,10 +5,12 @@ import {
   DemoBackButton,
   DemoControlMenu,
   LabButton,
+  LabRange,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
+import { LIQUID_METAL_MEATBALLS_DEFAULTS } from "./constants";
 import { LiquidMetalMeatballs } from "./liquid-metal-meatballs";
-import type { SequencePhase } from "./types";
+import type { LiquidMetalLook, SequencePhase } from "./types";
 import "./tokens.css";
 
 const PHASE_COPY: Record<SequencePhase, string> = {
@@ -20,12 +22,50 @@ const PHASE_COPY: Record<SequencePhase, string> = {
 
 type Ground = "dark" | "light";
 
+const HUE_MIN = -48;
+const HUE_MAX = 48;
+const SAT_MIN = 0.4;
+const SAT_MAX = 1.35;
+const K_MIN = 8;
+const K_MAX = 48;
+
+function lookForGround(ground: Ground, prev?: LiquidMetalLook): LiquidMetalLook {
+  return {
+    hue: prev?.hue ?? LIQUID_METAL_MEATBALLS_DEFAULTS.hue,
+    sat: prev?.sat ?? LIQUID_METAL_MEATBALLS_DEFAULTS.sat,
+    mergeK: prev?.mergeK ?? LIQUID_METAL_MEATBALLS_DEFAULTS.mergeK,
+    wetness:
+      ground === "light"
+        ? LIQUID_METAL_MEATBALLS_DEFAULTS.wetnessSatin
+        : LIQUID_METAL_MEATBALLS_DEFAULTS.wetnessWet,
+  };
+}
+
 export function LiquidMetalMeatballsDemo() {
   const triggerRef = useRef<HTMLElement | null>(null);
   const phaseLiveRef = useRef<HTMLParagraphElement>(null);
   const [reduced, setReduced] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
   const [ground, setGround] = useState<Ground>("dark");
+  const [look, setLook] = useState<LiquidMetalLook>(() => lookForGround("dark"));
+  const lookRef = useRef<LiquidMetalLook>(lookForGround("dark"));
+
+  const patchLook = useCallback((partial: Partial<LiquidMetalLook>) => {
+    setLook((prev) => {
+      const next = { ...prev, ...partial };
+      lookRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const handleGround = useCallback((next: Ground) => {
+    setGround(next);
+    setLook((prev) => {
+      const updated = lookForGround(next, prev);
+      lookRef.current = updated;
+      return updated;
+    });
+  }, []);
 
   const handlePhaseChange = useCallback((phase: SequencePhase) => {
     const node = phaseLiveRef.current;
@@ -54,10 +94,11 @@ export function LiquidMetalMeatballsDemo() {
         forceReducedMotion={reduced}
         replayKey={replayKey}
         onPhaseChange={handlePhaseChange}
+        lookRef={lookRef}
       />
 
       <DemoControlMenu>
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <DemoBackButton />
           <div
             className="flex shrink-0 items-center gap-1"
@@ -68,7 +109,7 @@ export function LiquidMetalMeatballsDemo() {
               type="button"
               variant={ground === "light" ? "accent" : "ghost"}
               aria-pressed={ground === "light"}
-              onClick={() => setGround("light")}
+              onClick={() => handleGround("light")}
             >
               Light
             </LabButton>
@@ -76,7 +117,7 @@ export function LiquidMetalMeatballsDemo() {
               type="button"
               variant={ground === "dark" ? "accent" : "ghost"}
               aria-pressed={ground === "dark"}
-              onClick={() => setGround("dark")}
+              onClick={() => handleGround("dark")}
             >
               Dark
             </LabButton>
@@ -89,6 +130,52 @@ export function LiquidMetalMeatballsDemo() {
           <ReducedMotionToggle
             enabled={reduced}
             onToggle={() => setReduced((value) => !value)}
+          />
+        </div>
+        <div
+          className="flex flex-col gap-2 border-t border-[var(--lab-border)] pt-2"
+          role="group"
+          aria-label="Mercury look"
+        >
+          <LabRange
+            id="lmm-hue"
+            label="Hue"
+            min={HUE_MIN}
+            max={HUE_MAX}
+            step={1}
+            value={look.hue}
+            display={`${look.hue > 0 ? "+" : ""}${Math.round(look.hue)}°`}
+            onChange={(hue) => patchLook({ hue })}
+          />
+          <LabRange
+            id="lmm-sat"
+            label="Saturation"
+            min={SAT_MIN}
+            max={SAT_MAX}
+            step={0.01}
+            value={look.sat}
+            display={look.sat.toFixed(2)}
+            onChange={(sat) => patchLook({ sat })}
+          />
+          <LabRange
+            id="lmm-merge-k"
+            label="Merge k"
+            min={K_MIN}
+            max={K_MAX}
+            step={1}
+            value={look.mergeK}
+            display={String(Math.round(look.mergeK))}
+            onChange={(mergeK) => patchLook({ mergeK })}
+          />
+          <LabRange
+            id="lmm-wetness"
+            label="Wetness"
+            min={0}
+            max={1}
+            step={0.01}
+            value={look.wetness}
+            display={look.wetness.toFixed(2)}
+            onChange={(wetness) => patchLook({ wetness })}
           />
         </div>
       </DemoControlMenu>
