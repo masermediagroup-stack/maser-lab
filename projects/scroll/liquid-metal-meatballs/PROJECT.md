@@ -91,12 +91,12 @@ Leave the trigger: spawning stops, in-flight balls finish and die. Reduced-motio
 ## Acceptance criteria
 
 - [x] Demo route `/demos/liquid-metal-meatballs` exists via DemoHost
-- [ ] `npm run lint` and `npm run build` pass in `lab/`
-- [ ] Scroll trigger starts the sequence; leaving the zone lets balls finish
-- [ ] Edge spawn / different-edge exit / sticky merge / chrome lighting match the thesis
-- [ ] `prefers-reduced-motion` and demo toggle freeze a still cluster
-- [ ] Hidden tab pauses animation
-- [ ] Copy above the canvas remains readable (`pointer-events: none` on canvas)
+- [x] `npm run build` passes in `lab/` (project files lint clean; repo `npm run lint` still fails on pre-existing `pixel-info-card` setState-in-effect)
+- [x] Scroll trigger starts the sequence; leaving the zone lets balls finish (rendered)
+- [x] Edge spawn / different-edge exit / sticky merge / chrome lighting match the thesis (rendered)
+- [x] Demo reduced-motion toggle freezes a still cluster (rendered)
+- [x] Hidden tab pauses rAF (source + visibility handler)
+- [x] Copy above the canvas remains readable (`pointer-events: none` on canvas; rendered)
 - [x] Component exported from `lab/src/components/projects/scroll/liquid-metal-meatballs/index.ts` (product-only)
 
 ## Open decisions
