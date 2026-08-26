@@ -51,7 +51,9 @@ Path: `lab/src/components/lab/demo-chrome.tsx`
 | `ViewportModeToggle` | `role="group"` + `aria-label` |
 | `DemoViewportFrame` | **Generic** class names (`lab-viewport-*`) — never `summitpath-signup-*` |
 
-**Dock contract (source: liquid-metal-meatballs):** knobs live in the demo, never a product barrel. Open dock stacks **off** the canvas via `--lab-control-dock-left` / `--lab-control-dock-top`. Apply `.lab-demo-inset` (or those vars) to the field. Do not cover the canvas. Demos with no controls stay alone. Exception: `maser-dither-engine` keeps its own studio chrome.
+**Dock contract (source: liquid-metal-meatballs on PR 57):** one strip language — left rail on desktop, stacked top strip on mobile. Knobs live in the **demo**, never a product barrel. Shared chrome must not import a product slug. Meatballs (and any other demo) **consumes** `DemoControlMenu` — do not fork a private dock.
+
+Open dock sets `--lab-control-dock-left` / `--lab-control-dock-top` / `--lab-control-type-offset` to pad **page copy** (`.lab-demo-inset` or a copy spacer). The product **field** (fullscreen canvas / WebGL) stays the full viewport: `position: fixed; inset: 0; width/height: 100%`. Never size a canvas from the dock, never dispatch resize to shrink the field, never use `width/height: auto` on a replaced canvas (intrinsic **300×150** trap). Do not overlay chrome on product copy. Demos with no controls stay alone. Exception: `maser-dither-engine` keeps its own studio chrome — do not move, restyle, or transfer it.
 
 ### Decoupling rule (P0 if violated)
 

@@ -33,7 +33,8 @@
   color: var(--lab-text-primary);
 }
 
-/* Open dock insets the field. Collapsed hamburger uses type-offset only. */
+/* Dock pads page copy so chrome sits off the product. Never apply this
+   to a WebGL/canvas field — those stay full viewport (see meatballs). */
 .lab-demo-inset {
   padding-left: var(--lab-control-dock-left, 0px);
   padding-top: max(

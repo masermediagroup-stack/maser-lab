@@ -1,7 +1,7 @@
 # Demo chrome checklist
 
 - [ ] `DemoLabBrand` / back to `/`
-- [ ] `DemoControlBar` for primary controls
+- [ ] `DemoControlMenu` when the demo has knobs (same meatballs strip; do not fork)
 - [ ] `ReducedMotionToggle` with `aria-label="Toggle reduced motion"`
 - [ ] Product root `aria-label` documented in PROJECT.md
 - [ ] State matrix covers PROJECT.md states

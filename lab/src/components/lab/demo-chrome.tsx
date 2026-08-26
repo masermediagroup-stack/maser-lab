@@ -305,15 +305,13 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
     if (!node) return;
 
     const root = document.documentElement;
-    let lastDockLeft = "";
-    let lastDockTop = "";
 
     const syncOffset = () => {
       const rect = node.getBoundingClientRect();
       const vw = window.innerWidth || 1;
       const vh = window.innerHeight || 1;
-      /* Open dock: full-height left rail or full-width top strip.
-         Collapsed hamburger is a small corner toggle — no canvas inset. */
+      /* Open dock pads page copy only. Never size the WebGL canvas —
+         a replaced canvas with auto width/height collapses to 300×150. */
       const leftDock =
         rect.left <= 8 && rect.height >= vh * 0.55 ? Math.round(rect.width) : 0;
       const topDock =
@@ -323,23 +321,11 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
           ? Math.round(rect.height)
           : 0;
       const typeOffset = leftDock > 0 || topDock > 0 ? 12 : Math.round(rect.bottom + 12);
-      const dockLeft = `${leftDock}px`;
-      const dockTop = `${topDock}px`;
 
       root.style.setProperty("--lab-control-bar-bottom", `${typeOffset}px`);
       root.style.setProperty("--lab-control-type-offset", `${typeOffset}px`);
-      root.style.setProperty("--lab-control-dock-left", dockLeft);
-      root.style.setProperty("--lab-control-dock-top", dockTop);
-
-      /* One-shot window resize so fullscreen fields can match the inset
-         without a canvas ResizeObserver (those hitch on scroll). */
-      if (dockLeft !== lastDockLeft || dockTop !== lastDockTop) {
-        lastDockLeft = dockLeft;
-        lastDockTop = dockTop;
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new Event("resize"));
-        });
-      }
+      root.style.setProperty("--lab-control-dock-left", `${leftDock}px`);
+      root.style.setProperty("--lab-control-dock-top", `${topDock}px`);
     };
 
     syncOffset();

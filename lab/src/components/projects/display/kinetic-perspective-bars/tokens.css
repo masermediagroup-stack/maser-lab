@@ -121,10 +121,7 @@
 
 .kinetic-bars-demo__stage {
   position: absolute;
-  top: var(--lab-control-dock-top, 0px);
-  right: 0;
-  bottom: 0;
-  left: var(--lab-control-dock-left, 0px);
+  inset: 0;
   z-index: 1;
 }
 
