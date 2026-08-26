@@ -120,9 +120,14 @@
 }
 
 .kinetic-bars-demo__stage {
-  position: absolute;
-  inset: 0;
+  position: fixed;
   z-index: 1;
+  top: var(--lab-control-dock-top, 0px);
+  left: var(--lab-control-dock-left, 0px);
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
 }
 
 .kinetic-bars-demo__bottom {

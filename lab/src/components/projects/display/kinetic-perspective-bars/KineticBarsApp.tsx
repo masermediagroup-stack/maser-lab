@@ -70,7 +70,7 @@ export function KineticBarsApp({
   return (
     <div className="kinetic-bars-demo">
       <p className="kinetic-bars-demo__sr">{SR_DESCRIPTION}</p>
-      <div className="kinetic-bars-demo__stage" aria-hidden={false}>
+      <div className="kinetic-bars-demo__stage lab-demo-field" aria-hidden={false}>
         {mounted ? (
           <ThreeCanvas
             fallback={

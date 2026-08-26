@@ -53,7 +53,9 @@ Path: `lab/src/components/lab/demo-chrome.tsx`
 
 **Dock contract (source: liquid-metal-meatballs on PR 57):** one strip language — left rail on desktop, stacked top strip on mobile. Knobs live in the **demo**, never a product barrel. Shared chrome must not import a product slug. Meatballs (and any other demo) **consumes** `DemoControlMenu` — do not fork a private dock.
 
-Open dock sets `--lab-control-dock-left` / `--lab-control-dock-top` / `--lab-control-type-offset` to pad **page copy** (`.lab-demo-inset` or a copy spacer). The product **field** (fullscreen canvas / WebGL) stays the full viewport: `position: fixed; inset: 0; width/height: 100%`. Never size a canvas from the dock, never dispatch resize to shrink the field, never use `width/height: auto` on a replaced canvas (intrinsic **300×150** trap). Do not overlay chrome on product copy. Demos with no controls stay alone. Exception: `maser-dither-engine` keeps its own studio chrome — do not move, restyle, or transfer it.
+Open dock is an **opaque strip** (`bg` lab token, no backdrop-blur, no scrim). Desktop: left rail. Mobile: stacked top strip. Not a glass overlay and not a modal sheet over the product.
+
+`--lab-control-dock-left` / `--lab-control-dock-top` / `--lab-control-type-offset` pad **page copy** (`.lab-demo-inset`). Canvas/WebGL fields use `.lab-demo-field` (or the same top/left/right/bottom vars): closed = full viewport; open = the remaining uncovered box beside/below the rail. Never sit the field under a dimmed plate. Never `width/height: auto` on a replaced canvas (**300×150** trap). Never remount GL when the dock opens. Do not overlay chrome on product copy. Light/Dark only when that demo has two grounds. Replay / reduced motion stay in the existing shared row — do not add a second chrome cluster. Demos with no controls stay alone. Exception: `maser-dither-engine` keeps its own studio chrome — do not move, restyle, or transfer it.
 
 ### Decoupling rule (P0 if violated)
 

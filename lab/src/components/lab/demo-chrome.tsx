@@ -349,7 +349,8 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
       role="region"
       aria-label="Demo controls"
       className={cn(
-        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[rgba(10,10,11,0.88)] p-2 backdrop-blur-md max-sm:gap-1.5 max-sm:p-1.5",
+        /* Opaque strip — never a glass overlay/scrim over the product field. */
+        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[var(--lab-bg)] p-2 max-sm:gap-1.5 max-sm:p-1.5",
         className,
       )}
     >
@@ -391,7 +392,8 @@ type DemoControlMenuProps = {
 };
 
 /** Collapsible demo controls. Collapsed: small toggle. Open: viewport-edge dock
- *  (top strip on small screens, left rail from sm up) — not a floating overlay. */
+ *  (top strip on small screens, left rail from sm up) — opaque strip, not a
+ *  dimming overlay or mobile sheet over the product. */
 export function DemoControlMenu({
   className,
   children,
@@ -415,7 +417,7 @@ export function DemoControlMenu({
         "flex-col items-stretch",
         open
           ? [
-              "flex-nowrap overflow-hidden left-0 top-0 max-h-[min(42dvh,22rem)] w-full max-w-none rounded-none border-x-0 border-t-0 p-3",
+              "lab-dock-open flex-nowrap overflow-hidden left-0 top-0 max-h-[min(42dvh,22rem)] w-full max-w-none rounded-none border-x-0 border-t-0 p-3",
               "sm:h-dvh sm:max-h-none sm:w-[min(20.5rem,38vw)] sm:max-w-[20.5rem] sm:rounded-none sm:border-b-0 sm:border-l-0 sm:border-r sm:border-t-0",
             ]
           : "left-2 top-2 w-max max-w-none gap-0 p-1.5 sm:left-4 sm:top-4",

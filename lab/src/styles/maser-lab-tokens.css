@@ -33,14 +33,33 @@
   color: var(--lab-text-primary);
 }
 
-/* Dock pads page copy so chrome sits off the product. Never apply this
-   to a WebGL/canvas field — those stay full viewport (see meatballs). */
+/* Dock pads page copy so chrome sits off the product. */
 .lab-demo-inset {
   padding-left: var(--lab-control-dock-left, 0px);
   padding-top: max(
     var(--lab-control-dock-top, 0px),
     var(--lab-control-type-offset, 0px)
   );
+}
+
+/* Full-bleed canvas/WebGL field. Closed dock: full viewport. Open dock: the
+   remaining box beside/below the rail — uncovered, not under a dim plate.
+   Size the backing store from this box. Never width/height:auto (300×150). */
+.lab-demo-field {
+  position: fixed;
+  top: var(--lab-control-dock-top, 0px);
+  left: var(--lab-control-dock-left, 0px);
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+}
+
+@media (min-width: 640px) {
+  .maser-lab:has(.demo-control-bar.lab-dock-open) {
+    --lab-control-dock-left: min(20.5rem, 38vw);
+    --lab-control-dock-top: 0px;
+  }
 }
 
 .lab-viewport-frame {
