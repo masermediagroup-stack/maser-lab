@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { LiquidMetalFallback } from "./fallback";
 import { MeatballRenderer, isWebGL2Available } from "./renderer";
 import { MeatballSimulation } from "./simulation";
@@ -101,9 +101,9 @@ export function LiquidMetalMeatballs({
     const reportPhase = (phase: SequencePhase) => {
       if (phase === lastPhase) return;
       lastPhase = phase;
-      startTransition(() => {
-        onPhaseChangeRef.current?.(phase);
-      });
+      /* Write through the callback without React setState on this tree.
+         Gate flips must not re-render the demo during scroll. */
+      onPhaseChangeRef.current?.(phase);
     };
 
     const ensureLoop = () => {
@@ -218,16 +218,14 @@ export function LiquidMetalMeatballs({
       ensureLoop();
     }
 
-    const canvasRo = new ResizeObserver(resize);
-    canvasRo.observe(canvas);
-
+    /* Window resize only. Observing the canvas (or visualViewport) during
+       scroll reallocates the drawing buffer and hitch-flashes the field. */
     window.addEventListener("resize", resize);
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
       running = false;
       cancelAnimationFrame(raf);
-      canvasRo.disconnect();
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibility);
       freezeStillRef.current = () => {};

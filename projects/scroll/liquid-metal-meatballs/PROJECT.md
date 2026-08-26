@@ -27,7 +27,7 @@ Read page copy while a decorative Maser-blue mercury field crosses the viewport:
 Greenfield.
 
 ### Desired outcome
-Chrome meatballs (albedo `#10a4ff`, creases `#0065a3`, near-white spec). Color is a shared Maser-blue wash sampled in object UV after smin merge (Shepard/IDW). Weight on travel. Sticky merge in the SDF. No CSS goo, no orbiting jelly, no mouse trail, no per-ball sphere lighting.
+Chrome meatballs (albedo `#10a4ff`, creases `#0065a3`, near-white spec). Color is one shared Maser-blue metal on the SDF field (Paper metaballs: accumulate influence × wash, then divide). Wrap and faint rim come from the combined contour — no per-ball lamps. Weight on travel. Sticky merge in the SDF. No CSS goo, no orbiting jelly, no mouse trail.
 
 ### Success signal
 Scroll into the marked trigger zone → balls spawn from edges, arc, neck/swallow when they pass, exit off a different edge, then die. Sitting still after leaving the zone lets remaining balls finish. Reduced motion shows a frozen cluster. Hidden tab pauses. Type on top remains readable.

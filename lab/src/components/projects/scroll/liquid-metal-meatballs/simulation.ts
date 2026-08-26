@@ -137,9 +137,11 @@ export class MeatballSimulation {
       this.height = size.height;
     }
     if (active && !this.wantSpawn) {
-      /* Prime just enough heat for one charge this frame, not a 3-ball slam. */
       this.spawnHeat = Math.max(this.spawnHeat, SPAWN_HEAT_MIN);
-      this.spawnCooldown = Math.min(this.spawnCooldown, 0);
+      this.spawnCooldown = 0;
+      if (this.trySpawn()) {
+        this.spawnCooldown = SPAWN_COOLDOWN_MAX;
+      }
     }
     this.wantSpawn = active;
   }
@@ -232,7 +234,7 @@ export class MeatballSimulation {
     const { p1, p2 } = makeArc(p0, p3, this.width, this.height);
     const chord = Math.hypot(p3.x - p0.x, p3.y - p0.y);
     const duration = Math.min(5.2, Math.max(1.7, (1.55 + chord / 440) * (radius / 40)));
-    const t0 = 0.1;
+    const t0 = 0.18;
     const pos = cubicBezier(p0, p1, p2, p3, weightEase(t0));
     this.balls.push({
       p0,

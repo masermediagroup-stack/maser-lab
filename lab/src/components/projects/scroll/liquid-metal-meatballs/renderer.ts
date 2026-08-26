@@ -112,16 +112,13 @@ export class MeatballRenderer {
 
   setSize(cssWidth: number, cssHeight: number, dpr: number): void {
     const gl = this.gl;
-    const w = Math.max(1, Math.floor(cssWidth * dpr));
-    const h = Math.max(1, Math.floor(cssHeight * dpr));
-    /* Skip tiny scroll-linked viewport jitter — reallocating the
-       drawing buffer clears the canvas and reads as a hitch/flash. */
-    if (
-      Math.abs(this.bufferW - w) <= 2 &&
-      Math.abs(this.bufferH - h) <= 2 &&
-      this.dpr === dpr &&
-      this.bufferW > 0
-    ) {
+    const cssW = Math.max(1, cssWidth);
+    const cssH = Math.max(1, cssHeight);
+    /* Round width, then height from CSS aspect so discs stay circular.
+       Independent floor(w*dpr)/floor(h*dpr) skews the buffer and reads oval. */
+    const w = Math.max(1, Math.round(cssW * dpr));
+    const h = Math.max(1, Math.round(w * (cssH / cssW)));
+    if (this.bufferW === w && this.bufferH === h && this.dpr === dpr) {
       return;
     }
     this.dpr = dpr;

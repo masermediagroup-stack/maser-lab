@@ -21,9 +21,11 @@ void main() {
 
 /**
  * Geometry: IQ quadratic smin on circle SDFs (unchanged).
- * Color AFTER merge: Paper MeshGradient Shepard/IDW in object UV
- * (mesh-gradient.ts) — shared wash, independent of ball identity.
- * Contour sheen from the combined field, never per-ball N = p - c_i.
+ * Color: Paper shaders-react metaballs method — accumulate
+ * (shared metal × influence), then divide (metaballs.ts).
+ * One metal on the field so merges blend; no per-ball lamp
+ * (never N = p - c_i / Blinn-Phong). Wrap + faint rim from
+ * the combined contour only.
  */
 export const FRAG_SRC = `#version 300 es
 precision highp float;
@@ -71,16 +73,15 @@ float field(vec2 p, out float crease) {
   return d;
 }
 
-vec3 idwWash(vec2 uv) {
+/* Shared Maser-blue albedo. Spec stays off the UV field so a stop
+   cannot land as a cone on whichever disc covers that region. */
+vec3 metalWash(vec2 uv) {
   vec3 stops[PAL_COUNT];
-  /* Shared Maser-blue field only. Near-white is reserved for the
-     combined silhouette rim — a spec stop in UV reads as a nipple
-     on whichever ball covers that region. */
-  stops[0] = mix(uAlbedo, uSpec, 0.2);
-  stops[1] = uAlbedo;
-  stops[2] = mix(uAlbedo, uCrease, 0.18);
-  stops[3] = mix(uAlbedo, uCrease, 0.48);
-  stops[4] = mix(uAlbedo, uSpec, 0.1);
+  stops[0] = uAlbedo;
+  stops[1] = mix(uAlbedo, uCrease, 0.14);
+  stops[2] = mix(uAlbedo, uCrease, 0.28);
+  stops[3] = mix(uAlbedo, uCrease, 0.42);
+  stops[4] = mix(uAlbedo, uCrease, 0.08);
 
   vec3 color = vec3(0.0);
   float totalWeight = 0.0;
@@ -92,6 +93,12 @@ vec3 idwWash(vec2 uv) {
     totalWeight += w;
   }
   return color / max(totalWeight, 1e-4);
+}
+
+float ballShape(vec2 p, vec4 ball) {
+  float radius = max(ball.z, 1.0);
+  float d = length(p - ball.xy) / radius;
+  return pow(max(1.0 - d, 0.0), 2.2);
 }
 
 void main() {
@@ -106,19 +113,27 @@ void main() {
     return;
   }
 
+  vec3 metal = metalWash(vUv);
+  vec3 totalColor = vec3(0.0);
+  float totalShape = 0.0;
+  for (int i = 0; i < MAX_CHARGES; i++) {
+    vec4 ball = uBalls[i];
+    if (ball.w < 0.5) continue;
+    float shape = ballShape(p, ball);
+    totalColor += metal * shape;
+    totalShape += shape;
+  }
+  vec3 color = totalShape > 1e-4 ? totalColor / totalShape : metal;
+  color = mix(color, uCrease, clamp(crease * 0.2, 0.0, 1.0));
+
   float fieldDepth = max(-d, 0.0);
+  /* Brighter wrap on the combined silhouette band — not a radial core. */
+  float wrap = smoothstep(1.2, 18.0, fieldDepth) * exp(-fieldDepth * 0.042);
+  color = mix(color, mix(uAlbedo, uSpec, 0.22), wrap * 0.38);
 
-  vec3 color = idwWash(vUv);
-  color = mix(color, uCrease, clamp(crease * 0.22, 0.0, 1.0));
-  /* Combined-SDF volume (not N.z): richer core, bright edge. */
-  float interior = 1.0 - exp(-fieldDepth * 0.035);
-  color = mix(color, mix(uAlbedo, uCrease, 0.55), interior * 0.28);
-
-  /* Mercury sheen lives on the combined contour so it reads on white
-     as a lighter-blue rim, not a white sticker or a center cone. */
-  float rim = mask * exp(-fieldDepth * 0.07);
-  vec3 rimCol = mix(uAlbedo, uSpec, 0.48);
-  color = mix(color, rimCol, clamp(rim * 0.82, 0.0, 1.0));
+  /* Faint rim on black; stays blue (not a white sticker) on light. */
+  float rim = mask * exp(-fieldDepth * 0.12);
+  color = mix(color, mix(uAlbedo, uSpec, 0.4), rim * 0.22);
 
   color += (1.0 / 256.0) * (
     fract(sin(dot(0.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - 0.5

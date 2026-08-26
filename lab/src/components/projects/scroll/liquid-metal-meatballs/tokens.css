@@ -27,7 +27,15 @@
 }
 
 .lmm-header {
-  padding-top: max(7rem, var(--lab-control-bar-bottom, 7rem));
+  padding-top: 0;
+}
+
+/* Stack type below the fixed demo bar — do not paint under it. */
+.lmm-chrome-stack {
+  flex-shrink: 0;
+  height: var(--lab-control-bar-bottom, 7rem);
+  min-height: 5.5rem;
+  pointer-events: none;
 }
 
 .lmm-ink {

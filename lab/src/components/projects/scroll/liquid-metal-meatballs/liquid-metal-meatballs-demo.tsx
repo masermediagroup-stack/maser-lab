@@ -22,10 +22,15 @@ type Ground = "dark" | "light";
 
 export function LiquidMetalMeatballsDemo() {
   const triggerRef = useRef<HTMLElement | null>(null);
+  const phaseLiveRef = useRef<HTMLParagraphElement>(null);
   const [reduced, setReduced] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
-  const [phase, setPhase] = useState<SequencePhase>("idle");
   const [ground, setGround] = useState<Ground>("dark");
+
+  const handlePhaseChange = useCallback((phase: SequencePhase) => {
+    const node = phaseLiveRef.current;
+    if (node) node.textContent = PHASE_COPY[phase];
+  }, []);
 
   const handleReplay = useCallback(() => {
     const node = triggerRef.current;
@@ -48,7 +53,7 @@ export function LiquidMetalMeatballsDemo() {
         triggerRef={triggerRef}
         forceReducedMotion={reduced}
         replayKey={replayKey}
-        onPhaseChange={setPhase}
+        onPhaseChange={handlePhaseChange}
       />
 
       <DemoControlBar className="left-2 top-2 w-max max-w-[calc(100vw-1rem)] flex-col items-stretch gap-1 sm:left-4 sm:top-4">
@@ -90,6 +95,7 @@ export function LiquidMetalMeatballsDemo() {
 
       <div className="relative z-10">
         <header className="lmm-header mx-auto flex min-h-[85vh] max-w-3xl flex-col justify-start px-6 pb-16">
+          <div className="lmm-chrome-stack" aria-hidden />
           <div className="lmm-copy">
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-[var(--lmm-albedo)]">
               Scroll · Elite Pixel Guy
@@ -146,10 +152,11 @@ export function LiquidMetalMeatballsDemo() {
               loop.
             </p>
             <p
+              ref={phaseLiveRef}
               className="mt-4 font-mono text-sm text-[var(--lmm-albedo)]"
               aria-live="polite"
             >
-              {PHASE_COPY[phase]}
+              {PHASE_COPY.idle}
             </p>
           </div>
         </section>
