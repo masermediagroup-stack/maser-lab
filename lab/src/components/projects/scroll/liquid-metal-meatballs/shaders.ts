@@ -77,16 +77,16 @@ float field(vec2 p, out float crease) {
   return d;
 }
 
-/* Shared wet mercury. The same spec lift on every stop so a solo disc
-   is a continuous wash — never a facing hotspot, never a UV spec pin. */
+/* Shared wet mercury. Equal spec lift on every stop so a solo disc is a
+   continuous wash — never a UV spec cone, never a facing hotspot. */
 vec3 metalWash(vec2 uv) {
-  float wet = 0.42;
+  float wet = 0.28;
   vec3 stops[PAL_COUNT];
   stops[0] = mix(uAlbedo, uSpec, wet);
-  stops[1] = mix(mix(uAlbedo, uCrease, 0.30), uSpec, wet);
-  stops[2] = mix(mix(uAlbedo, uCrease, 0.48), uSpec, wet);
-  stops[3] = mix(mix(uAlbedo, uCrease, 0.64), uSpec, wet);
-  stops[4] = mix(mix(uAlbedo, uCrease, 0.18), uSpec, wet);
+  stops[1] = mix(mix(uAlbedo, uCrease, 0.34), uSpec, wet);
+  stops[2] = mix(mix(uAlbedo, uCrease, 0.52), uSpec, wet);
+  stops[3] = mix(mix(uAlbedo, uCrease, 0.70), uSpec, wet);
+  stops[4] = mix(mix(uAlbedo, uCrease, 0.16), uSpec, wet);
 
   vec3 color = vec3(0.0);
   float totalWeight = 0.0;
@@ -113,26 +113,22 @@ void main() {
   }
 
   vec3 color = metalWash(vUv);
-  color = mix(color, uCrease, clamp(crease * 0.72, 0.0, 1.0));
+  /* Deep valley on the smin blend. Peak crease is the neck floor. */
+  color = mix(color, uCrease, clamp(pow(clamp(crease, 0.0, 1.0), 0.65) * 0.84, 0.0, 1.0));
 
-  /* Combined-field sheen only. Crease walls (dFdx/dFdy of the smin
-     blend) carry the grazing wash; a hard spec uses one field gradient.
-     Both are 0 on a solo. Kill |grad| collapse so the SDF origin cannot
-     pin. Never length(p-c), never N = p - c_i. */
+  /* Combined-field sheen only. Un-normalized crease slope lights the
+     WALLS of the neck (grazing), not the valley floor and not a solo
+     disc. Hard spec uses one dFdx/dFdy of d, crease-gated. Kill
+     |grad| collapse so the SDF origin cannot pin. Never length(p-c). */
   vec2 gd = vec2(dFdx(d), dFdy(d));
   float gLen = length(gd);
   float alive = smoothstep(0.08, 0.42, gLen / max(fwidth(d), 1e-6));
-  vec2 cg = vec2(dFdx(crease), dFdy(crease));
-  float creaseGrazing = alive * smoothstep(
-    0.03,
-    0.18,
-    length(cg) / max(fwidth(crease), 1e-5)
-  );
+  float wall = alive * smoothstep(0.006, 0.022, length(vec2(dFdx(crease), dFdy(crease))));
   vec2 n2 = gd / max(gLen, 1e-8);
   float ndl = max(dot(n2, LIGHT_DIR), 0.0);
-  float spec = pow(ndl, 14.0) * clamp(crease, 0.0, 1.0) * alive;
-  color = mix(color, mix(uAlbedo, uSpec, 0.78), creaseGrazing * 0.62);
-  color = mix(color, uSpec, spec * 0.92);
+  float spec = pow(ndl, 8.0) * pow(clamp(crease, 0.0, 1.0), 1.35) * alive;
+  color = mix(color, mix(uAlbedo, uSpec, 0.88), wall * 0.72);
+  color = mix(color, uSpec, spec * 0.95);
 
   color += (1.0 / 256.0) * (
     fract(sin(dot(0.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - 0.5
