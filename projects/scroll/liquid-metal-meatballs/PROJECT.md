@@ -117,7 +117,7 @@ Status: accepted (locked by brief)
 Scope: `scroll/liquid-metal-meatballs`
 
 Decision:
-CPU owns ball trajectories. GPU evaluates a 2D SDF of charges, merged with Inigo Quilez **quadratic polynomial smin**. Isolated balls are circles in screen space; the merge neck is smin only (no velocity trail charge). Color is sampled **after** merge from a shared 5-stop Maser-blue palette in object UV via Shepard/IDW (`dist^3.5`, weight `1/(dist+eps)`), with a slight UV warp from the combined-field gradient and a contour rim on the combined field. Colors locked: albedo `#10a4ff`, creases `#0065a3`, spec near-white. No per-ball Blinn-Phong, no `N = p - ballCenter`.
+CPU owns ball trajectories. GPU evaluates a 2D SDF of charges, merged with Inigo Quilez **quadratic polynomial smin**. Isolated balls are circles in screen space; the merge neck is smin only (no velocity trail charge). Color is sampled **after** merge from a shared 5-stop Maser-blue palette in object UV via Shepard/IDW (`dist^3.5`, weight `1/(dist+eps)`). Stops stay in the albedo–crease range so a spec pole cannot land as a belly on a disc. Mercury sheen is a contour rim on the combined SDF. Colors locked: albedo `#10a4ff`, creases `#0065a3`, spec near-white. No per-ball Blinn-Phong, no `N = p - ballCenter`.
 
 Rationale:
 Spark build note + Elite Pixel Guy thesis. 3D PBR blob and mouse-trail goo were researched and refused.

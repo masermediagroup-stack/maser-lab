@@ -73,13 +73,14 @@ float field(vec2 p, out float crease) {
 
 vec3 idwWash(vec2 uv) {
   vec3 stops[PAL_COUNT];
-  /* Mercury, not mid-blue plastic: every stop carries spec so the
-     puddle reads on white. No stop is a per-ball facing pole. */
-  stops[0] = mix(uSpec, uAlbedo, 0.18);
-  stops[1] = mix(uAlbedo, uSpec, 0.58);
-  stops[2] = mix(uAlbedo, uSpec, 0.34);
-  stops[3] = mix(uAlbedo, uCrease, 0.38);
-  stops[4] = mix(uAlbedo, uSpec, 0.22);
+  /* Shared Maser-blue field only. Near-white is reserved for the
+     combined silhouette rim — a spec stop in UV reads as a nipple
+     on whichever ball covers that region. */
+  stops[0] = mix(uAlbedo, uSpec, 0.2);
+  stops[1] = uAlbedo;
+  stops[2] = mix(uAlbedo, uCrease, 0.18);
+  stops[3] = mix(uAlbedo, uCrease, 0.48);
+  stops[4] = mix(uAlbedo, uSpec, 0.1);
 
   vec3 color = vec3(0.0);
   float totalWeight = 0.0;
@@ -107,19 +108,17 @@ void main() {
 
   float fieldDepth = max(-d, 0.0);
 
-  /* Ride the merged surface without per-ball radial poles. */
-  vec2 gd = vec2(dFdx(d), dFdy(d));
-  vec2 uv = vUv + gd / max(uResolution.x, 1.0) * 14.0;
+  vec3 color = idwWash(vUv);
+  color = mix(color, uCrease, clamp(crease * 0.22, 0.0, 1.0));
+  /* Combined-SDF volume (not N.z): richer core, bright edge. */
+  float interior = 1.0 - exp(-fieldDepth * 0.035);
+  color = mix(color, mix(uAlbedo, uCrease, 0.55), interior * 0.28);
 
-  vec3 color = idwWash(uv);
-  color = mix(color, uCrease, clamp(crease * 0.16, 0.0, 1.0));
-  /* Combined-SDF interior (not N.z): slightly richer core, bright edge. */
-  float interior = 1.0 - exp(-fieldDepth * 0.04);
-  color = mix(color, mix(uAlbedo, uCrease, 0.32), interior * 0.2);
-
-  /* Contour rim from the combined field — not facing spec, not ndotH. */
-  float rim = mask * (1.0 - smoothstep(0.0, 11.0 * aa, fieldDepth));
-  color = mix(color, uSpec, rim * 0.58);
+  /* Mercury sheen lives on the combined contour so it reads on white
+     as a lighter-blue rim, not a white sticker or a center cone. */
+  float rim = mask * exp(-fieldDepth * 0.07);
+  vec3 rimCol = mix(uAlbedo, uSpec, 0.48);
+  color = mix(color, rimCol, clamp(rim * 0.82, 0.0, 1.0));
 
   color += (1.0 / 256.0) * (
     fract(sin(dot(0.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - 0.5
