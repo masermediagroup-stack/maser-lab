@@ -9,7 +9,10 @@
   --lmm-trigger-line: rgba(16, 164, 255, 0.45);
   --lmm-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --lmm-duration-ui: 200ms;
-  --lmm-ink-shadow: 0 2px 18px rgba(0, 0, 0, 0.72);
+  --lmm-ink-shadow:
+    0 1px 0 rgb(2 6 23 / 0.72),
+    0 0 18px rgb(2 6 23 / 0.62),
+    0 0 36px rgb(2 6 23 / 0.4);
 }
 
 .lmm-root[data-ground="light"] {
@@ -17,7 +20,10 @@
   --lmm-text: #0b1018;
   --lmm-text-muted: rgba(11, 16, 24, 0.68);
   --lmm-trigger-line: rgba(0, 101, 163, 0.38);
-  --lmm-ink-shadow: none;
+  --lmm-ink-shadow:
+    0 1px 0 rgb(255 255 255 / 0.95),
+    0 0 14px rgb(255 255 255 / 0.92),
+    0 0 28px rgb(243 245 247 / 0.88);
 }
 
 .lmm-header {

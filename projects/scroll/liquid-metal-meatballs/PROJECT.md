@@ -71,7 +71,7 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 | --- | --- | --- |
 | Library | WebGL2 fullscreen triangle + CPU sim | 2D field shader; merge in SDF — not DOM blobs |
 | Merge | IQ quadratic polynomial smin | Neck then swallow; `k` is tension ([smin](https://iquilezles.org/articles/smin/)) |
-| Stretch | Extra charge along −velocity | Codrops droplet stretch idea; refuse pointer trail |
+| Stretch | None on isolated balls (circle SDF) | Screen-space discs stay circular; neck comes only from smin |
 | Travel | Cubic bezier, spawn≠exit edge | Weight ∝ radius; no sine/cos orbits |
 | Duration | ~1.7–5.2s per ball | Sequence / delight, not UI chrome (`rule/ui-duration-cap` exception) |
 | Reduced motion | Freeze still cluster | `rule/reduced-motion-required` |
@@ -94,13 +94,13 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 
 - [x] Demo route `/demos/liquid-metal-meatballs` exists via DemoHost
 - [x] `npm run build` passes in `lab/` (project files lint clean; repo `npm run lint` still fails on pre-existing `pixel-info-card` setState-in-effect)
-- [x] Scroll trigger starts the sequence only when a **majority** of the zone is in view; section bottom stops new spawns; leftover balls finish (rendered)
-- [x] Edge spawn / different-edge exit / sticky merge / shared mercury wash match the thesis (rendered) — no central belly/nipple on white or black; merged blobs share one continuous color field
+- [x] Scroll trigger starts the sequence only when a **majority** of the zone is in view; section bottom stops new spawns; leftover balls finish (rendered). First spawn is in-frame as soon as the gate opens (not a multi-second off-screen intro; peek at ~28% still does not spawn).
+- [x] Edge spawn / different-edge exit / sticky merge / shared mercury wash match the thesis (rendered) — no central belly/nipple on white or black; merged blobs share one continuous color field; isolated balls stay circular in screen space (neck only while smin-merging)
 - [x] Demo reduced-motion toggle freezes a still cluster; toggling RM off and Replay both restart the sim without a full reload (rendered)
 - [x] Demo Light / Dark grounds let the same metal be judged on white and black (rendered)
-- [x] Mobile lab chrome stacks compactly and does not cover the canvas (rendered)
+- [x] Mobile lab chrome is a compact chip that does not cover the hero headline or the meatball field (rendered)
 - [x] Hidden tab pauses rAF (source + visibility handler)
-- [x] Copy above the canvas remains readable (`pointer-events: none` on canvas; rendered)
+- [x] Copy above the canvas remains readable (`pointer-events: none` on canvas; ink halo on Light and Dark; rendered)
 - [x] Component exported from `lab/src/components/projects/scroll/liquid-metal-meatballs/index.ts` (product-only)
 
 ## Open decisions
@@ -117,7 +117,7 @@ Status: accepted (locked by brief)
 Scope: `scroll/liquid-metal-meatballs`
 
 Decision:
-CPU owns ball trajectories. GPU evaluates a 2D SDF of charges, merged with Inigo Quilez **quadratic polynomial smin**. Stretch is a second charge along velocity. Color is sampled **after** merge from a shared 5-stop Maser-blue palette in object UV via Shepard/IDW (`dist^3.5`, weight `1/(dist+eps)`), with a slight UV warp from the combined-field gradient and a contour rim on the shape mask. Colors locked: albedo `#10a4ff`, creases `#0065a3`, spec near-white. No per-ball Blinn-Phong, no `N = p - ballCenter`.
+CPU owns ball trajectories. GPU evaluates a 2D SDF of charges, merged with Inigo Quilez **quadratic polynomial smin**. Isolated balls are circles in screen space; the merge neck is smin only (no velocity trail charge). Color is sampled **after** merge from a shared 5-stop Maser-blue palette in object UV via Shepard/IDW (`dist^3.5`, weight `1/(dist+eps)`), with a slight UV warp from the combined-field gradient and a contour rim on the combined field. Colors locked: albedo `#10a4ff`, creases `#0065a3`, spec near-white. No per-ball Blinn-Phong, no `N = p - ballCenter`.
 
 Rationale:
 Spark build note + Elite Pixel Guy thesis. 3D PBR blob and mouse-trail goo were researched and refused.
@@ -129,7 +129,7 @@ Exceptions:
 If 2D metal cannot read as chrome after a rendered pass, a 3D raymarch fallback is allowed by the brief. Do not start there.
 
 Assumptions:
-Quadratic smin + velocity stretch reads as mercury, not jelly, when `k` stays in the neck-thickness range and there is no idle orbit.
+Quadratic smin (circular primaries) reads as mercury, not jelly, when `k` stays in the neck-thickness range and there is no idle orbit.
 
 Open decisions:
 `k` is locked. Coloring structure is locked to combined-field IDW.

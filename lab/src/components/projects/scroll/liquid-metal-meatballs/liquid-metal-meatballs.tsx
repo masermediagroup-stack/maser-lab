@@ -110,11 +110,18 @@ export function LiquidMetalMeatballs({
       }
     };
 
+    const readSize = () => {
+      width = Math.max(1, canvas.clientWidth || window.innerWidth);
+      height = Math.max(1, canvas.clientHeight || window.innerHeight);
+    };
+
     const updateGate = () => {
       const trigger = triggerRef.current;
       const next = Boolean(trigger && isSpawnZoneActive(trigger));
       spawning = next;
-      if (!reducedRef.current) sim.setSpawning(next);
+      if (!reducedRef.current) {
+        sim.setSpawning(next, { width, height });
+      }
     };
 
     const freezeStill = () => {
@@ -125,6 +132,8 @@ export function LiquidMetalMeatballs({
     };
 
     const restartLive = () => {
+      readSize();
+      renderer.setSize(width, height, dprForWidth(width));
       sim.reset();
       updateGate();
       renderer.draw(sim.charges);
@@ -143,8 +152,7 @@ export function LiquidMetalMeatballs({
     replaySimRef.current = replaySim;
 
     const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
+      readSize();
       renderer.setSize(width, height, dprForWidth(width));
       if (reducedRef.current) {
         freezeStill();
@@ -169,7 +177,6 @@ export function LiquidMetalMeatballs({
         return;
       }
       updateGate();
-      sim.setSpawning(spawning);
       sim.step(dt, width, height);
       renderer.draw(sim.charges);
       if (spawning) reportPhase("sequence");
@@ -193,6 +200,9 @@ export function LiquidMetalMeatballs({
       ensureLoop();
     }
 
+    const canvasRo = new ResizeObserver(resize);
+    canvasRo.observe(canvas);
+
     const trigger = triggerRef.current;
     const observer = trigger
       ? new IntersectionObserver(
@@ -212,6 +222,7 @@ export function LiquidMetalMeatballs({
     return () => {
       running = false;
       cancelAnimationFrame(raf);
+      canvasRo.disconnect();
       observer?.disconnect();
       window.removeEventListener("resize", resize);
       window.removeEventListener("scroll", updateGate, true);

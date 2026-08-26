@@ -51,7 +51,7 @@ export function LiquidMetalMeatballsDemo() {
         onPhaseChange={setPhase}
       />
 
-      <DemoControlBar className="left-2 top-2 max-w-[min(calc(100vw-1rem),21rem)] flex-col items-stretch gap-1.5 sm:left-4 sm:top-4">
+      <DemoControlBar className="left-2 top-2 w-max max-w-[calc(100vw-1rem)] flex-col items-stretch gap-1 sm:left-4 sm:top-4">
         <div className="flex items-center justify-between gap-2">
           <DemoBackButton />
           <div
@@ -89,7 +89,7 @@ export function LiquidMetalMeatballsDemo() {
       </DemoControlBar>
 
       <div className="relative z-10">
-        <header className="lmm-header mx-auto flex min-h-[85vh] max-w-3xl flex-col justify-end px-6 pb-16">
+        <header className="lmm-header mx-auto flex min-h-[85vh] max-w-3xl flex-col justify-start px-6 pb-16">
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-[var(--lmm-albedo)]">
             Scroll · Elite Pixel Guy
           </p>

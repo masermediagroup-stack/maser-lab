@@ -41,7 +41,7 @@ function pickEdge(exclude?: Edge): Edge {
 }
 
 function pointOnEdge(edge: Edge, width: number, height: number, radius: number): Vec2 {
-  const margin = radius + 10;
+  const margin = Math.max(8, radius * 0.28);
   const xSpan = Math.max(1, width - margin * 2);
   const ySpan = Math.max(1, height - margin * 2);
   switch (edge) {
@@ -88,7 +88,12 @@ function makeArc(p0: Vec2, p3: Vec2, width: number, height: number): { p1: Vec2;
   const px = -dy / len;
   const py = dx / len;
   const bow = (0.16 + Math.random() * 0.28) * Math.min(width, height);
-  const sign = Math.random() < 0.5 ? 1 : -1;
+  /* Bow toward the viewport center so the first frames are on-canvas,
+     not a long off-screen intro after the majority gate opens. */
+  const midX = (p0.x + p3.x) * 0.5;
+  const midY = (p0.y + p3.y) * 0.5;
+  const inward = px * (width * 0.5 - midX) + py * (height * 0.5 - midY);
+  const sign = inward >= 0 ? 1 : -1;
   const p1 = mix(p0, p3, 0.3);
   const p2 = mix(p0, p3, 0.68);
   p1.x += px * bow * sign;
@@ -123,10 +128,18 @@ export class MeatballSimulation {
     this.charges.fill(0);
   }
 
-  setSpawning(active: boolean): void {
+  setSpawning(active: boolean, size?: { width: number; height: number }): void {
+    if (size) {
+      this.width = size.width;
+      this.height = size.height;
+    }
     if (active && !this.spawning) {
       this.burstLeft = BURST_COUNT;
       this.burstWait = 0;
+      if (this.trySpawn()) {
+        this.burstLeft -= 1;
+        this.burstWait = BURST_STAGGER;
+      }
     }
     this.spawning = active;
   }
@@ -216,16 +229,18 @@ export class MeatballSimulation {
     const { p1, p2 } = makeArc(p0, p3, this.width, this.height);
     const chord = Math.hypot(p3.x - p0.x, p3.y - p0.y);
     const duration = Math.min(5.2, Math.max(1.7, (1.55 + chord / 440) * (radius / 40)));
+    const t0 = 0.1;
+    const pos = cubicBezier(p0, p1, p2, p3, weightEase(t0));
     this.balls.push({
       p0,
       p1,
       p2,
       p3,
       r: radius,
-      t: 0,
+      t: t0,
       duration,
-      x: p0.x,
-      y: p0.y,
+      x: pos.x,
+      y: pos.y,
       vx: 0,
       vy: 0,
       alive: true,
@@ -244,17 +259,6 @@ export class MeatballSimulation {
       this.charges[base + 1] = ball.y;
       this.charges[base + 2] = ball.r;
       this.charges[base + 3] = 1;
-
-      const speed = Math.hypot(ball.vx, ball.vy);
-      if (speed < 48) continue;
-      const nx = ball.vx / speed;
-      const ny = ball.vy / speed;
-      const dist = Math.min(ball.r * 1.12, speed * 0.055);
-      const trail = (i + MAX_PRIMARIES) * 4;
-      this.charges[trail] = ball.x - nx * dist;
-      this.charges[trail + 1] = ball.y - ny * dist;
-      this.charges[trail + 2] = ball.r * 0.7;
-      this.charges[trail + 3] = 1;
     }
   }
 }

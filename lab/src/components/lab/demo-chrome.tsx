@@ -101,7 +101,10 @@ export function ReducedMotionToggle({
       aria-label="Toggle reduced motion"
       aria-pressed={enabled}
     >
-      Reduced motion: {enabled ? "on" : "off"}
+      <span className="sm:hidden">RM: {enabled ? "on" : "off"}</span>
+      <span className="hidden sm:inline">
+        Reduced motion: {enabled ? "on" : "off"}
+      </span>
     </LabButton>
   );
 }

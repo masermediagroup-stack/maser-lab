@@ -73,11 +73,13 @@ float field(vec2 p, out float crease) {
 
 vec3 idwWash(vec2 uv) {
   vec3 stops[PAL_COUNT];
-  stops[0] = uSpec;
-  stops[1] = mix(uAlbedo, uSpec, 0.38);
-  stops[2] = uAlbedo;
-  stops[3] = uCrease;
-  stops[4] = uCrease * 0.62;
+  /* Mercury, not mid-blue plastic: every stop carries spec so the
+     puddle reads on white. No stop is a per-ball facing pole. */
+  stops[0] = mix(uSpec, uAlbedo, 0.18);
+  stops[1] = mix(uAlbedo, uSpec, 0.58);
+  stops[2] = mix(uAlbedo, uSpec, 0.34);
+  stops[3] = mix(uAlbedo, uCrease, 0.38);
+  stops[4] = mix(uAlbedo, uSpec, 0.22);
 
   vec3 color = vec3(0.0);
   float totalWeight = 0.0;
@@ -103,16 +105,21 @@ void main() {
     return;
   }
 
+  float fieldDepth = max(-d, 0.0);
+
   /* Ride the merged surface without per-ball radial poles. */
   vec2 gd = vec2(dFdx(d), dFdy(d));
   vec2 uv = vUv + gd / max(uResolution.x, 1.0) * 14.0;
 
   vec3 color = idwWash(uv);
-  color = mix(color, uCrease, clamp(crease * 0.18, 0.0, 1.0));
+  color = mix(color, uCrease, clamp(crease * 0.16, 0.0, 1.0));
+  /* Combined-SDF interior (not N.z): slightly richer core, bright edge. */
+  float interior = 1.0 - exp(-fieldDepth * 0.04);
+  color = mix(color, mix(uAlbedo, uCrease, 0.32), interior * 0.2);
 
-  /* Contour sheen on the combined mask — not facing spec, not ndotH. */
-  float rim = mask * smoothstep(-12.0 * aa, 0.0, d);
-  color = mix(color, mix(color, uSpec, 0.42), rim * 0.28);
+  /* Contour rim from the combined field — not facing spec, not ndotH. */
+  float rim = mask * (1.0 - smoothstep(0.0, 11.0 * aa, fieldDepth));
+  color = mix(color, uSpec, rim * 0.58);
 
   color += (1.0 / 256.0) * (
     fract(sin(dot(0.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - 0.5
