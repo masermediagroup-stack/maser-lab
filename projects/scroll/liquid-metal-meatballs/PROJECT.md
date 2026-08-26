@@ -27,7 +27,7 @@ Read page copy while a decorative Maser-blue mercury field crosses the viewport:
 Greenfield.
 
 ### Desired outcome
-Chrome meatballs (albedo `#10a4ff`, creases `#0065a3`, near-white spec). Color is a shared UV/IDW Maser-blue wash on the merged SDF. Isolated discs are a continuous wash (no radial field-depth, no `length(p-c)` sheen, no per-ball lamp). Merge crease from smin; extra sheen only from `dFdx/dFdy` of the combined field, gated so solos stay flat.
+Chrome meatballs (albedo `#10a4ff`, creases `#0065a3`, near-white spec). Color is a shared UV/IDW wet-mercury wash on the merged SDF. Isolated discs are a continuous wet wash (spec lifted equally in every IDW stop — no radial field-depth, no `length(p-c)` sheen, no per-ball lamp, no nipple). Deep crease from smin; grazing spec from `dFdx/dFdy` of the combined field, crease-gated so the SDF origin cannot pin.
 
 ### Success signal
 Scroll into the marked trigger zone → balls spawn from edges, arc, neck/swallow when they pass, exit off a different edge, then die. Sitting still after leaving the zone lets remaining balls finish. Reduced motion shows a frozen cluster. Hidden tab pauses. Type on top remains readable.
@@ -117,7 +117,7 @@ Status: accepted (locked by brief)
 Scope: `scroll/liquid-metal-meatballs`
 
 Decision:
-CPU owns ball trajectories. GPU evaluates a 2D SDF of charges, merged with Inigo Quilez **quadratic polynomial smin**. Isolated balls are circles in screen space; the merge neck is smin only (no velocity trail charge). Color is sampled **after** merge from a shared 5-stop Maser-blue palette in object UV via Shepard/IDW (`dist^3.5`, weight `1/(dist+eps)`). Stops stay in the albedo–crease range. No contour lighting from `max(-d,0)` or `length(p-c)` (that plants a pin at the disc origin). Merge sheen, if any, uses one combined-field normal from `dFdx/dFdy` of the smin field and is gated by smin crease (zero on a solo). Colors locked: albedo `#10a4ff`, creases `#0065a3`, spec near-white. No per-ball Blinn-Phong, no `N = p - ballCenter`.
+CPU owns ball trajectories. GPU evaluates a 2D SDF of charges, merged with Inigo Quilez **quadratic polynomial smin**. Isolated balls are circles in screen space; the merge neck is smin only (no velocity trail charge). Color is sampled **after** merge from a shared 5-stop Maser-blue palette in object UV via Shepard/IDW (`dist^3.5`, weight `1/(dist+eps)`). Every stop gets the same spec lift so a solo reads as continuous wet mercury, not matte plastic and not a UV spec cone. No contour lighting from `max(-d,0)` or `length(p-c)` (that plants a pin at the disc origin). Deep crease from smin blend. Grazing spec uses one combined-field gradient from `dFdx/dFdy` of the smin field, gated by crease and killed where the gradient collapses. Colors locked: albedo `#10a4ff`, creases `#0065a3`, spec near-white. No per-ball Blinn-Phong, no `N = p - ballCenter`.
 
 Rationale:
 Spark build note + Elite Pixel Guy thesis. 3D PBR blob and mouse-trail goo were researched and refused.

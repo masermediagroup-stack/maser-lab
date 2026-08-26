@@ -22,10 +22,11 @@ void main() {
 /**
  * Geometry: IQ quadratic smin on circle SDFs (unchanged).
  * Color: shared UV/IDW Maser-blue wash (Paper mesh-gradient Shepard).
- * Isolated disc = continuous wash — no radial fieldDepth, no
- * length(p - c), no N = p - c_i. Merge crease from smin. Any extra
- * sheen is from dFdx/dFdy of the *combined* field, and is 0 when the
- * gradient is a unit SDF (solo ball).
+ * Isolated disc = continuous wet mercury wash — spec mixed into every
+ * IDW stop equally (no UV spec cone). No radial fieldDepth, no
+ * length(p - c) sheen, no N = p - c_i. Deep crease from smin. Grazing
+ * spec from dFdx/dFdy of the *combined* field, crease-gated and killed
+ * where the gradient collapses (SDF origin cannot pin).
  */
 export const FRAG_SRC = `#version 300 es
 precision highp float;
@@ -51,6 +52,9 @@ const vec2 PAL_POS[PAL_COUNT] = vec2[PAL_COUNT](
   vec2(0.86, 0.78)
 );
 
+/* Grazing key on the combined 2D field — not a per-ball lamp. */
+const vec2 LIGHT_DIR = vec2(-0.62, 0.784);
+
 vec2 sminQuadratic(float a, float b, float k) {
   float h = 1.0 - min(abs(a - b) / (4.0 * k), 1.0);
   float w = h * h;
@@ -73,15 +77,16 @@ float field(vec2 p, out float crease) {
   return d;
 }
 
-/* Shared Maser-blue albedo. Spec stays off the UV field so a stop
-   cannot land as a cone on whichever disc covers that region. */
+/* Shared wet mercury. The same spec lift on every stop so a solo disc
+   is a continuous wash — never a facing hotspot, never a UV spec pin. */
 vec3 metalWash(vec2 uv) {
+  const float wet = 0.30;
   vec3 stops[PAL_COUNT];
-  stops[0] = uAlbedo;
-  stops[1] = mix(uAlbedo, uCrease, 0.14);
-  stops[2] = mix(uAlbedo, uCrease, 0.28);
-  stops[3] = mix(uAlbedo, uCrease, 0.42);
-  stops[4] = mix(uAlbedo, uCrease, 0.08);
+  stops[0] = mix(uAlbedo, uSpec, wet);
+  stops[1] = mix(mix(uAlbedo, uCrease, 0.20), uSpec, wet);
+  stops[2] = mix(mix(uAlbedo, uCrease, 0.36), uSpec, wet);
+  stops[3] = mix(mix(uAlbedo, uCrease, 0.52), uSpec, wet);
+  stops[4] = mix(mix(uAlbedo, uCrease, 0.12), uSpec, wet);
 
   vec3 color = vec3(0.0);
   float totalWeight = 0.0;
@@ -108,14 +113,21 @@ void main() {
   }
 
   vec3 color = metalWash(vUv);
-  color = mix(color, uCrease, clamp(crease * 0.22, 0.0, 1.0));
+  color = mix(color, uCrease, clamp(crease * 0.58, 0.0, 1.0));
 
-  /* Combined-field normal (one gradient of the smin field). Crease is
-     0 on a solo disc, so this cannot plant a pin at the SDF origin.
-     Never N·L and never field-depth / length(p - c). */
-  vec2 n2 = normalize(vec2(dFdx(d), dFdy(d)) + 1e-8);
-  float mergeSheen = clamp(crease, 0.0, 1.0) * (0.65 + 0.35 * n2.y);
-  color = mix(color, mix(uAlbedo, uSpec, 0.1), mergeSheen * 0.1);
+  /* One gradient of the combined smin field. Sheen is crease-gated
+     (0 on a solo) and killed where |grad| collapses, so the circle
+     SDF origin cannot sparkle. Never length(p-c), never N = p - c_i. */
+  vec2 gd = vec2(dFdx(d), dFdy(d));
+  float gLen = length(gd);
+  float alive = smoothstep(0.08, 0.42, gLen / max(fwidth(d), 1e-6));
+  vec2 n2 = gd / max(gLen, 1e-8);
+  float ndl = max(dot(n2, LIGHT_DIR), 0.0);
+  float shared = clamp(crease, 0.0, 1.0) * alive;
+  float wetMerge = pow(ndl, 5.0) * shared;
+  float spec = pow(ndl, 40.0) * shared;
+  color = mix(color, mix(uAlbedo, uSpec, 0.58), wetMerge * 0.42);
+  color = mix(color, uSpec, spec * 0.94);
 
   color += (1.0 / 256.0) * (
     fract(sin(dot(0.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - 0.5
