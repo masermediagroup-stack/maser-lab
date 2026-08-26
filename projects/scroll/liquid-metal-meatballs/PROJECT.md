@@ -98,7 +98,7 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 - [x] Edge spawn / different-edge exit / sticky merge / shared mercury wash match the thesis (rendered) — isolated discs read wet mercury on white (limb graze, no vinyl, no center pin); merged blobs stay mercury with no sheen banding; isolated balls stay circular in screen space (neck only while smin-merging)
 - [x] Demo reduced-motion toggle freezes a still cluster; toggling RM off and Replay both restart the sim without a full reload (rendered)
 - [x] Demo Light / Dark grounds let the same metal be judged on white and black (rendered)
-- [x] Mobile lab chrome is a compact hamburger that does not cover the hero headline or the meatball field (rendered). Open panel stacks Hue / Saturation / Merge k / Wetness; Light/Dark/Replay/RM stay. No light-angle knob.
+- [x] Mobile lab chrome is a compact hamburger that does not cover the hero headline or the meatball field (rendered). Open menu docks as a viewport-edge strip (top on ~390px, left rail on desktop) — not an overlay on the blobs. Panel stacks Hue / Saturation / Merge k / Wetness and scrolls if needed; Light/Dark/Replay/RM stay. No light-angle knob. Wetness 0 vs 1 is an obvious satin vs wet material change on Light and Dark (`uWetness` only; no center pin).
 - [x] Hidden tab pauses rAF (source + visibility handler)
 - [x] Copy sits on the canvas with no frosted/dimmed plate (`pointer-events: none` on canvas; glyph ink halo on Light and Dark; rendered)
 - [x] Component exported from `lab/src/components/projects/scroll/liquid-metal-meatballs/index.ts` (product-only)

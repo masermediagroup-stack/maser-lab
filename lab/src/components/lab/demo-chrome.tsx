@@ -211,12 +211,42 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
     const node = ref.current;
     if (!node) return;
 
+    const root = document.documentElement;
+    let lastDockLeft = "";
+    let lastDockTop = "";
+
     const syncOffset = () => {
-      const bottom = node.getBoundingClientRect().bottom;
-      document.documentElement.style.setProperty(
-        "--lab-control-bar-bottom",
-        `${bottom + 12}px`,
-      );
+      const rect = node.getBoundingClientRect();
+      const vw = window.innerWidth || 1;
+      const vh = window.innerHeight || 1;
+      /* Open dock: full-height left rail or full-width top strip.
+         Collapsed hamburger is a small corner toggle — no canvas inset. */
+      const leftDock =
+        rect.left <= 8 && rect.height >= vh * 0.55 ? Math.round(rect.width) : 0;
+      const topDock =
+        rect.top <= 8 &&
+        rect.width >= vw * 0.7 &&
+        rect.height < vh * 0.55
+          ? Math.round(rect.height)
+          : 0;
+      const typeOffset = leftDock > 0 || topDock > 0 ? 12 : Math.round(rect.bottom + 12);
+      const dockLeft = `${leftDock}px`;
+      const dockTop = `${topDock}px`;
+
+      root.style.setProperty("--lab-control-bar-bottom", `${typeOffset}px`);
+      root.style.setProperty("--lab-control-type-offset", `${typeOffset}px`);
+      root.style.setProperty("--lab-control-dock-left", dockLeft);
+      root.style.setProperty("--lab-control-dock-top", dockTop);
+
+      /* One-shot window resize so fullscreen fields can match the inset
+         without a canvas ResizeObserver (those hitch on scroll). */
+      if (dockLeft !== lastDockLeft || dockTop !== lastDockTop) {
+        lastDockLeft = dockLeft;
+        lastDockTop = dockTop;
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new Event("resize"));
+        });
+      }
     };
 
     syncOffset();
@@ -227,7 +257,10 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", syncOffset);
-      document.documentElement.style.removeProperty("--lab-control-bar-bottom");
+      root.style.removeProperty("--lab-control-bar-bottom");
+      root.style.removeProperty("--lab-control-type-offset");
+      root.style.removeProperty("--lab-control-dock-left");
+      root.style.removeProperty("--lab-control-dock-top");
     };
   }, []);
 
@@ -278,7 +311,8 @@ type DemoControlMenuProps = {
   defaultOpen?: boolean;
 };
 
-/** Collapsible demo controls — hamburger toggle, panel holds LabButton groups. */
+/** Collapsible demo controls. Collapsed: small toggle. Open: viewport-edge dock
+ *  (top strip on small screens, left rail from sm up) — not a floating overlay. */
 export function DemoControlMenu({
   className,
   children,
@@ -299,8 +333,13 @@ export function DemoControlMenu({
   return (
     <DemoControlBar
       className={cn(
-        "left-2 top-2 w-[min(20.5rem,calc(100vw-1rem))] max-w-[calc(100vw-1rem)] flex-col items-stretch sm:left-4 sm:top-4",
-        !open && "w-max gap-0 p-1.5",
+        "flex-col items-stretch",
+        open
+          ? [
+              "flex-nowrap overflow-hidden left-0 top-0 max-h-[min(42dvh,22rem)] w-full max-w-none rounded-none border-x-0 border-t-0 p-3",
+              "sm:h-dvh sm:max-h-none sm:w-[min(20.5rem,38vw)] sm:max-w-[20.5rem] sm:rounded-none sm:border-b-0 sm:border-l-0 sm:border-r sm:border-t-0",
+            ]
+          : "left-2 top-2 w-max max-w-none gap-0 p-1.5 sm:left-4 sm:top-4",
         className,
       )}
     >
@@ -318,7 +357,7 @@ export function DemoControlMenu({
       {open ? (
         <div
           id={panelId}
-          className="flex max-h-[min(72vh,34rem)] flex-col gap-1.5 overflow-y-auto overscroll-contain"
+          className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overscroll-contain"
         >
           {children}
         </div>

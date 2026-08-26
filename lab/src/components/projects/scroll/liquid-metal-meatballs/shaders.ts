@@ -101,14 +101,16 @@ float field(vec2 p, out float crease) {
   return d;
 }
 
-/* Shared mercury wash. uWetness is material (satin↔wet), not a lamp. */
+/* Shared mercury wash. uWetness is material (satin↔wet), not a lamp.
+   Satin: albedo-led, little spec in the IDW. Wet: still family-colored,
+   modest spec lift — contrast lives on crease/rim, not a UV hotspot. */
 vec3 metalWash(vec2 uv, vec3 albedo, vec3 crease, float wet) {
   vec3 stops[PAL_COUNT];
   stops[0] = mix(albedo, uSpec, wet);
-  stops[1] = mix(mix(albedo, crease, 0.12), uSpec, wet);
-  stops[2] = mix(mix(albedo, crease, 0.20), uSpec, wet);
-  stops[3] = mix(mix(albedo, crease, 0.28), uSpec, wet);
-  stops[4] = mix(mix(albedo, crease, 0.08), uSpec, wet);
+  stops[1] = mix(mix(albedo, crease, mix(0.04, 0.22, wet)), uSpec, wet);
+  stops[2] = mix(mix(albedo, crease, mix(0.08, 0.34, wet)), uSpec, wet);
+  stops[3] = mix(mix(albedo, crease, mix(0.10, 0.42, wet)), uSpec, wet);
+  stops[4] = mix(mix(albedo, crease, mix(0.03, 0.16, wet)), uSpec, wet);
 
   vec3 color = vec3(0.0);
   float totalWeight = 0.0;
@@ -144,17 +146,27 @@ void main() {
 
   vec3 albedo = mercuryTint(uAlbedo);
   vec3 creaseCol = mercuryTint(uCrease);
+  /* uWetness only — satin↔wet material. Does not write other uniforms. */
   float wet = clamp(uWetness, 0.0, 1.0);
-  float washWet = mix(0.22, 0.72, wet);
+  /* Satin: almost no IDW spec (soft body). Wet: still well below 1 so the
+     wash cannot bleach into a UV pin. */
+  float washWet = mix(0.03, 0.34, wet);
 
   vec3 color = metalWash(vUv, albedo, creaseCol, washWet);
-  /* Deep valley on the smin blend. Peak crease is the neck floor. */
-  color = mix(color, creaseCol, clamp(pow(clamp(crease, 0.0, 1.0), 0.65) * 0.84, 0.0, 1.0));
+  /* Satin: flatter fill. Wet: crush the body toward crease so rims read harder. */
+  color = mix(color, albedo, mix(0.28, 0.0, wet));
+  color = mix(color, mix(albedo, creaseCol, 0.62), mix(0.0, 0.34, wet));
+  /* Deep valley on the smin blend. Peak crease is the neck floor.
+     Satin keeps a shallow neck; wet mercury digs the rim of the merge. */
+  float creaseAmt = mix(0.32, 0.98, wet);
+  float creasePow = mix(0.92, 0.52, wet);
+  color = mix(color, creaseCol, clamp(pow(clamp(crease, 0.0, 1.0), creasePow) * creaseAmt, 0.0, 1.0));
 
   /* Combined-field isocontour only (merged d). High at the silhouette,
-     zero inside RADIUS_MIN so a solo core cannot pin. No length(p-c). */
-  float rim = smoothstep(-10.0, -1.5, d);
-  float limb = smoothstep(-12.0, -1.8, d);
+     zero inside RADIUS_MIN so a solo core cannot pin. No length(p-c).
+     Satin: wide soft graze. Wet: tighter chrome limb — still not a disc hotspot. */
+  float rim = smoothstep(mix(-20.0, -7.0, wet), mix(-4.0, -0.9, wet), d);
+  float limb = smoothstep(mix(-26.0, -9.0, wet), mix(-5.0, -1.2, wet), d);
 
   float gLen = length(fd);
   float alive = smoothstep(0.16, 0.58, gLen / dPx);
@@ -164,23 +176,23 @@ void main() {
   vec2 L = normalize(vec2(-0.42, 0.78));
   float ndl = max(dot(n2, L), 0.0);
 
-  /* Satin (low wet) still grazes the limb so solos hold on white.
-     Wet (high) punches spec. Material only — L is not a knob. */
-  float rimAmt = mix(0.30, 0.48, wet);
-  float grazeAmt = mix(0.34, 0.82, wet);
-  float specAmt = mix(0.16, 0.74, wet);
-  color = mix(color, mix(albedo, uSpec, 0.70), rim * rimAmt);
-  float graze = pow(ndl, 4.2) * limb * alive;
-  float specK = pow(ndl, 9.0) * pow(limb, 1.15) * alive;
-  color = mix(color, mix(albedo, uSpec, 0.86), graze * grazeAmt);
+  /* Satin: broad soft sheen on the limb (Light/white). Wet: hard spec + deep
+     rims (Dark). Material only — L is not a knob. Limb-gated: no facing pin. */
+  float rimAmt = mix(0.10, 0.72, wet);
+  float grazeAmt = mix(0.16, 1.0, wet);
+  float specAmt = mix(0.03, 0.92, wet);
+  color = mix(color, mix(albedo, uSpec, mix(0.42, 0.82, wet)), rim * rimAmt);
+  float graze = pow(ndl, mix(2.2, 5.8, wet)) * limb * alive;
+  float specK = pow(ndl, mix(4.5, 13.0, wet)) * pow(limb, mix(0.72, 1.4, wet)) * alive;
+  color = mix(color, mix(albedo, uSpec, mix(0.55, 0.94, wet)), graze * grazeAmt);
   color = mix(color, uSpec, specK * specAmt);
 
   /* Neck-wall spec from crease slope. Wide fwidth falloff, no pow-posterize. */
   float c = clamp(crease, 0.0, 1.0);
   float wall = smoothstep(cPx * 0.12, cPx * 8.0, cSlope);
-  wall *= smoothstep(0.16, 0.48, c);
-  color = mix(color, mix(albedo, uSpec, 0.90), wall * mix(0.22, 0.42, wet));
-  color = mix(color, uSpec, wall * wall * mix(0.06, 0.22, wet));
+  wall *= smoothstep(mix(0.22, 0.12, wet), mix(0.62, 0.40, wet), c);
+  color = mix(color, mix(albedo, uSpec, 0.90), wall * mix(0.06, 0.70, wet));
+  color = mix(color, uSpec, wall * wall * mix(0.02, 0.48, wet));
 
   float ign = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
   color += (ign - 0.5) * (3.4 / 255.0);

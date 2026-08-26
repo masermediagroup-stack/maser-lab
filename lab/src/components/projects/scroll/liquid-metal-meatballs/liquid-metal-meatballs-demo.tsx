@@ -180,7 +180,7 @@ export function LiquidMetalMeatballsDemo() {
         </div>
       </DemoControlMenu>
 
-      <div className="relative z-10">
+      <div className="lmm-page relative z-10">
         <header className="lmm-header mx-auto flex min-h-[85vh] max-w-3xl flex-col justify-start px-6 pb-16">
           <div className="lmm-chrome-stack" aria-hidden />
           <div className="lmm-copy">

@@ -130,6 +130,7 @@ export class MeatballRenderer {
     this.mergeKCss = look.mergeK;
     gl.uniform1f(this.hueLoc, look.hue / 360);
     gl.uniform1f(this.satLoc, look.sat);
+    /* Wetness is this uniform only. Fragment maps it to wash/crease/rim/graze. */
     gl.uniform1f(this.wetnessLoc, look.wetness);
     gl.uniform1f(this.mergeKLoc, this.mergeKCss * this.dpr);
   }
