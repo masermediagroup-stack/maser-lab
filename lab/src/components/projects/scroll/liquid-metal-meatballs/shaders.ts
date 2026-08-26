@@ -80,13 +80,13 @@ float field(vec2 p, out float crease) {
 /* Shared wet mercury. The same spec lift on every stop so a solo disc
    is a continuous wash — never a facing hotspot, never a UV spec pin. */
 vec3 metalWash(vec2 uv) {
-  const float wet = 0.30;
+  float wet = 0.42;
   vec3 stops[PAL_COUNT];
   stops[0] = mix(uAlbedo, uSpec, wet);
-  stops[1] = mix(mix(uAlbedo, uCrease, 0.20), uSpec, wet);
-  stops[2] = mix(mix(uAlbedo, uCrease, 0.36), uSpec, wet);
-  stops[3] = mix(mix(uAlbedo, uCrease, 0.52), uSpec, wet);
-  stops[4] = mix(mix(uAlbedo, uCrease, 0.12), uSpec, wet);
+  stops[1] = mix(mix(uAlbedo, uCrease, 0.30), uSpec, wet);
+  stops[2] = mix(mix(uAlbedo, uCrease, 0.48), uSpec, wet);
+  stops[3] = mix(mix(uAlbedo, uCrease, 0.64), uSpec, wet);
+  stops[4] = mix(mix(uAlbedo, uCrease, 0.18), uSpec, wet);
 
   vec3 color = vec3(0.0);
   float totalWeight = 0.0;
@@ -113,21 +113,26 @@ void main() {
   }
 
   vec3 color = metalWash(vUv);
-  color = mix(color, uCrease, clamp(crease * 0.58, 0.0, 1.0));
+  color = mix(color, uCrease, clamp(crease * 0.72, 0.0, 1.0));
 
-  /* One gradient of the combined smin field. Sheen is crease-gated
-     (0 on a solo) and killed where |grad| collapses, so the circle
-     SDF origin cannot sparkle. Never length(p-c), never N = p - c_i. */
+  /* Combined-field sheen only. Crease walls (dFdx/dFdy of the smin
+     blend) carry the grazing wash; a hard spec uses one field gradient.
+     Both are 0 on a solo. Kill |grad| collapse so the SDF origin cannot
+     pin. Never length(p-c), never N = p - c_i. */
   vec2 gd = vec2(dFdx(d), dFdy(d));
   float gLen = length(gd);
   float alive = smoothstep(0.08, 0.42, gLen / max(fwidth(d), 1e-6));
+  vec2 cg = vec2(dFdx(crease), dFdy(crease));
+  float creaseGrazing = alive * smoothstep(
+    0.03,
+    0.18,
+    length(cg) / max(fwidth(crease), 1e-5)
+  );
   vec2 n2 = gd / max(gLen, 1e-8);
   float ndl = max(dot(n2, LIGHT_DIR), 0.0);
-  float shared = clamp(crease, 0.0, 1.0) * alive;
-  float wetMerge = pow(ndl, 5.0) * shared;
-  float spec = pow(ndl, 40.0) * shared;
-  color = mix(color, mix(uAlbedo, uSpec, 0.58), wetMerge * 0.42);
-  color = mix(color, uSpec, spec * 0.94);
+  float spec = pow(ndl, 14.0) * clamp(crease, 0.0, 1.0) * alive;
+  color = mix(color, mix(uAlbedo, uSpec, 0.78), creaseGrazing * 0.62);
+  color = mix(color, uSpec, spec * 0.92);
 
   color += (1.0 / 256.0) * (
     fract(sin(dot(0.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - 0.5
