@@ -119,6 +119,7 @@ export class MeatballSimulation {
     this.spawnCooldown = 0;
     this.burstWait = 0;
     this.burstLeft = 0;
+    this.spawning = false;
     this.charges.fill(0);
   }
 

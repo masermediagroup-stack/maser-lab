@@ -88,15 +88,18 @@ void main() {
   vec3 V = vec3(0.0, 0.0, 1.0);
   vec3 H = normalize(L + V);
   float ndl = max(dot(N, L), 0.0);
-  float spec = pow(max(dot(N, H), 0.0), 78.0);
-  float fres = pow(1.0 - max(dot(N, V), 0.0), 2.8);
+  /* Half-Lambert wrap: holds mercury on white without a facing-center boost. */
+  float wrap = ndl * 0.52 + 0.48;
+  float spec = pow(max(dot(N, H), 0.0), 64.0);
+  float fres = pow(clamp(1.0 - max(N.z, 0.0), 0.0, 1.0), 2.4);
 
-  vec3 albedo = mix(uAlbedo, uCrease, clamp(crease * 1.2, 0.0, 1.0));
-  albedo *= 0.7 + 0.3 * N.z;
+  vec3 albedo = mix(uAlbedo, uCrease, clamp(crease * 1.05, 0.0, 1.0));
 
-  vec3 color = albedo * (0.1 + 0.9 * ndl);
-  color += uSpec * spec * (0.42 + 0.58 * fres);
-  color += uSpec * fres * ndl * 0.1;
+  /* No N.z belly lift. Spec is grazing-only so the center stays skin. */
+  vec3 color = albedo * wrap;
+  color += uSpec * spec * fres * 0.9;
+  /* Faint rim so the silhouette holds on black — same metal, not a second key. */
+  color += mix(uAlbedo, uSpec, 0.42) * fres * 0.32;
 
   fragColor = vec4(color * alpha, alpha);
 }

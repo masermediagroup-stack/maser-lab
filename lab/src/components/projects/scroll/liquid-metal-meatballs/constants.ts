@@ -8,8 +8,11 @@ export const LMM_ALBEDO_RGB = [16 / 255, 164 / 255, 1] as const;
 export const LMM_CREASE_RGB = [0, 101 / 255, 163 / 255] as const;
 export const LMM_SPEC_RGB = [243 / 255, 247 / 255, 1] as const;
 
-/** One fixed key light (upper-left, toward camera). */
-export const LMM_LIGHT_DIR = [-0.42, 0.66, 0.62] as const;
+/**
+ * Key light: high-left, grazing. A large +Z peaks Lambert/Blinn on the
+ * facing belly (center hotspot). Keep Z modest so the skin reads as chrome wrap.
+ */
+export const LMM_LIGHT_DIR = [-0.72, 0.58, 0.38] as const;
 
 /** IQ quadratic smin tension `k` in CSS pixels (neck thickness). */
 export const LMM_MERGE_K = 24;

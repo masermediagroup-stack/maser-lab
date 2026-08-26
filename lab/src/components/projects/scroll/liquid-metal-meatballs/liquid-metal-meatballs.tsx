@@ -34,6 +34,23 @@ function dprForWidth(width: number): number {
   return Math.min(window.devicePixelRatio || 1, cap);
 }
 
+/**
+ * Spawn only when a majority of the trigger zone is on screen, and stop
+ * once the section bottom has left the lower viewport.
+ */
+function isSpawnZoneActive(el: Element): boolean {
+  const rect = el.getBoundingClientRect();
+  const vh = window.innerHeight || 1;
+  const vw = window.innerWidth || 1;
+  const visH = Math.max(0, Math.min(rect.bottom, vh) - Math.max(rect.top, 0));
+  const visW = Math.max(0, Math.min(rect.right, vw) - Math.max(rect.left, 0));
+  const area = Math.max(1, rect.width * rect.height);
+  const ratio = (visH * visW) / area;
+  if (ratio < 0.5) return false;
+  if (rect.bottom < vh * 0.35) return false;
+  return true;
+}
+
 export function LiquidMetalMeatballs({
   triggerRef,
   forceReducedMotion = false,
@@ -44,6 +61,16 @@ export function LiquidMetalMeatballs({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const osReduced = usePrefersReducedMotion();
   const reduced = forceReducedMotion || osReduced;
+  const reducedRef = useRef(reduced);
+  const replayKeyRef = useRef(replayKey);
+  const onPhaseChangeRef = useRef(onPhaseChange);
+  reducedRef.current = reduced;
+  onPhaseChangeRef.current = onPhaseChange;
+
+  const freezeStillRef = useRef<() => void>(() => {});
+  const restartLiveRef = useRef<() => void>(() => {});
+  const replaySimRef = useRef<() => void>(() => {});
+
   const webgl = useSyncExternalStore(
     subscribeNever,
     isWebGL2Available,
@@ -75,18 +102,58 @@ export function LiquidMetalMeatballs({
     const reportPhase = (phase: SequencePhase) => {
       if (phase === lastPhase) return;
       lastPhase = phase;
-      onPhaseChange?.(phase);
+      onPhaseChangeRef.current?.(phase);
     };
+
+    const ensureLoop = () => {
+      if (!running || document.hidden) return;
+      if (raf === 0) {
+        last = performance.now();
+        raf = requestAnimationFrame(loop);
+      }
+    };
+
+    const updateGate = () => {
+      const trigger = triggerRef.current;
+      const next = Boolean(trigger && isSpawnZoneActive(trigger));
+      spawning = next;
+      if (!reducedRef.current) sim.setSpawning(next);
+    };
+
+    const freezeStill = () => {
+      sim.loadStillCluster(width, height);
+      renderer.draw(sim.charges);
+      reportPhase("still");
+      ensureLoop();
+    };
+
+    const restartLive = () => {
+      sim.reset();
+      updateGate();
+      renderer.draw(sim.charges);
+      if (spawning) reportPhase("sequence");
+      else reportPhase("idle");
+      ensureLoop();
+    };
+
+    const replaySim = () => {
+      if (reducedRef.current) freezeStill();
+      else restartLive();
+    };
+
+    freezeStillRef.current = freezeStill;
+    restartLiveRef.current = restartLive;
+    replaySimRef.current = replaySim;
 
     const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       renderer.setSize(width, height, dprForWidth(width));
-      if (reduced) {
-        sim.loadStillCluster(width, height);
-        renderer.draw(sim.charges);
-        reportPhase("still");
+      if (reducedRef.current) {
+        freezeStill();
+        return;
       }
+      renderer.draw(sim.charges);
     };
 
     const loop = (now: number) => {
@@ -99,7 +166,8 @@ export function LiquidMetalMeatballs({
       raf = requestAnimationFrame(loop);
       const dt = Math.min(0.033, (now - last) / 1000);
       last = now;
-      if (reduced) {
+      if (reducedRef.current) {
+        renderer.draw(sim.charges);
         reportPhase("still");
         return;
       }
@@ -117,32 +185,29 @@ export function LiquidMetalMeatballs({
         raf = 0;
         return;
       }
-      last = performance.now();
-      if (raf === 0 && running) raf = requestAnimationFrame(loop);
+      ensureLoop();
     };
 
     resize();
-    if (reduced) {
-      sim.loadStillCluster(width, height);
-      renderer.draw(sim.charges);
-      reportPhase("still");
-    } else {
-      raf = requestAnimationFrame(loop);
+    if (reducedRef.current) freezeStill();
+    else {
+      updateGate();
+      ensureLoop();
     }
 
     const trigger = triggerRef.current;
-    const observer =
-      trigger && !reduced
-        ? new IntersectionObserver(
-            ([entry]) => {
-              spawning = Boolean(entry?.isIntersecting);
-            },
-            { threshold: 0.28 },
-          )
-        : null;
+    const observer = trigger
+      ? new IntersectionObserver(
+          () => {
+            updateGate();
+          },
+          { threshold: [0, 0.25, 0.5, 0.75, 1] },
+        )
+      : null;
     if (trigger && observer) observer.observe(trigger);
 
     window.addEventListener("resize", resize);
+    window.addEventListener("scroll", updateGate, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
@@ -150,10 +215,25 @@ export function LiquidMetalMeatballs({
       cancelAnimationFrame(raf);
       observer?.disconnect();
       window.removeEventListener("resize", resize);
+      window.removeEventListener("scroll", updateGate);
       document.removeEventListener("visibilitychange", onVisibility);
+      freezeStillRef.current = () => {};
+      restartLiveRef.current = () => {};
+      replaySimRef.current = () => {};
       renderer.dispose();
     };
-  }, [webgl, reduced, replayKey, triggerRef, onPhaseChange]);
+  }, [webgl, triggerRef]);
+
+  useEffect(() => {
+    if (reduced) freezeStillRef.current();
+    else restartLiveRef.current();
+  }, [reduced]);
+
+  useEffect(() => {
+    if (replayKey === replayKeyRef.current) return;
+    replayKeyRef.current = replayKey;
+    replaySimRef.current();
+  }, [replayKey]);
 
   if (!webgl || glFailed) {
     return <LiquidMetalFallback className={className} />;

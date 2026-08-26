@@ -66,7 +66,7 @@ export function LabButton({
       aria-label={ariaLabel}
       aria-pressed={ariaPressed}
       className={cn(
-        "rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-[color,background-color,box-shadow,transform] duration-150",
+        "min-h-11 shrink-0 whitespace-nowrap rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-[color,background-color,box-shadow,transform] duration-150 max-sm:px-2.5 max-sm:text-xs",
         variant === "ghost" &&
           "border-[var(--lab-border)] bg-[var(--lab-surface)] text-[var(--lab-text-primary)] hover:bg-[rgba(16,164,255,0.08)] hover:text-[var(--lab-accent-primary)]",
         variant === "accent" &&
@@ -182,8 +182,10 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
   return (
     <div
       ref={ref}
+      role="region"
+      aria-label="Demo controls"
       className={cn(
-        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[rgba(10,10,11,0.88)] p-2 backdrop-blur-md",
+        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[rgba(10,10,11,0.88)] p-2 backdrop-blur-md max-sm:gap-1.5 max-sm:p-1.5",
         className,
       )}
     >

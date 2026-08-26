@@ -49,14 +49,16 @@ Scroll into the trigger area (demo also exposes Replay).
 A finite meatball sequence runs on the decorative canvas behind copy.
 
 ### Reversibility
-Leave the trigger: spawning stops, in-flight balls finish and die. Reduced-motion toggle / OS `prefers-reduced-motion` freezes a still cluster. Tab hide pauses the loop.
+Leave the trigger (majority out of view, or section bottom past): spawning stops, in-flight balls finish and die. Reduced-motion toggle / OS `prefers-reduced-motion` freezes a still cluster; turning RM off restarts the rAF loop. Replay force-restarts the sim. Tab hide pauses the loop.
 
 ## States
 
-- [x] idle (trigger not intersecting — empty field)
-- [x] sequence (trigger intersecting — spawn + travel)
-- [x] finishing (left trigger — no new spawns, balls complete arcs)
+- [x] idle (trigger majority not in view — empty field)
+- [x] sequence (majority of trigger in view — spawn + travel)
+- [x] finishing (left trigger / section bottom past — no new spawns, balls complete arcs)
 - [x] prefers-reduced-motion (still cluster, no travel)
+- [x] reduced-motion off (rAF + sim restart; Replay force-restarts regardless of state)
+- [x] light ground / dark ground (demo bar; same metal, two page grounds)
 - [x] tab hidden (rAF paused)
 - [x] WebGL unavailable (static CSS cluster)
 - [ ] hover (N/A — decorative, `pointer-events: none`)
@@ -92,9 +94,11 @@ Leave the trigger: spawning stops, in-flight balls finish and die. Reduced-motio
 
 - [x] Demo route `/demos/liquid-metal-meatballs` exists via DemoHost
 - [x] `npm run build` passes in `lab/` (project files lint clean; repo `npm run lint` still fails on pre-existing `pixel-info-card` setState-in-effect)
-- [x] Scroll trigger starts the sequence; leaving the zone lets balls finish (rendered)
-- [x] Edge spawn / different-edge exit / sticky merge / chrome lighting match the thesis (rendered)
-- [x] Demo reduced-motion toggle freezes a still cluster (rendered)
+- [x] Scroll trigger starts the sequence only when a **majority** of the zone is in view; section bottom stops new spawns; leftover balls finish (rendered)
+- [x] Edge spawn / different-edge exit / sticky merge / chrome lighting match the thesis (rendered) — no central belly hotspot; brighter mercury on white; faint rim on black
+- [x] Demo reduced-motion toggle freezes a still cluster; toggling RM off and Replay both restart the sim without a full reload (rendered)
+- [x] Demo Light / Dark grounds let the same metal be judged on white and black (rendered)
+- [x] Mobile lab chrome stacks compactly and does not cover the canvas (rendered)
 - [x] Hidden tab pauses rAF (source + visibility handler)
 - [x] Copy above the canvas remains readable (`pointer-events: none` on canvas; rendered)
 - [x] Component exported from `lab/src/components/projects/scroll/liquid-metal-meatballs/index.ts` (product-only)
@@ -102,7 +106,7 @@ Leave the trigger: spawning stops, in-flight balls finish and die. Reduced-motio
 ## Open decisions
 
 - Texture-packed 1×N centers (4rknova) vs `uniform vec4 uBalls[16]` — uniforms are enough at this charge count. Revisit only if charge count grows.
-- Exact `k` (merge tension) and key-light direction may need a visual pass in the demo.
+- Exact `k` (merge tension) is locked from the timed canvas pass (`LMM_MERGE_K = 24`). Key light is grazing (small +Z) so the facing belly does not hotspot.
 
 ## Accepted decisions
 

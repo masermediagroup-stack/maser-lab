@@ -147,6 +147,11 @@ export class MeatballRenderer {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
+  /**
+   * Drop GL objects. `loseContext` is for true unmount only — losing context
+   * on a live `<canvas>` makes the next `getContext('webgl2')` return a dead
+   * context (frozen last frame until a full page reload).
+   */
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
