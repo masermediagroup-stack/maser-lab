@@ -103,7 +103,15 @@ void main() {
   float crease = 0.0;
   float d = field(p, crease);
 
-  float aa = max(fwidth(d), 0.75);
+  /* Derivatives must run for the whole 2x2 quad — before any discard.
+     After an early-out, dFdx at the silhouette is undefined and solos
+     lose their rim graze (merge necks stay inside the mask, so they lit). */
+  vec2 fd = vec2(dFdx(d), dFdy(d));
+  float dPx = max(fwidth(d), 1e-4);
+  float cSlope = length(vec2(dFdx(crease), dFdy(crease)));
+  float cPx = max(fwidth(crease), 1e-4);
+
+  float aa = max(dPx, 0.75);
   float mask = smoothstep(aa, -aa, d);
   if (mask < 0.004) {
     fragColor = vec4(0.0);
@@ -119,10 +127,7 @@ void main() {
   float rim = smoothstep(-10.0, -1.5, d);
   float limb = smoothstep(-12.0, -1.8, d);
 
-  vec2 fd = vec2(dFdx(d), dFdy(d));
   float gLen = length(fd);
-  float dPx = max(fwidth(d), 1e-4);
-  /* Collapse gate: circle SDF origin has vanishing screen-space slope. */
   float alive = smoothstep(0.16, 0.58, gLen / dPx);
 
   vec2 n2 = vec2(0.0);
@@ -130,8 +135,8 @@ void main() {
   vec2 L = normalize(vec2(-0.42, 0.78));
   float ndl = max(dot(n2, L), 0.0);
 
-  /* Isotropic wet rim — not facing, not a spoke. Then a tight crescent. */
-  color = mix(color, mix(uAlbedo, uSpec, 0.70), rim * alive * 0.38);
+  /* Isotropic wet rim — field isocontour only, no n2. Then a tight crescent. */
+  color = mix(color, mix(uAlbedo, uSpec, 0.70), rim * 0.42);
   float graze = pow(ndl, 4.2) * limb * alive;
   float specK = pow(ndl, 9.0) * pow(limb, 1.15) * alive;
   color = mix(color, mix(uAlbedo, uSpec, 0.86), graze * 0.78);
@@ -139,8 +144,6 @@ void main() {
 
   /* Neck-wall spec from crease slope. Wide fwidth falloff, no pow-posterize. */
   float c = clamp(crease, 0.0, 1.0);
-  float cSlope = length(vec2(dFdx(crease), dFdy(crease)));
-  float cPx = max(fwidth(crease), 1e-4);
   float wall = smoothstep(cPx * 0.12, cPx * 8.0, cSlope);
   wall *= smoothstep(0.16, 0.48, c);
   color = mix(color, mix(uAlbedo, uSpec, 0.90), wall * 0.40);
