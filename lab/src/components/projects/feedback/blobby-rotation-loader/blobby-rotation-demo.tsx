@@ -1,9 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState } from "react";
+import {
+  DemoBackButton,
+  DemoControlMenu,
+  LabButton,
+  LabColor,
+  LabControlGroup,
+  LabRange,
+} from "@/components/lab/demo-chrome";
 import { BlobbyRotationLoader } from "./blobby-rotation-loader";
-import { LoaderControlSlider } from "./loader-control-slider";
 import {
   CALIBRATION_PRESETS,
   LOADER_COLOR_DEFAULTS,
@@ -54,17 +60,135 @@ export function BlobbyRotationDemo() {
 
   return (
     <div className="blobby-rotation-demo">
-      <div className="blobby-rotation-demo__back">
-        <Link href="/" className="blobby-rotation-demo__back-link" aria-label="Back to lab">
-          ‹
-        </Link>
-      </div>
+      <DemoControlMenu>
+        <DemoBackButton />
+        <p className="font-mono text-xs text-[var(--lab-text-secondary)]">
+          Blobby Rotation
+        </p>
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Shape presets">
+          <LabButton
+            type="button"
+            variant="outline"
+            onClick={() => applyPreset(CALIBRATION_PRESETS.tightCorner)}
+          >
+            Preset A
+          </LabButton>
+          <LabButton
+            type="button"
+            variant="outline"
+            onClick={() => applyPreset(CALIBRATION_PRESETS.softBlob)}
+          >
+            Preset B
+          </LabButton>
+          <LabButton
+            type="button"
+            variant="outline"
+            onClick={() => applyPreset(CALIBRATION_PRESETS.crispBean)}
+          >
+            Preset C
+          </LabButton>
+        </div>
+        <LabControlGroup label="Shape">
+          <LabRange
+            id="blobby-blur"
+            label="Blur"
+            min={LOADER_PARAM_RANGES.blur.min}
+            max={LOADER_PARAM_RANGES.blur.max}
+            step={LOADER_PARAM_RANGES.blur.step}
+            value={params.blur}
+            display={String(params.blur)}
+            onChange={(v) => updateParam("blur", v)}
+          />
+          <LabRange
+            id="blobby-corner"
+            label="Corner"
+            min={LOADER_PARAM_RANGES.corner.min}
+            max={LOADER_PARAM_RANGES.corner.max}
+            step={LOADER_PARAM_RANGES.corner.step}
+            value={params.corner}
+            display={String(params.corner)}
+            onChange={(v) => updateParam("corner", v)}
+          />
+          <LabRange
+            id="blobby-power"
+            label="Power"
+            min={LOADER_PARAM_RANGES.power.min}
+            max={LOADER_PARAM_RANGES.power.max}
+            step={LOADER_PARAM_RANGES.power.step}
+            value={params.power}
+            display={String(params.power)}
+            onChange={(v) => updateParam("power", v)}
+          />
+          <LabRange
+            id="blobby-abr"
+            label="C Abr"
+            min={LOADER_PARAM_RANGES.chromaticAberration.min}
+            max={LOADER_PARAM_RANGES.chromaticAberration.max}
+            step={LOADER_PARAM_RANGES.chromaticAberration.step}
+            value={params.chromaticAberration}
+            display={String(params.chromaticAberration)}
+            onChange={(v) => updateParam("chromaticAberration", v)}
+          />
+          <LabRange
+            id="blobby-tail"
+            label="Tail"
+            min={LOADER_PARAM_RANGES.tail.min}
+            max={LOADER_PARAM_RANGES.tail.max}
+            step={LOADER_PARAM_RANGES.tail.step}
+            value={params.tail}
+            display={String(params.tail)}
+            onChange={(v) => updateParam("tail", v)}
+          />
+          <LabRange
+            id="blobby-speed"
+            label="Speed"
+            min={LOADER_PARAM_RANGES.speed.min}
+            max={LOADER_PARAM_RANGES.speed.max}
+            step={LOADER_PARAM_RANGES.speed.step}
+            value={params.speed}
+            display={`${speedRps.toFixed(1)} rps`}
+            onChange={(v) => updateParam("speed", v)}
+          />
+        </LabControlGroup>
+        <LabControlGroup label="Color">
+          <LabButton
+            type="button"
+            variant={showColors ? "accent" : "ghost"}
+            aria-expanded={showColors}
+            onClick={() => setShowColors((v) => !v)}
+          >
+            {showColors ? "Hide colors" : "Color controls"}
+          </LabButton>
+          {showColors ? (
+            <>
+              <LabColor
+                id="blobby-core"
+                label="Core"
+                value={colors.core ?? LOADER_COLOR_DEFAULTS.core}
+                onChange={(core) => setColors((c) => ({ ...c, core }))}
+              />
+              <LabColor
+                id="blobby-warm"
+                label="Warm fringe"
+                value={colors.aberrationWarm ?? LOADER_COLOR_DEFAULTS.aberrationWarm}
+                onChange={(aberrationWarm) =>
+                  setColors((c) => ({ ...c, aberrationWarm }))
+                }
+              />
+              <LabColor
+                id="blobby-cool"
+                label="Cool fringe"
+                value={colors.aberrationCool ?? LOADER_COLOR_DEFAULTS.aberrationCool}
+                onChange={(aberrationCool) =>
+                  setColors((c) => ({ ...c, aberrationCool }))
+                }
+              />
+            </>
+          ) : null}
+        </LabControlGroup>
+      </DemoControlMenu>
 
-      <header className="blobby-rotation-demo__header">
-        <h1 className="blobby-rotation-demo__title">Blobby Rotation</h1>
-      </header>
-
-      <div className="blobby-rotation-demo__stage">
+      <div className="blobby-rotation-demo__stage lab-demo-inset">
         <BlobbyRotationLoader
           blur={params.blur}
           corner={params.corner}
@@ -75,122 +199,6 @@ export function BlobbyRotationDemo() {
           drawSize={LOADER_DEFAULTS.drawSize}
           speed={speedRps}
         />
-      </div>
-
-      <div className="blobby-rotation-demo__controls">
-        <div className="blobby-rotation-demo__presets">
-          <button
-            type="button"
-            className="blobby-rotation-demo__preset-btn"
-            onClick={() => applyPreset(CALIBRATION_PRESETS.tightCorner)}
-          >
-            Preset A
-          </button>
-          <button
-            type="button"
-            className="blobby-rotation-demo__preset-btn"
-            onClick={() => applyPreset(CALIBRATION_PRESETS.softBlob)}
-          >
-            Preset B
-          </button>
-          <button
-            type="button"
-            className="blobby-rotation-demo__preset-btn"
-            onClick={() => applyPreset(CALIBRATION_PRESETS.crispBean)}
-          >
-            Preset C
-          </button>
-        </div>
-
-        <LoaderControlSlider
-          label="Blur"
-          value={params.blur}
-          min={LOADER_PARAM_RANGES.blur.min}
-          max={LOADER_PARAM_RANGES.blur.max}
-          onChange={(v) => updateParam("blur", v)}
-        />
-        <LoaderControlSlider
-          label="Corner"
-          value={params.corner}
-          min={LOADER_PARAM_RANGES.corner.min}
-          max={LOADER_PARAM_RANGES.corner.max}
-          onChange={(v) => updateParam("corner", v)}
-        />
-        <LoaderControlSlider
-          label="Power"
-          value={params.power}
-          min={LOADER_PARAM_RANGES.power.min}
-          max={LOADER_PARAM_RANGES.power.max}
-          step={LOADER_PARAM_RANGES.power.step}
-          onChange={(v) => updateParam("power", v)}
-        />
-        <LoaderControlSlider
-          label="C Abr"
-          value={params.chromaticAberration}
-          min={LOADER_PARAM_RANGES.chromaticAberration.min}
-          max={LOADER_PARAM_RANGES.chromaticAberration.max}
-          onChange={(v) => updateParam("chromaticAberration", v)}
-        />
-        <LoaderControlSlider
-          label="Tail"
-          value={params.tail}
-          min={LOADER_PARAM_RANGES.tail.min}
-          max={LOADER_PARAM_RANGES.tail.max}
-          onChange={(v) => updateParam("tail", v)}
-        />
-        <LoaderControlSlider
-          label="Speed"
-          value={params.speed}
-          min={LOADER_PARAM_RANGES.speed.min}
-          max={LOADER_PARAM_RANGES.speed.max}
-          formatValue={() => speedRps.toFixed(1)}
-          onChange={(v) => updateParam("speed", v)}
-        />
-
-        <div className="blobby-rotation-demo__colors">
-          <button
-            type="button"
-            className="blobby-rotation-demo__colors-toggle"
-            onClick={() => setShowColors((v) => !v)}
-            aria-expanded={showColors}
-          >
-            {showColors ? "− Hide colors" : "+ Color controls"}
-          </button>
-          {showColors ? (
-            <>
-              <label className="blobby-rotation-demo__color-row">
-                Core
-                <input
-                  type="color"
-                  value={colors.core ?? LOADER_COLOR_DEFAULTS.core}
-                  onChange={(e) =>
-                    setColors((c) => ({ ...c, core: e.target.value }))
-                  }
-                />
-              </label>
-              <label className="blobby-rotation-demo__color-row">
-                Warm fringe
-                <input
-                  type="color"
-                  value={colors.aberrationWarm ?? LOADER_COLOR_DEFAULTS.aberrationWarm}
-                  onChange={(e) =>
-                    setColors((c) => ({ ...c, aberrationWarm: e.target.value }))
-                  }
-                />
-              </label>
-              <label className="blobby-rotation-demo__color-row">
-                Cool fringe
-                <input
-                  type="color"
-                  value={colors.aberrationCool ?? LOADER_COLOR_DEFAULTS.aberrationCool}
-                  onChange={(e) =>
-                    setColors((c) => ({ ...c, aberrationCool: e.target.value }))
-                  }
-                />
-              </label>
-            </>
-          ) : null}
-        </div>
       </div>
     </div>
   );

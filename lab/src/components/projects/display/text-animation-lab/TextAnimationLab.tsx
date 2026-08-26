@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import {
+  DemoBackButton,
+  DemoControlMenu,
+} from "@/components/lab/demo-chrome";
 import { AnimationGallery } from "./AnimationGallery";
 import { AnimationDetail } from "./AnimationDetail";
 import { getAnimationById } from "./animation-registry";
@@ -30,15 +33,6 @@ export function TextAnimationLab() {
 
   return (
     <div className="text-animation-lab min-h-screen bg-black text-white">
-      <div className="text-animation-lab__chrome">
-        <Link
-          href="/"
-          className="text-xs tracking-wide text-neutral-500 transition-colors hover:text-neutral-300"
-        >
-          ← Maser-Lab
-        </Link>
-      </div>
-
       {selected ? (
         <AnimationDetail
           key={selected.id}
@@ -46,7 +40,17 @@ export function TextAnimationLab() {
           onBack={handleBack}
         />
       ) : (
-        <AnimationGallery playKey={galleryPlayKey} onEnter={handleEnter} />
+        <>
+          <DemoControlMenu>
+            <DemoBackButton />
+            <p className="font-mono text-xs text-[var(--lab-text-secondary)]">
+              Text Animation Lab
+            </p>
+          </DemoControlMenu>
+          <div className="lab-demo-inset">
+            <AnimationGallery playKey={galleryPlayKey} onEnter={handleEnter} />
+          </div>
+        </>
       )}
     </div>
   );

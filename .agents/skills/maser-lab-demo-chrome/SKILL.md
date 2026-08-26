@@ -43,11 +43,15 @@ Path: `lab/src/components/lab/demo-chrome.tsx`
 | Export | Required a11y |
 | --- | --- |
 | `DemoBackButton` / `DemoLabBrand` | Link to `/` with visible name |
-| `LabButton` | Real `<button>`, not div |
+| `LabButton` | Real `<button>`, not div; `min-h-11` hit target |
+| `LabRange` / `LabColor` / `LabSelect` | Associated `<label htmlFor>`; 44px range / color / select |
 | `ReducedMotionToggle` | `aria-label="Toggle reduced motion"` (or equivalent stable name) |
-| `DemoControlBar` | Landmark or labeled group |
+| `DemoControlMenu` | Collapsible dock. Open: left rail (`sm+`), top strip (mobile). Toggle: `Open demo menu` / `Close demo menu` |
+| `DemoControlBar` | Landmark `aria-label="Demo controls"` — prefer `DemoControlMenu` when a demo has knobs |
 | `ViewportModeToggle` | `role="group"` + `aria-label` |
-| `DemoViewportFrame` | **Generic** class names — never `summitpath-signup-*` |
+| `DemoViewportFrame` | **Generic** class names (`lab-viewport-*`) — never `summitpath-signup-*` |
+
+**Dock contract (source: liquid-metal-meatballs):** knobs live in the demo, never a product barrel. Open dock stacks **off** the canvas via `--lab-control-dock-left` / `--lab-control-dock-top`. Apply `.lab-demo-inset` (or those vars) to the field. Do not cover the canvas. Demos with no controls stay alone. Exception: `maser-dither-engine` keeps its own studio chrome.
 
 ### Decoupling rule (P0 if violated)
 
@@ -113,7 +117,7 @@ Prefer explicit controls over hidden interactions:
 
 ## Harden checklist
 
-- [ ] Uses `DemoControlBar` + `DemoLabBrand` (or justified exception noted in PROJECT.md)
+- [ ] Uses `DemoControlMenu` when the demo has sliders/knobs (or `DemoControlBar` + `DemoLabBrand` for a justified exception noted in PROJECT.md)
 - [ ] `ReducedMotionToggle` has accessible name
 - [ ] Product `aria-label` stable and documented
 - [ ] All PROJECT.md states reachable from controls

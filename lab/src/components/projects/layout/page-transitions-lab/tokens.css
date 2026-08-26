@@ -239,19 +239,9 @@
 
 @media (min-width: 1024px) {
   .ptl-detail__layout {
-    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
     gap: 1.5rem;
-  }
-
-  .ptl-detail__main {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .ptl-detail__panel {
-    grid-column: 2;
-    grid-row: 1;
   }
 }
 

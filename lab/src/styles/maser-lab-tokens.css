@@ -25,9 +25,33 @@
   --lab-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --lab-ease-expressive: cubic-bezier(0.34, 1.2, 0.64, 1);
   --lab-control-bar-bottom: 5.5rem;
+  --lab-control-type-offset: 5.5rem;
+  --lab-control-dock-left: 0px;
+  --lab-control-dock-top: 0px;
 
   background-color: var(--lab-bg);
   color: var(--lab-text-primary);
+}
+
+/* Open dock insets the field. Collapsed hamburger uses type-offset only. */
+.lab-demo-inset {
+  padding-left: var(--lab-control-dock-left, 0px);
+  padding-top: max(
+    var(--lab-control-dock-top, 0px),
+    var(--lab-control-type-offset, 0px)
+  );
+}
+
+.lab-viewport-frame {
+  border: 1px solid var(--lab-border-strong);
+  border-radius: var(--lab-radius-md);
+  box-shadow: var(--lab-shadow-elevated);
+  overflow: hidden;
+  background: #fff;
+}
+
+.lab-viewport-scaler {
+  transform-origin: top center;
 }
 
 .maser-lab .lab-card {

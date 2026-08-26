@@ -208,7 +208,10 @@
 }
 
 .prism-mobile-fixed {
-  top: var(--lab-control-bar-bottom, var(--prism-mobile-top, 1rem));
+  top: max(
+    var(--lab-control-dock-top, 0px),
+    var(--lab-control-type-offset, var(--prism-mobile-top, 1rem))
+  );
 }
 
 .prism-mobile-shell {

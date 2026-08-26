@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -46,8 +46,11 @@ type LabButtonProps = {
   variant?: "ghost" | "accent" | "outline";
   type?: "button" | "submit";
   onClick?: () => void;
+  disabled?: boolean;
   "aria-label"?: string;
   "aria-pressed"?: boolean;
+  "aria-expanded"?: boolean;
+  "aria-controls"?: string;
 };
 
 export function LabButton({
@@ -56,17 +59,23 @@ export function LabButton({
   variant = "ghost",
   type = "button",
   onClick,
+  disabled,
   "aria-label": ariaLabel,
   "aria-pressed": ariaPressed,
+  "aria-expanded": ariaExpanded,
+  "aria-controls": ariaControls,
 }: LabButtonProps) {
   return (
     <button
       type={type}
       onClick={onClick}
+      disabled={disabled}
       aria-label={ariaLabel}
       aria-pressed={ariaPressed}
+      aria-expanded={ariaExpanded}
+      aria-controls={ariaControls}
       className={cn(
-        "rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-[color,background-color,box-shadow,transform] duration-150",
+        "min-h-11 shrink-0 whitespace-nowrap rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-[color,background-color,box-shadow,transform] duration-150 max-sm:px-2.5 max-sm:text-xs disabled:cursor-not-allowed disabled:opacity-50",
         variant === "ghost" &&
           "border-[var(--lab-border)] bg-[var(--lab-surface)] text-[var(--lab-text-primary)] hover:bg-[rgba(16,164,255,0.08)] hover:text-[var(--lab-accent-primary)]",
         variant === "accent" &&
@@ -87,6 +96,139 @@ type ReducedMotionToggleProps = {
   className?: string;
 };
 
+type LabRangeProps = {
+  id: string;
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  display: string;
+  onChange: (value: number) => void;
+  className?: string;
+};
+
+/** Shared demo range — 44px hit target, mono type. Use only in demo chrome. */
+export function LabRange({
+  id,
+  label,
+  value,
+  min,
+  max,
+  step,
+  display,
+  onChange,
+  className,
+}: LabRangeProps) {
+  return (
+    <div className={cn("flex min-w-0 flex-col gap-1", className)}>
+      <div className="flex items-baseline justify-between gap-2 font-mono text-xs text-[var(--lab-text-secondary)]">
+        <label htmlFor={id}>{label}</label>
+        <span className="tabular-nums text-[var(--lab-text-muted)]">{display}</span>
+      </div>
+      <input
+        id={id}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="h-11 w-full min-w-0 accent-[var(--lab-accent-primary)]"
+      />
+    </div>
+  );
+}
+
+type LabColorProps = {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+};
+
+export function LabColor({ id, label, value, onChange, className }: LabColorProps) {
+  return (
+    <div className={cn("flex min-h-11 items-center justify-between gap-2", className)}>
+      <label htmlFor={id} className="font-mono text-xs text-[var(--lab-text-secondary)]">
+        {label}
+      </label>
+      <input
+        id={id}
+        type="color"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-11 w-11 shrink-0 cursor-pointer rounded-[var(--lab-radius-sm)] border border-[var(--lab-border)] bg-[var(--lab-surface)] p-1"
+      />
+    </div>
+  );
+}
+
+type LabSelectProps = {
+  id: string;
+  label: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+  className?: string;
+};
+
+export function LabSelect({
+  id,
+  label,
+  value,
+  options,
+  onChange,
+  className,
+}: LabSelectProps) {
+  return (
+    <div className={cn("flex min-w-0 flex-col gap-1", className)}>
+      <label htmlFor={id} className="font-mono text-xs text-[var(--lab-text-secondary)]">
+        {label}
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="min-h-11 w-full rounded-[var(--lab-radius-sm)] border border-[var(--lab-border)] bg-[var(--lab-surface)] px-2 font-mono text-xs text-[var(--lab-text-primary)]"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+type LabControlGroupProps = {
+  label?: string;
+  children: ReactNode;
+  className?: string;
+};
+
+export function LabControlGroup({ label, children, className }: LabControlGroupProps) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-2 border-t border-[var(--lab-border)] pt-2",
+        className,
+      )}
+      role="group"
+      aria-label={label}
+    >
+      {label ? (
+        <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--lab-text-muted)]">
+          {label}
+        </p>
+      ) : null}
+      {children}
+    </div>
+  );
+}
+
 export function ReducedMotionToggle({
   enabled,
   onToggle,
@@ -101,7 +243,10 @@ export function ReducedMotionToggle({
       aria-label="Toggle reduced motion"
       aria-pressed={enabled}
     >
-      Reduced motion: {enabled ? "on" : "off"}
+      <span className="sm:hidden">RM: {enabled ? "on" : "off"}</span>
+      <span className="hidden sm:inline">
+        Reduced motion: {enabled ? "on" : "off"}
+      </span>
     </LabButton>
   );
 }
@@ -134,7 +279,7 @@ export function ViewportModeToggle({ mode, onChange, className }: ViewportModeTo
           type="button"
           onClick={() => onChange(option.id)}
           className={cn(
-            "rounded px-2 py-1 font-mono text-xs transition-colors",
+            "min-h-11 rounded px-2 py-1 font-mono text-xs transition-colors",
             mode === option.id
               ? "bg-[rgba(16,164,255,0.15)] text-[var(--lab-accent-primary)]"
               : "text-[var(--lab-text-muted)] hover:text-[var(--lab-text-secondary)]",
@@ -159,12 +304,42 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
     const node = ref.current;
     if (!node) return;
 
+    const root = document.documentElement;
+    let lastDockLeft = "";
+    let lastDockTop = "";
+
     const syncOffset = () => {
-      const bottom = node.getBoundingClientRect().bottom;
-      document.documentElement.style.setProperty(
-        "--lab-control-bar-bottom",
-        `${bottom + 12}px`,
-      );
+      const rect = node.getBoundingClientRect();
+      const vw = window.innerWidth || 1;
+      const vh = window.innerHeight || 1;
+      /* Open dock: full-height left rail or full-width top strip.
+         Collapsed hamburger is a small corner toggle — no canvas inset. */
+      const leftDock =
+        rect.left <= 8 && rect.height >= vh * 0.55 ? Math.round(rect.width) : 0;
+      const topDock =
+        rect.top <= 8 &&
+        rect.width >= vw * 0.7 &&
+        rect.height < vh * 0.55
+          ? Math.round(rect.height)
+          : 0;
+      const typeOffset = leftDock > 0 || topDock > 0 ? 12 : Math.round(rect.bottom + 12);
+      const dockLeft = `${leftDock}px`;
+      const dockTop = `${topDock}px`;
+
+      root.style.setProperty("--lab-control-bar-bottom", `${typeOffset}px`);
+      root.style.setProperty("--lab-control-type-offset", `${typeOffset}px`);
+      root.style.setProperty("--lab-control-dock-left", dockLeft);
+      root.style.setProperty("--lab-control-dock-top", dockTop);
+
+      /* One-shot window resize so fullscreen fields can match the inset
+         without a canvas ResizeObserver (those hitch on scroll). */
+      if (dockLeft !== lastDockLeft || dockTop !== lastDockTop) {
+        lastDockLeft = dockLeft;
+        lastDockTop = dockTop;
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new Event("resize"));
+        });
+      }
     };
 
     syncOffset();
@@ -175,20 +350,112 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", syncOffset);
-      document.documentElement.style.removeProperty("--lab-control-bar-bottom");
+      root.style.removeProperty("--lab-control-bar-bottom");
+      root.style.removeProperty("--lab-control-type-offset");
+      root.style.removeProperty("--lab-control-dock-left");
+      root.style.removeProperty("--lab-control-dock-top");
     };
   }, []);
 
   return (
     <div
       ref={ref}
+      role="region"
+      aria-label="Demo controls"
       className={cn(
-        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[rgba(10,10,11,0.88)] p-2 backdrop-blur-md",
+        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[rgba(10,10,11,0.88)] p-2 backdrop-blur-md max-sm:gap-1.5 max-sm:p-1.5",
         className,
       )}
     >
       {children}
     </div>
+  );
+}
+
+function DemoMenuIcon({ open }: { open: boolean }) {
+  return (
+    <span className="relative block h-4 w-4 shrink-0" aria-hidden>
+      <span
+        className={cn(
+          "absolute left-0 block h-0.5 w-4 rounded-full bg-current transition-[transform,top] duration-150 motion-reduce:transition-none",
+          open ? "top-1.5 rotate-45" : "top-0",
+        )}
+      />
+      <span
+        className={cn(
+          "absolute left-0 top-1.5 block h-0.5 w-4 rounded-full bg-current transition-opacity duration-150 motion-reduce:transition-none",
+          open && "opacity-0",
+        )}
+      />
+      <span
+        className={cn(
+          "absolute left-0 block h-0.5 w-4 rounded-full bg-current transition-[transform,top] duration-150 motion-reduce:transition-none",
+          open ? "top-1.5 -rotate-45" : "top-3",
+        )}
+      />
+    </span>
+  );
+}
+
+type DemoControlMenuProps = {
+  className?: string;
+  children: ReactNode;
+  /** When false (default), only the menu toggle shows until opened. */
+  defaultOpen?: boolean;
+};
+
+/** Collapsible demo controls. Collapsed: small toggle. Open: viewport-edge dock
+ *  (top strip on small screens, left rail from sm up) — not a floating overlay. */
+export function DemoControlMenu({
+  className,
+  children,
+  defaultOpen = false,
+}: DemoControlMenuProps) {
+  const [open, setOpen] = useState(defaultOpen);
+  const panelId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  return (
+    <DemoControlBar
+      className={cn(
+        "flex-col items-stretch",
+        open
+          ? [
+              "flex-nowrap overflow-hidden left-0 top-0 max-h-[min(42dvh,22rem)] w-full max-w-none rounded-none border-x-0 border-t-0 p-3",
+              "sm:h-dvh sm:max-h-none sm:w-[min(20.5rem,38vw)] sm:max-w-[20.5rem] sm:rounded-none sm:border-b-0 sm:border-l-0 sm:border-r sm:border-t-0",
+            ]
+          : "left-2 top-2 w-max max-w-none gap-0 p-1.5 sm:left-4 sm:top-4",
+        className,
+      )}
+    >
+      <LabButton
+        type="button"
+        variant="ghost"
+        aria-expanded={open}
+        aria-controls={panelId}
+        aria-label={open ? "Close demo menu" : "Open demo menu"}
+        onClick={() => setOpen((value) => !value)}
+        className="self-start px-2.5"
+      >
+        <DemoMenuIcon open={open} />
+      </LabButton>
+      {open ? (
+        <div
+          id={panelId}
+          className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overscroll-contain"
+        >
+          {children}
+        </div>
+      ) : null}
+    </DemoControlBar>
   );
 }
 
@@ -227,14 +494,14 @@ export function DemoViewportFrame({
   return (
     <div ref={containerRef} className={cn("w-full max-w-full", className)}>
       <div
-        className="summitpath-signup-viewport-frame mx-auto"
+        className="lab-viewport-frame mx-auto"
         style={{
           width: width * scale,
           height: height * scale,
         }}
       >
         <div
-          className="summitpath-signup-viewport-scaler"
+          className="lab-viewport-scaler"
           style={{
             width,
             height,

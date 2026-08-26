@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
-  DemoControlBar,
+  DemoControlMenu,
   DemoLabBrand,
   DemoViewportFrame,
   LabButton,
+  LabControlGroup,
+  LabRange,
   ViewportModeToggle,
   type ViewportMode,
 } from "@/components/lab/demo-chrome";
@@ -17,9 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 import { DESKTOP_FRAME, MOBILE_FRAME, SS_DEFAULTS, SS_RANGES } from "./constants";
 import { SERVICE_ITEMS } from "./data";
 import { ServiceShowcase } from "./service-showcase";
@@ -61,17 +61,7 @@ export function ServiceShowcaseDemo({ minimal = false }: ServiceShowcaseDemoProp
   const [spacingScale, setSpacingScale] = useState<number>(
     SS_DEFAULTS.spacingScale,
   );
-  const [controlsOpen, setControlsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-
-  // Desktop: open by default. Mobile: collapsed so the preview stays visible.
-  useEffect(() => {
-    const media = window.matchMedia("(min-width: 640px)");
-    const sync = () => setControlsOpen(media.matches);
-    sync();
-    media.addEventListener("change", sync);
-    return () => media.removeEventListener("change", sync);
-  }, []);
 
   const frameSize = useMemo(() => {
     if (viewportMode === "mobile") return MOBILE_FRAME;
@@ -118,175 +108,131 @@ export function ServiceShowcaseDemo({ minimal = false }: ServiceShowcaseDemoProp
   return (
     <div className="maser-lab min-h-screen">
       {!minimal ? (
-        <DemoControlBar
-          className={cn(
-            "left-4 right-4 top-4 flex-col items-stretch gap-2",
-            controlsOpen &&
-              "max-h-[min(70vh,560px)] overflow-y-auto sm:max-h-none",
-          )}
-        >
-          <div className="flex items-center justify-between gap-2">
-            <DemoLabBrand />
+        <DemoControlMenu>
+          <DemoLabBrand />
+          <ViewportModeToggle mode={viewportMode} onChange={setViewportMode} />
+          <div className="flex flex-wrap gap-1.5">
             <LabButton
               type="button"
-              variant={controlsOpen ? "accent" : "ghost"}
-              onClick={() => setControlsOpen((open) => !open)}
-              className="shrink-0"
+              variant={animationEnabled ? "ghost" : "accent"}
+              onClick={() => setAnimationEnabled((v) => !v)}
             >
-              {controlsOpen ? "Hide controls" : "Controls"}
+              Animations: {animationEnabled ? "on" : "off"}
+            </LabButton>
+            <LabButton type="button" variant="outline" onClick={copyExportSnippet}>
+              {copied ? "Copied export snippet" : "Copy export snippet"}
             </LabButton>
           </div>
-
-          {controlsOpen ? (
-            <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex min-w-0 flex-1 flex-col gap-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <ViewportModeToggle mode={viewportMode} onChange={setViewportMode} />
-                  <LabButton
-                    type="button"
-                    variant={animationEnabled ? "ghost" : "accent"}
-                    onClick={() => setAnimationEnabled((v) => !v)}
-                  >
-                    Animations: {animationEnabled ? "on" : "off"}
-                  </LabButton>
-                  <LabButton type="button" variant="outline" onClick={copyExportSnippet}>
-                    {copied ? "Copied export snippet" : "Copy export snippet"}
-                  </LabButton>
-                </div>
-
-                <div className="grid gap-3 rounded-[var(--lab-radius-sm)] border border-[var(--lab-border)] bg-[var(--lab-surface)] p-3 sm:grid-cols-2 lg:grid-cols-3">
-                  <ControlField label="Active tab">
-                    <Select
-                      value={activeId}
-                      onValueChange={(value) => {
-                        if (value) setActiveId(value);
-                      }}
-                    >
-                      <SelectTrigger
-                        size="sm"
-                        className="h-8 border-[var(--lab-border)] bg-[var(--lab-bg)] font-mono text-xs text-[var(--lab-text-primary)] hover:bg-[var(--lab-surface-soft)]"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-neutral-950 text-white shadow-lg [--accent:oklch(1_0_0_/_0.16)] [--accent-foreground:oklch(0.98_0_0)]">
-                        {SERVICE_ITEMS.map((item) => (
-                          <SelectItem key={item.id} value={item.id}>
-                            {item.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </ControlField>
-
-                  <ControlField label="Image mode">
-                    <Select
-                      value={imageMode}
-                      onValueChange={(value) => {
-                        if (
-                          value === "auto" ||
-                          value === "comparison" ||
-                          value === "image"
-                        ) {
-                          setImageMode(value);
-                        }
-                      }}
-                    >
-                      <SelectTrigger
-                        size="sm"
-                        className="h-8 border-[var(--lab-border)] bg-[var(--lab-bg)] font-mono text-xs text-[var(--lab-text-primary)] hover:bg-[var(--lab-surface-soft)]"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-neutral-950 text-white shadow-lg [--accent:oklch(1_0_0_/_0.16)] [--accent-foreground:oklch(0.98_0_0)]">
-                        <SelectItem value="auto">Auto (from data)</SelectItem>
-                        <SelectItem value="comparison">Force comparison</SelectItem>
-                        <SelectItem value="image">Force normal image</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </ControlField>
-
-                  <ControlField label="Animations enabled">
-                    <div className="flex h-8 items-center gap-2">
-                      <Switch
-                        checked={animationEnabled}
-                        onCheckedChange={setAnimationEnabled}
-                        aria-label="Enable animations"
-                      />
-                      <span className="font-mono text-xs text-[var(--lab-text-muted)]">
-                        {animationEnabled ? "on" : "off"}
-                      </span>
-                    </div>
-                  </ControlField>
-
-                  <ControlField label={`Panel duration ${panelDurationMs}ms`}>
-                    <Slider
-                      min={SS_RANGES.panelDurationMs.min}
-                      max={SS_RANGES.panelDurationMs.max}
-                      step={SS_RANGES.panelDurationMs.step}
-                      value={[panelDurationMs]}
-                      onValueChange={(value) => {
-                        const next = Array.isArray(value) ? value[0] : value;
-                        if (typeof next === "number") setPanelDurationMs(next);
-                      }}
-                      className="py-2"
-                    />
-                  </ControlField>
-
-                  <ControlField label={`Border radius ${borderRadiusPx}px`}>
-                    <Slider
-                      min={SS_RANGES.borderRadiusPx.min}
-                      max={SS_RANGES.borderRadiusPx.max}
-                      step={SS_RANGES.borderRadiusPx.step}
-                      value={[borderRadiusPx]}
-                      onValueChange={(value) => {
-                        const next = Array.isArray(value) ? value[0] : value;
-                        if (typeof next === "number") setBorderRadiusPx(next);
-                      }}
-                      className="py-2"
-                    />
-                  </ControlField>
-
-                  <ControlField label={`Spacing scale ${spacingScale.toFixed(2)}`}>
-                    <Slider
-                      min={SS_RANGES.spacingScale.min}
-                      max={SS_RANGES.spacingScale.max}
-                      step={SS_RANGES.spacingScale.step}
-                      value={[spacingScale]}
-                      onValueChange={(value) => {
-                        const next = Array.isArray(value) ? value[0] : value;
-                        if (typeof next === "number") setSpacingScale(next);
-                      }}
-                      className="py-2"
-                    />
-                  </ControlField>
-                </div>
-
-                <p className="font-mono text-[10px] leading-relaxed text-[var(--lab-text-muted)]">
-                  Export: copy the portable files listed in{" "}
-                  <code className="text-[var(--lab-text-secondary)]">
-                    projects/marketing/service-showcase/TRANSFER.md
-                  </code>
-                  . Do not ship{" "}
-                  <code className="text-[var(--lab-text-secondary)]">
-                    service-showcase-demo.tsx
-                  </code>
-                  .
-                </p>
+          <LabControlGroup label="State">
+            <ControlField label="Active tab">
+              <Select
+                value={activeId}
+                onValueChange={(value) => {
+                  if (value) setActiveId(value);
+                }}
+              >
+                <SelectTrigger
+                  size="sm"
+                  className="h-11 border-[var(--lab-border)] bg-[var(--lab-bg)] font-mono text-xs text-[var(--lab-text-primary)] hover:bg-[var(--lab-surface-soft)]"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="border-white/10 bg-neutral-950 text-white shadow-lg [--accent:oklch(1_0_0_/_0.16)] [--accent-foreground:oklch(0.98_0_0)]">
+                  {SERVICE_ITEMS.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </ControlField>
+            <ControlField label="Image mode">
+              <Select
+                value={imageMode}
+                onValueChange={(value) => {
+                  if (
+                    value === "auto" ||
+                    value === "comparison" ||
+                    value === "image"
+                  ) {
+                    setImageMode(value);
+                  }
+                }}
+              >
+                <SelectTrigger
+                  size="sm"
+                  className="h-11 border-[var(--lab-border)] bg-[var(--lab-bg)] font-mono text-xs text-[var(--lab-text-primary)] hover:bg-[var(--lab-surface-soft)]"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="border-white/10 bg-neutral-950 text-white shadow-lg [--accent:oklch(1_0_0_/_0.16)] [--accent-foreground:oklch(0.98_0_0)]">
+                  <SelectItem value="auto">Auto (from data)</SelectItem>
+                  <SelectItem value="comparison">Force comparison</SelectItem>
+                  <SelectItem value="image">Force normal image</SelectItem>
+                </SelectContent>
+              </Select>
+            </ControlField>
+            <ControlField label="Animations enabled">
+              <div className="flex h-11 items-center gap-2">
+                <Switch
+                  checked={animationEnabled}
+                  onCheckedChange={setAnimationEnabled}
+                  aria-label="Enable animations"
+                />
+                <span className="font-mono text-xs text-[var(--lab-text-muted)]">
+                  {animationEnabled ? "on" : "off"}
+                </span>
               </div>
-            </div>
-          ) : (
-            <p className="font-mono text-[10px] text-[var(--lab-text-muted)] sm:hidden">
-              Controls collapsed — tap Controls to tune the preview.
-            </p>
-          )}
-        </DemoControlBar>
+            </ControlField>
+          </LabControlGroup>
+          <LabControlGroup label="Tuning">
+            <LabRange
+              id="ss-panel-duration"
+              label="Panel duration"
+              min={SS_RANGES.panelDurationMs.min}
+              max={SS_RANGES.panelDurationMs.max}
+              step={SS_RANGES.panelDurationMs.step}
+              value={panelDurationMs}
+              display={`${panelDurationMs}ms`}
+              onChange={setPanelDurationMs}
+            />
+            <LabRange
+              id="ss-radius"
+              label="Border radius"
+              min={SS_RANGES.borderRadiusPx.min}
+              max={SS_RANGES.borderRadiusPx.max}
+              step={SS_RANGES.borderRadiusPx.step}
+              value={borderRadiusPx}
+              display={`${borderRadiusPx}px`}
+              onChange={setBorderRadiusPx}
+            />
+            <LabRange
+              id="ss-spacing"
+              label="Spacing scale"
+              min={SS_RANGES.spacingScale.min}
+              max={SS_RANGES.spacingScale.max}
+              step={SS_RANGES.spacingScale.step}
+              value={spacingScale}
+              display={spacingScale.toFixed(2)}
+              onChange={setSpacingScale}
+            />
+          </LabControlGroup>
+          <p className="font-mono text-[10px] leading-relaxed text-[var(--lab-text-muted)]">
+            Export: copy portable files in{" "}
+            <code className="text-[var(--lab-text-secondary)]">
+              projects/marketing/service-showcase/TRANSFER.md
+            </code>
+            . Do not ship the demo.
+          </p>
+        </DemoControlMenu>
       ) : null}
 
       <div
-        className={cn(
-          "flex min-h-screen flex-col items-center px-4 pb-16",
-          minimal ? "pt-8" : "pt-[calc(var(--lab-control-bar-bottom,5.5rem)+1rem)]",
-        )}
+        className={
+          minimal
+            ? "flex min-h-screen flex-col items-center px-4 pb-16 pt-8"
+            : "lab-demo-inset flex min-h-screen flex-col items-center px-4 pb-16"
+        }
       >
         {viewportMode === "responsive" ? (
           <div className="w-full max-w-6xl overflow-hidden rounded-[28px] border border-[var(--lab-border)] shadow-[0_24px_80px_rgba(0,0,0,0.35)]">

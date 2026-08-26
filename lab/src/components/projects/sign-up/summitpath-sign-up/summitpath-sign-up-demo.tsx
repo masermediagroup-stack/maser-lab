@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import {
-  DemoControlBar,
+  DemoControlMenu,
   DemoLabBrand,
   DemoViewportFrame,
   LabButton,
@@ -32,10 +32,10 @@ export function SummitPathSignUpDemo({ minimal = false }: SummitPathSignUpDemoPr
   return (
     <div className="maser-lab min-h-screen" data-reduced-motion={forceReducedMotion ? "true" : undefined}>
       {!minimal ? (
-        <DemoControlBar className="left-4 right-4 top-4 justify-between gap-2">
+        <DemoControlMenu>
           <DemoLabBrand />
-          <div className="flex flex-wrap items-center gap-2">
-            <ViewportModeToggle mode={viewportMode} onChange={setViewportMode} />
+          <ViewportModeToggle mode={viewportMode} onChange={setViewportMode} />
+          <div className="flex flex-wrap gap-1.5">
             <LabButton
               type="button"
               variant={disabled ? "accent" : "ghost"}
@@ -48,10 +48,10 @@ export function SummitPathSignUpDemo({ minimal = false }: SummitPathSignUpDemoPr
               onToggle={() => setForceReducedMotion((v) => !v)}
             />
           </div>
-        </DemoControlBar>
+        </DemoControlMenu>
       ) : null}
 
-      <div className="flex min-h-screen flex-col items-center justify-center px-4 pb-10 pt-24">
+      <div className="lab-demo-inset flex min-h-screen flex-col items-center justify-center px-4 pb-10">
         {viewportMode === "responsive" ? (
           <div className="w-full max-w-full">
             <SummitPathSignUpSection

@@ -3,7 +3,7 @@
 import { useCallback, useId, useState } from "react";
 import {
   DemoBackButton,
-  DemoControlBar,
+  DemoControlMenu,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
 import { type NavItemId } from "./constants";
@@ -46,16 +46,16 @@ export function PlotlineTabNavDemo({ minimal = false }: PlotlineTabNavDemoProps)
       </div>
 
       {!minimal ? (
-        <DemoControlBar className="left-6 right-6 top-6 justify-between">
+        <DemoControlMenu>
           <DemoBackButton />
           <ReducedMotionToggle
             enabled={forceReducedMotion}
             onToggle={() => setForceReducedMotion((v) => !v)}
           />
-        </DemoControlBar>
+        </DemoControlMenu>
       ) : null}
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
+      <div className="lab-demo-inset relative z-10 flex min-h-screen items-center justify-center px-4">
         <PlotlineTabNav
           activeId={activeId}
           onNavigate={handleNavigate}

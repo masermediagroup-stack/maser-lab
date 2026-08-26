@@ -1,21 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useCallback, useState, useSyncExternalStore } from "react";
-import { Leva, levaStore } from "leva";
+import { useSyncExternalStore } from "react";
 import { ThreeCanvas } from "@/three/components/three-canvas";
 import { StaticFallback } from "@/three/fallbacks/static-fallback";
-import { MotionModeSelector } from "./components/MotionModeSelector";
-import { KineticBarsControls } from "./components/KineticBarsControls";
-import { ExportCodeDrawer } from "./components/ExportCodeDrawer";
-import {
-  DEFAULT_PARAMS,
-  PROJECT_DESCRIPTION,
-  PROJECT_TITLE,
-  SR_DESCRIPTION,
-} from "./lib/constants";
-import type { KineticBarsParams, MotionMode } from "./types/kinetic-bars";
+import { DEFAULT_PARAMS, SR_DESCRIPTION } from "./lib/constants";
+import type { KineticBarsParams } from "./types/kinetic-bars";
 import "./tokens.css";
 
 const KineticBarsScene = dynamic(
@@ -44,7 +34,15 @@ function getNarrowSnapshot() {
   return window.matchMedia("(max-width: 900px)").matches;
 }
 
-export function KineticBarsApp() {
+type KineticBarsAppProps = {
+  params?: KineticBarsParams;
+  forceReducedMotion?: boolean;
+};
+
+export function KineticBarsApp({
+  params = DEFAULT_PARAMS,
+  forceReducedMotion,
+}: KineticBarsAppProps) {
   const systemReduced = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotionSnapshot,
@@ -55,86 +53,23 @@ export function KineticBarsApp() {
     getNarrowSnapshot,
     () => false,
   );
-  const [params, setParams] = useState<KineticBarsParams>(DEFAULT_PARAMS);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [exportOpen, setExportOpen] = useState(false);
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
     () => false,
   );
 
-  const patchParams = useCallback((patch: Partial<KineticBarsParams>) => {
-    setParams((prev) => ({ ...prev, ...patch }));
-  }, []);
-
-  const handleMode = useCallback((mode: MotionMode) => {
-    setParams((prev) => ({ ...prev, animationMode: mode }));
-    levaStore.set({ animationMode: mode }, false);
-  }, []);
-
-  const handleReset = useCallback(() => {
-    setParams((prev) => ({
-      ...DEFAULT_PARAMS,
-      animationMode: prev.animationMode,
-    }));
-    // Keep Leva in sync — otherwise the next panel tick re-applies stale values.
-    const d = DEFAULT_PARAMS;
-    levaStore.set(
-      {
-        barCount: d.barCount,
-        barWidth: d.barWidth,
-        barThickness: d.barThickness,
-        gap: d.gap,
-        minHeight: d.minHeight,
-        maxHeight: d.maxHeight,
-        cornerRadius: d.cornerRadius,
-        perspectiveAngle: d.perspectiveAngle,
-        groupScale: d.groupScale,
-        liftAmplitude: d.liftAmplitude,
-        waveSpeed: d.waveSpeed,
-        phaseOffset: d.phaseOffset,
-        waveDirection: d.waveDirection,
-        paused: d.paused,
-        reducedMotionPreview: d.reducedMotionPreview,
-        cameraDrift: d.cameraDrift,
-        hoverStrength: d.hoverStrength,
-        hoverRadius: d.hoverRadius,
-        rippleStrength: d.rippleStrength,
-        rippleSpeed: d.rippleSpeed,
-        rippleDecay: d.rippleDecay,
-        edgeBrightness: d.edgeBrightness,
-        fillOpacity: d.fillOpacity,
-        backgroundColor: d.backgroundColor,
-        cameraZoom: d.cameraZoom,
-        camX: d.cameraPosition[0],
-        camY: d.cameraPosition[1],
-        camZ: d.cameraPosition[2],
-      },
-      false,
-    );
-    window.dispatchEvent(new Event("kinetic-bars:reset"));
-  }, []);
-
-  const togglePause = useCallback(() => {
-    setParams((prev) => {
-      const paused = !prev.paused;
-      levaStore.set({ paused }, false);
-      return { ...prev, paused };
-    });
-  }, []);
-
-  // Derive responsive framing without mutating control state.
   const framedParams: KineticBarsParams = {
     ...params,
     groupScale: params.groupScale * (narrow ? 0.78 : 1),
     cameraZoom: params.cameraZoom * (narrow ? 0.92 : 1),
   };
 
+  const reduced = forceReducedMotion ?? systemReduced;
+
   return (
     <div className="kinetic-bars-demo">
       <p className="kinetic-bars-demo__sr">{SR_DESCRIPTION}</p>
-
       <div className="kinetic-bars-demo__stage" aria-hidden={false}>
         {mounted ? (
           <ThreeCanvas
@@ -147,105 +82,12 @@ export function KineticBarsApp() {
               </div>
             }
           >
-            <KineticBarsScene
-              params={framedParams}
-              reducedMotion={systemReduced}
-            />
+            <KineticBarsScene params={framedParams} reducedMotion={reduced} />
           </ThreeCanvas>
         ) : (
           <div className="h-full w-full bg-[var(--kb-bg)]" aria-hidden />
         )}
       </div>
-
-      <div className="kinetic-bars-demo__chrome">
-        <div className="kinetic-bars-demo__top">
-          <div className="kinetic-bars-demo__brand">
-            <Link href="/" className="kinetic-bars-demo__back">
-              ← Maser-Lab
-            </Link>
-            <h1 className="kinetic-bars-demo__title">{PROJECT_TITLE}</h1>
-            <p className="kinetic-bars-demo__desc">{PROJECT_DESCRIPTION}</p>
-          </div>
-
-          <div className="kinetic-bars-demo__actions">
-            <button
-              type="button"
-              className="kinetic-bars-demo__icon-btn"
-              aria-label={params.paused ? "Play animation" : "Pause animation"}
-              onClick={togglePause}
-            >
-              {params.paused ? "Play" : "Pause"}
-            </button>
-            <button
-              type="button"
-              className="kinetic-bars-demo__icon-btn"
-              aria-label="Reset sculpture"
-              onClick={handleReset}
-            >
-              Reset
-            </button>
-            <button
-              type="button"
-              className="kinetic-bars-demo__icon-btn"
-              aria-label="Toggle settings panel"
-              aria-pressed={settingsOpen}
-              onClick={() => setSettingsOpen((v) => !v)}
-            >
-              Settings
-            </button>
-            <button
-              type="button"
-              className="kinetic-bars-demo__icon-btn"
-              aria-label="Export code"
-              onClick={() => setExportOpen(true)}
-            >
-              Export
-            </button>
-          </div>
-        </div>
-
-        <div className="kinetic-bars-demo__spacer" aria-hidden="true" />
-
-        <div className="kinetic-bars-demo__bottom">
-          <MotionModeSelector
-            value={params.animationMode}
-            onChange={handleMode}
-            disabled={systemReduced && !params.reducedMotionPreview}
-          />
-        </div>
-      </div>
-
-      {mounted ? (
-        <>
-          <KineticBarsControls onChange={patchParams} onReset={handleReset} />
-          <Leva
-            hidden={!settingsOpen}
-            collapsed={narrow}
-            titleBar={{ title: "Kinetic Bars", filter: false }}
-            theme={{
-              sizes: { rootWidth: "300px" },
-              colors: {
-                elevation1: "#0c0c0e",
-                elevation2: "#121216",
-                elevation3: "#1a1a20",
-                accent1: "#c8c8d0",
-                accent2: "#a8a8b4",
-                accent3: "#888894",
-                highlight1: "#e8e8ec",
-                highlight2: "#c8c8d0",
-                highlight3: "#a0a0aa",
-                vivid1: "#d0d0d8",
-              },
-            }}
-          />
-        </>
-      ) : null}
-
-      <ExportCodeDrawer
-        open={exportOpen}
-        onOpenChange={setExportOpen}
-        params={params}
-      />
     </div>
   );
 }

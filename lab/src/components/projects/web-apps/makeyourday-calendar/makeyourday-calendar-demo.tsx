@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  DemoControlBar,
+  DemoControlMenu,
   DemoLabBrand,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
@@ -23,13 +23,13 @@ export function MakeYourDayCalendarDemo({
       data-reduced-motion={forceReducedMotion ? "true" : undefined}
     >
       {!minimal ? (
-        <DemoControlBar className="left-4 right-4 top-4 justify-between gap-2">
+        <DemoControlMenu>
           <DemoLabBrand />
           <ReducedMotionToggle
             enabled={forceReducedMotion}
             onToggle={() => setForceReducedMotion((value) => !value)}
           />
-        </DemoControlBar>
+        </DemoControlMenu>
       ) : null}
 
       <MakeYourDayCalendarApp forceReducedMotion={forceReducedMotion} />

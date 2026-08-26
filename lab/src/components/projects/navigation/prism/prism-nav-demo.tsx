@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCallback, useId, useState } from "react";
 import {
-  DemoControlBar,
+  DemoControlMenu,
   DemoLabBrand,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
@@ -44,16 +44,16 @@ export function PrismNavDemo({ minimal = false }: PrismNavDemoProps) {
       </div>
 
       {!minimal ? (
-        <DemoControlBar className="left-4 right-4 top-4 justify-between gap-2">
+        <DemoControlMenu>
           <DemoLabBrand />
           <ReducedMotionToggle
             enabled={forceReducedMotion}
             onToggle={() => setForceReducedMotion((v) => !v)}
           />
-        </DemoControlBar>
+        </DemoControlMenu>
       ) : null}
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
+      <div className="lab-demo-inset relative z-10 flex min-h-screen items-center justify-center px-4">
         <LiquidGlassTopNav
           activeId={activeId}
           onNavigate={handleNavigate}

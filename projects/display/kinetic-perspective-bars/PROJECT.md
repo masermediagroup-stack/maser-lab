@@ -23,7 +23,7 @@ Communicate a premium, gallery-like architectural motion sculpture — precise, 
 Greenfield. First React Three Fiber project in Maser-Lab.
 
 ### Desired outcome
-A centered sequence of thin rounded rectangular slabs on near-black, with a seamless traveling elevation wave, optional pointer influence, four motion modes, Leva/dev controls, and code export reflecting live parameters.
+A centered sequence of thin rounded rectangular slabs on near-black, with a seamless traveling elevation wave, optional pointer influence, four motion modes, lab demo-dock knobs (not product chrome), and code export reflecting live parameters.
 
 ### Success signal
 Seamless 5–7s wave loop; clear perspective depth via thin edge strokes; hover/ripple blend without snapping; mode crossfade ~0.8s; 60 FPS target; reduced-motion honored; lint/build pass.
