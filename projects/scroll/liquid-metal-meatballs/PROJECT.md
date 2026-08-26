@@ -27,7 +27,7 @@ Read page copy while a decorative Maser-blue mercury field crosses the viewport:
 Greenfield.
 
 ### Desired outcome
-Chrome meatballs (albedo `#10a4ff`, creases `#0065a3`, near-white spec), one fixed key light. Weight on travel. Sticky merge in the SDF. No CSS goo, no orbiting jelly, no mouse trail.
+Chrome meatballs (albedo `#10a4ff`, creases `#0065a3`, near-white spec). Color is a shared Maser-blue wash sampled in object UV after smin merge (Shepard/IDW). Weight on travel. Sticky merge in the SDF. No CSS goo, no orbiting jelly, no mouse trail, no per-ball sphere lighting.
 
 ### Success signal
 Scroll into the marked trigger zone → balls spawn from edges, arc, neck/swallow when they pass, exit off a different edge, then die. Sitting still after leaving the zone lets remaining balls finish. Reduced motion shows a frozen cluster. Hidden tab pauses. Type on top remains readable.
@@ -95,7 +95,7 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 - [x] Demo route `/demos/liquid-metal-meatballs` exists via DemoHost
 - [x] `npm run build` passes in `lab/` (project files lint clean; repo `npm run lint` still fails on pre-existing `pixel-info-card` setState-in-effect)
 - [x] Scroll trigger starts the sequence only when a **majority** of the zone is in view; section bottom stops new spawns; leftover balls finish (rendered)
-- [x] Edge spawn / different-edge exit / sticky merge / chrome lighting match the thesis (rendered) — no central belly hotspot; brighter mercury on white; faint rim on black
+- [x] Edge spawn / different-edge exit / sticky merge / shared mercury wash match the thesis (rendered) — no central belly/nipple on white or black; merged blobs share one continuous color field
 - [x] Demo reduced-motion toggle freezes a still cluster; toggling RM off and Replay both restart the sim without a full reload (rendered)
 - [x] Demo Light / Dark grounds let the same metal be judged on white and black (rendered)
 - [x] Mobile lab chrome stacks compactly and does not cover the canvas (rendered)
@@ -106,7 +106,7 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 ## Open decisions
 
 - Texture-packed 1×N centers (4rknova) vs `uniform vec4 uBalls[16]` — uniforms are enough at this charge count. Revisit only if charge count grows.
-- Exact `k` (merge tension) is locked from the timed canvas pass (`LMM_MERGE_K = 24`). Key light is grazing (small +Z) so the facing belly does not hotspot.
+- Exact `k` (merge tension) is locked from the timed canvas pass (`LMM_MERGE_K = 24`). Coloring is IDW in object UV after smin (Paper MeshGradient structure, Maser palette). No per-ball facing spec.
 
 ## Accepted decisions
 
@@ -117,7 +117,7 @@ Status: accepted (locked by brief)
 Scope: `scroll/liquid-metal-meatballs`
 
 Decision:
-CPU owns ball trajectories. GPU evaluates a 2D SDF of charges, merged with Inigo Quilez **quadratic polynomial smin**. Stretch is a second charge along velocity. Lighting is one key light on fake sphere normals from the 2D field gradient. Colors locked: albedo `#10a4ff`, creases `#0065a3`, spec near-white.
+CPU owns ball trajectories. GPU evaluates a 2D SDF of charges, merged with Inigo Quilez **quadratic polynomial smin**. Stretch is a second charge along velocity. Color is sampled **after** merge from a shared 5-stop Maser-blue palette in object UV via Shepard/IDW (`dist^3.5`, weight `1/(dist+eps)`), with a slight UV warp from the combined-field gradient and a contour rim on the shape mask. Colors locked: albedo `#10a4ff`, creases `#0065a3`, spec near-white. No per-ball Blinn-Phong, no `N = p - ballCenter`.
 
 Rationale:
 Spark build note + Elite Pixel Guy thesis. 3D PBR blob and mouse-trail goo were researched and refused.
@@ -132,7 +132,7 @@ Assumptions:
 Quadratic smin + velocity stretch reads as mercury, not jelly, when `k` stays in the neck-thickness range and there is no idle orbit.
 
 Open decisions:
-Tune `k` and light direction in-browser.
+`k` is locked. Coloring structure is locked to combined-field IDW.
 
 Approver:
 Locked design brief (Elite Pixel Guy / Spark) — lab experiment, not a new visual system.

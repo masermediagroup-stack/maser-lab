@@ -1,7 +1,6 @@
 import {
   LMM_ALBEDO_RGB,
   LMM_CREASE_RGB,
-  LMM_LIGHT_DIR,
   LMM_MERGE_K,
   LMM_SPEC_RGB,
   MAX_CHARGES,
@@ -106,12 +105,6 @@ export class MeatballRenderer {
       LMM_SPEC_RGB[0],
       LMM_SPEC_RGB[1],
       LMM_SPEC_RGB[2],
-    );
-    gl.uniform3f(
-      gl.getUniformLocation(this.program, "uLightDir"),
-      LMM_LIGHT_DIR[0],
-      LMM_LIGHT_DIR[1],
-      LMM_LIGHT_DIR[2],
     );
   }
 

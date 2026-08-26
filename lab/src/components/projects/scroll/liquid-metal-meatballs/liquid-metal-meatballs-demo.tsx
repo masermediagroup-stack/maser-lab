@@ -99,8 +99,8 @@ export function LiquidMetalMeatballsDemo() {
           <p className="lmm-ink mt-5 max-w-xl text-base leading-relaxed text-[var(--lmm-text-muted)] sm:text-lg">
             Scroll until most of the trigger zone is on screen. Maser-blue
             chrome meatballs spawn off random edges, arc across the page, neck
-            and swallow, then exit a different edge. Weight on travel. One key
-            light.
+            and swallow, then exit a different edge. Weight on travel. Shared
+            mercury wash — color after merge.
           </p>
         </header>
 

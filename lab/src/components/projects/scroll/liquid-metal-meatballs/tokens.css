@@ -50,8 +50,8 @@
   position: absolute;
   border-radius: 50%;
   background:
-    radial-gradient(
-      circle at 18% 14%,
+    linear-gradient(
+      118deg,
       var(--lmm-spec) 0%,
       var(--lmm-albedo) 42%,
       var(--lmm-crease) 78%,

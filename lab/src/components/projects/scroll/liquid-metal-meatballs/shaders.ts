@@ -20,8 +20,10 @@ void main() {
 `;
 
 /**
- * 2D mercury field: circle SDFs merged with IQ quadratic smin.
- * Fake sphere normals from the 2D gradient. One key light.
+ * Geometry: IQ quadratic smin on circle SDFs (unchanged).
+ * Color AFTER merge: Paper MeshGradient Shepard/IDW in object UV
+ * (mesh-gradient.ts) — shared wash, independent of ball identity.
+ * Contour sheen from the combined field, never per-ball N = p - c_i.
  */
 export const FRAG_SRC = `#version 300 es
 precision highp float;
@@ -30,6 +32,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 const int MAX_CHARGES = ${MAX_CHARGES};
+const int PAL_COUNT = 5;
 
 uniform vec4 uBalls[MAX_CHARGES];
 uniform vec2 uResolution;
@@ -37,10 +40,15 @@ uniform float uMergeK;
 uniform vec3 uAlbedo;
 uniform vec3 uCrease;
 uniform vec3 uSpec;
-uniform vec3 uLightDir;
 
-// IQ quadratic polynomial smin + mix factor (neck then swallow).
-// https://iquilezles.org/articles/smin/
+const vec2 PAL_POS[PAL_COUNT] = vec2[PAL_COUNT](
+  vec2(0.16, 0.20),
+  vec2(0.82, 0.16),
+  vec2(0.48, 0.58),
+  vec2(0.18, 0.84),
+  vec2(0.86, 0.78)
+);
+
 vec2 sminQuadratic(float a, float b, float k) {
   float h = 1.0 - min(abs(a - b) / (4.0 * k), 1.0);
   float w = h * h;
@@ -63,44 +71,53 @@ float field(vec2 p, out float crease) {
   return d;
 }
 
+vec3 idwWash(vec2 uv) {
+  vec3 stops[PAL_COUNT];
+  stops[0] = uSpec;
+  stops[1] = mix(uAlbedo, uSpec, 0.38);
+  stops[2] = uAlbedo;
+  stops[3] = uCrease;
+  stops[4] = uCrease * 0.62;
+
+  vec3 color = vec3(0.0);
+  float totalWeight = 0.0;
+  for (int i = 0; i < PAL_COUNT; i++) {
+    float dist = length(uv - PAL_POS[i]);
+    dist = pow(max(dist, 1e-4), 3.5);
+    float w = 1.0 / (dist + 1e-3);
+    color += stops[i] * w;
+    totalWeight += w;
+  }
+  return color / max(totalWeight, 1e-4);
+}
+
 void main() {
   vec2 p = vUv * uResolution;
   float crease = 0.0;
   float d = field(p, crease);
 
   float aa = max(fwidth(d), 0.75);
-  float alpha = 1.0 - smoothstep(0.0, aa, d);
-  if (alpha < 0.004) {
+  float mask = smoothstep(aa, -aa, d);
+  if (mask < 0.004) {
     fragColor = vec4(0.0);
     return;
   }
 
-  float unused = 0.0;
-  float e = 1.35;
-  vec2 g = vec2(
-    field(p + vec2(e, 0.0), unused) - field(p - vec2(e, 0.0), unused),
-    field(p + vec2(0.0, e), unused) - field(p - vec2(0.0, e), unused)
-  ) / (2.0 * e);
-  float z = sqrt(max(0.001, 1.0 - dot(g, g)));
-  vec3 N = normalize(vec3(g, z));
+  /* Ride the merged surface without per-ball radial poles. */
+  vec2 gd = vec2(dFdx(d), dFdy(d));
+  vec2 uv = vUv + gd / max(uResolution.x, 1.0) * 14.0;
 
-  vec3 L = normalize(uLightDir);
-  vec3 V = vec3(0.0, 0.0, 1.0);
-  vec3 H = normalize(L + V);
-  float ndl = max(dot(N, L), 0.0);
-  /* Half-Lambert wrap: holds mercury on white without a facing-center boost. */
-  float wrap = ndl * 0.52 + 0.48;
-  float spec = pow(max(dot(N, H), 0.0), 64.0);
-  float fres = pow(clamp(1.0 - max(N.z, 0.0), 0.0, 1.0), 2.4);
+  vec3 color = idwWash(uv);
+  color = mix(color, uCrease, clamp(crease * 0.18, 0.0, 1.0));
 
-  vec3 albedo = mix(uAlbedo, uCrease, clamp(crease * 1.05, 0.0, 1.0));
+  /* Contour sheen on the combined mask — not facing spec, not ndotH. */
+  float rim = mask * smoothstep(-12.0 * aa, 0.0, d);
+  color = mix(color, mix(color, uSpec, 0.42), rim * 0.28);
 
-  /* No N.z belly lift. Spec is grazing-only so the center stays skin. */
-  vec3 color = albedo * wrap;
-  color += uSpec * spec * fres * 0.9;
-  /* Faint rim so the silhouette holds on black — same metal, not a second key. */
-  color += mix(uAlbedo, uSpec, 0.42) * fres * 0.32;
+  color += (1.0 / 256.0) * (
+    fract(sin(dot(0.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - 0.5
+  );
 
-  fragColor = vec4(color * alpha, alpha);
+  fragColor = vec4(color * mask, mask);
 }
 `;
