@@ -21,11 +21,11 @@ void main() {
 
 /**
  * Geometry: IQ quadratic smin on circle SDFs (unchanged).
- * Color: Paper shaders-react metaballs method — accumulate
- * (shared metal × influence), then divide (metaballs.ts).
- * One metal on the field so merges blend; no per-ball lamp
- * (never N = p - c_i / Blinn-Phong). Wrap + faint rim from
- * the combined contour only.
+ * Color: shared UV/IDW Maser-blue wash (Paper mesh-gradient Shepard).
+ * Isolated disc = continuous wash — no radial fieldDepth, no
+ * length(p - c), no N = p - c_i. Merge crease from smin. Any extra
+ * sheen is from dFdx/dFdy of the *combined* field, and is 0 when the
+ * gradient is a unit SDF (solo ball).
  */
 export const FRAG_SRC = `#version 300 es
 precision highp float;
@@ -95,12 +95,6 @@ vec3 metalWash(vec2 uv) {
   return color / max(totalWeight, 1e-4);
 }
 
-float ballShape(vec2 p, vec4 ball) {
-  float radius = max(ball.z, 1.0);
-  float d = length(p - ball.xy) / radius;
-  return pow(max(1.0 - d, 0.0), 2.2);
-}
-
 void main() {
   vec2 p = vUv * uResolution;
   float crease = 0.0;
@@ -113,27 +107,15 @@ void main() {
     return;
   }
 
-  vec3 metal = metalWash(vUv);
-  vec3 totalColor = vec3(0.0);
-  float totalShape = 0.0;
-  for (int i = 0; i < MAX_CHARGES; i++) {
-    vec4 ball = uBalls[i];
-    if (ball.w < 0.5) continue;
-    float shape = ballShape(p, ball);
-    totalColor += metal * shape;
-    totalShape += shape;
-  }
-  vec3 color = totalShape > 1e-4 ? totalColor / totalShape : metal;
-  color = mix(color, uCrease, clamp(crease * 0.2, 0.0, 1.0));
+  vec3 color = metalWash(vUv);
+  color = mix(color, uCrease, clamp(crease * 0.22, 0.0, 1.0));
 
-  float fieldDepth = max(-d, 0.0);
-  /* Brighter wrap on the combined silhouette band — not a radial core. */
-  float wrap = smoothstep(1.2, 18.0, fieldDepth) * exp(-fieldDepth * 0.042);
-  color = mix(color, mix(uAlbedo, uSpec, 0.22), wrap * 0.38);
-
-  /* Faint rim on black; stays blue (not a white sticker) on light. */
-  float rim = mask * exp(-fieldDepth * 0.12);
-  color = mix(color, mix(uAlbedo, uSpec, 0.4), rim * 0.22);
+  /* Combined-field normal (one gradient of the smin field). Crease is
+     0 on a solo disc, so this cannot plant a pin at the SDF origin.
+     Never N·L and never field-depth / length(p - c). */
+  vec2 n2 = normalize(vec2(dFdx(d), dFdy(d)) + 1e-8);
+  float mergeSheen = clamp(crease, 0.0, 1.0) * (0.65 + 0.35 * n2.y);
+  color = mix(color, mix(uAlbedo, uSpec, 0.1), mergeSheen * 0.1);
 
   color += (1.0 / 256.0) * (
     fract(sin(dot(0.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - 0.5
