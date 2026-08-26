@@ -16,8 +16,14 @@ export const MAX_CHARGES = 16;
 
 export const SPAWN_COOLDOWN_MIN = 0.48;
 export const SPAWN_COOLDOWN_MAX = 1.15;
-export const BURST_COUNT = 3;
-export const BURST_STAGGER = 0.18;
+/** Seconds to ease spawn rate up after the majority gate opens. */
+export const SPAWN_HEAT_ON_TAU = 0.42;
+/** Seconds to ease spawn rate down after the gate closes. */
+export const SPAWN_HEAT_OFF_TAU = 0.32;
+/** Below this, no new charges — leftovers still finish. */
+export const SPAWN_HEAT_MIN = 0.12;
+/** Gate must stay closed this long before spawn intent drops (anti-chatter). */
+export const SPAWN_OFF_DWELL = 0.22;
 
 export const RADIUS_MIN = 28;
 export const RADIUS_MAX = 68;

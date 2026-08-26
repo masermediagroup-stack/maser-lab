@@ -1,12 +1,13 @@
 import {
-  BURST_COUNT,
-  BURST_STAGGER,
   MAX_CHARGES,
   MAX_PRIMARIES,
   RADIUS_MAX,
   RADIUS_MIN,
   SPAWN_COOLDOWN_MAX,
   SPAWN_COOLDOWN_MIN,
+  SPAWN_HEAT_MIN,
+  SPAWN_HEAT_OFF_TAU,
+  SPAWN_HEAT_ON_TAU,
   STILL_CLUSTER,
 } from "./constants";
 
@@ -113,35 +114,38 @@ export class MeatballSimulation {
 
   private readonly balls: Ball[] = [];
   private spawnCooldown = 0;
-  private burstWait = 0;
-  private burstLeft = 0;
-  private spawning = false;
+  private spawnHeat = 0;
+  private wantSpawn = false;
   private width = 1;
   private height = 1;
 
   reset(): void {
     this.balls.length = 0;
     this.spawnCooldown = 0;
-    this.burstWait = 0;
-    this.burstLeft = 0;
-    this.spawning = false;
+    this.spawnHeat = 0;
+    this.wantSpawn = false;
     this.charges.fill(0);
   }
 
+  /**
+   * Intent only — never dumps a burst and never kills in-flight balls.
+   * Heat in `step` ramps new-charge rate in and out.
+   */
   setSpawning(active: boolean, size?: { width: number; height: number }): void {
     if (size) {
       this.width = size.width;
       this.height = size.height;
     }
-    if (active && !this.spawning) {
-      this.burstLeft = BURST_COUNT;
-      this.burstWait = 0;
-      if (this.trySpawn()) {
-        this.burstLeft -= 1;
-        this.burstWait = BURST_STAGGER;
-      }
+    if (active && !this.wantSpawn) {
+      /* Prime just enough heat for one charge this frame, not a 3-ball slam. */
+      this.spawnHeat = Math.max(this.spawnHeat, SPAWN_HEAT_MIN);
+      this.spawnCooldown = Math.min(this.spawnCooldown, 0);
     }
-    this.spawning = active;
+    this.wantSpawn = active;
+  }
+
+  get spawning(): boolean {
+    return this.wantSpawn;
   }
 
   loadStillCluster(width: number, height: number): void {
@@ -196,19 +200,18 @@ export class MeatballSimulation {
       ...this.balls.filter((ball) => ball.alive),
     );
 
-    if (this.spawning) {
-      this.burstWait -= capped;
-      if (this.burstLeft > 0 && this.burstWait <= 0) {
-        this.trySpawn();
-        this.burstLeft -= 1;
-        this.burstWait = BURST_STAGGER;
-      }
+    const target = this.wantSpawn ? 1 : 0;
+    const tau = this.wantSpawn ? SPAWN_HEAT_ON_TAU : SPAWN_HEAT_OFF_TAU;
+    const ease = 1 - Math.exp(-capped / tau);
+    this.spawnHeat += (target - this.spawnHeat) * ease;
 
-      this.spawnCooldown -= capped;
-      if (this.burstLeft <= 0 && this.spawnCooldown <= 0) {
-        if (this.trySpawn()) {
-          this.spawnCooldown = rand(SPAWN_COOLDOWN_MIN, SPAWN_COOLDOWN_MAX);
-        }
+    this.spawnCooldown -= capped;
+    if (this.spawnHeat >= SPAWN_HEAT_MIN && this.spawnCooldown <= 0) {
+      if (this.trySpawn()) {
+        const t =
+          (this.spawnHeat - SPAWN_HEAT_MIN) / Math.max(1e-4, 1 - SPAWN_HEAT_MIN);
+        this.spawnCooldown =
+          SPAWN_COOLDOWN_MAX + (SPAWN_COOLDOWN_MIN - SPAWN_COOLDOWN_MAX) * t;
       }
     }
 

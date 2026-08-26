@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { startTransition, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { LiquidMetalFallback } from "./fallback";
 import { MeatballRenderer, isWebGL2Available } from "./renderer";
 import { MeatballSimulation } from "./simulation";
+import { SPAWN_OFF_DWELL } from "./constants";
 import type { LiquidMetalMeatballsProps, SequencePhase } from "./types";
 import "./tokens.css";
 
@@ -91,6 +92,7 @@ export function LiquidMetalMeatballs({
     let raf = 0;
     let last = performance.now();
     let spawning = false;
+    let offDwell = 0;
     let width = window.innerWidth;
     let height = window.innerHeight;
     let running = true;
@@ -99,7 +101,9 @@ export function LiquidMetalMeatballs({
     const reportPhase = (phase: SequencePhase) => {
       if (phase === lastPhase) return;
       lastPhase = phase;
-      onPhaseChangeRef.current?.(phase);
+      startTransition(() => {
+        onPhaseChangeRef.current?.(phase);
+      });
     };
 
     const ensureLoop = () => {
@@ -115,12 +119,25 @@ export function LiquidMetalMeatballs({
       height = Math.max(1, canvas.clientHeight || window.innerHeight);
     };
 
-    const updateGate = () => {
+    /**
+     * Zone math is unchanged (majority in view, bottom still below the fold).
+     * ON is immediate; OFF must dwell so the boolean does not chatter mid-scroll.
+     */
+    const sampleGate = (dt: number) => {
       const trigger = triggerRef.current;
-      const next = Boolean(trigger && isSpawnZoneActive(trigger));
-      spawning = next;
+      const raw = Boolean(trigger && isSpawnZoneActive(trigger));
+      if (raw) {
+        offDwell = 0;
+        spawning = true;
+      } else if (dt <= 0) {
+        offDwell = SPAWN_OFF_DWELL;
+        spawning = false;
+      } else {
+        offDwell += dt;
+        if (offDwell >= SPAWN_OFF_DWELL) spawning = false;
+      }
       if (!reducedRef.current) {
-        sim.setSpawning(next, { width, height });
+        sim.setSpawning(spawning, { width, height });
       }
     };
 
@@ -135,7 +152,8 @@ export function LiquidMetalMeatballs({
       readSize();
       renderer.setSize(width, height, dprForWidth(width));
       sim.reset();
-      updateGate();
+      offDwell = 0;
+      sampleGate(0);
       renderer.draw(sim.charges);
       if (spawning) reportPhase("sequence");
       else reportPhase("idle");
@@ -176,7 +194,7 @@ export function LiquidMetalMeatballs({
         reportPhase("still");
         return;
       }
-      updateGate();
+      sampleGate(dt);
       sim.step(dt, width, height);
       renderer.draw(sim.charges);
       if (spawning) reportPhase("sequence");
@@ -196,37 +214,21 @@ export function LiquidMetalMeatballs({
     resize();
     if (reducedRef.current) freezeStill();
     else {
-      updateGate();
+      sampleGate(0);
       ensureLoop();
     }
 
     const canvasRo = new ResizeObserver(resize);
     canvasRo.observe(canvas);
 
-    const trigger = triggerRef.current;
-    const observer = trigger
-      ? new IntersectionObserver(
-          () => {
-            updateGate();
-          },
-          { threshold: [0, 0.25, 0.5, 0.75, 1] },
-        )
-      : null;
-    if (trigger && observer) observer.observe(trigger);
-
     window.addEventListener("resize", resize);
-    window.addEventListener("scroll", updateGate, { passive: true, capture: true });
-    document.addEventListener("scroll", updateGate, { passive: true, capture: true });
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
       running = false;
       cancelAnimationFrame(raf);
       canvasRo.disconnect();
-      observer?.disconnect();
       window.removeEventListener("resize", resize);
-      window.removeEventListener("scroll", updateGate, true);
-      document.removeEventListener("scroll", updateGate, true);
       document.removeEventListener("visibilitychange", onVisibility);
       freezeStillRef.current = () => {};
       restartLiveRef.current = () => {};

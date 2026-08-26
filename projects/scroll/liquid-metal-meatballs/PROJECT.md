@@ -75,7 +75,7 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 | Travel | Cubic bezier, spawn≠exit edge | Weight ∝ radius; no sine/cos orbits |
 | Duration | ~1.7–5.2s per ball | Sequence / delight, not UI chrome (`rule/ui-duration-cap` exception) |
 | Reduced motion | Freeze still cluster | `rule/reduced-motion-required` |
-| Pause | `visibilitychange` cancels rAF | Off-screen / hidden tab |
+| Pause | `visibilitychange` cancels rAF | Hidden tab only — scroll through the trigger does not remount GL |
 
 ## Three.js / 3D (optional)
 
@@ -94,7 +94,7 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 
 - [x] Demo route `/demos/liquid-metal-meatballs` exists via DemoHost
 - [x] `npm run build` passes in `lab/` (project files lint clean; repo `npm run lint` still fails on pre-existing `pixel-info-card` setState-in-effect)
-- [x] Scroll trigger starts the sequence only when a **majority** of the zone is in view; section bottom stops new spawns; leftover balls finish (rendered). First spawn is in-frame as soon as the gate opens (not a multi-second off-screen intro; peek at ~28% still does not spawn).
+- [x] Scroll trigger starts the sequence only when a **majority** of the zone is in view; section bottom stops new spawns; leftover balls finish (rendered). First spawn is in-frame as soon as the gate opens (not a multi-second off-screen intro; peek at ~28% still does not spawn). Crossing the gate ramps new charges in/out — no spawn burst, no canvas remount, no hitch/flash (rendered).
 - [x] Edge spawn / different-edge exit / sticky merge / shared mercury wash match the thesis (rendered) — no central belly/nipple on white or black; merged blobs share one continuous color field; isolated balls stay circular in screen space (neck only while smin-merging)
 - [x] Demo reduced-motion toggle freezes a still cluster; toggling RM off and Replay both restart the sim without a full reload (rendered)
 - [x] Demo Light / Dark grounds let the same metal be judged on white and black (rendered)

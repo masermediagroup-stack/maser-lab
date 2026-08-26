@@ -67,6 +67,8 @@ export class MeatballRenderer {
   private readonly mergeKLoc: WebGLUniformLocation | null;
   private readonly deviceCharges = new Float32Array(MAX_CHARGES * 4);
   private dpr = 1;
+  private bufferW = 0;
+  private bufferH = 0;
   private disposed = false;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -110,9 +112,21 @@ export class MeatballRenderer {
 
   setSize(cssWidth: number, cssHeight: number, dpr: number): void {
     const gl = this.gl;
-    this.dpr = dpr;
     const w = Math.max(1, Math.floor(cssWidth * dpr));
     const h = Math.max(1, Math.floor(cssHeight * dpr));
+    /* Skip tiny scroll-linked viewport jitter — reallocating the
+       drawing buffer clears the canvas and reads as a hitch/flash. */
+    if (
+      Math.abs(this.bufferW - w) <= 2 &&
+      Math.abs(this.bufferH - h) <= 2 &&
+      this.dpr === dpr &&
+      this.bufferW > 0
+    ) {
+      return;
+    }
+    this.dpr = dpr;
+    this.bufferW = w;
+    this.bufferH = h;
     if (gl.canvas.width !== w || gl.canvas.height !== h) {
       gl.canvas.width = w;
       gl.canvas.height = h;
