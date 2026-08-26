@@ -46,4 +46,6 @@ export const LIQUID_METAL_MEATBALLS_DEFAULTS = {
   wetness: 0.78,
   wetnessSatin: 0.28,
   wetnessWet: 0.78,
+  /** 1 = current weighted mercury pace. Demo may retune travel only. */
+  speed: 1,
 } as const;

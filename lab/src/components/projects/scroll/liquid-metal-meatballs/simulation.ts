@@ -123,6 +123,8 @@ export class MeatballSimulation {
   private wantSpawn = false;
   private width = 1;
   private height = 1;
+  /** Arc travel only. Does not change spawn heat, cooldown, or gate. */
+  private travelSpeed = 1;
 
   reset(): void {
     this.balls.length = 0;
@@ -130,6 +132,10 @@ export class MeatballSimulation {
     this.spawnHeat = 0;
     this.wantSpawn = false;
     this.charges.fill(0);
+  }
+
+  setTravelSpeed(speed: number): void {
+    this.travelSpeed = Math.min(2, Math.max(0.35, speed));
   }
 
   /**
@@ -187,7 +193,7 @@ export class MeatballSimulation {
 
     for (const ball of this.balls) {
       if (!ball.alive) continue;
-      ball.t += capped / ball.duration;
+      ball.t += (capped * this.travelSpeed) / ball.duration;
       if (ball.t >= 1) {
         ball.alive = false;
         continue;

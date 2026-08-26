@@ -28,12 +28,15 @@ const SAT_MIN = 0.4;
 const SAT_MAX = 1.35;
 const K_MIN = 8;
 const K_MAX = 48;
+const SPEED_MIN = 0.35;
+const SPEED_MAX = 2;
 
 function lookForGround(ground: Ground, prev?: LiquidMetalLook): LiquidMetalLook {
   return {
     hue: prev?.hue ?? LIQUID_METAL_MEATBALLS_DEFAULTS.hue,
     sat: prev?.sat ?? LIQUID_METAL_MEATBALLS_DEFAULTS.sat,
     mergeK: prev?.mergeK ?? LIQUID_METAL_MEATBALLS_DEFAULTS.mergeK,
+    speed: prev?.speed ?? LIQUID_METAL_MEATBALLS_DEFAULTS.speed,
     wetness:
       ground === "light"
         ? LIQUID_METAL_MEATBALLS_DEFAULTS.wetnessSatin
@@ -176,6 +179,16 @@ export function LiquidMetalMeatballsDemo() {
             value={look.wetness}
             display={look.wetness.toFixed(2)}
             onChange={(wetness) => patchLook({ wetness })}
+          />
+          <LabRange
+            id="lmm-speed"
+            label="Speed"
+            min={SPEED_MIN}
+            max={SPEED_MAX}
+            step={0.01}
+            value={look.speed}
+            display={`${look.speed.toFixed(2)}×`}
+            onChange={(speed) => patchLook({ speed })}
           />
         </div>
       </DemoControlMenu>

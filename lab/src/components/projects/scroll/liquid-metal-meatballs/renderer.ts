@@ -122,6 +122,7 @@ export class MeatballRenderer {
       sat: LIQUID_METAL_MEATBALLS_DEFAULTS.sat,
       mergeK: LMM_MERGE_K,
       wetness: LIQUID_METAL_MEATBALLS_DEFAULTS.wetness,
+      speed: LIQUID_METAL_MEATBALLS_DEFAULTS.speed,
     });
   }
 

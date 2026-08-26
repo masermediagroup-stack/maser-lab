@@ -9,6 +9,8 @@ export type LiquidMetalLook = {
   mergeK: number;
   /** Material 0 satin … 1 wet. Not a light. */
   wetness: number;
+  /** Travel multiplier on the weighted arc. 1 = locked mercury pace. Not spawn. */
+  speed: number;
 };
 
 export type LiquidMetalMeatballsProps = {

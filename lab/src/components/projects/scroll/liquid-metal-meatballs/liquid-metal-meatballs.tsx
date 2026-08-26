@@ -95,12 +95,15 @@ export function LiquidMetalMeatballs({
       sat: LIQUID_METAL_MEATBALLS_DEFAULTS.sat,
       mergeK: LIQUID_METAL_MEATBALLS_DEFAULTS.mergeK,
       wetness: LIQUID_METAL_MEATBALLS_DEFAULTS.wetness,
+      speed: LIQUID_METAL_MEATBALLS_DEFAULTS.speed,
     };
 
-    const syncLook = () => {
-      renderer.applyLook(lookSourceRef?.current ?? lockedLook);
-    };
     const sim = new MeatballSimulation();
+    const syncLook = () => {
+      const look = lookSourceRef?.current ?? lockedLook;
+      sim.setTravelSpeed(look.speed);
+      renderer.applyLook(look);
+    };
     let raf = 0;
     let last = performance.now();
     let spawning = false;
@@ -211,8 +214,8 @@ export function LiquidMetalMeatballs({
         return;
       }
       sampleGate(dt);
-      sim.step(dt, width, height);
       syncLook();
+      sim.step(dt, width, height);
       renderer.draw(sim.charges);
       if (spawning) reportPhase("sequence");
       else if (sim.aliveCount > 0) reportPhase("finishing");
