@@ -91,18 +91,18 @@ function makeArc(p0: Vec2, p3: Vec2, width: number, height: number): { p1: Vec2;
   const px = -dy / len;
   const py = dx / len;
   const bow = (0.16 + Math.random() * 0.28) * Math.min(width, height);
-  /* Bow toward the viewport center. p0/p3 stay fully off-canvas;
-     the disc clips in on this same weighted arc. */
   const midX = (p0.x + p3.x) * 0.5;
   const midY = (p0.y + p3.y) * 0.5;
   const inward = px * (width * 0.5 - midX) + py * (height * 0.5 - midY);
   const sign = inward >= 0 ? 1 : -1;
-  const p1 = mix(p0, p3, 0.3);
-  const p2 = mix(p0, p3, 0.68);
-  p1.x += px * bow * sign;
-  p1.y += py * bow * sign;
-  p2.x += px * bow * sign * 0.35;
-  p2.y += py * bow * sign * 0.35;
+  /* p1 stays near the off-canvas origin so the disc clips across the
+     spawn edge before the mid-arc bow. mix(0.3) yanked the center inside. */
+  const p1 = mix(p0, p3, 0.08);
+  const p2 = mix(p0, p3, 0.58);
+  p1.x += px * bow * sign * 0.12;
+  p1.y += py * bow * sign * 0.12;
+  p2.x += px * bow * sign;
+  p2.y += py * bow * sign;
   return { p1, p2 };
 }
 
