@@ -27,7 +27,7 @@ Read page copy while a decorative Maser-blue mercury field crosses the viewport:
 Greenfield.
 
 ### Desired outcome
-Chrome meatballs (albedo `#10a4ff`, creases `#0065a3`, near-white spec). Color is a shared UV/IDW wet-mercury wash on the merged SDF. Isolated discs are a continuous wet wash (spec lifted equally in every IDW stop — no radial field-depth, no `length(p-c)` sheen, no per-ball lamp, no nipple). Deep crease from smin; grazing spec from `dFdx/dFdy` of the combined field, crease-gated so the SDF origin cannot pin.
+Chrome meatballs (albedo `#10a4ff`, creases `#0065a3`, near-white spec). Color is a shared UV/IDW wet-mercury wash on the merged SDF. Isolated discs are a continuous wet wash (spec lifted equally in every IDW stop — no radial field-depth, no `length(p-c)` sheen, no per-ball lamp, no nipple). Deep crease from smin; grazing spec from `dFdx/dFdy` of the smin crease (neck walls only — not `normalize(dFdx(d))`).
 
 ### Success signal
 Scroll into the marked trigger zone → balls spawn from edges, arc, neck/swallow when they pass, exit off a different edge, then die. Sitting still after leaving the zone lets remaining balls finish. Reduced motion shows a frozen cluster. Hidden tab pauses. Type on top remains readable.
