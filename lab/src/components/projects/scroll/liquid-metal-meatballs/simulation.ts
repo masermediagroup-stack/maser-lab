@@ -42,18 +42,20 @@ function pickEdge(exclude?: Edge): Edge {
 }
 
 function pointOnEdge(edge: Edge, width: number, height: number, radius: number): Vec2 {
-  const margin = Math.max(8, radius * 0.28);
-  const xSpan = Math.max(1, width - margin * 2);
-  const ySpan = Math.max(1, height - margin * 2);
+  /* Center sits a full radius past the clip so the disc starts/ends
+     entirely off-canvas and eases across the edge (no full-size pop). */
+  const off = radius + 6;
+  const xSpan = Math.max(1, width);
+  const ySpan = Math.max(1, height);
   switch (edge) {
     case "top":
-      return { x: margin + Math.random() * xSpan, y: -margin };
+      return { x: Math.random() * xSpan, y: -off };
     case "right":
-      return { x: width + margin, y: margin + Math.random() * ySpan };
+      return { x: width + off, y: Math.random() * ySpan };
     case "bottom":
-      return { x: margin + Math.random() * xSpan, y: height + margin };
+      return { x: Math.random() * xSpan, y: height + off };
     case "left":
-      return { x: -margin, y: margin + Math.random() * ySpan };
+      return { x: -off, y: Math.random() * ySpan };
   }
 }
 
@@ -89,8 +91,8 @@ function makeArc(p0: Vec2, p3: Vec2, width: number, height: number): { p1: Vec2;
   const px = -dy / len;
   const py = dx / len;
   const bow = (0.16 + Math.random() * 0.28) * Math.min(width, height);
-  /* Bow toward the viewport center so the first frames are on-canvas,
-     not a long off-screen intro after the majority gate opens. */
+  /* Bow toward the viewport center. p0/p3 stay fully off-canvas;
+     the disc clips in on this same weighted arc. */
   const midX = (p0.x + p3.x) * 0.5;
   const midY = (p0.y + p3.y) * 0.5;
   const inward = px * (width * 0.5 - midX) + py * (height * 0.5 - midY);
@@ -234,15 +236,14 @@ export class MeatballSimulation {
     const { p1, p2 } = makeArc(p0, p3, this.width, this.height);
     const chord = Math.hypot(p3.x - p0.x, p3.y - p0.y);
     const duration = Math.min(5.2, Math.max(1.7, (1.55 + chord / 440) * (radius / 40)));
-    const t0 = 0.18;
-    const pos = cubicBezier(p0, p1, p2, p3, weightEase(t0));
+    const pos = cubicBezier(p0, p1, p2, p3, weightEase(0));
     this.balls.push({
       p0,
       p1,
       p2,
       p3,
       r: radius,
-      t: t0,
+      t: 0,
       duration,
       x: pos.x,
       y: pos.y,

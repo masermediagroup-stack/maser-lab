@@ -133,7 +133,7 @@ export function LiquidMetalMeatballsDemo() {
             <p className="lmm-ink mt-4 max-w-2xl text-base leading-7 text-[var(--lmm-text-muted)]">
               Albedo <span className="text-[var(--lmm-albedo)]">#10a4ff</span>,
               creases <span className="text-[var(--lmm-albedo)]">#0065a3</span>,
-              spec near-white. Copy stays above the canvas. The field does not
+              spec near-white. Type sits on the field. The canvas does not
               capture clicks or scroll.
             </p>
           </div>

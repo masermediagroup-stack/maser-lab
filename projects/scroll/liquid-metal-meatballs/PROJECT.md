@@ -94,13 +94,13 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 
 - [x] Demo route `/demos/liquid-metal-meatballs` exists via DemoHost
 - [x] `npm run build` passes in `lab/` (project files lint clean; repo `npm run lint` still fails on pre-existing `pixel-info-card` setState-in-effect)
-- [x] Scroll trigger starts the sequence only when a **majority** of the zone is in view; section bottom stops new spawns; leftover balls finish (rendered). First spawn is in-frame as soon as the gate opens (not a multi-second off-screen intro; peek at ~28% still does not spawn). Crossing the gate ramps new charges in/out — no spawn burst, no canvas remount, no hitch/flash (rendered).
+- [x] Scroll trigger starts the sequence only when a **majority** of the zone is in view; section bottom stops new spawns; leftover balls finish (rendered). Charges spawn fully off-canvas and clip in on the weighted arc (no full-size pop, no scale/fade substitute). Peek at ~28% still does not spawn. Crossing the gate ramps new charges in/out — no spawn burst, no canvas remount, no hitch/flash (rendered).
 - [x] Edge spawn / different-edge exit / sticky merge / shared mercury wash match the thesis (rendered) — no central belly/nipple on white or black; merged blobs share one continuous color field; isolated balls stay circular in screen space (neck only while smin-merging)
 - [x] Demo reduced-motion toggle freezes a still cluster; toggling RM off and Replay both restart the sim without a full reload (rendered)
 - [x] Demo Light / Dark grounds let the same metal be judged on white and black (rendered)
 - [x] Mobile lab chrome is a compact chip that does not cover the hero headline or the meatball field (rendered)
 - [x] Hidden tab pauses rAF (source + visibility handler)
-- [x] Copy above the canvas remains readable (`pointer-events: none` on canvas; ink halo on Light and Dark; rendered)
+- [x] Copy sits on the canvas with no frosted/dimmed plate (`pointer-events: none` on canvas; glyph ink halo on Light and Dark; rendered)
 - [x] Component exported from `lab/src/components/projects/scroll/liquid-metal-meatballs/index.ts` (product-only)
 
 ## Open decisions
