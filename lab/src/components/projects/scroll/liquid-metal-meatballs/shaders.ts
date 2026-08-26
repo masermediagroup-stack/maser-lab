@@ -115,7 +115,7 @@ void main() {
   color = mix(color, uCrease, clamp(pow(clamp(crease, 0.0, 1.0), 0.65) * 0.84, 0.0, 1.0));
 
   /* Combined-field isocontour limb — high at the silhouette, 0 in the
-     interior. Uses merged `d`, not length(p-c). RADIUS_MIN is 28px; this
+     interior. Uses merged SDF d, not length(p-c). RADIUS_MIN is 28px; this
      band dies by ~20px inside so a solo core cannot graze. */
   float limb = smoothstep(-20.0, -2.4, d);
 
