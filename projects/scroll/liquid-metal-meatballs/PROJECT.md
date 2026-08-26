@@ -27,7 +27,7 @@ Read page copy while a decorative Maser-blue mercury field crosses the viewport:
 Greenfield.
 
 ### Desired outcome
-Chrome meatballs (albedo `#10a4ff`, creases `#0065a3`, near-white spec). Color is a shared UV/IDW wet-mercury wash on the merged SDF. Isolated discs are a continuous wet wash (spec lifted equally in every IDW stop — no radial field-depth, no `length(p-c)` sheen, no per-ball lamp, no nipple). Deep crease from smin; grazing spec from `dFdx/dFdy` of the smin crease (neck walls only — not `normalize(dFdx(d))`).
+Chrome meatballs (albedo `#10a4ff`, creases `#0065a3`, near-white spec). Color is a shared UV/IDW wet-mercury wash on the merged SDF. Isolated discs hold on white via that wash plus a combined-field isocontour limb graze (crescent on the silhouette — not a center pin, not `length(p-c)`, not a per-ball lamp). Deep crease from smin; neck-wall spec is fwidth-aware (no posterized sheen bands). Charges spawn fully off-canvas and ease across the edge as a partial disc.
 
 ### Success signal
 Scroll into the marked trigger zone → balls spawn from edges, arc, neck/swallow when they pass, exit off a different edge, then die. Sitting still after leaving the zone lets remaining balls finish. Reduced motion shows a frozen cluster. Hidden tab pauses. Type on top remains readable.
@@ -94,8 +94,8 @@ Leave the trigger (majority out of view, or section bottom past): spawning stops
 
 - [x] Demo route `/demos/liquid-metal-meatballs` exists via DemoHost
 - [x] `npm run build` passes in `lab/` (project files lint clean; repo `npm run lint` still fails on pre-existing `pixel-info-card` setState-in-effect)
-- [x] Scroll trigger starts the sequence only when a **majority** of the zone is in view; section bottom stops new spawns; leftover balls finish (rendered). Charges spawn fully off-canvas and clip in on the weighted arc (no full-size pop, no scale/fade substitute). Peek at ~28% still does not spawn. Crossing the gate ramps new charges in/out — no spawn burst, no canvas remount, no hitch/flash (rendered).
-- [x] Edge spawn / different-edge exit / sticky merge / shared mercury wash match the thesis (rendered) — no central belly/nipple on white or black; merged blobs share one continuous color field; isolated balls stay circular in screen space (neck only while smin-merging)
+- [x] Scroll trigger starts the sequence only when a **majority** of the zone is in view; section bottom stops new spawns; leftover balls finish (rendered). Charges spawn fully off-canvas and ease across the edge on the weighted arc as a partial disc (no hard-cut, no full-size pop, no scale/fade substitute). Peek at ~28% still does not spawn. Crossing the gate ramps new charges in/out — no spawn burst, no canvas remount, no hitch/flash (rendered).
+- [x] Edge spawn / different-edge exit / sticky merge / shared mercury wash match the thesis (rendered) — isolated discs read wet mercury on white (limb graze, no vinyl, no center pin); merged blobs stay mercury with no sheen banding; isolated balls stay circular in screen space (neck only while smin-merging)
 - [x] Demo reduced-motion toggle freezes a still cluster; toggling RM off and Replay both restart the sim without a full reload (rendered)
 - [x] Demo Light / Dark grounds let the same metal be judged on white and black (rendered)
 - [x] Mobile lab chrome is a compact chip that does not cover the hero headline or the meatball field (rendered)
@@ -117,7 +117,7 @@ Status: accepted (locked by brief)
 Scope: `scroll/liquid-metal-meatballs`
 
 Decision:
-CPU owns ball trajectories. GPU evaluates a 2D SDF of charges, merged with Inigo Quilez **quadratic polynomial smin**. Isolated balls are circles in screen space; the merge neck is smin only (no velocity trail charge). Color is sampled **after** merge from a shared 5-stop Maser-blue palette in object UV via Shepard/IDW (`dist^2`, weight `1/(dist+eps)`). Every stop gets the same spec lift and the exponent stays broad so a solo reads as continuous wet mercury, not a UV cone and not matte plastic. No contour lighting from `max(-d,0)` or `length(p-c)` (that plants a pin at the disc origin). Deep crease from smin blend. Grazing spec uses `dFdx/dFdy` of the smin **crease** (neck walls only). Do not light with `normalize(dFdx(d), dFdy(d))` — on each lobe that is still `p-c` and plants a facing pin. Colors locked: albedo `#10a4ff`, creases `#0065a3`, spec near-white. No per-ball Blinn-Phong, no `N = p - ballCenter`.
+CPU owns ball trajectories. GPU evaluates a 2D SDF of charges, merged with Inigo Quilez **quadratic polynomial smin**. Isolated balls are circles in screen space; the merge neck is smin only (no velocity trail charge). Color is sampled **after** merge from a shared 5-stop Maser-blue palette in object UV via Shepard/IDW (`dist^2`, weight `1/(dist+eps)`). Every stop gets the same spec lift so the interior is a wet wash, not a UV cone. Spatial shine on a solo is a **combined-field isocontour limb** (high at `d≈0`, zero ~20px inside; killed where `|grad|` collapses) times a rim-gated `n2·L` crescent — never `max(-d,0)`, never `length(p-c)`, never a facing Lambert without the limb (that is the pin). Deep crease from smin blend. Neck-wall spec uses fwidth-relative crease slope (no narrow `pow` posterize). Colors locked: albedo `#10a4ff`, creases `#0065a3`, spec near-white. No per-ball Blinn-Phong, no `N = p - ballCenter`.
 
 Rationale:
 Spark build note + Elite Pixel Guy thesis. 3D PBR blob and mouse-trail goo were researched and refused.

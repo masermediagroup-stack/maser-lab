@@ -22,12 +22,12 @@ void main() {
 /**
  * Geometry: IQ quadratic smin on circle SDFs (unchanged).
  * Color: shared UV/IDW Maser-blue wash (Paper mesh-gradient Shepard).
- * Isolated disc = continuous wet mercury wash — spec mixed into every
- * IDW stop equally (no UV spec cone). No radial fieldDepth, no
- * length(p - c) sheen, no N = p - c_i. Deep crease from smin. Grazing
- * spec from dFdx/dFdy of the smin *crease* (neck walls). Do not light
- * with normalize(dFdx(d)) — on a lobe that is still p-c and pins.
- * Crease-gated; SDF origin cannot pin. No length(p - c) sheen.
+ * Isolated disc = wet mercury: IDW spec wash + combined-field isocontour
+ * limb graze (crescent on the silhouette). No radial fieldDepth, no
+ * length(p - c) sheen, no N = p - c_i, no per-ball lamp, no center pin.
+ * Merge: deep crease from smin + fwidth-aware neck-wall spec (no posterize).
+ * Combined-field n2 is direction only; sheen is limb-gated and killed
+ * where |grad| collapses so the SDF origin cannot sparkle.
  */
 export const FRAG_SRC = `#version 300 es
 precision highp float;
@@ -78,7 +78,7 @@ float field(vec2 p, out float crease) {
 /* Shared wet mercury. Equal spec lift on every stop so a solo disc is a
    continuous wash — never a UV spec cone, never a facing hotspot. */
 vec3 metalWash(vec2 uv) {
-  float wet = 0.42;
+  float wet = 0.50;
   vec3 stops[PAL_COUNT];
   stops[0] = mix(uAlbedo, uSpec, wet);
   stops[1] = mix(mix(uAlbedo, uCrease, 0.12), uSpec, wet);
@@ -114,18 +114,39 @@ void main() {
   /* Deep valley on the smin blend. Peak crease is the neck floor. */
   color = mix(color, uCrease, clamp(pow(clamp(crease, 0.0, 1.0), 0.65) * 0.84, 0.0, 1.0));
 
-  /* Grazing shine from dFdx/dFdy of the smin crease only — 0 on a solo.
-     Gate to mid/high crease so a tight cluster cannot paint spec into
-     each lobe interior. Never normalize(dFdx(d)), never length(p-c). */
-  float c = clamp(crease, 0.0, 1.0);
-  float wall = smoothstep(0.010, 0.032, length(vec2(dFdx(crease), dFdy(crease))));
-  wall *= smoothstep(0.28, 0.62, c);
-  color = mix(color, mix(uAlbedo, uSpec, 0.90), wall * 0.78);
-  color = mix(color, uSpec, pow(wall, 2.6) * 0.88);
+  /* Combined-field isocontour limb — high at the silhouette, 0 in the
+     interior. Uses merged `d`, not length(p-c). RADIUS_MIN is 28px; this
+     band dies by ~20px inside so a solo core cannot graze. */
+  float limb = smoothstep(-20.0, -2.4, d);
 
-  color += (1.0 / 256.0) * (
-    fract(sin(dot(0.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - 0.5
-  );
+  vec2 fd = vec2(dFdx(d), dFdy(d));
+  float gLen = length(fd);
+  float dPx = max(fwidth(d), 1e-4);
+  /* Collapse gate: circle SDF origin has vanishing screen-space slope. */
+  float alive = smoothstep(0.16, 0.58, gLen / dPx);
+
+  vec2 n2 = vec2(0.0);
+  if (gLen > 1e-5) n2 = fd / gLen;
+  vec2 L = normalize(vec2(-0.42, 0.78));
+  float ndl = max(dot(n2, L), 0.0);
+
+  /* Grazing wash + tighter spec — crescent on the lit rim, never a spoke. */
+  float graze = pow(ndl, 1.55) * limb * alive;
+  float specK = pow(ndl, 6.8) * pow(limb, 1.35) * alive;
+  color = mix(color, mix(uAlbedo, uSpec, 0.74), graze * 0.58);
+  color = mix(color, uSpec, specK * 0.46);
+
+  /* Neck-wall spec from crease slope. fwidth-relative, no pow-posterize. */
+  float c = clamp(crease, 0.0, 1.0);
+  float cSlope = length(vec2(dFdx(crease), dFdy(crease)));
+  float cPx = max(fwidth(crease), 1e-4);
+  float wall = smoothstep(cPx * 0.22, cPx * 4.2, cSlope);
+  wall *= smoothstep(0.20, 0.54, c);
+  color = mix(color, mix(uAlbedo, uSpec, 0.88), wall * 0.50);
+  color = mix(color, uSpec, wall * wall * 0.32);
+
+  float ign = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+  color += (ign - 0.5) * (2.4 / 255.0);
 
   fragColor = vec4(color * mask, mask);
 }

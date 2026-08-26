@@ -42,9 +42,9 @@ function pickEdge(exclude?: Edge): Edge {
 }
 
 function pointOnEdge(edge: Edge, width: number, height: number, radius: number): Vec2 {
-  /* Center sits a full radius past the clip so the disc starts/ends
-     entirely off-canvas and eases across the edge (no full-size pop). */
-  const off = radius + 6;
+  /* Center sits a full radius + slack past the clip so frame 0 is a
+     fully hidden disc that can ease across the edge as a partial. */
+  const off = radius + 12;
   const xSpan = Math.max(1, width);
   const ySpan = Math.max(1, height);
   switch (edge) {
@@ -76,12 +76,15 @@ function cubicBezier(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2, t: number): Vec2 {
 }
 
 /**
- * Ease that spends more time in the middle of the page (weight on travel).
- * f(t) = t + a sin(2πt) → f'(0.5) = 1 − 2πa.
+ * Slow at both clips, still dwells mid-page.
+ * Mix linear + smoothstep (small f'(0)) then a gentle +sin so the
+ * middle of the page stays slower than the original edge-blast ease.
  */
 function weightEase(t: number): number {
-  const clamped = Math.min(1, Math.max(0, t));
-  return clamped + 0.1 * Math.sin(2 * Math.PI * clamped);
+  const x = Math.min(1, Math.max(0, t));
+  const s = x * x * (3 - 2 * x);
+  const edge = 0.22 * x + 0.78 * s;
+  return edge + 0.08 * Math.sin(2 * Math.PI * edge);
 }
 
 function makeArc(p0: Vec2, p3: Vec2, width: number, height: number): { p1: Vec2; p2: Vec2 } {
@@ -95,12 +98,12 @@ function makeArc(p0: Vec2, p3: Vec2, width: number, height: number): { p1: Vec2;
   const midY = (p0.y + p3.y) * 0.5;
   const inward = px * (width * 0.5 - midX) + py * (height * 0.5 - midY);
   const sign = inward >= 0 ? 1 : -1;
-  /* p1 stays near the off-canvas origin so the disc clips across the
-     spawn edge before the mid-arc bow. mix(0.3) yanked the center inside. */
-  const p1 = mix(p0, p3, 0.08);
+  /* p1 stays glued to the off-canvas origin so B'(0) does not yank
+     the disc across the clip on the first frames. */
+  const p1 = mix(p0, p3, 0.035);
   const p2 = mix(p0, p3, 0.58);
-  p1.x += px * bow * sign * 0.12;
-  p1.y += py * bow * sign * 0.12;
+  p1.x += px * bow * sign * 0.03;
+  p1.y += py * bow * sign * 0.03;
   p2.x += px * bow * sign;
   p2.y += py * bow * sign;
   return { p1, p2 };
@@ -143,6 +146,7 @@ export class MeatballSimulation {
       this.spawnCooldown = 0;
       if (this.trySpawn()) {
         this.spawnCooldown = SPAWN_COOLDOWN_MAX;
+        this.packCharges();
       }
     }
     this.wantSpawn = active;
@@ -236,7 +240,6 @@ export class MeatballSimulation {
     const { p1, p2 } = makeArc(p0, p3, this.width, this.height);
     const chord = Math.hypot(p3.x - p0.x, p3.y - p0.y);
     const duration = Math.min(5.2, Math.max(1.7, (1.55 + chord / 440) * (radius / 40)));
-    const pos = cubicBezier(p0, p1, p2, p3, weightEase(0));
     this.balls.push({
       p0,
       p1,
@@ -245,8 +248,8 @@ export class MeatballSimulation {
       r: radius,
       t: 0,
       duration,
-      x: pos.x,
-      y: pos.y,
+      x: p0.x,
+      y: p0.y,
       vx: 0,
       vy: 0,
       alive: true,
