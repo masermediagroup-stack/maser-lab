@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import {
   DemoBackButton,
-  DemoControlBar,
+  DemoControlMenu,
   LabButton,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
@@ -56,7 +56,7 @@ export function LiquidMetalMeatballsDemo() {
         onPhaseChange={handlePhaseChange}
       />
 
-      <DemoControlBar className="left-2 top-2 w-max max-w-[calc(100vw-1rem)] flex-col items-stretch gap-1 sm:left-4 sm:top-4">
+      <DemoControlMenu>
         <div className="flex items-center justify-between gap-2">
           <DemoBackButton />
           <div
@@ -91,7 +91,7 @@ export function LiquidMetalMeatballsDemo() {
             onToggle={() => setReduced((value) => !value)}
           />
         </div>
-      </DemoControlBar>
+      </DemoControlMenu>
 
       <div className="relative z-10">
         <header className="lmm-header mx-auto flex min-h-[85vh] max-w-3xl flex-col justify-start px-6 pb-16">

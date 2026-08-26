@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -194,6 +194,84 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
     >
       {children}
     </div>
+  );
+}
+
+function DemoMenuIcon({ open }: { open: boolean }) {
+  return (
+    <span className="relative block h-4 w-4 shrink-0" aria-hidden>
+      <span
+        className={cn(
+          "absolute left-0 block h-0.5 w-4 rounded-full bg-current transition-[transform,top] duration-150 motion-reduce:transition-none",
+          open ? "top-1.5 rotate-45" : "top-0",
+        )}
+      />
+      <span
+        className={cn(
+          "absolute left-0 top-1.5 block h-0.5 w-4 rounded-full bg-current transition-opacity duration-150 motion-reduce:transition-none",
+          open && "opacity-0",
+        )}
+      />
+      <span
+        className={cn(
+          "absolute left-0 block h-0.5 w-4 rounded-full bg-current transition-[transform,top] duration-150 motion-reduce:transition-none",
+          open ? "top-1.5 -rotate-45" : "top-3",
+        )}
+      />
+    </span>
+  );
+}
+
+type DemoControlMenuProps = {
+  className?: string;
+  children: ReactNode;
+  /** When false (default), only the menu toggle shows until opened. */
+  defaultOpen?: boolean;
+};
+
+/** Collapsible demo controls — hamburger toggle, panel holds LabButton groups. */
+export function DemoControlMenu({
+  className,
+  children,
+  defaultOpen = false,
+}: DemoControlMenuProps) {
+  const [open, setOpen] = useState(defaultOpen);
+  const panelId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  return (
+    <DemoControlBar
+      className={cn(
+        "left-2 top-2 w-max max-w-[calc(100vw-1rem)] flex-col items-stretch sm:left-4 sm:top-4",
+        !open && "gap-0 p-1.5",
+        className,
+      )}
+    >
+      <LabButton
+        type="button"
+        variant="ghost"
+        aria-expanded={open}
+        aria-controls={panelId}
+        aria-label={open ? "Close demo menu" : "Open demo menu"}
+        onClick={() => setOpen((value) => !value)}
+        className="self-start px-2.5"
+      >
+        <DemoMenuIcon open={open} />
+      </LabButton>
+      {open ? (
+        <div id={panelId} className="flex flex-col gap-1.5">
+          {children}
+        </div>
+      ) : null}
+    </DemoControlBar>
   );
 }
 
