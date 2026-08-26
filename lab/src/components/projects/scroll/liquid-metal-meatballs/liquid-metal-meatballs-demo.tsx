@@ -30,7 +30,11 @@ export function LiquidMetalMeatballsDemo() {
   const handleReplay = useCallback(() => {
     const node = triggerRef.current;
     if (node && !reduced) {
-      node.scrollIntoView({ behavior: "smooth", block: "center" });
+      const rect = node.getBoundingClientRect();
+      const vh = window.innerHeight;
+      /* Park the zone with a majority on screen and its bottom still below the fold. */
+      const top = window.scrollY + rect.top - vh * 0.32;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     }
     setReplayKey((key) => key + 1);
   }, [reduced]);

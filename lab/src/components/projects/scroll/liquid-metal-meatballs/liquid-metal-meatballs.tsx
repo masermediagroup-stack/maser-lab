@@ -35,19 +35,18 @@ function dprForWidth(width: number): number {
 }
 
 /**
- * Spawn only when a majority of the trigger zone is on screen, and stop
- * once the section bottom has left the lower viewport.
+ * Spawn only when a majority of the trigger *height* is on screen.
+ * Stop once the section bottom has entered the viewport — the user has
+ * reached the end of the zone, even if a tall trigger is still mostly visible.
  */
 function isSpawnZoneActive(el: Element): boolean {
   const rect = el.getBoundingClientRect();
   const vh = window.innerHeight || 1;
-  const vw = window.innerWidth || 1;
   const visH = Math.max(0, Math.min(rect.bottom, vh) - Math.max(rect.top, 0));
-  const visW = Math.max(0, Math.min(rect.right, vw) - Math.max(rect.left, 0));
-  const area = Math.max(1, rect.width * rect.height);
-  const ratio = (visH * visW) / area;
+  const ratio = visH / Math.max(1, rect.height);
   if (ratio < 0.5) return false;
-  if (rect.bottom < vh * 0.35) return false;
+  // Bottom of the zone is still below the fold — user has not reached section end.
+  if (rect.bottom < vh - 4) return false;
   return true;
 }
 
@@ -64,8 +63,6 @@ export function LiquidMetalMeatballs({
   const reducedRef = useRef(reduced);
   const replayKeyRef = useRef(replayKey);
   const onPhaseChangeRef = useRef(onPhaseChange);
-  reducedRef.current = reduced;
-  onPhaseChangeRef.current = onPhaseChange;
 
   const freezeStillRef = useRef<() => void>(() => {});
   const restartLiveRef = useRef<() => void>(() => {});
@@ -171,6 +168,7 @@ export function LiquidMetalMeatballs({
         reportPhase("still");
         return;
       }
+      updateGate();
       sim.setSpawning(spawning);
       sim.step(dt, width, height);
       renderer.draw(sim.charges);
@@ -207,7 +205,8 @@ export function LiquidMetalMeatballs({
     if (trigger && observer) observer.observe(trigger);
 
     window.addEventListener("resize", resize);
-    window.addEventListener("scroll", updateGate, { passive: true });
+    window.addEventListener("scroll", updateGate, { passive: true, capture: true });
+    document.addEventListener("scroll", updateGate, { passive: true, capture: true });
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
@@ -215,7 +214,8 @@ export function LiquidMetalMeatballs({
       cancelAnimationFrame(raf);
       observer?.disconnect();
       window.removeEventListener("resize", resize);
-      window.removeEventListener("scroll", updateGate);
+      window.removeEventListener("scroll", updateGate, true);
+      document.removeEventListener("scroll", updateGate, true);
       document.removeEventListener("visibilitychange", onVisibility);
       freezeStillRef.current = () => {};
       restartLiveRef.current = () => {};
@@ -225,6 +225,11 @@ export function LiquidMetalMeatballs({
   }, [webgl, triggerRef]);
 
   useEffect(() => {
+    onPhaseChangeRef.current = onPhaseChange;
+  }, [onPhaseChange]);
+
+  useEffect(() => {
+    reducedRef.current = reduced;
     if (reduced) freezeStillRef.current();
     else restartLiveRef.current();
   }, [reduced]);
