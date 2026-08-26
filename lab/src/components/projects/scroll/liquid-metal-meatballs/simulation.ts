@@ -44,7 +44,7 @@ function pickEdge(exclude?: Edge): Edge {
 function pointOnEdge(edge: Edge, width: number, height: number, radius: number): Vec2 {
   /* Center sits a full radius + slack past the clip so frame 0 is a
      fully hidden disc that can ease across the edge as a partial. */
-  const off = radius + 12;
+  const off = radius + 16;
   const xSpan = Math.max(1, width);
   const ySpan = Math.max(1, height);
   switch (edge) {
@@ -83,7 +83,7 @@ function cubicBezier(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2, t: number): Vec2 {
 function weightEase(t: number): number {
   const x = Math.min(1, Math.max(0, t));
   const s = x * x * (3 - 2 * x);
-  const edge = 0.22 * x + 0.78 * s;
+  const edge = 0.16 * x + 0.84 * s;
   return edge + 0.08 * Math.sin(2 * Math.PI * edge);
 }
 

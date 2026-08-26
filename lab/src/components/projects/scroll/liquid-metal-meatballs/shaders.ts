@@ -78,7 +78,7 @@ float field(vec2 p, out float crease) {
 /* Shared wet mercury. Equal spec lift on every stop so a solo disc is a
    continuous wash — never a UV spec cone, never a facing hotspot. */
 vec3 metalWash(vec2 uv) {
-  float wet = 0.50;
+  float wet = 0.62;
   vec3 stops[PAL_COUNT];
   stops[0] = mix(uAlbedo, uSpec, wet);
   stops[1] = mix(mix(uAlbedo, uCrease, 0.12), uSpec, wet);
@@ -114,10 +114,10 @@ void main() {
   /* Deep valley on the smin blend. Peak crease is the neck floor. */
   color = mix(color, uCrease, clamp(pow(clamp(crease, 0.0, 1.0), 0.65) * 0.84, 0.0, 1.0));
 
-  /* Combined-field isocontour limb — high at the silhouette, 0 in the
-     interior. Uses merged SDF d, not length(p-c). RADIUS_MIN is 28px; this
-     band dies by ~20px inside so a solo core cannot graze. */
-  float limb = smoothstep(-20.0, -2.4, d);
+  /* Combined-field isocontour only (merged d). High at the silhouette,
+     zero inside RADIUS_MIN so a solo core cannot pin. No length(p-c). */
+  float rim = smoothstep(-10.0, -1.5, d);
+  float limb = smoothstep(-12.0, -1.8, d);
 
   vec2 fd = vec2(dFdx(d), dFdy(d));
   float gLen = length(fd);
@@ -130,23 +130,24 @@ void main() {
   vec2 L = normalize(vec2(-0.42, 0.78));
   float ndl = max(dot(n2, L), 0.0);
 
-  /* Grazing wash + tighter spec — crescent on the lit rim, never a spoke. */
-  float graze = pow(ndl, 1.55) * limb * alive;
-  float specK = pow(ndl, 6.8) * pow(limb, 1.35) * alive;
-  color = mix(color, mix(uAlbedo, uSpec, 0.74), graze * 0.58);
-  color = mix(color, uSpec, specK * 0.46);
+  /* Isotropic wet rim — not facing, not a spoke. Then a tight crescent. */
+  color = mix(color, mix(uAlbedo, uSpec, 0.70), rim * alive * 0.38);
+  float graze = pow(ndl, 4.2) * limb * alive;
+  float specK = pow(ndl, 9.0) * pow(limb, 1.15) * alive;
+  color = mix(color, mix(uAlbedo, uSpec, 0.86), graze * 0.78);
+  color = mix(color, uSpec, specK * 0.70);
 
-  /* Neck-wall spec from crease slope. fwidth-relative, no pow-posterize. */
+  /* Neck-wall spec from crease slope. Wide fwidth falloff, no pow-posterize. */
   float c = clamp(crease, 0.0, 1.0);
   float cSlope = length(vec2(dFdx(crease), dFdy(crease)));
   float cPx = max(fwidth(crease), 1e-4);
-  float wall = smoothstep(cPx * 0.22, cPx * 4.2, cSlope);
-  wall *= smoothstep(0.20, 0.54, c);
-  color = mix(color, mix(uAlbedo, uSpec, 0.88), wall * 0.50);
-  color = mix(color, uSpec, wall * wall * 0.32);
+  float wall = smoothstep(cPx * 0.12, cPx * 8.0, cSlope);
+  wall *= smoothstep(0.16, 0.48, c);
+  color = mix(color, mix(uAlbedo, uSpec, 0.90), wall * 0.40);
+  color = mix(color, uSpec, wall * wall * 0.18);
 
   float ign = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
-  color += (ign - 0.5) * (2.4 / 255.0);
+  color += (ign - 0.5) * (3.4 / 255.0);
 
   fragColor = vec4(color * mask, mask);
 }
