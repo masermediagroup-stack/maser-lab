@@ -97,7 +97,7 @@ export function LiquidMetalMeatballsDemo() {
         <header className="lmm-header mx-auto flex min-h-[85vh] max-w-3xl flex-col justify-start px-6 pb-16">
           <div className="lmm-chrome-stack" aria-hidden />
           <div className="lmm-copy">
-            <p className="font-mono text-xs uppercase tracking-[0.22em] text-[var(--lmm-albedo)]">
+            <p className="lmm-ink font-mono text-xs uppercase tracking-[0.22em] text-[var(--lmm-albedo)]">
               Scroll · Elite Pixel Guy
             </p>
             <h1 className="lmm-ink mt-4 text-4xl font-semibold tracking-tight sm:text-6xl">
@@ -118,7 +118,7 @@ export function LiquidMetalMeatballsDemo() {
           className="relative mx-auto my-8 min-h-[90vh] max-w-4xl border border-dashed border-[var(--lmm-trigger-line)] px-6 py-16 sm:px-12"
         >
           <div className="lmm-copy">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--lmm-albedo)]">
+            <p className="lmm-ink font-mono text-xs uppercase tracking-[0.2em] text-[var(--lmm-albedo)]">
               Trigger zone
             </p>
             <h2 className="lmm-ink mt-4 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
