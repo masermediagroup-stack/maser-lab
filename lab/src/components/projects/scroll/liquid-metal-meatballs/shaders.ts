@@ -25,8 +25,9 @@ void main() {
  * Isolated disc = continuous wet mercury wash — spec mixed into every
  * IDW stop equally (no UV spec cone). No radial fieldDepth, no
  * length(p - c) sheen, no N = p - c_i. Deep crease from smin. Grazing
- * spec from dFdx/dFdy of the *combined* field, crease-gated and killed
- * where the gradient collapses (SDF origin cannot pin).
+ * spec from dFdx/dFdy of the smin *crease* (neck walls). Do not light
+ * with normalize(dFdx(d)) — on a lobe that is still p-c and pins.
+ * Crease-gated; SDF origin cannot pin. No length(p - c) sheen.
  */
 export const FRAG_SRC = `#version 300 es
 precision highp float;
@@ -51,9 +52,6 @@ const vec2 PAL_POS[PAL_COUNT] = vec2[PAL_COUNT](
   vec2(0.18, 0.84),
   vec2(0.86, 0.78)
 );
-
-/* Grazing key on the combined 2D field — not a per-ball lamp. */
-const vec2 LIGHT_DIR = vec2(-0.62, 0.784);
 
 vec2 sminQuadratic(float a, float b, float k) {
   float h = 1.0 - min(abs(a - b) / (4.0 * k), 1.0);
@@ -80,7 +78,7 @@ float field(vec2 p, out float crease) {
 /* Shared wet mercury. Equal spec lift on every stop so a solo disc is a
    continuous wash — never a UV spec cone, never a facing hotspot. */
 vec3 metalWash(vec2 uv) {
-  float wet = 0.34;
+  float wet = 0.38;
   vec3 stops[PAL_COUNT];
   stops[0] = mix(uAlbedo, uSpec, wet);
   stops[1] = mix(mix(uAlbedo, uCrease, 0.12), uSpec, wet);
@@ -116,19 +114,12 @@ void main() {
   /* Deep valley on the smin blend. Peak crease is the neck floor. */
   color = mix(color, uCrease, clamp(pow(clamp(crease, 0.0, 1.0), 0.65) * 0.84, 0.0, 1.0));
 
-  /* Combined-field sheen only. Un-normalized crease slope lights the
-     WALLS of the neck (grazing), not the valley floor and not a solo
-     disc. Hard spec uses one dFdx/dFdy of d, crease-gated. Kill
-     |grad| collapse so the SDF origin cannot pin. Never length(p-c). */
-  vec2 gd = vec2(dFdx(d), dFdy(d));
-  float gLen = length(gd);
-  float alive = smoothstep(0.08, 0.42, gLen / max(fwidth(d), 1e-6));
-  float wall = alive * smoothstep(0.012, 0.034, length(vec2(dFdx(crease), dFdy(crease))));
-  vec2 n2 = gd / max(gLen, 1e-8);
-  float ndl = max(dot(n2, LIGHT_DIR), 0.0);
-  float spec = pow(ndl, 8.0) * pow(clamp(crease, 0.0, 1.0), 1.35) * alive;
-  color = mix(color, mix(uAlbedo, uSpec, 0.88), wall * 0.72);
-  color = mix(color, uSpec, spec * 0.95);
+  /* Grazing shine from dFdx/dFdy of the smin crease only — 0 on a solo.
+     Do not light with normalize(dFdx(d), dFdy(d)); on each lobe that is
+     still p-c and plants a facing pin. Never length(p-c). */
+  float wall = smoothstep(0.010, 0.032, length(vec2(dFdx(crease), dFdy(crease))));
+  color = mix(color, mix(uAlbedo, uSpec, 0.90), wall * 0.78);
+  color = mix(color, uSpec, pow(wall, 2.6) * 0.88);
 
   color += (1.0 / 256.0) * (
     fract(sin(dot(0.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - 0.5
