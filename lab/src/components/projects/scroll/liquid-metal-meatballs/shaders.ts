@@ -78,7 +78,7 @@ float field(vec2 p, out float crease) {
 /* Shared wet mercury. Equal spec lift on every stop so a solo disc is a
    continuous wash — never a UV spec cone, never a facing hotspot. */
 vec3 metalWash(vec2 uv) {
-  float wet = 0.38;
+  float wet = 0.42;
   vec3 stops[PAL_COUNT];
   stops[0] = mix(uAlbedo, uSpec, wet);
   stops[1] = mix(mix(uAlbedo, uCrease, 0.12), uSpec, wet);
@@ -115,9 +115,11 @@ void main() {
   color = mix(color, uCrease, clamp(pow(clamp(crease, 0.0, 1.0), 0.65) * 0.84, 0.0, 1.0));
 
   /* Grazing shine from dFdx/dFdy of the smin crease only — 0 on a solo.
-     Do not light with normalize(dFdx(d), dFdy(d)); on each lobe that is
-     still p-c and plants a facing pin. Never length(p-c). */
+     Gate to mid/high crease so a tight cluster cannot paint spec into
+     each lobe interior. Never normalize(dFdx(d)), never length(p-c). */
+  float c = clamp(crease, 0.0, 1.0);
   float wall = smoothstep(0.010, 0.032, length(vec2(dFdx(crease), dFdy(crease))));
+  wall *= smoothstep(0.28, 0.62, c);
   color = mix(color, mix(uAlbedo, uSpec, 0.90), wall * 0.78);
   color = mix(color, uSpec, pow(wall, 2.6) * 0.88);
 
