@@ -140,10 +140,8 @@ export class MeatballRenderer {
     const gl = this.gl;
     const cssW = Math.max(1, cssWidth);
     const cssH = Math.max(1, cssHeight);
-    /* Round width, then height from CSS aspect so discs stay circular.
-       Independent floor(w*dpr)/floor(h*dpr) skews the buffer and reads oval. */
     const w = Math.max(1, Math.round(cssW * dpr));
-    const h = Math.max(1, Math.round(w * (cssH / cssW)));
+    const h = Math.max(1, Math.round(cssH * dpr));
     if (this.bufferW === w && this.bufferH === h && this.dpr === dpr) {
       return;
     }

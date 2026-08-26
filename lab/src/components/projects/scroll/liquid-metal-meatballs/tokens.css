@@ -30,8 +30,9 @@
   padding-top: 0;
 }
 
-/* Stack type below the collapsed toggle. Open dock insets the canvas
-   via --lab-control-dock-* so type does not need a full-viewport spacer. */
+/* Stack type below the collapsed toggle. Open dock pads copy only —
+   the WebGL field stays the full viewport (replaced canvas cannot use
+   width/height: auto or it collapses to the intrinsic 300×150 box). */
 .lmm-chrome-stack {
   flex-shrink: 0;
   height: var(--lab-control-type-offset, var(--lab-control-bar-bottom, 7rem));
@@ -65,13 +66,10 @@
 .lmm-fallback {
   pointer-events: none;
   position: fixed;
-  top: var(--lab-control-dock-top, 0px);
-  right: 0;
-  bottom: 0;
-  left: var(--lab-control-dock-left, 0px);
+  inset: 0;
   z-index: 0;
-  width: auto;
-  height: auto;
+  width: 100%;
+  height: 100%;
 }
 
 .lmm-canvas {

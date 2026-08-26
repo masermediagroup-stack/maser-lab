@@ -130,8 +130,14 @@ export function LiquidMetalMeatballs({
     };
 
     const readSize = () => {
-      width = Math.max(1, canvas.clientWidth || window.innerWidth);
-      height = Math.max(1, canvas.clientHeight || window.innerHeight);
+      const rect = canvas.getBoundingClientRect();
+      const vw = window.innerWidth || 1;
+      const vh = window.innerHeight || 1;
+      /* Replaced <canvas> defaults to 300×150 until CSS/layout wins. Never
+         let that postage stamp become the sim/GL field. */
+      const useRect = rect.width >= vw * 0.5 && rect.height >= vh * 0.5;
+      width = Math.max(1, useRect ? rect.width : vw);
+      height = Math.max(1, useRect ? rect.height : vh);
     };
 
     /**
@@ -281,6 +287,15 @@ export function LiquidMetalMeatballs({
     <canvas
       ref={canvasRef}
       className={className ? `lmm-canvas ${className}` : "lmm-canvas"}
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: 0,
+        display: "block",
+      }}
       aria-hidden
     />
   );
