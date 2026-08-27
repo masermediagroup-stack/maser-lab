@@ -125,7 +125,7 @@
   top: var(--lab-control-dock-top, 0px);
   left: var(--lab-control-dock-left, 0px);
   right: 0;
-  bottom: 0;
+  bottom: var(--lab-control-dock-bottom, 0px);
   width: auto;
   height: auto;
 }

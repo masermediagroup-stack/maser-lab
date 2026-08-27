@@ -318,22 +318,30 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
          the full strip width and dock-top to 0 (sheet over the product). */
       const desktopRail = window.matchMedia("(min-width: 640px)").matches;
       const leftDock = open && desktopRail ? Math.round(rect.width) : 0;
-      const topDock = open && !desktopRail ? Math.round(rect.height) : 0;
-      const typeOffset = leftDock > 0 || topDock > 0 ? 12 : Math.round(rect.bottom + 12);
+      const bottomDock = open && !desktopRail ? Math.round(rect.height) : 0;
+      /* Desktop collapsed chip sits top-left — pad copy below it.
+         Mobile product leads; knobs are a footer — do not pad the top. */
+      const typeOffset =
+        desktopRail && leftDock === 0 && bottomDock === 0
+          ? Math.round(rect.bottom + 12)
+          : 12;
 
-      tokenRoot.style.setProperty("--lab-control-bar-bottom", `${typeOffset}px`);
+      tokenRoot.style.setProperty("--lab-control-bar-bottom", `${bottomDock || typeOffset}px`);
       tokenRoot.style.setProperty("--lab-control-type-offset", `${typeOffset}px`);
       /* Only pin measured dock size. If measurement is 0 while open, leave
          the CSS :has() fallback so the field is not under a sheet. */
       if (leftDock > 0) {
         tokenRoot.style.setProperty("--lab-control-dock-left", `${leftDock}px`);
         tokenRoot.style.setProperty("--lab-control-dock-top", "0px");
-      } else if (topDock > 0) {
+        tokenRoot.style.setProperty("--lab-control-dock-bottom", "0px");
+      } else if (bottomDock > 0) {
         tokenRoot.style.setProperty("--lab-control-dock-left", "0px");
-        tokenRoot.style.setProperty("--lab-control-dock-top", `${topDock}px`);
+        tokenRoot.style.setProperty("--lab-control-dock-top", "0px");
+        tokenRoot.style.setProperty("--lab-control-dock-bottom", `${bottomDock}px`);
       } else {
         tokenRoot.style.removeProperty("--lab-control-dock-left");
         tokenRoot.style.removeProperty("--lab-control-dock-top");
+        tokenRoot.style.removeProperty("--lab-control-dock-bottom");
       }
     };
 
@@ -354,6 +362,7 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
       tokenRoot.style.removeProperty("--lab-control-type-offset");
       tokenRoot.style.removeProperty("--lab-control-dock-left");
       tokenRoot.style.removeProperty("--lab-control-dock-top");
+      tokenRoot.style.removeProperty("--lab-control-dock-bottom");
     };
   }, []);
 
@@ -406,8 +415,8 @@ type DemoControlMenuProps = {
 };
 
 /** Collapsible demo controls. Collapsed: small toggle. Open: viewport-edge dock
- *  (top strip on small screens, left rail from sm up) — opaque strip, not a
- *  dimming overlay or mobile sheet over the product. */
+ *  (footer strip on small screens, left rail from sm up) — opaque strip, not a
+ *  dimming overlay or mobile sheet over the product. Product leads on mobile. */
 export function DemoControlMenu({
   className,
   children,
@@ -431,8 +440,8 @@ export function DemoControlMenu({
         "flex-col items-stretch",
         open
           ? [
-              "lab-dock-open flex-nowrap overflow-hidden left-0 top-0 max-h-[min(42dvh,22rem)] w-full max-w-none rounded-none border-x-0 border-t-0 p-3",
-              "sm:h-dvh sm:max-h-none sm:w-[min(20.5rem,38vw)] sm:max-w-[20.5rem] sm:rounded-none sm:border-b-0 sm:border-l-0 sm:border-r sm:border-t-0",
+              "lab-dock-open flex-nowrap overflow-hidden left-0 right-0 bottom-0 top-auto max-h-[min(42dvh,22rem)] w-full max-w-none rounded-none border-x-0 border-b-0 p-3",
+              "sm:top-0 sm:bottom-auto sm:h-dvh sm:max-h-none sm:w-[min(20.5rem,38vw)] sm:max-w-[20.5rem] sm:rounded-none sm:border-b-0 sm:border-l-0 sm:border-r sm:border-t-0",
             ]
           : "left-2 top-2 w-max max-w-none gap-0 p-1.5 sm:left-4 sm:top-4",
         className,

@@ -28,6 +28,7 @@
   --lab-control-type-offset: 5.5rem;
   --lab-control-dock-left: 0px;
   --lab-control-dock-top: 0px;
+  --lab-control-dock-bottom: 0px;
 
   background-color: var(--lab-bg);
   color: var(--lab-text-primary);
@@ -40,17 +41,18 @@
     var(--lab-control-dock-top, 0px),
     var(--lab-control-type-offset, 0px)
   );
+  padding-bottom: var(--lab-control-dock-bottom, 0px);
 }
 
 /* Full-bleed canvas/WebGL field. Closed dock: full viewport. Open dock: the
-   remaining box beside/below the rail — uncovered, not under a dim plate.
+   remaining box beside the rail (desktop) or above the footer strip (mobile).
    Size the backing store from this box. Never width/height:auto (300×150). */
 .lab-demo-field {
   position: fixed;
   top: var(--lab-control-dock-top, 0px);
   left: var(--lab-control-dock-left, 0px);
   right: 0;
-  bottom: 0;
+  bottom: var(--lab-control-dock-bottom, 0px);
   width: auto;
   height: auto;
 }
@@ -59,17 +61,21 @@
   .maser-lab:has(.demo-control-bar.lab-dock-open) {
     --lab-control-dock-left: min(20.5rem, 38vw);
     --lab-control-dock-top: 0px;
+    --lab-control-dock-bottom: 0px;
   }
 }
 
-/* Mobile: stacked strip off the canvas — field starts below the rail.
-   Matches dock max-height so the product is never under a sheet.
-   Always zero the left token here so a stale inline left cannot
-   squeeze the field to a 0-width column beside a full-width strip. */
+/* Mobile: product first. Open dock is a footer strip under the canvas.
+   Never a header that shrinks the product from the top. */
 @media (max-width: 639px) {
   .maser-lab:has(.demo-control-bar.lab-dock-open) {
     --lab-control-dock-left: 0px;
-    --lab-control-dock-top: min(42dvh, 22rem);
+    --lab-control-dock-top: 0px;
+    --lab-control-dock-bottom: min(42dvh, 22rem);
+  }
+
+  .maser-lab:has(.demo-control-bar.lab-dock-open) .lab-demo-inset {
+    padding-top: 0;
   }
 }
 
