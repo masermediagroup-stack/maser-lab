@@ -313,8 +313,8 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
       const open = node.classList.contains("lab-dock-open");
       /* Write onto .maser-lab — that node owns the tokens. html inline vars
          are overwritten by `.maser-lab { --lab-control-dock-top: 0 }`. */
-      const tokenRoot =
-        node.closest(".maser-lab") ?? root;
+      const tokenRoot: HTMLElement =
+        node.closest<HTMLElement>(".maser-lab") ?? root;
       /* Open dock pads copy / field remainder. Never size the canvas from
          the strip (300×150 trap). dvh can exceed 55% of innerHeight — do not
          require height < 0.55vh or the mobile strip never reserves space. */
@@ -355,7 +355,8 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", syncOffset);
-      const tokenRoot = node.closest(".maser-lab") ?? root;
+      const tokenRoot: HTMLElement =
+        node.closest<HTMLElement>(".maser-lab") ?? root;
       tokenRoot.style.removeProperty("--lab-control-bar-bottom");
       tokenRoot.style.removeProperty("--lab-control-type-offset");
       tokenRoot.style.removeProperty("--lab-control-dock-left");
