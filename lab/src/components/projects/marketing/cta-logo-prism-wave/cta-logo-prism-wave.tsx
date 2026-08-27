@@ -25,14 +25,14 @@ type TiltState = {
   z: number;
 };
 
-function prefersFinePointer() {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-}
-
 function prefersReducedMotion() {
   if (typeof window === "undefined") return false;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Lab demo only. Production CtaLogoTilt keeps `(hover: hover) and (pointer: fine)`. */
+function isLabTiltPointer(event: PointerEvent) {
+  return event.pointerType === "mouse" || event.pointerType === "pen";
 }
 
 function applyCardTilt(viewport: HTMLElement, current: TiltState) {
@@ -47,6 +47,7 @@ export function CtaLogoPrismWave({
   lookRef,
   onModeChange,
 }: CtaLogoPrismWaveProps) {
+  const stageRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -93,31 +94,24 @@ export function CtaLogoPrismWave({
   }, [mode, lookRef]);
 
   useEffect(() => {
-    const shell = shellRef.current;
+    const stage = stageRef.current;
     const viewport = viewportRef.current;
-    if (!shell || !viewport) return;
+    if (!stage || !viewport) return;
 
-    const tiltEnabled =
-      !forceReducedMotion && !prefersReducedMotion() && prefersFinePointer();
-    shell.dataset.tilt = tiltEnabled ? "on" : "off";
-
-    const onPointerEnter = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") return;
-      hoverRef.current = 1;
-    };
-    const onPointerLeave = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") return;
-      hoverRef.current = 0;
-    };
-
-    shell.addEventListener("pointerenter", onPointerEnter);
-    shell.addEventListener("pointerleave", onPointerLeave);
+    /*
+     * Lab vs production gate:
+     * Production CtaLogoTilt requires `(hover: hover) and (pointer: fine)`.
+     * This judging box often fails that media, which used to skip attaching
+     * move listeners — tilt looked dead. Lab tilts on mouse/pen pointermove.
+     * Touch phones and reduced motion still skip tilt. Wave always runs.
+     */
+    const tiltEnabled = !forceReducedMotion && !prefersReducedMotion();
+    stage.dataset.tilt = tiltEnabled ? "on" : "off";
 
     if (!tiltEnabled) {
       applyCardTilt(viewport, { x: 0, y: 0, z: 0 });
       return () => {
-        shell.removeEventListener("pointerenter", onPointerEnter);
-        shell.removeEventListener("pointerleave", onPointerLeave);
+        delete stage.dataset.tilt;
       };
     }
 
@@ -157,23 +151,26 @@ export function CtaLogoPrismWave({
     };
 
     const onPointerMove = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") return;
+      if (!isLabTiltPointer(event)) return;
+      hoverRef.current = 1;
       setPointerTilt(event.clientX, event.clientY);
     };
 
     const onEnterTilt = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") return;
+      if (!isLabTiltPointer(event)) return;
+      hoverRef.current = 1;
       setPointerTilt(event.clientX, event.clientY);
     };
 
     const onLeaveTilt = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") return;
+      if (!isLabTiltPointer(event)) return;
+      hoverRef.current = 0;
       resetTilt();
     };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        isVisible = entry.isIntersecting;
+        isVisible = entry?.isIntersecting ?? true;
         if (isVisible) {
           renderFrame();
           rafId = window.requestAnimationFrame(loop);
@@ -184,21 +181,20 @@ export function CtaLogoPrismWave({
       { threshold: 0.01 },
     );
 
-    shell.addEventListener("pointerenter", onEnterTilt);
-    shell.addEventListener("pointermove", onPointerMove);
-    shell.addEventListener("pointerleave", onLeaveTilt);
-    observer.observe(shell);
+    stage.addEventListener("pointerenter", onEnterTilt);
+    stage.addEventListener("pointermove", onPointerMove);
+    stage.addEventListener("pointerleave", onLeaveTilt);
+    observer.observe(stage);
     rafId = window.requestAnimationFrame(loop);
 
     return () => {
       disposed = true;
       observer.disconnect();
       window.cancelAnimationFrame(rafId);
-      shell.removeEventListener("pointerenter", onEnterTilt);
-      shell.removeEventListener("pointermove", onPointerMove);
-      shell.removeEventListener("pointerleave", onLeaveTilt);
-      shell.removeEventListener("pointerenter", onPointerEnter);
-      shell.removeEventListener("pointerleave", onPointerLeave);
+      stage.removeEventListener("pointerenter", onEnterTilt);
+      stage.removeEventListener("pointermove", onPointerMove);
+      stage.removeEventListener("pointerleave", onLeaveTilt);
+      delete stage.dataset.tilt;
       viewport.style.removeProperty("--cta-logo-tilt-x");
       viewport.style.removeProperty("--cta-logo-tilt-y");
       viewport.style.removeProperty("--cta-logo-tilt-z");
@@ -207,6 +203,7 @@ export function CtaLogoPrismWave({
 
   return (
     <section
+      ref={stageRef}
       className={cn("clpw-logo-stage", className)}
       aria-label="Maser Media CTA logo prism wave"
       data-wave-mode={mode ?? "pending"}

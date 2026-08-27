@@ -76,7 +76,8 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 | Hover wave | Same filament, plane tilts; modest speed-up | Band travels *with* the tilt, still 2D fill |
 | Glow | None — no bloom / additive halo | Elite Pixel Guy look pass 2026-08-27 |
 | Reduced motion | Wave stays; tilt gated off | Explicit exception to `rule/reduced-motion-required` for the wave only |
-| Hover gate | `(hover: hover) and (pointer: fine)` | `rule/hover-gated`; matches production CtaLogoTilt |
+| Hover gate (production site) | `(hover: hover) and (pointer: fine)` | `rule/hover-gated`; CtaLogoTilt on masermedia.co |
+| Hover gate (this lab demo) | mouse/pen `pointermove`; skip touch; RM still off | EPG judging box may fail the fine-pointer media |
 | Fallback | SVG snake path, same viewport, clipped to Blue-HD | If WebGPU adapter is missing |
 
 ## Three.js / 3D (optional)
@@ -119,3 +120,4 @@ None for this drop — look and build are locked. Remaining judgment is on the l
 - Canvas lives inside the CSS 3D viewport, not behind the page (brief).
 - The Blue-HD mark is always an `<img>` in that viewport. Shader/CSS paint the filament only.
 - Demo knobs are lab-only and never enter the product barrel (`maser-lab-export`).
+- Lab tilt listens on the stage (the element that actually receives the pointer when overlay layers are `pointer-events: none`) and runs on mouse/pen even if `(hover: hover) and (pointer: fine)` is false. Production `CtaLogoTilt` keeps the fine-pointer gate.

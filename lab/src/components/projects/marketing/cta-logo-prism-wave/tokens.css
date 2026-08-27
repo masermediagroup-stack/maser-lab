@@ -58,14 +58,17 @@
   width: 100%;
   justify-content: center;
   overflow: visible;
+  pointer-events: auto;
 }
 
 .clpw-logo-frame {
+  position: relative;
   display: block;
   width: min(100%, clamp(18rem, 72vw, 40rem));
   overflow: visible;
   perspective: var(--clpw-perspective);
   transform-style: preserve-3d;
+  pointer-events: auto;
 }
 
 .clpw-logo-shell {

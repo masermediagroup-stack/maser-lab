@@ -25,6 +25,6 @@ export type CtaLogoPrismWaveProps = {
 };
 
 export type WaveRuntimeParams = PrismWaveLook & {
-  /** 1 while a fine-pointer hover is active; 0 otherwise. */
+  /** 1 while a mouse/pen hover is active on the lab stage; 0 otherwise. */
   hover: number;
 };
