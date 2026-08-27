@@ -60,7 +60,8 @@
   width: 100%;
   justify-content: center;
   overflow: visible;
-  pointer-events: auto;
+  /* Empty flex space left/right of the mark must not be a hit target. */
+  pointer-events: none;
 }
 
 .clpw-logo-frame {

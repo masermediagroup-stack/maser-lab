@@ -120,4 +120,4 @@ None for this drop — look and build are locked. Remaining judgment is on the l
 - Canvas lives inside the CSS 3D viewport, not behind the page (brief).
 - The Blue-HD mark is always an `<img>` in that viewport. Shader/CSS paint the filament only.
 - Demo knobs are lab-only and never enter the product barrel (`maser-lab-export`).
-- Lab tilt hit-tests the painted Blue-HD glyph (alpha), not the wide stage. Mouse/pen even if `(hover: hover) and (pointer: fine)` is false. Production `CtaLogoTilt` keeps the fine-pointer gate.
+- Lab tilt hit-tests the painted Blue-HD glyph (alpha) on the logo shell, not the wide stage. Mouse/pen even if `(hover: hover) and (pointer: fine)` is false. Production `CtaLogoTilt` keeps the fine-pointer gate.

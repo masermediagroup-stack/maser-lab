@@ -116,8 +116,8 @@ export function CtaLogoPrismWave({
      * Touch phones and reduced motion still skip tilt. Wave always runs.
      *
      * Hit is the painted Blue-HD glyph (alpha), not the wide stage and not
-     * the padded SVG box. Listen on the stage so off-glyph pointermove can
-     * lerp back to 0; empty left/right of the letters must not throw.
+     * the padded SVG box. Listen on the shell (logo box). Off-glyph and
+     * pointerleave lerp back to 0. Empty stage left/right never throws.
      */
     const tiltEnabled = !forceReducedMotion && !prefersReducedMotion();
     stage.dataset.tilt = tiltEnabled ? "on" : "off";
@@ -192,8 +192,8 @@ export function CtaLogoPrismWave({
     };
 
     const pointerOpts: AddEventListenerOptions = { capture: true };
-    stage.addEventListener("pointermove", onPointerMove, pointerOpts);
-    stage.addEventListener("pointerleave", onLeaveTilt, pointerOpts);
+    shell.addEventListener("pointermove", onPointerMove, pointerOpts);
+    shell.addEventListener("pointerleave", onLeaveTilt, pointerOpts);
     rafId = window.requestAnimationFrame(loop);
 
     void loadGlyphHitMask(LOGO_SRC).then((next) => {
@@ -204,8 +204,8 @@ export function CtaLogoPrismWave({
     return () => {
       disposed = true;
       window.cancelAnimationFrame(rafId);
-      stage.removeEventListener("pointermove", onPointerMove, pointerOpts);
-      stage.removeEventListener("pointerleave", onLeaveTilt, pointerOpts);
+      shell.removeEventListener("pointermove", onPointerMove, pointerOpts);
+      shell.removeEventListener("pointerleave", onLeaveTilt, pointerOpts);
       delete stage.dataset.tilt;
       viewport.style.removeProperty("--cta-logo-tilt-x");
       viewport.style.removeProperty("--cta-logo-tilt-y");

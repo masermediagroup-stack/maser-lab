@@ -52,7 +52,7 @@ Do not flip to CSS on every `gpu.onError` — validation noise is logged. CSS on
 
 **Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu filament is blitted onto a 2D canvas in that viewport (GPU source stays off-tree). CSS fallback is an SVG snake (forks/pinches) masked to the same glyph — not a linear-gradient slit. The mark must not disappear if the pipeline misses or the canvas is empty.
 
-**Tilt (lab vs production):** Throw is production (14 / 16 / 14, lerp 0.12) with `perspective()` on the viewport. **Hit is the painted Blue-HD glyph (alpha + tight opaque bounds), not the wide stage and not SVG padding.** Stage still receives pointermove so off-glyph can lerp to 0. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
+**Tilt (lab vs production):** Throw is production (14 / 16 / 14, lerp 0.12) with `perspective()` on the viewport. **Hit is the painted Blue-HD glyph (alpha + tight opaque bounds), not the wide stage and not SVG padding.** Pointer listeners are on the logo shell; the stage is `pointer-events: none` so empty flex space left/right of the mark never throws. Off-glyph / pointerleave lerp to 0. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
 
 ## Transfer
 
