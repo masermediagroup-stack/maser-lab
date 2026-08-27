@@ -91,6 +91,13 @@
       "status": "building",
       "category": "scroll",
       "description": "Editorial spherical typography — the same quote exists twice around an invisible globe"
+    },
+    {
+      "slug": "liquid-metal-meatballs",
+      "title": "Liquid Metal Meatballs",
+      "status": "building",
+      "category": "scroll",
+      "description": "Scroll-triggered Maser-blue mercury meatballs — edge spawn, sticky SDF merge, one key light"
     }
   ]
 }
