@@ -37,7 +37,7 @@ export function readViewportBackingStore(
   };
 }
 
-/** Cover the viewport in CSS. Backing store is pixel size, not the CSS box. */
+/** Cover the tilt viewport in CSS. Backing store is pixel size, not the CSS box. */
 export function coverViewportWithCanvas(
   canvas: HTMLCanvasElement,
   size: ViewportBackingStore,
@@ -51,8 +51,42 @@ export function coverViewportWithCanvas(
   canvas.style.display = "block";
   canvas.style.backgroundColor = "transparent";
   canvas.style.pointerEvents = "none";
+  canvas.style.transform = "none";
   if (canvas.width !== size.bufW) canvas.width = size.bufW;
   if (canvas.height !== size.bufH) canvas.height = size.bufH;
+}
+
+/**
+ * WebGPU target lives *outside* the preserve-3d tree. Size the drawing
+ * buffer to the viewport; CSS box can sit off-screen. Do not put this
+ * canvas inside `.clpw-logo-viewport` — Chromium flattens parent
+ * perspective and 14°/16° reads as a slight squash.
+ */
+export function sizeGpuSourceCanvas(
+  canvas: HTMLCanvasElement,
+  size: ViewportBackingStore,
+): void {
+  canvas.style.width = `${size.cssW}px`;
+  canvas.style.height = `${size.cssH}px`;
+  canvas.style.maxWidth = "none";
+  canvas.style.maxHeight = "none";
+  canvas.style.backgroundColor = "transparent";
+  canvas.style.pointerEvents = "none";
+  if (canvas.width !== size.bufW) canvas.width = size.bufW;
+  if (canvas.height !== size.bufH) canvas.height = size.bufH;
+}
+
+/** Copy the presented WebGPU frame onto the 2D canvas that actually tilts. */
+export function blitGpuToDisplay(
+  source: HTMLCanvasElement,
+  dest: HTMLCanvasElement,
+): void {
+  if (dest.width !== source.width) dest.width = source.width;
+  if (dest.height !== source.height) dest.height = source.height;
+  const ctx = dest.getContext("2d", { alpha: true });
+  if (!ctx) return;
+  ctx.clearRect(0, 0, dest.width, dest.height);
+  ctx.drawImage(source, 0, 0);
 }
 
 export function backingStoreChanged(

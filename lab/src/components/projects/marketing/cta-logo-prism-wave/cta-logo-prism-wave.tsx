@@ -50,7 +50,8 @@ export function CtaLogoPrismWave({
   const stageRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const gpuCanvasRef = useRef<HTMLCanvasElement>(null);
+  const displayCanvasRef = useRef<HTMLCanvasElement>(null);
   const hoverRef = useRef(0);
   const [mode, setMode] = useState<PrismWaveMode | null>(null);
   const [cssLook, setCssLook] = useState<WaveRuntimeParams>({
@@ -59,11 +60,13 @@ export function CtaLogoPrismWave({
   });
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const gpuCanvas = gpuCanvasRef.current;
+    const displayCanvas = displayCanvasRef.current;
     const viewport = viewportRef.current;
-    if (!canvas || !viewport) return;
+    if (!gpuCanvas || !displayCanvas || !viewport) return;
     return startPrismWave({
-      canvas,
+      gpuCanvas,
+      displayCanvas,
       viewport,
       logoUrl: LOGO_SRC,
       paramsRef: {
@@ -95,8 +98,9 @@ export function CtaLogoPrismWave({
 
   useEffect(() => {
     const stage = stageRef.current;
+    const shell = shellRef.current;
     const viewport = viewportRef.current;
-    if (!stage || !viewport) return;
+    if (!stage || !shell || !viewport) return;
 
     /*
      * Lab vs production gate:
@@ -121,15 +125,14 @@ export function CtaLogoPrismWave({
     const current: TiltState = { x: 0, y: 0, z: 0 };
 
     const setPointerTilt = (clientX: number, clientY: number) => {
-      // Viewport rect is the production mapping. Stage is the hit target and
-      // a fallback if the untilted plane has not laid out yet.
-      const plane = viewport.getBoundingClientRect();
-      const hit = stage.getBoundingClientRect();
-      const rect =
-        plane.width > 1 && plane.height > 1 ? plane : hit;
+      // Production maps against the shell (stable box). Do not use the
+      // tilting viewport's GBR — that AABB grows and compresses the throw.
+      const rect = shell.getBoundingClientRect();
       if (rect.width <= 1 || rect.height <= 1) return;
-      const x = ((clientX - rect.left) / rect.width) * 2 - 1;
-      const y = ((clientY - rect.top) / rect.height) * 2 - 1;
+      const nx = ((clientX - rect.left) / rect.width) * 2 - 1;
+      const ny = ((clientY - rect.top) / rect.height) * 2 - 1;
+      const x = Math.max(-1, Math.min(1, nx));
+      const y = Math.max(-1, Math.min(1, ny));
       target.y = x * MAX_TILT_Y;
       target.x = -y * MAX_TILT_X;
       target.z = MAX_LIFT;
@@ -204,7 +207,7 @@ export function CtaLogoPrismWave({
       aria-label="Maser Media CTA logo prism wave"
       data-wave-mode={mode ?? "pending"}
     >
-      {/* Frame = production `.mm-cta__logo-link`: block + perspective. Not an <a>. */}
+      {/* Frame = production `.mm-cta__logo-link` (block). Perspective is on the viewport transform so a canvas cannot flatten the throw. Not an <a>. */}
       <div className="clpw-logo-frame">
         <div ref={shellRef} className="clpw-logo-shell">
           <div ref={viewportRef} className="clpw-logo-viewport">
@@ -220,7 +223,7 @@ export function CtaLogoPrismWave({
           />
           <div className="clpw-logo-body" aria-hidden="true" />
           <canvas
-            ref={canvasRef}
+            ref={displayCanvasRef}
             className="clpw-logo-canvas"
             aria-hidden="true"
             data-active={mode === "vgpu" ? "true" : "false"}
@@ -230,6 +233,10 @@ export function CtaLogoPrismWave({
           ) : null}
           </div>
         </div>
+      </div>
+      {/* GPU source is outside preserve-3d so it cannot flatten the throw. */}
+      <div className="clpw-gpu-host" aria-hidden="true">
+        <canvas ref={gpuCanvasRef} className="clpw-gpu-source" />
       </div>
     </section>
   );

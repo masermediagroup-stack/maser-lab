@@ -13,8 +13,10 @@ import {
 } from "vgpu";
 import {
   backingStoreChanged,
+  blitGpuToDisplay,
   coverViewportWithCanvas,
   readViewportBackingStore,
+  sizeGpuSourceCanvas,
   type ViewportBackingStore,
 } from "./canvas-size";
 import { CTA_LOGO_PRISM_WAVE_DEFAULTS } from "./constants";
@@ -23,7 +25,10 @@ import type { PrismWaveMode, WaveRuntimeParams } from "./types";
 import { WAVE_WGSL } from "./wave-shader";
 
 type StartWaveOptions = {
-  canvas: HTMLCanvasElement;
+  /** WebGPU target — must not be a descendant of the CSS 3D viewport. */
+  gpuCanvas: HTMLCanvasElement;
+  /** 2D canvas inside the tilted viewport; receives a blit of gpuCanvas. */
+  displayCanvas: HTMLCanvasElement;
   viewport: HTMLElement;
   logoUrl: string;
   paramsRef: RefObject<WaveRuntimeParams | null>;
@@ -129,11 +134,17 @@ function isDeviceGone(error: unknown): boolean {
  * device is later lost). Compile/upload/frame errors are logged — they do
  * not dump a machine that has an adapter onto the CSS path.
  *
- * Canvas backing store comes from the tilt viewport's getBoundingClientRect
+ * Canvas backing store comes from the tilt viewport's layout box
  * × DPR. autoResize is off so a 300×150 intrinsic box cannot lock in.
+ *
+ * The WebGPU canvas is *not* a child of the CSS 3D viewport. A GPU
+ * (or accelerated 2D) canvas inside preserve-3d flattens parent
+ * perspective in Chromium — 14°/16° then reads as a slight squash.
+ * We render off-tree and blit onto a 2D canvas in the tilted plane.
  */
 export function startPrismWave(options: StartWaveOptions): () => void {
-  const { canvas, viewport, logoUrl, paramsRef, onMode } = options;
+  const { gpuCanvas, displayCanvas, viewport, logoUrl, paramsRef, onMode } =
+    options;
   let disposed = false;
   let gpu: Gpu | undefined;
   let loop: FrameLoopHandle | undefined;
@@ -163,11 +174,13 @@ export function startPrismWave(options: StartWaveOptions): () => void {
   const syncBackingStore = (): ViewportBackingStore | null => {
     const size = readViewportBackingStore(viewport);
     if (!size) return null;
-    const changed = backingStoreChanged(canvas, size);
-    coverViewportWithCanvas(canvas, size);
-    if (changed && canvasSurface && !canvasSurface.disposed) {
+    const gpuChanged = backingStoreChanged(gpuCanvas, size);
+    sizeGpuSourceCanvas(gpuCanvas, size);
+    coverViewportWithCanvas(displayCanvas, size);
+    if (gpuChanged && canvasSurface && !canvasSurface.disposed) {
       canvasSurface.resize([size.bufW, size.bufH]);
-      coverViewportWithCanvas(canvas, size);
+      sizeGpuSourceCanvas(gpuCanvas, size);
+      coverViewportWithCanvas(displayCanvas, size);
     }
     return size;
   };
@@ -191,11 +204,12 @@ export function startPrismWave(options: StartWaveOptions): () => void {
             band_width: look.bandWidth,
             fringe: look.fringe,
             hover: look.hover,
-            res_x: canvas.width,
-            res_y: canvas.height,
+            res_x: gpuCanvas.width,
+            res_y: gpuCanvas.height,
           },
         });
         frame.pass({ target: surf, clear: [0, 0, 0, 0] }, waveEffect);
+        blitGpuToDisplay(gpuCanvas, displayCanvas);
       } catch (error) {
         console.error("[cta-logo-prism-wave] frame failed", error);
         if (isDeviceGone(error) || !hasAdapter) failToCss();
@@ -217,7 +231,8 @@ export function startPrismWave(options: StartWaveOptions): () => void {
     try {
       const size = await waitForViewportSize(viewport, () => disposed);
       if (disposed) return;
-      coverViewportWithCanvas(canvas, size);
+      sizeGpuSourceCanvas(gpuCanvas, size);
+      coverViewportWithCanvas(displayCanvas, size);
 
       resizeObserver = new ResizeObserver(() => {
         syncBackingStore();
@@ -266,7 +281,7 @@ export function startPrismWave(options: StartWaveOptions): () => void {
       }
 
       const sized = syncBackingStore() ?? size;
-      canvasSurface = surface(gpu, canvas, {
+      canvasSurface = surface(gpu, gpuCanvas, {
         dpr: [1, 2],
         autoResize: false,
         size: [sized.bufW, sized.bufH],
@@ -274,7 +289,8 @@ export function startPrismWave(options: StartWaveOptions): () => void {
         clearColor: [0, 0, 0, 0],
         label: "clpw-surface",
       });
-      coverViewportWithCanvas(canvas, sized);
+      sizeGpuSourceCanvas(gpuCanvas, sized);
+      coverViewportWithCanvas(displayCanvas, sized);
 
       const samp = sampler(gpu, {
         minFilter: "linear",

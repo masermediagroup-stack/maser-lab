@@ -46,11 +46,13 @@
 }
 
 /*
- * Wrappers match production CtaLogoTilt:
+ * Wrappers match production CtaLogoTilt, with one lab difference:
  *   .mm-cta__logo-stage  → flex, no perspective
- *   .mm-cta__logo-link   → block + perspective + preserve-3d + width (here: .clpw-logo-frame, not an <a>)
- *   .mm-cta__logo-shell  → aspect box, hover target, preserve-3d
- *   .mm-cta__logo-viewport → rotateX/Y + translateZ from --cta-logo-tilt-*
+ *   .mm-cta__logo-link   → block + width (here: .clpw-logo-frame, not an <a>)
+ *   .mm-cta__logo-shell  → aspect box, mapping rect, preserve-3d
+ *   .mm-cta__logo-viewport → perspective() + rotateX/Y + translateZ from --cta-logo-tilt-*
+ * Production puts perspective on the link. Lab bakes it into the viewport
+ * transform so a canvas overlay cannot flatten the throw.
  * Lamp on `.mm-cta__logo--active` is intentionally omitted.
  */
 .clpw-logo-stage {
@@ -66,7 +68,6 @@
   display: block;
   width: min(100%, clamp(18rem, 72vw, 40rem));
   overflow: visible;
-  perspective: var(--clpw-perspective);
   transform-style: preserve-3d;
   pointer-events: auto;
 }
@@ -87,11 +88,39 @@
   overflow: visible;
   pointer-events: none;
   transform-style: preserve-3d;
-  transform: rotateX(var(--cta-logo-tilt-x, 0deg))
+  /*
+   * Perspective is on this plane (not only the parent frame). A GPU canvas
+   * as a descendant flattens ancestor `perspective`, so 14°/16° looks like
+   * a slight squash. Baking perspective() here matches production throw
+   * even when preserve-3d is flattened.
+   */
+  transform: perspective(var(--clpw-perspective))
+    rotateX(var(--cta-logo-tilt-x, 0deg))
     rotateY(var(--cta-logo-tilt-y, 0deg))
     translate3d(0, 0, var(--cta-logo-tilt-z, 0px));
   transform-origin: 50% 50%;
-  will-change: transform;
+}
+
+/*
+ * WebGPU target — outside the 3D tree. Off-screen but not display:none /
+ * visibility:hidden so the swapchain still presents for the blit.
+ */
+.clpw-gpu-host {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  transform: translate(-200vw, 0);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.clpw-gpu-source {
+  display: block;
+  pointer-events: none !important;
+  background: transparent;
 }
 
 .clpw-logo-mark,
@@ -142,8 +171,7 @@
   height: 100% !important;
   background-color: transparent;
   color-scheme: light;
-  transform: translateZ(0.1px);
-  /* Transparent overlay — never hide. An opaque default stamp would cover the mark. */
+  /* No translateZ — a 3D transform on a canvas flattens the parent plane. */
   opacity: 1;
 }
 

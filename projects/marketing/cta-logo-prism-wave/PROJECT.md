@@ -70,7 +70,7 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 | --- | --- | --- |
 | Wave library | vgpu `effect()` (WGSL, one device) | Locked build — not a raw WebGL stack |
 | Logo sampling | Rasterize Blue-HD.svg → texture | vgpu cannot sample SVG |
-| Tilt | Production CSS 3D (`--cta-logo-tilt-*` on the viewport; perspective on the block frame, same as `.mm-cta__logo-link`) | Same plane as the canvas |
+| Tilt | Production constants (14 / 16 / 14, lerp 0.12). Perspective baked into the viewport transform; GPU canvas is off-tree and blitted onto a 2D overlay on that plane | WebGPU child flattened parent perspective; 14° read as a squash |
 | Hover lamp | Removed | Locked look |
 | Idle wave | Dry filament: ~4 S-humps + hashed pinches/forks, short traveling packets | Always-on, not UI chrome (`rule/ui-duration-cap` exception) |
 | Hover wave | Same filament, plane tilts; modest speed-up | Band travels *with* the tilt, still 2D fill |

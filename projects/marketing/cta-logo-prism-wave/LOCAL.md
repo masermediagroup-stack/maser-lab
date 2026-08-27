@@ -38,7 +38,9 @@ npm run build
 
 ## WebGPU vs CSS 3D
 
-The visible canvas is a child of `.clpw-logo-viewport`, the element that receives `rotateX/rotateY/translateZ` from `--cta-logo-tilt-*`.
+The visible filament overlay is a **2D canvas** (or CSS snake) inside `.clpw-logo-viewport`, the element that receives `perspective() rotateX/rotateY/translateZ` from `--cta-logo-tilt-*`.
+
+The WebGPU canvas is **not** a child of that plane. A GPU canvas inside `preserve-3d` flattens ancestor perspective in Chromium, so MAX_TILT 14°/16° reads as a slight squash (~0.1deg). Lab renders off-tree (`.clpw-gpu-host`) and blits onto the 2D canvas in the tilted viewport. Production `CtaLogoTilt` keeps `perspective` on `.mm-cta__logo-link` because there is no WebGPU child.
 
 `start-wave.ts` does **not** auto-switch from a CSS transform-string probe. An untilted `preserve-3d` plane still computes as `matrix3d`, so that check false-positives at rest and would kill the GPU path on every load.
 
@@ -48,11 +50,9 @@ Do not flip to CSS on every `gpu.onError` — validation noise is logged. CSS on
 
 **Canvas size:** measure `.clpw-logo-viewport` with `getBoundingClientRect() × DPR` on mount and resize. Cover that box with `position:absolute; inset:0; width:100%; height:100%`. `surface({ autoResize: false, size })` — never let a replaced canvas's intrinsic 300×150 become the backing store. The demo dock does not size the canvas.
 
-**Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu canvas is filament-only (transparent outside the line) and stays in the tree as a transparent overlay — never `display: none` / `visibility: hidden` (and never an opaque empty stamp). CSS fallback is an SVG snake (forks/pinches) masked to the same glyph — not a linear-gradient slit. The mark must not disappear if the pipeline misses or the canvas is empty.
+**Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu filament is blitted onto a 2D canvas in that viewport (GPU source stays off-tree). CSS fallback is an SVG snake (forks/pinches) masked to the same glyph — not a linear-gradient slit. The mark must not disappear if the pipeline misses or the canvas is empty.
 
-**Tilt (lab vs production):** Overlay layers are `pointer-events: none`, so the pointer often hits `.clpw-logo-stage` and never reaches the shell. Lab listeners are capture-phase on the stage; they write `--cta-logo-tilt-*` on the viewport (perspective stays on `.clpw-logo-frame`). Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production `CtaLogoTilt` on masermedia.co keeps that media gate. Touch and reduced motion still skip tilt. Tilt rAF is not IntersectionObserver-gated. No `.mm-cta__logo--active` lamp.
-
-Judge flattening on the **live** canvas: if `data-wave-mode="vgpu"` but the mark stays screen-aligned while the CSS box tilts, force CSS (or blit to a 2D canvas). Do not leave a page-wide shader behind the mark.
+**Tilt (lab vs production):** Overlay layers are `pointer-events: none`, so the pointer often hits `.clpw-logo-stage`. Lab listeners are capture-phase on the stage; mapping uses the **shell** rect (production hover box, MAX_TILT_X=14 / MAX_TILT_Y=16 / MAX_LIFT=14 / LERP 0.12). Vars write on the viewport. Perspective is `perspective(920px)` on the viewport transform (lab) so flatten cannot kill the throw; production keeps it on `.mm-cta__logo-link`. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
 
 ## Transfer
 
