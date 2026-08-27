@@ -1,8 +1,10 @@
 /**
  * Filament only — Blue-HD is an <img> under this canvas.
  *
- * Centerline is a low-frequency snake through the mark (t = wander(u)),
- * not a straight UV band with grain on it. Pinches + a fork break the path.
+ * Centerline is y = wander(x): ~4 S-humps through both word lines, not a
+ * straight UV band with grain. Travel is a short packet along that snake
+ * (plus a second packet so the loop never goes dark). Hashed pinches change
+ * width; forks are extra snakes, not noise on a bar.
  *
  * `fwidth` runs before the mask early-return — derivatives in non-uniform
  * control flow reject the pipeline in Chrome WGSL.
@@ -31,26 +33,34 @@ fn hash21(p: vec2f) -> f32 {
   return fract((p3.x + p3.y) * p3.z);
 }
 
-// Low-frequency centerline in Y vs X — amplitude is large enough to leave
-// a straight cut and thread both lines of the wordmark.
+// ~4 S-humps, amplitude large enough to leave a straight cut and thread
+// MASER (upper) and MEDIA (lower). Matches the CSS cubic snake.
 fn wander_y(u: f32) -> f32 {
   return 0.50
-    + sin(u * 6.6 + 0.28) * 0.20
-    + sin(u * 3.15 + 1.62) * 0.145
-    + sin(u * 11.4 + 0.9) * 0.045;
+    + sin(u * 25.13 + 0.40) * 0.34
+    + sin(u * 12.2 + 1.70) * 0.12
+    + sin(u * 41.0 + 0.22) * 0.045;
 }
 
 fn fork_y(u: f32) -> f32 {
-  return wander_y(u) - 0.16 - sin(u * 5.1 + 2.05) * 0.09;
+  return 0.50
+    - sin(u * 18.4 + 2.15) * 0.30
+    - sin(u * 9.1 + 0.55) * 0.10;
 }
 
 fn spur_y(u: f32) -> f32 {
-  return wander_y(u) + 0.14 + sin(u * 4.4 + 0.7) * 0.07;
+  return 0.50
+    + sin(u * 21.6 + 3.4) * 0.28
+    + sin(u * 7.7 + 1.1) * 0.11;
 }
 
 fn window_behind(u: f32, head: f32, len: f32) -> f32 {
   let d = fract(head - u + 1.0);
-  return 1.0 - smoothstep(len * 0.72, len, d);
+  return 1.0 - smoothstep(len * 0.62, len, d);
+}
+
+fn packet(u: f32, head: f32, len: f32) -> f32 {
+  return max(window_behind(u, head, len), window_behind(u, fract(head + 0.52), len * 0.88));
 }
 
 @fragment fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
@@ -73,16 +83,16 @@ fn window_behind(u: f32, head: f32, len: f32) -> f32 {
   let travel = params.speed * mix(1.0, HOVER_BOOST, params.hover);
   let head = fract(params.time * travel);
 
-  let cell = floor(u * 16.0);
+  let cell = floor(u * 18.0);
   let pinch_h = hash21(vec2f(cell, 4.2));
-  let pinch = mix(0.10, 1.45, pow(pinch_h, 0.65));
+  let pinch = mix(0.08, 1.55, pow(pinch_h, 0.55));
   let half_w = max(params.band_width * 0.55 * pinch, aa * 1.2);
 
-  let main_win = window_behind(u, head, 0.42);
-  let fork_win = window_behind(u, head - 0.08, 0.22)
-    * step(0.22, u) * (1.0 - step(0.78, u));
-  let spur_win = window_behind(u, head - 0.14, 0.16)
-    * step(0.40, u) * (1.0 - step(0.88, u));
+  let main_win = packet(u, head, 0.20);
+  let fork_win = packet(u, fract(head + 0.72), 0.14)
+    * step(0.18, u) * (1.0 - step(0.82, u));
+  let spur_win = packet(u, fract(head + 0.38), 0.12)
+    * step(0.34, u) * (1.0 - step(0.90, u));
 
   let main_line = (1.0 - smoothstep(half_w, half_w + aa, abs(uv.y - y0))) * main_win;
   let fork_line = (1.0 - smoothstep(half_w * 0.72, half_w * 0.72 + aa, abs(uv.y - y1))) * fork_win;
@@ -91,7 +101,10 @@ fn window_behind(u: f32, head: f32, len: f32) -> f32 {
   let line = max(main_line, max(fork_line, spur_line)) * mask;
 
   var color = vec3f(1.0);
-  let leading = 1.0 - smoothstep(0.0, 0.10, fract(head - u + 1.0));
+  let leading = max(
+    1.0 - smoothstep(0.0, 0.08, fract(head - u + 1.0)),
+    1.0 - smoothstep(0.0, 0.08, fract(head + 0.52 - u + 1.0)),
+  );
   color = mix(color, FRINGE_CYAN, leading * params.fringe * 0.16);
 
   return vec4f(color * line, line);

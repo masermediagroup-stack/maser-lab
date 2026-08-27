@@ -2,8 +2,11 @@
 
 import type { CSSProperties } from "react";
 import {
+  FILAMENT_DASH,
+  FILAMENT_FORK_DASH,
   FILAMENT_FORK_PATH,
   FILAMENT_PATH,
+  FILAMENT_SPUR_DASH,
   FILAMENT_SPUR_PATH,
   HOVER_SPEED_BOOST,
 } from "./constants";
@@ -22,7 +25,7 @@ type CssWaveFallbackProps = {
 export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
   const duration = Math.max(1.4, 1 / Math.max(look.speed, 0.08));
   const hoverBoost = look.hover > 0.5 ? 1 / HOVER_SPEED_BOOST : 1;
-  const stroke = Math.max(0.55, look.bandWidth * 55);
+  const stroke = Math.max(0.9, look.bandWidth * 78);
   const waveVars = {
     "--clpw-css-duration": `${duration * hoverBoost}s`,
     "--clpw-css-stroke": `${stroke}`,
@@ -42,16 +45,19 @@ export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
             className="clpw-css-filament"
             d={FILAMENT_PATH}
             pathLength={100}
+            strokeDasharray={FILAMENT_DASH}
           />
           <path
             className="clpw-css-filament clpw-css-filament--fork"
             d={FILAMENT_FORK_PATH}
             pathLength={100}
+            strokeDasharray={FILAMENT_FORK_DASH}
           />
           <path
             className="clpw-css-filament clpw-css-filament--spur"
             d={FILAMENT_SPUR_PATH}
             pathLength={100}
+            strokeDasharray={FILAMENT_SPUR_DASH}
           />
         </g>
       </svg>

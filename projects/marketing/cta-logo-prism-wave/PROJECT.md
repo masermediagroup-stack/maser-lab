@@ -72,7 +72,7 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 | Logo sampling | Rasterize Blue-HD.svg → texture | vgpu cannot sample SVG |
 | Tilt | Production CSS 3D (`--cta-logo-tilt-*`) | Same plane as the canvas |
 | Hover lamp | Removed | Locked look |
-| Idle wave | Slow dry filament (low-freq wander + hashed pinches/forks) | Always-on, not UI chrome (`rule/ui-duration-cap` exception) |
+| Idle wave | Dry filament: ~4 S-humps + hashed pinches/forks, short traveling packets | Always-on, not UI chrome (`rule/ui-duration-cap` exception) |
 | Hover wave | Same filament, plane tilts; modest speed-up | Band travels *with* the tilt, still 2D fill |
 | Glow | None — no bloom / additive halo | Elite Pixel Guy look pass 2026-08-27 |
 | Reduced motion | Wave stays; tilt gated off | Explicit exception to `rule/reduced-motion-required` for the wave only |
@@ -86,7 +86,7 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 | Target type | 2D fill on the CSS-tilted logo plane |
 | Renderer | WebGPU via vgpu (not Three.js) |
 | Decorative? | yes — CSS fallback still shows the mark + wave |
-| Fallback | CSS `mask-image` sweep, same plane |
+| Fallback | SVG snake path, CSS-masked to Blue-HD, same plane |
 | Mobile strategy | Wave full; tilt off (coarse pointer) |
 | Reduced motion | Wave full; tilt off |
 | Research docs checked | Production `CtaLogoTilt.tsx`; vgpu `concepts-effects`, `getting-started`, `nextjs`, `surface`, `effect` |
