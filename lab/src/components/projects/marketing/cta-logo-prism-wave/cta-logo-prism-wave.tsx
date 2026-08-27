@@ -116,14 +116,18 @@ export function CtaLogoPrismWave({
     }
 
     let disposed = false;
-    let isVisible = true;
     let rafId = 0;
     const target: TiltState = { x: 0, y: 0, z: 0 };
     const current: TiltState = { x: 0, y: 0, z: 0 };
 
     const setPointerTilt = (clientX: number, clientY: number) => {
-      const rect = viewport.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return;
+      // Viewport rect is the production mapping. Stage is the hit target and
+      // a fallback if the untilted plane has not laid out yet.
+      const plane = viewport.getBoundingClientRect();
+      const hit = stage.getBoundingClientRect();
+      const rect =
+        plane.width > 1 && plane.height > 1 ? plane : hit;
+      if (rect.width <= 1 || rect.height <= 1) return;
       const x = ((clientX - rect.left) / rect.width) * 2 - 1;
       const y = ((clientY - rect.top) / rect.height) * 2 - 1;
       target.y = x * MAX_TILT_Y;
@@ -145,7 +149,7 @@ export function CtaLogoPrismWave({
     };
 
     const loop = () => {
-      if (disposed || !isVisible) return;
+      if (disposed) return;
       renderFrame();
       rafId = window.requestAnimationFrame(loop);
     };
@@ -168,32 +172,24 @@ export function CtaLogoPrismWave({
       resetTilt();
     };
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        isVisible = entry?.isIntersecting ?? true;
-        if (isVisible) {
-          renderFrame();
-          rafId = window.requestAnimationFrame(loop);
-        } else {
-          window.cancelAnimationFrame(rafId);
-        }
-      },
-      { threshold: 0.01 },
-    );
-
-    stage.addEventListener("pointerenter", onEnterTilt);
-    stage.addEventListener("pointermove", onPointerMove);
-    stage.addEventListener("pointerleave", onLeaveTilt);
-    observer.observe(stage);
+    /*
+     * Capture on the stage: overlay layers are pointer-events:none, so the
+     * event target is often the stage itself and never reaches the shell.
+     * Tilt rAF stays running while mounted — do not let IntersectionObserver
+     * cancel it (a false "not intersecting" left the plane dead on hover).
+     */
+    const pointerOpts: AddEventListenerOptions = { capture: true };
+    stage.addEventListener("pointerenter", onEnterTilt, pointerOpts);
+    stage.addEventListener("pointermove", onPointerMove, pointerOpts);
+    stage.addEventListener("pointerleave", onLeaveTilt, pointerOpts);
     rafId = window.requestAnimationFrame(loop);
 
     return () => {
       disposed = true;
-      observer.disconnect();
       window.cancelAnimationFrame(rafId);
-      stage.removeEventListener("pointerenter", onEnterTilt);
-      stage.removeEventListener("pointermove", onPointerMove);
-      stage.removeEventListener("pointerleave", onLeaveTilt);
+      stage.removeEventListener("pointerenter", onEnterTilt, pointerOpts);
+      stage.removeEventListener("pointermove", onPointerMove, pointerOpts);
+      stage.removeEventListener("pointerleave", onLeaveTilt, pointerOpts);
       delete stage.dataset.tilt;
       viewport.style.removeProperty("--cta-logo-tilt-x");
       viewport.style.removeProperty("--cta-logo-tilt-y");

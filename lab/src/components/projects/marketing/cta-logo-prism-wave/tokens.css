@@ -87,13 +87,10 @@
   overflow: visible;
   pointer-events: none;
   transform-style: preserve-3d;
-  --cta-logo-tilt-x: 0deg;
-  --cta-logo-tilt-y: 0deg;
-  --cta-logo-tilt-z: 0px;
   transform: rotateX(var(--cta-logo-tilt-x, 0deg))
     rotateY(var(--cta-logo-tilt-y, 0deg))
     translate3d(0, 0, var(--cta-logo-tilt-z, 0px));
-  transform-origin: 50%;
+  transform-origin: 50% 50%;
   will-change: transform;
 }
 
