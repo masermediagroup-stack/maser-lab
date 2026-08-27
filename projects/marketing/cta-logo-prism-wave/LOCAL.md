@@ -50,7 +50,7 @@ Do not flip to CSS on every `gpu.onError` — validation noise is logged. CSS on
 
 **Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu canvas is filament-only (transparent outside the line) and stays in the tree as a transparent overlay — never `display: none` / `visibility: hidden` (and never an opaque empty stamp). CSS fallback is an SVG snake (forks/pinches) masked to the same glyph — not a linear-gradient slit. The mark must not disappear if the pipeline misses or the canvas is empty.
 
-**Tilt (lab vs production):** Overlay layers are `pointer-events: none`, so the pointer often hits `.clpw-logo-stage`. Lab listeners are on the stage; they write `--cta-logo-tilt-*` on the viewport. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production `CtaLogoTilt` on masermedia.co keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
+**Tilt (lab vs production):** Overlay layers are `pointer-events: none`, so the pointer often hits `.clpw-logo-stage` and never reaches the shell. Lab listeners are capture-phase on the stage; they write `--cta-logo-tilt-*` on the viewport (perspective stays on `.clpw-logo-frame`). Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production `CtaLogoTilt` on masermedia.co keeps that media gate. Touch and reduced motion still skip tilt. Tilt rAF is not IntersectionObserver-gated. No `.mm-cta__logo--active` lamp.
 
 Judge flattening on the **live** canvas: if `data-wave-mode="vgpu"` but the mark stays screen-aligned while the CSS box tilts, force CSS (or blit to a 2D canvas). Do not leave a page-wide shader behind the mark.
 
