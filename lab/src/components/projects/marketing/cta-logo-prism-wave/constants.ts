@@ -36,3 +36,15 @@ export const CTA_LOGO_PRISM_WAVE_DEFAULTS: PrismWaveLook = {
   bandWidth: 0.016,
   fringe: 0.18,
 };
+
+/**
+ * Shared wander path (viewBox 200×101, same aspect as Blue-HD).
+ * CSS strokes this; WGSL approximates the same left-to-right snake.
+ * The centerline must leave a straight cut — not grain on a bar.
+ */
+export const FILAMENT_PATH =
+  "M -12 54 C 14 12 28 90 48 34 C 64 4 78 94 98 30 C 116 2 132 88 152 38 C 168 10 184 76 212 46";
+export const FILAMENT_FORK_PATH =
+  "M 48 34 C 62 2 88 6 118 36";
+export const FILAMENT_SPUR_PATH =
+  "M 98 30 C 108 78 128 82 148 44";

@@ -1,9 +1,8 @@
 /**
- * Filament only — the Blue-HD mark is an <img> under this canvas.
- * Transparent (premultiplied zero) outside the line so the real glyph shows.
+ * Filament only — Blue-HD is an <img> under this canvas.
  *
- * Dry hashed wire: frequency along the filament, jitter as it travels.
- * Not a neon tube, not a clean bar, not a glow sweep.
+ * Centerline is a low-frequency snake through the mark (t = wander(u)),
+ * not a straight UV band with grain on it. Pinches + a fork break the path.
  *
  * `fwidth` runs before the mask early-return — derivatives in non-uniform
  * control flow reject the pipeline in Chrome WGSL.
@@ -32,17 +31,40 @@ fn hash21(p: vec2f) -> f32 {
   return fract((p3.x + p3.y) * p3.z);
 }
 
+// Low-frequency centerline in Y vs X — amplitude is large enough to leave
+// a straight cut and thread both lines of the wordmark.
+fn wander_y(u: f32) -> f32 {
+  return 0.50
+    + sin(u * 6.6 + 0.28) * 0.20
+    + sin(u * 3.15 + 1.62) * 0.145
+    + sin(u * 11.4 + 0.9) * 0.045;
+}
+
+fn fork_y(u: f32) -> f32 {
+  return wander_y(u) - 0.16 - sin(u * 5.1 + 2.05) * 0.09;
+}
+
+fn spur_y(u: f32) -> f32 {
+  return wander_y(u) + 0.14 + sin(u * 4.4 + 0.7) * 0.07;
+}
+
+fn window_behind(u: f32, head: f32, len: f32) -> f32 {
+  let d = fract(head - u + 1.0);
+  return 1.0 - smoothstep(len * 0.72, len, d);
+}
+
 @fragment fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
   let texel = textureSampleLevel(logo, samp, uv, 0.0);
   let mask = texel.a;
 
-  // Travel axis (diagonal through the cloud) and along-filament axis.
-  let t_axis = vec2f(0.970, 0.243);
-  let s_axis = vec2f(-0.243, 0.970);
-  let t = dot(uv, t_axis);
-  let s = dot(uv, s_axis);
-
-  let aa = max(fwidth(t), 1.6 / max(min(params.res_x, params.res_y), 1.0));
+  let u = uv.x;
+  let y0 = wander_y(u);
+  let y1 = fork_y(u);
+  let y2 = spur_y(u);
+  let aa = max(
+    max(fwidth(uv.y - y0), fwidth(uv.y - y1)),
+    max(fwidth(uv.y - y2), 1.4 / max(min(params.res_x, params.res_y), 1.0)),
+  );
 
   if (mask < 0.004) {
     return vec4f(0.0);
@@ -50,37 +72,26 @@ fn hash21(p: vec2f) -> f32 {
 
   let travel = params.speed * mix(1.0, HOVER_BOOST, params.hover);
   let head = fract(params.time * travel);
-  let head_t = mix(-0.10, 1.18, head);
 
-  // Spatial cells along the wire. Travel cell shifts the hash as it moves —
-  // jitter as it travels, not a whole-line flicker.
-  let s_cell = floor(s * 96.0);
-  let t_cell = floor(head_t * 48.0);
-  let h1 = hash21(vec2f(s_cell, 3.1));
-  let h2 = hash21(vec2f(s * 154.0, s_cell));
-  let h3 = hash21(vec2f(s_cell, t_cell));
-  let h4 = hash21(vec2f(floor(s * 37.0), t_cell + 9.0));
+  let cell = floor(u * 16.0);
+  let pinch_h = hash21(vec2f(cell, 4.2));
+  let pinch = mix(0.10, 1.45, pow(pinch_h, 0.65));
+  let half_w = max(params.band_width * 0.55 * pinch, aa * 1.2);
 
-  let snake = (h1 - 0.5) * 0.052
-    + (h2 - 0.5) * 0.024
-    + (h3 - 0.5) * 0.018
-    + sin(s * 71.0 + h4 * 6.2832) * 0.011;
+  let main_win = window_behind(u, head, 0.42);
+  let fork_win = window_behind(u, head - 0.08, 0.22)
+    * step(0.22, u) * (1.0 - step(0.78, u));
+  let spur_win = window_behind(u, head - 0.14, 0.16)
+    * step(0.40, u) * (1.0 - step(0.88, u));
 
-  let thick_mul = 0.32 + h1 * 1.55 + h3 * 0.35;
-  let half_w = max(params.band_width * 0.5 * thick_mul, aa * 1.15);
+  let main_line = (1.0 - smoothstep(half_w, half_w + aa, abs(uv.y - y0))) * main_win;
+  let fork_line = (1.0 - smoothstep(half_w * 0.72, half_w * 0.72 + aa, abs(uv.y - y1))) * fork_win;
+  let spur_line = (1.0 - smoothstep(half_w * 0.62, half_w * 0.62 + aa, abs(uv.y - y2))) * spur_win;
 
-  // Dry breaks in the filament (~12% gaps).
-  let gap = step(0.12, hash21(vec2f(s_cell, t_cell + 19.0)));
-
-  let dist = abs(t - head_t - snake);
-  let filament = (1.0 - smoothstep(half_w, half_w + aa, dist)) * gap;
-
-  // Speckle along the wire so it reads electric, still one band.
-  let grain = 0.42 + 0.58 * hash21(vec2f(s * 240.0, t * 90.0 + t_cell));
-  let line = filament * grain * mask;
+  let line = max(main_line, max(fork_line, spur_line)) * mask;
 
   var color = vec3f(1.0);
-  let leading = 1.0 - smoothstep(0.0, half_w + aa, t - head_t - snake);
+  let leading = 1.0 - smoothstep(0.0, 0.10, fract(head - u + 1.0));
   color = mix(color, FRINGE_CYAN, leading * params.fringe * 0.16);
 
   return vec4f(color * line, line);

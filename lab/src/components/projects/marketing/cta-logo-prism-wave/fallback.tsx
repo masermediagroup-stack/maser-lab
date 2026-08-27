@@ -1,7 +1,12 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { HOVER_SPEED_BOOST } from "./constants";
+import {
+  FILAMENT_FORK_PATH,
+  FILAMENT_PATH,
+  FILAMENT_SPUR_PATH,
+  HOVER_SPEED_BOOST,
+} from "./constants";
 import type { WaveRuntimeParams } from "./types";
 
 type CssWaveFallbackProps = {
@@ -10,47 +15,46 @@ type CssWaveFallbackProps = {
 };
 
 /**
- * Same-plane filament overlay when WebGPU is missing. Does not paint the
- * mark — Blue-HD.svg already sits in the tilt viewport. Wave rides on it.
+ * Same-plane filament when WebGPU is missing. The centerline is an SVG snake
+ * through the mark (not a linear-gradient slit with grain). Blue-HD already
+ * sits in the tilt viewport; CSS mask clips this overlay to that glyph.
  */
 export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
-  /* One crossing ≈ 1 / speed. Do not use 4.8 / speed (~17s glow sweep). */
   const duration = Math.max(1.4, 1 / Math.max(look.speed, 0.08));
   const hoverBoost = look.hover > 0.5 ? 1 / HOVER_SPEED_BOOST : 1;
+  const stroke = Math.max(0.55, look.bandWidth * 55);
   const waveVars = {
     "--clpw-css-duration": `${duration * hoverBoost}s`,
-    "--clpw-css-width": `${Math.max(look.bandWidth * 100, 0.6)}%`,
-    "--clpw-css-fringe": String(look.fringe),
+    "--clpw-css-stroke": `${stroke}`,
   } as CSSProperties;
 
   return (
-    <div className={className} aria-hidden="true">
-      <svg className="clpw-css-filter" aria-hidden="true" focusable="false">
-        <filter
-          id="clpw-filament-jitter"
-          x="-20%"
-          y="-20%"
-          width="140%"
-          height="140%"
-          colorInterpolationFilters="sRGB"
-        >
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="1.85 0.28"
-            numOctaves="3"
-            seed="2"
-            result="n"
+    <div className={className} style={waveVars} aria-hidden="true">
+      <svg
+        className="clpw-css-wave"
+        viewBox="0 0 200 101"
+        preserveAspectRatio="xMidYMid meet"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g fill="none" stroke="#fff" strokeLinejoin="bevel" strokeLinecap="butt">
+          <path
+            className="clpw-css-filament"
+            d={FILAMENT_PATH}
+            pathLength={100}
           />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="n"
-            scale="14"
-            xChannelSelector="R"
-            yChannelSelector="G"
+          <path
+            className="clpw-css-filament clpw-css-filament--fork"
+            d={FILAMENT_FORK_PATH}
+            pathLength={100}
           />
-        </filter>
+          <path
+            className="clpw-css-filament clpw-css-filament--spur"
+            d={FILAMENT_SPUR_PATH}
+            pathLength={100}
+          />
+        </g>
       </svg>
-      <div className="clpw-css-wave" style={waveVars} />
     </div>
   );
 }

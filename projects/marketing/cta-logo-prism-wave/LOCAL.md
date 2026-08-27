@@ -48,7 +48,7 @@ Do not flip to CSS on every `gpu.onError` — validation noise is logged. CSS on
 
 **Canvas size:** measure `.clpw-logo-viewport` with `getBoundingClientRect() × DPR` on mount and resize. Cover that box with `position:absolute; inset:0; width:100%; height:100%`. `surface({ autoResize: false, size })` — never let a replaced canvas's intrinsic 300×150 become the backing store. The demo dock does not size the canvas.
 
-**Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu canvas is filament-only (transparent outside the line) and stays in the tree as a transparent overlay — never `display: none` / `visibility: hidden` (and never an opaque empty stamp). CSS filament overlays the same img. The mark must not disappear if the pipeline misses or the canvas is empty.
+**Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu canvas is filament-only (transparent outside the line) and stays in the tree as a transparent overlay — never `display: none` / `visibility: hidden` (and never an opaque empty stamp). CSS fallback is an SVG snake (forks/pinches) masked to the same glyph — not a linear-gradient slit. The mark must not disappear if the pipeline misses or the canvas is empty.
 
 Judge flattening on the **live** canvas: if `data-wave-mode="vgpu"` but the mark stays screen-aligned while the CSS box tilts, force CSS (or blit to a 2D canvas). Do not leave a page-wide shader behind the mark.
 

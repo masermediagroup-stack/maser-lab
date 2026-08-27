@@ -50,7 +50,7 @@ Look at the mark. Hover (fine pointer) to tilt.
 A dry white electric line loops through the cloud. Tilt follows the pointer on desktop.
 
 ### Reversibility
-Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer: tilt off, wave continues. Tab hide / off-screen: rAF pauses. WebGPU unavailable or canvas flattening: CSS mask sweep on the same plane.
+Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer: tilt off, wave continues. Tab hide / off-screen: rAF pauses. WebGPU unavailable: SVG snake filament on the same plane (CSS fallback).
 
 ## States
 
@@ -60,7 +60,7 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 - [x] coarse pointer / phone (wave on, tilt off)
 - [x] light ground / dark ground (demo; same blue mark)
 - [x] tab hidden / off-screen (rAF paused)
-- [x] WebGPU unavailable or flatten (CSS mask sweep fallback)
+- [x] WebGPU unavailable or flatten (SVG snake filament fallback)
 - [ ] focus (N/A — mark is not a link in the lab)
 - [ ] loading / success / error / disabled (N/A)
 
@@ -72,12 +72,12 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 | Logo sampling | Rasterize Blue-HD.svg → texture | vgpu cannot sample SVG |
 | Tilt | Production CSS 3D (`--cta-logo-tilt-*`) | Same plane as the canvas |
 | Hover lamp | Removed | Locked look |
-| Idle wave | Slow dry filament (hash jitter along travel UV) | Always-on, not UI chrome (`rule/ui-duration-cap` exception) |
+| Idle wave | Slow dry filament (low-freq wander + hashed pinches/forks) | Always-on, not UI chrome (`rule/ui-duration-cap` exception) |
 | Hover wave | Same filament, plane tilts; modest speed-up | Band travels *with* the tilt, still 2D fill |
 | Glow | None — no bloom / additive halo | Elite Pixel Guy look pass 2026-08-27 |
 | Reduced motion | Wave stays; tilt gated off | Explicit exception to `rule/reduced-motion-required` for the wave only |
 | Hover gate | `(hover: hover) and (pointer: fine)` | `rule/hover-gated`; matches production CtaLogoTilt |
-| Fallback | CSS mask sweep on the same viewport | If WebGPU canvas flattens `preserve-3d` |
+| Fallback | SVG snake path, same viewport, clipped to Blue-HD | If WebGPU adapter is missing |
 
 ## Three.js / 3D (optional)
 
