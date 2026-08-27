@@ -322,9 +322,11 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
       /* Desktop collapsed chip sits top-left — pad copy below it.
          Mobile product leads; knobs are a footer — do not pad the top. */
       const typeOffset =
-        desktopRail && leftDock === 0 && bottomDock === 0
-          ? Math.round(rect.bottom + 12)
-          : 12;
+        !desktopRail
+          ? 0
+          : leftDock === 0
+            ? Math.round(rect.bottom + 12)
+            : 12;
 
       tokenRoot.style.setProperty("--lab-control-bar-bottom", `${bottomDock || typeOffset}px`);
       tokenRoot.style.setProperty("--lab-control-type-offset", `${typeOffset}px`);
