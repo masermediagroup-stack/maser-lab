@@ -308,27 +308,17 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
 
     const syncOffset = () => {
       const rect = node.getBoundingClientRect();
-      const vw = window.innerWidth || 1;
-      const vh = window.innerHeight || 1;
       const open = node.classList.contains("lab-dock-open");
       /* Write onto .maser-lab — that node owns the tokens. html inline vars
          are overwritten by `.maser-lab { --lab-control-dock-top: 0 }`. */
       const tokenRoot: HTMLElement =
         node.closest<HTMLElement>(".maser-lab") ?? root;
-      /* Open dock pads copy / field remainder. Never size the canvas from
-         the strip (300×150 trap). dvh can exceed 55% of innerHeight — do not
-         require height < 0.55vh or the mobile strip never reserves space. */
-      const leftDock =
-        open && rect.left <= 8 && rect.height >= vh * 0.55
-          ? Math.round(rect.width)
-          : 0;
-      const topDock =
-        open &&
-        rect.top <= 8 &&
-        rect.width >= vw * 0.7 &&
-        leftDock === 0
-          ? Math.round(rect.height)
-          : 0;
+      /* Axis is the sm breakpoint — never infer left-rail from height.
+         42dvh can exceed 55% of innerHeight, which used to pin dock-left to
+         the full strip width and dock-top to 0 (sheet over the product). */
+      const desktopRail = window.matchMedia("(min-width: 640px)").matches;
+      const leftDock = open && desktopRail ? Math.round(rect.width) : 0;
+      const topDock = open && !desktopRail ? Math.round(rect.height) : 0;
       const typeOffset = leftDock > 0 || topDock > 0 ? 12 : Math.round(rect.bottom + 12);
 
       tokenRoot.style.setProperty("--lab-control-bar-bottom", `${typeOffset}px`);
@@ -350,10 +340,13 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
     syncOffset();
     const observer = new ResizeObserver(syncOffset);
     observer.observe(node);
+    const railQuery = window.matchMedia("(min-width: 640px)");
+    railQuery.addEventListener("change", syncOffset);
     window.addEventListener("resize", syncOffset);
 
     return () => {
       observer.disconnect();
+      railQuery.removeEventListener("change", syncOffset);
       window.removeEventListener("resize", syncOffset);
       const tokenRoot: HTMLElement =
         node.closest<HTMLElement>(".maser-lab") ?? root;
@@ -371,7 +364,7 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
       aria-label="Demo controls"
       className={cn(
         /* Opaque strip — never a glass overlay/scrim over the product field. */
-        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[var(--lab-bg)] p-2 max-sm:gap-1.5 max-sm:p-1.5",
+        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[var(--lab-bg)] p-2 max-sm:gap-1.5 max-sm:p-1.5 max-sm:max-h-[min(42dvh,22rem)]",
         className,
       )}
     >

@@ -63,7 +63,9 @@
 }
 
 /* Mobile: stacked strip off the canvas — field starts below the rail.
-   Matches dock max-height so the product is never under a sheet. */
+   Matches dock max-height so the product is never under a sheet.
+   Always zero the left token here so a stale inline left cannot
+   squeeze the field to a 0-width column beside a full-width strip. */
 @media (max-width: 639px) {
   .maser-lab:has(.demo-control-bar.lab-dock-open) {
     --lab-control-dock-left: 0px;

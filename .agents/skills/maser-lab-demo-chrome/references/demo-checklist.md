@@ -3,6 +3,7 @@
 - [ ] `DemoLabBrand` / back to `/`
 - [ ] `DemoControlMenu` when the demo has knobs (same meatballs strip; opaque rail, not overlay/sheet; do not fork)
 - [ ] Canvas fields use `.lab-demo-field` (uncovered remainder); copy uses `.lab-demo-inset`
+- [ ] Mobile open dock is a top strip (`--lab-control-dock-top`); never a left-rail width on `<640px`
 - [ ] `ReducedMotionToggle` with `aria-label="Toggle reduced motion"`
 - [ ] Product root `aria-label` documented in PROJECT.md
 - [ ] State matrix covers PROJECT.md states
