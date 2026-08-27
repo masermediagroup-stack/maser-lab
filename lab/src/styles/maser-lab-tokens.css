@@ -103,6 +103,13 @@
     min-height: 100dvh;
   }
 
+  /* sr-only tabpanels must not consume a second 100dvh before the knobs. */
+  *:has(> .demo-control-bar.lab-dock-open) > .sr-only {
+    min-height: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
   .maser-lab:has(.demo-control-bar.lab-dock-open) .lab-demo-field {
     position: relative;
     top: auto;
