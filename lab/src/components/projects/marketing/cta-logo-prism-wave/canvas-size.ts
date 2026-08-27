@@ -50,6 +50,7 @@ export function coverViewportWithCanvas(
   canvas.style.maxHeight = "none";
   canvas.style.display = "block";
   canvas.style.backgroundColor = "transparent";
+  canvas.style.pointerEvents = "none";
   if (canvas.width !== size.bufW) canvas.width = size.bufW;
   if (canvas.height !== size.bufH) canvas.height = size.bufH;
 }

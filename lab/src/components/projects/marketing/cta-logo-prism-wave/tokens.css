@@ -45,10 +45,25 @@
   box-sizing: border-box;
 }
 
+/*
+ * Wrappers match production CtaLogoTilt:
+ *   .mm-cta__logo-stage  → flex, no perspective
+ *   .mm-cta__logo-link   → block + perspective + preserve-3d + width (here: .clpw-logo-frame, not an <a>)
+ *   .mm-cta__logo-shell  → aspect box, hover target, preserve-3d
+ *   .mm-cta__logo-viewport → rotateX/Y + translateZ from --cta-logo-tilt-*
+ * Lamp on `.mm-cta__logo--active` is intentionally omitted.
+ */
 .clpw-logo-stage {
   display: flex;
-  width: min(100%, clamp(18rem, 72vw, 40rem));
+  width: 100%;
   justify-content: center;
+  overflow: visible;
+}
+
+.clpw-logo-frame {
+  display: block;
+  width: min(100%, clamp(18rem, 72vw, 40rem));
+  overflow: visible;
   perspective: var(--clpw-perspective);
   transform-style: preserve-3d;
 }
@@ -60,17 +75,22 @@
   aspect-ratio: 3776.87 / 1915.83;
   overflow: visible;
   transform-style: preserve-3d;
+  pointer-events: auto;
 }
 
 .clpw-logo-viewport {
   position: absolute;
   inset: 5%;
   overflow: visible;
+  pointer-events: none;
   transform-style: preserve-3d;
+  --cta-logo-tilt-x: 0deg;
+  --cta-logo-tilt-y: 0deg;
+  --cta-logo-tilt-z: 0px;
   transform: rotateX(var(--cta-logo-tilt-x, 0deg))
     rotateY(var(--cta-logo-tilt-y, 0deg))
     translate3d(0, 0, var(--cta-logo-tilt-z, 0px));
-  transform-origin: center center;
+  transform-origin: 50%;
   will-change: transform;
 }
 
@@ -86,7 +106,7 @@
   height: 100%;
   max-width: none;
   max-height: none;
-  pointer-events: none;
+  pointer-events: none !important;
 }
 
 /* Always-on glyph. Never unmount. Wave / canvas overlay this. */

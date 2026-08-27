@@ -99,6 +99,7 @@ export function CtaLogoPrismWave({
 
     const tiltEnabled =
       !forceReducedMotion && !prefersReducedMotion() && prefersFinePointer();
+    shell.dataset.tilt = tiltEnabled ? "on" : "off";
 
     const onPointerEnter = (event: PointerEvent) => {
       if (event.pointerType !== "mouse") return;
@@ -210,8 +211,10 @@ export function CtaLogoPrismWave({
       aria-label="Maser Media CTA logo prism wave"
       data-wave-mode={mode ?? "pending"}
     >
-      <div ref={shellRef} className="clpw-logo-shell">
-        <div ref={viewportRef} className="clpw-logo-viewport">
+      {/* Frame = production `.mm-cta__logo-link`: block + perspective. Not an <a>. */}
+      <div className="clpw-logo-frame">
+        <div ref={shellRef} className="clpw-logo-shell">
+          <div ref={viewportRef} className="clpw-logo-viewport">
           {/* SVG compositing layer — next/image is the wrong tool here. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -232,6 +235,7 @@ export function CtaLogoPrismWave({
           {mode === "css" ? (
             <CssWaveFallback look={cssLook} className="clpw-css-fallback" />
           ) : null}
+          </div>
         </div>
       </div>
     </section>

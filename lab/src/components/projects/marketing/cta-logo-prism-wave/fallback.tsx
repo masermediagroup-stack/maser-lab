@@ -39,8 +39,15 @@ export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
         focusable="false"
+        pointerEvents="none"
       >
-        <g fill="none" stroke="#fff" strokeLinejoin="bevel" strokeLinecap="butt">
+        <g
+          fill="none"
+          stroke="#fff"
+          strokeLinejoin="bevel"
+          strokeLinecap="butt"
+          pointerEvents="none"
+        >
           <path
             className="clpw-css-filament"
             d={FILAMENT_PATH}
