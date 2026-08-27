@@ -103,8 +103,8 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 - [x] No 80s rainbow; blue body is solid glass; filament is dry white with optional tiny cool leading skin (look pass — re-verify on preview)
 - [x] Demo knobs: wave speed, band width, fringe amount (lab only)
 - [x] Shared `DemoControlMenu` chrome — opaque left rail desktop; product first screen on phone
-- [ ] One GPU context + one rAF; pause off-screen; dispose on unmount; compile once against a target signature (not the live Surface outside `frame()`). Chrome with WebGPU must report `data-wave-mode="vgpu"` (this VM has no adapter — `vgpu doctor` unhealthy)
-- [x] Flattening / no-WebGPU uses CSS mask fallback on the same plane (`data-wave-mode="css"` only when WebGPU is actually missing)
+- [ ] One GPU context + one rAF; pause off-screen; dispose on unmount; compile once against a target signature (not the live Surface outside `frame()`). Chrome with WebGPU must report `data-wave-mode="vgpu"` (this VM has no adapter — `vgpu doctor` unhealthy). Canvas CSS box equals the tilt viewport (not 300×150).
+- [x] Flattening / no-WebGPU uses CSS mask fallback on the same plane (`data-wave-mode="css"` **only** when the adapter is actually missing)
 - [x] Blue-HD mark is always painted in the tilt viewport (img + CSS retint); wave overlays; empty canvas never replaces the glyph
 - [x] Component exported from `index.ts` (product-only; knobs stay in the demo)
 

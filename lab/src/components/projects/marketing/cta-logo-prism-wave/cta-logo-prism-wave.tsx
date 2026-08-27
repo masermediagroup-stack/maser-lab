@@ -59,9 +59,11 @@ export function CtaLogoPrismWave({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const viewport = viewportRef.current;
+    if (!canvas || !viewport) return;
     return startPrismWave({
       canvas,
+      viewport,
       logoUrl: LOGO_SRC,
       paramsRef: {
         get current() {
@@ -218,6 +220,7 @@ export function CtaLogoPrismWave({
             alt=""
             aria-hidden="true"
             decoding="async"
+            fetchPriority="high"
           />
           <div className="clpw-logo-body" aria-hidden="true" />
           <canvas

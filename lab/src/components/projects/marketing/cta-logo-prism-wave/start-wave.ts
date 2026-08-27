@@ -11,6 +11,12 @@ import {
   type Surface,
   type Texture,
 } from "vgpu";
+import {
+  backingStoreChanged,
+  coverViewportWithCanvas,
+  readViewportBackingStore,
+  type ViewportBackingStore,
+} from "./canvas-size";
 import { CTA_LOGO_PRISM_WAVE_DEFAULTS } from "./constants";
 import { rasterizeLogo } from "./rasterize-logo";
 import type { PrismWaveMode, WaveRuntimeParams } from "./types";
@@ -18,6 +24,7 @@ import { WAVE_WGSL } from "./wave-shader";
 
 type StartWaveOptions = {
   canvas: HTMLCanvasElement;
+  viewport: HTMLElement;
   logoUrl: string;
   paramsRef: RefObject<WaveRuntimeParams | null>;
   onMode: (mode: PrismWaveMode) => void;
@@ -52,6 +59,41 @@ function browserWebGpu(): BrowserWebGpu | undefined {
   return gpu;
 }
 
+function isMissingAdapterError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const code = "code" in error ? error.code : undefined;
+  const message = "message" in error ? String(error.message) : String(error);
+  return (
+    code === "VGPU-UNSUPPORTED" ||
+    message.includes("requestAdapter() returned null") ||
+    message.includes("navigator.gpu")
+  );
+}
+
+async function waitForViewportSize(
+  viewport: HTMLElement,
+  isDisposed: () => boolean,
+): Promise<ViewportBackingStore> {
+  for (let i = 0; i < 90; i += 1) {
+    if (isDisposed()) {
+      throw new Error("cta-logo-prism-wave disposed");
+    }
+    const size = readViewportBackingStore(viewport);
+    if (size) return size;
+    await waitAnimationFrame();
+  }
+  const fallback = readViewportBackingStore(viewport);
+  if (fallback) return fallback;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  return {
+    cssW: 512,
+    cssH: 260,
+    dpr,
+    bufW: Math.max(1, Math.round(512 * dpr)),
+    bufH: Math.max(1, Math.round(260 * dpr)),
+  };
+}
+
 async function uploadLogoTexture(
   gpu: Gpu,
   logoUrl: string,
@@ -83,30 +125,28 @@ function isDeviceGone(error: unknown): boolean {
  * Pause off-screen / hidden tab. Compile once against a target *signature*
  * (not the canvas surface). Dispose on the returned cleanup.
  *
- * Do not `compile(canvasSurface)` outside `frame()` — vgpu throws
- * `VGPU-SURFACE-NOT-IN-FRAME` and that used to dump every WebGPU Chrome
- * session onto the CSS fallback.
+ * CSS fallback only when the WebGPU adapter is actually missing (or the
+ * device is later lost). Compile/upload/frame errors are logged — they do
+ * not dump a machine that has an adapter onto the CSS path.
  *
- * Flattening is not auto-detected: a CSS 3D identity still reports `matrix3d`,
- * so a transform-string probe false-positives at rest. CSS only when WebGPU
- * is actually missing, init/compile fails, or the device is lost. If a
- * compositor overlay is observed on a live preview (`data-wave-mode="vgpu"`
- * but the mark stays screen-aligned while the box tilts), force CSS —
- * documented in LOCAL.md.
+ * Canvas backing store comes from the tilt viewport's getBoundingClientRect
+ * × DPR. autoResize is off so a 300×150 intrinsic box cannot lock in.
  */
 export function startPrismWave(options: StartWaveOptions): () => void {
-  const { canvas, logoUrl, paramsRef, onMode } = options;
+  const { canvas, viewport, logoUrl, paramsRef, onMode } = options;
   let disposed = false;
   let gpu: Gpu | undefined;
   let loop: FrameLoopHandle | undefined;
   let canvasSurface: Surface | undefined;
   let observer: IntersectionObserver | undefined;
+  let resizeObserver: ResizeObserver | undefined;
   let unsubError: (() => void) | undefined;
   let isVisible = true;
   let pageHidden = false;
   let running = false;
   let wave: ReturnType<typeof effect> | undefined;
   let time: ReturnType<typeof clock> | undefined;
+  let hasAdapter = false;
 
   const failToCss = () => {
     if (disposed) return;
@@ -120,6 +160,18 @@ export function startPrismWave(options: StartWaveOptions): () => void {
     running = false;
   };
 
+  const syncBackingStore = (): ViewportBackingStore | null => {
+    const size = readViewportBackingStore(viewport);
+    if (!size) return null;
+    const changed = backingStoreChanged(canvas, size);
+    coverViewportWithCanvas(canvas, size);
+    if (changed && canvasSurface && !canvasSurface.disposed) {
+      canvasSurface.resize([size.bufW, size.bufH]);
+      coverViewportWithCanvas(canvas, size);
+    }
+    return size;
+  };
+
   const startLoop = () => {
     if (disposed || !gpu || !wave || !canvasSurface || !time) return;
     if (running) return;
@@ -130,6 +182,7 @@ export function startPrismWave(options: StartWaveOptions): () => void {
     const clockState = time;
     loop = frameLoop(gpu, (frame) => {
       try {
+        syncBackingStore();
         const look = readParams(paramsRef);
         waveEffect.set({
           params: {
@@ -138,12 +191,14 @@ export function startPrismWave(options: StartWaveOptions): () => void {
             band_width: look.bandWidth,
             fringe: look.fringe,
             hover: look.hover,
+            res_x: canvas.width,
+            res_y: canvas.height,
           },
         });
         frame.pass({ target: surf, clear: [0, 0, 0, 0] }, waveEffect);
       } catch (error) {
         console.error("[cta-logo-prism-wave] frame failed", error);
-        failToCss();
+        if (isDeviceGone(error) || !hasAdapter) failToCss();
       }
     });
   };
@@ -171,6 +226,11 @@ export function startPrismWave(options: StartWaveOptions): () => void {
         failToCss();
         return;
       }
+      hasAdapter = true;
+
+      const size = await waitForViewportSize(viewport, () => disposed);
+      if (disposed) return;
+      coverViewportWithCanvas(canvas, size);
 
       gpu = await init();
       if (disposed) {
@@ -200,19 +260,16 @@ export function startPrismWave(options: StartWaveOptions): () => void {
         return;
       }
 
-      await waitAnimationFrame();
-      if (disposed) {
-        gpu.dispose();
-        return;
-      }
-
+      const sized = syncBackingStore() ?? size;
       canvasSurface = surface(gpu, canvas, {
         dpr: [1, 2],
+        autoResize: false,
+        size: [sized.bufW, sized.bufH],
         alphaMode: "premultiplied",
         clearColor: [0, 0, 0, 0],
         label: "clpw-surface",
       });
-      canvas.style.backgroundColor = "transparent";
+      coverViewportWithCanvas(canvas, sized);
 
       const samp = sampler(gpu, {
         minFilter: "linear",
@@ -232,14 +289,14 @@ export function startPrismWave(options: StartWaveOptions): () => void {
             band_width: look.bandWidth,
             fringe: look.fringe,
             hover: look.hover,
+            res_x: sized.bufW,
+            res_y: sized.bufH,
           },
           logo,
           samp,
         },
       });
 
-      // Precompile against the canvas format signature — never the live
-      // Surface outside frame(). First frameLoop tick draws to the canvas.
       const canvasFormat =
         webgpu.getPreferredCanvasFormat() === "rgba8unorm"
           ? "rgba8unorm"
@@ -264,14 +321,24 @@ export function startPrismWave(options: StartWaveOptions): () => void {
         },
         { threshold: 0.01 },
       );
-      observer.observe(canvas);
+      observer.observe(viewport);
+
+      resizeObserver = new ResizeObserver(() => {
+        syncBackingStore();
+      });
+      resizeObserver.observe(viewport);
+
       document.addEventListener("visibilitychange", onVisibility);
       syncLoop();
     } catch (error) {
       console.error("[cta-logo-prism-wave] vgpu path failed", error);
-      failToCss();
-      gpu?.dispose();
-      gpu = undefined;
+      if (!hasAdapter || isMissingAdapterError(error)) {
+        failToCss();
+      }
+      if (!hasAdapter) {
+        gpu?.dispose();
+        gpu = undefined;
+      }
     }
   })();
 
@@ -279,6 +346,7 @@ export function startPrismWave(options: StartWaveOptions): () => void {
     disposed = true;
     stopLoop();
     observer?.disconnect();
+    resizeObserver?.disconnect();
     unsubError?.();
     document.removeEventListener("visibilitychange", onVisibility);
     canvasSurface?.dispose();

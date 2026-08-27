@@ -14,7 +14,8 @@ type CssWaveFallbackProps = {
  * mark — Blue-HD.svg already sits in the tilt viewport. Wave rides on it.
  */
 export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
-  const duration = Math.max(1.2, 4.8 / Math.max(look.speed, 0.08));
+  /* One crossing ≈ 1 / speed. Do not use 4.8 / speed (~17s glow sweep). */
+  const duration = Math.max(1.4, 1 / Math.max(look.speed, 0.08));
   const hoverBoost = look.hover > 0.5 ? 1 / HOVER_SPEED_BOOST : 1;
   const waveVars = {
     "--clpw-css-duration": `${duration * hoverBoost}s`,
@@ -27,23 +28,23 @@ export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
       <svg className="clpw-css-filter" aria-hidden="true" focusable="false">
         <filter
           id="clpw-filament-jitter"
-          x="-8%"
-          y="-8%"
-          width="116%"
-          height="116%"
+          x="-20%"
+          y="-20%"
+          width="140%"
+          height="140%"
           colorInterpolationFilters="sRGB"
         >
           <feTurbulence
             type="fractalNoise"
-            baseFrequency="1.15 0.18"
-            numOctaves="2"
+            baseFrequency="1.85 0.28"
+            numOctaves="3"
             seed="2"
             result="n"
           />
           <feDisplacementMap
             in="SourceGraphic"
             in2="n"
-            scale="2.4"
+            scale="14"
             xChannelSelector="R"
             yChannelSelector="G"
           />
