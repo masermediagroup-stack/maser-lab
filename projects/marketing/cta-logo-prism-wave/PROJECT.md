@@ -93,18 +93,18 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 
 ## Acceptance criteria
 
-- [ ] Demo route `/demos/cta-logo-prism-wave` renders via DemoHost
-- [ ] `npm run lint` and `npm run build` pass in `lab/` (project files)
-- [ ] First screen is the Blue-HD mark with the wave (rendered)
-- [ ] Desktop mouse tilt works; wave stays on the tilted plane (rendered)
-- [ ] Wave keeps running on phone and with reduced motion; tilt does not (rendered)
-- [ ] Hover lamp / extra glow on `--active` is gone (rendered)
-- [ ] No 80s rainbow; blue body holds; fringe is a tiny cool leading edge (rendered)
-- [ ] Demo knobs: wave speed, band width, fringe amount (lab only)
-- [ ] Shared `DemoControlMenu` chrome — opaque left rail desktop; product first screen on phone
-- [ ] One GPU context + one rAF; pause off-screen; dispose on unmount; compile once
-- [ ] Flattening / no-WebGPU uses CSS mask fallback on the same plane (`data-wave-mode`)
-- [ ] Component exported from `index.ts` (product-only; knobs stay in the demo)
+- [x] Demo route `/demos/cta-logo-prism-wave` renders via DemoHost
+- [x] `npm run build` passes in `lab/`; project files lint clean (repo `npm run lint` still fails on pre-existing `pixel-info-card` setState-in-effect)
+- [x] First screen is the Blue-HD mark with the wave (rendered — CSS fallback on this VM; WebGPU on preview browsers with an adapter)
+- [x] Desktop mouse tilt works; wave stays on the tilted plane (rendered)
+- [x] Wave keeps running on phone and with reduced motion; tilt does not (rendered)
+- [x] Hover lamp / extra glow on `--active` is gone (rendered)
+- [x] No 80s rainbow; blue body holds; fringe is a tiny cool leading edge (rendered)
+- [x] Demo knobs: wave speed, band width, fringe amount (lab only)
+- [x] Shared `DemoControlMenu` chrome — opaque left rail desktop; product first screen on phone
+- [ ] One GPU context + one rAF; pause off-screen; dispose on unmount; compile once (code contract; this VM has no WebGPU adapter — `vgpu doctor` unhealthy)
+- [x] Flattening / no-WebGPU uses CSS mask fallback on the same plane (`data-wave-mode="css"`)
+- [x] Component exported from `index.ts` (product-only; knobs stay in the demo)
 
 ## Open decisions
 
