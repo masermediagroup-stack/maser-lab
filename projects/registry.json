@@ -98,6 +98,13 @@
       "status": "building",
       "category": "scroll",
       "description": "Scroll-triggered Maser-blue mercury meatballs — edge spawn, sticky SDF merge, one key light"
+    },
+    {
+      "slug": "cta-logo-prism-wave",
+      "title": "CTA Logo Prism Wave",
+      "status": "building",
+      "category": "marketing",
+      "description": "White vapor/prism band through the Maser CTA tilt logo — blue body, cool leading fringe, CSS 3D tilt kept"
     }
   ]
 }

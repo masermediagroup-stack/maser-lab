@@ -1,0 +1,153 @@
+/* cta-logo-prism-wave product tokens — portable with the component */
+.clpw-root {
+  --clpw-blue: #10a4ff;
+  --clpw-fringe: #73e7ff;
+  --clpw-vapor: #ffffff;
+  --clpw-page: #ffffff;
+  --clpw-text: #111111;
+  --clpw-text-muted: #4a4a4a;
+  --clpw-perspective: 920px;
+  --clpw-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --cta-logo-tilt-x: 0deg;
+  --cta-logo-tilt-y: 0deg;
+  --cta-logo-tilt-z: 0px;
+}
+
+.clpw-root[data-ground="dark"] {
+  --clpw-page: #07090c;
+  --clpw-text: #f3f6fa;
+  --clpw-text-muted: rgba(243, 246, 250, 0.72);
+}
+
+.clpw-page {
+  padding-left: var(--lab-control-dock-left, 0px);
+  padding-top: var(--lab-control-dock-top, 0px);
+  background: var(--clpw-page);
+  color: var(--clpw-text);
+}
+
+/* Demo chrome spacer — collapsed toggle sits above the first screen. */
+.clpw-chrome-stack {
+  flex-shrink: 0;
+  height: var(--lab-control-type-offset, var(--lab-control-bar-bottom, 7rem));
+  min-height: 0;
+  pointer-events: none;
+}
+
+.clpw-stage {
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0 1.25rem 3rem;
+  box-sizing: border-box;
+}
+
+.clpw-logo-stage {
+  display: flex;
+  width: min(100%, clamp(18rem, 72vw, 40rem));
+  justify-content: center;
+  perspective: var(--clpw-perspective);
+  transform-style: preserve-3d;
+}
+
+.clpw-logo-shell {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3776.87 / 1915.83;
+  overflow: visible;
+  transform-style: preserve-3d;
+}
+
+.clpw-logo-viewport {
+  position: absolute;
+  inset: 5%;
+  overflow: visible;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--cta-logo-tilt-x, 0deg))
+    rotateY(var(--cta-logo-tilt-y, 0deg))
+    translate3d(0, 0, var(--cta-logo-tilt-z, 0px));
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.clpw-logo-canvas,
+.clpw-css-fallback,
+.clpw-logo-body,
+.clpw-css-wave {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.clpw-logo-canvas {
+  transform: translateZ(0.1px);
+}
+
+.clpw-logo-body {
+  background: var(--clpw-blue);
+  -webkit-mask-image: url("/assets/cta-logo-prism-wave/Blue-HD.svg");
+  mask-image: url("/assets/cta-logo-prism-wave/Blue-HD.svg");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.clpw-css-wave {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgb(115 231 255 / calc(0.55 * var(--clpw-css-fringe, 0.32)))
+      calc(42% - var(--clpw-css-width, 9%) * 0.35),
+    #fff 50%,
+    transparent calc(58% + var(--clpw-css-width, 9%) * 0.2)
+  );
+  background-size: 280% 100%;
+  animation: clpw-css-sweep var(--clpw-css-duration, 4.8s) linear infinite;
+}
+
+@keyframes clpw-css-sweep {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -40% 0;
+  }
+}
+
+/* Wave always runs — including prefers-reduced-motion. Tilt is JS-gated. */
+@media (prefers-reduced-motion: reduce) {
+  .clpw-css-wave {
+    animation: clpw-css-sweep var(--clpw-css-duration, 4.8s) linear infinite;
+  }
+}
+
+.clpw-caption {
+  max-width: 36rem;
+  text-align: center;
+}
+
+.clpw-kicker {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--clpw-blue);
+}
+
+.clpw-notes {
+  max-width: 40rem;
+  margin-inline: auto;
+  padding: 0 1.25rem 4rem;
+}
+
+/* No hover lamp. Tilt only. Production --active glow is intentionally absent. */

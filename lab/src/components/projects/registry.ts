@@ -13,6 +13,7 @@ import { ServiceShowcaseDemo } from "./marketing/service-showcase";
 import { PixelInfoCardDemo } from "./display/pixel-info-card/pixel-info-card-demo";
 import { TypeWorldDemo } from "./scroll/type-world/type-world-demo";
 import { LiquidMetalMeatballsDemo } from "./scroll/liquid-metal-meatballs/liquid-metal-meatballs-demo";
+import { CtaLogoPrismWaveDemo } from "./marketing/cta-logo-prism-wave/cta-logo-prism-wave-demo";
 
 export const demoRegistry: Record<string, ComponentType> = {
   "liquid-monochrome": LiquidMonochromeDemo,
@@ -29,6 +30,7 @@ export const demoRegistry: Record<string, ComponentType> = {
   "pixel-info-card": PixelInfoCardDemo,
   "type-world": TypeWorldDemo,
   "liquid-metal-meatballs": LiquidMetalMeatballsDemo,
+  "cta-logo-prism-wave": CtaLogoPrismWaveDemo,
 };
 
 export function registerDemo(slug: string, component: ComponentType) {
