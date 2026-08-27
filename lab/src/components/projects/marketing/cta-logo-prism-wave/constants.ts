@@ -23,8 +23,8 @@ export const TILT_PERSPECTIVE_PX = 920;
 
 export const SPEED_MIN = 0.12;
 export const SPEED_MAX = 1.4;
-export const WIDTH_MIN = 0.006;
-export const WIDTH_MAX = 0.08;
+export const WIDTH_MIN = 0.022;
+export const WIDTH_MAX = 0.06;
 export const FRINGE_MIN = 0;
 export const FRINGE_MAX = 1;
 
@@ -33,25 +33,21 @@ export const HOVER_SPEED_BOOST = 1.45;
 
 export const CTA_LOGO_PRISM_WAVE_DEFAULTS: PrismWaveLook = {
   speed: 0.28,
-  bandWidth: 0.016,
-  fringe: 0.18,
+  bandWidth: 0.034,
+  fringe: 0.14,
 };
 
 /**
- * Shared wander path (viewBox 200×101, same aspect as Blue-HD).
+ * One wander path (viewBox 200×101, same aspect as Blue-HD).
  * CSS strokes this; WGSL approximates the same left-to-right snake.
- * The centerline must leave a straight cut — not grain on a bar.
  *
- * Dash arrays are pathLength=100 units. Two packets so the loop never
- * goes fully dark (Elite Pixel Guy CSS-only box still has to judge travel).
+ * Dash is pathLength=100: one heavy packet, not hairline scratches.
+ * Loop duration at default speed is ~3.2s — never a 17s crawl.
  */
 export const FILAMENT_PATH =
   "M -12 54 C 14 12 28 90 48 34 C 64 4 78 94 98 30 C 116 2 132 88 152 38 C 168 10 184 76 212 46";
-export const FILAMENT_FORK_PATH =
-  "M 36 72 C 58 18 86 8 122 58 C 142 88 168 70 196 40";
-export const FILAMENT_SPUR_PATH =
-  "M 22 38 C 48 82 78 92 108 44 C 128 12 154 18 186 64";
 
-export const FILAMENT_DASH = "8 1.15 6 0.85 7 28.2 7 1.1 5 0.9 6 28.8";
-export const FILAMENT_FORK_DASH = "5 1 4 0.8 5 34.2 4 1.1 3 0.9 5 36";
-export const FILAMENT_SPUR_DASH = "4 1.2 3 0.9 5 36.4 4 1.1 3 0.8 5 35.6";
+/** On / gap in pathLength=100 units. One filament. */
+export const FILAMENT_DASH = "50 50";
+
+export const CSS_WAVE_DURATION_S = 3.2;

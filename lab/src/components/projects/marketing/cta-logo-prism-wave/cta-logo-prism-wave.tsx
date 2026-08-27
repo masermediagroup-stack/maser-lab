@@ -11,12 +11,6 @@ import {
   TILT_LERP,
 } from "./constants";
 import { CssWaveFallback } from "./fallback";
-import {
-  loadGlyphHitMask,
-  markLayoutRect,
-  sampleGlyphHit,
-  type GlyphHitMask,
-} from "./glyph-hit";
 import { startPrismWave } from "./start-wave";
 import type {
   CtaLogoPrismWaveProps,
@@ -55,6 +49,7 @@ export function CtaLogoPrismWave({
 }: CtaLogoPrismWaveProps) {
   const stageRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
+  const hitRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const gpuCanvasRef = useRef<HTMLCanvasElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -104,9 +99,9 @@ export function CtaLogoPrismWave({
 
   useEffect(() => {
     const stage = stageRef.current;
-    const shell = shellRef.current;
+    const hit = hitRef.current;
     const viewport = viewportRef.current;
-    if (!stage || !shell || !viewport) return;
+    if (!stage || !hit || !viewport) return;
 
     /*
      * Lab vs production gate:
@@ -115,9 +110,8 @@ export function CtaLogoPrismWave({
      * move listeners — tilt looked dead. Lab tilts on mouse/pen pointermove.
      * Touch phones and reduced motion still skip tilt. Wave always runs.
      *
-     * Hit is the painted Blue-HD glyph (alpha), not the wide stage and not
-     * the padded SVG box. Listen on the shell (logo box). Off-glyph and
-     * pointerleave lerp back to 0. Empty stage left/right never throws.
+     * Hit is one rounded pad around the MASER + MEDIA lockup, not letter
+     * alpha and not the wide stage. Off the pad / pointerleave lerp to 0.
      */
     const tiltEnabled = !forceReducedMotion && !prefersReducedMotion();
     stage.dataset.tilt = tiltEnabled ? "on" : "off";
@@ -131,7 +125,6 @@ export function CtaLogoPrismWave({
 
     let disposed = false;
     let rafId = 0;
-    let mask: GlyphHitMask | null = null;
     const target: TiltState = { x: 0, y: 0, z: 0 };
     const current: TiltState = { x: 0, y: 0, z: 0 };
 
@@ -142,25 +135,15 @@ export function CtaLogoPrismWave({
       target.z = 0;
     };
 
-    const applyGlyphTilt = (clientX: number, clientY: number) => {
-      if (!mask) {
-        resetTilt();
-        return;
-      }
-      const rect = markLayoutRect(shell, viewport);
+    const applyPadTilt = (clientX: number, clientY: number) => {
+      const rect = hit.getBoundingClientRect();
       if (rect.width <= 1 || rect.height <= 1) {
         resetTilt();
         return;
       }
-      const u = (clientX - rect.left) / rect.width;
-      const v = (clientY - rect.top) / rect.height;
-      if (!sampleGlyphHit(mask, u, v)) {
-        resetTilt();
-        return;
-      }
       hoverRef.current = 1;
-      const nx = ((u - mask.minU) / Math.max(mask.maxU - mask.minU, 1e-6)) * 2 - 1;
-      const ny = ((v - mask.minV) / Math.max(mask.maxV - mask.minV, 1e-6)) * 2 - 1;
+      const nx = ((clientX - rect.left) / rect.width) * 2 - 1;
+      const ny = ((clientY - rect.top) / rect.height) * 2 - 1;
       const x = Math.max(-1, Math.min(1, nx));
       const y = Math.max(-1, Math.min(1, ny));
       target.y = x * MAX_TILT_Y;
@@ -183,7 +166,7 @@ export function CtaLogoPrismWave({
 
     const onPointerMove = (event: PointerEvent) => {
       if (!isLabTiltPointer(event)) return;
-      applyGlyphTilt(event.clientX, event.clientY);
+      applyPadTilt(event.clientX, event.clientY);
     };
 
     const onLeaveTilt = (event: PointerEvent) => {
@@ -192,20 +175,15 @@ export function CtaLogoPrismWave({
     };
 
     const pointerOpts: AddEventListenerOptions = { capture: true };
-    shell.addEventListener("pointermove", onPointerMove, pointerOpts);
-    shell.addEventListener("pointerleave", onLeaveTilt, pointerOpts);
+    hit.addEventListener("pointermove", onPointerMove, pointerOpts);
+    hit.addEventListener("pointerleave", onLeaveTilt, pointerOpts);
     rafId = window.requestAnimationFrame(loop);
-
-    void loadGlyphHitMask(LOGO_SRC).then((next) => {
-      if (disposed) return;
-      mask = next;
-    });
 
     return () => {
       disposed = true;
       window.cancelAnimationFrame(rafId);
-      shell.removeEventListener("pointermove", onPointerMove, pointerOpts);
-      shell.removeEventListener("pointerleave", onLeaveTilt, pointerOpts);
+      hit.removeEventListener("pointermove", onPointerMove, pointerOpts);
+      hit.removeEventListener("pointerleave", onLeaveTilt, pointerOpts);
       delete stage.dataset.tilt;
       viewport.style.removeProperty("--cta-logo-tilt-x");
       viewport.style.removeProperty("--cta-logo-tilt-y");
@@ -245,6 +223,8 @@ export function CtaLogoPrismWave({
             <CssWaveFallback look={cssLook} className="clpw-css-fallback" />
           ) : null}
           </div>
+          {/* Rounded lockup pad — hit target for tilt. Not letter-tight. */}
+          <div ref={hitRef} className="clpw-logo-hit" aria-hidden="true" />
         </div>
       </div>
       {/* GPU source is outside preserve-3d so it cannot flatten the throw. */}

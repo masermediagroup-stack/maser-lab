@@ -3,7 +3,6 @@ import type { RefObject } from "react";
 export type PrismWaveLook = {
   /** UV units per second along the travel axis. */
   speed: number;
-  /** Band thickness in UV (0.04–0.28). */
   bandWidth: number;
   /** Leading-edge cool fringe amount (0–1). Tiny at the default. */
   fringe: number;
@@ -25,6 +24,6 @@ export type CtaLogoPrismWaveProps = {
 };
 
 export type WaveRuntimeParams = PrismWaveLook & {
-  /** 1 while a mouse/pen hover is active on the lab stage; 0 otherwise. */
+  /** 1 while a mouse/pen hover is on the lockup pad; 0 otherwise. */
   hover: number;
 };

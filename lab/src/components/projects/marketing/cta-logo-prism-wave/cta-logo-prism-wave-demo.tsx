@@ -123,11 +123,10 @@ export function CtaLogoPrismWaveDemo() {
             onModeChange={setMode}
           />
           <p className="clpw-caption text-base leading-relaxed text-[var(--clpw-text-muted)]">
-            Dry white electric line through the cloud. Maser blue is solid
-            glass. Tiny cool leading skin if it still reads as prism, not bloom.
-            Hover the letters to tilt (mouse or pen in this lab demo). Empty
-            stage beside the mark sits. The band stays on the plane. Phones
-            and reduced motion keep the wave and drop the tilt.
+            One heavy dry white filament wandering the cloud. Maser blue is
+            solid glass. Hover the rounded pad around the lockup to tilt
+            (mouse or pen). Empty stage beside the mark sits. Phones and
+            reduced motion keep the wave and drop the tilt.
           </p>
         </section>
 
@@ -142,7 +141,8 @@ export function CtaLogoPrismWaveDemo() {
             <code className="font-mono text-sm">(hover: hover) and (pointer: fine)</code>{" "}
             is false. Production{" "}
             <code className="font-mono text-sm">CtaLogoTilt</code> stays on that
-            fine-pointer gate. No hover lamp. No neon tube.
+            fine-pointer gate. No hover lamp. One heavy dry wander — not a
+            hairline dash and not a neon tube.
           </p>
           <p className="mt-4" aria-live="polite">
             Renderer:{" "}

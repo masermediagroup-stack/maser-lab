@@ -50,9 +50,11 @@ Do not flip to CSS on every `gpu.onError` — validation noise is logged. CSS on
 
 **Canvas size:** measure `.clpw-logo-viewport` with `getBoundingClientRect() × DPR` on mount and resize. Cover that box with `position:absolute; inset:0; width:100%; height:100%`. `surface({ autoResize: false, size })` — never let a replaced canvas's intrinsic 300×150 become the backing store. The demo dock does not size the canvas.
 
-**Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu filament is blitted onto a 2D canvas in that viewport (GPU source stays off-tree). CSS fallback is an SVG snake (forks/pinches) masked to the same glyph — not a linear-gradient slit. The mark must not disappear if the pipeline misses or the canvas is empty.
+**Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu filament is blitted onto a 2D canvas in that viewport (GPU source stays off-tree). CSS fallback is one heavy dry SVG snake masked to the same glyph — not hairline dashes, not a linear-gradient slit. The mark must not disappear if the pipeline misses or the canvas is empty.
 
-**Tilt (lab vs production):** Throw is production (14 / 16 / 14, lerp 0.12) with `perspective()` on the viewport. **Hit is the painted Blue-HD glyph (alpha + tight opaque bounds), not the wide stage and not SVG padding.** Pointer listeners are on the logo shell; the stage is `pointer-events: none` so empty flex space left/right of the mark never throws. Off-glyph / pointerleave lerp to 0. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
+**Tilt (lab vs production):** Throw is production (14 / 16 / 14, lerp 0.12) with `perspective()` on the viewport. **Hit is one rounded pad around the MASER + MEDIA lockup**, not letter-tight alpha and not the wide stage. Off the pad / pointerleave lerp to 0. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
+
+**Filament (both paths):** One heavy dry white wander, clipped to the glyph. Default band ~0.034 UV / ~7 viewBox units. Loop ~3.2s at default speed. No forks, no glow bloom.
 
 ## Transfer
 

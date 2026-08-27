@@ -55,7 +55,7 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 ## States
 
 - [x] idle (slow band, no tilt)
-- [x] hover (fine pointer — CSS 3D tilt while over the painted letters; band stays on the logo plane)
+- [x] hover (fine pointer — CSS 3D tilt while over the rounded lockup pad; band stays on the logo plane)
 - [x] prefers-reduced-motion (wave on, tilt off)
 - [x] coarse pointer / phone (wave on, tilt off)
 - [x] light ground / dark ground (demo; same blue mark)
@@ -72,7 +72,7 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 | Logo sampling | Rasterize Blue-HD.svg → texture | vgpu cannot sample SVG |
 | Tilt | Production constants (14 / 16 / 14, lerp 0.12). Perspective baked into the viewport transform; GPU canvas is off-tree and blitted onto a 2D overlay on that plane | WebGPU child flattened parent perspective; 14° read as a squash |
 | Hover lamp | Removed | Locked look |
-| Idle wave | Dry filament: ~4 S-humps + hashed pinches/forks, short traveling packets | Always-on, not UI chrome (`rule/ui-duration-cap` exception) |
+| Idle wave | One heavy dry filament: ~4 S-humps, single traveling packet | Glance-readable; not hairline dashes (`rule/ui-duration-cap` exception) |
 | Hover wave | Same filament, plane tilts; modest speed-up | Band travels *with* the tilt, still 2D fill |
 | Glow | None — no bloom / additive halo | Elite Pixel Guy look pass 2026-08-27 |
 | Reduced motion | Wave stays; tilt gated off | Explicit exception to `rule/reduced-motion-required` for the wave only |
@@ -120,4 +120,4 @@ None for this drop — look and build are locked. Remaining judgment is on the l
 - Canvas lives inside the CSS 3D viewport, not behind the page (brief).
 - The Blue-HD mark is always an `<img>` in that viewport. Shader/CSS paint the filament only.
 - Demo knobs are lab-only and never enter the product barrel (`maser-lab-export`).
-- Lab tilt hit-tests the painted Blue-HD glyph (alpha) on the logo shell, not the wide stage. Mouse/pen even if `(hover: hover) and (pointer: fine)` is false. Production `CtaLogoTilt` keeps the fine-pointer gate.
+- Lab tilt hits one rounded pad around the MASER + MEDIA lockup, not letter alpha and not the wide stage. Mouse/pen even if `(hover: hover) and (pointer: fine)` is false. Production `CtaLogoTilt` keeps the fine-pointer gate.

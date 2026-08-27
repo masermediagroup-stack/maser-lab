@@ -70,7 +70,7 @@
   width: min(100%, clamp(18rem, 72vw, 40rem));
   overflow: visible;
   transform-style: preserve-3d;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .clpw-logo-shell {
@@ -80,6 +80,19 @@
   aspect-ratio: 3776.87 / 1915.83;
   overflow: visible;
   transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+/*
+ * One rounded pad around the MASER + MEDIA lockup. Padding around the
+ * cluster, not letter-tight alpha, not the wide stage. Browser hit-tests
+ * the border-radius so corners of the aspect box sit.
+ */
+.clpw-logo-hit {
+  position: absolute;
+  inset: 2.5% 3.5%;
+  z-index: 4;
+  border-radius: clamp(0.9rem, 4.2vw, 1.85rem);
   pointer-events: auto;
 }
 
@@ -195,18 +208,11 @@
 }
 
 .clpw-css-filament {
-  stroke-width: var(--clpw-css-stroke, 1.25);
-  animation: clpw-css-travel var(--clpw-css-duration, 3.6s) linear infinite;
-}
-
-.clpw-css-filament--fork {
-  stroke-width: calc(var(--clpw-css-stroke, 1.25) * 0.72);
-  animation-delay: calc(var(--clpw-css-duration, 3.6s) * -0.28);
-}
-
-.clpw-css-filament--spur {
-  stroke-width: calc(var(--clpw-css-stroke, 1.25) * 0.62);
-  animation-delay: calc(var(--clpw-css-duration, 3.6s) * -0.41);
+  stroke-width: var(--clpw-css-stroke, 6.9);
+  stroke: #ffffff;
+  fill: none;
+  filter: none;
+  animation: clpw-css-travel var(--clpw-css-duration, 3.2s) linear infinite;
 }
 
 @keyframes clpw-css-travel {
@@ -220,10 +226,8 @@
 
 /* Wave always runs — including prefers-reduced-motion. Tilt is JS-gated. */
 @media (prefers-reduced-motion: reduce) {
-  .clpw-css-filament,
-  .clpw-css-filament--fork,
-  .clpw-css-filament--spur {
-    animation: clpw-css-travel var(--clpw-css-duration, 3.6s) linear infinite;
+  .clpw-css-filament {
+    animation: clpw-css-travel var(--clpw-css-duration, 3.2s) linear infinite;
   }
 }
 
