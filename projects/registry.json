@@ -86,6 +86,13 @@
       "description": "White squircle info trigger that pixel-snake assembles into a reversible info card — Blobby chrome with blue controls"
     },
     {
+      "slug": "type-world",
+      "title": "TYPE WORLD",
+      "status": "building",
+      "category": "scroll",
+      "description": "Editorial spherical typography — the same quote exists twice around an invisible globe"
+    },
+    {
       "slug": "liquid-metal-meatballs",
       "title": "Liquid Metal Meatballs",
       "status": "building",

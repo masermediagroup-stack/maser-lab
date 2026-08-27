@@ -1,0 +1,11 @@
+Paper Shaders (https://shaders.paper.design)
+Copyright 2024 Paper
+Apache License 2.0 — see LICENSE-PAPER.txt
+
+TYPE WORLD adapts selected GLSL mathematics from Paper’s open-source
+shader library (metaballs, waves, voronoi, Perlin / noise helpers) into
+this project’s existing spherical ShaderMaterial. Visual components and
+React wrappers from Paper are not used.
+
+NOTICE text required by the upstream project:
+Powered by Paper Shaders: https://shaders.paper.design
