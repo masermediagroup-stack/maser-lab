@@ -74,6 +74,7 @@
   will-change: transform;
 }
 
+.clpw-logo-mark,
 .clpw-logo-canvas,
 .clpw-css-fallback,
 .clpw-logo-body,
@@ -86,11 +87,16 @@
   pointer-events: none;
 }
 
-.clpw-logo-canvas {
-  transform: translateZ(0.1px);
+/* Always-on glyph. Never unmount. Wave / canvas overlay this. */
+.clpw-logo-mark {
+  z-index: 0;
+  object-fit: contain;
+  object-position: center;
 }
 
+/* Maser blue glass when CSS mask works. If WebKit drops the mask, the img remains. */
 .clpw-logo-body {
+  z-index: 1;
   background: var(--clpw-blue);
   -webkit-mask-image: url("/assets/cta-logo-prism-wave/Blue-HD.svg");
   mask-image: url("/assets/cta-logo-prism-wave/Blue-HD.svg");
@@ -100,6 +106,24 @@
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
+}
+
+.clpw-logo-canvas {
+  z-index: 2;
+  background-color: transparent;
+  color-scheme: light;
+  transform: translateZ(0.1px);
+}
+
+/* Keep layout size during init — do not use display:none / [hidden]. */
+.clpw-logo-canvas[data-active="false"] {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.clpw-css-fallback,
+.clpw-css-wave {
+  z-index: 3;
 }
 
 .clpw-css-filter {

@@ -1,7 +1,6 @@
 /**
- * 2D dry electric filament on the rasterized Blue-HD alpha.
- * uv is vgpu top-origin (0,0 top-left). No lighting, no depth, no hue sweep,
- * no bloom / additive halo. Body is a flat Maser-blue glass fill.
+ * Filament only — the Blue-HD mark is an <img> under this canvas.
+ * Transparent (premultiplied zero) outside the line so the real glyph shows.
  *
  * `fwidth` runs before the mask early-return — derivatives in non-uniform
  * control flow reject the pipeline in Chrome WGSL.
@@ -19,7 +18,6 @@ struct Params {
 @group(0) @binding(1) var logo: texture_2d<f32>;
 @group(0) @binding(2) var samp: sampler;
 
-const MASER_BLUE = vec3f(0.062745098, 0.643137255, 1.0);
 const FRINGE_CYAN = vec3f(0.450980392, 0.905882353, 1.0);
 const HOVER_BOOST = 1.45;
 
@@ -60,15 +58,12 @@ fn hash21(p: vec2f) -> f32 {
 
   // Grain along the wire so it reads electric, still one band.
   let grain = 0.5 + 0.5 * hash21(vec2f(axis * 310.0, floor(uv.x * 180.0 + uv.y * 90.0)));
-  let line = filament * grain;
+  let line = filament * grain * mask;
 
-  var color = MASER_BLUE;
-  color = mix(color, vec3f(1.0), line);
-
-  // Cool tint only on the leading skin of the filament — not a halo ahead.
+  var color = vec3f(1.0);
   let leading = 1.0 - smoothstep(0.0, half_w + aa, phase);
-  color = mix(color, FRINGE_CYAN, line * leading * params.fringe * 0.18);
+  color = mix(color, FRINGE_CYAN, leading * params.fringe * 0.18);
 
-  return vec4f(color * mask, mask);
+  return vec4f(color * line, line);
 }
 `;

@@ -212,6 +212,7 @@ export function startPrismWave(options: StartWaveOptions): () => void {
         clearColor: [0, 0, 0, 0],
         label: "clpw-surface",
       });
+      canvas.style.backgroundColor = "transparent";
 
       const samp = sampler(gpu, {
         minFilter: "linear",

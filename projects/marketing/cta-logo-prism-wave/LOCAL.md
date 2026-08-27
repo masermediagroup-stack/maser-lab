@@ -46,6 +46,8 @@ The visible canvas is a child of `.clpw-logo-viewport`, the element that receive
 
 Do not flip to CSS on every `gpu.onError` — validation noise is logged; CSS only when WebGPU is missing, init/compile fails, or the device is lost (`VGPU-DEVICE-LOST` / `gpu.lost`).
 
+**Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu canvas is filament-only (transparent outside the line) and `visibility: hidden` until `data-wave-mode="vgpu"` — never `display: none` during init (0×0 surface). CSS filament overlays the same img. The mark must not disappear if the pipeline misses or the canvas is empty.
+
 Judge flattening on the **live** canvas: if `data-wave-mode="vgpu"` but the mark stays screen-aligned while the CSS box tilts, force CSS (or blit to a 2D canvas). Do not leave a page-wide shader behind the mark.
 
 ## Transfer

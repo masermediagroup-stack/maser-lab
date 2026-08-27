@@ -210,14 +210,21 @@ export function CtaLogoPrismWave({
     >
       <div ref={shellRef} className="clpw-logo-shell">
         <div ref={viewportRef} className="clpw-logo-viewport">
-          {mode !== "vgpu" && mode !== "css" ? (
-            <div className="clpw-logo-body" aria-hidden="true" />
-          ) : null}
+          {/* SVG compositing layer — next/image is the wrong tool here. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="clpw-logo-mark"
+            src={LOGO_SRC}
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+          />
+          <div className="clpw-logo-body" aria-hidden="true" />
           <canvas
             ref={canvasRef}
             className="clpw-logo-canvas"
             aria-hidden="true"
-            hidden={mode === "css"}
+            data-active={mode === "vgpu" ? "true" : "false"}
           />
           {mode === "css" ? (
             <CssWaveFallback look={cssLook} className="clpw-css-fallback" />

@@ -105,6 +105,7 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 - [x] Shared `DemoControlMenu` chrome — opaque left rail desktop; product first screen on phone
 - [ ] One GPU context + one rAF; pause off-screen; dispose on unmount; compile once against a target signature (not the live Surface outside `frame()`). Chrome with WebGPU must report `data-wave-mode="vgpu"` (this VM has no adapter — `vgpu doctor` unhealthy)
 - [x] Flattening / no-WebGPU uses CSS mask fallback on the same plane (`data-wave-mode="css"` only when WebGPU is actually missing)
+- [x] Blue-HD mark is always painted in the tilt viewport (img + CSS retint); wave overlays; empty canvas never replaces the glyph
 - [x] Component exported from `index.ts` (product-only; knobs stay in the demo)
 
 ## Open decisions
@@ -116,4 +117,5 @@ None for this drop — look and build are locked. Remaining judgment is on the l
 - Wave always runs; tilt is the only thing that drops on RM / coarse pointers (brief).
 - 2D fill on the logo plane — no depth lighting, no belly pin, no light-angle knob (brief).
 - Canvas lives inside the CSS 3D viewport, not behind the page (brief).
+- The Blue-HD mark is always an `<img>` in that viewport. Shader/CSS paint the filament only.
 - Demo knobs are lab-only and never enter the product barrel (`maser-lab-export`).

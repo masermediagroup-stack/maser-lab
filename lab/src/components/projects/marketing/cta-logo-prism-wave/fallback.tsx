@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { HOVER_SPEED_BOOST, LOGO_SRC } from "./constants";
+import { HOVER_SPEED_BOOST } from "./constants";
 import type { WaveRuntimeParams } from "./types";
 
 type CssWaveFallbackProps = {
@@ -9,24 +9,9 @@ type CssWaveFallbackProps = {
   className?: string;
 };
 
-function logoMaskStyle(extra?: CSSProperties): CSSProperties {
-  return {
-    WebkitMaskImage: `url(${LOGO_SRC})`,
-    maskImage: `url(${LOGO_SRC})`,
-    WebkitMaskSize: "contain",
-    maskSize: "contain",
-    WebkitMaskRepeat: "no-repeat",
-    maskRepeat: "no-repeat",
-    WebkitMaskPosition: "center",
-    maskPosition: "center",
-    ...extra,
-  };
-}
-
 /**
- * Same-plane fallback when WebGPU is missing or the swapchain canvas
- * fights preserve-3d. Dry white filament + optional cool leading skin,
- * masked to Blue-HD. Body is retinted to Maser blue (`#10a4ff`).
+ * Same-plane filament overlay when WebGPU is missing. Does not paint the
+ * mark — Blue-HD.svg already sits in the tilt viewport. Wave rides on it.
  */
 export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
   const duration = Math.max(1.2, 4.8 / Math.max(look.speed, 0.08));
@@ -64,7 +49,6 @@ export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
           />
         </filter>
       </svg>
-      <div className="clpw-logo-body" style={logoMaskStyle()} />
       <div className="clpw-css-wave" style={waveVars} />
     </div>
   );
