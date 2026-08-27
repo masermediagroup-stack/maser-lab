@@ -52,7 +52,7 @@ Do not flip to CSS on every `gpu.onError` — validation noise is logged. CSS on
 
 **Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu filament is blitted onto a 2D canvas in that viewport (GPU source stays off-tree). CSS fallback is an SVG snake (forks/pinches) masked to the same glyph — not a linear-gradient slit. The mark must not disappear if the pipeline misses or the canvas is empty.
 
-**Tilt (lab vs production):** Overlay layers are `pointer-events: none`, so the pointer often hits `.clpw-logo-stage`. Lab listeners are capture-phase on the stage; mapping uses the **shell** rect (production hover box, MAX_TILT_X=14 / MAX_TILT_Y=16 / MAX_LIFT=14 / LERP 0.12). Vars write on the viewport. Perspective is `perspective(920px)` on the viewport transform (lab) so flatten cannot kill the throw; production keeps it on `.mm-cta__logo-link`. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
+**Tilt (lab vs production):** Throw is production (14 / 16 / 14, lerp 0.12) with `perspective()` on the viewport. **Hit is the painted Blue-HD glyph (alpha + tight opaque bounds), not the wide stage and not SVG padding.** Stage still receives pointermove so off-glyph can lerp to 0. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
 
 ## Transfer
 

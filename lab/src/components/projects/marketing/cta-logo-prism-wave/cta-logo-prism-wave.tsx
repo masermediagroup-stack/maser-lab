@@ -11,6 +11,12 @@ import {
   TILT_LERP,
 } from "./constants";
 import { CssWaveFallback } from "./fallback";
+import {
+  loadGlyphHitMask,
+  markLayoutRect,
+  sampleGlyphHit,
+  type GlyphHitMask,
+} from "./glyph-hit";
 import { startPrismWave } from "./start-wave";
 import type {
   CtaLogoPrismWaveProps,
@@ -108,6 +114,10 @@ export function CtaLogoPrismWave({
      * This judging box often fails that media, which used to skip attaching
      * move listeners — tilt looked dead. Lab tilts on mouse/pen pointermove.
      * Touch phones and reduced motion still skip tilt. Wave always runs.
+     *
+     * Hit is the painted Blue-HD glyph (alpha), not the wide stage and not
+     * the padded SVG box. Listen on the stage so off-glyph pointermove can
+     * lerp back to 0; empty left/right of the letters must not throw.
      */
     const tiltEnabled = !forceReducedMotion && !prefersReducedMotion();
     stage.dataset.tilt = tiltEnabled ? "on" : "off";
@@ -121,27 +131,41 @@ export function CtaLogoPrismWave({
 
     let disposed = false;
     let rafId = 0;
+    let mask: GlyphHitMask | null = null;
     const target: TiltState = { x: 0, y: 0, z: 0 };
     const current: TiltState = { x: 0, y: 0, z: 0 };
 
-    const setPointerTilt = (clientX: number, clientY: number) => {
-      // Production maps against the shell (stable box). Do not use the
-      // tilting viewport's GBR — that AABB grows and compresses the throw.
-      const rect = shell.getBoundingClientRect();
-      if (rect.width <= 1 || rect.height <= 1) return;
-      const nx = ((clientX - rect.left) / rect.width) * 2 - 1;
-      const ny = ((clientY - rect.top) / rect.height) * 2 - 1;
+    const resetTilt = () => {
+      hoverRef.current = 0;
+      target.x = 0;
+      target.y = 0;
+      target.z = 0;
+    };
+
+    const applyGlyphTilt = (clientX: number, clientY: number) => {
+      if (!mask) {
+        resetTilt();
+        return;
+      }
+      const rect = markLayoutRect(shell, viewport);
+      if (rect.width <= 1 || rect.height <= 1) {
+        resetTilt();
+        return;
+      }
+      const u = (clientX - rect.left) / rect.width;
+      const v = (clientY - rect.top) / rect.height;
+      if (!sampleGlyphHit(mask, u, v)) {
+        resetTilt();
+        return;
+      }
+      hoverRef.current = 1;
+      const nx = ((u - mask.minU) / Math.max(mask.maxU - mask.minU, 1e-6)) * 2 - 1;
+      const ny = ((v - mask.minV) / Math.max(mask.maxV - mask.minV, 1e-6)) * 2 - 1;
       const x = Math.max(-1, Math.min(1, nx));
       const y = Math.max(-1, Math.min(1, ny));
       target.y = x * MAX_TILT_Y;
       target.x = -y * MAX_TILT_X;
       target.z = MAX_LIFT;
-    };
-
-    const resetTilt = () => {
-      target.x = 0;
-      target.y = 0;
-      target.z = 0;
     };
 
     const renderFrame = () => {
@@ -159,38 +183,27 @@ export function CtaLogoPrismWave({
 
     const onPointerMove = (event: PointerEvent) => {
       if (!isLabTiltPointer(event)) return;
-      hoverRef.current = 1;
-      setPointerTilt(event.clientX, event.clientY);
-    };
-
-    const onEnterTilt = (event: PointerEvent) => {
-      if (!isLabTiltPointer(event)) return;
-      hoverRef.current = 1;
-      setPointerTilt(event.clientX, event.clientY);
+      applyGlyphTilt(event.clientX, event.clientY);
     };
 
     const onLeaveTilt = (event: PointerEvent) => {
       if (!isLabTiltPointer(event)) return;
-      hoverRef.current = 0;
       resetTilt();
     };
 
-    /*
-     * Capture on the stage: overlay layers are pointer-events:none, so the
-     * event target is often the stage itself and never reaches the shell.
-     * Tilt rAF stays running while mounted — do not let IntersectionObserver
-     * cancel it (a false "not intersecting" left the plane dead on hover).
-     */
     const pointerOpts: AddEventListenerOptions = { capture: true };
-    stage.addEventListener("pointerenter", onEnterTilt, pointerOpts);
     stage.addEventListener("pointermove", onPointerMove, pointerOpts);
     stage.addEventListener("pointerleave", onLeaveTilt, pointerOpts);
     rafId = window.requestAnimationFrame(loop);
 
+    void loadGlyphHitMask(LOGO_SRC).then((next) => {
+      if (disposed) return;
+      mask = next;
+    });
+
     return () => {
       disposed = true;
       window.cancelAnimationFrame(rafId);
-      stage.removeEventListener("pointerenter", onEnterTilt, pointerOpts);
       stage.removeEventListener("pointermove", onPointerMove, pointerOpts);
       stage.removeEventListener("pointerleave", onLeaveTilt, pointerOpts);
       delete stage.dataset.tilt;

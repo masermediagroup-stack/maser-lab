@@ -55,7 +55,7 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 ## States
 
 - [x] idle (slow band, no tilt)
-- [x] hover (fine pointer — CSS 3D tilt; band stays on the logo plane)
+- [x] hover (fine pointer — CSS 3D tilt while over the painted letters; band stays on the logo plane)
 - [x] prefers-reduced-motion (wave on, tilt off)
 - [x] coarse pointer / phone (wave on, tilt off)
 - [x] light ground / dark ground (demo; same blue mark)
@@ -120,4 +120,4 @@ None for this drop — look and build are locked. Remaining judgment is on the l
 - Canvas lives inside the CSS 3D viewport, not behind the page (brief).
 - The Blue-HD mark is always an `<img>` in that viewport. Shader/CSS paint the filament only.
 - Demo knobs are lab-only and never enter the product barrel (`maser-lab-export`).
-- Lab tilt listens on the stage (the element that actually receives the pointer when overlay layers are `pointer-events: none`) and runs on mouse/pen even if `(hover: hover) and (pointer: fine)` is false. Production `CtaLogoTilt` keeps the fine-pointer gate.
+- Lab tilt hit-tests the painted Blue-HD glyph (alpha), not the wide stage. Mouse/pen even if `(hover: hover) and (pointer: fine)` is false. Production `CtaLogoTilt` keeps the fine-pointer gate.

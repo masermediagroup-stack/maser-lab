@@ -125,9 +125,9 @@ export function CtaLogoPrismWaveDemo() {
           <p className="clpw-caption text-base leading-relaxed text-[var(--clpw-text-muted)]">
             Dry white electric line through the cloud. Maser blue is solid
             glass. Tiny cool leading skin if it still reads as prism, not bloom.
-            Hover the mark to tilt (mouse or pen in this lab demo). The band
-            stays on the plane. Phones and reduced motion keep the wave and
-            drop the tilt.
+            Hover the letters to tilt (mouse or pen in this lab demo). Empty
+            stage beside the mark sits. The band stays on the plane. Phones
+            and reduced motion keep the wave and drop the tilt.
           </p>
         </section>
 
