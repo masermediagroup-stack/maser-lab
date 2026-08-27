@@ -143,8 +143,8 @@ export function CtaLogoPrismWaveDemo() {
           <p className="mt-4" aria-live="polite">
             Renderer:{" "}
             <span className="font-mono text-[var(--clpw-blue)]">
-              {mode === "gpu"
-                ? "WebGPU (vgpu)"
+              {mode === "vgpu"
+                ? "vgpu (WebGPU canvas)"
                 : mode === "css"
                   ? "CSS mask fallback"
                   : "starting…"}

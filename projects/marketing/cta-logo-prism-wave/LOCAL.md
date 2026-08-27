@@ -12,7 +12,7 @@ npm run dev
 
 Open **http://localhost:3000/demos/cta-logo-prism-wave**
 
-Needs WebGPU for the primary path. Chrome/Edge with WebGPU, or Firefox 141+. If `init()` fails, the demo falls back to a CSS mask sweep on the same tilt plane (`data-wave-mode="css"` on the shell).
+Needs WebGPU for the primary path. Chrome/Edge with WebGPU, or Firefox 141+. Judge the live shell: `data-wave-mode="vgpu"` means the canvas path ran. CSS (`data-wave-mode="css"`) is only for a missing adapter, failed init/compile, or a lost device.
 
 ## Quality checks
 
@@ -42,7 +42,11 @@ The visible canvas is a child of `.clpw-logo-viewport`, the element that receive
 
 `start-wave.ts` does **not** auto-switch from a CSS transform-string probe. An untilted `preserve-3d` plane still computes as `matrix3d`, so that check false-positives at rest and would kill the GPU path on every load.
 
-Fallback to the CSS mask sweep (`data-wave-mode="css"`) only when `init()` / compile / the device error. Judge flattening on the **live** canvas: if the mark stays screen-aligned while the CSS box tilts, force CSS (or blit to a 2D canvas). Do not leave a page-wide shader behind the mark.
+**Compile gate:** never `effect.compile(canvasSurface)` outside `frame()`. vgpu throws `VGPU-SURFACE-NOT-IN-FRAME` ("precompile against an offscreen `target(gpu, …)` instead"). That catch used to dump Chrome-with-WebGPU onto CSS. Compile against a canvas-format **signature**, then draw the surface inside `frameLoop`.
+
+Do not flip to CSS on every `gpu.onError` — validation noise is logged; CSS only when WebGPU is missing, init/compile fails, or the device is lost (`VGPU-DEVICE-LOST` / `gpu.lost`).
+
+Judge flattening on the **live** canvas: if `data-wave-mode="vgpu"` but the mark stays screen-aligned while the CSS box tilts, force CSS (or blit to a 2D canvas). Do not leave a page-wide shader behind the mark.
 
 ## Transfer
 

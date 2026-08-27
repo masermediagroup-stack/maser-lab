@@ -32,6 +32,7 @@ None.
 | --- | --- | --- |
 | 2026-08-27 | production → code | Tilt constants and logo plane copied from CtaLogoTilt; wave is new |
 | 2026-08-27 | look pass | Dry filament; kill glow; hash jitter along travel UV |
+| 2026-08-27 | vgpu gate | Compile off the live Surface; `data-wave-mode="vgpu"` |
 
 ## Code Connect
 

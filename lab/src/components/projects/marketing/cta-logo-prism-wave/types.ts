@@ -9,7 +9,7 @@ export type PrismWaveLook = {
   fringe: number;
 };
 
-export type PrismWaveMode = "gpu" | "css";
+export type PrismWaveMode = "vgpu" | "css";
 
 export type CtaLogoPrismWaveProps = {
   /** Demo override; also honors OS `prefers-reduced-motion`. Wave always runs. */

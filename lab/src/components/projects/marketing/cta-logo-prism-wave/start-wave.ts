@@ -34,6 +34,24 @@ function readParams(
   );
 }
 
+function waitAnimationFrame(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+}
+
+type BrowserWebGpu = {
+  requestAdapter: () => Promise<unknown>;
+  getPreferredCanvasFormat: () => "bgra8unorm" | "rgba8unorm" | string;
+};
+
+function browserWebGpu(): BrowserWebGpu | undefined {
+  if (typeof navigator === "undefined") return undefined;
+  const gpu = (navigator as Navigator & { gpu?: BrowserWebGpu }).gpu;
+  if (!gpu || typeof gpu.requestAdapter !== "function") return undefined;
+  return gpu;
+}
+
 async function uploadLogoTexture(
   gpu: Gpu,
   logoUrl: string,
@@ -54,15 +72,27 @@ async function uploadLogoTexture(
   return texture;
 }
 
+function isDeviceGone(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const code = "code" in error ? error.code : undefined;
+  return code === "VGPU-DEVICE-LOST" || code === "VGPU-SURFACE-CONTEXT";
+}
+
 /**
  * Starts one Gpu + one rAF for the canvas lifetime.
- * Pause off-screen / hidden tab. Compile once. Dispose on the returned cleanup.
+ * Pause off-screen / hidden tab. Compile once against a target *signature*
+ * (not the canvas surface). Dispose on the returned cleanup.
+ *
+ * Do not `compile(canvasSurface)` outside `frame()` — vgpu throws
+ * `VGPU-SURFACE-NOT-IN-FRAME` and that used to dump every WebGPU Chrome
+ * session onto the CSS fallback.
  *
  * Flattening is not auto-detected: a CSS 3D identity still reports `matrix3d`,
- * so a transform-string probe false-positives at rest. Fall back only when
- * `init()` / compile / the device error. If a compositor overlay is observed
- * on a live preview (`data-wave-mode="gpu"` but the mark stays screen-aligned
- * while the box tilts), force CSS — documented in LOCAL.md.
+ * so a transform-string probe false-positives at rest. CSS only when WebGPU
+ * is actually missing, init/compile fails, or the device is lost. If a
+ * compositor overlay is observed on a live preview (`data-wave-mode="vgpu"`
+ * but the mark stays screen-aligned while the box tilts), force CSS —
+ * documented in LOCAL.md.
  */
 export function startPrismWave(options: StartWaveOptions): () => void {
   const { canvas, logoUrl, paramsRef, onMode } = options;
@@ -99,17 +129,22 @@ export function startPrismWave(options: StartWaveOptions): () => void {
     const surf = canvasSurface;
     const clockState = time;
     loop = frameLoop(gpu, (frame) => {
-      const look = readParams(paramsRef);
-      waveEffect.set({
-        params: {
-          time: clockState.time,
-          speed: look.speed,
-          band_width: look.bandWidth,
-          fringe: look.fringe,
-          hover: look.hover,
-        },
-      });
-      frame.pass({ target: surf, clear: [0, 0, 0, 0] }, waveEffect);
+      try {
+        const look = readParams(paramsRef);
+        waveEffect.set({
+          params: {
+            time: clockState.time,
+            speed: look.speed,
+            band_width: look.bandWidth,
+            fringe: look.fringe,
+            hover: look.hover,
+          },
+        });
+        frame.pass({ target: surf, clear: [0, 0, 0, 0] }, waveEffect);
+      } catch (error) {
+        console.error("[cta-logo-prism-wave] frame failed", error);
+        failToCss();
+      }
     });
   };
 
@@ -125,17 +160,47 @@ export function startPrismWave(options: StartWaveOptions): () => void {
 
   void (async () => {
     try {
+      const webgpu = browserWebGpu();
+      if (!webgpu) {
+        failToCss();
+        return;
+      }
+
+      const adapter = await webgpu.requestAdapter();
+      if (!adapter) {
+        failToCss();
+        return;
+      }
+
       gpu = await init();
       if (disposed) {
         gpu.dispose();
         return;
       }
 
-      unsubError = gpu.onError(() => {
+      unsubError = gpu.onError((error) => {
+        console.error(
+          "[cta-logo-prism-wave]",
+          error.code,
+          error.message,
+          error,
+        );
+        if (isDeviceGone(error)) failToCss();
+      });
+
+      void gpu.gpu.lost.then((info: unknown) => {
+        if (disposed) return;
+        console.error("[cta-logo-prism-wave] device lost", info);
         failToCss();
       });
 
       const logo = await uploadLogoTexture(gpu, logoUrl);
+      if (disposed) {
+        gpu.dispose();
+        return;
+      }
+
+      await waitAnimationFrame();
       if (disposed) {
         gpu.dispose();
         return;
@@ -172,14 +237,24 @@ export function startPrismWave(options: StartWaveOptions): () => void {
         },
       });
 
-      await wave.compile(canvasSurface);
+      // Precompile against the canvas format signature — never the live
+      // Surface outside frame(). First frameLoop tick draws to the canvas.
+      const canvasFormat =
+        webgpu.getPreferredCanvasFormat() === "rgba8unorm"
+          ? "rgba8unorm"
+          : "bgra8unorm";
+      await wave.compile({
+        colors: [canvasFormat],
+        sampleCount: 1,
+      });
       if (disposed) {
         gpu.dispose();
         return;
       }
 
       time = clock(gpu);
-      onMode("gpu");
+      onMode("vgpu");
+      console.info("[cta-logo-prism-wave] wave mode: vgpu");
 
       observer = new IntersectionObserver(
         ([entry]) => {
@@ -191,7 +266,8 @@ export function startPrismWave(options: StartWaveOptions): () => void {
       observer.observe(canvas);
       document.addEventListener("visibilitychange", onVisibility);
       syncLoop();
-    } catch {
+    } catch (error) {
+      console.error("[cta-logo-prism-wave] vgpu path failed", error);
       failToCss();
       gpu?.dispose();
       gpu = undefined;

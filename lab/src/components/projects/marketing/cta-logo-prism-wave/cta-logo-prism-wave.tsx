@@ -210,7 +210,7 @@ export function CtaLogoPrismWave({
     >
       <div ref={shellRef} className="clpw-logo-shell">
         <div ref={viewportRef} className="clpw-logo-viewport">
-          {mode !== "gpu" && mode !== "css" ? (
+          {mode !== "vgpu" && mode !== "css" ? (
             <div className="clpw-logo-body" aria-hidden="true" />
           ) : null}
           <canvas

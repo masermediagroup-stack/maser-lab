@@ -2,6 +2,9 @@
  * 2D dry electric filament on the rasterized Blue-HD alpha.
  * uv is vgpu top-origin (0,0 top-left). No lighting, no depth, no hue sweep,
  * no bloom / additive halo. Body is a flat Maser-blue glass fill.
+ *
+ * `fwidth` runs before the mask early-return — derivatives in non-uniform
+ * control flow reject the pipeline in Chrome WGSL.
  */
 export const WAVE_WGSL = /* wgsl */ `
 struct Params {
@@ -29,33 +32,34 @@ fn hash21(p: vec2f) -> f32 {
 @fragment fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
   let texel = textureSampleLevel(logo, samp, uv, 0.0);
   let mask = texel.a;
+  let axis = uv.x * 0.9 + uv.y * 0.22;
+  let aa = max(fwidth(axis), 0.0008);
+
   if (mask < 0.004) {
     return vec4f(0.0);
   }
 
   let travel = params.speed * mix(1.0, HOVER_BOOST, params.hover);
-  let axis = uv.x * 0.9 + uv.y * 0.22;
 
-  // Incommensurate hashes along the travel UV — jitter as it crosses,
-  // not a periodic sine tube. Spatial only (no whole-line flicker).
-  let h1 = hash21(vec2f(axis * 47.0, uv.x * 19.0 + uv.y * 31.0));
-  let h2 = hash21(vec2f(axis * 113.0, uv.y * 43.0 - uv.x * 8.0));
-  let h3 = hash21(vec2f(axis * 251.0, 11.0));
-  let jitter = (h1 - 0.5) * 0.016 + (h2 - 0.5) * 0.007 + (h3 - 0.5) * 0.0028;
+  // Incommensurate hashes along the travel UV — frequency in the line,
+  // random as it crosses the mark. Spatial only (no whole-line flicker).
+  let h1 = hash21(vec2f(axis * 97.0, uv.x * 41.0 + uv.y * 17.0));
+  let h2 = hash21(vec2f(axis * 251.0, uv.y * 73.0 - uv.x * 11.0));
+  let h3 = hash21(vec2f(floor(axis * 64.0), 5.0));
+  let jitter = (h1 - 0.5) * 0.022 + (h2 - 0.5) * 0.009 + (h3 - 0.5) * 0.004;
 
   let phase = fract(axis - params.time * travel + jitter);
   let width = max(params.band_width, 0.006);
-  let aa = max(fwidth(axis), 0.001);
 
-  let thick = 1.0 + (hash21(vec2f(axis * 89.0, 3.1)) - 0.5) * 0.7;
+  let thick = 1.0 + (hash21(vec2f(axis * 149.0, 3.1)) - 0.5) * 0.85;
   let half_w = width * 0.5 * thick;
   let dist = abs(phase - half_w);
 
-  // Hard core — no outer glow lobe.
+  // Hard core — no outer glow lobe, no neon tube.
   let filament = 1.0 - smoothstep(half_w, half_w + aa, dist);
 
   // Grain along the wire so it reads electric, still one band.
-  let grain = 0.42 + 0.58 * hash21(vec2f(axis * 173.0, floor(axis * 96.0)));
+  let grain = 0.5 + 0.5 * hash21(vec2f(axis * 310.0, floor(uv.x * 180.0 + uv.y * 90.0)));
   let line = filament * grain;
 
   var color = MASER_BLUE;
@@ -63,7 +67,7 @@ fn hash21(p: vec2f) -> f32 {
 
   // Cool tint only on the leading skin of the filament — not a halo ahead.
   let leading = 1.0 - smoothstep(0.0, half_w + aa, phase);
-  color = mix(color, FRINGE_CYAN, line * leading * params.fringe * 0.22);
+  color = mix(color, FRINGE_CYAN, line * leading * params.fringe * 0.18);
 
   return vec4f(color * mask, mask);
 }
