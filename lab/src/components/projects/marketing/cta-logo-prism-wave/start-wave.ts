@@ -215,6 +215,15 @@ export function startPrismWave(options: StartWaveOptions): () => void {
 
   void (async () => {
     try {
+      const size = await waitForViewportSize(viewport, () => disposed);
+      if (disposed) return;
+      coverViewportWithCanvas(canvas, size);
+
+      resizeObserver = new ResizeObserver(() => {
+        syncBackingStore();
+      });
+      resizeObserver.observe(viewport);
+
       const webgpu = browserWebGpu();
       if (!webgpu) {
         failToCss();
@@ -227,10 +236,6 @@ export function startPrismWave(options: StartWaveOptions): () => void {
         return;
       }
       hasAdapter = true;
-
-      const size = await waitForViewportSize(viewport, () => disposed);
-      if (disposed) return;
-      coverViewportWithCanvas(canvas, size);
 
       gpu = await init();
       if (disposed) {
@@ -322,11 +327,6 @@ export function startPrismWave(options: StartWaveOptions): () => void {
         { threshold: 0.01 },
       );
       observer.observe(viewport);
-
-      resizeObserver = new ResizeObserver(() => {
-        syncBackingStore();
-      });
-      resizeObserver.observe(viewport);
 
       document.addEventListener("visibilitychange", onVisibility);
       syncLoop();
