@@ -3,7 +3,7 @@
 import { useCallback, useId, useState } from "react";
 import {
   DemoBackButton,
-  DemoControlBar,
+  DemoControlMenu,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
 import { type NavItemId } from "./constants";
@@ -31,40 +31,41 @@ export function PlotlineTabNavDemo({ minimal = false }: PlotlineTabNavDemoProps)
 
   return (
     <div
-      className="plotline-nav relative min-h-screen overflow-hidden bg-[#0a0610] text-[var(--pl-text)]"
+      className="plotline-nav relative min-h-screen overflow-hidden text-[var(--pl-text)] max-sm:has-[.lab-dock-open]:overflow-visible"
       data-reduced-motion={forceReducedMotion ? "true" : undefined}
     >
-      <div className="pointer-events-none fixed inset-0" aria-hidden>
-        <div
-          className="absolute inset-0 opacity-90"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 55% at 50% 20%, rgba(155, 27, 92, 0.4), transparent 60%), radial-gradient(ellipse 70% 45% at 80% 80%, rgba(155, 27, 92, 0.15), transparent 55%), radial-gradient(ellipse 50% 35% at 10% 70%, rgba(245, 184, 212, 0.08), transparent 50%)",
-          }}
-        />
-        <div className="absolute inset-0 bg-[#0a0610]/40" />
-      </div>
-
       {!minimal ? (
-        <DemoControlBar className="left-6 right-6 top-6 justify-between">
+        <DemoControlMenu>
           <DemoBackButton />
           <ReducedMotionToggle
             enabled={forceReducedMotion}
             onToggle={() => setForceReducedMotion((v) => !v)}
           />
-        </DemoControlBar>
+        </DemoControlMenu>
       ) : null}
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
-        <PlotlineTabNav
-          activeId={activeId}
-          onNavigate={handleNavigate}
-          startFreeActive={startFreeActive}
-          onStartFree={handleStartFree}
-          forceReducedMotion={forceReducedMotion}
-          idPrefix={panelId}
-          placement="center"
-        />
+      <div className="lab-demo-inset relative z-10 flex min-h-screen items-center justify-center bg-[#0a0610] px-4">
+        <div className="pointer-events-none absolute inset-0" aria-hidden>
+          <div
+            className="absolute inset-0 opacity-90"
+            style={{
+              background:
+                "radial-gradient(ellipse 80% 55% at 50% 20%, rgba(155, 27, 92, 0.4), transparent 60%), radial-gradient(ellipse 70% 45% at 80% 80%, rgba(155, 27, 92, 0.15), transparent 55%), radial-gradient(ellipse 50% 35% at 10% 70%, rgba(245, 184, 212, 0.08), transparent 50%)",
+            }}
+          />
+          <div className="absolute inset-0 bg-[#0a0610]/40" />
+        </div>
+        <div className="relative z-10">
+          <PlotlineTabNav
+            activeId={activeId}
+            onNavigate={handleNavigate}
+            startFreeActive={startFreeActive}
+            onStartFree={handleStartFree}
+            forceReducedMotion={forceReducedMotion}
+            idPrefix={panelId}
+            placement="center"
+          />
+        </div>
       </div>
 
       {!minimal ? (

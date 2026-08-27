@@ -1,10 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Maximize2, Moon, Sun, X } from "lucide-react";
+import { Maximize2, X } from "lucide-react";
+import {
+  DemoBackButton,
+  DemoControlMenu,
+  LabButton,
+  LabControlGroup,
+  LabRange,
+} from "@/components/lab/demo-chrome";
 import { PixelInfoCard } from "./pixel-info-card";
-import { ControlSlider } from "./control-slider";
 import { CodeExportDrawer } from "./code-export-drawer";
 import {
   DEMO_BODY,
@@ -64,7 +69,6 @@ export function PixelInfoCardDemo() {
       e.stopPropagation();
       setFullscreen(false);
     };
-    // Capture so we exit fullscreen before the card collapses on Escape
     window.addEventListener("keydown", onKey, true);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -80,42 +84,92 @@ export function PixelInfoCardDemo() {
       data-theme={theme}
       data-fullscreen={fullscreen ? "true" : "false"}
     >
-      {!fullscreen && (
-        <>
-          <div className="pic-demo__back">
-            <Link href="/" className="pic-demo__pill" aria-label="Back to lab">
-              ‹
-            </Link>
-          </div>
-
-          <div className="pic-demo__theme">
-            <button
+      {!fullscreen ? (
+        <DemoControlMenu>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <DemoBackButton />
+            <LabButton
               type="button"
-              className="pic-demo__pill"
+              variant="ghost"
               onClick={toggleTheme}
               aria-label={
                 theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
               }
             >
-              {theme === "dark" ? (
-                <Sun className="size-5" aria-hidden />
-              ) : (
-                <Moon className="size-5" aria-hidden />
-              )}
-            </button>
+              {theme === "dark" ? "Light" : "Dark"}
+            </LabButton>
           </div>
-
-          <header className="pic-demo__header">
-            <h1 className="pic-demo__title">Pixel Info Card</h1>
-          </header>
-        </>
-      )}
+          <p className="font-mono text-xs text-[var(--lab-text-secondary)]">
+            Pixel Info Card
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            <LabButton type="button" variant="outline" onClick={handleReset}>
+              Reset
+            </LabButton>
+            <LabButton type="button" variant="outline" onClick={() => setExportOpen(true)}>
+              Export
+            </LabButton>
+          </div>
+          <LabControlGroup label="Tuning">
+            <LabRange
+              id="pic-pixel-size"
+              label="Pixel size"
+              value={tuning.pixelSize}
+              min={PIC_PARAM_RANGES.pixelSize.min}
+              max={PIC_PARAM_RANGES.pixelSize.max}
+              step={PIC_PARAM_RANGES.pixelSize.step}
+              display={String(tuning.pixelSize)}
+              onChange={(v) => update("pixelSize", v)}
+            />
+            <LabRange
+              id="pic-pixel-density"
+              label="Pixel density"
+              value={tuning.pixelDensity}
+              min={PIC_PARAM_RANGES.pixelDensity.min}
+              max={PIC_PARAM_RANGES.pixelDensity.max}
+              step={PIC_PARAM_RANGES.pixelDensity.step}
+              display={tuning.pixelDensity.toFixed(2)}
+              onChange={(v) => update("pixelDensity", v)}
+            />
+            <LabRange
+              id="pic-assemble"
+              label="Assemble speed"
+              value={tuning.assembleMs}
+              min={PIC_PARAM_RANGES.assembleMs.min}
+              max={PIC_PARAM_RANGES.assembleMs.max}
+              step={PIC_PARAM_RANGES.assembleMs.step}
+              display={`${tuning.assembleMs}ms`}
+              onChange={(v) => update("assembleMs", v)}
+            />
+            <LabRange
+              id="pic-dissipate"
+              label="Dissipate speed"
+              value={tuning.dissipateMs}
+              min={PIC_PARAM_RANGES.dissipateMs.min}
+              max={PIC_PARAM_RANGES.dissipateMs.max}
+              step={PIC_PARAM_RANGES.dissipateMs.step}
+              display={`${tuning.dissipateMs}ms`}
+              onChange={(v) => update("dissipateMs", v)}
+            />
+            <LabRange
+              id="pic-radius"
+              label="Card radius"
+              value={tuning.cardRadius}
+              min={PIC_PARAM_RANGES.cardRadius.min}
+              max={PIC_PARAM_RANGES.cardRadius.max}
+              step={PIC_PARAM_RANGES.cardRadius.step}
+              display={`${tuning.cardRadius}px`}
+              onChange={(v) => update("cardRadius", v)}
+            />
+          </LabControlGroup>
+        </DemoControlMenu>
+      ) : null}
 
       <div
         className={
           fullscreen
             ? "pic-demo__stage pic-demo__stage--fullscreen"
-            : "pic-demo__stage"
+            : "pic-demo__stage lab-demo-inset"
         }
         role={fullscreen ? "dialog" : undefined}
         aria-modal={fullscreen || undefined}
@@ -153,72 +207,6 @@ export function PixelInfoCardDemo() {
           />
         </div>
       </div>
-
-      {!fullscreen && (
-        <div className="pic-demo__controls">
-          <div className="pic-demo__actions">
-            <button
-              type="button"
-              className="pic-demo__action-btn"
-              onClick={handleReset}
-            >
-              Reset
-            </button>
-            <button
-              type="button"
-              className="pic-demo__action-btn"
-              onClick={() => setExportOpen(true)}
-            >
-              Export
-            </button>
-          </div>
-
-          <ControlSlider
-            label="Pixel size"
-            value={tuning.pixelSize}
-            min={PIC_PARAM_RANGES.pixelSize.min}
-            max={PIC_PARAM_RANGES.pixelSize.max}
-            step={PIC_PARAM_RANGES.pixelSize.step}
-            onChange={(v) => update("pixelSize", v)}
-          />
-          <ControlSlider
-            label="Pixel density"
-            value={tuning.pixelDensity}
-            min={PIC_PARAM_RANGES.pixelDensity.min}
-            max={PIC_PARAM_RANGES.pixelDensity.max}
-            step={PIC_PARAM_RANGES.pixelDensity.step}
-            formatValue={(v) => v.toFixed(2)}
-            onChange={(v) => update("pixelDensity", v)}
-          />
-          <ControlSlider
-            label="Assemble speed"
-            value={tuning.assembleMs}
-            min={PIC_PARAM_RANGES.assembleMs.min}
-            max={PIC_PARAM_RANGES.assembleMs.max}
-            step={PIC_PARAM_RANGES.assembleMs.step}
-            formatValue={(v) => `${v}ms`}
-            onChange={(v) => update("assembleMs", v)}
-          />
-          <ControlSlider
-            label="Dissipate speed"
-            value={tuning.dissipateMs}
-            min={PIC_PARAM_RANGES.dissipateMs.min}
-            max={PIC_PARAM_RANGES.dissipateMs.max}
-            step={PIC_PARAM_RANGES.dissipateMs.step}
-            formatValue={(v) => `${v}ms`}
-            onChange={(v) => update("dissipateMs", v)}
-          />
-          <ControlSlider
-            label="Card radius"
-            value={tuning.cardRadius}
-            min={PIC_PARAM_RANGES.cardRadius.min}
-            max={PIC_PARAM_RANGES.cardRadius.max}
-            step={PIC_PARAM_RANGES.cardRadius.step}
-            formatValue={(v) => `${v}px`}
-            onChange={(v) => update("cardRadius", v)}
-          />
-        </div>
-      )}
 
       <CodeExportDrawer
         open={exportOpen}

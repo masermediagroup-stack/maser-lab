@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import {
+  DemoBackButton,
+  DemoControlMenu,
+} from "@/components/lab/demo-chrome";
 import { getTransitionDefinition } from "./transition-definitions";
 import { TransitionDetail } from "./transition-detail";
 import { TransitionGallery } from "./transition-gallery";
@@ -24,12 +27,6 @@ export function PageTransitionsLab() {
 
   return (
     <div className="page-transitions-lab min-h-screen bg-black text-white">
-      <div className="page-transitions-lab__chrome">
-        <Link href="/" className="text-xs tracking-wide">
-          ← Maser-Lab
-        </Link>
-      </div>
-
       {selected ? (
         <TransitionDetail
           key={selected.id}
@@ -37,7 +34,17 @@ export function PageTransitionsLab() {
           onBack={handleBack}
         />
       ) : (
-        <TransitionGallery onEnter={handleEnter} />
+        <>
+          <DemoControlMenu>
+            <DemoBackButton />
+            <p className="font-mono text-xs text-[var(--lab-text-secondary)]">
+              Page Transitions Lab
+            </p>
+          </DemoControlMenu>
+          <div className="lab-demo-inset">
+            <TransitionGallery onEnter={handleEnter} />
+          </div>
+        </>
       )}
     </div>
   );

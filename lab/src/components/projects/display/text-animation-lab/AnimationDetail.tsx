@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ArrowLeft,
   Code2,
   Dices,
   Maximize2,
@@ -19,6 +18,11 @@ import {
   type PresetId,
   type TetrisPixelSettings,
 } from "@/components/text-animations";
+import {
+  DemoBackButton,
+  DemoControlMenu,
+  LabButton,
+} from "@/components/lab/demo-chrome";
 import { Button } from "@/components/ui/button";
 import type { AnimationDefinition, AnimationSettings } from "./types";
 import { getDefaultSettings } from "./animation-registry";
@@ -137,22 +141,38 @@ export function AnimationDetail({ definition, onBack }: AnimationDetailProps) {
   const paused = Boolean(settings.paused);
 
   return (
-    <div className="tal-detail">
-      <div className="tal-detail__top">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-neutral-300 hover:bg-white/5 hover:text-white"
-          onClick={onBack}
-        >
-          <ArrowLeft className="size-4" />
-          Back to all animations
-        </Button>
-
-        <div className="mt-4 space-y-2">
-          <h1 className="tal-detail__title">{definition.title}</h1>
-          <p className="tal-detail__description">{definition.description}</p>
+    <div className="tal-detail lab-demo-inset">
+      <DemoControlMenu>
+        <DemoBackButton />
+        <LabButton type="button" variant="outline" onClick={onBack}>
+          All animations
+        </LabButton>
+        <p className="font-mono text-xs text-[var(--lab-text-secondary)]">
+          {definition.title}
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          <LabButton type="button" variant="outline" onClick={handleReplay}>
+            Replay
+          </LabButton>
+          <LabButton type="button" variant="outline" onClick={handleReset}>
+            Reset
+          </LabButton>
+          <LabButton type="button" variant="outline" onClick={() => setExportOpen(true)}>
+            Export
+          </LabButton>
         </div>
+        <AnimationControls
+          definition={definition}
+          text={text}
+          settings={settings}
+          onTextChange={setText}
+          onSettingChange={handleSettingChange}
+        />
+      </DemoControlMenu>
+
+      <div className="tal-detail__top">
+        <h1 className="tal-detail__title">{definition.title}</h1>
+        <p className="tal-detail__description">{definition.description}</p>
       </div>
 
       <div className="tal-detail__layout">
@@ -368,16 +388,6 @@ export function AnimationDetail({ definition, onBack }: AnimationDetailProps) {
             </div>
           ) : null}
         </div>
-
-        <aside className="tal-detail__panel">
-          <AnimationControls
-            definition={definition}
-            text={text}
-            settings={settings}
-            onTextChange={setText}
-            onSettingChange={handleSettingChange}
-          />
-        </aside>
       </div>
 
       <CodeExportDrawer

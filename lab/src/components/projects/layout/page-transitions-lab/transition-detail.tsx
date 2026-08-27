@@ -1,9 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Code2, RotateCcw, RotateCw } from "lucide-react";
+import { Code2, RotateCcw, RotateCw } from "lucide-react";
+import {
+  DemoBackButton,
+  DemoControlMenu,
+  LabButton,
+  LabColor,
+  LabRange,
+  LabSelect,
+} from "@/components/lab/demo-chrome";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { CodeExportDrawer } from "./code-export-drawer";
 import { sanitizeHex } from "./curtain-style";
 import { usePrefersReducedMotion, useTransitionRunner } from "./hooks";
@@ -24,123 +31,6 @@ type TransitionDetailProps = {
   definition: TransitionDefinition;
   onBack: () => void;
 };
-
-function SettingSlider({
-  label,
-  value,
-  min,
-  max,
-  step,
-  suffix,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  suffix?: string;
-  onChange: (value: number) => void;
-}) {
-  return (
-    <label className="ptl-control">
-      <span>
-        <span>{label}</span>
-        <strong>
-          {value}
-          {suffix}
-        </strong>
-      </span>
-      <Slider
-        min={min}
-        max={max}
-        step={step}
-        value={[value]}
-        onValueChange={(next) => {
-          const resolved = Array.isArray(next) ? next[0] : next;
-          onChange(resolved ?? min);
-        }}
-      />
-    </label>
-  );
-}
-
-function ColorControl({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const safe = sanitizeHex(value, "#071018");
-  return (
-    <label className="ptl-control ptl-control--color">
-      <span>
-        <span>{label}</span>
-        <strong className="font-mono text-[0.75rem] tracking-normal normal-case">
-          {safe}
-        </strong>
-      </span>
-      <span className="ptl-color-row">
-        <input
-          type="color"
-          aria-label={label}
-          value={safe}
-          onChange={(event) => onChange(event.target.value)}
-          className="ptl-color-swatch"
-        />
-        <input
-          type="text"
-          aria-label={`${label} hex`}
-          spellCheck={false}
-          autoComplete="off"
-          value={safe}
-          onChange={(event) => {
-            const next = event.target.value;
-            if (next.startsWith("#") && (next.length === 4 || next.length === 7)) {
-              onChange(sanitizeHex(next, safe));
-            }
-          }}
-          className="ptl-color-hex"
-        />
-      </span>
-    </label>
-  );
-}
-
-function SelectControl({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="ptl-control ptl-control--select">
-      <span>
-        <span>{label}</span>
-      </span>
-      <select
-        aria-label={label}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="ptl-select"
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
 
 function ControlField({
   control,
@@ -170,10 +60,13 @@ function ControlField({
   ) => void;
 }) {
   if (control.type === "color") {
+    const raw = settings[control.key];
+    const safe = sanitizeHex(raw, "#071018");
     return (
-      <ColorControl
+      <LabColor
+        id={`ptl-${control.key}`}
         label={control.label}
-        value={settings[control.key]}
+        value={safe}
         onChange={(value) => onColor(control.key, value)}
       />
     );
@@ -181,7 +74,8 @@ function ControlField({
 
   if (control.type === "select") {
     return (
-      <SelectControl
+      <LabSelect
+        id={`ptl-${control.key}`}
         label={control.label}
         value={settings[control.key]}
         options={control.options}
@@ -190,15 +84,17 @@ function ControlField({
     );
   }
 
+  const value = settings[control.key];
   return (
-    <SettingSlider
+    <LabRange
+      id={`ptl-${control.key}`}
       label={control.label}
-      value={settings[control.key]}
+      value={value}
       min={control.min}
       max={control.max}
       step={control.step}
-      suffix={control.suffix}
-      onChange={(value) => onNumber(control.key, value)}
+      display={`${value}${control.suffix ?? ""}`}
+      onChange={(next) => onNumber(control.key, next)}
     />
   );
 }
@@ -299,25 +195,54 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
   };
 
   return (
-    <div className="ptl-detail">
-      <div className="ptl-detail__intro">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-white hover:bg-[var(--ptl-blue)]/10 hover:text-[var(--ptl-blue)]"
-          onClick={onBack}
-        >
-          <ArrowLeft className="size-4" />
+    <div className="ptl-detail lab-demo-inset">
+      <DemoControlMenu>
+        <DemoBackButton />
+        <LabButton type="button" variant="outline" onClick={onBack}>
           All transitions
-        </Button>
-
-        <div className="mt-4 space-y-2">
-          <p className="text-xs tracking-[0.14em] text-[var(--ptl-blue)] uppercase">
-            {definition.eyebrow}
-            {definition.engine === "three" ? " · 3D" : " · CSS"}
-          </p>
-          <h1 className="ptl-detail__title">{definition.title}</h1>
+        </LabButton>
+        <p className="font-mono text-xs text-[var(--lab-text-secondary)]">
+          {definition.title}
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          <LabButton
+            type="button"
+            variant="outline"
+            onClick={handlePlay}
+            disabled={status === "running"}
+          >
+            {status === "running" ? "Playing" : "Replay"}
+          </LabButton>
+          <LabButton type="button" variant="outline" onClick={handleReset}>
+            Reset
+          </LabButton>
+          <LabButton type="button" variant="outline" onClick={() => setExportOpen(true)}>
+            Export
+          </LabButton>
         </div>
+        {definition.controls.map((control) => (
+          <ControlField
+            key={control.key}
+            control={control}
+            settings={settings}
+            onNumber={updateNumber}
+            onColor={updateColor}
+            onSelect={updateSelect}
+          />
+        ))}
+        {reducedMotion ? (
+          <p className="font-mono text-[10px] leading-relaxed text-[var(--lab-text-muted)]">
+            Reduced motion on — previews use a short opacity bridge.
+          </p>
+        ) : null}
+      </DemoControlMenu>
+
+      <div className="ptl-detail__intro">
+        <p className="text-xs tracking-[0.14em] text-[var(--ptl-blue)] uppercase">
+          {definition.eyebrow}
+          {definition.engine === "three" ? " · 3D" : " · CSS"}
+        </p>
+        <h1 className="ptl-detail__title">{definition.title}</h1>
       </div>
 
       <div className="ptl-detail__layout">
@@ -362,28 +287,6 @@ export function TransitionDetail({ definition, onBack }: TransitionDetailProps) 
             </Button>
           </div>
         </div>
-
-        <aside className="ptl-detail__panel" aria-label="Transition controls">
-          <p className="mb-4 text-xs font-medium tracking-[0.14em] text-[var(--ptl-blue)] uppercase">
-            Controls
-          </p>
-          {definition.controls.map((control) => (
-            <ControlField
-              key={control.key}
-              control={control}
-              settings={settings}
-              onNumber={updateNumber}
-              onColor={updateColor}
-              onSelect={updateSelect}
-            />
-          ))}
-          {reducedMotion ? (
-            <div className="ptl-reduced-note">
-              <strong>Reduced motion on</strong>
-              <p>Previews use a short opacity bridge.</p>
-            </div>
-          ) : null}
-        </aside>
       </div>
 
       <CodeExportDrawer

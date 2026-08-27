@@ -120,9 +120,31 @@
 }
 
 .kinetic-bars-demo__stage {
-  position: absolute;
-  inset: 0;
+  position: fixed;
   z-index: 1;
+  top: var(--lab-control-dock-top, 0px);
+  left: var(--lab-control-dock-left, 0px);
+  right: 0;
+  bottom: var(--lab-control-dock-bottom, 0px);
+  width: auto;
+  height: auto;
+}
+
+@media (max-width: 639px) {
+  .maser-lab:has(.demo-control-bar.lab-dock-open) .kinetic-bars-demo {
+    overflow: visible;
+  }
+
+  .maser-lab:has(.demo-control-bar.lab-dock-open) .kinetic-bars-demo__stage {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+  }
 }
 
 .kinetic-bars-demo__bottom {

@@ -43,11 +43,19 @@ Path: `lab/src/components/lab/demo-chrome.tsx`
 | Export | Required a11y |
 | --- | --- |
 | `DemoBackButton` / `DemoLabBrand` | Link to `/` with visible name |
-| `LabButton` | Real `<button>`, not div |
+| `LabButton` | Real `<button>`, not div; `min-h-11` hit target |
+| `LabRange` / `LabColor` / `LabSelect` | Associated `<label htmlFor>`; 44px range / color / select |
 | `ReducedMotionToggle` | `aria-label="Toggle reduced motion"` (or equivalent stable name) |
-| `DemoControlBar` | Landmark or labeled group |
+| `DemoControlMenu` | Collapsible dock. Open: left rail (`sm+`); mobile knobs under the fold (scroll). Toggle: `Open demo menu` / `Close demo menu` |
+| `DemoControlBar` | Landmark `aria-label="Demo controls"` — prefer `DemoControlMenu` when a demo has knobs |
 | `ViewportModeToggle` | `role="group"` + `aria-label` |
-| `DemoViewportFrame` | **Generic** class names — never `summitpath-signup-*` |
+| `DemoViewportFrame` | **Generic** class names (`lab-viewport-*`) — never `summitpath-signup-*` |
+
+**Dock contract (source: liquid-metal-meatballs on PR 57):** one strip language — left rail on desktop, stacked top strip on mobile. Knobs live in the **demo**, never a product barrel. Shared chrome must not import a product slug. Meatballs (and any other demo) **consumes** `DemoControlMenu` — do not fork a private dock.
+
+Open dock is an **opaque strip** (`bg` lab token, no backdrop-blur, no scrim). Desktop (`sm+`): left rail (product **beside** it). Mobile: product owns the **first screen** (~100dvh). Open knobs live **under the fold** in document flow — scroll to them. Never a sticky footer that eats screen 1. Never `position: fixed` over the bottom of the first viewport. Never a modal/drawer/sheet. Token writes must land on `.maser-lab`. Choose left vs in-flow with the `640px` media query.
+
+`--lab-control-dock-left` / `--lab-control-dock-top` / `--lab-control-dock-bottom` / `--lab-control-type-offset` pad **page copy** (`.lab-demo-inset`). Canvas/WebGL fields use `.lab-demo-field`: closed = full viewport; open desktop = remainder beside the rail; open mobile = **~100dvh first screen**, knobs in flow below (not a sticky footer). Never sit the field under a dimmed plate. Never `width/height: auto` on a replaced canvas (**300×150** trap). Never remount GL when the dock opens. Do not overlay chrome on product copy. Light/Dark only when that demo has two grounds. Replay / reduced motion stay in the existing shared row — do not add a second chrome cluster. Demos with no controls stay alone. Exception: `maser-dither-engine` keeps its own studio chrome — do not move, restyle, or transfer it.
 
 ### Decoupling rule (P0 if violated)
 
@@ -113,7 +121,7 @@ Prefer explicit controls over hidden interactions:
 
 ## Harden checklist
 
-- [ ] Uses `DemoControlBar` + `DemoLabBrand` (or justified exception noted in PROJECT.md)
+- [ ] Uses `DemoControlMenu` when the demo has sliders/knobs (or `DemoControlBar` + `DemoLabBrand` for a justified exception noted in PROJECT.md)
 - [ ] `ReducedMotionToggle` has accessible name
 - [ ] Product `aria-label` stable and documented
 - [ ] All PROJECT.md states reachable from controls

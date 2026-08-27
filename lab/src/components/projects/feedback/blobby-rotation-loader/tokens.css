@@ -223,6 +223,13 @@
   outline-offset: 2px;
 }
 
+@media (max-width: 639px) {
+  .blobby-rotation-demo:has(> .demo-control-bar.lab-dock-open) {
+    overflow: visible;
+    min-height: 0;
+  }
+}
+
 @media (min-width: 768px) {
   .blobby-loader-canvas {
     width: min(70vw, 480px);

@@ -25,9 +25,119 @@
   --lab-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --lab-ease-expressive: cubic-bezier(0.34, 1.2, 0.64, 1);
   --lab-control-bar-bottom: 5.5rem;
+  --lab-control-type-offset: 5.5rem;
+  --lab-control-dock-left: 0px;
+  --lab-control-dock-top: 0px;
+  --lab-control-dock-bottom: 0px;
 
   background-color: var(--lab-bg);
   color: var(--lab-text-primary);
+}
+
+/* Dock pads page copy so chrome sits off the product. */
+.lab-demo-inset {
+  padding-left: var(--lab-control-dock-left, 0px);
+  padding-top: max(
+    var(--lab-control-dock-top, 0px),
+    var(--lab-control-type-offset, 0px)
+  );
+  padding-bottom: var(--lab-control-dock-bottom, 0px);
+}
+
+/* Full-bleed canvas/WebGL field. Closed dock: full viewport. Open desktop:
+   remainder beside the rail. Open mobile: ~100dvh first screen in flow;
+   knobs scroll in below. Never width/height:auto (300×150). */
+.lab-demo-field {
+  position: fixed;
+  top: var(--lab-control-dock-top, 0px);
+  left: var(--lab-control-dock-left, 0px);
+  right: 0;
+  bottom: var(--lab-control-dock-bottom, 0px);
+  width: auto;
+  height: auto;
+}
+
+@media (min-width: 640px) {
+  .maser-lab:has(.demo-control-bar.lab-dock-open) {
+    --lab-control-dock-left: min(20.5rem, 38vw);
+    --lab-control-dock-top: 0px;
+    --lab-control-dock-bottom: 0px;
+  }
+}
+
+/* Mobile: product owns the first screen (~100dvh). Open knobs are in
+   document flow under the fold — not a sticky footer on screen 1. */
+@media (max-width: 639px) {
+  .maser-lab:has(.demo-control-bar.lab-dock-open) {
+    --lab-control-dock-left: 0px;
+    --lab-control-dock-top: 0px;
+    --lab-control-dock-bottom: 0px;
+    overflow: visible;
+  }
+
+  *:has(> .demo-control-bar.lab-dock-open) {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    min-height: 0;
+  }
+
+  *:has(> .demo-control-bar.lab-dock-open) > .demo-control-bar.lab-dock-open {
+    order: 2;
+    position: relative;
+    inset: auto;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    z-index: 1;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    height: auto;
+  }
+
+  *:has(> .demo-control-bar.lab-dock-open) > :not(.demo-control-bar) {
+    order: 1;
+    flex: 0 0 auto;
+    min-height: 100dvh;
+  }
+
+  /* sr-only tabpanels must not consume a second 100dvh before the knobs. */
+  *:has(> .demo-control-bar.lab-dock-open) > .sr-only {
+    min-height: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .maser-lab:has(.demo-control-bar.lab-dock-open) .lab-demo-field {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .maser-lab:has(.demo-control-bar.lab-dock-open) .lab-demo-inset {
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: 100dvh;
+  }
+}
+
+.lab-viewport-frame {
+  border: 1px solid var(--lab-border-strong);
+  border-radius: var(--lab-radius-md);
+  box-shadow: var(--lab-shadow-elevated);
+  overflow: hidden;
+  background: #fff;
+}
+
+.lab-viewport-scaler {
+  transform-origin: top center;
 }
 
 .maser-lab .lab-card {

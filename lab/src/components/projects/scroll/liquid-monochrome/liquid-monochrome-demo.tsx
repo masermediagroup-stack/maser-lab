@@ -2,7 +2,12 @@
 
 import { useState, type CSSProperties } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import {
+  DemoBackButton,
+  DemoControlMenu,
+  LabControlGroup,
+  LabRange,
+} from "@/components/lab/demo-chrome";
 import { LiquidMonochrome } from "./LiquidMonochrome";
 import styles from "./liquid-monochrome-demo.module.css";
 
@@ -16,9 +21,6 @@ type ExampleProps = {
 function DemoHeader() {
   return (
     <header className={styles.demoHeader}>
-      <Link href="/" className={styles.backLink}>
-        ← Lab
-      </Link>
       <div>
         <p className={styles.eyebrow}>Scroll · Masermedia Lab</p>
         <h1 className={styles.title}>Liquid Monochrome</h1>
@@ -28,46 +30,6 @@ function DemoHeader() {
         </p>
       </div>
     </header>
-  );
-}
-
-function DemoControls({
-  lockPosition,
-  onLockPositionChange,
-}: {
-  lockPosition: number;
-  onLockPositionChange: (value: number) => void;
-}) {
-  return (
-    <section className={styles.controls} aria-label="Liquid monochrome controls">
-      <div className={styles.controlHeader}>
-        <div>
-          <p className={styles.controlEyebrow}>Scroll lock</p>
-          <h2>Viewport pin line</h2>
-        </div>
-        <output htmlFor="lock-position" className={styles.controlValue}>
-          {lockPosition}%
-        </output>
-      </div>
-      <label className={styles.sliderLabel} htmlFor="lock-position">
-        Lock position
-      </label>
-      <input
-        id="lock-position"
-        className={styles.slider}
-        type="range"
-        min="0"
-        max="100"
-        step="1"
-        value={lockPosition}
-        onChange={(event) => onLockPositionChange(Number(event.target.value))}
-      />
-      <div className={styles.sliderMarks} aria-hidden="true">
-        <span>Top</span>
-        <span>Center</span>
-        <span>Bottom</span>
-      </div>
-    </section>
   );
 }
 
@@ -262,11 +224,31 @@ export function LiquidMonochromeDemo() {
 
   return (
     <div className={styles.demo}>
+      <DemoControlMenu>
+        <DemoBackButton />
+        <p className="font-mono text-xs text-[var(--lab-text-secondary)]">
+          Liquid Monochrome
+        </p>
+        <LabControlGroup label="Scroll lock">
+          <LabRange
+            id="lock-position"
+            label="Lock position"
+            min={0}
+            max={100}
+            step={1}
+            value={lockPosition}
+            display={`${lockPosition}%`}
+            onChange={setLockPosition}
+          />
+          <p className="flex justify-between font-mono text-[10px] text-[var(--lab-text-muted)]">
+            <span>Top</span>
+            <span>Center</span>
+            <span>Bottom</span>
+          </p>
+        </LabControlGroup>
+      </DemoControlMenu>
+      <div className="lab-demo-inset">
       <DemoHeader />
-      <DemoControls
-        lockPosition={lockPosition}
-        onLockPositionChange={setLockPosition}
-      />
       <HeroExample lockPosition={lockPosition} />
       <div className={styles.spacer} />
       <ImageExample lockPosition={lockPosition} />
@@ -278,6 +260,7 @@ export function LiquidMonochromeDemo() {
       <footer className={styles.footer}>
         <p>Scroll through each section to experience the liquid reveal.</p>
       </footer>
+      </div>
     </div>
   );
 }
