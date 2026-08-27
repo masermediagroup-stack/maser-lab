@@ -11,6 +11,8 @@ import { KineticPerspectiveBarsDemo } from "./display/kinetic-perspective-bars";
 import { MaserDitherEngineDemo } from "./display/maser-dither-engine/maser-dither-engine-demo";
 import { ServiceShowcaseDemo } from "./marketing/service-showcase";
 import { PixelInfoCardDemo } from "./display/pixel-info-card/pixel-info-card-demo";
+import { TypeWorldDemo } from "./scroll/type-world/type-world-demo";
+import { LiquidMetalMeatballsDemo } from "./scroll/liquid-metal-meatballs/liquid-metal-meatballs-demo";
 
 export const demoRegistry: Record<string, ComponentType> = {
   "liquid-monochrome": LiquidMonochromeDemo,
@@ -25,6 +27,8 @@ export const demoRegistry: Record<string, ComponentType> = {
   "maser-dither-engine": MaserDitherEngineDemo,
   "service-showcase": ServiceShowcaseDemo,
   "pixel-info-card": PixelInfoCardDemo,
+  "type-world": TypeWorldDemo,
+  "liquid-metal-meatballs": LiquidMetalMeatballsDemo,
 };
 
 export function registerDemo(slug: string, component: ComponentType) {
