@@ -23,8 +23,8 @@ export const TILT_PERSPECTIVE_PX = 920;
 
 export const SPEED_MIN = 0.12;
 export const SPEED_MAX = 1.4;
-export const WIDTH_MIN = 0.04;
-export const WIDTH_MAX = 0.28;
+export const WIDTH_MIN = 0.006;
+export const WIDTH_MAX = 0.08;
 export const FRINGE_MIN = 0;
 export const FRINGE_MAX = 1;
 
@@ -33,6 +33,6 @@ export const HOVER_SPEED_BOOST = 1.45;
 
 export const CTA_LOGO_PRISM_WAVE_DEFAULTS: PrismWaveLook = {
   speed: 0.28,
-  bandWidth: 0.09,
-  fringe: 0.32,
+  bandWidth: 0.016,
+  fringe: 0.18,
 };

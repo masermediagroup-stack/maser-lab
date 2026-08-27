@@ -102,25 +102,63 @@
   mask-position: center;
 }
 
+.clpw-css-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .clpw-css-wave {
-  background: linear-gradient(
-    105deg,
-    transparent 0%,
-    rgb(115 231 255 / calc(0.55 * var(--clpw-css-fringe, 0.32)))
-      calc(42% - var(--clpw-css-width, 9%) * 0.35),
-    #fff 50%,
-    transparent calc(58% + var(--clpw-css-width, 9%) * 0.2)
+  /* Grain is clipped to a traveling slit ∩ the glyph — body stays glass. */
+  background-image: repeating-linear-gradient(
+    18deg,
+    #fff 0 0.7px,
+    rgb(255 255 255 / 0.14) 1.15px,
+    #fff 2px,
+    rgb(255 255 255 / 0.55) 2.7px,
+    #fff 3.5px
   );
-  background-size: 280% 100%;
+  background-size: 6px 6px;
+  -webkit-mask-image: linear-gradient(
+      105deg,
+      transparent 0%,
+      transparent calc(50% - var(--clpw-css-width, 1.6%) * 0.45),
+      #000 calc(50% - var(--clpw-css-width, 1.6%) * 0.1),
+      #000 calc(50% + var(--clpw-css-width, 1.6%) * 0.1),
+      transparent calc(50% + var(--clpw-css-width, 1.6%) * 0.16)
+    ),
+    url("/assets/cta-logo-prism-wave/Blue-HD.svg");
+  mask-image: linear-gradient(
+      105deg,
+      transparent 0%,
+      transparent calc(50% - var(--clpw-css-width, 1.6%) * 0.45),
+      #000 calc(50% - var(--clpw-css-width, 1.6%) * 0.1),
+      #000 calc(50% + var(--clpw-css-width, 1.6%) * 0.1),
+      transparent calc(50% + var(--clpw-css-width, 1.6%) * 0.16)
+    ),
+    url("/assets/cta-logo-prism-wave/Blue-HD.svg");
+  -webkit-mask-size: 280% 100%, contain;
+  mask-size: 280% 100%, contain;
+  -webkit-mask-repeat: no-repeat, no-repeat;
+  mask-repeat: no-repeat, no-repeat;
+  -webkit-mask-position: 120% 0, center;
+  mask-position: 120% 0, center;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  filter: url("#clpw-filament-jitter");
   animation: clpw-css-sweep var(--clpw-css-duration, 4.8s) linear infinite;
 }
 
 @keyframes clpw-css-sweep {
   from {
-    background-position: 120% 0;
+    -webkit-mask-position: 120% 0, center;
+    mask-position: 120% 0, center;
   }
   to {
-    background-position: -40% 0;
+    -webkit-mask-position: -40% 0, center;
+    mask-position: -40% 0, center;
   }
 }
 

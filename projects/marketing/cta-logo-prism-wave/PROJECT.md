@@ -18,7 +18,7 @@
 Lab visitor judging the Maser cloud mark. Occasional — pointer hover on desktop; always-on wave on phones. Not high-frequency chrome.
 
 ### Job
-Read the Blue-HD cloud mark as a prism: a white vapor band travels through the silhouette while Maser blue holds the body. Existing CSS 3D tilt still works on fine pointers.
+Read the Blue-HD cloud mark as a prism: a dry white electric filament travels through the silhouette while Maser blue holds the body as solid glass. Existing CSS 3D tilt still works on fine pointers.
 
 ### Object
 `CtaLogoPrismWave` — rasterized logo texture + vgpu fullscreen `effect()` on the CSS tilt plane (not a page-wide shader).
@@ -27,10 +27,10 @@ Read the Blue-HD cloud mark as a prism: a white vapor band travels through the s
 Production `CtaLogoTilt` tilts the SVG and adds a hover lamp / drop-shadow on `.mm-cta__logo--active`. No wave.
 
 ### Desired outcome
-White band masked to the mark. Tiny cool (cyan-ish) fringe on the leading edge only — that is the prism. Not an 80s pink/cyan rainbow, not a hue sweep. Hover lamp gone. Tilt kept. Wave always runs (including reduced motion and coarse pointers). Tilt drops on reduced motion and on phones / coarse pointers (same gate as production).
+Dry white electric filament masked to the mark — frequency in the line, random as it travels, not a smooth glowing tube. Glow is minimum / gone. Tiny cool (cyan-ish) leading-edge skin only if it still reads as prism, not bloom. Logo body is Maser blue solid glass (not frosted, not emissive, not a light trail). Hover lamp gone. Tilt kept. Wave always runs (including reduced motion and coarse pointers). Tilt drops on reduced motion and on phones / coarse pointers (same gate as production).
 
 ### Success signal
-First screen is the real Blue-HD mark with the traveling band. Desktop mouse tilts the plane; the band stays on that plane. Phone and RM keep the wave and lose the tilt. Blue body holds.
+First screen is blue glass + a dry white electric line, not a glowing tube. Desktop mouse tilts the plane; the filament stays on that plane. Phone and RM keep the wave and lose the tilt.
 
 ### Non-goals
 - Touching the maser-media client repo
@@ -47,7 +47,7 @@ One marketing-category lab section + demo route. Lab chrome OK.
 Look at the mark. Hover (fine pointer) to tilt.
 
 ### Consequence
-A white vapor band loops through the cloud. Tilt follows the pointer on desktop.
+A dry white electric line loops through the cloud. Tilt follows the pointer on desktop.
 
 ### Reversibility
 Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer: tilt off, wave continues. Tab hide / off-screen: rAF pauses. WebGPU unavailable or canvas flattening: CSS mask sweep on the same plane.
@@ -72,8 +72,9 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 | Logo sampling | Rasterize Blue-HD.svg → texture | vgpu cannot sample SVG |
 | Tilt | Production CSS 3D (`--cta-logo-tilt-*`) | Same plane as the canvas |
 | Hover lamp | Removed | Locked look |
-| Idle wave | Slow UV band | Always-on, not UI chrome (`rule/ui-duration-cap` exception) |
-| Hover wave | Same band, plane tilts; modest speed-up | Band travels *with* the tilt, still 2D fill |
+| Idle wave | Slow dry filament (hash jitter along travel UV) | Always-on, not UI chrome (`rule/ui-duration-cap` exception) |
+| Hover wave | Same filament, plane tilts; modest speed-up | Band travels *with* the tilt, still 2D fill |
+| Glow | None — no bloom / additive halo | Elite Pixel Guy look pass 2026-08-27 |
 | Reduced motion | Wave stays; tilt gated off | Explicit exception to `rule/reduced-motion-required` for the wave only |
 | Hover gate | `(hover: hover) and (pointer: fine)` | `rule/hover-gated`; matches production CtaLogoTilt |
 | Fallback | CSS mask sweep on the same viewport | If WebGPU canvas flattens `preserve-3d` |
@@ -95,11 +96,11 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 
 - [x] Demo route `/demos/cta-logo-prism-wave` renders via DemoHost
 - [x] `npm run build` passes in `lab/`; project files lint clean (repo `npm run lint` still fails on pre-existing `pixel-info-card` setState-in-effect)
-- [x] First screen is the Blue-HD mark with the wave (rendered — CSS fallback on this VM; WebGPU on preview browsers with an adapter)
+- [x] First screen is the Blue-HD mark with a dry white electric filament (look pass — re-verify on preview)
 - [x] Desktop mouse tilt works; wave stays on the tilted plane (rendered)
 - [x] Wave keeps running on phone and with reduced motion; tilt does not (rendered)
 - [x] Hover lamp / extra glow on `--active` is gone (rendered)
-- [x] No 80s rainbow; blue body holds; fringe is a tiny cool leading edge (rendered)
+- [x] No 80s rainbow; blue body is solid glass; filament is dry white with optional tiny cool leading skin (look pass — re-verify on preview)
 - [x] Demo knobs: wave speed, band width, fringe amount (lab only)
 - [x] Shared `DemoControlMenu` chrome — opaque left rail desktop; product first screen on phone
 - [ ] One GPU context + one rAF; pause off-screen; dispose on unmount; compile once (code contract; this VM has no WebGPU adapter — `vgpu doctor` unhealthy)
