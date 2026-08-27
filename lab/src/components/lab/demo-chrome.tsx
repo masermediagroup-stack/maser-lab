@@ -318,9 +318,6 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
          the full strip width and dock-top to 0 (sheet over the product). */
       const desktopRail = window.matchMedia("(min-width: 640px)").matches;
       const leftDock = open && desktopRail ? Math.round(rect.width) : 0;
-      const bottomDock = open && !desktopRail ? Math.round(rect.height) : 0;
-      /* Desktop collapsed chip sits top-left — pad copy below it.
-         Mobile product leads; knobs are a footer — do not pad the top. */
       const typeOffset =
         !desktopRail
           ? 0
@@ -328,18 +325,14 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
             ? Math.round(rect.bottom + 12)
             : 12;
 
-      tokenRoot.style.setProperty("--lab-control-bar-bottom", `${bottomDock || typeOffset}px`);
+      tokenRoot.style.setProperty("--lab-control-bar-bottom", `${typeOffset}px`);
       tokenRoot.style.setProperty("--lab-control-type-offset", `${typeOffset}px`);
-      /* Only pin measured dock size. If measurement is 0 while open, leave
-         the CSS :has() fallback so the field is not under a sheet. */
+      /* Desktop pins the left rail. Mobile open dock is in document flow
+         under the fold — never shrink the first screen with dock-bottom. */
       if (leftDock > 0) {
         tokenRoot.style.setProperty("--lab-control-dock-left", `${leftDock}px`);
         tokenRoot.style.setProperty("--lab-control-dock-top", "0px");
         tokenRoot.style.setProperty("--lab-control-dock-bottom", "0px");
-      } else if (bottomDock > 0) {
-        tokenRoot.style.setProperty("--lab-control-dock-left", "0px");
-        tokenRoot.style.setProperty("--lab-control-dock-top", "0px");
-        tokenRoot.style.setProperty("--lab-control-dock-bottom", `${bottomDock}px`);
       } else {
         tokenRoot.style.removeProperty("--lab-control-dock-left");
         tokenRoot.style.removeProperty("--lab-control-dock-top");
@@ -374,8 +367,10 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
       role="region"
       aria-label="Demo controls"
       className={cn(
-        /* Opaque strip — never a glass overlay/scrim over the product field. */
-        "demo-control-bar fixed z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[var(--lab-bg)] p-2 max-sm:gap-1.5 max-sm:p-1.5 max-sm:max-h-[min(42dvh,22rem)]",
+        /* Opaque strip — never a glass overlay/scrim over the product field.
+           Desktop: fixed. Mobile collapsed: fixed chip. Mobile open: in-flow
+           (max-sm:relative on lab-dock-open) so knobs sit under the fold. */
+        "demo-control-bar z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[var(--lab-bg)] p-2 max-sm:gap-1.5 max-sm:p-1.5 sm:fixed",
         className,
       )}
     >
@@ -416,9 +411,9 @@ type DemoControlMenuProps = {
   defaultOpen?: boolean;
 };
 
-/** Collapsible demo controls. Collapsed: small toggle. Open: viewport-edge dock
- *  (footer strip on small screens, left rail from sm up) — opaque strip, not a
- *  dimming overlay or mobile sheet over the product. Product leads on mobile. */
+/** Collapsible demo controls. Collapsed: small toggle. Open: left rail from sm
+ *  up; on small screens knobs sit in document flow under the fold (scroll).
+ *  Opaque strip — not a sheet, sticky footer, or dim overlay. */
 export function DemoControlMenu({
   className,
   children,
@@ -442,10 +437,10 @@ export function DemoControlMenu({
         "flex-col items-stretch",
         open
           ? [
-              "lab-dock-open flex-nowrap overflow-hidden left-0 right-0 bottom-0 top-auto max-h-[min(42dvh,22rem)] w-full max-w-none rounded-none border-x-0 border-b-0 p-3",
-              "sm:top-0 sm:bottom-auto sm:h-dvh sm:max-h-none sm:w-[min(20.5rem,38vw)] sm:max-w-[20.5rem] sm:rounded-none sm:border-b-0 sm:border-l-0 sm:border-r sm:border-t-0",
+              "lab-dock-open flex-nowrap w-full max-w-none rounded-none border-x-0 border-b-0 p-3 max-sm:relative max-sm:inset-auto max-sm:max-h-none",
+              "sm:fixed sm:left-0 sm:top-0 sm:h-dvh sm:max-h-none sm:w-[min(20.5rem,38vw)] sm:max-w-[20.5rem] sm:rounded-none sm:border-b-0 sm:border-l-0 sm:border-r sm:border-t-0",
             ]
-          : "left-2 top-2 w-max max-w-none gap-0 p-1.5 sm:left-4 sm:top-4",
+          : "fixed left-2 top-2 w-max max-w-none gap-0 p-1.5 sm:left-4 sm:top-4",
         className,
       )}
     >
@@ -463,7 +458,7 @@ export function DemoControlMenu({
       {open ? (
         <div
           id={panelId}
-          className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overscroll-contain"
+          className="flex flex-col gap-1.5 max-sm:overflow-visible sm:min-h-0 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain"
         >
           {children}
         </div>

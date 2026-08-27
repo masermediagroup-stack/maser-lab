@@ -44,9 +44,9 @@
   padding-bottom: var(--lab-control-dock-bottom, 0px);
 }
 
-/* Full-bleed canvas/WebGL field. Closed dock: full viewport. Open dock: the
-   remaining box beside the rail (desktop) or above the footer strip (mobile).
-   Size the backing store from this box. Never width/height:auto (300×150). */
+/* Full-bleed canvas/WebGL field. Closed dock: full viewport. Open desktop:
+   remainder beside the rail. Open mobile: ~100dvh first screen in flow;
+   knobs scroll in below. Never width/height:auto (300×150). */
 .lab-demo-field {
   position: fixed;
   top: var(--lab-control-dock-top, 0px);
@@ -65,17 +65,59 @@
   }
 }
 
-/* Mobile: product first. Open dock is a footer strip under the canvas.
-   Never a header that shrinks the product from the top. */
+/* Mobile: product owns the first screen (~100dvh). Open knobs are in
+   document flow under the fold — not a sticky footer on screen 1. */
 @media (max-width: 639px) {
   .maser-lab:has(.demo-control-bar.lab-dock-open) {
     --lab-control-dock-left: 0px;
     --lab-control-dock-top: 0px;
-    --lab-control-dock-bottom: min(42dvh, 22rem);
+    --lab-control-dock-bottom: 0px;
+    overflow: visible;
+  }
+
+  *:has(> .demo-control-bar.lab-dock-open) {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    min-height: 0;
+  }
+
+  *:has(> .demo-control-bar.lab-dock-open) > .demo-control-bar.lab-dock-open {
+    order: 2;
+    position: relative;
+    inset: auto;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    z-index: 1;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    height: auto;
+  }
+
+  *:has(> .demo-control-bar.lab-dock-open) > :not(.demo-control-bar) {
+    order: 1;
+    flex: 0 0 auto;
+    min-height: 100dvh;
+  }
+
+  .maser-lab:has(.demo-control-bar.lab-dock-open) .lab-demo-field {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
   }
 
   .maser-lab:has(.demo-control-bar.lab-dock-open) .lab-demo-inset {
     padding-top: 0;
+    padding-bottom: 0;
+    min-height: 100dvh;
   }
 }
 

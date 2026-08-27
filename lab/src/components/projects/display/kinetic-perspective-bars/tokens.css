@@ -130,6 +130,23 @@
   height: auto;
 }
 
+@media (max-width: 639px) {
+  .maser-lab:has(.demo-control-bar.lab-dock-open) .kinetic-bars-demo {
+    overflow: visible;
+  }
+
+  .maser-lab:has(.demo-control-bar.lab-dock-open) .kinetic-bars-demo__stage {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+}
+
 .kinetic-bars-demo__bottom {
   display: flex;
   flex-wrap: wrap;
