@@ -20,7 +20,7 @@ type SummitPathSignUpDemoProps = {
 
 export function SummitPathSignUpDemo({ minimal = false }: SummitPathSignUpDemoProps) {
   const [forceReducedMotion, setForceReducedMotion] = useState(false);
-  const [viewportMode, setViewportMode] = useState<ViewportMode>("desktop");
+  const [viewportMode, setViewportMode] = useState<ViewportMode>("mobile");
   const [disabled, setDisabled] = useState(false);
 
   const frameSize = useMemo(() => {
