@@ -62,6 +62,15 @@
   }
 }
 
+/* Mobile: stacked strip off the canvas — field starts below the rail.
+   Matches dock max-height so the product is never under a sheet. */
+@media (max-width: 639px) {
+  .maser-lab:has(.demo-control-bar.lab-dock-open) {
+    --lab-control-dock-left: 0px;
+    --lab-control-dock-top: min(42dvh, 22rem);
+  }
+}
+
 .lab-viewport-frame {
   border: 1px solid var(--lab-border-strong);
   border-radius: var(--lab-radius-md);

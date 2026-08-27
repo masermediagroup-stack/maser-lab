@@ -310,22 +310,41 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
       const rect = node.getBoundingClientRect();
       const vw = window.innerWidth || 1;
       const vh = window.innerHeight || 1;
-      /* Open dock pads page copy only. Never size the WebGL canvas —
-         a replaced canvas with auto width/height collapses to 300×150. */
+      const open = node.classList.contains("lab-dock-open");
+      /* Write onto .maser-lab — that node owns the tokens. html inline vars
+         are overwritten by `.maser-lab { --lab-control-dock-top: 0 }`. */
+      const tokenRoot =
+        node.closest(".maser-lab") ?? root;
+      /* Open dock pads copy / field remainder. Never size the canvas from
+         the strip (300×150 trap). dvh can exceed 55% of innerHeight — do not
+         require height < 0.55vh or the mobile strip never reserves space. */
       const leftDock =
-        rect.left <= 8 && rect.height >= vh * 0.55 ? Math.round(rect.width) : 0;
+        open && rect.left <= 8 && rect.height >= vh * 0.55
+          ? Math.round(rect.width)
+          : 0;
       const topDock =
+        open &&
         rect.top <= 8 &&
         rect.width >= vw * 0.7 &&
-        rect.height < vh * 0.55
+        leftDock === 0
           ? Math.round(rect.height)
           : 0;
       const typeOffset = leftDock > 0 || topDock > 0 ? 12 : Math.round(rect.bottom + 12);
 
-      root.style.setProperty("--lab-control-bar-bottom", `${typeOffset}px`);
-      root.style.setProperty("--lab-control-type-offset", `${typeOffset}px`);
-      root.style.setProperty("--lab-control-dock-left", `${leftDock}px`);
-      root.style.setProperty("--lab-control-dock-top", `${topDock}px`);
+      tokenRoot.style.setProperty("--lab-control-bar-bottom", `${typeOffset}px`);
+      tokenRoot.style.setProperty("--lab-control-type-offset", `${typeOffset}px`);
+      /* Only pin measured dock size. If measurement is 0 while open, leave
+         the CSS :has() fallback so the field is not under a sheet. */
+      if (leftDock > 0) {
+        tokenRoot.style.setProperty("--lab-control-dock-left", `${leftDock}px`);
+        tokenRoot.style.setProperty("--lab-control-dock-top", "0px");
+      } else if (topDock > 0) {
+        tokenRoot.style.setProperty("--lab-control-dock-left", "0px");
+        tokenRoot.style.setProperty("--lab-control-dock-top", `${topDock}px`);
+      } else {
+        tokenRoot.style.removeProperty("--lab-control-dock-left");
+        tokenRoot.style.removeProperty("--lab-control-dock-top");
+      }
     };
 
     syncOffset();
@@ -336,10 +355,11 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", syncOffset);
-      root.style.removeProperty("--lab-control-bar-bottom");
-      root.style.removeProperty("--lab-control-type-offset");
-      root.style.removeProperty("--lab-control-dock-left");
-      root.style.removeProperty("--lab-control-dock-top");
+      const tokenRoot = node.closest(".maser-lab") ?? root;
+      tokenRoot.style.removeProperty("--lab-control-bar-bottom");
+      tokenRoot.style.removeProperty("--lab-control-type-offset");
+      tokenRoot.style.removeProperty("--lab-control-dock-left");
+      tokenRoot.style.removeProperty("--lab-control-dock-top");
     };
   }, []);
 
