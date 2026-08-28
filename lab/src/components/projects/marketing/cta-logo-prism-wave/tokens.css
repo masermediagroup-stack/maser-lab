@@ -227,12 +227,12 @@
   transform-style: preserve-3d;
   transform-origin: 50% 50%;
   /*
-   * Extra fraction of the same viewport tilt so strokes foreshorten
-   * inside the glass volume. Not translateZ extrusion, not a lamp.
+   * Rest volume always on (slight plane foreshorten), plus the viewport
+   * tilt. Not hover-gated, not translateZ extrusion, not a lamp.
    */
   transform: perspective(var(--clpw-perspective))
-    rotateX(calc(var(--cta-logo-tilt-x, 0deg) * 0.28))
-    rotateY(calc(var(--cta-logo-tilt-y, 0deg) * 0.28));
+    rotateX(calc(-7deg + var(--cta-logo-tilt-x, 0deg) * 0.28))
+    rotateY(calc(5deg + var(--cta-logo-tilt-y, 0deg) * 0.28));
   -webkit-mask-image: url("/assets/cta-logo-prism-wave/Blue-HD.svg");
   mask-image: url("/assets/cta-logo-prism-wave/Blue-HD.svg");
   -webkit-mask-size: contain;
@@ -248,34 +248,24 @@
   transform-origin: 50% 50%;
   animation: clpw-css-presence var(--clpw-css-duration, 5.6s) ease-in-out infinite;
   animation-delay: var(--clpw-css-delay, 0s);
-  /* Foreshorten by lane along the same tilt axis as the viewport. */
-  transform: scale(
-    calc(
-      1 + var(--clpw-lane-depth, 0) * tan(var(--cta-logo-tilt-x, 0deg)) * 0.4 +
-        var(--clpw-lane-across, 0) * tan(var(--cta-logo-tilt-y, 0deg)) * 0.4
-    )
-  );
+  /* Rest depth in the glass — always on, not a XY lane. */
+  transform: scale(var(--clpw-rest-scale, 1));
 }
 
 .clpw-css-trip--0 {
-  --clpw-lane-depth: 0.72;
-  --clpw-lane-across: -0.15;
+  --clpw-rest-scale: 1.1;
 }
 .clpw-css-trip--1 {
-  --clpw-lane-depth: -0.55;
-  --clpw-lane-across: 0.2;
+  --clpw-rest-scale: 0.9;
 }
 .clpw-css-trip--2 {
-  --clpw-lane-depth: 0.1;
-  --clpw-lane-across: -0.7;
+  --clpw-rest-scale: 1.06;
 }
 .clpw-css-trip--3 {
-  --clpw-lane-depth: 0.1;
-  --clpw-lane-across: 0.7;
+  --clpw-rest-scale: 0.92;
 }
 .clpw-css-trip--4 {
-  --clpw-lane-depth: 0.05;
-  --clpw-lane-across: 0.05;
+  --clpw-rest-scale: 1.02;
 }
 
 .clpw-css-filament {

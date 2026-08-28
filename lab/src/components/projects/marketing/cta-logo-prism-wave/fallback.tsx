@@ -21,8 +21,8 @@ type CssWaveFallbackProps = {
 
 /**
  * Overlapping continuous snakes when WebGPU is missing or not yet painting.
- * Lane paths miss each other; entries on different edges. Soft presence
- * (no dash snap). RGB split on the stroke. Masked to Blue-HD.
+ * Electric wander across the glyph from different edges — not parallel
+ * worms. Soft presence (no dash snap). RGB split. Masked to Blue-HD.
  */
 export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
   const speed = Math.max(look.speed, 0.12);

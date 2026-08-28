@@ -56,7 +56,7 @@ The GPU host stays a 1px clipped box in the visual viewport (not `-200vw`). Chro
 
 **Tilt (lab vs production):** Throw is production (14 / 16 / 14, lerp 0.12) with `perspective()` on the viewport. **Hit is one rounded pad around the MASER + MEDIA lockup**, not letter-tight alpha and not the wide stage. Off the pad / pointerleave lerp to 0. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
 
-**Filament (both paths):** 2–5 similar-weight overlapping wanders in **separate lanes** (miss each other; still overlap in time), clipped to the glyph. Hashed/spread entries, not left-middle every trip. Traveling window with ease in/out — no dash snap, no live-skip strobe. CSS stays mounted and crossfades when GPU paints. Strokes foreshorten with the viewport tilt (path perspective, not extrusion, not a lamp). Deeper blue (`#0a5a9c`) on light ground, pale (`#e7f4ff`) on dark. RGB split on the stroke with cyan (`#73e7ff`) leaning at the lead. Default band ~0.013 UV. In-glyph glow only.
+**Filament (both paths):** 2–5 similar-weight **electric** wanders (high-frequency jumps across the glyph), clipped to Blue-HD. Not parallel side-to-side worms. Hashed/spread entries. Miss more via wander phase + rest depth, not XY lanes. Traveling window with ease in/out — no dash snap, no live-skip strobe. CSS stays mounted and crossfades when GPU paints. Volume warp is always on (cloud belly + tilt). Deeper blue (`#0a5a9c`) on light ground, pale (`#e7f4ff`) on dark. RGB split on the stroke with cyan (`#73e7ff`) leaning at the lead. Default band ~0.013 UV. In-glyph glow only.
 
 ## Transfer
 

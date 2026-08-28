@@ -44,16 +44,16 @@ export const CTA_LOGO_PRISM_WAVE_DEFAULTS: PrismWaveLook = {
 export const FILAMENT_FRINGE_DASH = "0.12 0.88";
 
 /**
- * Lane paths (viewBox 200×101). Parallel-ish bands that miss each other,
- * with entries on different edges — not one shared S-curve through the
- * middle. CSS strokes these; WGSL hashes lat on each line's home edge.
+ * Electric wander paths (viewBox 200×101). Full-glyph jumps from different
+ * edges — not parallel side-to-side worms. Peaks are phase-offset so they
+ * miss more without flattening into lanes.
  */
 export const FILAMENT_PATHS = [
-  "M -12 22 C 36 18 78 28 118 20 C 152 14 182 24 214 22",
-  "M 214 74 C 176 70 138 80 96 72 C 58 66 24 76 -12 74",
-  "M 28 -8 C 22 22 34 52 26 78 C 20 94 32 108 30 114",
-  "M 172 114 C 180 86 166 54 176 28 C 182 12 170 -4 174 -8",
-  "M -12 48 C 40 44 88 54 132 46 C 166 40 194 50 214 48",
+  "M -10 20 C 18 6 34 88 56 16 C 78 96 102 6 124 86 C 146 8 170 94 194 14 C 206 42 214 30 218 34",
+  "M 214 76 C 196 96 176 8 154 86 C 130 6 108 94 86 12 C 64 98 42 8 18 82 C 4 48 -12 64 -14 58",
+  "M 64 -8 C 42 72 20 8 8 88 C 30 4 60 98 90 10 C 120 94 150 6 180 82 C 198 18 214 50 218 46",
+  "M 36 112 C 10 18 2 92 24 12 C 50 98 80 6 110 90 C 140 4 170 96 200 16 C 210 58 214 38 216 42",
+  "M 214 98 C 188 6 160 94 134 12 C 108 98 84 4 56 92 C 30 6 8 88 -10 22 C -14 50 -8 54 -6 52",
 ] as const;
 
 /** Near-same weight. Not one fat plus hairlines. */
