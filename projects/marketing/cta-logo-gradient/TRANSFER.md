@@ -29,7 +29,7 @@ import { CtaLogoTilt } from "@/components/projects/marketing/cta-logo-gradient";
 | --- | --- | --- | --- |
 | `className` | `string` | — | Optional class on the hit shell |
 | `forceReducedMotion` | `boolean` | `false` | Drops tilt; wash still runs (lab RM toggle). Production can omit. |
-| `look` | `CtaLogoGradientLook` | product defaults | Lab dock only. Production omits — uses baked defaults. |
+| `look` | `CtaLogoGradientLook` | speed `1.5`, White `1`, Dark `1`, glow `0.55`, angle `118` | Lab dock only. Production omits — uses these baked defaults. |
 
 ## Public assets
 
