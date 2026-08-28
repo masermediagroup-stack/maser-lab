@@ -23,7 +23,7 @@ Read the mark as an ASCII-filled glyph: a tiny uniform grid of `. : + x M` clipp
 Production `CtaLogoTilt` is a static `#2cafff` SVG with pointer tilt (`MAX_TILT_X=14`, `MAX_TILT_Y=16`, `MAX_LIFT=14`, `LERP=0.12`) and a hover drop-shadow lamp. Closed prism-wave / filament experiments are a different look and are not reused here.
 
 ### Desired outcome
-First paint already shows a moving gradient through an ASCII-filled Blue-HD. One character per cell; glyph weight is the shade (heavier in the light of the wash). A vgpu fragment wash upgrades it when the GPU is actually painting. Grain exists only inside the mark. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
+First paint already shows a moving gradient through an ASCII-filled Blue-HD. One character per cell; glyph weight is the shade (heavier in the light of the wash). The grid phase rides that same wash so the cells undulate inside the mark. A vgpu fragment wash upgrades it when the GPU is actually painting. Grain exists only inside the mark. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
 
 ### Success signal
 `/demos/cta-logo-gradient` never blanks the lockup. CSS wash is visible before GPU. The wash loops forever (first frame = last frame). The mark reads as an ASCII-filled glyph, clipped sharp. Desktop mouse tilt matches production throw. Touch and `prefers-reduced-motion` keep the wash and drop the tilt.
