@@ -7,6 +7,9 @@
   --clg-period: 9s;
   --clg-angle: 118deg;
   --clg-tile: 8.5rem;
+  --clg-ripple: 0px;
+  --clg-pond-a: 32% 42%;
+  --clg-pond-b: 68% 58%;
   --clg-highlight: 0.42;
   --clg-shade: 0.38;
   --clg-glow: 0.55;
@@ -99,8 +102,16 @@
   pointer-events: none;
 }
 
+@property --clg-ripple {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
 .clg-grain {
   overflow: hidden;
+  --clg-ripple: 0px;
+  animation: clg-pond var(--clg-period, 9s) linear infinite;
 }
 
 .clg-ascii-ground {
@@ -145,182 +156,162 @@
 
 .clg-wash {
   position: absolute;
-  inset: -140%;
+  inset: -90%;
   pointer-events: none;
-  will-change: transform;
-  animation: clg-travel var(--clg-period, 9s) linear infinite;
-  background: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    color-mix(
-      in srgb,
-      var(--clg-blue) 100%,
-      var(--clg-dark) calc(var(--clg-shade) * 70%)
-    )
-      0px,
-    var(--clg-blue) calc(var(--clg-tile, 8.5rem) * 0.28),
-    color-mix(
-      in srgb,
-      var(--clg-blue) 100%,
-      var(--clg-white) calc(var(--clg-highlight) * 55%)
-    )
-      calc(var(--clg-tile, 8.5rem) * 0.5),
-    var(--clg-blue) calc(var(--clg-tile, 8.5rem) * 0.72),
-    color-mix(
-      in srgb,
-      var(--clg-blue) 100%,
-      var(--clg-dark) calc(var(--clg-shade) * 70%)
-    )
-      var(--clg-tile, 8.5rem)
-  );
+  background:
+    repeating-radial-gradient(
+      circle at var(--clg-pond-a, 32% 42%),
+      var(--clg-blue) var(--clg-ripple, 0px),
+      color-mix(
+        in srgb,
+        var(--clg-blue) 100%,
+        var(--clg-white) calc(var(--clg-highlight) * 55%)
+      )
+        calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.45),
+      var(--clg-blue)
+        calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
+    ),
+    repeating-radial-gradient(
+      circle at var(--clg-pond-b, 68% 58%),
+      var(--clg-blue) var(--clg-ripple, 0px),
+      color-mix(
+        in srgb,
+        var(--clg-blue) 100%,
+        var(--clg-white) calc(var(--clg-highlight) * 40%)
+      )
+        calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.5),
+      var(--clg-blue)
+        calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 1.15)
+    );
+  background-blend-mode: screen;
 }
 
 .clg-band-dot {
-  -webkit-mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #fff 0,
-    #fff calc(var(--clg-tile, 8.5rem) * 0.1),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.1),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.9),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.9),
-    #fff var(--clg-tile, 8.5rem)
+  -webkit-mask-image: repeating-radial-gradient(
+    circle at var(--clg-pond-a, 32% 42%),
+    #fff var(--clg-ripple, 0px),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
   );
-  mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #fff 0,
-    #fff calc(var(--clg-tile, 8.5rem) * 0.1),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.1),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.9),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.9),
-    #fff var(--clg-tile, 8.5rem)
+  mask-image: repeating-radial-gradient(
+    circle at var(--clg-pond-a, 32% 42%),
+    #fff var(--clg-ripple, 0px),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
   );
 }
 
 .clg-band-colon {
-  -webkit-mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #000 0,
-    #000 calc(var(--clg-tile, 8.5rem) * 0.1),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.1),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.22),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.22),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.78),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.78),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.9),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.9),
-    #000 var(--clg-tile, 8.5rem)
+  -webkit-mask-image: repeating-radial-gradient(
+    circle at var(--clg-pond-a, 32% 42%),
+    #000 var(--clg-ripple, 0px),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
   );
-  mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #000 0,
-    #000 calc(var(--clg-tile, 8.5rem) * 0.1),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.1),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.22),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.22),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.78),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.78),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.9),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.9),
-    #000 var(--clg-tile, 8.5rem)
+  mask-image: repeating-radial-gradient(
+    circle at var(--clg-pond-a, 32% 42%),
+    #000 var(--clg-ripple, 0px),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
   );
 }
 
 .clg-band-plus {
-  -webkit-mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #000 0,
-    #000 calc(var(--clg-tile, 8.5rem) * 0.22),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.22),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.38),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.38),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.62),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.62),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.78),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.78),
-    #000 var(--clg-tile, 8.5rem)
+  -webkit-mask-image: repeating-radial-gradient(
+    circle at var(--clg-pond-b, 68% 58%),
+    #000 var(--clg-ripple, 0px),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
   );
-  mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #000 0,
-    #000 calc(var(--clg-tile, 8.5rem) * 0.22),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.22),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.38),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.38),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.62),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.62),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.78),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.78),
-    #000 var(--clg-tile, 8.5rem)
+  mask-image: repeating-radial-gradient(
+    circle at var(--clg-pond-b, 68% 58%),
+    #000 var(--clg-ripple, 0px),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
   );
 }
 
 .clg-band-x {
-  -webkit-mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #000 0,
-    #000 calc(var(--clg-tile, 8.5rem) * 0.38),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.38),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.62),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.62),
-    #000 var(--clg-tile, 8.5rem)
+  -webkit-mask-image: repeating-radial-gradient(
+    circle at var(--clg-pond-b, 68% 58%),
+    #000 var(--clg-ripple, 0px),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
   );
-  mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #000 0,
-    #000 calc(var(--clg-tile, 8.5rem) * 0.38),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.38),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.62),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.62),
-    #000 var(--clg-tile, 8.5rem)
-  );
-}
-
-.clg-band-m {
-  -webkit-mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #000 0,
-    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
-    #000 var(--clg-tile, 8.5rem)
-  );
-  mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #000 0,
-    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
-    #000 var(--clg-tile, 8.5rem)
+  mask-image: repeating-radial-gradient(
+    circle at var(--clg-pond-b, 68% 58%),
+    #000 var(--clg-ripple, 0px),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
   );
 }
 
 .clg-band-m {
-  -webkit-mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #000 0,
-    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
-    #000 var(--clg-tile, 8.5rem)
+  -webkit-mask-image: repeating-radial-gradient(
+    circle at 48% 30%,
+    #000 var(--clg-ripple, 0px),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
   );
-  mask-image: repeating-linear-gradient(
-    var(--clg-angle, 118deg),
-    #000 0,
-    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
-    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
-    #000 var(--clg-tile, 8.5rem)
+  mask-image: repeating-radial-gradient(
+    circle at 48% 30%,
+    #000 var(--clg-ripple, 0px),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
+    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
   );
 }
 
@@ -386,29 +377,34 @@
   opacity: 0;
 }
 
-@keyframes clg-travel {
+@keyframes clg-pond {
   from {
-    transform: translate3d(0, 0, 0);
+    --clg-ripple: 0px;
   }
   to {
-    transform: translate3d(
-      calc(sin(var(--clg-angle, 118deg)) * var(--clg-tile, 8.5rem)),
-      calc(-1 * cos(var(--clg-angle, 118deg)) * var(--clg-tile, 8.5rem)),
-      0
-    );
+    --clg-ripple: var(--clg-tile, 8.5rem);
   }
 }
 
 @keyframes clg-swim {
-  from {
+  0%,
+  100% {
     -webkit-mask-position: 0 0;
     mask-position: 0 0;
   }
-  to {
+  25% {
+    -webkit-mask-position: calc(100% / var(--clg-cols, 96)) 0;
+    mask-position: calc(100% / var(--clg-cols, 96)) 0;
+  }
+  50% {
     -webkit-mask-position: calc(100% / var(--clg-cols, 96))
       calc(100% / var(--clg-rows, 35));
     mask-position: calc(100% / var(--clg-cols, 96))
       calc(100% / var(--clg-rows, 35));
+  }
+  75% {
+    -webkit-mask-position: 0 calc(100% / var(--clg-rows, 35));
+    mask-position: 0 calc(100% / var(--clg-rows, 35));
   }
 }
 

@@ -16,35 +16,53 @@ const CYAN = vec3f(0.12, 0.92, 1.0);
 const MAGENTA = vec3f(1.0, 0.22, 0.78);
 const TAU = 6.28318530718;
 const LOOP = 9.0;
-const BANDS = 2.6;
 const COLS = 96.0;
 const ROWS = 35.0;
-const AMP_ALONG = 0.013;
-const AMP_CROSS = 0.011;
+const AMP = 0.012;
+const SRC_A = vec2f(0.30, 0.44);
+const SRC_B = vec2f(0.70, 0.56);
+const SRC_C = vec2f(0.48, 0.30);
+const FREQ_A = 26.0;
+const FREQ_B = 19.0;
+const FREQ_C = 31.0;
 
-fn washWave(uv: vec2f, dir: vec2f, slide: f32) -> f32 {
-  let travel = dot(uv - vec2f(0.5), dir) * BANDS - slide;
-  return sin(travel * TAU) * 0.5 + 0.5;
+fn rotateAround(p: vec2f, pivot: vec2f, rad: f32) -> vec2f {
+  let d = p - pivot;
+  let c = cos(rad);
+  let s = sin(rad);
+  return pivot + vec2f(d.x * c - d.y * s, d.x * s + d.y * c);
 }
 
-fn waterOffset(uv: vec2f, dir: vec2f, slide: f32) -> vec2f {
-  let perp = vec2f(-dir.y, dir.x);
-  let p = uv - vec2f(0.5);
-  let along = dot(p, dir);
-  let across = dot(p, perp);
-  let r1 = sin((along * BANDS - slide) * TAU);
-  let r2 = sin((across * 3.0 + slide) * TAU);
-  let r3 = sin((along * 2.0 + across * 2.0 - slide * 2.0) * TAU);
-  return dir * (r1 * AMP_ALONG + r3 * (AMP_ALONG * 0.45))
-    + perp * (r2 * AMP_CROSS + r3 * (AMP_CROSS * 0.35));
+fn ring(uv: vec2f, origin: vec2f, slide: f32, freq: f32, k: f32) -> f32 {
+  return sin(length(uv - origin) * freq - k * slide * TAU);
+}
+
+fn sourcePush(uv: vec2f, origin: vec2f, slide: f32, freq: f32, k: f32, amp: f32) -> vec2f {
+  let d = uv - origin;
+  let dist = length(d);
+  let dir = d / max(dist, 0.0008);
+  return dir * ring(uv, origin, slide, freq, k) * amp;
+}
+
+fn pondHeight(uv: vec2f, slide: f32, a: vec2f, b: vec2f, c: vec2f) -> f32 {
+  let h = ring(uv, a, slide, FREQ_A, 1.0) * 0.45
+    + ring(uv, b, slide, FREQ_B, 1.0) * 0.35
+    + ring(uv, c, slide, FREQ_C, 2.0) * 0.20;
+  return clamp(h * 0.5 + 0.5, 0.0, 1.0);
+}
+
+fn pondOffset(uv: vec2f, slide: f32, a: vec2f, b: vec2f, c: vec2f) -> vec2f {
+  return sourcePush(uv, a, slide, FREQ_A, 1.0, AMP)
+    + sourcePush(uv, b, slide, FREQ_B, 1.0, AMP * 0.85)
+    + sourcePush(uv, c, slide, FREQ_C, 2.0, AMP * 0.55);
 }
 
 fn washColor(wave: f32) -> vec3f {
-  var color = mix(BLUE, DARK, params.shade * (1.0 - wave) * 0.28);
-  let hi = smoothstep(0.5, 0.94, wave) * params.highlight;
-  color = mix(color, WHITE, hi * 0.48);
-  let inner = pow(smoothstep(0.64, 1.0, wave), 1.55) * params.glow;
-  color = color + WHITE * inner * 0.26;
+  var color = mix(BLUE, DARK, params.shade * (1.0 - wave) * 0.12);
+  let hi = smoothstep(0.52, 0.95, wave) * params.highlight;
+  color = mix(color, WHITE, hi * 0.42);
+  let inner = pow(smoothstep(0.62, 1.0, wave), 1.55) * params.glow;
+  color = color + WHITE * inner * 0.18;
   return clamp(color, vec3f(0.0), vec3f(1.0));
 }
 
@@ -75,15 +93,18 @@ fn glyphForKind(kind: i32, local: vec2f) -> f32 {
 }
 
 @fragment fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
-  let rad = params.angle * 0.01745329252;
-  let dir = vec2f(cos(rad), sin(rad));
   let slide = params.time * params.speed / LOOP;
-  let swimUv = uv + waterOffset(uv, dir, slide);
+  let spin = params.angle * 0.01745329252;
+  let pivot = vec2f(0.5);
+  let a = rotateAround(SRC_A, pivot, spin);
+  let b = rotateAround(SRC_B, pivot, spin);
+  let c = rotateAround(SRC_C, pivot, spin);
+  let swimUv = uv + pondOffset(uv, slide, a, b, c);
   let cells = vec2f(COLS, ROWS);
   let grid = swimUv * cells;
   let cell = floor(grid);
   let local = fract(grid);
-  let wave = washWave(swimUv, dir, slide);
+  let wave = pondHeight(swimUv, slide, a, b, c);
   var color = washColor(wave);
   let n = hash21(cell);
   let lit = smoothstep(0.58, 0.86, wave);
