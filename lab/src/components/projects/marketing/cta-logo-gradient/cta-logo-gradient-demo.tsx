@@ -45,8 +45,8 @@ export function CtaLogoGradientDemo() {
             CTA logo gradient
           </h1>
           <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-            Maser blue wash through Blue-HD. Slight white, slight dark. Glow
-            inside the mark. Production tilt on desktop.
+            Maser-blue wash as ASCII grain inside Blue-HD. Slight white,
+            slight dark. Seamless loop. Production tilt on desktop.
           </p>
         </div>
         <LabControlGroup label="Wash">
@@ -103,7 +103,8 @@ export function CtaLogoGradientDemo() {
         </LabControlGroup>
         <p className="clg-notes font-mono text-[10px] leading-relaxed text-[var(--lab-text-muted)]">
           Tilt: MAX_TILT_X=14 MAX_TILT_Y=16 MAX_LIFT=14 LERP=0.12. Lamp off.
-          Reduced motion drops tilt only — the wash always runs.
+          Reduced motion drops tilt only — the wash always loops. ASCII grain
+          is the wash, clipped to the mark.
         </p>
       </DemoControlMenu>
     </div>

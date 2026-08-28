@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 import {
   CTA_LOGO_GRADIENT_DEFAULTS,
+  LOOP_SECONDS,
   LERP,
   LOGO_SRC,
   MAX_LIFT,
@@ -152,7 +153,7 @@ export function CtaLogoGradient({
     };
   }, [forceReducedMotion]);
 
-  const period = `${(9 / Math.max(look.speed, 0.01)).toFixed(2)}s`;
+  const period = `${(LOOP_SECONDS / Math.max(look.speed, 0.01)).toFixed(2)}s`;
 
   return (
     <div
@@ -186,8 +187,10 @@ export function CtaLogoGradient({
             data-gpu={gpuPainted ? "painting" : "pending"}
             aria-hidden="true"
           >
-            <div className="clg-css" />
-            <div className="clg-glow" />
+            <div className="clg-grain">
+              <div className="clg-css" />
+              <div className="clg-glow" />
+            </div>
             <canvas ref={canvasRef} className="clg-canvas" />
           </div>
         </div>

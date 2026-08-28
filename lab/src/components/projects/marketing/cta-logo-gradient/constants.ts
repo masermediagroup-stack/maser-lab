@@ -7,6 +7,7 @@ export const MAX_TILT_X = 14;
 export const MAX_TILT_Y = 16;
 export const MAX_LIFT = 14;
 export const LERP = 0.12;
+export const LOOP_SECONDS = 9;
 export const PERSPECTIVE_PX = 920;
 
 export const CTA_LOGO_GRADIENT_DEFAULTS: CtaLogoGradientLook = {

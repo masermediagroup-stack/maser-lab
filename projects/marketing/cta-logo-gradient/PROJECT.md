@@ -17,19 +17,19 @@
 Lab and portfolio viewers looking at the Maser Media CTA lockup. Occasional — a brand moment, not high-frequency chrome.
 
 ### Job
-Read the mark as living Maser blue: a wash of brand blue with a slight white highlight and a slight darker blue traveling through the glyph, while desktop still gets the production 3D tilt.
+Read the mark as living Maser blue: a wash of brand blue with a slight white highlight and a slight darker blue traveling through the glyph as super-small ASCII grain, while desktop still gets the production 3D tilt.
 
 ### Current behavior
 Production `CtaLogoTilt` is a static `#2cafff` SVG with pointer tilt (`MAX_TILT_X=14`, `MAX_TILT_Y=16`, `MAX_LIFT=14`, `LERP=0.12`) and a hover drop-shadow lamp. Closed prism-wave / filament experiments are a different look and are not reused here.
 
 ### Desired outcome
-First paint already shows a moving gradient through Blue-HD. A vgpu fragment wash upgrades it when the GPU is actually painting. Glow stays inside the mark. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always runs.
+First paint already shows a moving gradient through Blue-HD, sampled in tiny ASCII characters clipped to the mark. A vgpu fragment wash upgrades it when the GPU is actually painting. Glow stays inside the mark. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
 
 ### Success signal
-`/demos/cta-logo-gradient` never blanks the lockup. CSS wash is visible before GPU. Desktop mouse tilt matches production throw. Touch and `prefers-reduced-motion` keep the wash and drop the tilt.
+`/demos/cta-logo-gradient` never blanks the lockup. CSS wash is visible before GPU. The wash loops forever (first frame = last frame). ASCII grain lives inside the mark. Desktop mouse tilt matches production throw. Touch and `prefers-reduced-motion` keep the wash and drop the tilt.
 
 ### Non-goals
-Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps, wide-stage hit targets, computer-use verification.
+Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps, wide-stage hit targets, computer-use verification, ASCII overlay around the logo, terminal dumps.
 
 ## States
 
@@ -47,6 +47,8 @@ Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps
 | Decision | Choice | Rationale |
 | --- | --- | --- |
 | Library | CSS transform wash + vgpu `effect`/`frameLoop` | CSS is first paint; GPU is the same wash, not a different material |
+| Loop | Periodic tile: one period per `--clg-period`; first frame = last frame | No snap / rewind at the seam |
+| Grain | Super-small sparse ASCII (dots / colons) sampling the wash | Gradient lives in the characters, clipped to Blue-HD |
 | Tilt | Production CtaLogoTilt numbers | Keep the desktop 3D throw |
 | Duration | Continuous wash (~9s at 1×); tilt lerp 0.12 | Brand moment, not UI chrome |
 | Easing | Linear wash travel; tilt lerp | Travel reads as a gradient, not a bounce |
@@ -98,6 +100,8 @@ User brief (Implement).
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] CSS wash is visible on first paint; CSS is not hidden until GPU has presented a frame
 - [ ] Blue-HD never blanks
+- [ ] Wash is a perfect loop (first frame = last frame) on both CSS and vgpu; no snap at the seam
+- [ ] ASCII grain is the wash medium, clipped to the mark; gradient is sampled in the characters
 - [ ] Tilt uses MAX_TILT_X=14, MAX_TILT_Y=16, MAX_LIFT=14, LERP=0.12; perspective on the viewport
 - [ ] Hit is a rounded box around the lockup, not the wide stage
 - [ ] Lamp off (no hover drop-shadow)

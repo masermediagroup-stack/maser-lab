@@ -4,6 +4,7 @@
   --clg-dark: #0872c4;
   --clg-period: 9s;
   --clg-angle: 118deg;
+  --clg-tile: 8.5rem;
   --clg-highlight: 0.42;
   --clg-shade: 0.38;
   --clg-glow: 0.55;
@@ -82,40 +83,84 @@
   mask-position: center;
 }
 
+.clg-grain {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image:
+    radial-gradient(circle 0.55px at 34% 72%, #000 99%, transparent 100%),
+    radial-gradient(circle 0.45px at 70% 28%, #000 99%, transparent 100%),
+    radial-gradient(circle 0.5px at 50% 30%, #000 99%, transparent 100%),
+    radial-gradient(circle 0.5px at 50% 72%, #000 99%, transparent 100%),
+    radial-gradient(circle 0.4px at 18% 48%, #000 99%, transparent 100%);
+  mask-image:
+    radial-gradient(circle 0.55px at 34% 72%, #000 99%, transparent 100%),
+    radial-gradient(circle 0.45px at 70% 28%, #000 99%, transparent 100%),
+    radial-gradient(circle 0.5px at 50% 30%, #000 99%, transparent 100%),
+    radial-gradient(circle 0.5px at 50% 72%, #000 99%, transparent 100%),
+    radial-gradient(circle 0.4px at 18% 48%, #000 99%, transparent 100%);
+  -webkit-mask-size: 7px 9px, 11px 8px, 13px 17px, 13px 17px, 9px 12px;
+  mask-size: 7px 9px, 11px 8px, 13px 17px, 13px 17px, 9px 12px;
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-composite: source-over;
+  mask-composite: add;
+}
+
 .clg-css,
 .clg-glow {
   position: absolute;
-  inset: -85%;
+  inset: -140%;
   pointer-events: none;
   will-change: transform;
   animation: clg-travel var(--clg-period, 9s) linear infinite;
 }
 
 .clg-css {
-  background: linear-gradient(
+  background: repeating-linear-gradient(
     var(--clg-angle, 118deg),
-    color-mix(in srgb, var(--clg-blue) 100%, var(--clg-dark) calc(var(--clg-shade) * 70%)) 0%,
-    var(--clg-blue) 28%,
-    color-mix(in srgb, var(--clg-blue) 100%, var(--clg-white) calc(var(--clg-highlight) * 55%)) 50%,
-    var(--clg-blue) 72%,
-    color-mix(in srgb, var(--clg-blue) 100%, var(--clg-dark) calc(var(--clg-shade) * 70%)) 100%
+    color-mix(
+      in srgb,
+      var(--clg-blue) 100%,
+      var(--clg-dark) calc(var(--clg-shade) * 70%)
+    )
+      0px,
+    var(--clg-blue) calc(var(--clg-tile, 8.5rem) * 0.28),
+    color-mix(
+      in srgb,
+      var(--clg-blue) 100%,
+      var(--clg-white) calc(var(--clg-highlight) * 55%)
+    )
+      calc(var(--clg-tile, 8.5rem) * 0.5),
+    var(--clg-blue) calc(var(--clg-tile, 8.5rem) * 0.72),
+    color-mix(
+      in srgb,
+      var(--clg-blue) 100%,
+      var(--clg-dark) calc(var(--clg-shade) * 70%)
+    )
+      var(--clg-tile, 8.5rem)
   );
 }
 
 .clg-glow {
-  background: linear-gradient(
+  background: repeating-linear-gradient(
     var(--clg-angle, 118deg),
-    transparent 32%,
-    color-mix(in srgb, var(--clg-white) 70%, var(--clg-blue) 30%) 50%,
-    transparent 68%
+    transparent 0px,
+    transparent calc(var(--clg-tile, 8.5rem) * 0.32),
+    color-mix(in srgb, var(--clg-white) 70%, var(--clg-blue) 30%)
+      calc(var(--clg-tile, 8.5rem) * 0.5),
+    transparent calc(var(--clg-tile, 8.5rem) * 0.68),
+    transparent var(--clg-tile, 8.5rem)
   );
-  filter: blur(22px);
+  filter: blur(10px);
   opacity: calc(var(--clg-glow, 0.55) * 0.62);
 }
 
 .clg-canvas {
   position: absolute;
   inset: 0;
+  z-index: 2;
   width: 100%;
   height: 100%;
   display: block;
@@ -127,17 +172,20 @@
   opacity: 1;
 }
 
-.clg-mark[data-gpu="painting"] .clg-css,
-.clg-mark[data-gpu="painting"] .clg-glow {
+.clg-mark[data-gpu="painting"] .clg-grain {
   opacity: 0;
 }
 
 @keyframes clg-travel {
   from {
-    transform: translate3d(-16%, -9%, 0);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translate3d(16%, 9%, 0);
+    transform: translate3d(
+      calc(sin(var(--clg-angle, 118deg)) * var(--clg-tile, 8.5rem)),
+      calc(-1 * cos(var(--clg-angle, 118deg)) * var(--clg-tile, 8.5rem)),
+      0
+    );
   }
 }
 
