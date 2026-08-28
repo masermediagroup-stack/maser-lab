@@ -1,5 +1,3 @@
-import { hash2 } from "@vgpu/wgsl-std/hash";
-
 struct Params {
   time: f32,
   speed: f32,
@@ -16,13 +14,16 @@ const WHITE = vec3f(0.960784, 0.984314, 1.0);
 const DARK = vec3f(0.031373, 0.447059, 0.768627);
 const TAU = 6.28318530718;
 const LOOP = 9.0;
-const CELLS = 138.0;
-const CELL_ASPECT = 1.28;
 const BANDS = 2.6;
+const COLS = 96.0;
+const ROWS = 35.0;
 
-fn washAt(uv: vec2f, dir: vec2f, slide: f32) -> vec3f {
+fn washWave(uv: vec2f, dir: vec2f, slide: f32) -> f32 {
   let travel = dot(uv - vec2f(0.5), dir) * BANDS - slide;
-  let wave = sin(travel * TAU) * 0.5 + 0.5;
+  return sin(travel * TAU) * 0.5 + 0.5;
+}
+
+fn washColor(wave: f32) -> vec3f {
   var color = mix(BLUE, DARK, params.shade * (1.0 - wave) * 0.82);
   let hi = smoothstep(0.5, 0.94, wave) * params.highlight;
   color = mix(color, WHITE, hi * 0.48);
@@ -31,8 +32,27 @@ fn washAt(uv: vec2f, dir: vec2f, slide: f32) -> vec3f {
   return clamp(color, vec3f(0.0), vec3f(1.0));
 }
 
-fn blot(local: vec2f, center: vec2f, radius: f32) -> f32 {
-  return 1.0 - smoothstep(radius * 0.55, radius, length(local - center));
+fn glyphBits(bits: u32, local: vec2f) -> f32 {
+  // vgpu effect UV is top-origin; bitmap row 0 is the top of the cell.
+  let p = min(floor(vec2f(local.x * 5.0, local.y * 7.0)), vec2f(4.0, 6.0));
+  let bit = u32(p.x) + u32(p.y) * 5u;
+  return f32((bits >> bit) & 1u);
+}
+
+fn glyphForKind(kind: i32, local: vec2f) -> f32 {
+  if (kind <= 0) {
+    return glyphBits(0x08000000u, local);
+  }
+  if (kind == 1) {
+    return glyphBits(0x00400080u, local);
+  }
+  if (kind == 2) {
+    return glyphBits(0x084f9080u, local);
+  }
+  if (kind == 3) {
+    return glyphBits(0x22a22a20u, local);
+  }
+  return glyphBits(0x2318d771u, local);
 }
 
 @fragment fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
@@ -40,40 +60,15 @@ fn blot(local: vec2f, center: vec2f, radius: f32) -> f32 {
   let dir = vec2f(cos(rad), sin(rad));
   let slide = params.time * params.speed / LOOP;
 
-  let cells = vec2f(CELLS, CELLS * CELL_ASPECT);
+  let cells = vec2f(COLS, ROWS);
   let grid = uv * cells;
   let cell = floor(grid);
   let local = fract(grid);
-  let rnd = hash2(cell);
-  let rndB = hash2(cell + vec2f(13.0, 5.0));
-
-  if (rnd.x > 0.2) {
-    return vec4f(0.0);
-  }
-
-  let jitter = (rndB - vec2f(0.5)) * 0.18;
-  var glyph = 0.0;
-  let kind = rnd.y;
-  if (kind < 0.58) {
-    glyph = blot(local, vec2f(0.5, 0.7) + jitter, 0.11);
-  } else if (kind < 0.86) {
-    let c = vec2f(0.5, 0.5) + jitter * 0.5;
-    glyph = max(
-      blot(local, c + vec2f(0.0, -0.18), 0.085),
-      blot(local, c + vec2f(0.0, 0.2), 0.085),
-    );
-  } else {
-    glyph = blot(local, vec2f(0.5, 0.52) + jitter, 0.07);
-  }
-
-  if (glyph <= 0.001) {
-    return vec4f(0.0);
-  }
-
   let centerUv = (cell + vec2f(0.5)) / cells;
-  let color = washAt(centerUv, dir, slide);
-  let wave = sin((dot(centerUv - vec2f(0.5), dir) * BANDS - slide) * TAU) * 0.5 + 0.5;
-  let ride = mix(0.42, 1.0, wave);
-  let alpha = glyph * ride;
-  return vec4f(color * alpha, alpha);
+  let wave = washWave(centerUv, dir, slide);
+  let color = washColor(wave);
+  let kind = i32(min(floor(wave * 5.0), 4.0));
+  let glyph = glyphForKind(kind, local);
+  let ink = vec3f(0.019608, 0.027451, 0.039216);
+  return vec4f(mix(ink, color, glyph), 1.0);
 }

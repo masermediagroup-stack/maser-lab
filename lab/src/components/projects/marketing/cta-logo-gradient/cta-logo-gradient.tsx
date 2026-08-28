@@ -188,8 +188,22 @@ export function CtaLogoGradient({
             aria-hidden="true"
           >
             <div className="clg-grain">
-              <div className="clg-css" />
-              <div className="clg-glow" />
+              <div className="clg-ascii-ground" />
+              <div className="clg-layer clg-layer-dot">
+                <div className="clg-wash clg-band-dot" />
+              </div>
+              <div className="clg-layer clg-layer-colon">
+                <div className="clg-wash clg-band-colon" />
+              </div>
+              <div className="clg-layer clg-layer-plus">
+                <div className="clg-wash clg-band-plus" />
+              </div>
+              <div className="clg-layer clg-layer-x">
+                <div className="clg-wash clg-band-x" />
+              </div>
+              <div className="clg-layer clg-layer-m">
+                <div className="clg-wash clg-band-m" />
+              </div>
             </div>
             <canvas ref={canvasRef} className="clg-canvas" />
           </div>

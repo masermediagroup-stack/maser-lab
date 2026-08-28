@@ -2,17 +2,20 @@
   --clg-blue: #10a4ff;
   --clg-white: #f5fbff;
   --clg-dark: #0872c4;
+  --clg-ink: #05070a;
   --clg-period: 9s;
   --clg-angle: 118deg;
   --clg-tile: 8.5rem;
   --clg-highlight: 0.42;
   --clg-shade: 0.38;
   --clg-glow: 0.55;
+  --clg-cols: 96;
+  --clg-rows: 35;
   --cta-logo-tilt-x: 0deg;
   --cta-logo-tilt-y: 0deg;
   --cta-logo-tilt-z: 0px;
   min-height: 100dvh;
-  background: #05070a;
+  background: var(--clg-ink);
   color: var(--lab-text-primary, #f8f8f8);
 }
 
@@ -83,41 +86,64 @@
   mask-position: center;
 }
 
-.clg-grain {
+.clg-grain,
+.clg-ascii-ground,
+.clg-layer,
+.clg-canvas {
   position: absolute;
   inset: 0;
-  overflow: hidden;
   pointer-events: none;
-  -webkit-mask-image:
-    radial-gradient(circle 0.55px at 34% 72%, #000 99%, transparent 100%),
-    radial-gradient(circle 0.45px at 70% 28%, #000 99%, transparent 100%),
-    radial-gradient(circle 0.5px at 50% 30%, #000 99%, transparent 100%),
-    radial-gradient(circle 0.5px at 50% 72%, #000 99%, transparent 100%),
-    radial-gradient(circle 0.4px at 18% 48%, #000 99%, transparent 100%);
-  mask-image:
-    radial-gradient(circle 0.55px at 34% 72%, #000 99%, transparent 100%),
-    radial-gradient(circle 0.45px at 70% 28%, #000 99%, transparent 100%),
-    radial-gradient(circle 0.5px at 50% 30%, #000 99%, transparent 100%),
-    radial-gradient(circle 0.5px at 50% 72%, #000 99%, transparent 100%),
-    radial-gradient(circle 0.4px at 18% 48%, #000 99%, transparent 100%);
-  -webkit-mask-size: 7px 9px, 11px 8px, 13px 17px, 13px 17px, 9px 12px;
-  mask-size: 7px 9px, 11px 8px, 13px 17px, 13px 17px, 9px 12px;
-  -webkit-mask-repeat: repeat;
-  mask-repeat: repeat;
-  -webkit-mask-composite: source-over;
-  mask-composite: add;
 }
 
-.clg-css,
-.clg-glow {
+.clg-grain {
+  overflow: hidden;
+}
+
+.clg-ascii-ground {
+  background: var(--clg-ink);
+}
+
+.clg-layer {
+  overflow: hidden;
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: calc(100% / var(--clg-cols)) calc(100% / var(--clg-rows));
+  mask-size: calc(100% / var(--clg-cols)) calc(100% / var(--clg-rows));
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+}
+
+.clg-layer-dot {
+  -webkit-mask-image: url("/assets/cta-logo-gradient/ascii-dot.svg");
+  mask-image: url("/assets/cta-logo-gradient/ascii-dot.svg");
+}
+
+.clg-layer-colon {
+  -webkit-mask-image: url("/assets/cta-logo-gradient/ascii-colon.svg");
+  mask-image: url("/assets/cta-logo-gradient/ascii-colon.svg");
+}
+
+.clg-layer-plus {
+  -webkit-mask-image: url("/assets/cta-logo-gradient/ascii-plus.svg");
+  mask-image: url("/assets/cta-logo-gradient/ascii-plus.svg");
+}
+
+.clg-layer-x {
+  -webkit-mask-image: url("/assets/cta-logo-gradient/ascii-x.svg");
+  mask-image: url("/assets/cta-logo-gradient/ascii-x.svg");
+}
+
+.clg-layer-m {
+  -webkit-mask-image: url("/assets/cta-logo-gradient/ascii-m.svg");
+  mask-image: url("/assets/cta-logo-gradient/ascii-m.svg");
+}
+
+.clg-wash {
   position: absolute;
   inset: -140%;
   pointer-events: none;
   will-change: transform;
   animation: clg-travel var(--clg-period, 9s) linear infinite;
-}
-
-.clg-css {
   background: repeating-linear-gradient(
     var(--clg-angle, 118deg),
     color-mix(
@@ -143,29 +169,141 @@
   );
 }
 
-.clg-glow {
-  background: repeating-linear-gradient(
+.clg-band-dot {
+  -webkit-mask-image: repeating-linear-gradient(
     var(--clg-angle, 118deg),
-    transparent 0px,
-    transparent calc(var(--clg-tile, 8.5rem) * 0.32),
-    color-mix(in srgb, var(--clg-white) 70%, var(--clg-blue) 30%)
-      calc(var(--clg-tile, 8.5rem) * 0.5),
-    transparent calc(var(--clg-tile, 8.5rem) * 0.68),
-    transparent var(--clg-tile, 8.5rem)
+    #fff 0,
+    #fff calc(var(--clg-tile, 8.5rem) * 0.1),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.1),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.9),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.9),
+    #fff var(--clg-tile, 8.5rem)
   );
-  filter: blur(10px);
-  opacity: calc(var(--clg-glow, 0.55) * 0.62);
+  mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #fff 0,
+    #fff calc(var(--clg-tile, 8.5rem) * 0.1),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.1),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.9),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.9),
+    #fff var(--clg-tile, 8.5rem)
+  );
+}
+
+.clg-band-colon {
+  -webkit-mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #000 0,
+    #000 calc(var(--clg-tile, 8.5rem) * 0.1),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.1),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.22),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.22),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.78),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.78),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.9),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.9),
+    #000 var(--clg-tile, 8.5rem)
+  );
+  mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #000 0,
+    #000 calc(var(--clg-tile, 8.5rem) * 0.1),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.1),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.22),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.22),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.78),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.78),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.9),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.9),
+    #000 var(--clg-tile, 8.5rem)
+  );
+}
+
+.clg-band-plus {
+  -webkit-mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #000 0,
+    #000 calc(var(--clg-tile, 8.5rem) * 0.22),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.22),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.38),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.38),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.62),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.62),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.78),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.78),
+    #000 var(--clg-tile, 8.5rem)
+  );
+  mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #000 0,
+    #000 calc(var(--clg-tile, 8.5rem) * 0.22),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.22),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.38),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.38),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.62),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.62),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.78),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.78),
+    #000 var(--clg-tile, 8.5rem)
+  );
+}
+
+.clg-band-x {
+  -webkit-mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #000 0,
+    #000 calc(var(--clg-tile, 8.5rem) * 0.38),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.38),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.62),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.62),
+    #000 var(--clg-tile, 8.5rem)
+  );
+  mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #000 0,
+    #000 calc(var(--clg-tile, 8.5rem) * 0.38),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.38),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.62),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.62),
+    #000 var(--clg-tile, 8.5rem)
+  );
+}
+
+.clg-band-m {
+  -webkit-mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #000 0,
+    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
+    #000 var(--clg-tile, 8.5rem)
+  );
+  mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #000 0,
+    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
+    #000 var(--clg-tile, 8.5rem)
+  );
 }
 
 .clg-canvas {
-  position: absolute;
-  inset: 0;
   z-index: 2;
   width: 100%;
   height: 100%;
   display: block;
   opacity: 0;
-  pointer-events: none;
 }
 
 .clg-mark[data-gpu="painting"] .clg-canvas {
@@ -186,6 +324,12 @@
       calc(-1 * cos(var(--clg-angle, 118deg)) * var(--clg-tile, 8.5rem)),
       0
     );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clg-tilt {
+    transform: none !important;
   }
 }
 
