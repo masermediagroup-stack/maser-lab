@@ -48,7 +48,7 @@ Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps
 | --- | --- | --- |
 | Library | CSS transform wash + vgpu `effect`/`frameLoop` | CSS is first paint; GPU is the same wash, not a different material |
 | Loop | Periodic tile: one period per `--clg-period`; first frame = last frame | No snap / rewind at the seam |
-| Grain | Uniform 96×35 ASCII grid; density is shade (`. : + x M`) | Gradient lives in the characters, sharp-clipped to Blue-HD |
+| Grain | Uniform 96×35 ASCII grid; density is shade; grid phase rides the wash | One motion: cells undulate with the color loop, clipped to Blue-HD |
 | Tilt | Production CtaLogoTilt numbers | Keep the desktop 3D throw |
 | Duration | Continuous wash (~9s at 1×); tilt lerp 0.12 | Brand moment, not UI chrome |
 | Easing | Linear wash travel; tilt lerp | Travel reads as a gradient, not a bounce |
@@ -102,6 +102,7 @@ User brief (Implement).
 - [ ] Blue-HD never blanks
 - [ ] Wash is a perfect loop (first frame = last frame) on both CSS and vgpu; no snap at the seam
 - [ ] ASCII fill is a uniform grid clipped sharp to the mark; one glyph per cell; density is shade; gradient lives in the characters
+- [ ] Grid phase waves with the wash (cell offset / weight pulse along the wash direction); first frame = last frame; not a second filament
 - [ ] Tilt uses MAX_TILT_X=14, MAX_TILT_Y=16, MAX_LIFT=14, LERP=0.12; perspective on the viewport
 - [ ] Hit is a rounded box around the lockup, not the wide stage
 - [ ] Lamp off (no hover drop-shadow)

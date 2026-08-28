@@ -111,6 +111,7 @@
   mask-size: calc(100% / var(--clg-cols)) calc(100% / var(--clg-rows));
   -webkit-mask-position: 0 0;
   mask-position: 0 0;
+  animation: clg-grid-wave var(--clg-period, 9s) linear infinite;
 }
 
 .clg-layer-dot {
@@ -324,6 +325,19 @@
       calc(-1 * cos(var(--clg-angle, 118deg)) * var(--clg-tile, 8.5rem)),
       0
     );
+  }
+}
+
+@keyframes clg-grid-wave {
+  from {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+  to {
+    -webkit-mask-position: calc(sin(var(--clg-angle, 118deg)) * 100% / var(--clg-cols) * 4)
+      calc(-1 * cos(var(--clg-angle, 118deg)) * 100% / var(--clg-rows) * 4);
+    mask-position: calc(sin(var(--clg-angle, 118deg)) * 100% / var(--clg-cols) * 4)
+      calc(-1 * cos(var(--clg-angle, 118deg)) * 100% / var(--clg-rows) * 4);
   }
 }
 
