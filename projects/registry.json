@@ -98,6 +98,13 @@
       "status": "building",
       "category": "scroll",
       "description": "Scroll-triggered Maser-blue mercury meatballs — edge spawn, sticky SDF merge, one key light"
+    },
+    {
+      "slug": "cta-logo-gradient",
+      "title": "CTA Logo Gradient",
+      "status": "building",
+      "category": "marketing",
+      "description": "Maser-blue moving gradient through the CTA lockup, with production desktop 3D tilt"
     }
   ]
 }

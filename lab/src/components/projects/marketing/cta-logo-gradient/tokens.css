@@ -1,0 +1,146 @@
+.clg-root {
+  --clg-blue: #10a4ff;
+  --clg-white: #f5fbff;
+  --clg-dark: #0872c4;
+  --clg-period: 9s;
+  --clg-angle: 118deg;
+  --clg-highlight: 0.42;
+  --clg-shade: 0.38;
+  --clg-glow: 0.55;
+  --cta-logo-tilt-x: 0deg;
+  --cta-logo-tilt-y: 0deg;
+  --cta-logo-tilt-z: 0px;
+  min-height: 100dvh;
+  background: #05070a;
+  color: var(--lab-text-primary, #f8f8f8);
+}
+
+.clg-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.clg-hit {
+  position: relative;
+  width: min(88vw, 36rem);
+  max-width: 100%;
+  aspect-ratio: 3776.87 / 1915.83;
+  border-radius: 1rem;
+  pointer-events: auto;
+  transform-style: preserve-3d;
+  outline: none;
+}
+
+.clg-hit:focus-visible {
+  outline: 2px solid rgba(16, 164, 255, 0.7);
+  outline-offset: 0.4rem;
+}
+
+.clg-viewport {
+  position: absolute;
+  inset: 0;
+  perspective: var(--clg-perspective, 920px);
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  overflow: visible;
+}
+
+.clg-tilt {
+  position: absolute;
+  inset: 0;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--cta-logo-tilt-x, 0deg))
+    rotateY(var(--cta-logo-tilt-y, 0deg))
+    translate3d(0, 0, var(--cta-logo-tilt-z, 0px));
+  will-change: transform;
+}
+
+.clg-plate {
+  z-index: 0;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.clg-mark {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: url("/assets/cta-logo-gradient/Blue-HD.svg");
+  mask-image: url("/assets/cta-logo-gradient/Blue-HD.svg");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.clg-css,
+.clg-glow {
+  position: absolute;
+  inset: -85%;
+  pointer-events: none;
+  will-change: transform;
+  animation: clg-travel var(--clg-period, 9s) linear infinite;
+}
+
+.clg-css {
+  background: linear-gradient(
+    var(--clg-angle, 118deg),
+    color-mix(in srgb, var(--clg-blue) 100%, var(--clg-dark) calc(var(--clg-shade) * 70%)) 0%,
+    var(--clg-blue) 28%,
+    color-mix(in srgb, var(--clg-blue) 100%, var(--clg-white) calc(var(--clg-highlight) * 55%)) 50%,
+    var(--clg-blue) 72%,
+    color-mix(in srgb, var(--clg-blue) 100%, var(--clg-dark) calc(var(--clg-shade) * 70%)) 100%
+  );
+}
+
+.clg-glow {
+  background: linear-gradient(
+    var(--clg-angle, 118deg),
+    transparent 32%,
+    color-mix(in srgb, var(--clg-white) 70%, var(--clg-blue) 30%) 50%,
+    transparent 68%
+  );
+  filter: blur(22px);
+  opacity: calc(var(--clg-glow, 0.55) * 0.62);
+}
+
+.clg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.clg-mark[data-gpu="painting"] .clg-canvas {
+  opacity: 1;
+}
+
+.clg-mark[data-gpu="painting"] .clg-css,
+.clg-mark[data-gpu="painting"] .clg-glow {
+  opacity: 0;
+}
+
+@keyframes clg-travel {
+  from {
+    transform: translate3d(-16%, -9%, 0);
+  }
+  to {
+    transform: translate3d(16%, 9%, 0);
+  }
+}
+
+.clg-notes {
+  max-width: 36rem;
+}

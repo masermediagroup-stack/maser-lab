@@ -1,0 +1,93 @@
+import type { FrameLoopHandle, Gpu } from "vgpu";
+import { clock, effect, frameLoop, init, surface } from "vgpu";
+import type { CtaLogoGradientLook } from "./types";
+import washShader from "./wash.wgsl";
+
+export type StartGradientOptions = {
+  canvas: HTMLCanvasElement;
+  lookRef: { current: CtaLogoGradientLook };
+  onPainted: () => void;
+};
+
+export function startGradient({
+  canvas,
+  lookRef,
+  onPainted,
+}: StartGradientOptions): () => void {
+  let disposed = false;
+  let loop: FrameLoopHandle | undefined;
+  let gpu: Gpu | undefined;
+  let painted = false;
+
+  void (async () => {
+    try {
+      gpu = await init();
+    } catch {
+      return;
+    }
+    if (disposed) {
+      gpu.dispose();
+      return;
+    }
+
+    const canvasSurface = surface(gpu, canvas, {
+      dpr: [1, 2],
+      alphaMode: "premultiplied",
+      clearColor: [0, 0, 0, 0],
+      label: "cta-logo-gradient",
+    });
+
+    const initial = lookRef.current;
+    const wash = effect(gpu, washShader, {
+      label: "cta-logo-gradient-wash",
+      set: {
+        params: {
+          time: 0,
+          speed: initial.speed,
+          highlight: initial.highlight,
+          shade: initial.shade,
+          glow: initial.glow,
+          angle: initial.angle,
+        },
+      },
+    });
+
+    try {
+      await wash.compile(canvasSurface);
+    } catch {
+      gpu.dispose();
+      return;
+    }
+    if (disposed) {
+      gpu.dispose();
+      return;
+    }
+
+    const time = clock(gpu);
+    loop = frameLoop(gpu, (frame) => {
+      const look = lookRef.current;
+      wash.set({
+        params: {
+          time: time.time,
+          speed: look.speed,
+          highlight: look.highlight,
+          shade: look.shade,
+          glow: look.glow,
+          angle: look.angle,
+        },
+      });
+      frame.pass(canvasSurface, wash);
+      if (painted || !gpu) return;
+      painted = true;
+      void gpu.settled().then(() => {
+        if (!disposed) onPainted();
+      });
+    });
+  })();
+
+  return () => {
+    disposed = true;
+    loop?.stop();
+    gpu?.dispose();
+  };
+}

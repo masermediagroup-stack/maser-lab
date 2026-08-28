@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
     resolveAlias: {
       "@projects": path.join(repoRoot, "projects"),
     },
+    rules: {
+      "*.wgsl": {
+        loaders: ["@vgpu/wgsl/loader-webpack"],
+        as: "*.js",
+      },
+    },
   },
   outputFileTracingRoot: repoRoot,
   webpack: (config) => {
@@ -24,6 +30,13 @@ const nextConfig: NextConfig = {
       ...config.resolve.alias,
       "@projects": path.join(repoRoot, "projects"),
     };
+    const rules = config.module?.rules;
+    if (Array.isArray(rules)) {
+      rules.push({
+        test: /\.wgsl$/,
+        loader: "@vgpu/wgsl/loader-webpack",
+      });
+    }
     return config;
   },
 };
