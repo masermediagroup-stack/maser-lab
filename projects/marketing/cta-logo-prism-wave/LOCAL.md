@@ -12,7 +12,7 @@ npm run dev
 
 Open **http://localhost:3000/demos/cta-logo-prism-wave**
 
-Needs WebGPU for the primary path. Chrome/Edge with WebGPU, or Firefox 141+. Judge the live shell: `data-wave-mode="vgpu"` means an adapter existed and the canvas path ran. CSS (`data-wave-mode="css"`) is **only** when `navigator.gpu` is missing or `requestAdapter()` returns null (or the device is later lost). Compile/upload/frame errors are logged; they do not dump a WebGPU machine onto CSS.
+Needs WebGPU for the primary path. Chrome/Edge with WebGPU, or Firefox 141+. Judge the live shell: `data-wave-mode="css"` on first paint (the sequential CSS filament must be visible immediately). `data-wave-mode="vgpu"` means an adapter existed **and** the off-tree blit copied real filament pixels. Compile is not paint — do not hide CSS while the GPU is compiling, off-tree, or copying empty frames. Stay on CSS if `navigator.gpu` is missing, `requestAdapter()` returns null, the device is later lost, or blit never paints. Compile/upload/frame errors are logged.
 
 ## Quality checks
 
@@ -46,15 +46,17 @@ The WebGPU canvas is **not** a child of that plane. A GPU canvas inside `preserv
 
 **Compile gate:** never `effect.compile(canvasSurface)` outside `frame()`. vgpu throws `VGPU-SURFACE-NOT-IN-FRAME` ("precompile against an offscreen `target(gpu, …)` instead"). That catch used to dump Chrome-with-WebGPU onto CSS. Compile against a canvas-format **signature**, then draw the surface inside `frameLoop`.
 
-Do not flip to CSS on every `gpu.onError` — validation noise is logged. CSS only when the adapter is actually missing, or the device is lost (`VGPU-DEVICE-LOST` / `gpu.lost`).
+Do not flip to CSS on every `gpu.onError` — validation noise is logged. CSS is the default until GPU paints, and the return path when the adapter is missing or the device is lost (`VGPU-DEVICE-LOST` / `gpu.lost`).
+
+The GPU host stays a 1px clipped box in the visual viewport (not `-200vw`). Chrome culls off-screen WebGPU canvases, so `drawImage` copied empty and desktop lost the line.
 
 **Canvas size:** measure `.clpw-logo-viewport` with `getBoundingClientRect() × DPR` on mount and resize. Cover that box with `position:absolute; inset:0; width:100%; height:100%`. `surface({ autoResize: false, size })` — never let a replaced canvas's intrinsic 300×150 become the backing store. The demo dock does not size the canvas.
 
-**Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu filament is blitted onto a 2D canvas in that viewport (GPU source stays off-tree). CSS fallback is one heavy dry SVG snake masked to the same glyph — not hairline dashes, not a linear-gradient slit. The mark must not disappear if the pipeline misses or the canvas is empty.
+**Compositing:** Blue-HD.svg is always an `<img>` in the tilt viewport. A CSS-masked `#10a4ff` layer retints when mask-image works. The vgpu filament is blitted onto a 2D canvas in that viewport (GPU source stays a sibling, clipped to 1px). CSS fallback is sequential continuous SVG snakes masked to the same glyph — not 50/50 dashed wedges, not a lamp off the mark. The mark must not disappear if the pipeline misses or the canvas is empty. CSS stays mounted until `displayHasFilamentPixels` is true.
 
 **Tilt (lab vs production):** Throw is production (14 / 16 / 14, lerp 0.12) with `perspective()` on the viewport. **Hit is one rounded pad around the MASER + MEDIA lockup**, not letter-tight alpha and not the wide stage. Off the pad / pointerleave lerp to 0. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
 
-**Filament (both paths):** One heavy dry white wander, clipped to the glyph. Default band ~0.034 UV / ~7 viewBox units. Loop ~3.2s at default speed. No forks, no glow bloom.
+**Filament (both paths):** Sequential continuous wander, clipped to the glyph. Deeper blue (`#0a5a9c`) on light ground, pale (`#e7f4ff`) on dark. Default band ~0.013 UV. Full 3-trip loop ~7.2s at default speed. In-glyph glow only. One path finishes draw+clear before the next enters.
 
 ## Transfer
 

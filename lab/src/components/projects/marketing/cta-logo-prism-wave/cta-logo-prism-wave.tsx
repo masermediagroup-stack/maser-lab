@@ -54,7 +54,7 @@ export function CtaLogoPrismWave({
   const gpuCanvasRef = useRef<HTMLCanvasElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
   const hoverRef = useRef(0);
-  const [mode, setMode] = useState<PrismWaveMode | null>(null);
+  const [mode, setMode] = useState<PrismWaveMode>("css");
   const [cssLook, setCssLook] = useState<WaveRuntimeParams>({
     ...CTA_LOGO_PRISM_WAVE_DEFAULTS,
     hover: 0,
@@ -86,7 +86,7 @@ export function CtaLogoPrismWave({
   }, []);
 
   useEffect(() => {
-    if (mode !== "css") return;
+    if (mode === "vgpu") return;
     let raf = 0;
     const tick = () => {
       const look = lookRef?.current ?? CTA_LOGO_PRISM_WAVE_DEFAULTS;
@@ -196,7 +196,7 @@ export function CtaLogoPrismWave({
       ref={stageRef}
       className={cn("clpw-logo-stage", className)}
       aria-label="Maser Media CTA logo prism wave"
-      data-wave-mode={mode ?? "pending"}
+      data-wave-mode={mode}
     >
       {/* Frame = production `.mm-cta__logo-link` (block). Perspective is on the viewport transform so a canvas cannot flatten the throw. Not an <a>. */}
       <div className="clpw-logo-frame">
@@ -219,7 +219,7 @@ export function CtaLogoPrismWave({
             aria-hidden="true"
             data-active={mode === "vgpu" ? "true" : "false"}
           />
-          {mode === "css" ? (
+          {mode !== "vgpu" ? (
             <CssWaveFallback look={cssLook} className="clpw-css-fallback" />
           ) : null}
           </div>

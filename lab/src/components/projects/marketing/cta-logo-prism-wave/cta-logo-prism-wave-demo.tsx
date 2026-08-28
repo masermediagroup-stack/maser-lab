@@ -27,7 +27,7 @@ export function CtaLogoPrismWaveDemo() {
   const [reduced, setReduced] = useState(false);
   const [ground, setGround] = useState<Ground>("light");
   const [look, setLook] = useState<PrismWaveLook>(CTA_LOGO_PRISM_WAVE_DEFAULTS);
-  const [mode, setMode] = useState<PrismWaveMode | null>(null);
+  const [mode, setMode] = useState<PrismWaveMode>("css");
   const lookRef = useRef<PrismWaveLook>(CTA_LOGO_PRISM_WAVE_DEFAULTS);
 
   const patchLook = useCallback((partial: Partial<PrismWaveLook>) => {
@@ -123,9 +123,10 @@ export function CtaLogoPrismWaveDemo() {
             onModeChange={setMode}
           />
           <p className="clpw-caption text-base leading-relaxed text-[var(--clpw-text-muted)]">
-            One heavy dry white filament wandering the cloud. Maser blue is
-            solid glass. Hover the rounded pad around the lockup to tilt
-            (mouse or pen). Empty stage beside the mark sits. Phones and
+            Sequential glass lines through the cloud — one finishes the trip
+            before the next enters. Deeper blue on light, pale on dark. Glow
+            stays inside the glyph. Hover the rounded pad around the lockup to
+            tilt (mouse or pen). Empty stage beside the mark sits. Phones and
             reduced motion keep the wave and drop the tilt.
           </p>
         </section>
@@ -141,17 +142,16 @@ export function CtaLogoPrismWaveDemo() {
             <code className="font-mono text-sm">(hover: hover) and (pointer: fine)</code>{" "}
             is false. Production{" "}
             <code className="font-mono text-sm">CtaLogoTilt</code> stays on that
-            fine-pointer gate. No hover lamp. One heavy dry wander — not a
-            hairline dash and not a neon tube.
+            fine-pointer gate. No hover lamp. Sequential continuous lines —
+            not dashed wedges, not a neon tube. CSS stays up until the GPU
+            blit actually paints.
           </p>
           <p className="mt-4" aria-live="polite">
             Renderer:{" "}
             <span className="font-mono text-[var(--clpw-blue)]">
               {mode === "vgpu"
                 ? "vgpu (WebGPU canvas)"
-                : mode === "css"
-                  ? "CSS mask fallback"
-                  : "starting…"}
+                : "CSS mask fallback"}
             </span>
           </p>
           <p className="mt-4 font-mono text-sm">

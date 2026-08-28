@@ -15,6 +15,7 @@ import {
   backingStoreChanged,
   blitGpuToDisplay,
   coverViewportWithCanvas,
+  displayHasFilamentPixels,
   readViewportBackingStore,
   sizeGpuSourceCanvas,
   type ViewportBackingStore,
@@ -44,6 +45,31 @@ function readParams(
       hover: 0,
     }
   );
+}
+
+function readGround(viewport: HTMLElement): number {
+  return viewport.closest("[data-ground]")?.getAttribute("data-ground") ===
+    "dark"
+    ? 1
+    : 0;
+}
+
+function gpuWaveParams(
+  look: WaveRuntimeParams,
+  canvas: HTMLCanvasElement,
+  viewport: HTMLElement,
+  time = 0,
+) {
+  return {
+    time,
+    speed: look.speed,
+    band_width: look.bandWidth,
+    fringe: look.fringe,
+    hover: look.hover,
+    res_x: canvas.width,
+    res_y: canvas.height,
+    ground: readGround(viewport),
+  };
 }
 
 function waitAnimationFrame(): Promise<void> {
@@ -130,9 +156,11 @@ function isDeviceGone(error: unknown): boolean {
  * Pause off-screen / hidden tab. Compile once against a target *signature*
  * (not the canvas surface). Dispose on the returned cleanup.
  *
- * CSS fallback only when the WebGPU adapter is actually missing (or the
- * device is later lost). Compile/upload/frame errors are logged — they do
- * not dump a machine that has an adapter onto the CSS path.
+ * CSS fallback starts on first screen and stays until blit copies a real
+ * filament frame. Compile/off-tree/empty blit must not hide the CSS path.
+ * Adapter missing or device lost: stay on (or return to) CSS. Compile
+ * errors are logged — they do not dump a machine that has an adapter onto
+ * CSS *unless* the GPU never paints.
  *
  * Canvas backing store comes from the tilt viewport's layout box
  * × DPR. autoResize is off so a 300×150 intrinsic box cannot lock in.
@@ -158,11 +186,21 @@ export function startPrismWave(options: StartWaveOptions): () => void {
   let wave: ReturnType<typeof effect> | undefined;
   let time: ReturnType<typeof clock> | undefined;
   let hasAdapter = false;
+  let gpuPainting = false;
 
   const failToCss = () => {
     if (disposed) return;
+    gpuPainting = false;
     stopLoop();
     onMode("css");
+  };
+
+  const promoteGpuIfPainting = () => {
+    if (disposed || gpuPainting) return;
+    if (!displayHasFilamentPixels(displayCanvas)) return;
+    gpuPainting = true;
+    onMode("vgpu");
+    console.info("[cta-logo-prism-wave] wave mode: vgpu");
   };
 
   const stopLoop = () => {
@@ -193,23 +231,28 @@ export function startPrismWave(options: StartWaveOptions): () => void {
     const waveEffect = wave;
     const surf = canvasSurface;
     const clockState = time;
-    loop = frameLoop(gpu, (frame) => {
+    const deviceGpu = gpu;
+    loop = frameLoop(deviceGpu, (frame) => {
       try {
         syncBackingStore();
         const look = readParams(paramsRef);
         waveEffect.set({
-          params: {
-            time: clockState.time,
-            speed: look.speed,
-            band_width: look.bandWidth,
-            fringe: look.fringe,
-            hover: look.hover,
-            res_x: gpuCanvas.width,
-            res_y: gpuCanvas.height,
-          },
+          params: gpuWaveParams(look, gpuCanvas, viewport, clockState.time),
         });
         frame.pass({ target: surf, clear: [0, 0, 0, 0] }, waveEffect);
         blitGpuToDisplay(gpuCanvas, displayCanvas);
+        if (!gpuPainting) {
+          const queue = deviceGpu.gpu.queue;
+          if (typeof queue.onSubmittedWorkDone === "function") {
+            void queue.onSubmittedWorkDone().then(() => {
+              if (disposed || gpuPainting) return;
+              blitGpuToDisplay(gpuCanvas, displayCanvas);
+              promoteGpuIfPainting();
+            });
+          } else {
+            promoteGpuIfPainting();
+          }
+        }
       } catch (error) {
         console.error("[cta-logo-prism-wave] frame failed", error);
         if (isDeviceGone(error) || !hasAdapter) failToCss();
@@ -229,6 +272,7 @@ export function startPrismWave(options: StartWaveOptions): () => void {
 
   void (async () => {
     try {
+      onMode("css");
       const size = await waitForViewportSize(viewport, () => disposed);
       if (disposed) return;
       sizeGpuSourceCanvas(gpuCanvas, size);
@@ -304,15 +348,7 @@ export function startPrismWave(options: StartWaveOptions): () => void {
         label: "clpw-wave",
         blend: "premultiplied",
         set: {
-          params: {
-            time: 0,
-            speed: look.speed,
-            band_width: look.bandWidth,
-            fringe: look.fringe,
-            hover: look.hover,
-            res_x: sized.bufW,
-            res_y: sized.bufH,
-          },
+          params: gpuWaveParams(look, gpuCanvas, viewport, 0),
           logo,
           samp,
         },
@@ -332,8 +368,7 @@ export function startPrismWave(options: StartWaveOptions): () => void {
       }
 
       time = clock(gpu);
-      onMode("vgpu");
-      console.info("[cta-logo-prism-wave] wave mode: vgpu");
+      // Stay on CSS until blit copies filament pixels. Compile is not paint.
 
       observer = new IntersectionObserver(
         ([entry]) => {

@@ -2,7 +2,8 @@
 .clpw-root {
   --clpw-blue: #10a4ff;
   --clpw-fringe: #73e7ff;
-  --clpw-vapor: #ffffff;
+  --clpw-filament: #0a5a9c;
+  --clpw-filament-glow: #0c6bb8;
   --clpw-page: #ffffff;
   --clpw-text: #111111;
   --clpw-text-muted: #4a4a4a;
@@ -17,6 +18,8 @@
   --clpw-page: #07090c;
   --clpw-text: #f3f6fa;
   --clpw-text-muted: rgba(243, 246, 250, 0.72);
+  --clpw-filament: #e7f4ff;
+  --clpw-filament-glow: #f5fbff;
 }
 
 .clpw-page {
@@ -116,17 +119,19 @@
 }
 
 /*
- * WebGPU target — outside the 3D tree. Off-screen but not display:none /
- * visibility:hidden so the swapchain still presents for the blit.
+ * WebGPU target — sibling of the 3D tree (never a descendant, or Chromium
+ * flattens perspective). Stay in the visual viewport so the swapchain
+ * presents and 2D blit can copy pixels. -200vw was culled: drawImage
+ * copied empty and desktop lost the line. Clip to 1px so the source
+ * never shows. Not display:none / visibility:hidden / opacity:0.
  */
 .clpw-gpu-host {
   position: fixed;
   left: 0;
   top: 0;
-  width: 0;
-  height: 0;
-  overflow: visible;
-  transform: translate(-200vw, 0);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
   pointer-events: none;
   z-index: -1;
 }
@@ -189,6 +194,11 @@
   opacity: 1;
 }
 
+/* Keep the CSS snake on top until GPU has a real painted frame. */
+.clpw-logo-canvas[data-active="false"] {
+  opacity: 0;
+}
+
 .clpw-css-fallback,
 .clpw-css-wave {
   z-index: 3;
@@ -208,26 +218,57 @@
 }
 
 .clpw-css-filament {
-  stroke-width: var(--clpw-css-stroke, 6.9);
-  stroke: #ffffff;
+  stroke: var(--clpw-filament);
   fill: none;
-  filter: none;
-  animation: clpw-css-travel var(--clpw-css-duration, 3.2s) linear infinite;
+  stroke-dashoffset: 1;
+  animation: clpw-css-travel var(--clpw-css-duration, 7.2s) linear infinite;
 }
 
+.clpw-css-filament--core {
+  stroke-width: var(--clpw-css-stroke, 2.2);
+}
+
+.clpw-css-filament--glow {
+  stroke: var(--clpw-filament-glow);
+  stroke-width: calc(var(--clpw-css-stroke, 2.2) * 2.5);
+  opacity: 0.38;
+  /* In-glass light. Parent mask clips this to Blue-HD — not a lamp on the mark. */
+  filter: blur(0.55px);
+}
+
+.clpw-css-trip--1 .clpw-css-filament {
+  animation-delay: calc(var(--clpw-css-duration, 7.2s) / -3);
+}
+
+.clpw-css-trip--2 .clpw-css-filament {
+  animation-delay: calc(var(--clpw-css-duration, 7.2s) * -2 / 3);
+}
+
+/*
+ * One trip = draw on (offset 1→0) then clear from the start (0→-1).
+ * Each path owns 1/3 of the loop; the other two wait. Negative delays
+ * keep trip 0 drawing on first paint.
+ */
 @keyframes clpw-css-travel {
-  from {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  16.666% {
     stroke-dashoffset: 0;
   }
-  to {
-    stroke-dashoffset: -100;
+  33.333% {
+    stroke-dashoffset: -1;
+  }
+  33.334%,
+  100% {
+    stroke-dashoffset: 1;
   }
 }
 
 /* Wave always runs — including prefers-reduced-motion. Tilt is JS-gated. */
 @media (prefers-reduced-motion: reduce) {
   .clpw-css-filament {
-    animation: clpw-css-travel var(--clpw-css-duration, 3.2s) linear infinite;
+    animation: clpw-css-travel var(--clpw-css-duration, 7.2s) linear infinite;
   }
 }
 

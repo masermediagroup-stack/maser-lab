@@ -45,4 +45,4 @@ None.
 
 - [ ] Mark matches Blue-HD silhouette
 - [ ] Tilt feel matches production (no extra lamp)
-- [ ] Wave is a dry white electric line + optional tiny cool leading skin, not a glowing tube
+- [x] Wave is sequential continuous glass lines (deeper blue on light, pale on dark), glow inside the glyph — not dashed wedges or a lamp off the mark

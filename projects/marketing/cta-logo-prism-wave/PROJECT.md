@@ -18,7 +18,7 @@
 Lab visitor judging the Maser cloud mark. Occasional — pointer hover on desktop; always-on wave on phones. Not high-frequency chrome.
 
 ### Job
-Read the Blue-HD cloud mark as a prism: a dry white electric filament travels through the silhouette while Maser blue holds the body as solid glass. Existing CSS 3D tilt still works on fine pointers.
+Read the Blue-HD cloud mark as a prism: sequential continuous glass lines travel through the silhouette (deeper blue on light, pale on dark) while Maser blue holds the body as solid glass. Glow lives inside the glyph. Existing CSS 3D tilt still works on fine pointers.
 
 ### Object
 `CtaLogoPrismWave` — rasterized logo texture + vgpu fullscreen `effect()` on the CSS tilt plane (not a page-wide shader).
@@ -27,10 +27,10 @@ Read the Blue-HD cloud mark as a prism: a dry white electric filament travels th
 Production `CtaLogoTilt` tilts the SVG and adds a hover lamp / drop-shadow on `.mm-cta__logo--active`. No wave.
 
 ### Desired outcome
-Dry white electric filament masked to the mark — frequency in the line, random as it travels, not a smooth glowing tube. Glow is minimum / gone. Tiny cool (cyan-ish) leading-edge skin only if it still reads as prism, not bloom. Logo body is Maser blue solid glass (not frosted, not emissive, not a light trail). Hover lamp gone. Tilt kept. Wave always runs (including reduced motion and coarse pointers). Tilt drops on reduced motion and on phones / coarse pointers (same gate as production).
+Sequential continuous glass lines masked to the mark — one finishes the full trip before the next enters. Not dashed wedges, not a lamp off the mark. Light ground: deeper blue through the glass. Dark ground: pale internal line. Glow is in-glyph only. Logo body is Maser blue solid glass. Hover lamp gone. Tilt kept. Wave always runs (including reduced motion and coarse pointers). Tilt drops on reduced motion and on phones / coarse pointers (same gate as production). CSS filament stays visible until the GPU blit actually paints pixels.
 
 ### Success signal
-First screen is blue glass + a dry white electric line, not a glowing tube. Desktop mouse tilts the plane; the filament stays on that plane. Phone and RM keep the wave and lose the tilt.
+First screen is blue glass + a sequential continuous line (never a blank wait for GPU compile). Desktop mouse tilts the plane; the filament stays on that plane. Phone and RM keep the wave and lose the tilt.
 
 ### Non-goals
 - Touching the maser-media client repo
@@ -47,7 +47,7 @@ One marketing-category lab section + demo route. Lab chrome OK.
 Look at the mark. Hover (fine pointer) to tilt.
 
 ### Consequence
-A dry white electric line loops through the cloud. Tilt follows the pointer on desktop.
+Sequential glass lines loop through the cloud, one trip at a time. Tilt follows the pointer on desktop.
 
 ### Reversibility
 Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer: tilt off, wave continues. Tab hide / off-screen: rAF pauses. WebGPU unavailable: SVG snake filament on the same plane (CSS fallback).
@@ -72,13 +72,13 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 | Logo sampling | Rasterize Blue-HD.svg → texture | vgpu cannot sample SVG |
 | Tilt | Production constants (14 / 16 / 14, lerp 0.12). Perspective baked into the viewport transform; GPU canvas is off-tree and blitted onto a 2D overlay on that plane | WebGPU child flattened parent perspective; 14° read as a squash |
 | Hover lamp | Removed | Locked look |
-| Idle wave | One heavy dry filament: ~4 S-humps, single traveling packet | Glance-readable; not hairline dashes (`rule/ui-duration-cap` exception) |
+| Idle wave | Sequential continuous wander (3 paths; one trip then the next) | Glance-readable; not 50/50 dashed wedges (`rule/ui-duration-cap` exception) |
 | Hover wave | Same filament, plane tilts; modest speed-up | Band travels *with* the tilt, still 2D fill |
-| Glow | None — no bloom / additive halo | Elite Pixel Guy look pass 2026-08-27 |
+| Glow | In-glyph only, clipped to Blue-HD | Light through glass — not a drop-shadow lamp off the mark |
 | Reduced motion | Wave stays; tilt gated off | Explicit exception to `rule/reduced-motion-required` for the wave only |
 | Hover gate (production site) | `(hover: hover) and (pointer: fine)` | `rule/hover-gated`; CtaLogoTilt on masermedia.co |
 | Hover gate (this lab demo) | mouse/pen `pointermove`; skip touch; RM still off | EPG judging box may fail the fine-pointer media |
-| Fallback | SVG snake path, same viewport, clipped to Blue-HD | If WebGPU adapter is missing |
+| Fallback | SVG sequential snakes, same viewport, clipped to Blue-HD | Until GPU blit paints, and whenever the adapter is missing |
 
 ## Three.js / 3D (optional)
 
@@ -97,15 +97,15 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 
 - [x] Demo route `/demos/cta-logo-prism-wave` renders via DemoHost
 - [x] `npm run build` passes in `lab/`; project files lint clean (repo `npm run lint` still fails on pre-existing `pixel-info-card` setState-in-effect)
-- [x] First screen is the Blue-HD mark with a dry white electric filament (look pass — re-verify on preview)
+- [x] First screen is the Blue-HD mark with a sequential continuous glass line (CSS until GPU paints; never a blank compile gap)
 - [x] Desktop mouse tilt works; wave stays on the tilted plane (rendered)
 - [x] Wave keeps running on phone and with reduced motion; tilt does not (rendered)
 - [x] Hover lamp / extra glow on `--active` is gone (rendered)
-- [x] No 80s rainbow; blue body is solid glass; filament is dry white with optional tiny cool leading skin (look pass — re-verify on preview)
+- [x] No 80s rainbow; blue body is solid glass; filament is deeper blue on light / pale on dark; glow inside the glyph
 - [x] Demo knobs: wave speed, band width, fringe amount (lab only)
 - [x] Shared `DemoControlMenu` chrome — opaque left rail desktop; product first screen on phone
 - [ ] One GPU context + one rAF; pause off-screen; dispose on unmount; compile once against a target signature (not the live Surface outside `frame()`). Chrome with WebGPU must report `data-wave-mode="vgpu"` (this VM has no adapter — `vgpu doctor` unhealthy). Canvas CSS box equals the tilt viewport (not 300×150).
-- [x] Flattening / no-WebGPU uses CSS mask fallback on the same plane (`data-wave-mode="css"` **only** when the adapter is actually missing)
+- [x] CSS mask fallback is on the same plane from first paint; `data-wave-mode="vgpu"` only after blit copies filament pixels. Adapter missing or empty blit stays `"css"`. Blue-HD never blanks.
 - [x] Blue-HD mark is always painted in the tilt viewport (img + CSS retint); wave overlays; empty canvas never replaces the glyph
 - [x] Component exported from `index.ts` (product-only; knobs stay in the demo)
 

@@ -83,10 +83,27 @@ export function blitGpuToDisplay(
 ): void {
   if (dest.width !== source.width) dest.width = source.width;
   if (dest.height !== source.height) dest.height = source.height;
-  const ctx = dest.getContext("2d", { alpha: true });
+  const ctx = dest.getContext("2d", { alpha: true, willReadFrequently: true });
   if (!ctx) return;
   ctx.clearRect(0, 0, dest.width, dest.height);
   ctx.drawImage(source, 0, 0);
+}
+
+/** True when the display blit has filament alpha — not an empty off-tree copy. */
+export function displayHasFilamentPixels(canvas: HTMLCanvasElement): boolean {
+  if (canvas.width < 2 || canvas.height < 2) return false;
+  const ctx = canvas.getContext("2d", { alpha: true, willReadFrequently: true });
+  if (!ctx) return false;
+  const { width, height } = canvas;
+  const { data } = ctx.getImageData(0, 0, width, height);
+  const stepX = Math.max(1, Math.floor(width / 48));
+  const stepY = Math.max(1, Math.floor(height / 24));
+  for (let y = 0; y < height; y += stepY) {
+    for (let x = 0; x < width; x += stepX) {
+      if ((data[(y * width + x) * 4 + 3] ?? 0) > 18) return true;
+    }
+  }
+  return false;
 }
 
 export function backingStoreChanged(
