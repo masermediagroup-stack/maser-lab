@@ -110,7 +110,8 @@ User brief (Implement).
 - [ ] Lamp off (no hover drop-shadow)
 - [ ] Tilt only on fine pointer / desktop; drops on phones and reduced motion
 - [ ] Gradient always runs
-- [ ] Shared `DemoControlMenu` chrome; knobs in the demo, not the product barrel
+- [ ] ASCII cell size is pinned (footer font 22 ÷ 5); the lattice restrokes only when the canvas bitmap size changes, never on dock knob ticks
+- [ ] Dock knobs only retint / update uniforms; White/Glow must not bleach glyphs out of the mark
 - [ ] Component exported from `lab/src/components/projects/marketing/cta-logo-gradient/index.ts`
 
 ## Open decisions

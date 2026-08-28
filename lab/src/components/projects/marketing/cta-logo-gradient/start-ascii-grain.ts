@@ -1,3 +1,8 @@
+import {
+  ASCII_CELL_H,
+  ASCII_CELL_W,
+  ASCII_FONT_SIZE,
+} from "./constants";
 import type { CtaLogoGradientLook } from "./types";
 import { paintCornerWash, washTimeSeconds } from "./wash-palette";
 
@@ -13,8 +18,8 @@ function grainChar(column: number, row: number): string {
 
 /**
  * Uniform tiny grid filling the mark.
- * Cell size is the previous footer font/column pitch ÷ 5 (locked).
- * Glyphs stay put — no sparkle, punch-out, or drift.
+ * Cell size is pinned (footer font/column ÷ 5). The lattice is restroked
+ * only when the canvas bitmap size actually changes — never on knob ticks.
  * Fill is the four-corner wash at opposite phase from the logo body.
  */
 export function startAsciiGrain(options: {
@@ -35,39 +40,44 @@ export function startAsciiGrain(options: {
 
   let disposed = false;
   let rafId = 0;
-  let width = 1;
-  let height = 1;
+  let lastPxW = 0;
+  let lastPxH = 0;
 
-  const resize = () => {
-    const dpr = window.devicePixelRatio || 1;
-    width = Math.max(1, parent.clientWidth);
-    height = Math.max(1, parent.clientHeight);
-    canvas.width = Math.max(1, Math.floor(width * dpr));
-    canvas.height = Math.max(1, Math.floor(height * dpr));
-    mask.width = canvas.width;
-    mask.height = canvas.height;
+  const rebuildMask = (cssW: number, cssH: number, dpr: number) => {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     maskCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const footerFont = Math.max(12, Math.min(22, Math.round(height / 6)));
-    const footerCol = Math.max(8, Math.round(footerFont * 0.78));
-    const fontSize = footerFont / 5;
-    const cellW = footerCol / 5;
-    const cellH = footerFont / 5;
-    const columns = Math.max(1, Math.ceil(width / cellW));
-    const rows = Math.max(1, Math.ceil(height / cellH));
+    const columns = Math.max(1, Math.ceil(cssW / ASCII_CELL_W));
+    const rows = Math.max(1, Math.ceil(cssH / ASCII_CELL_H));
 
-    maskCtx.clearRect(0, 0, width, height);
-    maskCtx.font = `${fontSize}px ui-monospace, monospace`;
+    maskCtx.clearRect(0, 0, cssW, cssH);
+    maskCtx.font = `${ASCII_FONT_SIZE}px ui-monospace, monospace`;
     maskCtx.textAlign = "left";
     maskCtx.textBaseline = "top";
     maskCtx.fillStyle = "#ffffff";
     for (let y = 0; y < rows; y++) {
-      const posY = y * cellH;
+      const posY = y * ASCII_CELL_H;
       for (let x = 0; x < columns; x++) {
-        maskCtx.fillText(grainChar(x, y), x * cellW, posY);
+        maskCtx.fillText(grainChar(x, y), x * ASCII_CELL_W, posY);
       }
     }
+  };
+
+  const syncCanvasSize = () => {
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = Math.max(1, parent.clientWidth);
+    const cssH = Math.max(1, parent.clientHeight);
+    const pxW = Math.max(1, Math.floor(cssW * dpr));
+    const pxH = Math.max(1, Math.floor(cssH * dpr));
+    if (pxW === lastPxW && pxH === lastPxH) return;
+
+    lastPxW = pxW;
+    lastPxH = pxH;
+    canvas.width = pxW;
+    canvas.height = pxH;
+    mask.width = pxW;
+    mask.height = pxH;
+    rebuildMask(cssW, cssH, dpr);
   };
 
   const draw = () => {
@@ -81,6 +91,7 @@ export function startAsciiGrain(options: {
       lookRef.current,
       washTimeSeconds(),
       0.5,
+      "glyph",
     );
     ctx.globalCompositeOperation = "destination-in";
     ctx.drawImage(mask, 0, 0);
@@ -93,9 +104,9 @@ export function startAsciiGrain(options: {
     rafId = window.requestAnimationFrame(tick);
   };
 
-  const observer = new ResizeObserver(resize);
+  const observer = new ResizeObserver(syncCanvasSize);
   observer.observe(parent);
-  resize();
+  syncCanvasSize();
   rafId = window.requestAnimationFrame(tick);
 
   return () => {

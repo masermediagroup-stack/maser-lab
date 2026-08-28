@@ -31,6 +31,28 @@ export function washPhase(look: CtaLogoGradientLook, timeSec: number): number {
   return raw - Math.floor(raw);
 }
 
+function luma(rgb: [number, number, number]): number {
+  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+}
+
+/** White/Glow retint the glyphs but must not bleach them out of the mark. */
+function glyphLook(look: CtaLogoGradientLook): CtaLogoGradientLook {
+  return {
+    ...look,
+    highlight: look.highlight * 0.38,
+    glow: look.glow * 0.22,
+  };
+}
+
+function keepGlyphVisible(
+  rgb: [number, number, number],
+): [number, number, number] {
+  const y = luma(rgb);
+  if (y <= 0.58) return rgb;
+  const t = Math.min(1, (y - 0.58) / 0.32);
+  return mix(rgb, BLUE, t);
+}
+
 function paletteAt(
   t: number,
   look: CtaLogoGradientLook,
@@ -85,15 +107,21 @@ export function paintCornerWash(
   look: CtaLogoGradientLook,
   timeSec: number,
   phaseShift: number,
+  layer: "logo" | "glyph" = "logo",
 ) {
-  const phase = washPhase(look, timeSec) + phaseShift;
+  const sample = layer === "glyph" ? glyphLook(look) : look;
+  const phase = washPhase(sample, timeSec) + phaseShift;
+  const colorAt = (offset: number) => {
+    const rgb = paletteAt(phase + offset, sample);
+    return layer === "glyph" ? keepGlyphVisible(rgb) : rgb;
+  };
   const ctx = corners.getContext("2d");
   if (!ctx) return;
   const image = ctx.createImageData(2, 2);
-  writePixel(image.data, 0, paletteAt(phase, look));
-  writePixel(image.data, 4, paletteAt(phase + 0.25, look));
-  writePixel(image.data, 8, paletteAt(phase + 0.5, look));
-  writePixel(image.data, 12, paletteAt(phase + 0.75, look));
+  writePixel(image.data, 0, colorAt(0));
+  writePixel(image.data, 4, colorAt(0.25));
+  writePixel(image.data, 8, colorAt(0.5));
+  writePixel(image.data, 12, colorAt(0.75));
   ctx.putImageData(image, 0, 0);
   target.imageSmoothingEnabled = true;
   target.drawImage(corners, 0, 0, width, height);
