@@ -76,38 +76,59 @@ function paletteAt(
   return [clamp01(c[0]), clamp01(c[1]), clamp01(c[2])];
 }
 
-function writePixel(
-  data: Uint8ClampedArray,
-  offset: number,
-  rgb: [number, number, number],
-) {
-  data[offset] = Math.round(rgb[0] * 255);
-  data[offset + 1] = Math.round(rgb[1] * 255);
-  data[offset + 2] = Math.round(rgb[2] * 255);
-  data[offset + 3] = 255;
-}
-
 function toCss(rgb: [number, number, number]): string {
   return `rgb(${Math.round(rgb[0] * 255)} ${Math.round(rgb[1] * 255)} ${Math.round(rgb[2] * 255)})`;
 }
 
-/** Drive CSS corner colors from the integrated phase. Heading is rotation, not time. */
+function toRgba(rgb: [number, number, number], alpha: number): string {
+  return `rgba(${Math.round(rgb[0] * 255)}, ${Math.round(rgb[1] * 255)}, ${Math.round(rgb[2] * 255)}, ${alpha})`;
+}
+
+/** Must match wash.wgsl. Neighboring cycle distance — never +0.5. */
+export const WASH_NEIGHBOR = 0.09;
+/** CSS/GPU blob size (ellipse radii as a fraction of the box). */
+export const WASH_BLOB_RADIUS = 1.2;
+export const WASH_BLOB_STOP = 0.78;
+
+/** Angle 0° = TL hot, then clockwise TR → BR → BL. */
+export function hotFromAngle(angleDeg: number): number {
+  const turns = angleDeg / 360;
+  return (turns - Math.floor(turns)) * 4;
+}
+
+function dist4(index: number, hot: number): number {
+  const d = Math.abs(index - hot);
+  return Math.min(d, 4 - d);
+}
+
+function cornerColor(
+  phase: number,
+  index: number,
+  hot: number,
+  look: CtaLogoGradientLook,
+): [number, number, number] {
+  return paletteAt(phase + dist4(index, hot) * WASH_NEIGHBOR, look);
+}
+
+/** Drive CSS blob colors. Angle picks the hot corner; UV stays put. */
 export function driveCssWash(
   node: HTMLElement,
   look: CtaLogoGradientLook,
   phase: number,
 ) {
-  node.style.setProperty("--clg-tl", toCss(paletteAt(phase, look)));
-  node.style.setProperty("--clg-tr", toCss(paletteAt(phase + 0.25, look)));
-  node.style.setProperty("--clg-bl", toCss(paletteAt(phase + 0.5, look)));
-  node.style.setProperty("--clg-br", toCss(paletteAt(phase + 0.75, look)));
-  node.style.setProperty("--clg-heading", `${look.angle}deg`);
+  const hot = hotFromAngle(look.angle);
+  node.style.setProperty("--clg-tl", toCss(cornerColor(phase, 0, hot, look)));
+  node.style.setProperty("--clg-tr", toCss(cornerColor(phase, 1, hot, look)));
+  node.style.setProperty("--clg-br", toCss(cornerColor(phase, 2, hot, look)));
+  node.style.setProperty("--clg-bl", toCss(cornerColor(phase, 3, hot, look)));
 }
 
-/** 2×2 bilinear corners. `phaseShift` 0.5 inverts the logo cycle. */
+/**
+ * Four radial blobs, same mixer as CSS/GPU.
+ * `phaseShift` 0.5 inverts the logo cycle for glyphs.
+ */
 export function paintCornerWash(
   target: CanvasRenderingContext2D,
-  corners: HTMLCanvasElement,
   width: number,
   height: number,
   look: CtaLogoGradientLook,
@@ -115,26 +136,48 @@ export function paintCornerWash(
   phaseShift: number,
   layer: "logo" | "glyph" = "logo",
 ) {
+  if (width < 1 || height < 1) return;
   const sample = layer === "glyph" ? glyphLook(look) : look;
   const shifted = phase + phaseShift;
-  const colorAt = (offset: number) => {
-    const rgb = paletteAt(shifted + offset, sample);
+  const hot = hotFromAngle(look.angle);
+  const colorAt = (index: number) => {
+    const rgb = cornerColor(shifted, index, hot, sample);
     return layer === "glyph" ? keepGlyphVisible(rgb) : rgb;
   };
-  const ctx = corners.getContext("2d");
-  if (!ctx) return;
-  const image = ctx.createImageData(2, 2);
-  writePixel(image.data, 0, colorAt(0));
-  writePixel(image.data, 4, colorAt(0.25));
-  writePixel(image.data, 8, colorAt(0.5));
-  writePixel(image.data, 12, colorAt(0.75));
-  ctx.putImageData(image, 0, 0);
-  const heading = (look.angle * Math.PI) / 180;
-  const span = Math.max(width, height) * 1.5;
-  target.imageSmoothingEnabled = true;
+  const tl = colorAt(0);
+  const tr = colorAt(1);
+  const br = colorAt(2);
+  const bl = colorAt(3);
+
   target.save();
-  target.translate(width / 2, height / 2);
-  target.rotate(heading);
-  target.drawImage(corners, -span / 2, -span / 2, span, span);
+  target.setTransform(width, 0, 0, height, 0, 0);
+  target.globalCompositeOperation = "copy";
+  target.fillStyle = toCss(layer === "glyph" ? keepGlyphVisible(BLUE) : BLUE);
+  target.fillRect(0, 0, 1, 1);
+  target.globalCompositeOperation = "source-over";
+
+  const paintBlob = (
+    cx: number,
+    cy: number,
+    rgb: [number, number, number],
+  ) => {
+    const gradient = target.createRadialGradient(
+      cx,
+      cy,
+      0,
+      cx,
+      cy,
+      WASH_BLOB_RADIUS,
+    );
+    gradient.addColorStop(0, toRgba(rgb, 1));
+    gradient.addColorStop(WASH_BLOB_STOP, toRgba(rgb, 0));
+    target.fillStyle = gradient;
+    target.fillRect(0, 0, 1, 1);
+  };
+
+  paintBlob(1, 1, br);
+  paintBlob(0, 1, bl);
+  paintBlob(1, 0, tr);
+  paintBlob(0, 0, tl);
   target.restore();
 }

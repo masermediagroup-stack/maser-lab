@@ -126,11 +126,8 @@
 
 .clg-wash {
   position: absolute;
-  inset: -24%;
+  inset: 0;
   pointer-events: none;
-  --clg-heading: 0deg;
-  transform: rotate(var(--clg-heading));
-  will-change: transform;
   --clg-hi: color-mix(
     in srgb,
     var(--clg-blue) 100%,
@@ -146,10 +143,10 @@
   --clg-bl: var(--clg-blue);
   --clg-br: var(--clg-lo);
   background:
-    radial-gradient(120% 120% at 0% 0%, var(--clg-tl) 0%, transparent 72%),
-    radial-gradient(120% 120% at 100% 0%, var(--clg-tr) 0%, transparent 72%),
-    radial-gradient(120% 120% at 0% 100%, var(--clg-bl) 0%, transparent 72%),
-    radial-gradient(120% 120% at 100% 100%, var(--clg-br) 0%, transparent 72%),
+    radial-gradient(120% 120% at 0% 0%, var(--clg-tl) 0%, transparent 78%),
+    radial-gradient(120% 120% at 100% 0%, var(--clg-tr) 0%, transparent 78%),
+    radial-gradient(120% 120% at 0% 100%, var(--clg-bl) 0%, transparent 78%),
+    radial-gradient(120% 120% at 100% 100%, var(--clg-br) 0%, transparent 78%),
     var(--clg-blue);
 }
 

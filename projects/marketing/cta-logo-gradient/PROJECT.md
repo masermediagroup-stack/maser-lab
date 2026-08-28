@@ -46,8 +46,8 @@ Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | CSS four-corner wash + vgpu bilinear corners + 2D canvas ASCII | CSS is first paint; GPU is the same 4-corner cycle. Glyphs use opposite phase |
-| Loop | Integrated phase (`d(phase)/dt = speed`); angle is heading; first frame = last frame | Speed/angle knobs must not snap or freeze the wash |
+| Library | CSS/vgpu four-blob wash (neighboring stops) + 2D canvas ASCII | CSS is first paint; GPU is the same mixer. Glyphs use opposite phase |
+| Loop | Integrated phase (`d(phase)/dt = speed`); angle picks the hot corner; first frame = last frame | Speed/angle knobs must not snap or freeze the wash. Do not rotate UV |
 | Grain | Uniform tiny grid, charset `.:+x*#`, footer scale ÷5, fully filled, reverse 4-corner wash, clipped to Blue-HD | Coverage + scale locked. No sparkle. Grid does not move |
 | Tilt | Production CtaLogoTilt numbers | Keep the desktop 3D throw |
 | Duration | Continuous wash (~9s at 1×); tilt lerp 0.12 | Brand moment, not UI chrome |
@@ -101,6 +101,7 @@ User brief (Implement).
 - [ ] CSS wash is visible on first paint; CSS is not hidden until GPU has presented a frame
 - [ ] Blue-HD never blanks
 - [ ] Wash is a four-corner palette cycle (first frame = last frame) on both CSS and vgpu; no snap at the seam
+- [ ] Corners use neighboring cycle stops (not +0.5) mixed as four radial blobs; Angle cycles which corner is hot; UV is not rotated
 - [ ] ASCII is a uniform tiny grid (`.:+x*#`, footer font/cell size ÷5) filling Blue-HD; every cell stays filled; clipped sharp to the mark
 - [ ] ASCII has no sparkle, punch-out, wink, or seeded disappear; glyphs do not drift, slide, or scale
 - [ ] Glyphs sample the same four-corner loop as the logo wash at opposite phase (first frame = last frame)

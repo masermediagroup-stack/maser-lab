@@ -35,9 +35,6 @@ export function startAsciiGrain(options: {
 
   const mask = document.createElement("canvas");
   const maskCtx = mask.getContext("2d");
-  const corners = document.createElement("canvas");
-  corners.width = 2;
-  corners.height = 2;
   if (!maskCtx) return () => {};
 
   let disposed = false;
@@ -87,7 +84,6 @@ export function startAsciiGrain(options: {
     ctx.globalCompositeOperation = "copy";
     paintCornerWash(
       ctx,
-      corners,
       canvas.width,
       canvas.height,
       lookRef.current,

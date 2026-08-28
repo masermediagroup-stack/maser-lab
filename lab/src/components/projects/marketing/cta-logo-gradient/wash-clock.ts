@@ -7,7 +7,7 @@ export type WashClock = {
 
 /**
  * Integrated wash phase. Speed is d(phase)/dt, not a multiply on wall time.
- * Angle is applied by consumers as a heading, not added into this clock.
+ * Angle is applied by consumers as which corner is hot, not added into this clock.
  */
 export function createWashClock(): WashClock {
   let phase = 0;
