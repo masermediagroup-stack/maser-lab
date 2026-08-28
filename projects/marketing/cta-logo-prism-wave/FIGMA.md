@@ -45,4 +45,4 @@ None.
 
 - [ ] Mark matches Blue-HD silhouette
 - [ ] Tilt feel matches production (no extra lamp)
-- [x] Wave is sequential continuous glass lines (deeper blue on light, pale on dark), glow inside the glyph — not dashed wedges or a lamp off the mark
+- [x] Wave is sequential continuous glass lines (deeper blue on light, pale on dark), cool cyan on the leading edge, glow inside the glyph — not dashed wedges or a lamp off the mark

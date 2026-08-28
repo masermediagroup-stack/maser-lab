@@ -124,10 +124,11 @@ export function CtaLogoPrismWaveDemo() {
           />
           <p className="clpw-caption text-base leading-relaxed text-[var(--clpw-text-muted)]">
             Sequential glass lines through the cloud — one finishes the trip
-            before the next enters. Deeper blue on light, pale on dark. Glow
-            stays inside the glyph. Hover the rounded pad around the lockup to
-            tilt (mouse or pen). Empty stage beside the mark sits. Phones and
-            reduced motion keep the wave and drop the tilt.
+            before the next enters. Cool cyan on the leading edge. Deeper blue
+            on light, pale on dark. Glow stays inside the glyph. Hover the
+            rounded pad around the lockup to tilt (mouse or pen). Empty stage
+            beside the mark sits. Phones and reduced motion keep the wave and
+            drop the tilt.
           </p>
         </section>
 
@@ -142,9 +143,9 @@ export function CtaLogoPrismWaveDemo() {
             <code className="font-mono text-sm">(hover: hover) and (pointer: fine)</code>{" "}
             is false. Production{" "}
             <code className="font-mono text-sm">CtaLogoTilt</code> stays on that
-            fine-pointer gate. No hover lamp. Sequential continuous lines —
-            not dashed wedges, not a neon tube. CSS stays up until the GPU
-            blit actually paints.
+            fine-pointer gate. No hover lamp. Sequential continuous lines with
+            a cool leading-edge skin — not dashed wedges, not a neon tube, not
+            an 80s rainbow. CSS stays up until the GPU blit actually paints.
           </p>
           <p className="mt-4" aria-live="polite">
             Renderer:{" "}

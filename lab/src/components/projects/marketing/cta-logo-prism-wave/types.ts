@@ -4,7 +4,7 @@ export type PrismWaveLook = {
   /** UV units per second along the travel axis. */
   speed: number;
   bandWidth: number;
-  /** Leading-edge cool fringe amount (0–1). Tiny at the default. */
+  /** Leading-edge cool/cyan mix (0–1). On at the default; not a hue sweep. */
   fringe: number;
 };
 

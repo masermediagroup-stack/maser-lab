@@ -221,6 +221,10 @@
   stroke: var(--clpw-filament);
   fill: none;
   stroke-dashoffset: 1;
+}
+
+.clpw-css-filament--core,
+.clpw-css-filament--glow {
   animation: clpw-css-travel var(--clpw-css-duration, 7.2s) linear infinite;
 }
 
@@ -234,6 +238,18 @@
   opacity: 0.38;
   /* In-glass light. Parent mask clips this to Blue-HD — not a lamp on the mark. */
   filter: blur(0.55px);
+}
+
+/*
+ * Cool/cyan skin at the draw front only. Same sequential delays as the
+ * core. Hidden during clear / wait so it never reads as a traveling blob.
+ */
+.clpw-css-filament--fringe {
+  stroke: var(--clpw-fringe);
+  stroke-width: calc(var(--clpw-css-stroke, 2.2) * 1.35);
+  stroke-dashoffset: 0.07;
+  opacity: var(--clpw-css-fringe, 0.52);
+  animation: clpw-css-fringe var(--clpw-css-duration, 7.2s) linear infinite;
 }
 
 .clpw-css-trip--1 .clpw-css-filament {
@@ -265,10 +281,29 @@
   }
 }
 
+@keyframes clpw-css-fringe {
+  0% {
+    stroke-dashoffset: 0.07;
+  }
+  16.666% {
+    stroke-dashoffset: -0.93;
+  }
+  16.7%,
+  100% {
+    stroke-dashoffset: -0.93;
+    opacity: 0;
+  }
+}
+
 /* Wave always runs — including prefers-reduced-motion. Tilt is JS-gated. */
 @media (prefers-reduced-motion: reduce) {
-  .clpw-css-filament {
+  .clpw-css-filament--core,
+  .clpw-css-filament--glow {
     animation: clpw-css-travel var(--clpw-css-duration, 7.2s) linear infinite;
+  }
+
+  .clpw-css-filament--fringe {
+    animation: clpw-css-fringe var(--clpw-css-duration, 7.2s) linear infinite;
   }
 }
 

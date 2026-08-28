@@ -37,8 +37,11 @@ export const HOVER_SPEED_BOOST = 1.45;
 export const CTA_LOGO_PRISM_WAVE_DEFAULTS: PrismWaveLook = {
   speed: 0.28,
   bandWidth: 0.013,
-  fringe: 0.22,
+  fringe: 0.52,
 };
+
+/** Short on / long off — cyan skin at the draw front only (pathLength=1). */
+export const FILAMENT_FRINGE_DASH = "0.07 0.93";
 
 /**
  * Sequential wander paths (viewBox 200×101). One finishes the trip before

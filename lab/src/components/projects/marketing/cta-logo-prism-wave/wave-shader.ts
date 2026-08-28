@@ -2,7 +2,8 @@
  * Sequential continuous filaments through Blue-HD glass.
  *
  * One wander finishes the full L→R trip (draw on, then clear) before the
- * next variant enters. Thin core + in-glyph halo. Color comes from
+ * next variant enters. Thin core + in-glyph halo. Cool/cyan skin on the
+ * leading edge only (`fringe`) — not a hue sweep. Color comes from
  * `ground` (0 = deeper blue on light, 1 = pale on dark).
  *
  * `fwidth` runs before the mask early-return — derivatives in non-uniform
@@ -26,6 +27,7 @@ struct Params {
 
 const DEEP_BLUE = vec3f(0.039215686, 0.352941176, 0.611764706);
 const PALE = vec3f(0.905882353, 0.956862745, 1.0);
+const CYAN = vec3f(0.450980392, 0.905882353, 1.0);
 const HOVER_BOOST = 1.45;
 
 fn wander_a(u: f32) -> f32 {
@@ -80,8 +82,13 @@ fn wander_y(u: f32, which: i32) -> f32 {
   let y0 = wander_y(u, which);
 
   var win: f32;
+  var head: f32 = 0.0;
+  let lead_span = max(0.042, aa * 12.0);
   if (local < 1.0) {
     win = 1.0 - smoothstep(local, local + aa * 8.0, u);
+    // Cool skin just behind the advancing front. Zero ahead of it.
+    let behind = local - u;
+    head = (1.0 - smoothstep(0.0, lead_span, behind)) * step(0.0, behind);
   } else {
     let e = local - 1.0;
     win = smoothstep(e, e + aa * 8.0, u);
@@ -91,9 +98,11 @@ fn wander_y(u: f32, which: i32) -> f32 {
   let dist = abs(uv.y - y0);
   let core = 1.0 - smoothstep(half_w * 0.45, half_w + aa, dist);
   let halo = 1.0 - smoothstep(half_w, half_w * 2.4 + aa, dist);
-  let line = (core + halo * 0.32 * params.fringe) * win * mask;
+  // In-glyph volume glow — not a lamp off the mark (mask already clipped).
+  let line = (core + halo * 0.26) * win * mask;
 
-  let color = mix(DEEP_BLUE, PALE, saturate(params.ground));
+  let base = mix(DEEP_BLUE, PALE, saturate(params.ground));
+  let color = mix(base, CYAN, head * saturate(params.fringe));
   return vec4f(color * line, line);
 }
 `;

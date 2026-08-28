@@ -5,6 +5,7 @@ import {
   CSS_WAVE_DURATION_S,
   CTA_LOGO_PRISM_WAVE_DEFAULTS,
   FILAMENT_DASH,
+  FILAMENT_FRINGE_DASH,
   FILAMENT_PATHS,
   HOVER_SPEED_BOOST,
 } from "./constants";
@@ -17,8 +18,8 @@ type CssWaveFallbackProps = {
 
 /**
  * Sequential continuous snakes when WebGPU is missing or not yet painting.
- * One path finishes the trip before the next enters. Masked to Blue-HD so
- * glow stays inside the glyph — not a lamp on the mark.
+ * One path finishes the trip before the next enters. Cool/cyan skin on the
+ * leading edge. Masked to Blue-HD so glow stays inside the glyph.
  */
 export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
   const speed = Math.max(look.speed, 0.12);
@@ -29,6 +30,7 @@ export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
   const waveVars = {
     "--clpw-css-duration": `${duration * hoverBoost}s`,
     "--clpw-css-stroke": `${stroke}`,
+    "--clpw-css-fringe": `${Math.max(0, Math.min(1, look.fringe))}`,
   } as CSSProperties;
 
   return (
@@ -49,6 +51,12 @@ export function CssWaveFallback({ look, className }: CssWaveFallbackProps) {
                 d={d}
                 pathLength={1}
                 strokeDasharray={FILAMENT_DASH}
+              />
+              <path
+                className="clpw-css-filament clpw-css-filament--fringe"
+                d={d}
+                pathLength={1}
+                strokeDasharray={FILAMENT_FRINGE_DASH}
               />
               <path
                 className="clpw-css-filament clpw-css-filament--core"
