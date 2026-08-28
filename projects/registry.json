@@ -102,9 +102,9 @@
     {
       "slug": "cta-logo-gradient",
       "title": "CTA Logo Gradient",
-      "status": "building",
+      "status": "review",
       "category": "marketing",
-      "description": "Maser-blue moving gradient through the CTA lockup, with production desktop 3D tilt"
+      "description": "Homepage CtaLogoTilt replacement: four-blob wash + in-place ASCII tick (not the footer wave)"
     }
   ]
 }

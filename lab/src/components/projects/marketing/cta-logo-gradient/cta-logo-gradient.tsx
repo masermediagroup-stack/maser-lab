@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { cn } from "@/lib/utils";
 import {
   CTA_LOGO_GRADIENT_DEFAULTS,
   LERP,
@@ -41,6 +40,7 @@ function applyTilt(node: HTMLElement, current: TiltState) {
   node.style.setProperty("--cta-logo-tilt-z", `${current.z}px`);
 }
 
+/** Homepage CTA lockup. Drop in for production `CtaLogoTilt`. No demo chrome. */
 export function CtaLogoGradient({
   className,
   forceReducedMotion = false,
@@ -181,7 +181,7 @@ export function CtaLogoGradient({
   return (
     <div
       ref={hitRef}
-      className={cn("clg-hit", className)}
+      className={["clg-hit", className].filter(Boolean).join(" ")}
       tabIndex={0}
       aria-label="Maser Media CTA logo"
       style={

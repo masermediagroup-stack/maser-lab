@@ -27,10 +27,3 @@ export const CTA_LOGO_GRADIENT_DEFAULTS: CtaLogoGradientLook = {
   angle: 118,
 };
 
-export const LOOK_RANGES = {
-  speed: { min: 0.25, max: 2.2, step: 0.01 },
-  highlight: { min: 0, max: 1, step: 0.01 },
-  shade: { min: 0, max: 1, step: 0.01 },
-  glow: { min: 0, max: 1, step: 0.01 },
-  angle: { min: 0, max: 180, step: 1 },
-} as const;

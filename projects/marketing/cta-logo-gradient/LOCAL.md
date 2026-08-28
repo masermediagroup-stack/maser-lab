@@ -39,5 +39,7 @@ npx vgpu check src/components/projects/marketing/cta-logo-gradient/wash.wgsl
 
 ## Transfer
 
+- Copy list (Crew): `lab/src/components/projects/marketing/cta-logo-gradient/EXPORT.md`
 - Per-project notes: `projects/marketing/cta-logo-gradient/TRANSFER.md`
 - Universal checklist: `.agents/skills/maser-lab-web/references/project-lifecycle.md` (Transfer checklist)
+- Replaces homepage `CtaLogoTilt`, not the footer ASCII wave.

@@ -8,10 +8,18 @@ import {
   LabRange,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
-import { CTA_LOGO_GRADIENT_DEFAULTS, LOOK_RANGES } from "./constants";
+import { CTA_LOGO_GRADIENT_DEFAULTS } from "./constants";
 import { CtaLogoGradient } from "./cta-logo-gradient";
 import type { CtaLogoGradientLook } from "./types";
-import "./tokens.css";
+import "./demo.css";
+
+const LOOK_RANGES = {
+  speed: { min: 0.25, max: 2.2, step: 0.01 },
+  highlight: { min: 0, max: 1, step: 0.01 },
+  shade: { min: 0, max: 1, step: 0.01 },
+  glow: { min: 0, max: 1, step: 0.01 },
+  angle: { min: 0, max: 180, step: 1 },
+} as const;
 
 export function CtaLogoGradientDemo() {
   const [reduced, setReduced] = useState(false);
@@ -45,9 +53,9 @@ export function CtaLogoGradientDemo() {
             CTA logo gradient
           </h1>
           <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-            Uniform tiny grid on a four-blob Maser-blue wash. Glyphs stay
-            put, reverse-phase fill, and tick to another `.:+x*#` in little
-            bursts like live code. Clipped to Blue-HD.
+            Homepage CTA mark (`CtaLogoTilt`), not the footer wave. Uniform
+            tiny grid on a four-blob Maser-blue wash. Glyphs tick in place
+            (`.:+x*#`). Clipped to Blue-HD. Dock knobs are lab-only.
           </p>
         </div>
         <LabControlGroup label="Wash">
@@ -110,7 +118,8 @@ export function CtaLogoGradientDemo() {
           glyphs swap in place (`.:+x*#`), like a live terminal — no holes.
           Same glyph scale. Speed integrates phase (no snap). Angle cycles
           which corner is hot — UV does not rotate. Soft blobs, neighboring
-          stops. Knobs retint only. No footer wave, pond, RGB dust, bulge,
+          stops. Dock knobs are lab-only and retint only. This is the
+          homepage CTA mark, not the footer wave. No pond, RGB dust, bulge,
           or filament. White ground.
         </p>
       </DemoControlMenu>

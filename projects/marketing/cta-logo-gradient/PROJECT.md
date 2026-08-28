@@ -2,7 +2,7 @@
 
 **Slug:** `cta-logo-gradient`  
 **Category:** marketing  
-**Status:** building  
+**Status:** review  
 **Created:** 2026-08-28
 
 ## Design reference
@@ -115,7 +115,7 @@ User brief (Implement).
 - [ ] Dock knobs only retint / update uniforms; White/Glow must not bleach glyphs out of the mark
 - [ ] Wash phase is integrated (`d(phase)/dt = speed`); Speed and Angle knobs must not snap, freeze, or kill the loop
 - [ ] Knob ticks only update uniforms / retint; they must not remount the vgpu surface, WebGL context, or ASCII lattice
-- [ ] Component exported from `lab/src/components/projects/marketing/cta-logo-gradient/index.ts`
+- [x] Component exported from `lab/src/components/projects/marketing/cta-logo-gradient/index.ts` (`CtaLogoTilt` / `CtaLogoGradient`; demo not in barrel)
 
 ## Open decisions
 

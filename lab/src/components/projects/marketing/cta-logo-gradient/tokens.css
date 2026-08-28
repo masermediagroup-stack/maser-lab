@@ -1,9 +1,10 @@
-.clg-root.maser-lab,
-.clg-root {
+/* Product tokens for the homepage CTA mark (CtaLogoTilt replacement).
+   Demo page chrome lives in demo.css — do not copy that file to production. */
+
+.clg-hit {
   --clg-blue: #10a4ff;
   --clg-white: #f5fbff;
   --clg-dark: #0872c4;
-  --clg-ground: #ffffff;
   --clg-period: 9s;
   --clg-angle: 118deg;
   --clg-tile: 8.5rem;
@@ -13,21 +14,6 @@
   --cta-logo-tilt-x: 0deg;
   --cta-logo-tilt-y: 0deg;
   --cta-logo-tilt-z: 0px;
-  min-height: 100dvh;
-  background: var(--clg-ground);
-  background-color: var(--clg-ground);
-  color: #111113;
-}
-
-.clg-stage {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  background: var(--clg-ground, #ffffff);
-}
-
-.clg-hit {
   position: relative;
   width: min(88vw, 36rem);
   max-width: 100%;
@@ -177,8 +163,4 @@
   .clg-tilt {
     transform: none !important;
   }
-}
-
-.clg-notes {
-  max-width: 36rem;
 }
