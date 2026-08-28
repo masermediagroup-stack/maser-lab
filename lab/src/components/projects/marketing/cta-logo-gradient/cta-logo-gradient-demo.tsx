@@ -45,9 +45,8 @@ export function CtaLogoGradientDemo() {
             CTA logo gradient
           </h1>
           <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-            Tiny white ASCII grid (`.:+x*#`, footer scale ÷5) filling
-            Blue-HD on a looping Maser-blue wash. Characters are white
-            only.
+            Uniform tiny white grid on a four-corner Maser-blue wash.
+            Seeded cells punch out and return. Glyphs stay `#ffffff`.
           </p>
         </div>
         <LabControlGroup label="Wash">
@@ -104,9 +103,10 @@ export function CtaLogoGradientDemo() {
         </LabControlGroup>
         <p className="clg-notes font-mono text-[10px] leading-relaxed text-[var(--lab-text-muted)]">
           Tilt: MAX_TILT_X=14 MAX_TILT_Y=16 MAX_LIFT=14 LERP=0.12. Lamp off.
-          Reduced motion drops tilt only — the wash always loops. Uniform
-          tiny white grid covering the mark — no footer column-wave, no
-          pond, no RGB dust, no bulge, no filament. White ground.
+          Reduced motion drops tilt only — the wash always loops. Four
+          corners cycle the locked palette. Seeded occupancy twinkle; grid
+          does not drift. Same glyph scale. No footer wave, pond, RGB dust,
+          bulge, or filament. White ground.
         </p>
       </DemoControlMenu>
     </div>

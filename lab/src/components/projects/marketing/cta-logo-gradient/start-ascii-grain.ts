@@ -1,3 +1,5 @@
+import type { CtaLogoGradientLook } from "./types";
+
 /** Grain charset. Space omitted so every cell inks the mark at this scale. */
 export const ASCII_CHARS = ".:+x*#";
 
@@ -8,38 +10,62 @@ function grainChar(column: number, row: number): string {
   return ASCII_CHARS[index] ?? ".";
 }
 
+/** Stable 0..1 seed per cell. Never Math.random. */
+function cellSeed(column: number, row: number): number {
+  const n = Math.sin(column * 127.1 + row * 311.7) * 43758.5453;
+  return n - Math.floor(n);
+}
+
+function cellOccupied(column: number, row: number, timeMs: number): boolean {
+  const seed = cellSeed(column, row);
+  const period = 900 + seed * 2200;
+  const cycle = ((timeMs + seed * period) % period) / period;
+  const hole = 0.14 + seed * 0.12;
+  return cycle > hole;
+}
+
 /**
  * Uniform tiny white grid filling the mark.
- * Cell size is the previous footer font/column pitch ÷ 5.
- * No column-height wave, fade, skip, or footer silhouette.
+ * Cell size is the previous footer font/column pitch ÷ 5 (locked).
+ * Occupancy twinkles via a per-cell seed; glyphs do not drift, slide, or scale.
  */
 export function startAsciiGrain(options: {
   canvas: HTMLCanvasElement;
+  lookRef: { current: CtaLogoGradientLook };
 }): () => void {
-  const { canvas } = options;
+  const { canvas, lookRef } = options;
   const parent = canvas.parentElement;
   const ctx = canvas.getContext("2d");
   if (!parent || !ctx) return () => {};
 
   let disposed = false;
+  let rafId = 0;
+  let fontSize = 0;
+  let cellW = 0;
+  let cellH = 0;
+  let columns = 1;
+  let rows = 1;
+  let width = 1;
+  let height = 1;
 
-  const draw = () => {
-    if (disposed) return;
+  const resize = () => {
     const dpr = window.devicePixelRatio || 1;
-    const width = Math.max(1, parent.clientWidth);
-    const height = Math.max(1, parent.clientHeight);
+    width = Math.max(1, parent.clientWidth);
+    height = Math.max(1, parent.clientHeight);
     canvas.width = Math.max(1, Math.floor(width * dpr));
     canvas.height = Math.max(1, Math.floor(height * dpr));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const footerFont = Math.max(12, Math.min(22, Math.round(height / 6)));
     const footerCol = Math.max(8, Math.round(footerFont * 0.78));
-    const fontSize = footerFont / 5;
-    const cellW = footerCol / 5;
-    const cellH = footerFont / 5;
-    const columns = Math.max(1, Math.ceil(width / cellW));
-    const rows = Math.max(1, Math.ceil(height / cellH));
+    fontSize = footerFont / 5;
+    cellW = footerCol / 5;
+    cellH = footerFont / 5;
+    columns = Math.max(1, Math.ceil(width / cellW));
+    rows = Math.max(1, Math.ceil(height / cellH));
+  };
 
+  const draw = (timeMs: number) => {
     ctx.clearRect(0, 0, width, height);
     ctx.font = `${fontSize}px ui-monospace, monospace`;
     ctx.textAlign = "left";
@@ -50,17 +76,27 @@ export function startAsciiGrain(options: {
     for (let y = 0; y < rows; y++) {
       const posY = y * cellH;
       for (let x = 0; x < columns; x++) {
+        if (!cellOccupied(x, y, timeMs)) continue;
         ctx.fillText(grainChar(x, y), x * cellW, posY);
       }
     }
   };
 
-  const observer = new ResizeObserver(draw);
+  const tick = (now: number) => {
+    if (disposed) return;
+    const speed = lookRef.current.speed;
+    draw(now * speed);
+    rafId = window.requestAnimationFrame(tick);
+  };
+
+  const observer = new ResizeObserver(resize);
   observer.observe(parent);
-  draw();
+  resize();
+  rafId = window.requestAnimationFrame(tick);
 
   return () => {
     disposed = true;
     observer.disconnect();
+    window.cancelAnimationFrame(rafId);
   };
 }

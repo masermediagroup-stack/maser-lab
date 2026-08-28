@@ -12,28 +12,40 @@ struct Params {
 const BLUE = vec3f(0.062745, 0.643137, 1.0);
 const WHITE = vec3f(0.960784, 0.984314, 1.0);
 const DARK = vec3f(0.031373, 0.447059, 0.768627);
-const TAU = 6.28318530718;
 const LOOP = 9.0;
-const BANDS = 2.6;
 
-fn washWave(uv: vec2f, dir: vec2f, slide: f32) -> f32 {
-  let travel = dot(uv - vec2f(0.5), dir) * BANDS - slide;
-  return sin(travel * TAU) * 0.5 + 0.5;
-}
-
-fn washColor(wave: f32) -> vec3f {
-  var color = mix(BLUE, DARK, params.shade * (1.0 - wave) * 0.82);
-  let hi = smoothstep(0.5, 0.94, wave) * params.highlight;
-  color = mix(color, WHITE, hi * 0.48);
-  let inner = pow(smoothstep(0.64, 1.0, wave), 1.55) * params.glow;
-  color = color + WHITE * inner * 0.26;
-  return clamp(color, vec3f(0.0), vec3f(1.0));
+fn paletteAt(t: f32) -> vec3f {
+  let u = fract(t);
+  let seg = u * 4.0;
+  let i = floor(seg);
+  let f = fract(seg);
+  let hi = mix(BLUE, WHITE, params.highlight * 0.48) + WHITE * params.glow * 0.18;
+  let lo = mix(BLUE, DARK, params.shade * 0.82);
+  var a = BLUE;
+  var b = BLUE;
+  if (i < 0.5) {
+    a = BLUE;
+    b = hi;
+  } else if (i < 1.5) {
+    a = hi;
+    b = BLUE;
+  } else if (i < 2.5) {
+    a = BLUE;
+    b = lo;
+  } else {
+    a = lo;
+    b = BLUE;
+  }
+  return clamp(mix(a, b, f), vec3f(0.0), vec3f(1.0));
 }
 
 @fragment fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
-  let rad = params.angle * 0.01745329252;
-  let dir = vec2f(cos(rad), sin(rad));
-  let slide = params.time * params.speed / LOOP;
-  let wave = washWave(uv, dir, slide);
-  return vec4f(washColor(wave), 1.0);
+  let phase = fract(params.time * params.speed / LOOP + params.angle / 360.0);
+  let tl = paletteAt(phase);
+  let tr = paletteAt(phase + 0.25);
+  let bl = paletteAt(phase + 0.5);
+  let br = paletteAt(phase + 0.75);
+  let top = mix(tl, tr, uv.x);
+  let bot = mix(bl, br, uv.x);
+  return vec4f(mix(top, bot, uv.y), 1.0);
 }

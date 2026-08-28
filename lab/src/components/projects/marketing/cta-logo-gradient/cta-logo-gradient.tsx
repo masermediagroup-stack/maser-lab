@@ -66,7 +66,9 @@ export function CtaLogoGradient({
           onPainted: () => setGpuPainted(true),
         })
       : () => {};
-    const stopAscii = ascii ? startAsciiGrain({ canvas: ascii }) : () => {};
+    const stopAscii = ascii
+      ? startAsciiGrain({ canvas: ascii, lookRef })
+      : () => {};
     return () => {
       stopWash();
       stopAscii();
