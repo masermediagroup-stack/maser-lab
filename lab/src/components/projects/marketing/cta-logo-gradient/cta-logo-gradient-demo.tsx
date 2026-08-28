@@ -46,8 +46,8 @@ export function CtaLogoGradientDemo() {
           </h1>
           <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
             Uniform tiny grid on a four-blob Maser-blue wash. Glyphs stay
-            put with reverse-phase fill. Little bursts wink off then back
-            on. Clipped to Blue-HD.
+            put, reverse-phase fill, and tick to another `.:+x*#` in little
+            bursts like live code. Clipped to Blue-HD.
           </p>
         </div>
         <LabControlGroup label="Wash">
@@ -106,12 +106,12 @@ export function CtaLogoGradientDemo() {
           Tilt: MAX_TILT_X=14 MAX_TILT_Y=16 MAX_LIFT=14 LERP=0.12. Lamp off.
           Reduced motion drops tilt only — the wash always loops. Four
           corners cycle the locked palette. Glyphs get that loop reversed.
-          Grid stays put. Sparkle is binary: clustered cells wink off then
-          back on — short duty, most of the field stays inked. Same glyph
-          scale. Speed integrates
-          phase (no snap). Angle cycles which corner is hot — UV does not
-          rotate. Soft blobs, neighboring stops. Knobs retint only. No
-          footer wave, pond, RGB dust, bulge, or filament. White ground.
+          Grid stays put and fully inked. Sparkle is a charset tick: clustered
+          glyphs swap in place (`.:+x*#`), like a live terminal — no holes.
+          Same glyph scale. Speed integrates phase (no snap). Angle cycles
+          which corner is hot — UV does not rotate. Soft blobs, neighboring
+          stops. Knobs retint only. No footer wave, pond, RGB dust, bulge,
+          or filament. White ground.
         </p>
       </DemoControlMenu>
     </div>

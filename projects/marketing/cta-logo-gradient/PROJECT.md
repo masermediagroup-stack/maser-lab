@@ -17,19 +17,19 @@
 Lab and portfolio viewers looking at the Maser Media CTA lockup. Occasional — a brand moment, not high-frequency chrome.
 
 ### Job
-Read the mark as Blue-HD with a looping four-corner Maser-blue wash (`#10a4ff` + slight white + darker blue). A uniform tiny ASCII grid fills the whole glyph. Glyphs take that same four-corner loop at opposite phase. Seeded sparkle bursts wink clustered cells off, then back on. Most of the field stays inked.
+Read the mark as Blue-HD with a looping four-corner Maser-blue wash (`#10a4ff` + slight white + darker blue). A uniform tiny ASCII grid fills the whole glyph and stays fully inked. Glyphs take that same four-corner loop at opposite phase. Seeded sparkle bursts tick clustered cells to another `.:+x*#` in place, like a live terminal.
 
 ### Current behavior
 Production `CtaLogoTilt` is a static `#2cafff` SVG with pointer tilt (`MAX_TILT_X=14`, `MAX_TILT_Y=16`, `MAX_LIFT=14`, `LERP=0.12`) and a hover drop-shadow lamp. Closed prism-wave / filament experiments, pond-ripple ASCII, and the footer column-wave are different looks and are not reused here.
 
 ### Desired outcome
-First paint already shows a looping four-corner Blue-HD wash. A uniform tiny ASCII grid sits on that wash, clipped sharp to the mark. Glyph size stays at footer font/cell ÷5. Sparkle is binary occupancy: short clustered winks off, then back on — not a multiply, not persistent holes. Glyphs sample the same four-corner loop at opposite phase from the logo body. No drift, slide, or scale. A vgpu fragment wash upgrades the color body when the GPU is actually painting. CSS wash stays until then. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
+First paint already shows a looping four-corner Blue-HD wash. A uniform tiny ASCII grid sits on that wash, clipped sharp to the mark. Glyph size stays at footer font/cell ÷5. Sparkle is an in-place charset tick (`.:+x*#`) in little bursts — no wink-off holes, no multiply. Glyphs sample the same four-corner loop at opposite phase from the logo body. No drift, slide, or scale. A vgpu fragment wash upgrades the color body when the GPU is actually painting. CSS wash stays until then. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
 
 ### Success signal
 `/demos/cta-logo-gradient` never blanks the lockup. CSS wash is visible before GPU. The wash loops forever (first frame = last frame). ASCII grain covers the mark and is the reverse-phase four-corner wash. Desktop mouse tilt matches production throw. Touch and `prefers-reduced-motion` keep the wash and drop the tilt.
 
 ### Non-goals
-Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps, wide-stage hit targets, computer-use verification, cloning ASCII-effect white-on-black skin, rainbow, readable type / terminal dumps around the logo, frozen grid with only a light band, slanted brightness wipe / fade-to-off sweep, cell-scale bulge toward camera, circular orb, persistent empty holes, black page ground, pond rings, footer column-wave, RGB dust, brightness-multiply sparkle.
+Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps, wide-stage hit targets, computer-use verification, cloning ASCII-effect white-on-black skin, rainbow, readable type / terminal dumps around the logo, frozen grid with only a light band, slanted brightness wipe / fade-to-off sweep, cell-scale bulge toward camera, circular orb, wink-off holes, black page ground, pond rings, footer column-wave, RGB dust, brightness-multiply sparkle.
 
 ## States
 
@@ -48,7 +48,7 @@ Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps
 | --- | --- | --- |
 | Library | CSS/vgpu four-blob wash (neighboring stops) + 2D canvas ASCII | CSS is first paint; GPU is the same mixer. Glyphs use opposite phase |
 | Loop | Integrated phase (`d(phase)/dt = speed`); angle picks the hot corner; first frame = last frame | Speed/angle knobs must not snap or freeze the wash. Do not rotate UV |
-| Grain | Uniform tiny grid, charset `.:+x*#`, footer scale ÷5, reverse 4-blob wash, clipped to Blue-HD; seeded binary burst sparkle | Coverage + scale locked. Short 0/1 winks. Grid does not move |
+| Grain | Uniform tiny grid, charset `.:+x*#`, footer scale ÷5, reverse 4-blob wash, clipped to Blue-HD; in-place charset tick bursts | Coverage + scale locked. No holes. Grid does not slide |
 | Tilt | Production CtaLogoTilt numbers | Keep the desktop 3D throw |
 | Duration | Continuous wash (~9s at 1×); tilt lerp 0.12 | Brand moment, not UI chrome |
 | Easing | Linear wash travel; tilt lerp | Travel reads as a gradient, not a bounce |
@@ -103,7 +103,7 @@ User brief (Implement).
 - [ ] Wash is a four-corner palette cycle (first frame = last frame) on both CSS and vgpu; no snap at the seam
 - [ ] Corners use neighboring cycle stops (not +0.5) mixed as four radial blobs; Angle cycles which corner is hot; UV is not rotated
 - [ ] ASCII is a uniform tiny grid (`.:+x*#`, footer font/cell size ÷5) filling Blue-HD; every cell stays filled; clipped sharp to the mark
-- [ ] Sparkle is seeded binary occupancy: clustered cells wink off then back on (short duty); most of the field stays inked; no multiply/flash overlay; lattice is not restroked for sparkle; glyphs do not drift, slide, or scale
+- [ ] Sparkle is a seeded in-place charset tick (`.:+x*#`) in little bursts; every mask cell stays inked; no wink-off occupancy; no full-lattice fillText restroke per frame; glyphs do not drift, slide, or scale
 - [ ] Glyphs sample the same four-corner loop as the logo wash at opposite phase (first frame = last frame)
 - [ ] ASCII never uses footer column-wave, RGB dust, pond rings, slanted shutdown, cell bulge, or filament
 - [ ] Tilt uses MAX_TILT_X=14, MAX_TILT_Y=16, MAX_LIFT=14, LERP=0.12; perspective on the viewport
