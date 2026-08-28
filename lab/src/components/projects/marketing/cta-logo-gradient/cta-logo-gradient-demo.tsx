@@ -45,8 +45,8 @@ export function CtaLogoGradientDemo() {
             CTA logo gradient
           </h1>
           <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-            Uniform tiny white grid on a four-corner Maser-blue wash.
-            Seeded cells sparkle like stars. Glyphs stay `#ffffff`.
+            Uniform tiny grid on a four-corner Maser-blue wash. Glyphs stay
+            put and take the same loop at opposite phase. Clipped to Blue-HD.
           </p>
         </div>
         <LabControlGroup label="Wash">
@@ -104,9 +104,9 @@ export function CtaLogoGradientDemo() {
         <p className="clg-notes font-mono text-[10px] leading-relaxed text-[var(--lab-text-muted)]">
           Tilt: MAX_TILT_X=14 MAX_TILT_Y=16 MAX_LIFT=14 LERP=0.12. Lamp off.
           Reduced motion drops tilt only — the wash always loops. Four
-          corners cycle the locked palette. Short seeded sparkle; grid
-          does not drift. Same glyph scale. No footer wave, pond, RGB dust,
-          bulge, or filament. White ground.
+          corners cycle the locked palette. Glyphs get that loop reversed.
+          Grid stays fully filled — no sparkle or holes. Same glyph scale.
+          No footer wave, pond, RGB dust, bulge, or filament. White ground.
         </p>
       </DemoControlMenu>
     </div>

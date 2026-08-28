@@ -1,6 +1,7 @@
 import type { FrameLoopHandle, Gpu } from "vgpu";
-import { clock, effect, frameLoop, init, surface } from "vgpu";
+import { effect, frameLoop, init, surface } from "vgpu";
 import type { CtaLogoGradientLook } from "./types";
+import { washTimeSeconds } from "./wash-palette";
 import washShader from "./wash.wgsl";
 
 export type StartGradientOptions = {
@@ -63,12 +64,11 @@ export function startGradient({
       return;
     }
 
-    const time = clock(gpu);
     loop = frameLoop(gpu, (frame) => {
       const look = lookRef.current;
       wash.set({
         params: {
-          time: time.time,
+          time: washTimeSeconds(),
           speed: look.speed,
           highlight: look.highlight,
           shade: look.shade,

@@ -17,23 +17,23 @@
 Lab and portfolio viewers looking at the Maser Media CTA lockup. Occasional — a brand moment, not high-frequency chrome.
 
 ### Job
-Read the mark as Blue-HD with a looping four-corner Maser-blue wash (`#10a4ff` + slight white + darker blue). A uniform tiny white ASCII grid fills the whole glyph; a seeded few cells briefly sparkle off and on like stars. Characters never leave the mark.
+Read the mark as Blue-HD with a looping four-corner Maser-blue wash (`#10a4ff` + slight white + darker blue). A uniform tiny ASCII grid fills the whole glyph and stays fully filled. Glyphs take that same four-corner loop at opposite phase. Characters never leave the mark.
 
 ### Current behavior
 Production `CtaLogoTilt` is a static `#2cafff` SVG with pointer tilt (`MAX_TILT_X=14`, `MAX_TILT_Y=16`, `MAX_LIFT=14`, `LERP=0.12`) and a hover drop-shadow lamp. Closed prism-wave / filament experiments, pond-ripple ASCII, and the footer column-wave are different looks and are not reused here.
 
 ### Desired outcome
-First paint already shows a looping four-corner Blue-HD wash. A uniform tiny white ASCII grid sits on that wash, clipped sharp to the mark. Glyph size stays at footer font/cell ÷5. Most cells stay filled; a seeded minority briefly wink out and back (short duty cycle, scattered). No drift, slide, or scale. A vgpu fragment wash upgrades the color body when the GPU is actually painting. CSS wash stays until then. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
+First paint already shows a looping four-corner Blue-HD wash. A uniform tiny ASCII grid sits on that wash, clipped sharp to the mark. Glyph size stays at footer font/cell ÷5. Every cell stays filled — no sparkle, wink, or punch-out. Glyphs sample the same four-corner loop at opposite phase from the logo body. No drift, slide, or scale. A vgpu fragment wash upgrades the color body when the GPU is actually painting. CSS wash stays until then. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
 
 ### Success signal
-`/demos/cta-logo-gradient` never blanks the lockup. CSS wash is visible before GPU. The wash loops forever (first frame = last frame). White ASCII grain covers the mark. Desktop mouse tilt matches production throw. Touch and `prefers-reduced-motion` keep the wash and drop the tilt.
+`/demos/cta-logo-gradient` never blanks the lockup. CSS wash is visible before GPU. The wash loops forever (first frame = last frame). ASCII grain covers the mark and is the reverse-phase four-corner wash. Desktop mouse tilt matches production throw. Touch and `prefers-reduced-motion` keep the wash and drop the tilt.
 
 ### Non-goals
-Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps, wide-stage hit targets, computer-use verification, cloning ASCII-effect white-on-black skin, rainbow, readable type / terminal dumps around the logo, frozen grid with only a light band, slanted brightness wipe / fade-to-off sweep, cell-scale bulge toward camera, circular orb, black holes in the mark, black page ground, pond rings, footer column-wave, RGB dust, colored ASCII, Maser-blue glyphs.
+Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps, wide-stage hit targets, computer-use verification, cloning ASCII-effect white-on-black skin, rainbow, readable type / terminal dumps around the logo, frozen grid with only a light band, slanted brightness wipe / fade-to-off sweep, cell-scale bulge toward camera, circular orb, black holes in the mark, black page ground, pond rings, footer column-wave, RGB dust, sparkle / punch-out occupancy, seeded disappear.
 
 ## States
 
-- [ ] default (CSS moving wash through Blue-HD + tiny white ASCII grid)
+- [ ] default (CSS moving wash through Blue-HD + tiny ASCII grid, reverse-phase fill)
 - [ ] gpu-painting (canvas wash after first presented frame; CSS may then hide)
 - [ ] gpu-unavailable (CSS wash stays; lockup never blanks)
 - [ ] hover tilt (fine pointer / desktop only)
@@ -46,9 +46,9 @@ Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | CSS four-corner wash + vgpu bilinear corners + 2D canvas ASCII | CSS is first paint; GPU is the same 4-corner cycle. ASCII sparkles in place |
+| Library | CSS four-corner wash + vgpu bilinear corners + 2D canvas ASCII | CSS is first paint; GPU is the same 4-corner cycle. Glyphs use opposite phase |
 | Loop | Corner palette cycle: one period per `--clg-period`; first frame = last frame | No snap / rewind at the seam |
-| Grain | Uniform tiny grid, charset `.:+x*#`, white `#ffffff`, footer scale ÷5, seeded sparkle, clipped to Blue-HD | Coverage + scale locked. Short winks; no persistent holes; grid does not move |
+| Grain | Uniform tiny grid, charset `.:+x*#`, footer scale ÷5, fully filled, reverse 4-corner wash, clipped to Blue-HD | Coverage + scale locked. No sparkle. Grid does not move |
 | Tilt | Production CtaLogoTilt numbers | Keep the desktop 3D throw |
 | Duration | Continuous wash (~9s at 1×); tilt lerp 0.12 | Brand moment, not UI chrome |
 | Easing | Linear wash travel; tilt lerp | Travel reads as a gradient, not a bounce |
@@ -74,7 +74,7 @@ Status: accepted (this Implement brief)
 Scope: `marketing/cta-logo-gradient`
 
 Decision:
-Moving four-corner Maser-blue wash through Blue-HD. Slight white highlight and slight darker blue at cycling corners. Uniform tiny white ASCII grid with short seeded sparkle. Production tilt on fine pointer. Lamp off. CSS first; vgpu when painting.
+Moving four-corner Maser-blue wash through Blue-HD. Slight white highlight and slight darker blue at cycling corners. Uniform tiny ASCII grid, fully filled, reverse-phase four-corner wash on the symbols. Production tilt on fine pointer. Lamp off. CSS first; vgpu when painting.
 
 Rationale:
 Matches the user drop without inheriting prism-wave / filament / pond / footer-wave language.
@@ -101,9 +101,10 @@ User brief (Implement).
 - [ ] CSS wash is visible on first paint; CSS is not hidden until GPU has presented a frame
 - [ ] Blue-HD never blanks
 - [ ] Wash is a four-corner palette cycle (first frame = last frame) on both CSS and vgpu; no snap at the seam
-- [ ] ASCII is a uniform tiny white grid (`.:+x*#`, footer font/cell size ÷5) filling Blue-HD; `#ffffff` only; clipped sharp to the mark
-- [ ] ASCII occupancy uses a per-cell seed (not Math.random per frame); a seeded few cells briefly wink like stars — most of the field stays filled; no drift, slide, or scale
-- [ ] ASCII never uses footer column-wave, Maser-blue glyphs, RGB dust, or palette scatter; no pond rings, slanted shutdown, cell bulge, or filament
+- [ ] ASCII is a uniform tiny grid (`.:+x*#`, footer font/cell size ÷5) filling Blue-HD; every cell stays filled; clipped sharp to the mark
+- [ ] ASCII has no sparkle, punch-out, wink, or seeded disappear; glyphs do not drift, slide, or scale
+- [ ] Glyphs sample the same four-corner loop as the logo wash at opposite phase (first frame = last frame)
+- [ ] ASCII never uses footer column-wave, RGB dust, pond rings, slanted shutdown, cell bulge, or filament
 - [ ] Tilt uses MAX_TILT_X=14, MAX_TILT_Y=16, MAX_LIFT=14, LERP=0.12; perspective on the viewport
 - [ ] Hit is a rounded box around the lockup, not the wide stage
 - [ ] Lamp off (no hover drop-shadow)
