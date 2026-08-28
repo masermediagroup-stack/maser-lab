@@ -1,0 +1,22 @@
+/* Lab demo page only. Not part of the CtaLogoTilt export. */
+
+.clg-root.maser-lab,
+.clg-root {
+  --clg-ground: #ffffff;
+  min-height: 100dvh;
+  background: var(--clg-ground);
+  background-color: var(--clg-ground);
+  color: #111113;
+}
+
+.clg-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: var(--clg-ground, #ffffff);
+}
+
+.clg-notes {
+  max-width: 36rem;
+}

@@ -98,6 +98,13 @@
       "status": "building",
       "category": "scroll",
       "description": "Scroll-triggered Maser-blue mercury meatballs — edge spawn, sticky SDF merge, one key light"
+    },
+    {
+      "slug": "cta-logo-gradient",
+      "title": "CTA Logo Gradient",
+      "status": "review",
+      "category": "marketing",
+      "description": "Homepage CtaLogoTilt replacement: four-blob wash + in-place ASCII tick (not the footer wave)"
     }
   ]
 }
