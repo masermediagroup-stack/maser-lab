@@ -5,7 +5,6 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 import {
   CTA_LOGO_GRADIENT_DEFAULTS,
-  LOOP_SECONDS,
   LERP,
   LOGO_SRC,
   MAX_LIFT,
@@ -13,8 +12,10 @@ import {
   MAX_TILT_Y,
   PERSPECTIVE_PX,
 } from "./constants";
+import { createWashClock } from "./wash-clock";
 import { startAsciiGrain } from "./start-ascii-grain";
 import { startGradient } from "./start-gradient";
+import { driveCssWash } from "./wash-palette";
 import type { CtaLogoGradientLook, CtaLogoGradientProps } from "./types";
 import "./tokens.css";
 
@@ -47,6 +48,7 @@ export function CtaLogoGradient({
 }: CtaLogoGradientProps) {
   const hitRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
+  const cssWashRef = useRef<HTMLDivElement>(null);
   const washRef = useRef<HTMLCanvasElement>(null);
   const asciiRef = useRef<HTMLCanvasElement>(null);
   const lookRef = useRef<CtaLogoGradientLook>(look);
@@ -57,19 +59,31 @@ export function CtaLogoGradient({
   }, [look]);
 
   useEffect(() => {
+    const clock = createWashClock();
     const wash = washRef.current;
     const ascii = asciiRef.current;
+    const cssWash = cssWashRef.current;
+    let rafId = 0;
+    const tick = () => {
+      const current = lookRef.current;
+      const phase = clock.advance(current.speed);
+      if (cssWash) driveCssWash(cssWash, current, phase);
+      rafId = window.requestAnimationFrame(tick);
+    };
+    rafId = window.requestAnimationFrame(tick);
     const stopWash = wash
       ? startGradient({
           canvas: wash,
           lookRef,
+          clock,
           onPainted: () => setGpuPainted(true),
         })
       : () => {};
     const stopAscii = ascii
-      ? startAsciiGrain({ canvas: ascii, lookRef })
+      ? startAsciiGrain({ canvas: ascii, lookRef, clock })
       : () => {};
     return () => {
+      window.cancelAnimationFrame(rafId);
       stopWash();
       stopAscii();
     };
@@ -164,8 +178,6 @@ export function CtaLogoGradient({
     };
   }, [forceReducedMotion]);
 
-  const period = `${(LOOP_SECONDS / Math.max(look.speed, 0.01)).toFixed(2)}s`;
-
   return (
     <div
       ref={hitRef}
@@ -174,8 +186,6 @@ export function CtaLogoGradient({
       aria-label="Maser Media CTA logo"
       style={
         {
-          "--clg-period": period,
-          "--clg-angle": `${look.angle}deg`,
           "--clg-highlight": String(look.highlight),
           "--clg-shade": String(look.shade),
           "--clg-glow": String(look.glow),
@@ -201,7 +211,7 @@ export function CtaLogoGradient({
             aria-hidden="true"
           >
             <div className="clg-wash-layer">
-              <div className="clg-wash" />
+              <div ref={cssWashRef} className="clg-wash" />
             </div>
             <canvas ref={washRef} className="clg-canvas" />
             <canvas ref={asciiRef} className="clg-ascii" />

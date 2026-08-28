@@ -47,7 +47,7 @@ Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps
 | Decision | Choice | Rationale |
 | --- | --- | --- |
 | Library | CSS four-corner wash + vgpu bilinear corners + 2D canvas ASCII | CSS is first paint; GPU is the same 4-corner cycle. Glyphs use opposite phase |
-| Loop | Corner palette cycle: one period per `--clg-period`; first frame = last frame | No snap / rewind at the seam |
+| Loop | Integrated phase (`d(phase)/dt = speed`); angle is heading; first frame = last frame | Speed/angle knobs must not snap or freeze the wash |
 | Grain | Uniform tiny grid, charset `.:+x*#`, footer scale ÷5, fully filled, reverse 4-corner wash, clipped to Blue-HD | Coverage + scale locked. No sparkle. Grid does not move |
 | Tilt | Production CtaLogoTilt numbers | Keep the desktop 3D throw |
 | Duration | Continuous wash (~9s at 1×); tilt lerp 0.12 | Brand moment, not UI chrome |
@@ -112,6 +112,8 @@ User brief (Implement).
 - [ ] Gradient always runs
 - [ ] ASCII cell size is pinned (footer font 22 ÷ 5); the lattice restrokes only when the canvas bitmap size changes, never on dock knob ticks
 - [ ] Dock knobs only retint / update uniforms; White/Glow must not bleach glyphs out of the mark
+- [ ] Wash phase is integrated (`d(phase)/dt = speed`); Speed and Angle knobs must not snap, freeze, or kill the loop
+- [ ] Knob ticks only update uniforms / retint; they must not remount the vgpu surface, WebGL context, or ASCII lattice
 - [ ] Component exported from `lab/src/components/projects/marketing/cta-logo-gradient/index.ts`
 
 ## Open decisions

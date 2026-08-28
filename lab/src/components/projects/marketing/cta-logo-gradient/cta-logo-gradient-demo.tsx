@@ -106,8 +106,9 @@ export function CtaLogoGradientDemo() {
           Reduced motion drops tilt only — the wash always loops. Four
           corners cycle the locked palette. Glyphs get that loop reversed.
           Grid stays fully filled — no sparkle or holes. Same glyph scale.
-          Knobs retint only. No footer wave, pond, RGB dust, bulge, or
-          filament. White ground.
+          Speed integrates phase (no snap). Angle is heading. Knobs retint
+          only. No footer wave, pond, RGB dust, bulge, or filament. White
+          ground.
         </p>
       </DemoControlMenu>
     </div>

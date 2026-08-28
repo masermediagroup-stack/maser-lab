@@ -1,4 +1,3 @@
-import { LOOP_SECONDS } from "./constants";
 import type { CtaLogoGradientLook } from "./types";
 
 const BLUE: [number, number, number] = [0.062745, 0.643137, 1.0];
@@ -19,16 +18,6 @@ function mix(
 
 function clamp01(v: number): number {
   return Math.min(1, Math.max(0, v));
-}
-
-/** Same clock the vgpu wash samples so glyph phase stays opposite the mark. */
-export function washTimeSeconds(): number {
-  return performance.now() / 1000;
-}
-
-export function washPhase(look: CtaLogoGradientLook, timeSec: number): number {
-  const raw = (timeSec * look.speed) / LOOP_SECONDS + look.angle / 360;
-  return raw - Math.floor(raw);
 }
 
 function luma(rgb: [number, number, number]): number {
@@ -98,6 +87,23 @@ function writePixel(
   data[offset + 3] = 255;
 }
 
+function toCss(rgb: [number, number, number]): string {
+  return `rgb(${Math.round(rgb[0] * 255)} ${Math.round(rgb[1] * 255)} ${Math.round(rgb[2] * 255)})`;
+}
+
+/** Drive CSS corner colors from the integrated phase. Heading is rotation, not time. */
+export function driveCssWash(
+  node: HTMLElement,
+  look: CtaLogoGradientLook,
+  phase: number,
+) {
+  node.style.setProperty("--clg-tl", toCss(paletteAt(phase, look)));
+  node.style.setProperty("--clg-tr", toCss(paletteAt(phase + 0.25, look)));
+  node.style.setProperty("--clg-bl", toCss(paletteAt(phase + 0.5, look)));
+  node.style.setProperty("--clg-br", toCss(paletteAt(phase + 0.75, look)));
+  node.style.setProperty("--clg-heading", `${look.angle}deg`);
+}
+
 /** 2×2 bilinear corners. `phaseShift` 0.5 inverts the logo cycle. */
 export function paintCornerWash(
   target: CanvasRenderingContext2D,
@@ -105,14 +111,14 @@ export function paintCornerWash(
   width: number,
   height: number,
   look: CtaLogoGradientLook,
-  timeSec: number,
+  phase: number,
   phaseShift: number,
   layer: "logo" | "glyph" = "logo",
 ) {
   const sample = layer === "glyph" ? glyphLook(look) : look;
-  const phase = washPhase(sample, timeSec) + phaseShift;
+  const shifted = phase + phaseShift;
   const colorAt = (offset: number) => {
-    const rgb = paletteAt(phase + offset, sample);
+    const rgb = paletteAt(shifted + offset, sample);
     return layer === "glyph" ? keepGlyphVisible(rgb) : rgb;
   };
   const ctx = corners.getContext("2d");
@@ -123,6 +129,12 @@ export function paintCornerWash(
   writePixel(image.data, 8, colorAt(0.5));
   writePixel(image.data, 12, colorAt(0.75));
   ctx.putImageData(image, 0, 0);
+  const heading = (look.angle * Math.PI) / 180;
+  const span = Math.max(width, height) * 1.5;
   target.imageSmoothingEnabled = true;
-  target.drawImage(corners, 0, 0, width, height);
+  target.save();
+  target.translate(width / 2, height / 2);
+  target.rotate(heading);
+  target.drawImage(corners, -span / 2, -span / 2, span, span);
+  target.restore();
 }

@@ -3,8 +3,9 @@ import {
   ASCII_CELL_W,
   ASCII_FONT_SIZE,
 } from "./constants";
+import type { WashClock } from "./wash-clock";
 import type { CtaLogoGradientLook } from "./types";
-import { paintCornerWash, washTimeSeconds } from "./wash-palette";
+import { paintCornerWash } from "./wash-palette";
 
 /** Grain charset. Space omitted so every cell inks the mark at this scale. */
 export const ASCII_CHARS = ".:+x*#";
@@ -25,8 +26,9 @@ function grainChar(column: number, row: number): string {
 export function startAsciiGrain(options: {
   canvas: HTMLCanvasElement;
   lookRef: { current: CtaLogoGradientLook };
+  clock: WashClock;
 }): () => void {
-  const { canvas, lookRef } = options;
+  const { canvas, lookRef, clock } = options;
   const parent = canvas.parentElement;
   const ctx = canvas.getContext("2d");
   if (!parent || !ctx) return () => {};
@@ -89,7 +91,7 @@ export function startAsciiGrain(options: {
       canvas.width,
       canvas.height,
       lookRef.current,
-      washTimeSeconds(),
+      clock.phase,
       0.5,
       "glyph",
     );

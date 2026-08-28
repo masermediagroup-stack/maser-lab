@@ -126,8 +126,11 @@
 
 .clg-wash {
   position: absolute;
-  inset: 0;
+  inset: -24%;
   pointer-events: none;
+  --clg-heading: 0deg;
+  transform: rotate(var(--clg-heading));
+  will-change: transform;
   --clg-hi: color-mix(
     in srgb,
     var(--clg-blue) 100%,
@@ -142,10 +145,6 @@
   --clg-tr: var(--clg-hi);
   --clg-bl: var(--clg-blue);
   --clg-br: var(--clg-lo);
-  animation: clg-corners var(--clg-period, 9s) linear infinite;
-  animation-delay: calc(
-    var(--clg-angle, 118deg) / 360deg * var(--clg-period, 9s) * -1
-  );
   background:
     radial-gradient(120% 120% at 0% 0%, var(--clg-tl) 0%, transparent 72%),
     radial-gradient(120% 120% at 100% 0%, var(--clg-tr) 0%, transparent 72%),
@@ -175,34 +174,6 @@
 
 .clg-mark[data-gpu="painting"] .clg-wash-layer {
   opacity: 0;
-}
-
-@keyframes clg-corners {
-  0%,
-  100% {
-    --clg-tl: var(--clg-blue);
-    --clg-tr: var(--clg-hi);
-    --clg-bl: var(--clg-blue);
-    --clg-br: var(--clg-lo);
-  }
-  25% {
-    --clg-tl: var(--clg-hi);
-    --clg-tr: var(--clg-blue);
-    --clg-bl: var(--clg-lo);
-    --clg-br: var(--clg-blue);
-  }
-  50% {
-    --clg-tl: var(--clg-blue);
-    --clg-tr: var(--clg-lo);
-    --clg-bl: var(--clg-hi);
-    --clg-br: var(--clg-blue);
-  }
-  75% {
-    --clg-tl: var(--clg-lo);
-    --clg-tr: var(--clg-blue);
-    --clg-bl: var(--clg-blue);
-    --clg-br: var(--clg-hi);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,18 +1,20 @@
 import type { FrameLoopHandle, Gpu } from "vgpu";
 import { effect, frameLoop, init, surface } from "vgpu";
+import type { WashClock } from "./wash-clock";
 import type { CtaLogoGradientLook } from "./types";
-import { washTimeSeconds } from "./wash-palette";
 import washShader from "./wash.wgsl";
 
 export type StartGradientOptions = {
   canvas: HTMLCanvasElement;
   lookRef: { current: CtaLogoGradientLook };
+  clock: WashClock;
   onPainted: () => void;
 };
 
 export function startGradient({
   canvas,
   lookRef,
+  clock,
   onPainted,
 }: StartGradientOptions): () => void {
   let disposed = false;
@@ -43,12 +45,12 @@ export function startGradient({
       label: "cta-logo-gradient-wash",
       set: {
         params: {
-          time: 0,
-          speed: initial.speed,
+          phase: clock.phase,
+          heading: (initial.angle * Math.PI) / 180,
           highlight: initial.highlight,
           shade: initial.shade,
           glow: initial.glow,
-          angle: initial.angle,
+          pad: 0,
         },
       },
     });
@@ -68,12 +70,12 @@ export function startGradient({
       const look = lookRef.current;
       wash.set({
         params: {
-          time: washTimeSeconds(),
-          speed: look.speed,
+          phase: clock.phase,
+          heading: (look.angle * Math.PI) / 180,
           highlight: look.highlight,
           shade: look.shade,
           glow: look.glow,
-          angle: look.angle,
+          pad: 0,
         },
       });
       frame.pass(canvasSurface, wash);

@@ -1,10 +1,10 @@
 struct Params {
-  time: f32,
-  speed: f32,
+  phase: f32,
+  heading: f32,
   highlight: f32,
   shade: f32,
   glow: f32,
-  angle: f32,
+  pad: f32,
 }
 
 @group(0) @binding(0) var<uniform> params: Params;
@@ -12,7 +12,6 @@ struct Params {
 const BLUE = vec3f(0.062745, 0.643137, 1.0);
 const WHITE = vec3f(0.960784, 0.984314, 1.0);
 const DARK = vec3f(0.031373, 0.447059, 0.768627);
-const LOOP = 9.0;
 
 fn paletteAt(t: f32) -> vec3f {
   let u = fract(t);
@@ -40,12 +39,16 @@ fn paletteAt(t: f32) -> vec3f {
 }
 
 @fragment fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
-  let phase = fract(params.time * params.speed / LOOP + params.angle / 360.0);
+  let c = cos(params.heading);
+  let s = sin(params.heading);
+  let p = uv - vec2f(0.5);
+  let headed = vec2f(p.x * c - p.y * s, p.x * s + p.y * c) + vec2f(0.5);
+  let phase = fract(params.phase);
   let tl = paletteAt(phase);
   let tr = paletteAt(phase + 0.25);
   let bl = paletteAt(phase + 0.5);
   let br = paletteAt(phase + 0.75);
-  let top = mix(tl, tr, uv.x);
-  let bot = mix(bl, br, uv.x);
-  return vec4f(mix(top, bot, uv.y), 1.0);
+  let top = mix(tl, tr, headed.x);
+  let bot = mix(bl, br, headed.x);
+  return vec4f(mix(top, bot, headed.y), 1.0);
 }
