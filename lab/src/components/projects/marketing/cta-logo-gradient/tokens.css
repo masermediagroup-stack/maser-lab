@@ -89,6 +89,7 @@
 .clg-grain,
 .clg-ascii-ground,
 .clg-layer,
+.clg-dust,
 .clg-canvas {
   position: absolute;
   inset: 0;
@@ -111,7 +112,6 @@
   mask-size: calc(100% / var(--clg-cols)) calc(100% / var(--clg-rows));
   -webkit-mask-position: 0 0;
   mask-position: 0 0;
-  animation: clg-grid-wave var(--clg-period, 9s) linear infinite;
 }
 
 .clg-layer-dot {
@@ -299,6 +299,73 @@
   );
 }
 
+.clg-band-m {
+  -webkit-mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #000 0,
+    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
+    #000 var(--clg-tile, 8.5rem)
+  );
+  mask-image: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    #000 0,
+    #000 calc(var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.46),
+    #fff calc(var(--clg-tile, 8.5rem) * 0.54),
+    #000 calc(var(--clg-tile, 8.5rem) * 0.54),
+    #000 var(--clg-tile, 8.5rem)
+  );
+}
+
+.clg-dust {
+  overflow: hidden;
+  mix-blend-mode: screen;
+  opacity: 0.62;
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+}
+
+.clg-dust-cyan {
+  -webkit-mask-image: radial-gradient(
+    circle 0.55px at 24% 36%,
+    #fff 99%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle 0.55px at 24% 36%,
+    #fff 99%,
+    transparent 100%
+  );
+  -webkit-mask-size: 29px 37px;
+  mask-size: 29px 37px;
+}
+
+.clg-dust-magenta {
+  -webkit-mask-image: radial-gradient(
+    circle 0.5px at 68% 58%,
+    #fff 99%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle 0.5px at 68% 58%,
+    #fff 99%,
+    transparent 100%
+  );
+  -webkit-mask-size: 43px 31px;
+  mask-size: 43px 31px;
+}
+
+.clg-wash.clg-speck-cyan {
+  background: #3cf4ff;
+}
+
+.clg-wash.clg-speck-magenta {
+  background: #ff3ad4;
+}
+
 .clg-canvas {
   z-index: 2;
   width: 100%;
@@ -325,19 +392,6 @@
       calc(-1 * cos(var(--clg-angle, 118deg)) * var(--clg-tile, 8.5rem)),
       0
     );
-  }
-}
-
-@keyframes clg-grid-wave {
-  from {
-    -webkit-mask-position: 0 0;
-    mask-position: 0 0;
-  }
-  to {
-    -webkit-mask-position: calc(sin(var(--clg-angle, 118deg)) * 100% / var(--clg-cols) * 4)
-      calc(-1 * cos(var(--clg-angle, 118deg)) * 100% / var(--clg-rows) * 4);
-    mask-position: calc(sin(var(--clg-angle, 118deg)) * 100% / var(--clg-cols) * 4)
-      calc(-1 * cos(var(--clg-angle, 118deg)) * 100% / var(--clg-rows) * 4);
   }
 }
 

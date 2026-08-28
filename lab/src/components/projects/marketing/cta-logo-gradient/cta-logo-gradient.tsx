@@ -204,6 +204,12 @@ export function CtaLogoGradient({
               <div className="clg-layer clg-layer-m">
                 <div className="clg-wash clg-band-m" />
               </div>
+              <div className="clg-dust clg-dust-cyan">
+                <div className="clg-wash clg-band-m clg-speck-cyan" />
+              </div>
+              <div className="clg-dust clg-dust-magenta">
+                <div className="clg-wash clg-band-m clg-speck-magenta" />
+              </div>
             </div>
             <canvas ref={canvasRef} className="clg-canvas" />
           </div>

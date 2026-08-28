@@ -45,8 +45,8 @@ export function CtaLogoGradientDemo() {
             CTA logo gradient
           </h1>
           <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-            ASCII-filled Blue-HD: the grid waves with the wash. One glyph
-            per cell, weight is shade. Seamless loop. Production tilt.
+            ASCII-filled Blue-HD: rigid grid, light through the cells.
+            Density is shade. Sparse RGB dust in the wash. Seamless loop.
           </p>
         </div>
         <LabControlGroup label="Wash">
@@ -103,8 +103,8 @@ export function CtaLogoGradientDemo() {
         </LabControlGroup>
         <p className="clg-notes font-mono text-[10px] leading-relaxed text-[var(--lab-text-muted)]">
           Tilt: MAX_TILT_X=14 MAX_TILT_Y=16 MAX_LIFT=14 LERP=0.12. Lamp off.
-          Reduced motion drops tilt only — the wash always loops. Grid phase
-          rides the wash. Sharp clip. Density is shade (. : + x M).
+          Reduced motion drops tilt only — the wash always loops. Lattice
+          stays put. Light/density rides the wash. Sharp clip.
         </p>
       </DemoControlMenu>
     </div>

@@ -12,14 +12,13 @@ struct Params {
 const BLUE = vec3f(0.062745, 0.643137, 1.0);
 const WHITE = vec3f(0.960784, 0.984314, 1.0);
 const DARK = vec3f(0.031373, 0.447059, 0.768627);
+const CYAN = vec3f(0.12, 0.92, 1.0);
+const MAGENTA = vec3f(1.0, 0.22, 0.78);
 const TAU = 6.28318530718;
 const LOOP = 9.0;
 const BANDS = 2.6;
 const COLS = 96.0;
 const ROWS = 35.0;
-const AMP_ALONG = 1.2;
-const AMP_CROSS = 0.48;
-const PULSE = 0.26;
 
 fn washWave(uv: vec2f, dir: vec2f, slide: f32) -> f32 {
   let travel = dot(uv - vec2f(0.5), dir) * BANDS - slide;
@@ -32,13 +31,15 @@ fn washColor(wave: f32) -> vec3f {
   color = mix(color, WHITE, hi * 0.48);
   let inner = pow(smoothstep(0.64, 1.0, wave), 1.55) * params.glow;
   color = color + WHITE * inner * 0.26;
+  color = color * mix(0.22, 1.0, wave);
   return clamp(color, vec3f(0.0), vec3f(1.0));
 }
 
+fn hash21(p: vec2f) -> f32 {
+  return fract(sin(dot(p, vec2f(127.1, 311.7))) * 43758.5453123);
+}
+
 fn glyphBits(bits: u32, local: vec2f) -> f32 {
-  if (local.x < 0.0 || local.x > 1.0 || local.y < 0.0 || local.y > 1.0) {
-    return 0.0;
-  }
   let p = min(floor(vec2f(local.x * 5.0, local.y * 7.0)), vec2f(4.0, 6.0));
   let bit = u32(p.x) + u32(p.y) * 5u;
   return f32((bits >> bit) & 1u);
@@ -63,23 +64,21 @@ fn glyphForKind(kind: i32, local: vec2f) -> f32 {
 @fragment fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
   let rad = params.angle * 0.01745329252;
   let dir = vec2f(cos(rad), sin(rad));
-  let perp = vec2f(-dir.y, dir.x);
   let slide = params.time * params.speed / LOOP;
-  let phase = (dot(uv - vec2f(0.5), dir) * BANDS - slide) * TAU;
-  let ride = sin(phase);
   let cells = vec2f(COLS, ROWS);
-  let uvWave = uv + dir * (ride * AMP_ALONG / COLS) + perp * (ride * AMP_CROSS / ROWS);
-
-  let grid = uvWave * cells;
+  let grid = uv * cells;
   let cell = floor(grid);
   let local = fract(grid);
   let centerUv = (cell + vec2f(0.5)) / cells;
   let wave = washWave(centerUv, dir, slide);
-  let color = washColor(wave);
+  var color = washColor(wave);
+  let n = hash21(cell);
+  let lit = smoothstep(0.58, 0.86, wave);
+  let dust = step(0.9, n) * lit;
+  let dustCol = select(CYAN, MAGENTA, n > 0.95);
+  color = mix(color, dustCol, dust * 0.72);
   let kind = i32(min(floor(wave * 5.0), 4.0));
-  let pulse = 1.0 + (wave - 0.5) * 2.0 * PULSE;
-  let localP = (local - vec2f(0.5)) / pulse + vec2f(0.5);
-  let glyph = glyphForKind(kind, localP);
+  let glyph = glyphForKind(kind, local);
   let ink = vec3f(0.019608, 0.027451, 0.039216);
   return vec4f(mix(ink, color, glyph), 1.0);
 }
