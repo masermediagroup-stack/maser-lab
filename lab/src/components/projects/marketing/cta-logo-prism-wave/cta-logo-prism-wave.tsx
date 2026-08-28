@@ -219,9 +219,7 @@ export function CtaLogoPrismWave({
             aria-hidden="true"
             data-active={mode === "vgpu" ? "true" : "false"}
           />
-          {mode !== "vgpu" ? (
-            <CssWaveFallback look={cssLook} className="clpw-css-fallback" />
-          ) : null}
+          <CssWaveFallback look={cssLook} className="clpw-css-fallback" />
           </div>
           {/* Rounded lockup pad — hit target for tilt. Not letter-tight. */}
           <div ref={hitRef} className="clpw-logo-hit" aria-hidden="true" />

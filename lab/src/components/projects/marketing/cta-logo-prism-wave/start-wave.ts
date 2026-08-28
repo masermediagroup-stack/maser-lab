@@ -54,12 +54,21 @@ function readGround(viewport: HTMLElement): number {
     : 0;
 }
 
+function readTilt(viewport: HTMLElement): { tilt_x: number; tilt_y: number } {
+  const style = getComputedStyle(viewport);
+  return {
+    tilt_x: Number.parseFloat(style.getPropertyValue("--cta-logo-tilt-x")) || 0,
+    tilt_y: Number.parseFloat(style.getPropertyValue("--cta-logo-tilt-y")) || 0,
+  };
+}
+
 function gpuWaveParams(
   look: WaveRuntimeParams,
   canvas: HTMLCanvasElement,
   viewport: HTMLElement,
   time = 0,
 ) {
+  const tilt = readTilt(viewport);
   return {
     time,
     speed: look.speed,
@@ -69,6 +78,10 @@ function gpuWaveParams(
     res_x: canvas.width,
     res_y: canvas.height,
     ground: readGround(viewport),
+    tilt_x: tilt.tilt_x,
+    tilt_y: tilt.tilt_y,
+    _pad0: 0,
+    _pad1: 0,
   };
 }
 

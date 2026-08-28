@@ -193,12 +193,13 @@
   background-color: transparent;
   color-scheme: light;
   /* No translateZ — a 3D transform on a canvas flattens the parent plane. */
-  opacity: 1;
+  opacity: 0;
+  transition: opacity 220ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* Keep the CSS snake on top until GPU has a real painted frame. */
-.clpw-logo-canvas[data-active="false"] {
-  opacity: 0;
+.clpw-logo-canvas[data-active="true"] {
+  opacity: 1;
 }
 
 .clpw-css-fallback,
@@ -206,9 +207,32 @@
   z-index: 3;
 }
 
+.clpw-css-fallback {
+  opacity: 1;
+  transition: opacity 240ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.clpw-logo-stage[data-wave-mode="vgpu"] .clpw-css-fallback {
+  opacity: 0;
+}
+
+.clpw-logo-stage[data-wave-mode="vgpu"] .clpw-css-filament,
+.clpw-logo-stage[data-wave-mode="vgpu"] .clpw-css-trip {
+  animation-play-state: paused;
+}
+
 .clpw-css-wave {
   overflow: visible;
   background: none;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  /*
+   * Extra fraction of the same viewport tilt so strokes foreshorten
+   * inside the glass volume. Not translateZ extrusion, not a lamp.
+   */
+  transform: perspective(var(--clpw-perspective))
+    rotateX(calc(var(--cta-logo-tilt-x, 0deg) * 0.28))
+    rotateY(calc(var(--cta-logo-tilt-y, 0deg) * 0.28));
   -webkit-mask-image: url("/assets/cta-logo-prism-wave/Blue-HD.svg");
   mask-image: url("/assets/cta-logo-prism-wave/Blue-HD.svg");
   -webkit-mask-size: contain;
@@ -219,10 +243,45 @@
   mask-position: center;
 }
 
+.clpw-css-trip {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: clpw-css-presence var(--clpw-css-duration, 5.6s) ease-in-out infinite;
+  animation-delay: var(--clpw-css-delay, 0s);
+  /* Foreshorten by lane along the same tilt axis as the viewport. */
+  transform: scale(
+    calc(
+      1 + var(--clpw-lane-depth, 0) * tan(var(--cta-logo-tilt-x, 0deg)) * 0.4 +
+        var(--clpw-lane-across, 0) * tan(var(--cta-logo-tilt-y, 0deg)) * 0.4
+    )
+  );
+}
+
+.clpw-css-trip--0 {
+  --clpw-lane-depth: 0.72;
+  --clpw-lane-across: -0.15;
+}
+.clpw-css-trip--1 {
+  --clpw-lane-depth: -0.55;
+  --clpw-lane-across: 0.2;
+}
+.clpw-css-trip--2 {
+  --clpw-lane-depth: 0.1;
+  --clpw-lane-across: -0.7;
+}
+.clpw-css-trip--3 {
+  --clpw-lane-depth: 0.1;
+  --clpw-lane-across: 0.7;
+}
+.clpw-css-trip--4 {
+  --clpw-lane-depth: 0.05;
+  --clpw-lane-across: 0.05;
+}
+
 .clpw-css-filament {
   stroke: var(--clpw-filament);
   fill: none;
-  stroke-dashoffset: 1;
+  stroke-dashoffset: 0;
   animation: clpw-css-travel var(--clpw-css-duration, 5.6s) linear infinite;
   animation-delay: var(--clpw-css-delay, 0s);
 }
@@ -260,42 +319,45 @@
 .clpw-css-filament--lead {
   stroke: var(--clpw-fringe);
   stroke-width: calc(var(--clpw-css-stroke, 2.2) * var(--clpw-css-weight, 1));
-  stroke-dashoffset: 0.06;
   opacity: var(--clpw-css-fringe, 0.52);
-  animation: clpw-css-lead var(--clpw-css-duration, 5.6s) linear infinite;
-  animation-delay: var(--clpw-css-delay, 0s);
+  /* Same period as the core; shifted so the tip sits at the traveling head. */
+  animation-name: clpw-css-lead-travel;
 }
 
 /*
- * Draw on, clear, rest. Rest is short so 2–5 trips overlap in the volume.
- * Uneven delays + duration drift on each .clpw-css-trip.
+ * Long segment travels the path. 0% and 100% are one period apart so the
+ * loop does not snap. Presence on the trip eases the line in/out.
  */
 @keyframes clpw-css-travel {
-  0% {
-    stroke-dashoffset: 1;
-  }
-  28% {
+  from {
     stroke-dashoffset: 0;
   }
-  56% {
+  to {
     stroke-dashoffset: -1;
-  }
-  56.1%,
-  100% {
-    stroke-dashoffset: 1;
   }
 }
 
-@keyframes clpw-css-lead {
-  0% {
-    stroke-dashoffset: 0.06;
+@keyframes clpw-css-lead-travel {
+  from {
+    stroke-dashoffset: -0.52;
   }
-  28% {
-    stroke-dashoffset: -0.94;
+  to {
+    stroke-dashoffset: -1.52;
   }
-  28.2%,
+}
+
+@keyframes clpw-css-presence {
+  0%,
   100% {
-    stroke-dashoffset: -0.94;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 1;
+  }
+  90% {
     opacity: 0;
   }
 }
@@ -307,9 +369,13 @@
     animation-delay: var(--clpw-css-delay, 0s);
   }
 
-  .clpw-css-filament--lead {
-    animation: clpw-css-lead var(--clpw-css-duration, 5.6s) linear infinite;
+  .clpw-css-trip {
+    animation: clpw-css-presence var(--clpw-css-duration, 5.6s) ease-in-out infinite;
     animation-delay: var(--clpw-css-delay, 0s);
+  }
+
+  .clpw-css-filament--lead {
+    animation-name: clpw-css-lead-travel;
   }
 }
 

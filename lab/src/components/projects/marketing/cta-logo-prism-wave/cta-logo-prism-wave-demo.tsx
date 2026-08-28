@@ -124,8 +124,9 @@ export function CtaLogoPrismWaveDemo() {
           />
           <p className="clpw-caption text-base leading-relaxed text-[var(--clpw-text-muted)]">
             Two to five glass lines in the cloud at once, similar weight, RGB
-            split on the stroke with cyan on the lead. Each line enters from
-            a different place on the mark — not the same left-middle start.
+            split on the stroke with cyan on the lead. Lanes miss each other;
+            each line eases in and out of a different place on the mark.
+            Strokes foreshorten with the tilt so they sit in the glass.
             Deeper blue on light, pale on dark. Glow stays inside the glyph.
             Hover the rounded pad around the lockup to tilt (mouse or pen).
             Empty stage beside the mark sits. Phones and reduced motion keep

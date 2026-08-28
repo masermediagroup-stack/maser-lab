@@ -40,20 +40,20 @@ export const CTA_LOGO_PRISM_WAVE_DEFAULTS: PrismWaveLook = {
   fringe: 0.52,
 };
 
-/** Short on / long off — cyan lean at the draw front (pathLength=1). */
-export const FILAMENT_FRINGE_DASH = "0.06 0.94";
+/** Cyan tip at the traveling head — same offset as the core, not a blink. */
+export const FILAMENT_FRINGE_DASH = "0.12 0.88";
 
 /**
- * Overlapping wander paths (viewBox 200×101). Starts are spread around
- * the lockup — left, right, top, bottom, corner — not one left-middle
- * origin. CSS strokes these; WGSL hashes a perimeter spawn per trip.
+ * Lane paths (viewBox 200×101). Parallel-ish bands that miss each other,
+ * with entries on different edges — not one shared S-curve through the
+ * middle. CSS strokes these; WGSL hashes lat on each line's home edge.
  */
 export const FILAMENT_PATHS = [
-  "M -10 18 C 18 6 34 72 56 26 C 74 2 94 84 116 22 C 136 88 154 10 176 46 C 190 8 206 60 214 38",
-  "M 214 34 C 192 6 174 90 154 28 C 136 2 116 92 96 34 C 76 96 56 8 36 50 C 20 12 6 70 -12 46",
-  "M 78 -8 C 52 20 26 4 18 42 C 10 80 44 98 68 56 C 90 16 118 94 142 38 C 164 6 190 76 214 50",
-  "M 42 112 C 16 78 4 96 14 56 C 26 14 52 90 74 30 C 96 2 122 88 146 26 C 168 92 194 16 214 48",
-  "M 214 90 C 190 108 168 58 148 86 C 126 14 106 98 86 32 C 66 2 46 80 26 38 C 10 10 -8 62 -12 48",
+  "M -12 22 C 36 18 78 28 118 20 C 152 14 182 24 214 22",
+  "M 214 74 C 176 70 138 80 96 72 C 58 66 24 76 -12 74",
+  "M 28 -8 C 22 22 34 52 26 78 C 20 94 32 108 30 114",
+  "M 172 114 C 180 86 166 54 176 28 C 182 12 170 -4 174 -8",
+  "M -12 48 C 40 44 88 54 132 46 C 166 40 194 50 214 48",
 ] as const;
 
 /** Near-same weight. Not one fat plus hairlines. */
@@ -66,10 +66,10 @@ export const FILAMENT_DURATION_SCALE = [0.93, 1, 1.1, 0.97, 1.05] as const;
 export const FILAMENT_DELAY_FRAC = [0, 0.16, 0.33, 0.51, 0.72] as const;
 
 /**
- * pathLength=1. Draw the full continuous stroke, then clear, then rest.
- * Rest is short enough that trips overlap.
+ * pathLength=1. Long traveling segment + short gap so the stroke eases
+ * through the glyph. Not a full-path snap, not a dashed wedge.
  */
-export const FILAMENT_DASH = "1 1";
+export const FILAMENT_DASH = "0.64 0.36";
 
-/** One draw+clear+rest cycle at default speed. */
+/** One traveling-window cycle at default speed. */
 export const CSS_WAVE_DURATION_S = 5.6;

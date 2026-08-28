@@ -27,7 +27,7 @@ Read the Blue-HD cloud mark as a prism: sequential continuous glass lines travel
 Production `CtaLogoTilt` tilts the SVG and adds a hover lamp / drop-shadow on `.mm-cta__logo--active`. No wave.
 
 ### Desired outcome
-2–5 similar-weight continuous glass lines in the mark at once, overlapping. Each trip enters from a random place on the glyph (edges, top, bottom, right, corners) — not a single left-middle origin. RGB split / prism fringe on the stroke, cyan-leaning at the lead (not an 80s rainbow, not blobs, not a halo around the mark). Not dashed wedges, not a lamp off the mark. Light ground: deeper blue through the glass. Dark ground: pale internal line. Glow is in-glyph only. Logo body is Maser blue solid glass. Hover lamp gone. Tilt kept. Wave always runs (including reduced motion and coarse pointers). Tilt drops on reduced motion and on phones / coarse pointers (same gate as production). CSS filament stays visible until the GPU blit actually paints pixels.
+2–5 similar-weight continuous glass lines in the mark at once, overlapping in time but missing each other in path (lanes, not a knot). Each trip enters from a hashed/spread place on the glyph — not a single left-middle origin. Ease in/out of the glass; no strobe, spawn pop, dash snap, or CSS↔GPU blink. RGB split / prism fringe on the stroke, cyan-leaning at the lead. Strokes foreshorten with the CSS 3D tilt (perspective on the path, not a lamp, not an extrusion). Not dashed wedges. Light ground: deeper blue through the glass. Dark ground: pale internal line. Glow is in-glyph only. Logo body is Maser blue solid glass. Hover lamp gone. Tilt kept. Wave always runs (including reduced motion and coarse pointers). Tilt drops on reduced motion and on phones / coarse pointers (same gate as production). CSS filament stays visible until the GPU blit actually paints pixels, then crossfades.
 
 ### Success signal
 First screen is blue glass + overlapping glass lines (never a blank wait for GPU compile). Desktop mouse tilts the plane; the filament stays on that plane. Phone and RM keep the wave and lose the tilt.
@@ -72,15 +72,16 @@ Pointer leave eases tilt to rest. Reduced-motion toggle / OS RM / coarse pointer
 | Logo sampling | Rasterize Blue-HD.svg → texture | vgpu cannot sample SVG |
 | Tilt | Production constants (14 / 16 / 14, lerp 0.12). Perspective baked into the viewport transform; GPU canvas is off-tree and blitted onto a 2D overlay on that plane | WebGPU child flattened parent perspective; 14° read as a squash |
 | Hover lamp | Removed | Locked look |
-| Idle wave | 2–5 similar-weight overlapping wanders | Replaces sequential single-file trips; not 50/50 dashed wedges (`rule/ui-duration-cap` exception) |
-| Spawn origin | Hashed perimeter per GPU trip; CSS uses 5 spread paths (left, right, top, bottom, corner) | Entries feel random across the lockup — not left-middle every time |
-| Hover wave | Same filaments, plane tilts; modest speed-up | Band travels *with* the tilt, still 2D fill |
+| Idle wave | 2–5 similar-weight overlapping wanders in separate lanes | Overlap in time; miss in space — not a knot through one band (`rule/ui-duration-cap` exception) |
+| Spawn origin | Hashed lat on each line’s home edge (GPU); CSS uses 5 spread lane paths | Entries across the lockup — not left-middle every time |
+| Presence | Traveling window + ease in/out; CSS dash loops without a snap; CSS stays mounted and crossfades when GPU paints | Kill strobe, spawn pop, dash on/off, CSS↔GPU blink |
+| Hover wave | Same filaments; width/path UV foreshorten with `--cta-logo-tilt-*` on the existing 3D viewport | Perspective on the path so strokes sit in the glass volume — not a flat sticker, not extrusion, not a lamp |
 | Glow | In-glyph only, clipped to Blue-HD | Light through glass — not a drop-shadow lamp off the mark |
 | Fringe | RGB split on the stroke, cyan-leaning at the lead (vgpu + CSS) | Prism aberration inside the glass — not a hue sweep, not blobs, not a halo around the mark |
 | Reduced motion | Wave stays; tilt gated off | Explicit exception to `rule/reduced-motion-required` for the wave only |
 | Hover gate (production site) | `(hover: hover) and (pointer: fine)` | `rule/hover-gated`; CtaLogoTilt on masermedia.co |
 | Hover gate (this lab demo) | mouse/pen `pointermove`; skip touch; RM still off | EPG judging box may fail the fine-pointer media |
-| Fallback | Overlapping SVG snakes from spread origins, clipped to Blue-HD | Until GPU blit paints, and whenever the adapter is missing |
+| Fallback | Lane SVG snakes, ease in/out, extra tilt foreshorten, clipped to Blue-HD | Until GPU blit paints (then crossfade); whenever the adapter is missing |
 
 ## Three.js / 3D (optional)
 
