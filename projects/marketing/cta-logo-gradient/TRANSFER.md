@@ -25,13 +25,12 @@ import { CtaLogoGradient } from "@/components/projects/marketing/cta-logo-gradie
 
 ## Public assets
 
-- `lab/public/assets/cta-logo-gradient/Blue-HD.svg`
-- `lab/public/assets/cta-logo-gradient/ascii-{dot,colon,plus,x,m}.svg` (CSS fallback glyphs)
+- `lab/public/assets/cta-logo-gradient/Blue-HD.svg` (mask + never-blank plate)
 
 ## Porting steps
 
 1. Copy `lab/src/components/projects/marketing/cta-logo-gradient/` (exclude `*-demo.tsx`)
-2. Copy `lab/public/assets/cta-logo-gradient/` (`Blue-HD.svg` and the `ascii-*.svg` glyph tiles)
+2. Copy `lab/public/assets/cta-logo-gradient/Blue-HD.svg`
 3. Install `vgpu`; keep the Next.js WGSL loader rules from `lab/next.config.ts`
 4. Load `tokens.css`; do not depend on `--lab-*` for the mark
 5. Wire production tilt is already in the product; do not add a hover lamp

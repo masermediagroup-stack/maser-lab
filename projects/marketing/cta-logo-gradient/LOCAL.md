@@ -12,7 +12,7 @@ npm run dev
 
 Open **http://localhost:3000/demos/cta-logo-gradient**
 
-WebGPU is required for the vgpu wash. Without it, the CSS gradient through Blue-HD is the look — that is the intended fallback, not a failure.
+WebGPU is required for the vgpu wash. Without it, the CSS gradient through Blue-HD is the look — that is the intended fallback, not a failure. White ASCII columns are Canvas 2D and do not need WebGPU.
 
 ## Quality checks
 

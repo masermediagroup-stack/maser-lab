@@ -7,14 +7,9 @@
   --clg-period: 9s;
   --clg-angle: 118deg;
   --clg-tile: 8.5rem;
-  --clg-ripple: 0px;
-  --clg-pond-a: 32% 42%;
-  --clg-pond-b: 68% 58%;
   --clg-highlight: 0.42;
   --clg-shade: 0.38;
   --clg-glow: 0.55;
-  --clg-cols: 96;
-  --clg-rows: 35;
   --cta-logo-tilt-x: 0deg;
   --cta-logo-tilt-y: 0deg;
   --cta-logo-tilt-z: 0px;
@@ -92,273 +87,48 @@
   mask-position: center;
 }
 
-.clg-grain,
-.clg-ascii-ground,
-.clg-layer,
-.clg-dust,
-.clg-canvas {
+.clg-wash-layer,
+.clg-canvas,
+.clg-ascii {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
-@property --clg-ripple {
-  syntax: "<length>";
-  inherits: true;
-  initial-value: 0px;
-}
-
-.clg-grain {
+.clg-wash-layer {
+  z-index: 1;
   overflow: hidden;
-  --clg-ripple: 0px;
-  animation: clg-pond var(--clg-period, 9s) linear infinite;
-}
-
-.clg-ascii-ground {
-  background: var(--clg-blue);
-}
-
-.clg-layer {
-  overflow: hidden;
-  -webkit-mask-repeat: repeat;
-  mask-repeat: repeat;
-  -webkit-mask-size: calc(100% / var(--clg-cols)) calc(100% / var(--clg-rows));
-  mask-size: calc(100% / var(--clg-cols)) calc(100% / var(--clg-rows));
-  -webkit-mask-position: 0 0;
-  mask-position: 0 0;
-  animation: clg-swim var(--clg-period, 9s) linear infinite;
-}
-
-.clg-layer-dot {
-  -webkit-mask-image: url("/assets/cta-logo-gradient/ascii-dot.svg");
-  mask-image: url("/assets/cta-logo-gradient/ascii-dot.svg");
-}
-
-.clg-layer-colon {
-  -webkit-mask-image: url("/assets/cta-logo-gradient/ascii-colon.svg");
-  mask-image: url("/assets/cta-logo-gradient/ascii-colon.svg");
-}
-
-.clg-layer-plus {
-  -webkit-mask-image: url("/assets/cta-logo-gradient/ascii-plus.svg");
-  mask-image: url("/assets/cta-logo-gradient/ascii-plus.svg");
-}
-
-.clg-layer-x {
-  -webkit-mask-image: url("/assets/cta-logo-gradient/ascii-x.svg");
-  mask-image: url("/assets/cta-logo-gradient/ascii-x.svg");
-}
-
-.clg-layer-m {
-  -webkit-mask-image: url("/assets/cta-logo-gradient/ascii-m.svg");
-  mask-image: url("/assets/cta-logo-gradient/ascii-m.svg");
 }
 
 .clg-wash {
   position: absolute;
-  inset: -90%;
+  inset: -140%;
   pointer-events: none;
-  background:
-    repeating-radial-gradient(
-      circle at var(--clg-pond-a, 32% 42%),
-      var(--clg-blue) var(--clg-ripple, 0px),
-      color-mix(
-        in srgb,
-        var(--clg-blue) 100%,
-        var(--clg-white) calc(var(--clg-highlight) * 55%)
-      )
-        calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.45),
-      var(--clg-blue)
-        calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
-    ),
-    repeating-radial-gradient(
-      circle at var(--clg-pond-b, 68% 58%),
-      var(--clg-blue) var(--clg-ripple, 0px),
-      color-mix(
-        in srgb,
-        var(--clg-blue) 100%,
-        var(--clg-white) calc(var(--clg-highlight) * 40%)
-      )
-        calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.5),
-      var(--clg-blue)
-        calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 1.15)
-    );
-  background-blend-mode: screen;
-}
-
-.clg-band-dot {
-  -webkit-mask-image: repeating-radial-gradient(
-    circle at var(--clg-pond-a, 32% 42%),
-    #fff var(--clg-ripple, 0px),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
+  will-change: transform;
+  animation: clg-travel var(--clg-period, 9s) linear infinite;
+  background: repeating-linear-gradient(
+    var(--clg-angle, 118deg),
+    color-mix(
+      in srgb,
+      var(--clg-blue) 100%,
+      var(--clg-dark) calc(var(--clg-shade) * 70%)
+    )
+      0px,
+    var(--clg-blue) calc(var(--clg-tile, 8.5rem) * 0.28),
+    color-mix(
+      in srgb,
+      var(--clg-blue) 100%,
+      var(--clg-white) calc(var(--clg-highlight) * 55%)
+    )
+      calc(var(--clg-tile, 8.5rem) * 0.5),
+    var(--clg-blue) calc(var(--clg-tile, 8.5rem) * 0.72),
+    color-mix(
+      in srgb,
+      var(--clg-blue) 100%,
+      var(--clg-dark) calc(var(--clg-shade) * 70%)
+    )
+      var(--clg-tile, 8.5rem)
   );
-  mask-image: repeating-radial-gradient(
-    circle at var(--clg-pond-a, 32% 42%),
-    #fff var(--clg-ripple, 0px),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
-  );
-}
-
-.clg-band-colon {
-  -webkit-mask-image: repeating-radial-gradient(
-    circle at var(--clg-pond-a, 32% 42%),
-    #000 var(--clg-ripple, 0px),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
-  );
-  mask-image: repeating-radial-gradient(
-    circle at var(--clg-pond-a, 32% 42%),
-    #000 var(--clg-ripple, 0px),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.1),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.9),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
-  );
-}
-
-.clg-band-plus {
-  -webkit-mask-image: repeating-radial-gradient(
-    circle at var(--clg-pond-b, 68% 58%),
-    #000 var(--clg-ripple, 0px),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
-  );
-  mask-image: repeating-radial-gradient(
-    circle at var(--clg-pond-b, 68% 58%),
-    #000 var(--clg-ripple, 0px),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.22),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.78),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
-  );
-}
-
-.clg-band-x {
-  -webkit-mask-image: repeating-radial-gradient(
-    circle at var(--clg-pond-b, 68% 58%),
-    #000 var(--clg-ripple, 0px),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
-  );
-  mask-image: repeating-radial-gradient(
-    circle at var(--clg-pond-b, 68% 58%),
-    #000 var(--clg-ripple, 0px),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.38),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.62),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
-  );
-}
-
-.clg-band-m {
-  -webkit-mask-image: repeating-radial-gradient(
-    circle at 48% 30%,
-    #000 var(--clg-ripple, 0px),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
-  );
-  mask-image: repeating-radial-gradient(
-    circle at 48% 30%,
-    #000 var(--clg-ripple, 0px),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.46),
-    #fff calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem) * 0.54),
-    #000 calc(var(--clg-ripple, 0px) + var(--clg-tile, 8.5rem))
-  );
-}
-
-.clg-dust {
-  overflow: hidden;
-  mix-blend-mode: screen;
-  opacity: 0.62;
-  -webkit-mask-repeat: repeat;
-  mask-repeat: repeat;
-}
-
-.clg-dust-cyan {
-  -webkit-mask-image: radial-gradient(
-    circle 0.55px at 24% 36%,
-    #fff 99%,
-    transparent 100%
-  );
-  mask-image: radial-gradient(
-    circle 0.55px at 24% 36%,
-    #fff 99%,
-    transparent 100%
-  );
-  -webkit-mask-size: 29px 37px;
-  mask-size: 29px 37px;
-}
-
-.clg-dust-magenta {
-  -webkit-mask-image: radial-gradient(
-    circle 0.5px at 68% 58%,
-    #fff 99%,
-    transparent 100%
-  );
-  mask-image: radial-gradient(
-    circle 0.5px at 68% 58%,
-    #fff 99%,
-    transparent 100%
-  );
-  -webkit-mask-size: 43px 31px;
-  mask-size: 43px 31px;
-}
-
-.clg-wash.clg-speck-cyan {
-  background: #3cf4ff;
-}
-
-.clg-wash.clg-speck-magenta {
-  background: #ff3ad4;
 }
 
 .clg-canvas {
@@ -369,42 +139,31 @@
   opacity: 0;
 }
 
+.clg-ascii {
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .clg-mark[data-gpu="painting"] .clg-canvas {
   opacity: 1;
 }
 
-.clg-mark[data-gpu="painting"] .clg-grain {
+.clg-mark[data-gpu="painting"] .clg-wash-layer {
   opacity: 0;
 }
 
-@keyframes clg-pond {
+@keyframes clg-travel {
   from {
-    --clg-ripple: 0px;
+    transform: translate3d(0, 0, 0);
   }
   to {
-    --clg-ripple: var(--clg-tile, 8.5rem);
-  }
-}
-
-@keyframes clg-swim {
-  0%,
-  100% {
-    -webkit-mask-position: 0 0;
-    mask-position: 0 0;
-  }
-  25% {
-    -webkit-mask-position: calc(100% / var(--clg-cols, 96)) 0;
-    mask-position: calc(100% / var(--clg-cols, 96)) 0;
-  }
-  50% {
-    -webkit-mask-position: calc(100% / var(--clg-cols, 96))
-      calc(100% / var(--clg-rows, 35));
-    mask-position: calc(100% / var(--clg-cols, 96))
-      calc(100% / var(--clg-rows, 35));
-  }
-  75% {
-    -webkit-mask-position: 0 calc(100% / var(--clg-rows, 35));
-    mask-position: 0 calc(100% / var(--clg-rows, 35));
+    transform: translate3d(
+      calc(sin(var(--clg-angle, 118deg)) * var(--clg-tile, 8.5rem)),
+      calc(-1 * cos(var(--clg-angle, 118deg)) * var(--clg-tile, 8.5rem)),
+      0
+    );
   }
 }
 

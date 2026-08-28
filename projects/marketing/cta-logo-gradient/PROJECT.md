@@ -8,7 +8,7 @@
 ## Design reference
 
 - Figma: none
-- Other: Production Maser Media `CtaLogoTilt` + `Blue-HD.svg` lockup
+- Other: Production Maser Media `CtaLogoTilt` + `Blue-HD.svg` lockup; live-site footer ASCII from `ascii-wave.tsx` (wave only, not footer chrome)
 - Design spec: `FIGMA.md` in this folder
 
 ## Brief
@@ -17,23 +17,23 @@
 Lab and portfolio viewers looking at the Maser Media CTA lockup. Occasional — a brand moment, not high-frequency chrome.
 
 ### Job
-Read the mark as an ASCII-filled glyph: a tiny uniform grid of `. : + x M` clipped sharp to Blue-HD. Pond ripples (concentric / multi-source) travel through the grain — not a slanted shutdown. Page ground is white. Desktop still gets the production 3D tilt.
+Read the mark as Blue-HD with a looping Maser-blue wash (`#10a4ff` + slight white + darker blue). White footer-style ASCII columns (`.:+x*#`) wave up from the bottom *inside* the glyph. Characters never leave the mark.
 
 ### Current behavior
-Production `CtaLogoTilt` is a static `#2cafff` SVG with pointer tilt (`MAX_TILT_X=14`, `MAX_TILT_Y=16`, `MAX_LIFT=14`, `LERP=0.12`) and a hover drop-shadow lamp. Closed prism-wave / filament experiments are a different look and are not reused here.
+Production `CtaLogoTilt` is a static `#2cafff` SVG with pointer tilt (`MAX_TILT_X=14`, `MAX_TILT_Y=16`, `MAX_LIFT=14`, `LERP=0.12`) and a hover drop-shadow lamp. Closed prism-wave / filament experiments and the pond-ripple ASCII fill are different looks and are not reused here.
 
 ### Desired outcome
-First paint already shows pond ripples through an ASCII-filled Blue-HD. Multiple overlapping rings propagate through the field; crests and troughs keep moving. The grain displaces with the wave (phase offset), clipped sharp to the mark. No slanted brightness wipe, no fade-to-off sweep, no cell-scale bulge. Unlit cells stay Blue-HD, never black holes. Page ground is white. Sparse cyan/magenta dust sits on the crests. A vgpu fragment wash upgrades it when the GPU is actually painting. Grain exists only inside the mark. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
+First paint already shows a looping Blue-HD wash. White column-wave ASCII sits on that wash, clipped sharp to the mark. Columns grow from the bottom (height from sin/cos + breath + flicker, clamped ~0.35–1 of glyph height). Char pick matches the live-site footer recipe; glyphs are `#ffffff` only. A vgpu fragment wash upgrades the color body when the GPU is actually painting. CSS wash stays until then. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
 
 ### Success signal
-`/demos/cta-logo-gradient` never blanks the lockup. CSS wash is visible before GPU. The wash loops forever (first frame = last frame). The mark reads as an ASCII-filled glyph, clipped sharp. Desktop mouse tilt matches production throw. Touch and `prefers-reduced-motion` keep the wash and drop the tilt.
+`/demos/cta-logo-gradient` never blanks the lockup. CSS wash is visible before GPU. The wash loops forever (first frame = last frame). White ASCII columns wave inside the mark. Desktop mouse tilt matches production throw. Touch and `prefers-reduced-motion` keep the wash and drop the tilt.
 
 ### Non-goals
-Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps, wide-stage hit targets, computer-use verification, cloning ASCII-effect white-on-black skin, rainbow, readable type / terminal dumps around the logo, frozen grid with only a light band, slanted brightness wipe / fade-to-off sweep, cell-scale bulge toward camera, circular orb, black holes in the mark, black page ground.
+Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps, wide-stage hit targets, computer-use verification, cloning ASCII-effect white-on-black skin, rainbow, readable type / terminal dumps around the logo, frozen grid with only a light band, slanted brightness wipe / fade-to-off sweep, cell-scale bulge toward camera, circular orb, black holes in the mark, black page ground, pond rings, density-as-shade grain, RGB dust, colored ASCII, Maser-blue glyphs.
 
 ## States
 
-- [ ] default (CSS moving wash through Blue-HD)
+- [ ] default (CSS moving wash through Blue-HD + white ASCII columns)
 - [ ] gpu-painting (canvas wash after first presented frame; CSS may then hide)
 - [ ] gpu-unavailable (CSS wash stays; lockup never blanks)
 - [ ] hover tilt (fine pointer / desktop only)
@@ -46,9 +46,9 @@ Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | CSS radial pond + vgpu `effect`/`frameLoop` | CSS is first paint; GPU is the same pond, not a different material |
+| Library | CSS looping linear wash + vgpu color wash + 2D canvas ASCII | CSS is first paint; GPU is the same wash, not a different material. ASCII is the live-site footer wave, white only |
 | Loop | Periodic tile: one period per `--clg-period`; first frame = last frame | No snap / rewind at the seam |
-| Grain | Uniform 96×35 ASCII; density is shade; concentric ripples displace the field | Multi-source pond, not a slanted wipe. No cell-scale bulge. Unlit stays Blue-HD. White page. Sparse RGB dust. Clipped |
+| Grain | Footer column-wave, charset ` .:+x*#`, white `#ffffff`, clipped to Blue-HD | Port of maser-media `ascii-wave.tsx`. No pond, no RGB dust, no colored glyphs |
 | Tilt | Production CtaLogoTilt numbers | Keep the desktop 3D throw |
 | Duration | Continuous wash (~9s at 1×); tilt lerp 0.12 | Brand moment, not UI chrome |
 | Easing | Linear wash travel; tilt lerp | Travel reads as a gradient, not a bounce |
@@ -59,7 +59,7 @@ Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps
 | Field | Value |
 | --- | --- |
 | Target type | Fullscreen fragment wash, CSS-masked to the lockup |
-| Renderer | WebGPU via vgpu; CSS fallback |
+| Renderer | WebGPU via vgpu; CSS fallback. ASCII is Canvas 2D |
 | Decorative? | yes — page works without canvas |
 | Fallback | CSS masked gradient (mounted first) |
 | Mobile strategy | Full wash; no tilt |
@@ -74,19 +74,19 @@ Status: accepted (this Implement brief)
 Scope: `marketing/cta-logo-gradient`
 
 Decision:
-Moving Maser-blue gradient through Blue-HD. Slight white highlight and slight darker blue in the travel. Glow inside the glyph. Production tilt on fine pointer. Lamp off. CSS first; vgpu when painting.
+Moving Maser-blue gradient through Blue-HD. Slight white highlight and slight darker blue in the travel. Glow inside the glyph. White footer ASCII columns clipped to the mark. Production tilt on fine pointer. Lamp off. CSS first; vgpu when painting.
 
 Rationale:
-Matches the user drop without inheriting prism-wave / filament language.
+Matches the user drop without inheriting prism-wave / filament / pond language.
 
 Evidence:
-Production `CtaLogoTilt.tsx` + `globals.css` `.mm-cta__logo-*`; user brief 2026-08-28.
+Production `CtaLogoTilt.tsx` + `globals.css` `.mm-cta__logo-*`; maser-media `ascii-wave.tsx`; user brief 2026-08-28.
 
 Exceptions:
 Gradient ignores reduced-motion (explicit). Tilt does not.
 
 Assumptions:
-WebGPU may be absent on the public preview GPU; CSS wash is the guaranteed look.
+WebGPU may be absent on the public preview GPU; CSS wash is the guaranteed color body. ASCII is Canvas 2D and does not need WebGPU.
 
 Open decisions:
 Exact highlight/shade mix is knob-tunable in the demo; defaults are the product.
@@ -101,8 +101,8 @@ User brief (Implement).
 - [ ] CSS wash is visible on first paint; CSS is not hidden until GPU has presented a frame
 - [ ] Blue-HD never blanks
 - [ ] Wash is a perfect loop (first frame = last frame) on both CSS and vgpu; no snap at the seam
-- [ ] ASCII fill is a uniform grid clipped sharp to the mark; one glyph per cell; density is shade; gradient lives in the characters
-- [ ] Grain is pond ripples (concentric / multi-source) that travel through the field, not a slanted shutdown or frozen light band and not a cell-scale bulge; unlit cells stay Blue-HD; white page ground; first frame = last frame; not a filament
+- [ ] ASCII is the live-site footer column-wave (` .:+x*#`), drawn bottom-up, faded from each column top, white `#ffffff` only, clipped sharp to Blue-HD
+- [ ] ASCII never uses Maser-blue, RGB dust, or palette scatter; no pond rings, slanted shutdown, cell bulge, or filament
 - [ ] Tilt uses MAX_TILT_X=14, MAX_TILT_Y=16, MAX_LIFT=14, LERP=0.12; perspective on the viewport
 - [ ] Hit is a rounded box around the lockup, not the wide stage
 - [ ] Lamp off (no hover drop-shadow)

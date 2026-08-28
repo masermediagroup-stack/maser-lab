@@ -13,6 +13,7 @@ import {
   MAX_TILT_Y,
   PERSPECTIVE_PX,
 } from "./constants";
+import { startAsciiWave } from "./start-ascii-wave";
 import { startGradient } from "./start-gradient";
 import type { CtaLogoGradientLook, CtaLogoGradientProps } from "./types";
 import "./tokens.css";
@@ -46,7 +47,8 @@ export function CtaLogoGradient({
 }: CtaLogoGradientProps) {
   const hitRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const washRef = useRef<HTMLCanvasElement>(null);
+  const asciiRef = useRef<HTMLCanvasElement>(null);
   const lookRef = useRef<CtaLogoGradientLook>(look);
   const [gpuPainted, setGpuPainted] = useState(false);
 
@@ -55,13 +57,22 @@ export function CtaLogoGradient({
   }, [look]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    return startGradient({
-      canvas,
-      lookRef,
-      onPainted: () => setGpuPainted(true),
-    });
+    const wash = washRef.current;
+    const ascii = asciiRef.current;
+    const stopWash = wash
+      ? startGradient({
+          canvas: wash,
+          lookRef,
+          onPainted: () => setGpuPainted(true),
+        })
+      : () => {};
+    const stopAscii = ascii
+      ? startAsciiWave({ canvas: ascii, lookRef })
+      : () => {};
+    return () => {
+      stopWash();
+      stopAscii();
+    };
   }, []);
 
   useEffect(() => {
@@ -161,14 +172,16 @@ export function CtaLogoGradient({
       className={cn("clg-hit", className)}
       tabIndex={0}
       aria-label="Maser Media CTA logo"
-      style={{
-        "--clg-period": period,
-        "--clg-angle": `${look.angle}deg`,
-        "--clg-highlight": String(look.highlight),
-        "--clg-shade": String(look.shade),
-        "--clg-glow": String(look.glow),
-        "--clg-perspective": `${PERSPECTIVE_PX}px`,
-      } as CSSProperties}
+      style={
+        {
+          "--clg-period": period,
+          "--clg-angle": `${look.angle}deg`,
+          "--clg-highlight": String(look.highlight),
+          "--clg-shade": String(look.shade),
+          "--clg-glow": String(look.glow),
+          "--clg-perspective": `${PERSPECTIVE_PX}px`,
+        } as CSSProperties
+      }
     >
       <div className="clg-viewport">
         <div ref={tiltRef} className="clg-tilt">
@@ -187,31 +200,11 @@ export function CtaLogoGradient({
             data-gpu={gpuPainted ? "painting" : "pending"}
             aria-hidden="true"
           >
-            <div className="clg-grain">
-              <div className="clg-ascii-ground" />
-              <div className="clg-layer clg-layer-dot">
-                <div className="clg-wash clg-band-dot" />
-              </div>
-              <div className="clg-layer clg-layer-colon">
-                <div className="clg-wash clg-band-colon" />
-              </div>
-              <div className="clg-layer clg-layer-plus">
-                <div className="clg-wash clg-band-plus" />
-              </div>
-              <div className="clg-layer clg-layer-x">
-                <div className="clg-wash clg-band-x" />
-              </div>
-              <div className="clg-layer clg-layer-m">
-                <div className="clg-wash clg-band-m" />
-              </div>
-              <div className="clg-dust clg-dust-cyan">
-                <div className="clg-wash clg-band-m clg-speck-cyan" />
-              </div>
-              <div className="clg-dust clg-dust-magenta">
-                <div className="clg-wash clg-band-m clg-speck-magenta" />
-              </div>
+            <div className="clg-wash-layer">
+              <div className="clg-wash" />
             </div>
-            <canvas ref={canvasRef} className="clg-canvas" />
+            <canvas ref={washRef} className="clg-canvas" />
+            <canvas ref={asciiRef} className="clg-ascii" />
           </div>
         </div>
       </div>
