@@ -74,7 +74,7 @@ fn glyphForKind(kind: i32, local: vec2f) -> f32 {
   var color = washColor(wave);
   let n = hash21(cell);
   let lit = smoothstep(0.58, 0.86, wave);
-  let dust = step(0.9, n) * lit;
+  let dust = step(0.93, n) * lit;
   let dustCol = select(CYAN, MAGENTA, n > 0.95);
   color = mix(color, dustCol, dust * 0.72);
   let kind = i32(min(floor(wave * 5.0), 4.0));
