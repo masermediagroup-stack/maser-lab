@@ -40,24 +40,35 @@ export const CTA_LOGO_PRISM_WAVE_DEFAULTS: PrismWaveLook = {
   fringe: 0.52,
 };
 
-/** Short on / long off — cyan skin at the draw front only (pathLength=1). */
-export const FILAMENT_FRINGE_DASH = "0.07 0.93";
+/** Short on / long off — cyan lean at the draw front (pathLength=1). */
+export const FILAMENT_FRINGE_DASH = "0.06 0.94";
 
 /**
- * Sequential wander paths (viewBox 200×101). One finishes the trip before
- * the next enters. CSS strokes these; WGSL matches the same snakes.
+ * Overlapping wander paths (viewBox 200×101). 2–5 live in the volume at
+ * once. CSS strokes these; WGSL matches the same snakes.
  */
 export const FILAMENT_PATHS = [
   "M -12 54 C 14 12 28 90 48 34 C 64 4 78 94 98 30 C 116 2 132 88 152 38 C 168 10 184 76 212 46",
   "M -12 42 C 18 88 36 8 58 62 C 76 98 94 12 116 70 C 134 4 154 92 174 36 C 188 8 200 64 212 52",
   "M -12 66 C 16 18 34 96 56 40 C 74 6 96 88 118 28 C 138 96 156 14 176 72 C 190 18 202 80 212 40",
+  "M -12 48 C 20 78 32 16 54 58 C 72 94 90 18 112 64 C 130 8 150 86 172 32 C 186 12 198 70 212 50",
+  "M -12 60 C 12 22 30 92 52 36 C 70 8 92 84 114 24 C 136 90 158 18 178 68 C 192 22 204 76 212 44",
 ] as const;
 
+/** Near-same weight. Not one fat plus hairlines. */
+export const FILAMENT_WEIGHTS = [0.94, 1, 1.06, 0.97, 1.04] as const;
+
+/** Cycle-duration drift so the visible count wanders between 2 and 5. */
+export const FILAMENT_DURATION_SCALE = [0.93, 1, 1.1, 0.97, 1.05] as const;
+
+/** Negative-delay fractions of each path's own duration. */
+export const FILAMENT_DELAY_FRAC = [0, 0.16, 0.33, 0.51, 0.72] as const;
+
 /**
- * pathLength=1. Draw the full continuous stroke, then clear, then wait
- * two trips so the next path does not overlap.
+ * pathLength=1. Draw the full continuous stroke, then clear, then rest.
+ * Rest is short enough that trips overlap.
  */
 export const FILAMENT_DASH = "1 1";
 
-/** Full sequential loop (3 trips: draw + clear each) at default speed. */
-export const CSS_WAVE_DURATION_S = 7.2;
+/** One draw+clear+rest cycle at default speed. */
+export const CSS_WAVE_DURATION_S = 5.6;

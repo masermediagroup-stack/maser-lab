@@ -4,7 +4,7 @@ export type PrismWaveLook = {
   /** UV units per second along the travel axis. */
   speed: number;
   bandWidth: number;
-  /** Leading-edge cool/cyan mix (0–1). On at the default; not a hue sweep. */
+  /** RGB split on the stroke (0–1). Cyan-leaning at the lead; not a hue sweep. */
   fringe: number;
 };
 

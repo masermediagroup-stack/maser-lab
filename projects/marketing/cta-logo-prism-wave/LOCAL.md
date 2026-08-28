@@ -56,7 +56,7 @@ The GPU host stays a 1px clipped box in the visual viewport (not `-200vw`). Chro
 
 **Tilt (lab vs production):** Throw is production (14 / 16 / 14, lerp 0.12) with `perspective()` on the viewport. **Hit is one rounded pad around the MASER + MEDIA lockup**, not letter-tight alpha and not the wide stage. Off the pad / pointerleave lerp to 0. Lab tilts on mouse/pen even when `(hover: hover) and (pointer: fine)` is false. Production keeps that media gate. Touch and reduced motion still skip tilt. No `.mm-cta__logo--active` lamp.
 
-**Filament (both paths):** Sequential continuous wander, clipped to the glyph. Deeper blue (`#0a5a9c`) on light ground, pale (`#e7f4ff`) on dark. Cool/cyan (`#73e7ff`) on the leading edge only. Default band ~0.013 UV. Full 3-trip loop ~7.2s at default speed. In-glyph glow only. One path finishes draw+clear before the next enters.
+**Filament (both paths):** 2–5 similar-weight overlapping wanders, clipped to the glyph. Deeper blue (`#0a5a9c`) on light ground, pale (`#e7f4ff`) on dark. RGB split on the stroke with cyan (`#73e7ff`) leaning at the lead. Default band ~0.013 UV. In-glyph glow only. CSS stays mounted until `displayHasFilamentPixels` is true.
 
 ## Transfer
 

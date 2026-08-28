@@ -2,6 +2,7 @@
 .clpw-root {
   --clpw-blue: #10a4ff;
   --clpw-fringe: #73e7ff;
+  --clpw-ca-r: #c45a6a;
   --clpw-filament: #0a5a9c;
   --clpw-filament-glow: #0c6bb8;
   --clpw-page: #ffffff;
@@ -20,6 +21,7 @@
   --clpw-text-muted: rgba(243, 246, 250, 0.72);
   --clpw-filament: #e7f4ff;
   --clpw-filament-glow: #f5fbff;
+  --clpw-ca-r: #ff8aa0;
 }
 
 .clpw-page {
@@ -221,89 +223,93 @@
   stroke: var(--clpw-filament);
   fill: none;
   stroke-dashoffset: 1;
-}
-
-.clpw-css-filament--core,
-.clpw-css-filament--glow {
-  animation: clpw-css-travel var(--clpw-css-duration, 7.2s) linear infinite;
+  animation: clpw-css-travel var(--clpw-css-duration, 5.6s) linear infinite;
+  animation-delay: var(--clpw-css-delay, 0s);
 }
 
 .clpw-css-filament--core {
-  stroke-width: var(--clpw-css-stroke, 2.2);
+  stroke-width: calc(var(--clpw-css-stroke, 2.2) * var(--clpw-css-weight, 1));
 }
 
 .clpw-css-filament--glow {
   stroke: var(--clpw-filament-glow);
-  stroke-width: calc(var(--clpw-css-stroke, 2.2) * 2.5);
-  opacity: 0.38;
+  stroke-width: calc(var(--clpw-css-stroke, 2.2) * var(--clpw-css-weight, 1) * 2.4);
+  opacity: 0.34;
   /* In-glass light. Parent mask clips this to Blue-HD — not a lamp on the mark. */
   filter: blur(0.55px);
 }
 
-/*
- * Cool/cyan skin at the draw front only. Same sequential delays as the
- * core. Hidden during clear / wait so it never reads as a traveling blob.
- */
-.clpw-css-filament--fringe {
+.clpw-css-filament--ca-r,
+.clpw-css-filament--ca-b {
+  stroke-width: calc(var(--clpw-css-stroke, 2.2) * var(--clpw-css-weight, 1));
+}
+
+.clpw-css-filament--ca-r {
+  stroke: var(--clpw-ca-r);
+  opacity: calc(0.28 + var(--clpw-css-fringe, 0.52) * 0.38);
+}
+
+.clpw-css-filament--ca-b {
   stroke: var(--clpw-fringe);
-  stroke-width: calc(var(--clpw-css-stroke, 2.2) * 1.35);
-  stroke-dashoffset: 0.07;
-  opacity: var(--clpw-css-fringe, 0.52);
-  animation: clpw-css-fringe var(--clpw-css-duration, 7.2s) linear infinite;
-}
-
-.clpw-css-trip--1 .clpw-css-filament {
-  animation-delay: calc(var(--clpw-css-duration, 7.2s) / -3);
-}
-
-.clpw-css-trip--2 .clpw-css-filament {
-  animation-delay: calc(var(--clpw-css-duration, 7.2s) * -2 / 3);
+  opacity: calc(0.36 + var(--clpw-css-fringe, 0.52) * 0.42);
 }
 
 /*
- * One trip = draw on (offset 1→0) then clear from the start (0→-1).
- * Each path owns 1/3 of the loop; the other two wait. Negative delays
- * keep trip 0 drawing on first paint.
+ * Cyan lean at the draw front — same weight as the core, not a fat wedge.
+ */
+.clpw-css-filament--lead {
+  stroke: var(--clpw-fringe);
+  stroke-width: calc(var(--clpw-css-stroke, 2.2) * var(--clpw-css-weight, 1));
+  stroke-dashoffset: 0.06;
+  opacity: var(--clpw-css-fringe, 0.52);
+  animation: clpw-css-lead var(--clpw-css-duration, 5.6s) linear infinite;
+  animation-delay: var(--clpw-css-delay, 0s);
+}
+
+/*
+ * Draw on, clear, rest. Rest is short so 2–5 trips overlap in the volume.
+ * Uneven delays + duration drift on each .clpw-css-trip.
  */
 @keyframes clpw-css-travel {
   0% {
     stroke-dashoffset: 1;
   }
-  16.666% {
+  28% {
     stroke-dashoffset: 0;
   }
-  33.333% {
+  56% {
     stroke-dashoffset: -1;
   }
-  33.334%,
+  56.1%,
   100% {
     stroke-dashoffset: 1;
   }
 }
 
-@keyframes clpw-css-fringe {
+@keyframes clpw-css-lead {
   0% {
-    stroke-dashoffset: 0.07;
+    stroke-dashoffset: 0.06;
   }
-  16.666% {
-    stroke-dashoffset: -0.93;
+  28% {
+    stroke-dashoffset: -0.94;
   }
-  16.7%,
+  28.2%,
   100% {
-    stroke-dashoffset: -0.93;
+    stroke-dashoffset: -0.94;
     opacity: 0;
   }
 }
 
 /* Wave always runs — including prefers-reduced-motion. Tilt is JS-gated. */
 @media (prefers-reduced-motion: reduce) {
-  .clpw-css-filament--core,
-  .clpw-css-filament--glow {
-    animation: clpw-css-travel var(--clpw-css-duration, 7.2s) linear infinite;
+  .clpw-css-filament {
+    animation: clpw-css-travel var(--clpw-css-duration, 5.6s) linear infinite;
+    animation-delay: var(--clpw-css-delay, 0s);
   }
 
-  .clpw-css-filament--fringe {
-    animation: clpw-css-fringe var(--clpw-css-duration, 7.2s) linear infinite;
+  .clpw-css-filament--lead {
+    animation: clpw-css-lead var(--clpw-css-duration, 5.6s) linear infinite;
+    animation-delay: var(--clpw-css-delay, 0s);
   }
 }
 
