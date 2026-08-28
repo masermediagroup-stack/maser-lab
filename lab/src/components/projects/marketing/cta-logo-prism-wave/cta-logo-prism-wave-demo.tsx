@@ -124,11 +124,12 @@ export function CtaLogoPrismWaveDemo() {
           />
           <p className="clpw-caption text-base leading-relaxed text-[var(--clpw-text-muted)]">
             Two to five glass lines in the cloud at once, similar weight, RGB
-            split on the stroke with cyan on the lead. Deeper blue on light,
-            pale on dark. Glow stays inside the glyph. Hover the rounded pad
-            around the lockup to tilt (mouse or pen). Empty stage beside the
-            mark sits. Phones and reduced motion keep the wave and drop the
-            tilt.
+            split on the stroke with cyan on the lead. Each line enters from
+            a different place on the mark — not the same left-middle start.
+            Deeper blue on light, pale on dark. Glow stays inside the glyph.
+            Hover the rounded pad around the lockup to tilt (mouse or pen).
+            Empty stage beside the mark sits. Phones and reduced motion keep
+            the wave and drop the tilt.
           </p>
         </section>
 

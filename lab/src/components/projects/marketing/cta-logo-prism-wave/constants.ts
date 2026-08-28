@@ -44,15 +44,16 @@ export const CTA_LOGO_PRISM_WAVE_DEFAULTS: PrismWaveLook = {
 export const FILAMENT_FRINGE_DASH = "0.06 0.94";
 
 /**
- * Overlapping wander paths (viewBox 200×101). 2–5 live in the volume at
- * once. CSS strokes these; WGSL matches the same snakes.
+ * Overlapping wander paths (viewBox 200×101). Starts are spread around
+ * the lockup — left, right, top, bottom, corner — not one left-middle
+ * origin. CSS strokes these; WGSL hashes a perimeter spawn per trip.
  */
 export const FILAMENT_PATHS = [
-  "M -12 54 C 14 12 28 90 48 34 C 64 4 78 94 98 30 C 116 2 132 88 152 38 C 168 10 184 76 212 46",
-  "M -12 42 C 18 88 36 8 58 62 C 76 98 94 12 116 70 C 134 4 154 92 174 36 C 188 8 200 64 212 52",
-  "M -12 66 C 16 18 34 96 56 40 C 74 6 96 88 118 28 C 138 96 156 14 176 72 C 190 18 202 80 212 40",
-  "M -12 48 C 20 78 32 16 54 58 C 72 94 90 18 112 64 C 130 8 150 86 172 32 C 186 12 198 70 212 50",
-  "M -12 60 C 12 22 30 92 52 36 C 70 8 92 84 114 24 C 136 90 158 18 178 68 C 192 22 204 76 212 44",
+  "M -10 18 C 18 6 34 72 56 26 C 74 2 94 84 116 22 C 136 88 154 10 176 46 C 190 8 206 60 214 38",
+  "M 214 34 C 192 6 174 90 154 28 C 136 2 116 92 96 34 C 76 96 56 8 36 50 C 20 12 6 70 -12 46",
+  "M 78 -8 C 52 20 26 4 18 42 C 10 80 44 98 68 56 C 90 16 118 94 142 38 C 164 6 190 76 214 50",
+  "M 42 112 C 16 78 4 96 14 56 C 26 14 52 90 74 30 C 96 2 122 88 146 26 C 168 92 194 16 214 48",
+  "M 214 90 C 190 108 168 58 148 86 C 126 14 106 98 86 32 C 66 2 46 80 26 38 C 10 10 -8 62 -12 48",
 ] as const;
 
 /** Near-same weight. Not one fat plus hairlines. */
