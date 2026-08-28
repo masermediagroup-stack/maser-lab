@@ -19,19 +19,32 @@ const LOOP = 9.0;
 const BANDS = 2.6;
 const COLS = 96.0;
 const ROWS = 35.0;
+const AMP_ALONG = 0.013;
+const AMP_CROSS = 0.011;
 
 fn washWave(uv: vec2f, dir: vec2f, slide: f32) -> f32 {
   let travel = dot(uv - vec2f(0.5), dir) * BANDS - slide;
   return sin(travel * TAU) * 0.5 + 0.5;
 }
 
+fn waterOffset(uv: vec2f, dir: vec2f, slide: f32) -> vec2f {
+  let perp = vec2f(-dir.y, dir.x);
+  let p = uv - vec2f(0.5);
+  let along = dot(p, dir);
+  let across = dot(p, perp);
+  let r1 = sin((along * BANDS - slide) * TAU);
+  let r2 = sin((across * 3.0 + slide) * TAU);
+  let r3 = sin((along * 2.0 + across * 2.0 - slide * 2.0) * TAU);
+  return dir * (r1 * AMP_ALONG + r3 * (AMP_ALONG * 0.45))
+    + perp * (r2 * AMP_CROSS + r3 * (AMP_CROSS * 0.35));
+}
+
 fn washColor(wave: f32) -> vec3f {
-  var color = mix(BLUE, DARK, params.shade * (1.0 - wave) * 0.82);
+  var color = mix(BLUE, DARK, params.shade * (1.0 - wave) * 0.28);
   let hi = smoothstep(0.5, 0.94, wave) * params.highlight;
   color = mix(color, WHITE, hi * 0.48);
   let inner = pow(smoothstep(0.64, 1.0, wave), 1.55) * params.glow;
   color = color + WHITE * inner * 0.26;
-  color = color * mix(0.22, 1.0, wave);
   return clamp(color, vec3f(0.0), vec3f(1.0));
 }
 
@@ -65,12 +78,12 @@ fn glyphForKind(kind: i32, local: vec2f) -> f32 {
   let rad = params.angle * 0.01745329252;
   let dir = vec2f(cos(rad), sin(rad));
   let slide = params.time * params.speed / LOOP;
+  let swimUv = uv + waterOffset(uv, dir, slide);
   let cells = vec2f(COLS, ROWS);
-  let grid = uv * cells;
+  let grid = swimUv * cells;
   let cell = floor(grid);
   let local = fract(grid);
-  let centerUv = (cell + vec2f(0.5)) / cells;
-  let wave = washWave(centerUv, dir, slide);
+  let wave = washWave(swimUv, dir, slide);
   var color = washColor(wave);
   let n = hash21(cell);
   let lit = smoothstep(0.58, 0.86, wave);
@@ -79,6 +92,5 @@ fn glyphForKind(kind: i32, local: vec2f) -> f32 {
   color = mix(color, dustCol, dust * 0.72);
   let kind = i32(min(floor(wave * 5.0), 4.0));
   let glyph = glyphForKind(kind, local);
-  let ink = vec3f(0.019608, 0.027451, 0.039216);
-  return vec4f(mix(ink, color, glyph), 1.0);
+  return vec4f(mix(BLUE, color, glyph), 1.0);
 }

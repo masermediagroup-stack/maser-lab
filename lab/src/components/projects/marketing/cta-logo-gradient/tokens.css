@@ -1,8 +1,9 @@
+.clg-root.maser-lab,
 .clg-root {
   --clg-blue: #10a4ff;
   --clg-white: #f5fbff;
   --clg-dark: #0872c4;
-  --clg-ink: #05070a;
+  --clg-ground: #ffffff;
   --clg-period: 9s;
   --clg-angle: 118deg;
   --clg-tile: 8.5rem;
@@ -15,8 +16,9 @@
   --cta-logo-tilt-y: 0deg;
   --cta-logo-tilt-z: 0px;
   min-height: 100dvh;
-  background: var(--clg-ink);
-  color: var(--lab-text-primary, #f8f8f8);
+  background: var(--clg-ground);
+  background-color: var(--clg-ground);
+  color: #111113;
 }
 
 .clg-stage {
@@ -24,6 +26,7 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  background: var(--clg-ground, #ffffff);
 }
 
 .clg-hit {
@@ -101,7 +104,7 @@
 }
 
 .clg-ascii-ground {
-  background: var(--clg-ink);
+  background: var(--clg-blue);
 }
 
 .clg-layer {
@@ -112,6 +115,7 @@
   mask-size: calc(100% / var(--clg-cols)) calc(100% / var(--clg-rows));
   -webkit-mask-position: 0 0;
   mask-position: 0 0;
+  animation: clg-swim var(--clg-period, 9s) linear infinite;
 }
 
 .clg-layer-dot {
@@ -392,6 +396,19 @@
       calc(-1 * cos(var(--clg-angle, 118deg)) * var(--clg-tile, 8.5rem)),
       0
     );
+  }
+}
+
+@keyframes clg-swim {
+  from {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+  to {
+    -webkit-mask-position: calc(100% / var(--clg-cols, 96))
+      calc(100% / var(--clg-rows, 35));
+    mask-position: calc(100% / var(--clg-cols, 96))
+      calc(100% / var(--clg-rows, 35));
   }
 }
 

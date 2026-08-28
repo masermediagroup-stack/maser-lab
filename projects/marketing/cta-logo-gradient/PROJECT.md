@@ -17,19 +17,19 @@
 Lab and portfolio viewers looking at the Maser Media CTA lockup. Occasional — a brand moment, not high-frequency chrome.
 
 ### Job
-Read the mark as an ASCII-filled glyph: a tiny uniform grid of `. : + x M` clipped sharp to Blue-HD, with a looping Maser-blue wash (slight white, slight dark) living in the characters. Desktop still gets the production 3D tilt.
+Read the mark as an ASCII-filled glyph: a tiny uniform grid of `. : + x M` clipped sharp to Blue-HD, with a looping Maser-blue wash living in the characters. The grain swims like water (not a frozen light pass). Page ground is white. Desktop still gets the production 3D tilt.
 
 ### Current behavior
 Production `CtaLogoTilt` is a static `#2cafff` SVG with pointer tilt (`MAX_TILT_X=14`, `MAX_TILT_Y=16`, `MAX_LIFT=14`, `LERP=0.12`) and a hover drop-shadow lamp. Closed prism-wave / filament experiments are a different look and are not reused here.
 
 ### Desired outcome
-First paint already shows a moving gradient through an ASCII-filled Blue-HD. One character per cell on a rigid lattice; glyph weight is the shade (heavier in the light of the wash). Light travels through the cells — they do not scale or displace. Sparse cyan/magenta dust sits in the lit cells. A vgpu fragment wash upgrades it when the GPU is actually painting. Grain exists only inside the mark. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
+First paint already shows a moving gradient through an ASCII-filled Blue-HD. One character per cell; glyph weight is the shade (heavier in the light of the wash). The grain swims like water — a traveling ripple displaces the lattice (phase offset), clipped sharp to the mark. Cells do not scale toward the camera. Unlit cells stay Blue-HD, never black holes. Page ground is white. Sparse cyan/magenta dust sits in the lit band. A vgpu fragment wash upgrades it when the GPU is actually painting. Grain exists only inside the mark. No lamp off the silhouette. Tilt matches production on fine pointer / desktop and drops on phones and reduced motion. The gradient always loops with no seam.
 
 ### Success signal
 `/demos/cta-logo-gradient` never blanks the lockup. CSS wash is visible before GPU. The wash loops forever (first frame = last frame). The mark reads as an ASCII-filled glyph, clipped sharp. Desktop mouse tilt matches production throw. Touch and `prefers-reduced-motion` keep the wash and drop the tilt.
 
 ### Non-goals
-Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps, wide-stage hit targets, computer-use verification, cloning ASCII-effect white-on-black skin, rainbow, readable type / terminal dumps around the logo.
+Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps, wide-stage hit targets, computer-use verification, cloning ASCII-effect white-on-black skin, rainbow, readable type / terminal dumps around the logo, frozen grid with only a light band, cell-scale bulge toward camera, circular orb, black holes in the mark, black page ground.
 
 ## States
 
@@ -48,7 +48,7 @@ Filaments, electric wander, chromatic worms, prism-wave, hover drop-shadow lamps
 | --- | --- | --- |
 | Library | CSS transform wash + vgpu `effect`/`frameLoop` | CSS is first paint; GPU is the same wash, not a different material |
 | Loop | Periodic tile: one period per `--clg-period`; first frame = last frame | No snap / rewind at the seam |
-| Grain | Uniform 96×35 ASCII grid; density is shade; light through cells | Rigid lattice. Traveling brightness/density. Sparse RGB dust. Clipped to Blue-HD |
+| Grain | Uniform 96×35 ASCII; density is shade; water ripple displaces the field | Characters swim (phase offset). No cell-scale bulge. Unlit stays Blue-HD. White page. Sparse RGB dust. Clipped |
 | Tilt | Production CtaLogoTilt numbers | Keep the desktop 3D throw |
 | Duration | Continuous wash (~9s at 1×); tilt lerp 0.12 | Brand moment, not UI chrome |
 | Easing | Linear wash travel; tilt lerp | Travel reads as a gradient, not a bounce |
@@ -102,7 +102,7 @@ User brief (Implement).
 - [ ] Blue-HD never blanks
 - [ ] Wash is a perfect loop (first frame = last frame) on both CSS and vgpu; no snap at the seam
 - [ ] ASCII fill is a uniform grid clipped sharp to the mark; one glyph per cell; density is shade; gradient lives in the characters
-- [ ] Lattice is rigid (no scale/displace/bulge); traveling light/density front; first frame = last frame; not a filament
+- [ ] Grain swims like water (phase offset / ripple), not a frozen light band and not a cell-scale bulge; unlit cells stay Blue-HD; white page ground; first frame = last frame; not a filament
 - [ ] Tilt uses MAX_TILT_X=14, MAX_TILT_Y=16, MAX_LIFT=14, LERP=0.12; perspective on the viewport
 - [ ] Hit is a rounded box around the lockup, not the wide stage
 - [ ] Lamp off (no hover drop-shadow)
