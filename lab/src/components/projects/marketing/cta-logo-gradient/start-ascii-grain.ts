@@ -5,7 +5,7 @@ import {
 } from "./constants";
 import type { WashClock } from "./wash-clock";
 import type { CtaLogoGradientLook } from "./types";
-import { paintSparkleLayer } from "./sparkle-bursts";
+import { paintOccupancy } from "./sparkle-bursts";
 import { paintCornerWash } from "./wash-palette";
 
 /** Grain charset. Space omitted so every cell inks the mark at this scale. */
@@ -22,8 +22,8 @@ function grainChar(column: number, row: number): string {
  * Uniform tiny grid filling the mark.
  * Cell size is pinned (footer font/column ÷ 5). The lattice is restroked
  * only when the canvas bitmap size actually changes — never on knob ticks
- * or sparkle. Sparkle is a per-cell intensity burst on glyphs that stay put.
- * Fill is the four-blob wash at opposite phase from the logo body.
+ * or sparkle. Sparkle is binary occupancy (0/1) on this mask: short clustered
+ * winks off, then back on. Fill is the reverse-phase four-blob wash.
  */
 export function startAsciiGrain(options: {
   canvas: HTMLCanvasElement;
@@ -107,14 +107,10 @@ export function startAsciiGrain(options: {
     ctx.drawImage(mask, 0, 0);
 
     const timeSec = performance.now() / 1000;
+    paintOccupancy(sparklePixels, columns, rows, timeSec);
+    sparkleCtx.putImageData(sparklePixels, 0, 0);
     ctx.imageSmoothingEnabled = false;
-    paintSparkleLayer(sparklePixels, columns, rows, timeSec, "dim");
-    sparkleCtx.putImageData(sparklePixels, 0, 0);
-    ctx.globalCompositeOperation = "multiply";
-    ctx.drawImage(sparkle, 0, 0, canvas.width, canvas.height);
-    paintSparkleLayer(sparklePixels, columns, rows, timeSec, "flash");
-    sparkleCtx.putImageData(sparklePixels, 0, 0);
-    ctx.globalCompositeOperation = "source-atop";
+    ctx.globalCompositeOperation = "destination-in";
     ctx.drawImage(sparkle, 0, 0, canvas.width, canvas.height);
     ctx.globalCompositeOperation = "source-over";
     ctx.imageSmoothingEnabled = true;
