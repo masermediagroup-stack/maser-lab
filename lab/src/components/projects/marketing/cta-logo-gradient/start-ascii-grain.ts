@@ -16,18 +16,31 @@ function cellSeed(column: number, row: number): number {
   return n - Math.floor(n);
 }
 
+function cellPhase(column: number, row: number): number {
+  const n = Math.sin(column * 269.5 + row * 183.3) * 43758.5453;
+  return n - Math.floor(n);
+}
+
+/**
+ * Star sparkle: most cells stay filled. A seeded minority (~10%) briefly
+ * wink off (~40–90ms) then return. No persistent holes, no drift.
+ */
 function cellOccupied(column: number, row: number, timeMs: number): boolean {
   const seed = cellSeed(column, row);
-  const period = 900 + seed * 2200;
-  const cycle = ((timeMs + seed * period) % period) / period;
-  const hole = 0.14 + seed * 0.12;
-  return cycle > hole;
+  if (seed < 0.9) return true;
+
+  const t = (seed - 0.9) / 0.1;
+  const period = 2400 + t * 3600;
+  const phase = cellPhase(column, row);
+  const cycle = ((timeMs + phase * period) % period) / period;
+  const wink = 0.016 + t * 0.014;
+  return cycle > wink;
 }
 
 /**
  * Uniform tiny white grid filling the mark.
  * Cell size is the previous footer font/column pitch ÷ 5 (locked).
- * Occupancy twinkles via a per-cell seed; glyphs do not drift, slide, or scale.
+ * Sparkle occupancy uses a per-cell seed; glyphs do not drift, slide, or scale.
  */
 export function startAsciiGrain(options: {
   canvas: HTMLCanvasElement;
