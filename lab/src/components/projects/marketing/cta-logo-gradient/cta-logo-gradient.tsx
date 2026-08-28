@@ -13,7 +13,7 @@ import {
   MAX_TILT_Y,
   PERSPECTIVE_PX,
 } from "./constants";
-import { startAsciiWave } from "./start-ascii-wave";
+import { startAsciiGrain } from "./start-ascii-grain";
 import { startGradient } from "./start-gradient";
 import type { CtaLogoGradientLook, CtaLogoGradientProps } from "./types";
 import "./tokens.css";
@@ -66,9 +66,7 @@ export function CtaLogoGradient({
           onPainted: () => setGpuPainted(true),
         })
       : () => {};
-    const stopAscii = ascii
-      ? startAsciiWave({ canvas: ascii, lookRef })
-      : () => {};
+    const stopAscii = ascii ? startAsciiGrain({ canvas: ascii }) : () => {};
     return () => {
       stopWash();
       stopAscii();
