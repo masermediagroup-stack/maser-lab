@@ -3,6 +3,7 @@ import {
   MathUtils,
   PerspectiveCamera,
   Sphere,
+  Vector3,
   type Object3D,
 } from "three";
 import type { CameraSettings } from "../types";
@@ -40,17 +41,21 @@ export function applyCameraSettings(
 export function fitDistanceForObject(
   camera: PerspectiveCamera,
   object: Object3D,
-  padding = 0.18,
+  padding = 0.32,
 ): number {
   const box = new Box3().setFromObject(object);
   if (box.isEmpty()) return 2.4;
   const sphere = box.getBoundingSphere(new Sphere());
+  const size = box.getSize(new Vector3());
   const fov = camera.fov * DEG;
   const aspect = camera.aspect || 1;
-  const vertical = sphere.radius * (1 + padding) / Math.sin(fov / 2);
+  const pad = 1 + padding;
+  const vertical = sphere.radius * pad / Math.sin(fov / 2);
   const hFov = 2 * Math.atan(Math.tan(fov / 2) * aspect);
-  const horizontal = sphere.radius * (1 + padding) / Math.sin(hFov / 2);
-  return Math.max(vertical, horizontal, 0.8);
+  const horizontal = sphere.radius * pad / Math.sin(hFov / 2);
+  const boxVertical = Math.max(size.y, size.z) * 0.5 * pad / Math.sin(fov / 2);
+  const boxHorizontal = Math.max(size.x, size.z) * 0.5 * pad / Math.sin(hFov / 2);
+  return Math.max(vertical, horizontal, boxVertical, boxHorizontal, 0.8);
 }
 
 export function fitLogoToCamera(

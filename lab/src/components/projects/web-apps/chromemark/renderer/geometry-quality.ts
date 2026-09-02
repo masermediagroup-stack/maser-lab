@@ -11,7 +11,8 @@ export const GEOMETRY_QUALITY = {
 export const INTERACTIVE_GEOMETRY_QUALITY: GeometryQualityId = "high";
 export const EXPORT_GEOMETRY_QUALITY: GeometryQualityId = "ultra";
 
-export const CREASE_ANGLE_RAD = (45 * Math.PI) / 180;
+/** Blend all adjacent shell faces. A 45° crease was the broken bevel/wall edge. */
+export const SHELL_SMOOTH_ANGLE_RAD = Math.PI;
 
 export function tessellateGeometry(
   settings: GeometrySettings,

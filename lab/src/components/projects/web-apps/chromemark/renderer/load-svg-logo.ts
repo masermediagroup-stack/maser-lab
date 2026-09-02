@@ -1,5 +1,6 @@
 import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
 import type { Shape, ShapePath } from "three";
+import { assembleSilhouette } from "./assemble-silhouette";
 import { LogoLoadError } from "../types";
 
 type SvgStyle = {
@@ -41,8 +42,7 @@ export function loadSvgLogo(svgText: string): Shape[] {
 
   for (const path of data.paths) {
     if (!hasFill(path)) continue;
-    const pathShapes = path.toShapes();
-    shapes.push(...pathShapes);
+    shapes.push(...path.toShapes());
   }
 
   if (shapes.length === 0) {
@@ -52,5 +52,5 @@ export function loadSvgLogo(svgText: string): Shape[] {
     );
   }
 
-  return shapes;
+  return assembleSilhouette(shapes);
 }

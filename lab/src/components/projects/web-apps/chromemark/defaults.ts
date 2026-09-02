@@ -22,8 +22,8 @@ export const GEOMETRY_DEFAULTS: GeometrySettings = {
 
 export const TRACE_DEFAULTS: TraceSettings = {
   alphaThreshold: 16,
-  traceDetail: 0.55,
-  smoothing: 0.35,
+  traceDetail: 0.72,
+  smoothing: 0.18,
 };
 
 export const MATERIAL_PRESETS: Record<

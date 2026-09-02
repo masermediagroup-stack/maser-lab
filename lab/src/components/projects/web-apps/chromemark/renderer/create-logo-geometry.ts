@@ -1,8 +1,9 @@
 import { Box3, ExtrudeGeometry, Group, Mesh, Vector3 } from "three";
 import type { Shape } from "three";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
+import { clampBevelSize } from "./bevel-limit";
 import type { ChromeMaterials } from "./create-chrome-material";
-import { CREASE_ANGLE_RAD } from "./geometry-quality";
+import { SHELL_SMOOTH_ANGLE_RAD } from "./geometry-quality";
 import { measureShapes } from "./normalize-logo";
 import { splitExtrudeSurfaces } from "./surface-groups";
 import { LogoLoadError, type GeometrySettings } from "../types";
@@ -20,22 +21,25 @@ export function createLogoGeometry(
     );
   }
 
-  const bevelEnabled = settings.bevel;
-  const bevelSegments = bevelEnabled ? settings.bevelSegments : 0;
   const steps = 1;
-  const options = {
-    depth: settings.depth * maxXY,
-    bevelEnabled,
-    bevelThickness: settings.bevelThickness * maxXY,
-    bevelSize: settings.bevelSize * maxXY,
-    bevelSegments,
-    curveSegments: settings.curveDetail,
-    steps,
-  };
+  const requestedBevel = settings.bevel ? settings.bevelSize * maxXY : 0;
+  const bevelThickness = settings.bevelThickness * maxXY;
+  const depth = settings.depth * maxXY;
 
   const inner = new Group();
   for (const shape of shapes) {
-    const extruded = new ExtrudeGeometry(shape, options);
+    const bevelSize = clampBevelSize(requestedBevel, shape);
+    const bevelEnabled = settings.bevel && bevelSize > 1e-6;
+    const bevelSegments = bevelEnabled ? settings.bevelSegments : 0;
+    const extruded = new ExtrudeGeometry(shape, {
+      depth,
+      bevelEnabled,
+      bevelThickness,
+      bevelSize,
+      bevelSegments,
+      curveSegments: settings.curveDetail,
+      steps,
+    });
     const { lids, shell } = splitExtrudeSurfaces(extruded, {
       bevelEnabled,
       bevelSegments,
@@ -49,11 +53,11 @@ export function createLogoGeometry(
     inner.add(lidMesh);
 
     if (shell) {
-      const creased = toCreasedNormals(shell, CREASE_ANGLE_RAD);
-      if (creased !== shell) shell.dispose();
-      const hasBevelGroup = creased.groups.some((group) => group.materialIndex === 0);
+      const smoothed = toCreasedNormals(shell, SHELL_SMOOTH_ANGLE_RAD);
+      if (smoothed !== shell) shell.dispose();
+      const hasBevelGroup = smoothed.groups.some((group) => group.materialIndex === 0);
       const shellMesh = new Mesh(
-        creased,
+        smoothed,
         hasBevelGroup ? [materials.bevels, materials.sides] : materials.sides,
       );
       shellMesh.castShadow = false;
