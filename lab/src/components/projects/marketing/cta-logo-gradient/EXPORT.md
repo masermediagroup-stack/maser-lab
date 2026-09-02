@@ -42,6 +42,12 @@ import { CtaLogoTilt } from "./cta-logo-gradient";
 <CtaLogoTilt />
 ```
 
-No dock. No rail. No knobs. Optional `look` / `forceReducedMotion` are for the lab demo page only; production uses defaults.
+No dock. No rail. No knobs. Optional `look` / `forceReducedMotion` are for the lab demo page only; production uses baked defaults:
+
+- Speed `1.5`
+- White (highlight) `1` (knob max)
+- Dark (shade) `1` (knob max)
+- Glow `0.55` (unchanged)
+- Angle `118` (unchanged)
 
 Needs: React 19 client component, Next.js `Image`, `vgpu` + the WGSL loader from `lab/next.config.ts`.
