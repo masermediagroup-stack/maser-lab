@@ -68,7 +68,7 @@ Accounts, databases, backends, AI matting, bloom/fog/floor shadows, FFmpeg/ProRe
 
 ### Research summary
 
-Chrome is an environment problem. Use `MeshPhysicalMaterial` at metalness 1 and roughness ~0.11, then light it with a custom studio of HDR `MeshBasicMaterial` cards captured through `PMREMGenerator.fromScene`. Keep `scene.background = null` so preview CSS never enters the buffer. Rotate the logo group (not the camera) so reflections travel. Normalize 2D bounds first, then extrude with depth/bevel scaled by that size so thickness stays consistent. SVG stays vector (`SVGLoader` + `ShapePath.toShapes()`); nested fills reassemble as holes so counters are not exploded into islands. Clamp bevel size to the thinnest stroke. Split ExtrudeGeometry lids from the shell and flatten cap normals; **do not** crease the shell at 45° — that was the broken bevel/wall edge. PNG trace is last resort (less RDP). Export via an MSAA RGBA render target, async pixel readback, vertical flip, `putImageData` (straight alpha). Sequence frames use `i / totalFrames` so the last frame is just before 360°.
+Chrome is an environment problem. Use `MeshPhysicalMaterial` at metalness 1 and roughness ~0.11, then light it with a custom studio of HDR `MeshBasicMaterial` cards captured through `PMREMGenerator.fromScene` in linear / no-tone-mapping so ACES + 8-bit output does not bake sidewall banding. Keep the studio large so grazing edges sample wrapping cards, not a tiny cubemap. Keep `scene.background = null` so preview CSS never enters the buffer. Rotate the logo group (not the camera) so reflections travel. Normalize 2D bounds first, then extrude with depth/bevel scaled by that size so thickness stays consistent. SVG stays vector (`SVGLoader` + `ShapePath.toShapes()`); nested fills reassemble as holes so counters are not exploded into islands. Stroke-only art is outlined into a ribbon Shape (inner offset stays a hole) and still goes through `ExtrudeGeometry` — not an SDF sticker. Clamp bevel size to the thinnest stroke. `bevelOffset` stays 0 (negative offset facets lids). Split ExtrudeGeometry lids from the shell and flatten cap normals; **do not** crease the shell at 45° — that was the broken bevel/wall edge. PNG trace is last resort (less RDP). Export via an MSAA RGBA render target, async pixel readback, vertical flip, `putImageData` (straight alpha). Sequence frames use `i / totalFrames` so the last frame is just before 360°. Alpha lives on PNG + WebM. MP4 is opaque social video on a user-picked black or white ground — never advertised as transparent.
 
 ## Client & portfolio adaptation
 
@@ -86,7 +86,8 @@ Portable unit is `ChromeMarkApp` (app surface). Lab demo chrome stays out of `in
 - [ ] Sequence ZIP is deterministic; one-turn loops without a duplicate end frame
 - [ ] 4K export uses the requested render resolution (or a clear GPU-limit error)
 - [ ] Replacing logos disposes previous geometries / env targets
-- [ ] Unsupported transparent WebM is disabled — never an opaque video
+- [ ] Unsupported transparent WebM is disabled (alpha only — never sold as opaque)
+- [ ] MP4 is opaque social on user-picked black or white ground; not advertised as transparent
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] `prefers-reduced-motion` pauses spin
 - [ ] Component exported from `lab/src/components/projects/web-apps/chromemark/index.ts`
@@ -95,6 +96,7 @@ Portable unit is `ChromeMarkApp` (app surface). Lab demo chrome stays out of `in
 
 - ProRes 4444 encoder path is structured but not shipped in V1.
 - WebM alpha depends on Chromium WebCodecs; PNG sequence is the production fallback.
+- MP4 is H.264 opaque social (black or white ground). Alpha stays WebM + PNG ZIP.
 
 ## Accepted decisions
 

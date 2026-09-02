@@ -19,7 +19,8 @@ export function PreviewBackdrop({ value, onChange }: PreviewBackdropProps) {
   return (
     <div className="chromemark-fields">
       <p className="chromemark-notice">
-        Preview only. Exports always stay transparent.
+        Preview only. PNG and WebM keep alpha. MP4 uses the ground in Export —
+        it is not transparent.
       </p>
       <div className="chromemark-btn-row" role="group" aria-label="Preview background">
         {OPTIONS.map((option) => (

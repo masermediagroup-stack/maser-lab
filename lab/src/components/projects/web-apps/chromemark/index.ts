@@ -16,6 +16,7 @@ export type {
   GeometrySettings,
   LogoInfo,
   MaterialSettings,
+  Mp4Ground,
   PreviewBackdropId,
   TraceSettings,
 } from "./types";

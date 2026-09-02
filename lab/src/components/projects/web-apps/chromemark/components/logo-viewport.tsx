@@ -81,8 +81,9 @@ export function LogoViewport({
             <div className="chromemark-empty-card">
               <h2>Drop an SVG or PNG</h2>
               <p>
-                Filled SVG paths become real extruded chrome. Transparent PNGs are
-                traced into silhouettes. Preview backgrounds never enter the export.
+                Filled or stroked SVG paths become real extruded chrome.
+                Transparent PNGs are traced into silhouettes. Preview
+                backgrounds never enter PNG or WebM; MP4 uses the Export ground.
               </p>
             </div>
           </div>

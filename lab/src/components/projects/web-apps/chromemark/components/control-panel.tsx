@@ -36,6 +36,7 @@ type ControlPanelProps = {
   settings: ChromeMarkSettings;
   logo: LogoInfo | null;
   webmSupported: boolean | null;
+  mp4Supported: boolean | null;
   error: string | null;
   onSettings: (next: ChromeMarkSettings) => void;
   onViewPreset: (preset: ViewPresetId) => void;
@@ -43,12 +44,14 @@ type ControlPanelProps = {
   onStill: () => void;
   onSequence: () => void;
   onWebM: () => void;
+  onMp4: () => void;
 };
 
 export function ControlPanel({
   settings,
   logo,
   webmSupported,
+  mp4Supported,
   error,
   onSettings,
   onViewPreset,
@@ -56,6 +59,7 @@ export function ControlPanel({
   onStill,
   onSequence,
   onWebM,
+  onMp4,
 }: ControlPanelProps) {
   const [presetName, setPresetName] = useState("Maser Mirror Chrome");
   const [presets, setPresets] = useState(loadSavedPresets);
@@ -112,8 +116,8 @@ export function ControlPanel({
     <div className="chromemark-panel-scroll">
       <h1>ChromeMark</h1>
       <p className="chromemark-lede">
-        Extrude a logo into machined chrome. Preview black is CSS only — exports
-        stay transparent.
+        Extrude a logo into machined chrome. Preview black is CSS only. Alpha
+        stays on PNG and WebM; MP4 is opaque social on the ground you pick.
       </p>
       {logo ? (
         <p className="chromemark-meta">
@@ -190,6 +194,7 @@ export function ControlPanel({
       <ExportControls
         exportSettings={settings.export}
         webmSupported={webmSupported}
+        mp4Supported={mp4Supported}
         hasLogo={Boolean(logo)}
         onChange={(exportSettings) =>
           patch("export", { ...settings.export, ...exportSettings } satisfies ExportSettings)
@@ -197,6 +202,7 @@ export function ControlPanel({
         onStill={onStill}
         onSequence={onSequence}
         onWebM={onWebM}
+        onMp4={onMp4}
       />
       <details className="chromemark-section">
         <summary>Presets</summary>

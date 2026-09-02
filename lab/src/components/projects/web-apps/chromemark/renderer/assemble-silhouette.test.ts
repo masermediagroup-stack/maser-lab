@@ -2,7 +2,16 @@ import { Path, Shape, Vector2 } from "three";
 import { describe, expect, it } from "vitest";
 import { assembleSilhouette } from "./assemble-silhouette";
 import { clampBevelSize, minFeatureWidth } from "./bevel-limit";
+import { EXTRUDE_BEVEL_OFFSET } from "./create-logo-geometry";
+import {
+  STUDIO_PMREM_FAR,
+  STUDIO_PMREM_SIZE,
+  STUDIO_RADIUS_SCALE,
+} from "./create-studio-environment";
 import { SHELL_SMOOTH_ANGLE_RAD } from "./geometry-quality";
+import { MP4_HAS_ALPHA, mp4GroundColor } from "./export-mp4";
+import { outlineStrokePolyline } from "./outline-stroke";
+import { EXPORT_DEFAULTS } from "../defaults";
 
 function rect(x: number, y: number, w: number, h: number): Shape {
   const shape = new Shape();
@@ -96,5 +105,66 @@ describe("shell normals", () => {
   it("does not crease the chrome shell at 45°", () => {
     expect(SHELL_SMOOTH_ANGLE_RAD).toBe(Math.PI);
     expect(SHELL_SMOOTH_ANGLE_RAD).toBeGreaterThan((89 * Math.PI) / 180);
+  });
+});
+
+describe("outline strokes", () => {
+  it("keeps a closed stroke as one ribbon with a hole, not two islands", () => {
+    const ring: Vector2[] = [];
+    const segments = 32;
+    for (let i = 0; i <= segments; i++) {
+      const t = (i / segments) * Math.PI * 2;
+      ring.push(new Vector2(Math.cos(t) * 40, Math.sin(t) * 40));
+    }
+    const shape = outlineStrokePolyline(ring, {
+      strokeWidth: 8,
+      strokeLineJoin: "miter",
+      strokeLineCap: "butt",
+      strokeMiterLimit: 4,
+    });
+    expect(shape).toBeTruthy();
+    expect(shape!.holes).toHaveLength(1);
+  });
+
+  it("does not explode an open stroke into separate islands", () => {
+    const line = [
+      new Vector2(0, 0),
+      new Vector2(40, 0),
+      new Vector2(80, 0),
+      new Vector2(120, 0),
+    ];
+    const shape = outlineStrokePolyline(line, {
+      strokeWidth: 10,
+      strokeLineJoin: "miter",
+      strokeLineCap: "butt",
+      strokeMiterLimit: 4,
+    });
+    expect(shape).toBeTruthy();
+    expect(shape!.holes).toHaveLength(0);
+    expect(Math.abs(shape!.getPoints(8).length)).toBeGreaterThan(4);
+  });
+});
+
+describe("extrude bevel offset", () => {
+  it("never uses a negative bevelOffset that would facet lids", () => {
+    expect(EXTRUDE_BEVEL_OFFSET).toBe(0);
+    expect(EXTRUDE_BEVEL_OFFSET).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe("studio env", () => {
+  it("uses a large linear studio so sidewalls are not a tiny 8-bit env", () => {
+    expect(STUDIO_RADIUS_SCALE).toBeGreaterThan(3);
+    expect(STUDIO_PMREM_FAR).toBeGreaterThan(100);
+    expect(STUDIO_PMREM_SIZE).toBeGreaterThanOrEqual(512);
+  });
+});
+
+describe("opaque MP4", () => {
+  it("is not sold as transparent and only offers black or white ground", () => {
+    expect(MP4_HAS_ALPHA).toBe(false);
+    expect(EXPORT_DEFAULTS.mp4Ground).toBe("black");
+    expect(mp4GroundColor("black")).toBe("#000000");
+    expect(mp4GroundColor("white")).toBe("#ffffff");
   });
 });

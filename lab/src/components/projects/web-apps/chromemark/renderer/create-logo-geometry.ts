@@ -8,6 +8,9 @@ import { measureShapes } from "./normalize-logo";
 import { splitExtrudeSurfaces } from "./surface-groups";
 import { LogoLoadError, type GeometrySettings } from "../types";
 
+/** Negative offset facets the lids. Always zero. */
+export const EXTRUDE_BEVEL_OFFSET = 0;
+
 export function createLogoGeometry(
   shapes: Shape[],
   settings: GeometrySettings,
@@ -36,6 +39,7 @@ export function createLogoGeometry(
       bevelEnabled,
       bevelThickness,
       bevelSize,
+      bevelOffset: EXTRUDE_BEVEL_OFFSET,
       bevelSegments,
       curveSegments: settings.curveDetail,
       steps,

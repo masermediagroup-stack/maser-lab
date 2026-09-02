@@ -107,6 +107,7 @@ export const EXPORT_DEFAULTS: ExportSettings = {
   sequenceDuration: 8,
   sequenceTurns: 1,
   includeWebM: false,
+  mp4Ground: "black",
 };
 
 export const DEFAULT_SETTINGS: ChromeMarkSettings = {

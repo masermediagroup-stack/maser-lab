@@ -91,6 +91,9 @@ export type ExportPresetId =
   | "3840x2160"
   | "custom";
 
+/** Opaque social ground under MP4. Not an alpha channel. */
+export type Mp4Ground = "black" | "white";
+
 export type ExportSettings = {
   stillPreset: ExportPresetId;
   width: number;
@@ -100,6 +103,7 @@ export type ExportSettings = {
   sequenceDuration: number;
   sequenceTurns: number;
   includeWebM: boolean;
+  mp4Ground: Mp4Ground;
 };
 
 export type LogoInfo = {

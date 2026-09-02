@@ -196,7 +196,7 @@ export class ChromeEngine {
     }
     throw new LogoLoadError(
       "unsupported",
-      "Use a filled SVG or a transparent PNG.",
+      "Use a filled or stroked SVG, or a transparent PNG.",
     );
   }
 
@@ -340,7 +340,12 @@ export class ChromeEngine {
       blockerStrength: env.blockerStrength,
     });
     if (!force && envKey === this.envKey) return;
-    const created = createStudioEnvironment(this.pmrem, env, this.envTarget);
+    const created = createStudioEnvironment(
+      this.renderer,
+      this.pmrem,
+      env,
+      this.envTarget,
+    );
     this.envTarget = created.target;
     this.scene.environment = created.texture;
     this.envKey = envKey;

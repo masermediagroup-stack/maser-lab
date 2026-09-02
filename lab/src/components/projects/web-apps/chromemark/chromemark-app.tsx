@@ -13,6 +13,10 @@ import {
   detectAlphaWebMSupport,
   exportTransparentWebM,
 } from "./renderer/export-webm";
+import {
+  detectOpaqueMp4Support,
+  exportOpaqueMp4,
+} from "./renderer/export-mp4";
 import type {
   CameraSettings,
   ChromeMarkAppProps,
@@ -54,6 +58,7 @@ export function ChromeMarkApp({ forceReducedMotion = false }: ChromeMarkAppProps
   const [dragging, setDragging] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [webmSupported, setWebmSupported] = useState<boolean | null>(null);
+  const [mp4Supported, setMp4Supported] = useState<boolean | null>(null);
   const [osReducedMotion, setOsReducedMotion] = useState(false);
   const [exportState, setExportState] = useState<{
     open: boolean;
@@ -69,6 +74,9 @@ export function ChromeMarkApp({ forceReducedMotion = false }: ChromeMarkAppProps
   useEffect(() => {
     void detectAlphaWebMSupport().then((result) => {
       setWebmSupported(result.supported);
+    });
+    void detectOpaqueMp4Support().then((result) => {
+      setMp4Supported(result.supported);
     });
   }, []);
 
@@ -257,11 +265,76 @@ export function ChromeMarkApp({ forceReducedMotion = false }: ChromeMarkAppProps
     }
   };
 
+  const handleMp4 = async () => {
+    const engine = engineRef.current;
+    if (!engine || !logo) return;
+    if (mp4Supported === false) {
+      setError(
+        "Opaque MP4 isn't supported by this browser. Export a PNG sequence or WebM instead.",
+      );
+      return;
+    }
+    const abort = new AbortController();
+    abortRef.current = abort;
+    const total = Math.round(
+      settings.export.sequenceFps * settings.export.sequenceDuration,
+    );
+    const ground = settings.export.mp4Ground;
+    setExportState({
+      open: true,
+      title: "Rendering MP4",
+      message: `Encoding opaque ${ground} social video…`,
+      current: 0,
+      total,
+    });
+    try {
+      const start = engine.getOrientation();
+      const frames: Blob[] = [];
+      const result = await engine.withExportGeometry(() =>
+        exportPngSequence({
+          renderer: engine.renderer,
+          scene: engine.scene,
+          camera: engine.camera,
+          settings,
+          start,
+          signal: abort.signal,
+          setOrientation: (q) => engine.setOrientation(q),
+          onProgress: ({ current, total: t }) => {
+            setExportState((prev) => ({
+              ...prev,
+              current,
+              total: t,
+              message: `Frame ${current} / ${t}`,
+            }));
+          },
+        }),
+      );
+      for (const bytes of Object.values(result.files)) {
+        frames.push(new Blob([bytes.buffer as ArrayBuffer], { type: "image/png" }));
+      }
+      const blob = await exportOpaqueMp4({
+        width: settings.export.width,
+        height: settings.export.height,
+        fps: settings.export.sequenceFps,
+        duration: settings.export.sequenceDuration,
+        ground,
+        frames,
+        signal: abort.signal,
+      });
+      downloadBlob(blob, `chromemark-logo-${ground}.mp4`);
+      setExportState({ open: false, title: "", message: "" });
+    } catch (err) {
+      setExportState({ open: false, title: "", message: "" });
+      handleError(err);
+    }
+  };
+
   const panel = (
     <ControlPanel
       settings={settings}
       logo={logo}
       webmSupported={webmSupported}
+      mp4Supported={mp4Supported}
       error={error}
       onSettings={setSettings}
       onViewPreset={handleViewPreset}
@@ -269,6 +342,7 @@ export function ChromeMarkApp({ forceReducedMotion = false }: ChromeMarkAppProps
       onStill={() => void handleStill()}
       onSequence={() => void handleSequence()}
       onWebM={() => void handleWebM()}
+      onMp4={() => void handleMp4()}
     />
   );
 

@@ -1,27 +1,31 @@
 "use client";
 
 import { EXPORT_PRESETS } from "../defaults";
-import type { ExportSettings } from "../types";
+import type { ExportSettings, Mp4Ground } from "../types";
 import { NumberSlider, ToggleRow } from "./control-field";
 
 type ExportControlsProps = {
   exportSettings: ExportSettings;
   webmSupported: boolean | null;
+  mp4Supported: boolean | null;
   hasLogo: boolean;
   onChange: (patch: Partial<ExportSettings>) => void;
   onStill: () => void;
   onSequence: () => void;
   onWebM: () => void;
+  onMp4: () => void;
 };
 
 export function ExportControls({
   exportSettings,
   webmSupported,
+  mp4Supported,
   hasLogo,
   onChange,
   onStill,
   onSequence,
   onWebM,
+  onMp4,
 }: ExportControlsProps) {
   return (
     <details className="chromemark-section" open>
@@ -164,6 +168,41 @@ export function ExportControls({
           <p className="chromemark-notice">
             Transparent WebM isn&apos;t supported by this browser. Export a PNG
             sequence instead.
+          </p>
+        ) : null}
+        <p className="chromemark-notice">
+          Alpha stays on PNG and WebM. MP4 is opaque social video — pick a black
+          or white ground. It is not transparent.
+        </p>
+        <div
+          className="chromemark-btn-row"
+          role="group"
+          aria-label="MP4 ground"
+        >
+          {(["black", "white"] as const).map((ground: Mp4Ground) => (
+            <button
+              key={ground}
+              type="button"
+              className="chromemark-btn"
+              aria-pressed={exportSettings.mp4Ground === ground}
+              onClick={() => onChange({ mp4Ground: ground })}
+            >
+              {ground === "black" ? "MP4 ground: black" : "MP4 ground: white"}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="chromemark-btn"
+          disabled={!hasLogo || mp4Supported === false}
+          onClick={onMp4}
+        >
+          Opaque MP4
+        </button>
+        {mp4Supported === false ? (
+          <p className="chromemark-notice">
+            Opaque MP4 isn&apos;t supported by this browser. Use PNG ZIP or
+            WebM for alpha.
           </p>
         ) : null}
       </div>
