@@ -42,6 +42,8 @@ No "drag and drop your file here to get started." No exclamation points.
 - Set every state label on Ground or the rail at one size and weight. A downgrade is not a warning: no badge, no amber, no icon.
 - Run the model once per upload, cached. Not per frame.
 - Keep 9:16 and A4 as the only sizes. Same lock on both. Crop changes, the LUT does not.
+- Read transparency as Ground. Alpha is absence, not cold and never heat; composite the upload onto Ground before any read so a cutout PNG cannot grow a fake subject.
+- Keep noise off the heat read. Texture and grain are surface, not mass; a noisy flat input stays on Ground.
 - Leave knobs in the demo rail. Never on the poster.
 
 ## Primitives Spark may name

@@ -83,9 +83,11 @@ function tensorToField(predicted: {
 }
 
 export async function readDepth(
-  image: HTMLImageElement,
+  image: HTMLImageElement | HTMLCanvasElement,
+  cacheKey?: string,
 ): Promise<DepthRead> {
-  const key = image.currentSrc || image.src;
+  const key = cacheKey
+    ?? (image instanceof HTMLImageElement ? (image.currentSrc || image.src) : "");
   const cached = cache.get(key);
   if (cached) return cached;
 
@@ -110,7 +112,7 @@ export async function readDepth(
       cache.set(key, result);
       return result;
     }
-    if (!isDepthFieldConfident(field.depth)) {
+    if (!isDepthFieldConfident(field.depth, field.width, field.height)) {
       const result: DepthRead = { outcome: "discarded" };
       cache.set(key, result);
       return result;

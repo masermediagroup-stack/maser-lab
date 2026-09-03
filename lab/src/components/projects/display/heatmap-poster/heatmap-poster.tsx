@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { HEATMAP_COPY } from "./copy";
 import { HEATMAP_DEFAULTS } from "./constants";
 import { prefetchDepthModel, readDepth } from "./depth-estimator";
-import { emptyPack, packDepthField, packFallbackFromImage } from "./prepare-mask";
+import { emptyPack, flattenOntoGround, packDepthField, packFallbackFromImage } from "./prepare-mask";
 import { readStatusAfterDepth } from "./read-status";
 import { startHeatmap, type HeatmapDriver } from "./start-heatmap";
 import type { HeatmapPosterProps } from "./types";
@@ -111,7 +111,8 @@ export function HeatmapPoster({
           }
         }
 
-        const depth = await readDepth(el);
+        const flat = flattenOntoGround(el, el.naturalWidth, el.naturalHeight);
+        const depth = await readDepth(flat, imageSrc);
         if (cancelled || gen !== generationRef.current) return;
         onReadStatus?.(readStatusAfterDepth(depth.outcome));
         if (depth.outcome !== "ok") return;

@@ -1,4 +1,4 @@
-import { FORMAT_ASPECT, PACK_MAX } from "./constants";
+import { FORMAT_ASPECT, HEATMAP_GROUND, PACK_MAX } from "./constants";
 import type { HeatmapFormat, PackedMask } from "./types";
 
 export function coverCrop(
@@ -123,25 +123,11 @@ function packChannels(subject: Float32Array, w: number, h: number): PackedMask {
 
 function lumaEdgeSubject(data: Uint8ClampedArray, w: number, h: number): Float32Array {
   const luma = new Float32Array(w * h);
-  let alphaSum = 0;
-  let opaque = 0;
   for (let i = 0; i < w * h; i++) {
-    const a = (data[i * 4 + 3] ?? 255) / 255;
-    alphaSum += a;
-    if (a > 0.98) opaque += 1;
     const r = (data[i * 4] ?? 0) / 255;
     const g = (data[i * 4 + 1] ?? 0) / 255;
     const b = (data[i * 4 + 2] ?? 0) / 255;
     luma[i] = 0.299 * r + 0.587 * g + 0.114 * b;
-  }
-  const alphaMean = alphaSum / (w * h);
-  const opaqueRatio = opaque / (w * h);
-  if (alphaMean < 0.97 && opaqueRatio < 0.98) {
-    const alpha = new Float32Array(w * h);
-    for (let i = 0; i < w * h; i++) {
-      alpha[i] = (data[i * 4 + 3] ?? 0) / 255;
-    }
-    return alpha;
   }
 
   const margin = Math.max(2, Math.floor(Math.min(w, h) * 0.08));
@@ -180,6 +166,8 @@ function sampleImage(
   if (!ctx) {
     return { data: new Uint8ClampedArray(width * height * 4), width, height };
   }
+  ctx.fillStyle = `rgb(${Math.round(HEATMAP_GROUND[0] * 255)} ${Math.round(HEATMAP_GROUND[1] * 255)} ${Math.round(HEATMAP_GROUND[2] * 255)})`;
+  ctx.fillRect(0, 0, width, height);
   ctx.drawImage(image, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, width, height);
   return { data: ctx.getImageData(0, 0, width, height).data, width, height };
 }
@@ -253,6 +241,28 @@ function orientNearHot(depth: Float32Array, w: number, h: number): void {
   for (let i = 0; i < depth.length; i++) {
     depth[i] = ((depth[i] ?? 0) - min) / range;
   }
+}
+
+/**
+ * Composite an image onto a Ground-filled canvas so transparent regions
+ * become Ground and cannot carry heat. Returns an opaque HTMLCanvasElement
+ * usable by both the luma+edge fallback and the depth pipeline.
+ */
+export function flattenOntoGround(
+  image: CanvasImageSource,
+  width: number,
+  height: number,
+): HTMLCanvasElement {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    ctx.fillStyle = `rgb(${Math.round(HEATMAP_GROUND[0] * 255)} ${Math.round(HEATMAP_GROUND[1] * 255)} ${Math.round(HEATMAP_GROUND[2] * 255)})`;
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(image, 0, 0, width, height);
+  }
+  return canvas;
 }
 
 export function emptyPack(): PackedMask {

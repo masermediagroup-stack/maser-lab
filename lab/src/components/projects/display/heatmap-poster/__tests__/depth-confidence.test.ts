@@ -16,6 +16,7 @@ function field(fill: (i: number, w: number, h: number) => number, w = 64, h = 64
 
 describe("depth field variance gate", () => {
   it("keeps a photo-like subject/background split", () => {
+    const w = 64, h = 64;
     const photo = field((_, w, h) => {
       const x = _ % w;
       const y = Math.floor(_ / w);
@@ -23,39 +24,54 @@ describe("depth field variance gate", () => {
       const cy = h * 0.42;
       const inside = (x - cx) ** 2 / (w * 0.18) ** 2 + (y - cy) ** 2 / (h * 0.28) ** 2 < 1;
       return inside ? 2.1 : 7.4;
-    });
-    const v = depthFieldVariance(photo);
+    }, w, h);
+    const v = depthFieldVariance(photo, w, h);
     console.info("[heatmap] photo variance", v);
     expect(v).toBeGreaterThan(DEPTH_VARIANCE_MIN);
-    expect(isDepthFieldConfident(photo)).toBe(true);
+    expect(isDepthFieldConfident(photo, w, h)).toBe(true);
   });
 
   it("discards a flat logo field", () => {
-    const logo = field((i) => 4 + ((i % 9) - 4) * 0.003);
-    const v = depthFieldVariance(logo);
+    const w = 64, h = 64;
+    const logo = field((i) => 4 + ((i % 9) - 4) * 0.003, w, h);
+    const v = depthFieldVariance(logo, w, h);
     console.info("[heatmap] logo variance", v);
     expect(v).toBeLessThan(DEPTH_VARIANCE_MIN);
-    expect(isDepthFieldConfident(logo)).toBe(false);
+    expect(isDepthFieldConfident(logo, w, h)).toBe(false);
   });
 
   it("discards a line drawing (sparse strokes on a plane)", () => {
+    const w = 64, h = 64;
     const lines = field((_, w) => {
       const x = _ % w;
       const y = Math.floor(_ / w);
       const stroke = y === 20 || x === 32 || y === x;
       return stroke ? 4.12 : 4.0;
-    });
-    const v = depthFieldVariance(lines);
+    }, w, h);
+    const v = depthFieldVariance(lines, w, h);
     console.info("[heatmap] lines variance", v);
     expect(v).toBeLessThan(DEPTH_VARIANCE_MIN);
-    expect(isDepthFieldConfident(lines)).toBe(false);
+    expect(isDepthFieldConfident(lines, w, h)).toBe(false);
+  });
+
+  it("discards a noisy flat input (film grain / JPEG artifacts / dither)", () => {
+    const w = 64, h = 64;
+    let seed = 12345;
+    const pseudoRandom = () => {
+      seed = (seed * 16807 + 0) % 2147483647;
+      return (seed & 0x7fffffff) / 2147483647;
+    };
+    const noisy = field(() => {
+      return 4.0 + (pseudoRandom() - 0.5) * 0.8;
+    }, w, h);
+    const v = depthFieldVariance(noisy, w, h);
+    console.info("[heatmap] noisy-flat variance", v);
+    expect(v).toBeLessThan(DEPTH_VARIANCE_MIN);
+    expect(isDepthFieldConfident(noisy, w, h)).toBe(false);
   });
 
   it("keeps a low-contrast photo with real depth structure (case 5)", () => {
-    // Subject at depth 5.0 against background at 5.8 — only 14% luma gap,
-    // but Depth Anything resolves this as a real near/far split.
-    // The depth field has genuine bimodal structure even though the image
-    // itself looks nearly uniform to luma+edge.
+    const w = 64, h = 64;
     const lowContrast = field((_, w, h) => {
       const x = _ % w;
       const y = Math.floor(_ / w);
@@ -65,18 +81,16 @@ describe("depth field variance gate", () => {
       const ry = h * 0.35;
       const inside =
         (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 < 1;
-      // Near subject: 5.0, far bg: 5.8 — tight range but real structure
       return inside ? 5.0 : 5.8;
-    });
-    const v = depthFieldVariance(lowContrast);
+    }, w, h);
+    const v = depthFieldVariance(lowContrast, w, h);
     console.info("[heatmap] low-contrast photo variance", v);
     expect(v).toBeGreaterThan(DEPTH_VARIANCE_MIN);
-    expect(isDepthFieldConfident(lowContrast)).toBe(true);
+    expect(isDepthFieldConfident(lowContrast, w, h)).toBe(true);
   });
 
   it("keeps a landscape photo (same gate, different crop)", () => {
-    // Landscape: wide image, subject blob offset. Depth gate is
-    // crop-agnostic — it runs on the raw depth field.
+    const w = 128, h = 64;
     const landscape = field(
       (_, w, h) => {
         const x = _ % w;
@@ -89,13 +103,13 @@ describe("depth field variance gate", () => {
           1;
         return inside ? 1.8 : 6.2;
       },
-      128,
-      64,
+      w,
+      h,
     );
-    const v = depthFieldVariance(landscape);
+    const v = depthFieldVariance(landscape, w, h);
     console.info("[heatmap] landscape variance", v);
     expect(v).toBeGreaterThan(DEPTH_VARIANCE_MIN);
-    expect(isDepthFieldConfident(landscape)).toBe(true);
+    expect(isDepthFieldConfident(landscape, w, h)).toBe(true);
   });
 });
 
