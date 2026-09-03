@@ -103,8 +103,12 @@ If the real file still hands Heat to the head and leaves the torso as an Otsu ou
 After a would-be winner from area × compactness:
 
 - If that winner's compactness is below **0.05** (`FLAT_MASS_COMPACTNESS`), this is a flat input. Skip winner-blob entirely. Do not normalize the LUT inside that outline. Paint luma+edge across the ink of the mark (the actual non-Ground pixels of the upload, after the usual Ground composite). The rest of the lockup must not fall to Ground just because an outline fragment scored highest.
-- 0.05 is the named check of the 0.012 tell (`FLAT_MASS_EVIDENCE`). Logo compactness was 0.012; the reconstruction's head fill was 0.182. The floor has to catch outlines and miss filled masses. 0.05 is a re-weightable check. 0.012 stays in this file as the evidence, not the cutoff.
+- 0.05 is the named check of the 0.012 tell (`FLAT_MASS_EVIDENCE`). Logo compactness was 0.012; the reconstruction's head fill was 0.182. The floor has to catch outlines and miss filled masses. 0.012 stays in this file as the evidence, not the cutoff. **0.05 is locked. Do not raise it.**
 - If compactness is at or above 0.05, this is a photograph: keep the winner, normalize inside it, competing thin regions stay Ground, internal detail of the winner stays.
+- It is a skip floor, not a compactness cutoff. Below 0.05: no mass, paint the ink. At or above: run the winner. The strap still loses on area × compactness, not by getting skipped.
+- If the logo still crowns a fragment, the tell is a blob that snuck over 0.05, not the floor being wrong. Bring that blob. Do not move the number first.
+
+Also named, so you do not raise it later (`FLAT_MASS_MESSY_SILHOUETTE`): a person with an arm out or hair breaking the silhouette will land closer to 0.08 than 0.18, and that still has to count as a photograph. 0.05 exists to catch outlines (~0.012). It does not exist to reject messy torsos.
 
 Do not use centre-bias, a second model, or morphological fill to "rescue" a torso. If Otsu only traces an outline on a real photograph, that is a blob-map case, not a skip case.
 

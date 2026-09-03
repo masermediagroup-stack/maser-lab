@@ -67,17 +67,24 @@ export const NEAR_BAND_STEP = 0.1;
 export const NEAR_BAND_THIN_COMPACTNESS = 0.15;
 
 /**
- * Photograph vs flat-mark split. A would-be winner below this
- * compactness is an outline fragment (logo/type/line), not a mass.
- * Skip winner-blob and paint luma+edge across the ink.
+ * Skip floor, not a compactness cutoff. Locked. Do not raise it.
+ * Below: no mass, paint the ink. At or above: run the winner.
+ * The strap still loses on area × compactness, not by getting skipped.
  *
- * Evidence, not the cutoff: logo outline scored 0.012; a filled
- * head scored 0.182. 0.05 catches outlines and misses filled masses.
+ * Evidence: logo outline 0.012; a filled head 0.182. 0.05 catches
+ * outlines and misses filled masses, including messy silhouettes.
  */
 export const FLAT_MASS_COMPACTNESS = 0.05;
 
 /** Evidence for FLAT_MASS_COMPACTNESS. Not a cutoff. */
 export const FLAT_MASS_EVIDENCE = 0.012;
+
+/**
+ * Named so the skip floor is not raised. A person with an arm out
+ * or hair breaking the silhouette lands closer to 0.08 than 0.18 —
+ * still a photograph. Not a cutoff. Not a reason to move 0.05.
+ */
+export const FLAT_MASS_MESSY_SILHOUETTE = 0.08;
 
 export const FORMAT_ASPECT: Record<"9-16" | "a4", number> = {
   "9-16": 9 / 16,

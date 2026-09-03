@@ -3,6 +3,7 @@ import {
   CENTRE_TIEBREAK,
   FLAT_MASS_COMPACTNESS,
   FLAT_MASS_EVIDENCE,
+  FLAT_MASS_MESSY_SILHOUETTE,
   FRAME_CONTACT_MAX,
   FRAME_CONTACT_REFUSAL,
   NEAR_BAND_THIN_COMPACTNESS,
@@ -192,10 +193,12 @@ describe("near-field band widening", () => {
 });
 
 describe("flat-mark skip (compactness 0.05)", () => {
-  it("treats 0.012 as evidence and 0.05 as the cutoff", () => {
+  it("treats 0.05 as a locked skip floor, not a compactness cutoff", () => {
     expect(FLAT_MASS_EVIDENCE).toBe(0.012);
     expect(FLAT_MASS_COMPACTNESS).toBe(0.05);
+    expect(FLAT_MASS_MESSY_SILHOUETTE).toBe(0.08);
     expect(FLAT_MASS_EVIDENCE).toBeLessThan(FLAT_MASS_COMPACTNESS);
+    expect(FLAT_MASS_COMPACTNESS).toBeLessThan(FLAT_MASS_MESSY_SILHOUETTE);
   });
 
   it("skips an outline winner and paints luma+edge across the ink", () => {
