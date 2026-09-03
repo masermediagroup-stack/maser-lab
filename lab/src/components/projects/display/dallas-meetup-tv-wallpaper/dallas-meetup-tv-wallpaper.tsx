@@ -25,7 +25,8 @@ const FILAMENTS_PER_MERIDIAN = 6;
 const FILAMENT_SPREAD = 0.012;
 const PARALLEL_COUNT = 5;
 const PARALLEL_LINE_WIDTH_FRAC = 0.005;
-const GALAXY_STOP_COUNT = 8;
+
+type RGB = [number, number, number];
 
 type ExportResult = {
   blob: Blob;
@@ -117,33 +118,50 @@ function drawTrackedText(
   }
 }
 
-function parseHex(hex: string): [number, number, number] {
-  const h = hex.replace("#", "");
+function lerpRGB(a: RGB, b: RGB, t: number): RGB {
   return [
-    parseInt(h.slice(0, 2), 16),
-    parseInt(h.slice(2, 4), 16),
-    parseInt(h.slice(4, 6), 16),
+    Math.round(lerp(a[0], b[0], t)),
+    Math.round(lerp(a[1], b[1], t)),
+    Math.round(lerp(a[2], b[2], t)),
   ];
 }
 
-function lerpColor(
-  colors: [number, number, number][],
-  t: number,
-): [number, number, number] {
-  const clamped = Math.max(0, Math.min(1, t));
-  const idx = clamped * (colors.length - 1);
-  const lo = Math.floor(idx);
-  const hi = Math.min(lo + 1, colors.length - 1);
-  const frac = idx - lo;
-  return [
-    Math.round(lerp(colors[lo][0], colors[hi][0], frac)),
-    Math.round(lerp(colors[lo][1], colors[hi][1], frac)),
-    Math.round(lerp(colors[lo][2], colors[hi][2], frac)),
-  ];
-}
-
-function rgbString(c: [number, number, number], alpha: number): string {
+function rgbStr(c: RGB, alpha: number): string {
   return `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
+}
+
+/*
+ * Density-driven hue ramp (EPG's call).
+ * density 0..1 → indigo → blue → cyan → orange → red → rose
+ * Cream (#FFE4A6) and pale icy (#C4D3E1) are CUT as line colors.
+ * Hot stops appear ONLY where filaments compress (high density).
+ */
+const RAMP_INDIGO: RGB = [119, 117, 165]; // --dallas-galaxy-8
+const RAMP_BLUE: RGB = [134, 164, 198];   // --dallas-galaxy-7
+const RAMP_CYAN: RGB = [170, 213, 234];   // --dallas-galaxy-6
+const RAMP_ORANGE: RGB = [254, 184, 124]; // --dallas-galaxy-3
+const RAMP_RED: RGB = [241, 83, 54];      // --dallas-galaxy-2
+const RAMP_ROSE: RGB = [207, 82, 92];     // --dallas-galaxy-1
+
+function densityToColor(density: number): RGB {
+  const d = Math.max(0, Math.min(1, density));
+  if (d < 0.35) return lerpRGB(RAMP_INDIGO, RAMP_BLUE, d / 0.35);
+  if (d < 0.55) return lerpRGB(RAMP_BLUE, RAMP_CYAN, (d - 0.35) / 0.2);
+  if (d < 0.70) return lerpRGB(RAMP_CYAN, RAMP_ORANGE, (d - 0.55) / 0.15);
+  if (d < 0.85) return lerpRGB(RAMP_ORANGE, RAMP_RED, (d - 0.70) / 0.15);
+  return lerpRGB(RAMP_RED, RAMP_ROSE, (d - 0.85) / 0.15);
+}
+
+/**
+ * Minimum effective contrast floor. Cyan on white is marginal.
+ * Returns minimum alpha needed for this color to read at 1x.
+ * If the stop is too pale even at full alpha, returns > 1 (i.e. reject it).
+ */
+function minAlphaForLegibility(c: RGB): number {
+  const lum = (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255;
+  const contrast = 1 - lum;
+  if (contrast < 0.08) return 2;
+  return Math.min(1, 0.12 / contrast);
 }
 
 function sphereProject(
@@ -165,7 +183,6 @@ function sphereProject(
   return [R * xWorld, -R * yTilted, zTilted];
 }
 
-/** Deterministic pseudo-random from two ints, returns 0–1. */
 function frand(a: number, b: number): number {
   let h = (a * 2654435761) ^ (b * 2246822519);
   h = ((h >>> 16) ^ h) * 0x45d9f3b;
@@ -178,19 +195,24 @@ function drawFilamentMeridians(
   ctx: CanvasRenderingContext2D,
   R: number,
   theta: number,
-  parsedColors: [number, number, number][],
 ) {
   const ARC_SEGMENTS = 48;
 
   for (let m = 0; m < MERIDIAN_COUNT; m++) {
     const baseLam = (m / MERIDIAN_COUNT) * Math.PI * 2;
+    const effLamBase = baseLam + theta;
+    const sinEff = Math.sin(effLamBase);
+    const cosEff = Math.cos(effLamBase);
+
+    const edgeOn = 1 - Math.abs(sinEff);
+
+    if (cosEff < -0.15) continue;
 
     for (let f = 0; f < FILAMENTS_PER_MERIDIAN; f++) {
       const lonOffset = (frand(m, f) - 0.5) * 2 * FILAMENT_SPREAD * Math.PI * 2;
       const filamentLam = baseLam + lonOffset;
-      const baseOpacity = 0.35 + frand(m, f + 100) * 0.55;
+      const baseOpacity = 0.4 + frand(m, f + 100) * 0.5;
       const lineW = 0.4 + frand(m, f + 200) * 0.8;
-      const colorPhase = frand(m, f + 300) * 0.3;
 
       ctx.lineWidth = lineW;
 
@@ -217,12 +239,20 @@ function drawFilamentMeridians(
         if (visible && prevValid && prevZ > -0.05) {
           const depthFade = Math.min(1, Math.max(0, zTilted * 3));
           const prevDepth = Math.min(1, Math.max(0, prevZ * 3));
-          const segAlpha = Math.min(depthFade, prevDepth) * baseOpacity;
-          if (segAlpha > 0.01) {
-            const colorT = Math.max(0, Math.min(1, (s / ARC_SEGMENTS) + colorPhase)) % 1.0;
-            const rampT = colorT * (parsedColors.length - 1) / (parsedColors.length - 1);
-            const col = lerpColor(parsedColors, rampT);
-            ctx.strokeStyle = rgbString(col, segAlpha);
+
+          const cosPhi = Math.abs(cosP);
+          const arcCompression = 1 - cosPhi;
+          const density = Math.max(0, Math.min(1, edgeOn * 0.7 + arcCompression * 0.3));
+
+          const col = densityToColor(density);
+
+          const minA = minAlphaForLegibility(col);
+          const rawAlpha = Math.min(depthFade, prevDepth) * baseOpacity;
+
+          const alpha = rawAlpha < minA ? 0 : rawAlpha;
+
+          if (alpha > 0.01) {
+            ctx.strokeStyle = rgbStr(col, alpha);
             ctx.beginPath();
             ctx.moveTo(prevSx, prevSy);
             ctx.lineTo(sx, sy);
@@ -251,7 +281,6 @@ function drawGrokGlobe(
   leftEyeScale: number,
   rightEyeScale: number,
   grokScaleY: number,
-  parsedColors: [number, number, number][],
   ink: string,
   paper: string,
   scale: number,
@@ -270,7 +299,7 @@ function drawGrokGlobe(
   ctx.arc(0, 0, R, 0, Math.PI * 2);
   ctx.clip();
 
-  drawFilamentMeridians(ctx, R, theta, parsedColors);
+  drawFilamentMeridians(ctx, R, theta);
 
   const parallelLW = R * PARALLEL_LINE_WIDTH_FRAC * 2;
   for (let i = 1; i <= PARALLEL_COUNT; i++) {
@@ -280,13 +309,12 @@ function drawGrokGlobe(
     const parallelR = R * cosP;
     const parallelY = -R * (sinP * COS_TILT);
     const parallelZ = sinP * SIN_TILT;
-
     const opacity = parallelZ > -0.3 ? Math.min(1, (parallelZ + 0.3) * 2.5) : 0;
     if (opacity <= 0.01) continue;
 
     ctx.save();
-    ctx.globalAlpha = opacity * 0.2;
-    ctx.strokeStyle = "rgba(180,180,200,0.5)";
+    ctx.globalAlpha = opacity * 0.15;
+    ctx.strokeStyle = rgbStr(RAMP_INDIGO, 0.6);
     ctx.lineWidth = parallelLW;
     ctx.beginPath();
     ctx.ellipse(0, parallelY, parallelR, parallelR * Math.abs(SIN_TILT), 0, 0, Math.PI * 2);
@@ -321,7 +349,6 @@ function drawGrokGlobe(
     const drawW = eyeW_base * foreshorten;
     const drawH = eyeH_base * yScale;
     if (drawW < 0.5) return;
-
     ctx.save();
     ctx.globalAlpha = fadeAlpha;
     ctx.translate(sx, sy);
@@ -339,12 +366,6 @@ function drawGrokGlobe(
   ctx.restore();
 }
 
-/**
- * Procedural Dallas skyline silhouette. Flat black rectangles with setbacks.
- * Landmarks: Reunion Tower (ball-on-stalk) and Bank of America Plaza (tallest,
- * antenna spire). Proportions referenced from CC0 photograph by IcedCowboyCoffee:
- * https://commons.wikimedia.org/wiki/File:Dallas_Texas_skyline_overlooking_Trammell_Crow_Park.png
- */
 function drawDallasSkyline(
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -354,73 +375,47 @@ function drawDallasSkyline(
   const baseY = height * 0.88;
   const skylineW = width * 0.7;
   const offsetX = (width - skylineW) * 0.5;
-  const unit = skylineW / 100;
+  const u = skylineW / 100;
 
   ctx.fillStyle = ink;
   ctx.globalAlpha = 0.06;
 
-  const buildings: [number, number, number, number][] = [
-    [5, 7, baseY - unit * 18, unit * 18],
-    [13, 5, baseY - unit * 24, unit * 24],
-    [19, 6, baseY - unit * 20, unit * 20],
-    [26, 8, baseY - unit * 30, unit * 30],
-    [35, 7, baseY - unit * 38, unit * 38],
-    [43, 6, baseY - unit * 32, unit * 32],
-    [50, 5, baseY - unit * 26, unit * 26],
-    [56, 7, baseY - unit * 22, unit * 22],
-    [64, 5, baseY - unit * 28, unit * 28],
-    [70, 6, baseY - unit * 20, unit * 20],
-    [77, 8, baseY - unit * 16, unit * 16],
-    [86, 6, baseY - unit * 14, unit * 14],
-    [93, 5, baseY - unit * 10, unit * 10],
+  const bldgs: [number, number, number, number][] = [
+    [5, 7, baseY - u * 18, u * 18],
+    [13, 5, baseY - u * 24, u * 24],
+    [19, 6, baseY - u * 20, u * 20],
+    [26, 8, baseY - u * 30, u * 30],
+    [35, 7, baseY - u * 38, u * 38],
+    [43, 6, baseY - u * 32, u * 32],
+    [50, 5, baseY - u * 26, u * 26],
+    [56, 7, baseY - u * 22, u * 22],
+    [64, 5, baseY - u * 28, u * 28],
+    [70, 6, baseY - u * 20, u * 20],
+    [77, 8, baseY - u * 16, u * 16],
+    [86, 6, baseY - u * 14, u * 14],
+    [93, 5, baseY - u * 10, u * 10],
   ];
-
-  for (const [xPct, wPct, y, h] of buildings) {
-    ctx.fillRect(offsetX + unit * xPct, y, unit * wPct, h);
+  for (const [xP, wP, y, h] of bldgs) {
+    ctx.fillRect(offsetX + u * xP, y, u * wP, h);
   }
 
-  const boaX = offsetX + unit * 35;
-  const boaW = unit * 7;
-  const boaH = unit * 38;
+  const boaX = offsetX + u * 35;
+  const boaW = u * 7;
+  const boaH = u * 38;
   ctx.fillRect(boaX, baseY - boaH, boaW, boaH);
-  ctx.fillRect(boaX + boaW * 0.4, baseY - boaH - unit * 6, boaW * 0.2, unit * 6);
+  ctx.fillRect(boaX + boaW * 0.4, baseY - boaH - u * 6, boaW * 0.2, u * 6);
 
-  const rtX = offsetX + unit * 15;
-  const rtStalkW = unit * 0.8;
-  const rtStalkH = unit * 20;
-  const rtBallR = unit * 2.5;
+  const rtX = offsetX + u * 15;
+  const rtStalkW = u * 0.8;
+  const rtStalkH = u * 20;
+  const rtBallR = u * 2.5;
   ctx.fillRect(rtX - rtStalkW * 0.5, baseY - rtStalkH, rtStalkW, rtStalkH);
   ctx.beginPath();
   ctx.arc(rtX, baseY - rtStalkH - rtBallR * 0.3, rtBallR, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillRect(offsetX, baseY, skylineW, height - baseY);
-
   ctx.globalAlpha = 1;
-}
-
-const FALLBACK_GALAXY_PARSED: [number, number, number][] = [
-  [207, 82, 92],
-  [241, 83, 54],
-  [254, 184, 124],
-  [255, 228, 166],
-  [196, 211, 225],
-  [170, 213, 234],
-  [134, 164, 198],
-  [119, 117, 165],
-];
-
-function resolveGalaxyColors(element: HTMLElement | null): [number, number, number][] {
-  if (!element) return FALLBACK_GALAXY_PARSED;
-  const style = getComputedStyle(element);
-  const colors: [number, number, number][] = [];
-  for (let i = 1; i <= GALAXY_STOP_COUNT; i++) {
-    const val = style.getPropertyValue(`--dallas-galaxy-${i}`).trim();
-    if (val && val.startsWith("#") && val.length >= 7) {
-      colors.push(parseHex(val));
-    }
-  }
-  return colors.length >= 2 ? colors : FALLBACK_GALAXY_PARSED;
 }
 
 function renderFrame(
@@ -431,7 +426,6 @@ function renderFrame(
   reducedMotion: boolean,
   loopSeconds: number,
   faceForward: boolean,
-  parsedColors: [number, number, number][],
 ) {
   const scale = width / BASE_WIDTH;
   const ink = INK_HEX;
@@ -518,7 +512,6 @@ function renderFrame(
     leftEyeScale,
     rightEyeScale,
     grokScaleY,
-    parsedColors,
     ink,
     PAPER_HEX,
     scale,
@@ -555,7 +548,6 @@ export function DallasMeetupWallpaper({
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const pausedAtRef = useRef(0);
-  const galaxyColorsRef = useRef<[number, number, number][]>(FALLBACK_GALAXY_PARSED);
 
   const drawAtTime = useCallback(
     (time: number) => {
@@ -563,16 +555,10 @@ export function DallasMeetupWallpaper({
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      renderFrame(ctx, canvas.width, canvas.height, time, reducedMotion, loopSeconds, faceForward, galaxyColorsRef.current);
+      renderFrame(ctx, canvas.width, canvas.height, time, reducedMotion, loopSeconds, faceForward);
     },
     [reducedMotion, loopSeconds, faceForward],
   );
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    galaxyColorsRef.current = resolveGalaxyColors(canvas.closest(".dallas-demo") as HTMLElement);
-  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -675,9 +661,7 @@ export async function exportDallasMeetupWallpaperLoop({
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    throw new Error("Could not create a 2D canvas context.");
-  }
+  if (!ctx) throw new Error("Could not create a 2D canvas context.");
 
   const totalFrames = loopSeconds * FPS;
   const mp4Mime = "video/mp4;codecs=avc1.42E01E";
@@ -690,43 +674,30 @@ export async function exportDallasMeetupWallpaperLoop({
       ? webmMime
       : fallbackWebm;
 
-  const extension: "mp4" | "webm" = mimeType.startsWith("video/mp4")
-    ? "mp4"
-    : "webm";
+  const extension: "mp4" | "webm" = mimeType.startsWith("video/mp4") ? "mp4" : "webm";
 
   const stream = canvas.captureStream(0);
   const [videoTrack] = stream.getVideoTracks();
-  if (!videoTrack) {
-    throw new Error("Could not capture canvas stream track.");
-  }
+  if (!videoTrack) throw new Error("Could not capture canvas stream track.");
   const controlledTrack = videoTrack as CanvasCaptureMediaStreamTrack;
-
   const chunks: BlobPart[] = [];
 
   await new Promise<void>((resolve, reject) => {
-    const recorder = new MediaRecorder(stream, {
-      mimeType,
-      videoBitsPerSecond: 14_000_000,
-    });
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) chunks.push(event.data);
-    };
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 14_000_000 });
+    recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
     recorder.onerror = () => reject(new Error("Recording failed."));
     recorder.onstop = () => resolve();
     recorder.start();
 
     let frame = 0;
-    const recordFrame = () => {
-      if (frame >= totalFrames) {
-        recorder.stop();
-        return;
-      }
-      renderFrame(ctx, width, height, frame / FPS, false, loopSeconds, faceForward, FALLBACK_GALAXY_PARSED);
+    const tick = () => {
+      if (frame >= totalFrames) { recorder.stop(); return; }
+      renderFrame(ctx, width, height, frame / FPS, false, loopSeconds, faceForward);
       controlledTrack.requestFrame();
       frame += 1;
-      window.setTimeout(recordFrame, 1000 / FPS);
+      window.setTimeout(tick, 1000 / FPS);
     };
-    recordFrame();
+    tick();
   });
 
   videoTrack.stop();
