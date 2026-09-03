@@ -1,9 +1,18 @@
 .dallas-demo,
 .dallas-demo.maser-lab {
   --dallas-paper: #ffffff;
-  --dallas-ink: #101010;
-  --dallas-loop-seconds: 8s;
-  --dallas-mark-gap-ratio: 0.45;
+  --dallas-ink: #26251e;
+  --dallas-loop-seconds: 12s;
+
+  /* Galaxy-line meridian ramp — PLACEHOLDER values.
+     Real Grok brand colors will be swapped in as a token-only change. */
+  --dallas-galaxy-1: #6366f1;
+  --dallas-galaxy-2: #8b5cf6;
+  --dallas-galaxy-3: #a855f7;
+  --dallas-galaxy-4: #c084fc;
+  --dallas-galaxy-5: #818cf8;
+  --dallas-galaxy-6: #7c3aed;
+
   min-height: 100dvh;
   background: var(--dallas-paper);
   color: var(--dallas-ink);

@@ -16,13 +16,19 @@ import {
 } from "./dallas-meetup-tv-wallpaper";
 import "./tokens.css";
 
-const LOOP_SECONDS = 8;
+const DEFAULT_LOOP = 12;
 const FPS = 30;
-const FRAME_STEP = 1 / FPS;
 
 function formatSeconds(value: number) {
   return `${value.toFixed(2)}s`;
 }
+
+const LOOP_OPTIONS = [
+  { value: "8", label: "8s (fast)" },
+  { value: "10", label: "10s" },
+  { value: "12", label: "12s (default)" },
+  { value: "16", label: "16s (slow)" },
+];
 
 export function DallasMeetupTvWallpaperDemo() {
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -31,17 +37,18 @@ export function DallasMeetupTvWallpaperDemo() {
   const [time, setTime] = useState(0);
   const [scrubTime, setScrubTime] = useState(0);
   const [isPresentation, setIsPresentation] = useState(false);
-  const [grokSpinRevs, setGrokSpinRevs] = useState(1);
+  const [loopSeconds, setLoopSeconds] = useState(DEFAULT_LOOP);
+  const [faceForward, setFaceForward] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportNote, setExportNote] = useState<string>("");
+
+  const frameStep = 1 / FPS;
 
   const controlledTime = useMemo(
     () => (playing && !reducedMotion ? undefined : scrubTime),
     [playing, reducedMotion, scrubTime],
   );
 
-  // Hide demo chrome while anything is in fullscreen.
-  // This covers both our control and the browser's own fullscreen.
   useEffect(() => {
     const sync = () => {
       setIsPresentation(!!document.fullscreenElement);
@@ -67,7 +74,6 @@ export function DallasMeetupTvWallpaperDemo() {
       if (!document.fullscreenElement) {
         await root.requestFullscreen();
       }
-      // Some headless environments resolve without entering fullscreen.
       await new Promise((r) => setTimeout(r, 50));
       if (!document.fullscreenElement) {
         setIsPresentation(false);
@@ -83,20 +89,23 @@ export function DallasMeetupTvWallpaperDemo() {
     setPlaying(true);
   }, []);
 
-  const nudgeFrame = useCallback((direction: -1 | 1) => {
-    setPlaying(false);
-    setScrubTime((prev) => {
-      const next = (prev + direction * FRAME_STEP + LOOP_SECONDS) % LOOP_SECONDS;
-      setTime(next);
-      return next;
-    });
-  }, []);
+  const nudgeFrame = useCallback(
+    (direction: -1 | 1) => {
+      setPlaying(false);
+      setScrubTime((prev) => {
+        const next = (prev + direction * frameStep + loopSeconds) % loopSeconds;
+        setTime(next);
+        return next;
+      });
+    },
+    [frameStep, loopSeconds],
+  );
 
   const exportVideo = useCallback(async () => {
     setExporting(true);
     setExportNote("Preparing export…");
     try {
-      const result = await exportDallasMeetupWallpaperLoop({ grokSpinRevs });
+      const result = await exportDallasMeetupWallpaperLoop({ loopSeconds, faceForward });
       const url = URL.createObjectURL(result.blob);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -114,7 +123,7 @@ export function DallasMeetupTvWallpaperDemo() {
     } finally {
       setExporting(false);
     }
-  }, [grokSpinRevs]);
+  }, [loopSeconds, faceForward]);
 
   return (
     <div className="dallas-demo maser-lab">
@@ -129,7 +138,8 @@ export function DallasMeetupTvWallpaperDemo() {
           playing={playing}
           timeSeconds={controlledTime}
           onFrameTime={handleFrameTime}
-          grokSpinRevs={grokSpinRevs}
+          loopSeconds={loopSeconds}
+          faceForward={faceForward}
         />
       </section>
 
@@ -149,7 +159,7 @@ export function DallasMeetupTvWallpaperDemo() {
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-              Locked composition wallpaper loop for in-room TV presentation.
+              Cursor + Grok Bot globe. One revolution = one seamless loop.
             </p>
           </div>
 
@@ -172,35 +182,56 @@ export function DallasMeetupTvWallpaperDemo() {
               id="dallas-loop-time"
               label="Loop time"
               min={0}
-              max={LOOP_SECONDS}
-              step={FRAME_STEP}
+              max={loopSeconds}
+              step={frameStep}
               value={scrubTime}
               display={formatSeconds(scrubTime)}
               onChange={(next) => {
-                const clamped = Math.min(LOOP_SECONDS, Math.max(0, next));
+                const clamped = Math.min(loopSeconds, Math.max(0, next));
                 setPlaying(false);
-                setScrubTime(clamped === LOOP_SECONDS ? 0 : clamped);
-                setTime(clamped === LOOP_SECONDS ? 0 : clamped);
+                setScrubTime(clamped >= loopSeconds ? 0 : clamped);
+                setTime(clamped >= loopSeconds ? 0 : clamped);
               }}
               className="w-full"
             />
             <p className="font-mono text-[10px] text-[var(--lab-text-muted)]">
-              Live t: {formatSeconds(time)} · loop: 8.00s · 30fps
+              Live t: {formatSeconds(time)} / {loopSeconds}s @ 30fps
             </p>
           </LabControlGroup>
 
-          <LabControlGroup label="Grok spin">
+          <LabControlGroup label="Globe">
             <LabSelect
-              id="dallas-grok-spin"
-              label="Revolutions per loop"
-              value={String(grokSpinRevs)}
-              options={[
-                { value: "1", label: "1 rev / 8s" },
-                { value: "2", label: "2 rev / 8s" },
-                { value: "3", label: "3 rev / 8s" },
-              ]}
-              onChange={(v) => setGrokSpinRevs(Number(v))}
+              id="dallas-loop-duration"
+              label="Revolution duration"
+              value={String(loopSeconds)}
+              options={LOOP_OPTIONS}
+              onChange={(v) => {
+                const next = Number(v);
+                setLoopSeconds(next);
+                setTime(0);
+                setScrubTime(0);
+              }}
             />
+            <div className="flex items-center gap-1.5">
+              <LabButton
+                variant={faceForward ? "ghost" : "accent"}
+                aria-pressed={!faceForward}
+                onClick={() => setFaceForward(false)}
+              >
+                Full rotation
+              </LabButton>
+              <LabButton
+                variant={faceForward ? "accent" : "ghost"}
+                aria-pressed={faceForward}
+                onClick={() => setFaceForward(true)}
+              >
+                Face-forward
+              </LabButton>
+            </div>
+            <p className="font-mono text-[10px] text-[var(--lab-text-muted)]">
+              Full rotation: face travels with the globe. Face-forward: eyes
+              stay front while meridians rotate.
+            </p>
           </LabControlGroup>
 
           <LabControlGroup label="Presentation">
@@ -210,7 +241,7 @@ export function DallasMeetupTvWallpaperDemo() {
               </LabButton>
             </div>
             <p className="font-mono text-[10px] text-[var(--lab-text-muted)]">
-              Opens fullscreen wallpaper with zero demo chrome. Exit with browser Esc.
+              Fullscreen with zero demo chrome. Exit with Esc.
             </p>
           </LabControlGroup>
 
@@ -221,7 +252,7 @@ export function DallasMeetupTvWallpaperDemo() {
               </LabButton>
             </div>
             <p className="font-mono text-[10px] text-[var(--lab-text-muted)]">
-              1920×1080 · 30fps · 8s · silent.
+              1920x1080 @ 30fps, {loopSeconds}s, silent.
             </p>
             {exportNote ? (
               <p className="font-mono text-[10px] text-[var(--lab-text-secondary)]">{exportNote}</p>
