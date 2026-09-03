@@ -71,9 +71,10 @@ export function eyeWhipAt(
   }
 
   const progress = kickProgress(time, loopSeconds, whipSeconds, linearSpin, reducedMotion);
-  const yaw = kickEase(progress) * Math.PI * 2;
-  const c = Math.cos(yaw);
-  const s = Math.sin(yaw);
+  // Eye orbit around the planted form — not a globe yaw of the disc.
+  const orbit = kickEase(progress) * Math.PI * 2;
+  const c = Math.cos(orbit);
+  const s = Math.sin(orbit);
   const x = IDLE_EYE.cx * c + IDLE_Z * s;
   const z = -IDLE_EYE.cx * s + IDLE_Z * c;
 

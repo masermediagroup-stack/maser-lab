@@ -4,6 +4,8 @@ Authority for this slug. Later interrupts win. Do not re-open settled rows.
 
 Stills of the full lockup are rendering on EPG's side. Until they arrive, the two globe stills plus this text are the lock.
 
+**EPG locked this user call.** Kill globe yaw. Illusion of spin: planted morph + ribbon wrap + eyes whipping around the form. Color with the next shape in the same kick. Lands Idle on the new face. Cube stays clean. Reduced motion freezes Idle. If a 360 disc spin is still in the code, kill it.
+
 ## Paper and ink
 
 - `--dallas-paper`: `#F2F1ED` (not pure white). Wallpaper ground.

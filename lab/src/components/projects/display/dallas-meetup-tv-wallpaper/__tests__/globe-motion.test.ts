@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_LOOP_SECONDS,
@@ -14,6 +17,11 @@ import {
   streamPhase,
   whipEnergy,
 } from "../globe-motion";
+
+const wallpaperSrc = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "../dallas-meetup-tv-wallpaper.tsx"),
+  "utf8",
+);
 
 describe("look-lock motion", () => {
   it("names an 8s cycle with 6.4s rest, 0.6s whip, 1s settle — loop stays 8s", () => {
@@ -92,6 +100,13 @@ describe("look-lock motion", () => {
     const motion = await import("../globe-motion");
     expect("globeYaw" in motion).toBe(false);
     expect(motion.AXIS_TILT_DEG).toBe(16);
+  });
+
+  it("never 360-rotates the disc — body rotate is axis tilt only", () => {
+    expect(wallpaperSrc).toContain("ctx.rotate(AXIS_TILT)");
+    expect(wallpaperSrc).not.toMatch(/ctx\.rotate\(\s*(ribbonPhase|streamPhase)/);
+    expect(wallpaperSrc).not.toMatch(/globeYaw/);
+    expect(wallpaperSrc).toContain("never streamPhase / globe yaw");
   });
 
   it("adds no idle bob or kick wobble", () => {

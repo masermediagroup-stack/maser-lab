@@ -15,7 +15,7 @@ https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor).
 
 Lifecycle: Idle / Working / Waiting / Blocked / Thinking / Done.
 
-TV maps **Idle → kick (bands) → Idle** onto the locked 8s loop. Do not use Thinking, Waiting, Blocked, or Done as the whip.
+EPG locked the user call. TV maps **Idle → kick (bands) → Idle** onto the locked 8s loop. Do not use Thinking, Waiting, Blocked, or Done as the whip. Kill globe yaw. If a 360 disc spin is still in the code, kill it.
 
 | Beat | Duration | Article state | Job |
 | --- | --- | --- | --- |

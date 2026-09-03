@@ -22,7 +22,7 @@ The wallpaper runs continuously on a room TV during the Cursor + Grok Bot Dallas
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Paper field `#F2F1ED` with Noun Project Dallas horizon, Cursor cube + solid Grok body + one Universal Sans line `Dallas meetup`. Disc stays. Illusion of spin: planted morph + ribbon wrap + eyes whipping around the form. Color SNAPS with the next shape in the same kick. Lands Idle on the new face.
+Paper field `#F2F1ED` with Noun Project Dallas horizon, Cursor cube + solid Grok body + one Universal Sans line `Dallas meetup`. **EPG locked:** disc stays. Illusion of spin: planted morph + ribbon wrap + eyes whipping around the form. Color SNAPS with the next shape in the same kick. Lands Idle on the new face. Cube stays clean. Reduced motion freezes Idle. No 360 disc spin.
 
 ### Success signal
 - TV mode loads: paper ground, Noun Project horizon ON, solid globe, Universal Sans display line. Cube and type stay clean.
