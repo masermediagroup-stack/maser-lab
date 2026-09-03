@@ -7,6 +7,7 @@ import {
   LabButton,
   LabControlGroup,
   LabRange,
+  LabSelect,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
 import {
@@ -30,6 +31,7 @@ export function DallasMeetupTvWallpaperDemo() {
   const [time, setTime] = useState(0);
   const [scrubTime, setScrubTime] = useState(0);
   const [isPresentation, setIsPresentation] = useState(false);
+  const [grokSpinRevs, setGrokSpinRevs] = useState(1);
   const [exporting, setExporting] = useState(false);
   const [exportNote, setExportNote] = useState<string>("");
 
@@ -94,7 +96,7 @@ export function DallasMeetupTvWallpaperDemo() {
     setExporting(true);
     setExportNote("Preparing export…");
     try {
-      const result = await exportDallasMeetupWallpaperLoop();
+      const result = await exportDallasMeetupWallpaperLoop({ grokSpinRevs });
       const url = URL.createObjectURL(result.blob);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -112,7 +114,7 @@ export function DallasMeetupTvWallpaperDemo() {
     } finally {
       setExporting(false);
     }
-  }, []);
+  }, [grokSpinRevs]);
 
   return (
     <div className="dallas-demo maser-lab">
@@ -127,6 +129,7 @@ export function DallasMeetupTvWallpaperDemo() {
           playing={playing}
           timeSeconds={controlledTime}
           onFrameTime={handleFrameTime}
+          grokSpinRevs={grokSpinRevs}
         />
       </section>
 
@@ -184,6 +187,20 @@ export function DallasMeetupTvWallpaperDemo() {
             <p className="font-mono text-[10px] text-[var(--lab-text-muted)]">
               Live t: {formatSeconds(time)} · loop: 8.00s · 30fps
             </p>
+          </LabControlGroup>
+
+          <LabControlGroup label="Grok spin">
+            <LabSelect
+              id="dallas-grok-spin"
+              label="Revolutions per loop"
+              value={String(grokSpinRevs)}
+              options={[
+                { value: "1", label: "1 rev / 8s" },
+                { value: "2", label: "2 rev / 8s" },
+                { value: "3", label: "3 rev / 8s" },
+              ]}
+              onChange={(v) => setGrokSpinRevs(Number(v))}
+            />
           </LabControlGroup>
 
           <LabControlGroup label="Presentation">

@@ -26,6 +26,7 @@ export type DallasMeetupWallpaperProps = {
   playing?: boolean;
   timeSeconds?: number;
   onFrameTime?: (seconds: number) => void;
+  grokSpinRevs?: number;
   className?: string;
 };
 
@@ -95,12 +96,17 @@ function drawTrackedText(
   }
 }
 
+const CURSOR_VB_W = 466.73;
+const CURSOR_VB_H = 532.09;
+const CURSOR_ASPECT = CURSOR_VB_W / CURSOR_VB_H;
+
 function renderFrame(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
   time: number,
   reducedMotion: boolean,
+  grokSpinRevs: number,
 ) {
   const scale = width / BASE_WIDTH;
   const ink = INK_HEX;
@@ -111,11 +117,12 @@ function renderFrame(
 
   const centerX = width * 0.5;
   const centerY = height * 0.47;
-  const cursorSize = 280 * scale;
+  const cursorH = 280 * scale;
+  const cursorW = cursorH * CURSOR_ASPECT;
   const grokSize = 300 * scale;
-  const markGap = cursorSize * 0.45;
-  const groupWidth = cursorSize + grokSize + markGap;
-  const cursorX = centerX - groupWidth * 0.5 + cursorSize * 0.5;
+  const markGap = cursorH * 0.45;
+  const groupWidth = cursorW + grokSize + markGap;
+  const cursorX = centerX - groupWidth * 0.5 + cursorW * 0.5;
   const grokX = centerX + groupWidth * 0.5 - grokSize * 0.5;
 
   const cycle = (time / LOOP_SECONDS) * Math.PI * 2;
@@ -163,15 +170,21 @@ function renderFrame(
   ctx.save();
   ctx.translate(cursorX, marksBaseY + cursorFloatY);
   ctx.rotate((cursorTiltDeg * Math.PI) / 180);
-  ctx.scale(cursorSize / 466.73, cursorSize / 532.09);
-  ctx.translate(-233.365, -266.045);
+  const cursorUniformScale = cursorH / CURSOR_VB_H;
+  ctx.scale(cursorUniformScale, cursorUniformScale);
+  ctx.translate(-CURSOR_VB_W * 0.5, -CURSOR_VB_H * 0.5);
   ctx.fillStyle = ink;
   ctx.fill(new Path2D(CURSOR_PATH));
   ctx.restore();
 
+  const grokSpinAngle = reducedMotion
+    ? 0
+    : (time / LOOP_SECONDS) * Math.PI * 2 * grokSpinRevs;
+
   ctx.save();
   ctx.translate(grokX, marksBaseY + grokFloatY);
   ctx.scale(1, grokScaleY);
+  ctx.rotate(grokSpinAngle);
 
   ctx.fillStyle = ink;
   const inset = grokSize * 0.02;
@@ -243,6 +256,7 @@ export function DallasMeetupWallpaper({
   playing = true,
   timeSeconds,
   onFrameTime,
+  grokSpinRevs = 1,
   className,
 }: DallasMeetupWallpaperProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -259,9 +273,9 @@ export function DallasMeetupWallpaper({
 
       const width = canvas.width;
       const height = canvas.height;
-      renderFrame(ctx, width, height, time, reducedMotion);
+      renderFrame(ctx, width, height, time, reducedMotion, grokSpinRevs);
     },
-    [reducedMotion],
+    [reducedMotion, grokSpinRevs],
   );
 
   useEffect(() => {
@@ -349,9 +363,11 @@ export function DallasMeetupWallpaper({
 export async function exportDallasMeetupWallpaperLoop({
   width = BASE_WIDTH,
   height = BASE_HEIGHT,
+  grokSpinRevs = 1,
 }: {
   width?: number;
   height?: number;
+  grokSpinRevs?: number;
 } = {}): Promise<ExportResult> {
   if (typeof window === "undefined") {
     throw new Error("Export is only available in the browser.");
@@ -413,7 +429,7 @@ export async function exportDallasMeetupWallpaperLoop({
         return;
       }
       const t = frame / FPS;
-      renderFrame(ctx, width, height, t, false);
+      renderFrame(ctx, width, height, t, false, grokSpinRevs);
       controlledTrack.requestFrame();
       frame += 1;
       window.setTimeout(recordFrame, 1000 / FPS);
