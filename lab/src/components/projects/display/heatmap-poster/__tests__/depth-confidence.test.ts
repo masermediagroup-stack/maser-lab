@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { DEPTH_VARIANCE_MIN } from "../constants";
 import { depthFieldVariance, isDepthFieldConfident } from "../depth-confidence";
 import { computeLayout, measureCaptionHeight } from "../poster-renderer";
-import { readStatusAfterDepth } from "../read-status";
+import { readStatusAfterPack } from "../read-status";
 import { HEATMAP_COPY } from "../copy";
 
 function field(fill: (i: number, w: number, h: number) => number, w = 64, h = 64): Float32Array {
@@ -220,14 +220,12 @@ describe("poster layout geometry", () => {
 });
 
 describe("Reading the image. always resolves", () => {
-  it("goes silent on unavailable and discarded", () => {
-    expect(readStatusAfterDepth("unavailable")).toBe("idle");
-    expect(readStatusAfterDepth("discarded")).toBe("idle");
-    expect(readStatusAfterDepth("ok")).toBe("idle");
+  it("goes silent after the silhouette pack", () => {
+    expect(readStatusAfterPack()).toBe("idle");
   });
 
-  it("never surfaces Rough read; model error is silent", () => {
-    expect(readStatusAfterDepth("error")).toBe("idle");
+  it("never surfaces Rough read; pack error is silent", () => {
+    expect(readStatusAfterPack()).toBe("idle");
     expect("roughRead" in HEATMAP_COPY).toBe(false);
     expect(HEATMAP_COPY.empty).toBe("No image yet. Upload a photo or a logo.");
     expect(HEATMAP_COPY.reading).toBe("Reading the image.");

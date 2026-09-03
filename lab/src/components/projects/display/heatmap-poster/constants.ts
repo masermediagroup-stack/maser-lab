@@ -17,6 +17,19 @@ export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 export const PACK_MAX = 512;
 export const MASK_FADE_MS = 180;
 
+/** Inner silhouette size before Paper’s glow padding. */
+export const FIELD_PACK_INNER = 512;
+/** Storage capacity for the packed RGB field (inner + padding). */
+export const FIELD_PACK_MAX = 1024;
+
+/**
+ * Paper field defaults. Not knobs. Wave and Speed already drive the wash.
+ * Do not add CSS tokens or rail controls for these.
+ */
+export const FIELD_CONTOUR = 0.5;
+export const FIELD_INNER_GLOW = 0.5;
+export const FIELD_OUTER_GLOW = 0.5;
+
 /**
  * Mean-normalized population variance gate on the RAW depth field
  * (before min-max stretch or near/far invert).

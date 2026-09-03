@@ -18,7 +18,6 @@ import {
   MAX_UPLOAD_BYTES,
 } from "./constants";
 import { HEATMAP_COPY } from "./copy";
-import { setDepthEstimatorTestHook } from "./depth-estimator";
 import { HeatmapPoster } from "./heatmap-poster";
 import { heatmapTrace } from "./trace";
 import type {
@@ -65,14 +64,6 @@ export function HeatmapPosterDemo() {
   const [fileStatus, setFileStatus] = useState<HeatmapFileStatus>("ok");
   const [caption, setCaption] = useState("");
   const objectUrlRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const depth = params.get("heatmapDepth");
-    if (depth === "error") setDepthEstimatorTestHook({ forceError: true });
-    else if (depth === "off") setDepthEstimatorTestHook({ forceUnavailable: true });
-    else setDepthEstimatorTestHook({});
-  }, []);
 
   const revoke = useCallback(() => {
     if (objectUrlRef.current) {

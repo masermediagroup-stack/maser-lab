@@ -1,13 +1,15 @@
-import { MASK_FADE_MS } from "./constants";
+import {
+  FIELD_CONTOUR,
+  FIELD_INNER_GLOW,
+  FIELD_OUTER_GLOW,
+} from "./constants";
+import { applyWave, heatFromPaperPack, waveBand } from "./field";
 import type { HeatmapLook, PackedMask } from "./types";
 import { heatmapTrace } from "./trace";
 
 export type HeatmapDriver = {
   setFallback: (pack: PackedMask) => void;
-  setDepth: (pack: PackedMask | null) => void;
-  /** 0 = luma+edge only, 1 = depth. Starts immediately. No pre-delay. */
-  setMaskMixTarget: (mix: number) => void;
-  snapMaskMix: (mix: number) => void;
+  setPack: (pack: PackedMask) => void;
   dispose: () => void;
 };
 
@@ -18,8 +20,16 @@ export type StartHeatmapOptions = {
   onReady?: () => void;
 };
 
-function mixRgb(a: readonly [number, number, number], b: readonly [number, number, number], t: number): [number, number, number] {
-  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+function mixRgb(
+  a: readonly [number, number, number],
+  b: readonly [number, number, number],
+  t: number,
+): [number, number, number] {
+  return [
+    a[0] + (b[0] - a[0]) * t,
+    a[1] + (b[1] - a[1]) * t,
+    a[2] + (b[2] - a[2]) * t,
+  ];
 }
 
 function heatLut(
@@ -33,21 +43,6 @@ function heatLut(
   return mixRgb(mid, heat, (x - 0.55) / 0.45);
 }
 
-function fieldFromPack(r: number, g: number, b: number, frequency: number, time: number, speed: number): number {
-  const t = time * speed;
-  const wave1 = 0.5 + 0.5 * Math.sin(t);
-  const wave2 = 0.5 + 0.5 * Math.sin(t * 1.3 + 1);
-  const wave3 = 0.5 + 0.5 * Math.sin(t * 0.7 + 2);
-  const contour = r * frequency * 0.35;
-  const outerGlow = g * 0.55;
-  const innerGlow = b;
-  return (
-    innerGlow * (0.55 + 0.45 * wave1) +
-    outerGlow * (0.25 + 0.2 * wave2) +
-    contour * (0.4 + 0.6 * wave3)
-  );
-}
-
 function hash21(x: number, y: number): number {
   const px = x * 0.1031;
   const py = y * 0.1031;
@@ -59,7 +54,37 @@ function hash21(x: number, y: number): number {
   return (fx + fy) * n - Math.floor((fx + fy) * n);
 }
 
-function startCanvas2d(
+function whitePack(): PackedMask {
+  return {
+    width: 1,
+    height: 1,
+    pixels: new Uint8ClampedArray([255, 255, 255, 255]),
+    frame: null,
+  };
+}
+
+function samplePack(
+  pack: PackedMask,
+  u: number,
+  v: number,
+): [number, number, number] {
+  const x = Math.min(
+    pack.width - 1,
+    Math.max(0, Math.floor(u * pack.width)),
+  );
+  const y = Math.min(
+    pack.height - 1,
+    Math.max(0, Math.floor(v * pack.height)),
+  );
+  const i = (y * pack.width + x) * 4;
+  return [
+    (pack.pixels[i] ?? 255) / 255,
+    (pack.pixels[i + 1] ?? 255) / 255,
+    (pack.pixels[i + 2] ?? 255) / 255,
+  ];
+}
+
+export function startCanvas2d(
   canvas: HTMLCanvasElement,
   lookRef: { current: HeatmapLook },
   reducedRef: { current: boolean },
@@ -71,15 +96,7 @@ function startCanvas2d(
     heatmapTrace("canvas2d:fail", { reason: "no-2d-context" });
   }
   let disposed = false;
-  let fallback: PackedMask = {
-    width: 1,
-    height: 1,
-    pixels: new Uint8ClampedArray([0, 0, 0, 255]),
-    frame: null,
-  };
-  let depth: PackedMask | null = null;
-  let maskMix = 0;
-  let maskMixTarget = 0;
+  let pack: PackedMask = whitePack();
   let last = performance.now();
   let time = 0;
   let raf = 0;
@@ -98,18 +115,12 @@ function startCanvas2d(
 
   const scratch = document.createElement("canvas");
   const sctx = scratch.getContext("2d");
+  const work = 320;
 
   const paint = (advanceTime: boolean, dt: number) => {
-    if (disposed || !ctx) return;
+    if (disposed || !ctx || !sctx) return;
     const reduced = reducedRef.current;
     if (advanceTime && !reduced) time += dt;
-    if (reduced) {
-      maskMix = maskMixTarget;
-    } else if (maskMix !== maskMixTarget) {
-      const step = dt * (1000 / MASK_FADE_MS);
-      if (maskMix < maskMixTarget) maskMix = Math.min(maskMixTarget, maskMix + step);
-      else maskMix = Math.max(maskMixTarget, maskMix - step);
-    }
 
     const w = Math.max(1, canvas.clientWidth || canvas.width || 1);
     const h = Math.max(1, canvas.clientHeight || canvas.height || 1);
@@ -119,54 +130,69 @@ function startCanvas2d(
     }
 
     const look = lookRef.current;
-    const pw = fallback.width;
-    const ph = fallback.height;
-    const out = ctx.createImageData(pw, ph);
-    const mix = depth && depth.width === fallback.width && depth.height === fallback.height ? maskMix : 0;
-    const freq = look.wave;
-    const speed = look.speed;
-    const t = reduced ? 0 : time;
-    for (let i = 0; i < pw * ph; i++) {
-      const fr = (fallback.pixels[i * 4] ?? 0) / 255;
-      const fg = (fallback.pixels[i * 4 + 1] ?? 0) / 255;
-      const fb = (fallback.pixels[i * 4 + 2] ?? 0) / 255;
-      let r = fr;
-      let g = fg;
-      let b = fb;
-      if (depth && mix > 0) {
-        const dr = (depth.pixels[i * 4] ?? 0) / 255;
-        const dg = (depth.pixels[i * 4 + 1] ?? 0) / 255;
-        const db = (depth.pixels[i * 4 + 2] ?? 0) / 255;
-        r = fr + (dr - fr) * mix;
-        g = fg + (dg - fg) * mix;
-        b = fb + (db - fb) * mix;
-      }
-      const heat = fieldFromPack(r, g, b, freq, t, speed);
-      const rgb = heatLut(heat, look.heat, look.mid, look.ground);
-      const n = hash21((i % pw) + t * 0.15, Math.floor(i / pw));
-      out.data[i * 4] = Math.round(Math.min(1, Math.max(0, rgb[0] + (n - 0.5) * look.grain * 0.045)) * 255);
-      out.data[i * 4 + 1] = Math.round(Math.min(1, Math.max(0, rgb[1] + (n - 0.5) * look.grain * 0.045)) * 255);
-      out.data[i * 4 + 2] = Math.round(Math.min(1, Math.max(0, rgb[2] + (n - 0.5) * look.grain * 0.045)) * 255);
-      out.data[i * 4 + 3] = 255;
+    ctx.fillStyle = `rgb(${Math.round(look.ground[0] * 255)} ${Math.round(look.ground[1] * 255)} ${Math.round(look.ground[2] * 255)})`;
+    ctx.fillRect(0, 0, w, h);
+
+    if (scratch.width !== work || scratch.height !== work) {
+      scratch.width = work;
+      scratch.height = work;
     }
-    if (!sctx) return;
-    if (scratch.width !== pw || scratch.height !== ph) {
-      scratch.width = pw;
-      scratch.height = ph;
+    const out = sctx.createImageData(work, work);
+    const t = reduced ? 0 : time;
+    for (let y = 0; y < work; y += 1) {
+      const uvY = (y + 0.5) / work;
+      const band = waveBand(uvY, t, look.speed, look.wave, reduced);
+      for (let x = 0; x < work; x += 1) {
+        const uvX = (x + 0.5) / work;
+        const [pr, pg, pb] = samplePack(pack, uvX, uvY);
+        let heat = heatFromPaperPack(
+          pr,
+          pg,
+          pb,
+          FIELD_CONTOUR,
+          FIELD_INNER_GLOW,
+          FIELD_OUTER_GLOW,
+        );
+        heat = applyWave(heat, band);
+        const rgb = heatLut(heat, look.heat, look.mid, look.ground);
+        const n = hash21(x + t * 0.15, y);
+        const i = (y * work + x) * 4;
+        out.data[i] = Math.round(
+          Math.min(1, Math.max(0, rgb[0] + (n - 0.5) * look.grain * 0.045)) * 255,
+        );
+        out.data[i + 1] = Math.round(
+          Math.min(1, Math.max(0, rgb[1] + (n - 0.5) * look.grain * 0.045)) * 255,
+        );
+        out.data[i + 2] = Math.round(
+          Math.min(1, Math.max(0, rgb[2] + (n - 0.5) * look.grain * 0.045)) * 255,
+        );
+        out.data[i + 3] = 255;
+      }
     }
     sctx.putImageData(out, 0, 0);
+
+    const scale = Math.min(w / work, h / work);
+    const dw = work * scale;
+    const dh = work * scale;
+    const dx = (w - dw) / 2;
+    const dy = (h - dh) / 2;
     ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(scratch, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(scratch, dx, dy, dw, dh);
   };
 
   const sampleCenter = (): [number, number, number] | null => {
     if (!ctx || canvas.width < 1 || canvas.height < 1) return null;
     try {
-      const p = ctx.getImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2), 1, 1).data;
+      const p = ctx.getImageData(
+        Math.floor(canvas.width / 2),
+        Math.floor(canvas.height / 2),
+        1,
+        1,
+      ).data;
       return [p[0] ?? 0, p[1] ?? 0, p[2] ?? 0];
     } catch (err) {
-      console.error("[heatmap] luma:sample:fail", err);
-      heatmapTrace("luma:sample:fail", {
+      console.error("[heatmap] field:sample:fail", err);
+      heatmapTrace("field:sample:fail", {
         message: err instanceof Error ? err.message : String(err),
       });
       return null;
@@ -187,30 +213,23 @@ function startCanvas2d(
   heatmapTrace("canvas2d:loop");
   onReady?.();
 
+  const setPack = (next: PackedMask) => {
+    pack = next;
+    pendingPresent = true;
+    heatmapTrace("driver:setPack", { w: next.width, h: next.height });
+    paint(false, 0);
+    heatmapTrace("field:presented", {
+      w: canvas.width,
+      h: canvas.height,
+      packW: next.width,
+      packH: next.height,
+      sample: sampleCenter(),
+    });
+  };
+
   return {
-    setFallback: (pack) => {
-      fallback = pack;
-      pendingPresent = true;
-      heatmapTrace("driver:setFallback", { w: pack.width, h: pack.height });
-      paint(false, 0);
-      heatmapTrace("luma:presented", {
-        w: canvas.width,
-        h: canvas.height,
-        packW: pack.width,
-        packH: pack.height,
-        sample: sampleCenter(),
-      });
-    },
-    setDepth: (pack) => {
-      depth = pack;
-    },
-    setMaskMixTarget: (mix) => {
-      maskMixTarget = mix;
-    },
-    snapMaskMix: (mix) => {
-      maskMix = mix;
-      maskMixTarget = mix;
-    },
+    setFallback: setPack,
+    setPack,
     dispose: () => {
       disposed = true;
       window.cancelAnimationFrame(raf);
@@ -220,13 +239,31 @@ function startCanvas2d(
   };
 }
 
-export function startHeatmap({
-  canvas,
-  lookRef,
-  reducedRef,
-  onReady,
-}: StartHeatmapOptions): HeatmapDriver {
-  heatmapTrace("canvas2d:start", { reason: "cpu-owns-canvas" });
-  heatmapTrace("gpu:unused", { reason: "cpu-owns-canvas" });
-  return startCanvas2d(canvas, lookRef, reducedRef, onReady);
+/**
+ * vgpu first on a virgin canvas. Canvas 2D only if the adapter/compile fails.
+ * Never call getContext('2d') before this — WebGPU cannot take over a 2D canvas.
+ */
+export async function startHeatmapField(
+  opts: StartHeatmapOptions,
+  cancelled: () => boolean,
+): Promise<HeatmapDriver | null> {
+  const { tryStartGpuDriver } = await import("./start-heatmap-gpu");
+  if (cancelled()) return null;
+  const gpu = await tryStartGpuDriver(opts, cancelled);
+  if (cancelled()) {
+    gpu?.dispose();
+    return null;
+  }
+  if (gpu) {
+    heatmapTrace("gpu:used");
+    opts.onReady?.();
+    return gpu;
+  }
+  heatmapTrace("canvas2d:start", { reason: "gpu-unavailable" });
+  return startCanvas2d(
+    opts.canvas,
+    opts.lookRef,
+    opts.reducedRef,
+    opts.onReady,
+  );
 }

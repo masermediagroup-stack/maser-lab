@@ -1,14 +1,21 @@
 import type { StorageBuffer } from "vgpu";
-import { MASK_FADE_MS, PACK_MAX } from "./constants";
+import {
+  FIELD_CONTOUR,
+  FIELD_INNER_GLOW,
+  FIELD_OUTER_GLOW,
+  FIELD_PACK_MAX,
+  HEATMAP_GROUND,
+} from "./constants";
 import type { HeatmapDriver, StartHeatmapOptions } from "./start-heatmap";
 import type { PackedMask } from "./types";
 import shader from "./heatmap.wgsl";
 import { heatmapTrace } from "./trace";
 
-const MAX_TEXELS = PACK_MAX * PACK_MAX;
+const MAX_TEXELS = FIELD_PACK_MAX * FIELD_PACK_MAX;
+const WHITE_TEXEL = 0xffffffff;
 
 function writePack(buffer: StorageBuffer, pack: PackedMask): void {
-  const count = pack.width * pack.height;
+  const count = Math.min(pack.width * pack.height, MAX_TEXELS);
   const bytes = pack.pixels.subarray(0, count * 4);
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const src = new Uint32Array(count);
@@ -18,9 +25,42 @@ function writePack(buffer: StorageBuffer, pack: PackedMask): void {
   buffer.write(src);
 }
 
+function fieldUniforms(
+  look: StartHeatmapOptions["lookRef"]["current"],
+  extras: {
+    time: number;
+    reduced: boolean;
+    packWidth: number;
+    packHeight: number;
+    canvasWidth: number;
+    canvasHeight: number;
+  },
+) {
+  return {
+    heat: [...look.heat],
+    pad0: 0,
+    mid: [...look.mid],
+    pad1: 0,
+    ground: [...look.ground],
+    pad2: 0,
+    grain: look.grain,
+    frequency: look.wave,
+    speed: look.speed,
+    time: extras.time,
+    contour: FIELD_CONTOUR,
+    innerGlow: FIELD_INNER_GLOW,
+    outerGlow: FIELD_OUTER_GLOW,
+    reducedMotion: extras.reduced ? 1 : 0,
+    packWidth: extras.packWidth,
+    packHeight: extras.packHeight,
+    canvasWidth: extras.canvasWidth,
+    canvasHeight: extras.canvasHeight,
+  };
+}
+
 /**
  * Optional WebGPU wash. Must never be imported from the demo entry.
- * A failed adapter, compile, or hung init leaves Canvas 2D running.
+ * Call only on a canvas that has never had getContext('2d').
  */
 export async function tryStartGpuDriver(
   opts: StartHeatmapOptions,
@@ -45,38 +85,26 @@ export async function tryStartGpuDriver(
     const canvasSurface = vgpu.surface(device, canvas, {
       dpr: [1, 2] as [number, number],
       alphaMode: "opaque",
-      clearColor: [0.07, 0.03, 0.18, 1],
+      clearColor: [...HEATMAP_GROUND, 1] as [number, number, number, number],
       label: "heatmap-poster",
     });
 
-    const fallbackBuf = vgpu.storage(device, MAX_TEXELS * 4, "read");
-    const depthBuf = vgpu.storage(device, MAX_TEXELS * 4, "read");
-    const empty = new Uint32Array(1);
-    fallbackBuf.write(empty);
-    depthBuf.write(empty);
+    const fieldBuf = vgpu.storage(device, MAX_TEXELS * 4, "read");
+    fieldBuf.write(new Uint32Array([WHITE_TEXEL]));
 
     const look = lookRef.current;
     const wash = vgpu.effect(device, shader, {
       label: "heatmap-poster-wash",
       set: {
-        u: {
-          heat: [...look.heat],
-          pad0: 0,
-          mid: [...look.mid],
-          pad1: 0,
-          ground: [...look.ground],
-          pad2: 0,
-          grain: look.grain,
-          frequency: look.wave,
-          speed: look.speed,
+        u: fieldUniforms(look, {
           time: 0,
-          maskMix: 0,
-          reducedMotion: 0,
+          reduced: false,
           packWidth: 1,
           packHeight: 1,
-        },
-        fallbackPack: fallbackBuf,
-        depthPack: depthBuf,
+          canvasWidth: Math.max(1, canvas.clientWidth || 1),
+          canvasHeight: Math.max(1, canvas.clientHeight || 1),
+        }),
+        fieldPack: fieldBuf,
       },
     });
 
@@ -89,8 +117,6 @@ export async function tryStartGpuDriver(
 
     let packWidth = 1;
     let packHeight = 1;
-    let maskMix = 0;
-    let maskMixTarget = 0;
     let time = 0;
     let last = performance.now();
     let visible = true;
@@ -108,53 +134,31 @@ export async function tryStartGpuDriver(
       last = now;
       const reduced = reducedRef.current;
       if (!reduced) time += dt;
-      if (reduced) {
-        maskMix = maskMixTarget;
-      } else if (maskMix !== maskMixTarget) {
-        const step = dt * (1000 / MASK_FADE_MS);
-        if (maskMix < maskMixTarget) maskMix = Math.min(maskMixTarget, maskMix + step);
-        else maskMix = Math.max(maskMixTarget, maskMix - step);
-      }
       const current = lookRef.current;
       wash.set({
-        u: {
-          heat: [...current.heat],
-          pad0: 0,
-          mid: [...current.mid],
-          pad1: 0,
-          ground: [...current.ground],
-          pad2: 0,
-          grain: current.grain,
-          frequency: current.wave,
-          speed: current.speed,
+        u: fieldUniforms(current, {
           time,
-          maskMix,
-          reducedMotion: reduced ? 1 : 0,
+          reduced,
           packWidth,
           packHeight,
-        },
-        fallbackPack: fallbackBuf,
-        depthPack: depthBuf,
+          canvasWidth: Math.max(1, canvas.width || canvas.clientWidth || 1),
+          canvasHeight: Math.max(1, canvas.height || canvas.clientHeight || 1),
+        }),
+        fieldPack: fieldBuf,
       });
       frame.pass(canvasSurface, wash);
     });
 
+    const setPack = (pack: PackedMask) => {
+      packWidth = pack.width;
+      packHeight = pack.height;
+      writePack(fieldBuf, pack);
+      heatmapTrace("gpu:setPack", { w: pack.width, h: pack.height });
+    };
+
     return {
-      setFallback: (pack) => {
-        packWidth = pack.width;
-        packHeight = pack.height;
-        writePack(fallbackBuf, pack);
-      },
-      setDepth: (pack) => {
-        if (pack) writePack(depthBuf, pack);
-      },
-      setMaskMixTarget: (mix) => {
-        maskMixTarget = mix;
-      },
-      snapMaskMix: (mix) => {
-        maskMix = mix;
-        maskMixTarget = mix;
-      },
+      setFallback: setPack,
+      setPack,
       dispose: () => {
         disposed = true;
         loop?.stop();

@@ -1,10 +1,9 @@
 import type { HeatmapReadStatus } from "./types";
-import type { DepthOutcome } from "./types";
 
 /**
- * Reading the image. is in-flight only. It always resolves to silence.
- * Depth is gone; there is no Rough read line.
+ * Reading the image. is the silhouette + pack pass only.
+ * It always resolves to silence. There is no Rough read line.
  */
-export function readStatusAfterDepth(_outcome: DepthOutcome): HeatmapReadStatus {
+export function readStatusAfterPack(): HeatmapReadStatus {
   return "idle";
 }
