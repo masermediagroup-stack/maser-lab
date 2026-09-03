@@ -1,10 +1,14 @@
 /*
  * Dallas Meetup TV Wallpaper — product tokens.
  *
- * Galaxy-line colors: sampled medians from xAI's Grok 4 artwork
- * (https://media.x.ai/v1/website/grok-4-6bdb0520.webp).
- * These are NOT official xAI brand tokens — they faithfully represent that
- * official artwork but xAI publishes no galaxy-line palette.
+ * Galaxy-line colors: extracted from ONE campaign asset (Grok 4 hero at
+ * https://media.x.ai/v1/website/grok-4-6bdb0520.webp). xAI has no fixed
+ * galaxy palette — each campaign gets bespoke art; several heroes have no
+ * lines at all. These are not published brand tokens.
+ *
+ * Type: IBM Plex Sans Condensed / IBM Plex Mono. Universal Sans is xAI's
+ * production face (commercial, Family Type). We hold no licence. Swap the
+ * family here if a licence arrives. Never load xAI's self-hosted woff2 files.
  */
 
 .dallas-demo,
@@ -13,8 +17,9 @@
   --dallas-ink: #26251e;
   --dallas-loop-seconds: 12s;
 
-  /* Font: Geist Sans (OFL 1.1). Swap to Universal Sans here if licenced. */
-  --dallas-font: "Geist", "Geist Sans", sans-serif;
+  /* One-line family swap. Condensed for the lockup; mono for demo readouts. */
+  --dallas-font: var(--font-ibm-plex-sans-condensed), "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", "Helvetica Neue", sans-serif;
+  --dallas-font-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Galaxy ramp — continuous interpolated, pole-to-pole along meridians.
      Saturated stops carry on white; pale stops (4-6) may read near-transparent. */
@@ -53,4 +58,8 @@
   max-height: 100%;
   display: block;
   background: var(--dallas-paper);
+}
+
+.dallas-demo__mono {
+  font-family: var(--dallas-font-mono);
 }

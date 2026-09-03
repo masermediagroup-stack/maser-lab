@@ -2,6 +2,13 @@
 
 ## Galaxy ramp: hue follows density, not position (EPG)
 
+On the original Grok 4 hero the motif is not pure linework: it is
+**hairlines on top of a soft mesh-gradient wash**. The lines themselves are
+white/silvery; the COLOR lives in the glow underneath. That does not change
+the white-ground build — it reinforces it. On black the lines are light and
+the wash carries colour. On white we invert: the ink carries the colour and
+density does the job the wash did.
+
 On black the Grok 4 artwork paints light; on white we paint INK. The ramp
 inverts in role: density does what bloom did, and hue follows density instead
 of screen position.
@@ -49,3 +56,15 @@ hairlines that dissolve into the paper. If a stop cannot be line, it is paper.
 - No star specks (black-background language; looks like dust on white).
 - Normal blending only.
 - Parallels: quiet, largely indigo. Colour lives in the meridians.
+
+## Type
+
+IBM Plex Sans Condensed for the lockup. IBM Plex Mono for demo readouts.
+Geist is a named refusal. Universal Sans is xAI's production face; we hold
+no licence and must not load their self-hosted files.
+
+## Skyline
+
+Additive only, demo-rail toggle, default OFF. Procedural silhouette from the
+CC0 Trammell Crow Park photo as a proportion reference. Must not re-layout
+marks or type.

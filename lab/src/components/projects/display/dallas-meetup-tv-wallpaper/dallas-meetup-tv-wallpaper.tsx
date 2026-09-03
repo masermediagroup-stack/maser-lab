@@ -35,6 +35,9 @@ type ExportResult = {
   codec: string;
 };
 
+const DEFAULT_SANS =
+  '"IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", "Helvetica Neue", sans-serif';
+
 export type DallasMeetupWallpaperProps = {
   reducedMotion?: boolean;
   playing?: boolean;
@@ -42,8 +45,17 @@ export type DallasMeetupWallpaperProps = {
   onFrameTime?: (seconds: number) => void;
   loopSeconds?: number;
   faceForward?: boolean;
+  showSkyline?: boolean;
   className?: string;
 };
+
+function resolveDallasFontFamily(el: Element | null): string {
+  if (el instanceof HTMLElement && el.isConnected) {
+    const token = getComputedStyle(el).getPropertyValue("--dallas-font").trim();
+    if (token) return token;
+  }
+  return DEFAULT_SANS;
+}
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
@@ -366,53 +378,69 @@ function drawGrokGlobe(
   ctx.restore();
 }
 
+/**
+ * Additive Dallas silhouette. Proportions referenced from the CC0 photo
+ * "Dallas Texas skyline overlooking Trammell Crow Park" (IcedCowboyCoffee).
+ * Reunion Tower (ball-on-stalk, left of cluster) and Bank of America Plaza
+ * (tallest slab + needle) are the two reads that make it Dallas.
+ * Drawn first, low, light. Must not move marks or type.
+ */
 function drawDallasSkyline(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
   ink: string,
 ) {
-  const baseY = height * 0.88;
-  const skylineW = width * 0.7;
+  const baseY = height * 0.9;
+  const skylineW = width * 0.62;
   const offsetX = (width - skylineW) * 0.5;
   const u = skylineW / 100;
+  const maxH = height * 0.145;
 
   ctx.fillStyle = ink;
-  ctx.globalAlpha = 0.06;
+  ctx.globalAlpha = 0.07;
 
-  const bldgs: [number, number, number, number][] = [
-    [5, 7, baseY - u * 18, u * 18],
-    [13, 5, baseY - u * 24, u * 24],
-    [19, 6, baseY - u * 20, u * 20],
-    [26, 8, baseY - u * 30, u * 30],
-    [35, 7, baseY - u * 38, u * 38],
-    [43, 6, baseY - u * 32, u * 32],
-    [50, 5, baseY - u * 26, u * 26],
-    [56, 7, baseY - u * 22, u * 22],
-    [64, 5, baseY - u * 28, u * 28],
-    [70, 6, baseY - u * 20, u * 20],
-    [77, 8, baseY - u * 16, u * 16],
-    [86, 6, baseY - u * 14, u * 14],
-    [93, 5, baseY - u * 10, u * 10],
+  const slabs: [number, number, number][] = [
+    [4, 6.5, 0.42],
+    [11.2, 5.2, 0.55],
+    [17, 7.4, 0.5],
+    [25.2, 5.8, 0.62],
+    [31.5, 4.8, 0.48],
+    [48, 5.5, 0.7],
+    [54.2, 6.2, 0.58],
+    [61, 4.6, 0.52],
+    [66.2, 5.4, 0.64],
+    [72.4, 7, 0.46],
+    [80, 5.2, 0.4],
+    [86.2, 6, 0.34],
+    [93, 4.4, 0.26],
   ];
-  for (const [xP, wP, y, h] of bldgs) {
-    ctx.fillRect(offsetX + u * xP, y, u * wP, h);
+  for (const [xP, wP, hFrac] of slabs) {
+    const h = maxH * hFrac;
+    ctx.fillRect(offsetX + u * xP, baseY - h, u * wP, h);
   }
 
-  const boaX = offsetX + u * 35;
-  const boaW = u * 7;
-  const boaH = u * 38;
+  const boaX = offsetX + u * 38.5;
+  const boaW = u * 6.4;
+  const boaH = maxH;
   ctx.fillRect(boaX, baseY - boaH, boaW, boaH);
-  ctx.fillRect(boaX + boaW * 0.4, baseY - boaH - u * 6, boaW * 0.2, u * 6);
+  ctx.fillRect(boaX + boaW * 0.18, baseY - boaH - maxH * 0.08, boaW * 0.64, maxH * 0.08);
+  ctx.fillRect(boaX + boaW * 0.44, baseY - boaH - maxH * 0.2, boaW * 0.12, maxH * 0.12);
 
-  const rtX = offsetX + u * 15;
-  const rtStalkW = u * 0.8;
-  const rtStalkH = u * 20;
-  const rtBallR = u * 2.5;
+  const hyattX = offsetX + u * 18.4;
+  const hyattW = u * 8.2;
+  const hyattH = maxH * 0.56;
+  ctx.fillRect(hyattX, baseY - hyattH, hyattW, hyattH);
+
+  const rtX = offsetX + u * 16.4;
+  const rtStalkW = u * 0.7;
+  const rtStalkH = maxH * 0.52;
+  const rtBallR = u * 2.15;
   ctx.fillRect(rtX - rtStalkW * 0.5, baseY - rtStalkH, rtStalkW, rtStalkH);
   ctx.beginPath();
-  ctx.arc(rtX, baseY - rtStalkH - rtBallR * 0.3, rtBallR, 0, Math.PI * 2);
+  ctx.arc(rtX, baseY - rtStalkH - rtBallR * 0.15, rtBallR, 0, Math.PI * 2);
   ctx.fill();
+  ctx.fillRect(rtX - u * 0.12, baseY - rtStalkH - rtBallR * 2.05, u * 0.24, rtBallR * 0.7);
 
   ctx.fillRect(offsetX, baseY, skylineW, height - baseY);
   ctx.globalAlpha = 1;
@@ -426,6 +454,8 @@ function renderFrame(
   reducedMotion: boolean,
   loopSeconds: number,
   faceForward: boolean,
+  showSkyline: boolean,
+  fontFamily: string,
 ) {
   const scale = width / BASE_WIDTH;
   const ink = INK_HEX;
@@ -434,7 +464,9 @@ function renderFrame(
   ctx.fillStyle = PAPER_HEX;
   ctx.fillRect(0, 0, width, height);
 
-  drawDallasSkyline(ctx, width, height, ink);
+  if (showSkyline) {
+    drawDallasSkyline(ctx, width, height, ink);
+  }
 
   const centerX = width * 0.5;
   const centerY = height * 0.47;
@@ -521,7 +553,7 @@ function renderFrame(
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
   const fontSize = 56 * scale;
-  ctx.font = `500 ${fontSize}px "Geist", "Geist Sans", var(--dallas-font, sans-serif), sans-serif`;
+  ctx.font = `500 ${fontSize}px ${fontFamily}`;
   const label = "Dallas meetup";
   const tracking = 1.3 * scale;
   const labelWidth =
@@ -542,6 +574,7 @@ export function DallasMeetupWallpaper({
   onFrameTime,
   loopSeconds = DEFAULT_LOOP_SECONDS,
   faceForward = false,
+  showSkyline = false,
   className,
 }: DallasMeetupWallpaperProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -555,9 +588,19 @@ export function DallasMeetupWallpaper({
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      renderFrame(ctx, canvas.width, canvas.height, time, reducedMotion, loopSeconds, faceForward);
+      renderFrame(
+        ctx,
+        canvas.width,
+        canvas.height,
+        time,
+        reducedMotion,
+        loopSeconds,
+        faceForward,
+        showSkyline,
+        resolveDallasFontFamily(canvas),
+      );
     },
-    [reducedMotion, loopSeconds, faceForward],
+    [reducedMotion, loopSeconds, faceForward, showSkyline],
   );
 
   useEffect(() => {
@@ -589,9 +632,15 @@ export function DallasMeetupWallpaper({
     const observer = new ResizeObserver(resize);
     observer.observe(canvas.parentElement ?? canvas);
     window.addEventListener("resize", resize);
+    const redrawOnFonts = () => drawAtTime(timeSeconds ?? pausedAtRef.current);
+    if (document.fonts.status !== "loaded") {
+      void document.fonts.ready.then(redrawOnFonts);
+    }
+    document.fonts.addEventListener("loadingdone", redrawOnFonts);
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", resize);
+      document.fonts.removeEventListener("loadingdone", redrawOnFonts);
     };
   }, [drawAtTime, timeSeconds]);
 
@@ -644,17 +693,24 @@ export async function exportDallasMeetupWallpaperLoop({
   height = BASE_HEIGHT,
   loopSeconds = DEFAULT_LOOP_SECONDS,
   faceForward = false,
+  showSkyline = false,
 }: {
   width?: number;
   height?: number;
   loopSeconds?: number;
   faceForward?: boolean;
+  showSkyline?: boolean;
 } = {}): Promise<ExportResult> {
   if (typeof window === "undefined") {
     throw new Error("Export is only available in the browser.");
   }
   if (typeof MediaRecorder === "undefined") {
     throw new Error("MediaRecorder is not available in this browser.");
+  }
+
+  if (document.fonts) {
+    await document.fonts.load(`500 56px ${DEFAULT_SANS}`);
+    await document.fonts.ready;
   }
 
   const canvas = document.createElement("canvas");
@@ -692,7 +748,17 @@ export async function exportDallasMeetupWallpaperLoop({
     let frame = 0;
     const tick = () => {
       if (frame >= totalFrames) { recorder.stop(); return; }
-      renderFrame(ctx, width, height, frame / FPS, false, loopSeconds, faceForward);
+      renderFrame(
+        ctx,
+        width,
+        height,
+        frame / FPS,
+        false,
+        loopSeconds,
+        faceForward,
+        showSkyline,
+        resolveDallasFontFamily(document.querySelector(".dallas-demo")),
+      );
       controlledTrack.requestFrame();
       frame += 1;
       window.setTimeout(tick, 1000 / FPS);

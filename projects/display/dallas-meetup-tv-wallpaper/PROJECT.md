@@ -10,6 +10,7 @@
 - Figma: none
 - Other: approved still image at `/workspace/dallas-meetup-tv/dallas-meetup-wallpaper-still.png`
 - Design spec: `FIGMA.md` in this folder
+- Galaxy structure notes: `design.md` in this folder
 
 ## Brief
 
@@ -23,7 +24,7 @@ Hold a calm branded presence for long dwell viewing without reading like an ad.
 Greenfield.
 
 ### Desired outcome
-Pure-white field with two ink marks and one line of type matching the approved still, with a seamless loop and deterministic export. Grok mark is a 3D rotating globe with galaxy-line filament meridians.
+Pure-white field with two ink marks and one line of type matching the approved still, with a seamless loop and deterministic export. Grok mark is a 3D rotating globe with density-driven galaxy-line filament meridians.
 
 ### Success signal
 - Still frame matches approved composition.
@@ -33,26 +34,38 @@ Pure-white field with two ink marks and one line of type matching the approved s
 
 ### Non-goals
 - No event logistics, QR, RSVP, wordmarks, taglines, secondary copy, or decorative background effects.
+- No Geist typeface on this project (named refusal).
+- Do not download, copy, or reference xAI's self-hosted Universal Sans files.
+
+## Type
+
+**IBM Plex Sans Condensed Medium** for the `Dallas meetup` lockup. **IBM Plex Mono** for demo-rail readouts only.
+
+Universal Sans is genuinely xAI's own production typeface — x.ai and grok.com self-host `UniversalSans_Display` and `UniversalSans_Text` woff2 files. It is commercial-only from Family Type and we hold no licence. IBM Plex Sans Condensed is a **deliberate substitute** for that face, not a default. Families are wired through `--dallas-font` / `--dallas-font-mono` so a licensed swap is one line in `tokens.css`.
+
+**Do not** install `geist` or switch to it. **Do not** load xAI's self-hosted font files under any circumstances.
 
 ## Galaxy-line color provenance
 
-xAI publishes NO official galaxy-line palette. The eight colors in `tokens.css` (`--dallas-galaxy-1` through `--dallas-galaxy-8`) are **sampled medians** from xAI's own Grok 4 artwork at `https://media.x.ai/v1/website/grok-4-6bdb0520.webp` (page: `https://x.ai/news/grok-4`). They faithfully represent that official artwork; they are **not** published brand tokens.
+xAI has **no fixed galaxy palette**. Each campaign gets bespoke art, and several campaign heroes have no lines whatsoever. The eight tokens (`--dallas-galaxy-1` through `-8`) are extracted from **one representative asset** — the Grok 4 hero at `https://media.x.ai/v1/website/grok-4-6bdb0520.webp` (page: `https://x.ai/news/grok-4`). Label them that way: derived from one campaign asset, not an official palette, not published brand tokens.
 
 The ramp, in order:
 1. `#CF525C` rose/magenta
 2. `#F15336` red
 3. `#FEB87C` orange
-4. `#FFE4A6` gold/cream
-5. `#C4D3E1` pale icy
+4. `#FFE4A6` gold/cream — CUT as a line color on white
+5. `#C4D3E1` pale icy — CUT as a line color on white
 6. `#AAD5EA` cyan
 7. `#86A4C6` blue
 8. `#7775A5` indigo/violet
 
-On white, the pale stops (4–6) may read near-transparent. Saturation carries the color, not additive bloom.
+On the original asset the motif is **hairlines on top of a soft mesh-gradient wash**: the lines themselves are white/silvery and the COLOR lives in the glow underneath. On black, lines are light and the wash carries colour. On white we invert — the ink carries the colour and density does the job the wash did. See `design.md` for EPG's white-ground call.
 
-## Dallas skyline provenance
+## Dallas skyline
 
-Procedurally drawn flat-black silhouette. Proportions referenced from CC0 photograph by IcedCowboyCoffee: `https://commons.wikimedia.org/wiki/File:Dallas_Texas_skyline_overlooking_Trammell_Crow_Park.png` (CC0 1.0, commercial use and modification allowed, no attribution required). No imported SVG; all geometry is inline rectangles and arcs.
+Contested. Ships **behind a demo-rail toggle, default OFF** (EPG's composition loads). Additive layer only: toggling must not move the globe, the cube, or the type lockup.
+
+Procedurally drawn flat-black silhouette. Proportions referenced from CC0 photograph by IcedCowboyCoffee: `https://commons.wikimedia.org/wiki/File:Dallas_Texas_skyline_overlooking_Trammell_Crow_Park.png` (CC0 1.0, no attribution required). Reunion Tower (ball-on-a-stalk) and Bank of America Plaza are the two reads that make it Dallas. No imported SVG, no Noun Project / clipart vectors (CC BY would drag attribution into a wallpaper).
 
 ## States
 
@@ -74,6 +87,7 @@ Additional demo verification states:
 - [x] export capture
 - [x] face-forward vs full-rotation toggle
 - [x] revolution duration knob (8/10/12/16s)
+- [x] skyline toggle (default off)
 
 ## Motion decisions
 
@@ -82,7 +96,7 @@ Additional demo verification states:
 | Library | Canvas 2D + requestAnimationFrame | Deterministic timeline and frame-exact export control |
 | Duration | 12s default loop @ 30fps export | One full revolution = one seamless loop; 8s was too frantic for TV |
 | Easing | Constant angular velocity for globe; easeInOutCubic for blinks/glance | Globe rotation must not ease — a globe does not stop and start |
-| Font | Geist Sans (OFL 1.1) via `--dallas-font` token | Universal Sans requires paid licence; Geist is free and approved |
+| Font | IBM Plex Sans Condensed (+ Mono for readouts) via `--dallas-font` | Licensed substitute for Universal Sans; Geist is a named refusal |
 
 ## Acceptance criteria
 
@@ -91,18 +105,21 @@ Additional demo verification states:
 - [x] Motion follows specified beats (float, glance, blink/wink, response tilt, squash/stretch, globe rotation)
 - [x] `prefers-reduced-motion` verified in browser behavior (still frame)
 - [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`
-- [x] Demo controls include play/pause, replay, scrub/step, reduced motion, face-forward toggle, revolution duration, and export
+- [x] Demo controls include play/pause, replay, scrub/step, reduced motion, face-forward toggle, revolution duration, skyline toggle, and export
 - [x] Presentation mode is fullscreen without demo overlays
 - [x] Galaxy colors wired to `--dallas-galaxy-1` through `-8` tokens
-- [x] Font wired through `--dallas-font` token
+- [x] Font wired through `--dallas-font` token (IBM Plex Sans Condensed; no Geist)
+- [x] Skyline is additive, default off, no re-layout when toggled
 
 ## Open decisions
 
 - Whether target browser can emit MP4 directly via MediaRecorder or needs WebM fallback.
 - Final ramp tuning — Elite Pixel Guy owns the live preview sign-off on the galaxy colors.
+- Skyline on vs off — user judges on the live canvas. Default remains off until they settle it.
 
 ## Accepted decisions
 
 - Composition locked to approved still with a single ink tone for both marks and type.
-- Geist Sans approved as font fallback while Universal Sans licence is pending.
-- Galaxy-line colors sampled from official xAI Grok 4 artwork (not published brand tokens).
+- IBM Plex Sans Condensed is the substitute for Universal Sans. Geist is refused on this project.
+- Galaxy-line colors derived from one Grok 4 campaign asset (not an official palette).
+- Skyline, if used, is an additive layer behind a toggle — never a re-layout.
