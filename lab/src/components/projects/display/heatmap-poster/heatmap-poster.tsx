@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HEATMAP_COPY } from "./copy";
 import { FORMAT_ASPECT, HEATMAP_DEFAULTS } from "./constants";
-import { prefetchDepthModel, readDepth } from "./depth-estimator";
+import { readDepth } from "./depth-estimator";
 import {
   emptyPack,
   flattenOntoGround,
@@ -151,10 +151,6 @@ export function HeatmapPoster({
     formatRef.current = format;
     fileStatusRef.current = fileStatus;
   });
-
-  useEffect(() => {
-    prefetchDepthModel();
-  }, []);
 
   const drawFrame = useCallback(() => {
     const posterCanvas = posterCanvasRef.current;
@@ -392,6 +388,7 @@ export function HeatmapPoster({
         const firstAspect = currentPlateAspect();
         lastPlateAspectRef.current = firstAspect;
         applyPacksForAspect(cached, firstAspect);
+        drawFrame();
         heatmapTrace("luma:bound-and-rendered");
 
         const flat = flattenOntoGround(el, el.naturalWidth, el.naturalHeight);
@@ -450,7 +447,7 @@ export function HeatmapPoster({
     return () => {
       cancelled = true;
     };
-  }, [imageSrc, image, format, applyPacksForAspect, driverBoot]);
+  }, [imageSrc, image, format, applyPacksForAspect, driverBoot, drawFrame]);
 
   const hasRealText = caption != null && caption.length > 0;
   const showPlaceholder = !isExport && !hasRealText && image != null;

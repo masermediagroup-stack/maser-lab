@@ -18,8 +18,6 @@ export type StartHeatmapOptions = {
   onReady?: () => void;
 };
 
-const GPU_BOOT_MS = 2500;
-
 function mixRgb(a: readonly [number, number, number], b: readonly [number, number, number], t: number): [number, number, number] {
   return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 }
@@ -67,7 +65,11 @@ function startCanvas2d(
   reducedRef: { current: boolean },
   onReady?: () => void,
 ): HeatmapDriver {
-  const ctx = canvas.getContext("2d", { alpha: false });
+  const ctx = canvas.getContext("2d", { alpha: false, willReadFrequently: true });
+  if (!ctx) {
+    console.error("[heatmap] canvas2d:fail", "getContext('2d') returned null");
+    heatmapTrace("canvas2d:fail", { reason: "no-2d-context" });
+  }
   let disposed = false;
   let fallback: PackedMask = {
     width: 1,
@@ -82,6 +84,7 @@ function startCanvas2d(
   let time = 0;
   let raf = 0;
   let visible = true;
+  let pendingPresent = true;
 
   const io = new IntersectionObserver((entries) => {
     visible = entries.some((e) => e.isIntersecting);
@@ -96,15 +99,10 @@ function startCanvas2d(
   const scratch = document.createElement("canvas");
   const sctx = scratch.getContext("2d");
 
-  const tick = (now: number) => {
+  const paint = (advanceTime: boolean, dt: number) => {
     if (disposed || !ctx) return;
-    raf = window.requestAnimationFrame(tick);
-    const dt = Math.min(0.05, (now - last) / 1000);
-    last = now;
-    if (!visible) return;
-
     const reduced = reducedRef.current;
-    if (!reduced) time += dt;
+    if (advanceTime && !reduced) time += dt;
     if (reduced) {
       maskMix = maskMixTarget;
     } else if (maskMix !== maskMixTarget) {
@@ -113,8 +111,8 @@ function startCanvas2d(
       else maskMix = Math.max(maskMixTarget, maskMix - step);
     }
 
-    const w = canvas.clientWidth || 1;
-    const h = canvas.clientHeight || 1;
+    const w = Math.max(1, canvas.clientWidth || canvas.width || 1);
+    const h = Math.max(1, canvas.clientHeight || canvas.height || 1);
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
@@ -161,6 +159,30 @@ function startCanvas2d(
     ctx.drawImage(scratch, 0, 0, canvas.width, canvas.height);
   };
 
+  const sampleCenter = (): [number, number, number] | null => {
+    if (!ctx || canvas.width < 1 || canvas.height < 1) return null;
+    try {
+      const p = ctx.getImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2), 1, 1).data;
+      return [p[0] ?? 0, p[1] ?? 0, p[2] ?? 0];
+    } catch (err) {
+      console.error("[heatmap] luma:sample:fail", err);
+      heatmapTrace("luma:sample:fail", {
+        message: err instanceof Error ? err.message : String(err),
+      });
+      return null;
+    }
+  };
+
+  const tick = (now: number) => {
+    if (disposed || !ctx) return;
+    raf = window.requestAnimationFrame(tick);
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    if (!visible && !pendingPresent) return;
+    pendingPresent = false;
+    paint(true, dt);
+  };
+
   raf = window.requestAnimationFrame(tick);
   heatmapTrace("canvas2d:loop");
   onReady?.();
@@ -168,6 +190,16 @@ function startCanvas2d(
   return {
     setFallback: (pack) => {
       fallback = pack;
+      pendingPresent = true;
+      heatmapTrace("driver:setFallback", { w: pack.width, h: pack.height });
+      paint(false, 0);
+      heatmapTrace("luma:presented", {
+        w: canvas.width,
+        h: canvas.height,
+        packW: pack.width,
+        packH: pack.height,
+        sample: sampleCenter(),
+      });
     },
     setDepth: (pack) => {
       depth = pack;
@@ -194,73 +226,7 @@ export function startHeatmap({
   reducedRef,
   onReady,
 }: StartHeatmapOptions): HeatmapDriver {
-  heatmapTrace("canvas2d:start", { reason: "cpu-first" });
-  const cpu = startCanvas2d(canvas, lookRef, reducedRef, onReady);
-  let gpu: HeatmapDriver | undefined;
-  let disposed = false;
-  let expired = false;
-  let pendingFallback: PackedMask | null = null;
-  let pendingDepth: PackedMask | null = null;
-  let pendingMix = 0;
-
-  const active = () => gpu ?? cpu;
-
-  const expire = window.setTimeout(() => {
-    expired = true;
-    heatmapTrace("gpu:unused", { reason: "timeout" });
-  }, GPU_BOOT_MS);
-
-  void (async () => {
-    try {
-      const { tryStartGpuDriver } = await import("./start-heatmap-gpu");
-      const next = await tryStartGpuDriver(
-        { canvas, lookRef, reducedRef },
-        () => disposed || expired,
-      );
-      window.clearTimeout(expire);
-      if (disposed || expired || !next) {
-        next?.dispose();
-        if (!expired) heatmapTrace("gpu:unused", { reason: "fail-or-cancel" });
-        return;
-      }
-      gpu = next;
-      cpu.dispose();
-      if (pendingFallback) next.setFallback(pendingFallback);
-      if (pendingDepth) next.setDepth(pendingDepth);
-      next.snapMaskMix(pendingMix);
-      heatmapTrace("gpu:takeover");
-    } catch (err) {
-      window.clearTimeout(expire);
-      console.error("[heatmap] gpu:unused", err);
-      heatmapTrace("gpu:unused", {
-        message: err instanceof Error ? err.message : String(err),
-      });
-    }
-  })();
-
-  return {
-    setFallback: (pack) => {
-      pendingFallback = pack;
-      heatmapTrace("driver:setFallback", { w: pack.width, h: pack.height });
-      active().setFallback(pack);
-    },
-    setDepth: (pack) => {
-      pendingDepth = pack;
-      active().setDepth(pack);
-    },
-    setMaskMixTarget: (mix) => {
-      pendingMix = mix;
-      active().setMaskMixTarget(mix);
-    },
-    snapMaskMix: (mix) => {
-      pendingMix = mix;
-      active().snapMaskMix(mix);
-    },
-    dispose: () => {
-      disposed = true;
-      window.clearTimeout(expire);
-      gpu?.dispose();
-      cpu.dispose();
-    },
-  };
+  heatmapTrace("canvas2d:start", { reason: "cpu-owns-canvas" });
+  heatmapTrace("gpu:unused", { reason: "cpu-owns-canvas" });
+  return startCanvas2d(canvas, lookRef, reducedRef, onReady);
 }
