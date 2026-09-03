@@ -33,7 +33,7 @@ async function getDepthPipeline(): Promise<DepthPipe | null> {
   if (pipePromise) return pipePromise;
   pipePromise = (async () => {
     try {
-      if (typeof navigator === "undefined" || !navigator.gpu) return null;
+      if (typeof navigator === "undefined" || !("gpu" in navigator)) return null;
       const { pipeline } = await import("@huggingface/transformers");
       const pipe = await pipeline(
         "depth-estimation",
@@ -53,10 +53,10 @@ export function prefetchDepthModel(): void {
   const run = () => {
     void getDepthPipeline();
   };
-  if ("requestIdleCallback" in window) {
+  if (typeof window.requestIdleCallback === "function") {
     window.requestIdleCallback(run, { timeout: 2500 });
   } else {
-    window.setTimeout(run, 1);
+    setTimeout(run, 1);
   }
 }
 

@@ -24,7 +24,12 @@ const MAX_TEXELS = PACK_MAX * PACK_MAX;
 
 function writePack(buffer: StorageBuffer, pack: PackedMask): void {
   const count = pack.width * pack.height;
-  const src = new Uint32Array(pack.pixels.buffer, pack.pixels.byteOffset, count);
+  const bytes = pack.pixels.subarray(0, count * 4);
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const src = new Uint32Array(count);
+  for (let i = 0; i < count; i++) {
+    src[i] = view.getUint32(i * 4, true);
+  }
   buffer.write(src);
 }
 
@@ -251,12 +256,16 @@ export function startHeatmap({
     const empty = new Uint32Array(1);
     fallbackBuf.write(empty);
     depthBuf.write(empty);
-    if (pendingFallback) {
-      packWidth = pendingFallback.width;
-      packHeight = pendingFallback.height;
-      writePack(fallbackBuf, pendingFallback);
+    if (pendingFallback !== null) {
+      const bootFallback = pendingFallback as PackedMask;
+      packWidth = bootFallback.width;
+      packHeight = bootFallback.height;
+      writePack(fallbackBuf, bootFallback);
     }
-    if (pendingDepth) writePack(depthBuf, pendingDepth);
+    if (pendingDepth !== null) {
+      const bootDepth = pendingDepth as PackedMask;
+      writePack(depthBuf, bootDepth);
+    }
 
     const look = lookRef.current;
     wash = effect(gpu, shader, {
