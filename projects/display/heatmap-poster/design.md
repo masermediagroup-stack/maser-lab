@@ -25,7 +25,10 @@ Decisions below are the look.
 - Knobs: Heat, Mid, Ground / Speed / Wave.
 - Size toggle: 9:16 · A4.
 
-No "drag and drop your file here to get started." No exclamation points.
+- Caption label: PROMPT
+- Caption placeholder: Describe the image or add your own line.
+
+No "drag and drop your file here to get started." No exclamation points. Never auto-write a description. No generated caption, no filename echo, no "Untitled". If the user writes nothing, there is no line.
 
 ## Observable decisions
 
@@ -51,7 +54,7 @@ No "drag and drop your file here to get started." No exclamation points.
 - Set the caption plate on black with a mono label above the line, both in --heatmap-type. It reads as a specimen slug, not a UI card.
 - Give the card the named ratio. 9:16 or A4 is the poster you export, so the card is that shape and the caption plate is inside it, never overflowing it.
 - Let the caption plate take the height its text needs and give the image plate the remainder. The image plate's aspect follows that remainder; the crop stays centered on the hot mass so the subject never slides out of frame.
-- Collapse the caption plate when there are no words and let the image plate take the full card. The frame does not move.
+- Show the caption placeholder while composing and collapse the plate on export. The prompt to write is editing chrome; an empty poster carries no placeholder and the image plate takes the full card. The frame does not move either way.
 - Leave knobs in the demo rail. Never on the poster.
 
 ## Primitives Spark may name

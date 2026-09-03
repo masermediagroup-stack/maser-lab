@@ -44,6 +44,7 @@ export function HeatmapPoster({
   readStatus = "idle",
   onReadStatus,
   caption,
+  isExport = false,
 }: HeatmapPosterProps) {
   const rootRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -229,7 +230,8 @@ export function HeatmapPoster({
           ? HEATMAP_COPY.empty
           : "";
 
-  const hasCaption = caption != null && caption.length > 0;
+  const hasRealText = caption != null && caption.length > 0;
+  const showPlaceholder = !isExport && !hasRealText && image != null;
 
   return (
     <section
@@ -251,10 +253,22 @@ export function HeatmapPoster({
         ) : null}
       </div>
 
-      {hasCaption ? (
+      {/* Caption plate: layout height driven ONLY by real text.
+          PROMPT label persists above real text — it is a standing slug. */}
+      {hasRealText ? (
         <div className="heatmap-poster__caption-plate">
           <p className="heatmap-poster__caption-label">{HEATMAP_COPY.captionLabel}</p>
           <p className="heatmap-poster__caption-text">{caption}</p>
+        </div>
+      ) : null}
+
+      {/* Placeholder chrome: does not participate in card layout (position:absolute).
+          Visible only while composing with an image loaded and no text entered.
+          isExport gates exactly this element and nothing else. */}
+      {showPlaceholder ? (
+        <div className="heatmap-poster__caption-placeholder" aria-hidden>
+          <p className="heatmap-poster__caption-label">{HEATMAP_COPY.captionLabel}</p>
+          <p className="heatmap-poster__caption-text">{HEATMAP_COPY.captionPlaceholder}</p>
         </div>
       ) : null}
     </section>

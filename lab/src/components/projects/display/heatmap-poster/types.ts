@@ -30,6 +30,7 @@ export type HeatmapPosterProps = {
   readStatus?: HeatmapReadStatus;
   onReadStatus?: (status: HeatmapReadStatus) => void;
   caption?: string;
+  isExport?: boolean;
 };
 
 export type PackedMask = {

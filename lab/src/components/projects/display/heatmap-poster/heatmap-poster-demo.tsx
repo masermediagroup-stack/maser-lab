@@ -62,6 +62,7 @@ export function HeatmapPosterDemo() {
   const [image, setImage] = useState<HeatmapImageSource | null>(null);
   const [readStatus, setReadStatus] = useState<HeatmapReadStatus>("idle");
   const [fileStatus, setFileStatus] = useState<HeatmapFileStatus>("ok");
+  const [caption, setCaption] = useState("");
   const objectUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -127,7 +128,7 @@ export function HeatmapPosterDemo() {
           forceReducedMotion={reduced}
           readStatus={readStatus}
           onReadStatus={setReadStatus}
-          caption={image ? HEATMAP_COPY.captionEmpty : undefined}
+          caption={caption || undefined}
         />
       </section>
 
@@ -193,6 +194,15 @@ export function HeatmapPosterDemo() {
             </LabButton>
           ))}
         </div>
+        <LabControlGroup label="Caption">
+          <input
+            type="text"
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            placeholder={HEATMAP_COPY.captionPlaceholder}
+            className="min-h-11 w-full rounded-none border border-[var(--lab-border)] bg-[var(--lab-surface)] px-2 font-mono text-xs text-[var(--lab-text-primary)] placeholder:text-[var(--lab-text-muted)]"
+          />
+        </LabControlGroup>
         <LabControlGroup label="Stops">
           <LabColor
             id="heatmap-heat"

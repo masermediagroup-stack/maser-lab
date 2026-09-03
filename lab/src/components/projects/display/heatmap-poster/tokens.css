@@ -82,6 +82,21 @@
   color: var(--heatmap-type);
 }
 
+/* --- Caption placeholder: editing chrome, not layout participant --- */
+
+.heatmap-poster__caption-placeholder {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.75rem 1rem;
+  background: var(--heatmap-page);
+  border-top: 1px solid var(--heatmap-frame);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 /* --- Status label (reading / rough-read / empty) --- */
 
 .heatmap-status {
