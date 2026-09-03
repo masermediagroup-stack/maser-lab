@@ -44,6 +44,7 @@ No "drag and drop your file here to get started." No exclamation points. Never a
 - Resolve Reading the image every time. Silent to fallback on no-WebGPU or a discarded field; on a model error the poster still renders and the label reads Rough read. Depth is off on this browser.
 - Set every state label on Ground or the rail at one size and weight. A downgrade is not a warning: no badge, no amber, no icon.
 - Run the model once per upload, cached. Not per frame.
+- Read the upload once and cache the focal point with it. Caption length, size toggle, and knobs are layout events: they recrop against that cached point and never re-read the image, so the subject holds still and Reading the image never comes back.
 - Keep 9:16 and A4 as the only sizes. Same lock on both. The card's shape changes, the LUT does not.
 - Read transparency as Ground. Alpha is absence, not cold and never heat; composite the upload onto Ground before any read so a cutout PNG cannot grow a fake subject.
 - Keep noise off the heat read. Texture and grain are surface, not mass; a noisy flat input stays on Ground.

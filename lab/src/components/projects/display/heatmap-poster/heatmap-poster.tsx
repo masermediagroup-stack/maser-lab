@@ -55,11 +55,13 @@ export function HeatmapPoster({
   const hotFrameRef = useRef<HTMLDivElement>(null);
   const generationRef = useRef(0);
   const cachedReadRef = useRef<CachedRead | null>(null);
+  const onReadStatusRef = useRef(onReadStatus);
 
   useEffect(() => {
     lookRef.current = look;
     reducedRef.current = forceReducedMotion;
-  }, [look, forceReducedMotion]);
+    onReadStatusRef.current = onReadStatus;
+  }, [look, forceReducedMotion, onReadStatus]);
 
   useEffect(() => {
     prefetchDepthModel();
@@ -137,7 +139,7 @@ export function HeatmapPoster({
       const hotNode = hotFrameRef.current;
       if (hotNode) hotNode.style.display = "none";
       cachedReadRef.current = null;
-      onReadStatus?.("idle");
+      onReadStatusRef.current?.("idle");
       return;
     }
 
@@ -147,7 +149,7 @@ export function HeatmapPoster({
     }
 
     let cancelled = false;
-    onReadStatus?.("reading");
+    onReadStatusRef.current?.("reading");
     driver.snapMaskMix(0);
 
     void (async () => {
@@ -172,7 +174,7 @@ export function HeatmapPoster({
         const depth = await readDepth(flat, imageSrc);
         if (cancelled || gen !== generationRef.current) return;
 
-        onReadStatus?.(readStatusAfterDepth(depth.outcome));
+        onReadStatusRef.current?.(readStatusAfterDepth(depth.outcome));
 
         if (depth.outcome === "ok") {
           cached.depthField = {
@@ -206,20 +208,14 @@ export function HeatmapPoster({
         }
       } catch {
         if (cancelled || gen !== generationRef.current) return;
-        onReadStatus?.("idle");
+        onReadStatusRef.current?.("idle");
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [imageSrc, format, onReadStatus, applyPacksForAspect, image]);
-
-  useEffect(() => {
-    const cached = cachedReadRef.current;
-    if (!cached || !cached.src || cached.src !== imageSrc) return;
-    applyPacksForAspect(cached, FORMAT_ASPECT[format]);
-  }, [format, applyPacksForAspect, imageSrc]);
+  }, [imageSrc, format, applyPacksForAspect]);
 
   const statusText =
     readStatus === "reading"
