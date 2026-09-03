@@ -2,9 +2,9 @@
  * EPG timing lock. Loop is 8s. Do not shorten it to make the whip feel fast.
  * Super-fast means the 0.6s traveling bit is short.
  *
- * 6.4s rest: face-forward hold. No idle bob, no residual spin, no second motion.
- * 0.6s whip: one ribbon revolution, hard ease-in-out, land face-forward.
- * ~1.0s settle: ease-out comes to rest. Color SNAP + SDF blend land here.
+ * 6.4s rest = Idle: face-forward hold. No idle bob. Quiet parked orbits OK.
+ * 0.6s whip = Working: chat-line filaments orbit the mark, one revolution.
+ * ~1.0s settle back to Idle. Color SNAP + SDF blend land here.
  *
  * Silhouette stays planted. Eyes stay planted in face-space. No meridians.
  * Linear spin is compare-only (ribbons). Reduced motion freezes the rest pose.
@@ -14,6 +14,8 @@ export const DEFAULT_LOOP_SECONDS = 8;
 export const DEFAULT_WHIP_SECONDS = 0.6;
 /** Settle window after the whip. Color + shape land here. */
 export const SETTLE_SECONDS = 1;
+/** Quiet Idle orbits on the mark — not a wallpaper field, not a second motion. */
+export const IDLE_ORBIT_ENERGY = 0.26;
 
 export type LoopBeat = "rest" | "whip" | "settle";
 export const WHIP_MIN_SECONDS = 0.5;
@@ -102,7 +104,9 @@ export function streamPhase(
 export const globeYaw = streamPhase;
 
 /**
- * Stream energy. Rest and settle: 0 (no residual spin). Whip: in, wrap, leave.
+ * Orbit energy on the mark.
+ * Idle rest: quiet. Working whip: full. Settle: ease back to Idle.
+ * Reduced motion freezes the Idle rest pose (quiet orbits, no travel).
  */
 export function whipEnergy(
   time: number,
@@ -111,17 +115,18 @@ export function whipEnergy(
   linearSpin: boolean,
   reducedMotion: boolean,
 ): number {
-  if (reducedMotion) return 0;
+  if (reducedMotion) return IDLE_ORBIT_ENERGY;
   if (linearSpin) return 1;
+  const beat = loopBeat(time, loopSeconds, whipSeconds, reducedMotion);
+  if (beat === "rest") return IDLE_ORBIT_ENERGY;
+  if (beat === "whip") return 1;
   const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
   const t = ((time % loop) + loop) % loop;
   const whip = clampWhipSeconds(whipSeconds);
   const rest = restSeconds(loop, whip);
-  if (t < rest || t >= rest + whip) return 0;
-  const u = (t - rest) / whip;
-  if (u < 0.12) return u / 0.12;
-  if (u > 0.82) return Math.max(0, (1 - u) / 0.18);
-  return 1;
+  const settle = settleSeconds(loop, whip);
+  const u = settle > 0 ? (t - rest - whip) / settle : 1;
+  return 1 + (IDLE_ORBIT_ENERGY - 1) * settleEaseOut(u);
 }
 
 /** 0–1 during the kick, else 0. */

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
+  IDLE_ORBIT_ENERGY,
   SETTLE_SECONDS,
   kickEase,
   kickWobbleRad,
@@ -62,11 +63,12 @@ describe("look-lock motion", () => {
     expect(streamPhase(4, 8, 0.6, true, false)).toBeCloseTo(Math.PI);
   });
 
-  it("keeps ribbons off at rest and settle, on during the whip", () => {
-    expect(whipEnergy(1, 8, 0.6, false, false)).toBe(0);
+  it("keeps Idle orbits quiet and Working orbits at full energy", () => {
+    expect(whipEnergy(1, 8, 0.6, false, false)).toBe(IDLE_ORBIT_ENERGY);
     expect(whipEnergy(6.5, 8, 0.6, false, false)).toBe(1);
-    expect(whipEnergy(7.5, 8, 0.6, false, false)).toBe(0);
-    expect(whipEnergy(6.5, 8, 0.6, false, true)).toBe(0);
+    expect(whipEnergy(7.5, 8, 0.6, false, false)).toBeLessThan(1);
+    expect(whipEnergy(7.5, 8, 0.6, false, false)).toBeGreaterThan(IDLE_ORBIT_ENERGY);
+    expect(whipEnergy(6.5, 8, 0.6, false, true)).toBe(IDLE_ORBIT_ENERGY);
     expect(whipEnergy(1, 8, 0.6, true, false)).toBe(1);
   });
 

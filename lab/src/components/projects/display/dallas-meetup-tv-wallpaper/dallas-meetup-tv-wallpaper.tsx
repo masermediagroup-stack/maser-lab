@@ -8,11 +8,6 @@ import {
   stampHorizon,
 } from "./dallas-horizon";
 import {
-  drawFieldFilaments,
-  generateFieldFilaments,
-  type FieldFilament,
-} from "./field-filaments";
-import {
   AXIS_TILT_DEG,
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
@@ -85,8 +80,6 @@ export type DallasMeetupWallpaperProps = {
 
 let horizonSource: HTMLImageElement | null = null;
 let horizonPlate: HTMLCanvasElement | null = null;
-let fieldCacheKey = "";
-let fieldFilaments: FieldFilament[] = [];
 
 function ensureHorizon(onReady?: () => void): HTMLCanvasElement | null {
   if (typeof Image === "undefined") return null;
@@ -125,15 +118,6 @@ function drawTrackedText(
     ctx.fillText(glyph, cursor, y);
     cursor += ctx.measureText(glyph).width + tracking;
   }
-}
-
-function fieldForSize(width: number, height: number): FieldFilament[] {
-  const key = `${width}x${height}`;
-  if (fieldCacheKey !== key) {
-    fieldCacheKey = key;
-    fieldFilaments = generateFieldFilaments(width, height);
-  }
-  return fieldFilaments;
 }
 
 function drawStadiumEyes(
@@ -225,8 +209,6 @@ function renderFrame(
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = DALLAS_PAPER;
   ctx.fillRect(0, 0, width, height);
-
-  drawFieldFilaments(ctx, width, fieldForSize(width, height));
 
   if (showSkyline) {
     const plate = ensureHorizon();

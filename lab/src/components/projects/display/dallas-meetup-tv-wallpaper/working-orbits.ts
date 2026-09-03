@@ -1,33 +1,36 @@
 /**
- * Product Working orbit STREAM (x.ai/news/designing-grok-bot).
+ * Grok Bot WORKING stream — chat-line filaments that orbit the mark.
  *
- * Sparse cluster on a FIXED shallow ~−15° plane. Bands travel around the
- * current still silhouette during the 0.6s whip (front/back), then leave.
- * Morph happens in settle with no ribbons. Do not yaw a closed ring-cage.
+ * Source: https://x.ai/news/designing-grok-bot (Benji Taylor avatar motion).
+ * TV whip = Working only. Not Thinking, Waiting, Blocked, or Done.
+ *
+ * Filaments travel WITH the planted body (front/back wrap). Not meridians
+ * through the fill. Not a wallpaper field of doodles.
+ * Idle rest may show the same orbits quiet and parked.
  *
  * Flat Ver 02 HEX. Do not steal the article ribbon gradients.
  */
 
-import { VER02_ORBIT_HUES } from "./grok-cycle";
+import { GROK_CHROMATIC_FILLS } from "./grok-cycle";
 
-/** ~4.8% of face ≈ one eye-bar. 12–15px at a 300px face. */
-export const ORBIT_STROKE_FACE_RATIO = 0.048;
+/** Chat-line stroke ~3.3% of face. ~10px at a 300px face. */
+export const ORBIT_STROKE_FACE_RATIO = 0.033;
 
 export function orbitStrokePx(faceDiameter: number): number {
   return faceDiameter * ORBIT_STROKE_FACE_RATIO;
 }
 
-/** Sparse stream: 2–4, not a hairline nest. */
-export const WORKING_ORBIT_COUNT = 3;
+/** Chat-line cluster around the mark. Not a hairline nest, not a wallpaper field. */
+export const WORKING_ORBIT_COUNT = 5;
 
 /** Shallow equatorial plane, upper-left → right. Degrees. */
 export const ORBIT_PLANE_DEG = -17;
 
 /** Bleed past the silhouette at a 300px face. */
-export const ORBIT_BLEED_AT_300 = 48;
+export const ORBIT_BLEED_AT_300 = 42;
 
-/** Arc length of one traveling band (radians). Cluster, not a closed halo. */
-export const ORBIT_ARC_LEN = 1.85;
+/** Arc length of one traveling filament (radians). Cluster, not a closed halo. */
+export const ORBIT_ARC_LEN = 1.65;
 
 export function orbitBleedPx(faceDiameter: number): number {
   return (faceDiameter / 300) * ORBIT_BLEED_AT_300;
@@ -93,9 +96,8 @@ function drawRibbonArc(
 }
 
 /**
- * One Working stream. Energy 0 = skip (Idle). Draw back, then the planted
- * morphing body, then front clipped to that body so the sweep crosses the face.
- * `spin` is the traveling head angle (one wrap), not a globe yaw of the disc.
+ * Chat-line filaments on the mark. Energy is quiet at Idle, full at Working.
+ * `spin` is the traveling head angle (one wrap during whip), not a globe yaw.
  */
 export function drawWorkingOrbits(
   ctx: CanvasRenderingContext2D,
@@ -107,18 +109,17 @@ export function drawWorkingOrbits(
 ): void {
   if (energy < 0.02) return;
 
-  const lineWidth = orbitStrokePx(faceD);
+  const lineWidth = orbitStrokePx(faceD) * (0.55 + 0.45 * energy);
   const radius = orbitRadius(bodyR, faceD);
-  const alpha = 0.92 + 0.08 * energy;
+  const alpha = 0.22 + 0.74 * energy;
   const baseTilt = (ORBIT_PLANE_DEG * Math.PI) / 180;
-  // Enter from the back-left, sweep the face, leave to the right.
   const head0 = Math.PI + 0.45 - spin;
 
   for (let i = 0; i < WORKING_ORBIT_COUNT; i += 1) {
-    const planeTilt = baseTilt + (i - 1) * 0.03;
-    const head = head0 - i * 0.2;
-    const r = radius * (1 + (i - 1) * 0.035);
-    const color = VER02_ORBIT_HUES[i % VER02_ORBIT_HUES.length]!;
+    const planeTilt = baseTilt + (i - 2) * 0.028;
+    const head = head0 - i * 0.22;
+    const r = radius * (1 + (i - 2) * 0.03);
+    const color = GROK_CHROMATIC_FILLS[i % GROK_CHROMATIC_FILLS.length]!;
     drawRibbonArc(
       ctx,
       layer,

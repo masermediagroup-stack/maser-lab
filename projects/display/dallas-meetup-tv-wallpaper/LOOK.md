@@ -7,7 +7,7 @@ Stills of the full lockup are rendering on EPG's side. Until they arrive, the tw
 ## Paper and ink
 
 - `--dallas-paper`: `#F2F1ED` (not pure white). Wallpaper ground.
-- `--dallas-ink`: `#111111`. Type is ink. Cube is ink. Skyline dither is paper/ink. Rest globe fill is ink.
+- `--dallas-ink`: `#111111`. Type is ink. Cube is ink. Noun Project skyline is ink. Rest globe fill is ink.
 - Universal Sans trial (`UniversalSansGrokTest Display Trial` / 400) on the one canvas display line. IBM Plex Sans Condensed on everything small. Largest Plex ≤ 40% of display (44px @ 1920, tracking ~2.4). Never fetch xAI webfonts. Geist is out.
 
 ## Surface
@@ -16,27 +16,27 @@ Stills of the full lockup are rendering on EPG's side. Until they arrive, the tw
 - Cursor cube: SVG path, uniform scale from viewBox `466.73 × 532.09`, ~280px tall, ink. Cube stays clean — no ribbons, no filaments.
 - Grok face diameter 300px, gap 120px, pair lifted ~70px above vertical center. Axis tilt 16°.
 - One display line: `Dallas meetup`. Universal Sans trial, exactly once, 44px @ 1920, tracking ~2.4.
-- Draw order: paper → field filaments → dithered horizon (low) → cube + globe + type.
+- Draw order: paper → Noun Project horizon (low) → cube + globe (Idle/Working orbits on the mark) + type.
 
-## Horizon — dithered B/W Dallas skyline
+## Horizon — Noun Project Dallas skyline
 
 Default **ON** for the TV loop. Demo rail can toggle; product default is on.
 
-Source: Trammell Crow Park CC0 photograph only.
-https://commons.wikimedia.org/wiki/File:Dallas_Texas_skyline_overlooking_Trammell_Crow_Park.png
-(CC0 1.0, IcedCowboyCoffee, commercial use OK, no attribution required.)
-
-Bayer-dither that photo to paper/ink. Fade the top of the silhouette/dither into the field so it reads as a horizon, not a sticker. Sit it low, behind the globe, not wrapped onto the globe. Hit Reunion Tower (ball-on-a-stalk) and Bank of America Plaza.
+Source: Noun Project Dallas icon **3583788** (Blaise Sewell, Skylines set). Ink silhouette. Sit it low, behind the globe, not wrapped onto the globe. Reunion Tower (ball-on-a-stalk) must read.
 
 **Refused:**
 
 - The teal tourist illustration (`dallas-skyline-illustration-cc-by-2.0.jpg` and anything like it).
-- Noun Project / clipart vectors.
+- Trammell Crow photograph-as-horizon (that read as a PNG with doodles behind it).
 - Skyline mapped onto the sphere.
 
-## Galaxy swooshes — FIELD only
+## Filaments — ON THE MARK (not a wallpaper field)
 
-Nine Ver 02 chromatic hues, **random assignment**, flowing filaments in the wallpaper field around/behind the ball. Never longitude on the mark. Never meridians. Never parallels. Gray never a filament.
+Chat-line filaments orbit the **body** and travel **with the mark**, like the Working avatar in Grok Bot chat (Benji Taylor). Never longitude / meridians / parallels through the fill. Never a square of doodles on the paper. Gray never a filament.
+
+Idle: orbits may exist but they are **quiet** and parked. Working whip: they kick into gear and travel one revolution. Settle: ease back to Idle quiet.
+
+Nine Ver 02 chromatic hues on those mark orbits:
 
 | Stop | Hex |
 | --- | --- |
@@ -49,8 +49,6 @@ Nine Ver 02 chromatic hues, **random assignment**, flowing filaments in the wall
 | blue | `#1084FE` |
 | violet | `#9159FE` |
 | magenta | `#FF309B` |
-
-Each filament (or bundle) draws a stop from that set. Hairline filaments in near-parallel, fanning and compressing, on paper. No bloom, glow, screen, or add — paper is light. All nine hold at 1× vs `#F2F1ED`. No star specks.
 
 ## Body (globe lock — do not revert)
 
@@ -74,21 +72,22 @@ Loop = **8s** total. Whip slider still exists (0.5–0.7s); rest = `loop − whi
 
 | Beat | Time | Look |
 | --- | --- | --- |
-| **Rest** | **6.4s** | Face-forward **hold**. No secondary motion, no idle bob, no slow residual spin. First rest **must match** the solid-ball still: shape **2 irregular oval**, fill **ink `#111111`**, official stadiums. **No ribbons.** |
-| **Whip** | **0.6s** | The **traveling** bit. Hard ease-in-out. **One revolution** of 2–4 ribbons. Land face-forward. Body stays the **current** picker + current fill (first whip is still the **black oval**). Eyes planted. |
-| **Settle** | **~1.0s** | Ease-out comes to rest **here**. Next Ver 02 hue **SNAP**. Next official picker **SDF blend**. **No parked bands.** Eyes planted. |
+| **Rest = Idle** | **6.4s** | Calm, slightly curious. Face-forward **hold**. No idle bob, no body spin. First rest matches the solid-ball still: shape **2 irregular oval**, fill **ink `#111111`**, official stadiums. Orbits may exist but they are **quiet** and parked — not a wallpaper field. |
+| **Whip = Working** | **0.6s** | “Kicks into gear.” Chat-line filaments orbit the body and travel **with the mark**. Hard ease-in-out. **One revolution**. Land face-forward. Body stays the **current** picker + current fill (first whip is still the **black oval**). Eyes planted. Not Thinking / Waiting / Blocked / Done. |
+| **Settle → Idle** | **~1.0s** | Ease-out back to Idle. Next Ver 02 hue **SNAP**. Next official picker **SDF blend**. Orbits quiet again. Eyes planted. |
 
-**Reduced motion:** freeze the rest pose (oval + ink, no whip, no morph).
+**Reduced motion:** freeze Idle (oval + ink, quiet parked orbits, no whip, no morph).
 
-## Working stream (on the mark, whip only)
+## Working stream (on the mark — Grok Bot Working only)
 
-Product Working is a sparse orbit stream: 2–5 thick ribbons, rounded caps, wrap front/back, then a gap. TV does **not** hold Working. Rest hold → one whip (ribbons only) → settle (color + shape land) → rest.
+Motion source: https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor). Lifecycle is Idle / Working / Waiting / Blocked / Thinking / Done. **TV maps Idle → Working → Idle.** Do not use Thinking, Waiting, Blocked, or Done as the whip.
 
-- Thickness ~4–5% of face. At 300px: **12–15px**.
-- 2–4 bands. Not 7. Not a nest. Plane ~−15° (upper-left → right).
-- Wrap + clip on the **current still** body during the whip. Back occluded by the fill. Front over the face. Then leave. Settle has no ribbons.
+Product Working is chat-line filaments that orbit the body and travel with the mark. Rest hold (Idle, quiet orbits) → one Working whip → settle back to Idle (color + shape land).
+
+- Chat-line stroke, 5 bands. Not 7+ hairlines. Not a wallpaper field.
+- Plane ~−15° (upper-left → right). Wrap front/back on the **current** body. Back occluded by the fill. Front over the face. Not meridians through the fill.
 - Ver 02 HEX, **flat**. Do not steal the article ribbon gradients.
-- Kill: 7+ hairlines on the mark, meridians/parallels/longitude on the mark, a 360 disc spin, idle bob / residual spin in rest, eye-whip, fill SNAP or SDF morph **during** the whip, rainbow lerp on the body.
+- Kill: Thinking-state meridians, Waiting/Blocked/Done as the TV whip, a 360 disc spin, idle bob, eye-whip, fill SNAP or SDF morph **during** the whip, rainbow lerp on the body, doodles behind a PNG.
 
 ## Pairing
 

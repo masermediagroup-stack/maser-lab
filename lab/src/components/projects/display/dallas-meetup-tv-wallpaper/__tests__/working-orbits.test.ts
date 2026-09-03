@@ -34,13 +34,13 @@ describe("Idle / planted eyes", () => {
   });
 });
 
-describe("Working-kick stream", () => {
-  it("uses 2–4 thick bands (~4–5% of face, 12–15px at 300px)", () => {
-    expect(WORKING_ORBIT_COUNT).toBeGreaterThanOrEqual(2);
-    expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(4);
+describe("Working chat-line filaments", () => {
+  it("uses a chat-line cluster on the mark (~8–12px at 300px)", () => {
+    expect(WORKING_ORBIT_COUNT).toBeGreaterThanOrEqual(4);
+    expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(6);
     const stroke = orbitStrokePx(300);
-    expect(stroke).toBeGreaterThanOrEqual(12);
-    expect(stroke).toBeLessThanOrEqual(15);
+    expect(stroke).toBeGreaterThanOrEqual(8);
+    expect(stroke).toBeLessThanOrEqual(12);
   });
 
   it("keeps a shallow ~−15° plane and bleed past the silhouette", () => {

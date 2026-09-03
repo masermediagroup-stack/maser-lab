@@ -210,9 +210,9 @@ export function DallasMeetupTvWallpaperDemo() {
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-              Loop is 8s. Rest 6.4s is a hold — no second motion.
-              Whip 0.6s is the traveling bit (one revolution, hard ease-in-out).
-              Settle ~1s: fill SNAP + SDF blend. Eyes stay planted.
+              Loop is 8s. Rest 6.4s = Idle hold. Whip 0.6s = Working
+              (chat-line filaments travel with the mark). Settle ~1s back
+              to Idle: fill SNAP + SDF blend. Eyes stay planted.
             </p>
           </div>
 
@@ -293,8 +293,8 @@ export function DallasMeetupTvWallpaperDemo() {
               </LabButton>
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Linear spin is compare-only (ribbons) and default off.
-              Silhouette and eyes stay planted. Rest has no residual spin.
+              Linear spin is compare-only and default off. Not the TV whip.
+              Idle = quiet parked orbits. Working = filaments travel with the mark.
             </p>
           </LabControlGroup>
 
@@ -316,16 +316,16 @@ export function DallasMeetupTvWallpaperDemo() {
               </LabButton>
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Trammell Crow Park photograph, CC0 1.0 (IcedCowboyCoffee).
-              Bayer-dithered to paper/ink. Default ON. Not on the globe.
+              Noun Project Dallas skyline (Blaise Sewell, 3583788).
+              Ink silhouette. Default ON. Not on the globe.
             </p>
           </LabControlGroup>
 
-          <LabControlGroup label="Field">
+          <LabControlGroup label="Orbits">
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Galaxy swooshes: nine Ver 02 hues on paper (gold → magenta).
-              Random assignment on the field only — never meridians on the mark.
-              Gray never a filament.
+              Grok Bot Working: chat-line filaments on the mark (Ver 02 hues).
+              They travel with the body — not meridians, not a wallpaper field.
+              Idle orbits stay quiet. Gray never a filament.
             </p>
           </LabControlGroup>
 

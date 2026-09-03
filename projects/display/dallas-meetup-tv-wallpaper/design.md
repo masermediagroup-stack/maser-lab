@@ -5,30 +5,30 @@ Look lock lives in `LOOK.md`. This file is the short rationale.
 ## Paper and ink
 
 `--dallas-paper` `#F2F1ED` is the wallpaper ground — not pure white.
-`--dallas-ink` `#111111` is type, cube, skyline dither, and the rest globe fill.
+`--dallas-ink` `#111111` is type, cube, skyline silhouette, and the rest globe fill.
 
-Universal Sans trial (`UniversalSansGrokTest Display Trial` / 400) on the one canvas display line. Plex Condensed on everything small. 40% size check. Geist is out. Never fetch xAI webfonts.
+Universal Sans trial (`UniversalSansGrokTest Display Trial` / 400) on the one canvas display line. Plex Condensed on everything small. 40% size check. Geist is out. Never fetch xAI webfonts. Cube and type stay clean.
 
-## Timing lock (EPG — the check, not a guess)
+## Motion source — Grok Bot Idle / Working
 
-Do not fill rest with a second motion. Do not shorten the 8s loop to make it feel fast. Super-fast means the **0.6s whip** is short.
+https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor).
 
-| Beat | Duration | Job |
-| --- | --- | --- |
-| Rest | 6.4s | Face-forward hold. Match the solid-ball still on first rest (oval, ink, stadiums). No idle bob, no residual spin, no ribbons. |
-| Whip | 0.6s | The traveling bit. Hard ease-in-out. One ribbon revolution. Same body + fill as rest. Eyes planted. |
-| Settle | ~1.0s | Ease-out comes to rest. Fill **SNAP** to the next pair HEX. Official picker **SDF blend**. Eyes planted. No parked bands. |
+Lifecycle: Idle / Working / Waiting / Blocked / Thinking / Done.
 
-Do not 360-rotate the disc. Do not bring meridians back to sell round. Linear planet-spin is compare-only, default OFF. Reduced motion freezes the rest pose.
+TV maps **Idle → Working → Idle** onto the locked 8s loop. Do not use Thinking, Waiting, Blocked, or Done as the whip.
+
+| Beat | Duration | Article state | Job |
+| --- | --- | --- | --- |
+| Rest | 6.4s | **Idle** | Calm, slightly curious. Face-forward hold. No idle bob. Orbits may exist but they are quiet and parked — not a wallpaper field. |
+| Whip | 0.6s | **Working** | “Kicks into gear.” Chat-line filaments orbit the body and travel with the mark. One revolution, hard ease-in-out. |
+| Settle | ~1.0s | back to **Idle** | Ease-out. Fill **SNAP**. Official picker **SDF blend**. Orbits quiet again. |
+
+Do not 360-rotate the disc. Do not draw meridians through the fill. Linear planet-spin is compare-only, default OFF. Reduced motion freezes Idle.
 
 ## Horizon
 
-Bayer-dither the Trammell Crow Park CC0 photograph to paper/ink. Fade the top into the field. Sit low, behind the globe. Reunion Tower + Bank of America Plaza must read. Not Noun Project. Not the teal tourist illustration. Not mapped onto the sphere.
-
-## Field filaments
-
-Nine Ver 02 chromatic hues, random assignment, hairline swooshes on the paper field only. Never meridians / parallels / longitude on the mark. No bloom. Gray never a filament. All nine hold at 1× on paper.
+Noun Project Dallas skyline (Blaise Sewell, 3583788), ink, sit low, behind the globe. Not a photograph. Not the teal tourist illustration. Not mapped onto the sphere.
 
 ## Pairing
 
-Cold start: oval + ink. First settle: rounded square + Teal. Oval return: Orange-red, not ink. Green is stream-only. Gray is never a body fill. Universal Sans display, dithered horizon ON, field filaments, cube clean: `LOOK.md`.
+Cold start: oval + ink. First settle: rounded square + Teal. Oval return: Orange-red, not ink. Green is stream-only on mark orbits. Gray is never a body fill. Eyes planted, white.
