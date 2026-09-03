@@ -36,6 +36,16 @@ type CachedRead = {
   depthCentroid: FocalPoint | null;
 };
 
+function plateAspect(
+  cardW: number,
+  cardH: number,
+  caption: string | undefined,
+  format: keyof typeof FORMAT_ASPECT,
+): number {
+  const layout = computeLayout(cardW, cardH, caption);
+  return layout.imagePlateH > 0 ? cardW / layout.imagePlateH : FORMAT_ASPECT[format];
+}
+
 function resolveColors(look: typeof HEATMAP_DEFAULTS): PosterColors {
   const toRgb = (c: readonly [number, number, number]) =>
     `rgb(${Math.round(c[0] * 255)} ${Math.round(c[1] * 255)} ${Math.round(c[2] * 255)})`;
@@ -72,6 +82,10 @@ export function HeatmapPoster({
   const isExportRef = useRef(isExport);
   const imageRef = useRef(image);
   const formatRef = useRef(format);
+  const lastPlateAspectRef = useRef<number | null>(null);
+  const applyPacksForAspectRef = useRef<
+    ((cached: CachedRead, aspect: number) => void) | null
+  >(null);
 
   useEffect(() => {
     lookRef.current = look;
@@ -120,8 +134,16 @@ export function HeatmapPoster({
             ? HEATMAP_COPY.empty
             : "";
 
-    const hasRealText = captionRef.current != null && captionRef.current.length > 0;
-    const showPlaceholder = !isExportRef.current && !hasRealText && img != null;
+    if (heatCanvas) {
+      heatCanvas.style.height = `${layout.imagePlateH}px`;
+    }
+
+    const nextAspect = plateAspect(cardW, cardH, captionRef.current, formatRef.current);
+    const cached = cachedReadRef.current;
+    if (cached && lastPlateAspectRef.current !== nextAspect) {
+      lastPlateAspectRef.current = nextAspect;
+      applyPacksForAspectRef.current?.(cached, nextAspect);
+    }
 
     drawPoster(
       heatCanvas ?? null,
@@ -130,7 +152,6 @@ export function HeatmapPoster({
       colors,
       captionRef.current,
       statusText,
-      showPlaceholder,
       dpr,
     );
   }, []);
@@ -205,6 +226,23 @@ export function HeatmapPoster({
   );
 
   useEffect(() => {
+    applyPacksForAspectRef.current = applyPacksForAspect;
+  });
+
+  const currentPlateAspect = (): number => {
+    const poster = posterCanvasRef.current;
+    if (!poster || poster.clientWidth < 1 || poster.clientHeight < 1) {
+      return FORMAT_ASPECT[formatRef.current];
+    }
+    return plateAspect(
+      poster.clientWidth,
+      poster.clientHeight,
+      captionRef.current,
+      formatRef.current,
+    );
+  };
+
+  useEffect(() => {
     const driver = driverRef.current;
     if (!driver) return;
     const gen = ++generationRef.current;
@@ -216,12 +254,15 @@ export function HeatmapPoster({
       driver.setDepth(null);
       driver.snapMaskMix(0);
       cachedReadRef.current = null;
+      lastPlateAspectRef.current = null;
       onReadStatusRef.current?.("idle");
       return;
     }
 
     if (!srcChanged && cachedReadRef.current?.src === imageSrc) {
-      applyPacksForAspect(cachedReadRef.current, FORMAT_ASPECT[format]);
+      const aspect = currentPlateAspect();
+      lastPlateAspectRef.current = aspect;
+      applyPacksForAspect(cachedReadRef.current, aspect);
       return;
     }
 
@@ -245,7 +286,9 @@ export function HeatmapPoster({
         };
         cachedReadRef.current = cached;
 
-        applyPacksForAspect(cached, FORMAT_ASPECT[format]);
+        const firstAspect = currentPlateAspect();
+        lastPlateAspectRef.current = firstAspect;
+        applyPacksForAspect(cached, firstAspect);
 
         const flat = flattenOntoGround(el, el.naturalWidth, el.naturalHeight);
         const depth = await readDepth(flat, imageSrc);
@@ -278,7 +321,9 @@ export function HeatmapPoster({
           }
           cached.depthCentroid = subjectCentroid(depthSubject, depth.width, depth.height);
 
-          applyPacksForAspect(cached, FORMAT_ASPECT[format]);
+          const depthAspect = currentPlateAspect();
+          lastPlateAspectRef.current = depthAspect;
+          applyPacksForAspect(cached, depthAspect);
 
           if (!reducedRef.current) driver.setMaskMixTarget(1);
           else driver.snapMaskMix(1);

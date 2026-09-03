@@ -58,6 +58,7 @@ No "drag and drop your file here to get started." No exclamation points. Never a
 - Show the caption placeholder while composing and collapse the plate on export. The prompt to write is editing chrome; an empty poster carries no placeholder and the image plate takes the full card. The frame does not move either way.
 - Keep the placeholder out of card layout. It floats as chrome and takes no caption-plate height, so an empty caption collapses the same in compose and in export and the card geometry never differs between them.
 - Render the poster one way. What is on screen is the file; the export flag hides the placeholder and changes nothing else. No second renderer.
+- Draw the whole card on one surface: image plate, caption type, divider, and frame. Caption type is part of the poster, not chrome layered over it, so it wraps at the same words at any export scale. Only the input and the placeholder stay outside the card.
 - Leave knobs in the demo rail. Never on the poster.
 
 ## Primitives Spark may name

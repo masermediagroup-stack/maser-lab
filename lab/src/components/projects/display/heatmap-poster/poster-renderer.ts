@@ -19,7 +19,6 @@ export type PosterColors = {
   type: string;
 };
 
-const LABEL_FONT = '400 FONT_SIZEpx ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
 const LABEL_SIZE = 10; // 0.625rem = 10px
 const LABEL_LINE_HEIGHT = 1.4;
 const LABEL_LETTER_SPACING = 0.08;
@@ -122,8 +121,9 @@ export function computeLayout(
  * @param colors - resolved CSS custom property values
  * @param caption - user's text (empty = no caption plate)
  * @param statusText - reading/rough-read/empty label
- * @param showPlaceholder - editing chrome (not in export)
  * @param dpr - device pixel ratio (1 for preview, 2-4 for export)
+ *
+ * Placeholder and caption input stay outside this surface (editing chrome).
  */
 export function drawPoster(
   heatSource: HTMLCanvasElement | null,
@@ -132,7 +132,6 @@ export function drawPoster(
   colors: PosterColors,
   caption: string | undefined,
   statusText: string,
-  showPlaceholder: boolean,
   dpr: number,
 ): void {
   const s = dpr;
@@ -196,35 +195,6 @@ export function drawPoster(
     }
   }
 
-  // Placeholder chrome (compose only, does not affect layout)
-  if (showPlaceholder && captionPlateH === 0) {
-    ctx.globalAlpha = 0.4;
-
-    const placeholderH = measureCaptionHeight(HEATMAP_COPY.captionPlaceholder, cardW)
-      || (PAD_Y + LABEL_SIZE * LABEL_LINE_HEIGHT + LABEL_BOTTOM_GAP + TEXT_SIZE * TEXT_LINE_HEIGHT + PAD_Y);
-    const placeholderY = cardH - placeholderH;
-
-    ctx.fillStyle = colors.page;
-    ctx.fillRect(0, placeholderY, cardW, placeholderH);
-
-    ctx.fillStyle = colors.frame;
-    ctx.fillRect(0, placeholderY, cardW, frameWeight);
-
-    let y = placeholderY + PAD_Y;
-    ctx.font = makeLabelFont(1);
-    ctx.fillStyle = colors.type;
-    ctx.textBaseline = "top";
-    (ctx as CanvasRenderingContext2D & { letterSpacing?: string }).letterSpacing = `${LABEL_LETTER_SPACING}em`;
-    ctx.fillText(HEATMAP_COPY.captionLabel.toUpperCase(), PAD_X, y);
-    (ctx as CanvasRenderingContext2D & { letterSpacing?: string }).letterSpacing = "0px";
-    y += LABEL_SIZE * LABEL_LINE_HEIGHT + LABEL_BOTTOM_GAP;
-
-    ctx.font = makeTextFont(1);
-    ctx.fillText(HEATMAP_COPY.captionPlaceholder, PAD_X, y);
-
-    ctx.globalAlpha = 1;
-  }
-
   // Hairline frame (one stroke around the full card)
   ctx.strokeStyle = colors.frame;
   ctx.lineWidth = frameWeight;
@@ -252,6 +222,6 @@ export function exportPoster(
   canvas.height = Math.round(cardH * dpr);
   const ctx = canvas.getContext("2d");
   if (!ctx) return canvas;
-  drawPoster(heatSource, ctx, layout, colors, caption, statusText, false, dpr);
+  drawPoster(heatSource, ctx, layout, colors, caption, statusText, dpr);
   return canvas;
 }

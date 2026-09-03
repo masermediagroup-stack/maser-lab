@@ -193,6 +193,15 @@ describe("poster layout geometry", () => {
     expect(h1).toBeGreaterThan(0);
   });
 
+  it("caption grows the plate; image plate takes the remainder and its aspect widens", () => {
+    const empty = computeLayout(cardW, cardH, "");
+    const lined = computeLayout(cardW, cardH, "A short caption line");
+    expect(empty.imagePlateH).toBe(cardH);
+    expect(lined.captionPlateH).toBeGreaterThan(0);
+    expect(lined.imagePlateH + lined.captionPlateH).toBe(cardH);
+    expect(cardW / lined.imagePlateH).toBeGreaterThan(cardW / empty.imagePlateH);
+  });
+
   it("frame box identical between compose and export (empty, one-line, wrapping)", () => {
     const captions = [
       undefined,
