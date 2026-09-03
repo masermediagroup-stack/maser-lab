@@ -6,9 +6,10 @@
  * galaxy palette — each campaign gets bespoke art; several heroes have no
  * lines at all. These are not published brand tokens.
  *
- * Type: IBM Plex Sans Condensed / IBM Plex Mono. Universal Sans is xAI's
- * production face (commercial, Family Type). We hold no licence. Swap the
- * family here if a licence arrives. Never load xAI's self-hosted woff2 files.
+ * Type: Geist Sans / Geist Mono (OFL 1.1), stand-in for Universal Sans.
+ * grok.com already pairs Geist Mono on its display headline with Universal
+ * Sans for body. We hold no Universal Sans licence. Swap the family here
+ * if a licence arrives. Never load xAI's self-hosted woff2 files.
  */
 
 .dallas-demo,
@@ -17,9 +18,9 @@
   --dallas-ink: #26251e;
   --dallas-loop-seconds: 12s;
 
-  /* One-line family swap. Condensed for the lockup; mono for demo readouts. */
-  --dallas-font: var(--font-ibm-plex-sans-condensed), "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", "Helvetica Neue", sans-serif;
-  --dallas-font-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* One-line family swap. Sans for the lockup; mono for demo readouts. */
+  --dallas-font: var(--font-geist-sans), "Geist", "Geist Sans", sans-serif;
+  --dallas-font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Galaxy ramp — continuous interpolated, pole-to-pole along meridians.
      Saturated stops carry on white; pale stops (4-6) may read near-transparent. */

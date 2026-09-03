@@ -1,20 +1,17 @@
-import { IBM_Plex_Mono, IBM_Plex_Sans_Condensed } from "next/font/google";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 
 /**
- * IBM Plex is the licensed substitute for Universal Sans (xAI production face).
- * Do not install geist for this project. Do not load xAI's self-hosted
+ * Geist Sans / Mono (OFL 1.1) — stand-in for Universal Sans.
+ * grok.com already pairs Geist Mono on the large display headline with
+ * Universal Sans for body. We never load xAI's self-hosted
  * UniversalSans_Display / UniversalSans_Text files.
+ *
+ * Swap the family in tokens.css (`--dallas-font` / `--dallas-font-mono`)
+ * if a Universal Sans licence arrives.
  */
-export const dallasPlexSansCondensed = IBM_Plex_Sans_Condensed({
-  subsets: ["latin"],
-  weight: ["500"],
-  variable: "--font-ibm-plex-sans-condensed",
-  display: "swap",
-});
+export const dallasGeistSans = GeistSans;
+export const dallasGeistMono = GeistMono;
 
-export const dallasPlexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-ibm-plex-mono",
-  display: "swap",
-});
+export const DALLAS_SANS_FAMILY = `${GeistSans.style.fontFamily}, "Geist", "Geist Sans", sans-serif`;
+export const DALLAS_MONO_FAMILY = `${GeistMono.style.fontFamily}, "Geist Mono", ui-monospace, monospace`;

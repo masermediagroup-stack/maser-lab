@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
+import { DALLAS_SANS_FAMILY } from "./dallas-fonts";
 
 const DEFAULT_LOOP_SECONDS = 12;
 const BASE_WIDTH = 1920;
@@ -35,8 +36,7 @@ type ExportResult = {
   codec: string;
 };
 
-const DEFAULT_SANS =
-  '"IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", "Helvetica Neue", sans-serif';
+const DEFAULT_SANS = DALLAS_SANS_FAMILY;
 
 export type DallasMeetupWallpaperProps = {
   reducedMotion?: boolean;
@@ -51,7 +51,10 @@ export type DallasMeetupWallpaperProps = {
 
 function resolveDallasFontFamily(el: Element | null): string {
   if (el instanceof HTMLElement && el.isConnected) {
-    const token = getComputedStyle(el).getPropertyValue("--dallas-font").trim();
+    const computed = getComputedStyle(el);
+    const loaded = computed.getPropertyValue("--font-geist-sans").trim();
+    const token = computed.getPropertyValue("--dallas-font").trim();
+    if (loaded) return `${loaded}, "Geist", "Geist Sans", sans-serif`;
     if (token) return token;
   }
   return DEFAULT_SANS;

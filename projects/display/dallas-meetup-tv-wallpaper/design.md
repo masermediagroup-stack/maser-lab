@@ -59,12 +59,15 @@ hairlines that dissolve into the paper. If a stop cannot be line, it is paper.
 
 ## Type
 
-IBM Plex Sans Condensed for the lockup. IBM Plex Mono for demo readouts.
-Geist is a named refusal. Universal Sans is xAI's production face; we hold
-no licence and must not load their self-hosted files.
+Geist Sans for the lockup. Geist Mono for demo readouts. OFL 1.1 via
+the `geist` package. grok.com already pairs Geist Mono on its display
+headline with Universal Sans for body — Geist is not a foreign skin.
+Universal Sans remains xAI's production face; we hold no licence and
+must not load their self-hosted files. Family stays behind
+`--dallas-font` for a one-line swap.
 
 ## Skyline
 
-Additive only, demo-rail toggle, default OFF. Procedural silhouette from the
-CC0 Trammell Crow Park photo as a proportion reference. Must not re-layout
-marks or type.
+Approved. Additive only, demo-rail toggle, default OFF. Procedural
+silhouette from the CC0 Trammell Crow Park photo as a proportion
+reference. Must not re-layout marks or type.

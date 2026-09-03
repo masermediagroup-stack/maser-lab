@@ -34,16 +34,15 @@ Pure-white field with two ink marks and one line of type matching the approved s
 
 ### Non-goals
 - No event logistics, QR, RSVP, wordmarks, taglines, secondary copy, or decorative background effects.
-- No Geist typeface on this project (named refusal).
 - Do not download, copy, or reference xAI's self-hosted Universal Sans files.
 
 ## Type
 
-**IBM Plex Sans Condensed Medium** for the `Dallas meetup` lockup. **IBM Plex Mono** for demo-rail readouts only.
+**Geist Sans** (OFL 1.1, `geist` package, `GeistSans` from `geist/font/sans`, variable 100–900) for the `Dallas meetup` lockup and any type on the wallpaper. **Geist Mono** (`GeistMono` from `geist/font/mono`) for demo-rail readouts.
 
-Universal Sans is genuinely xAI's own production typeface — x.ai and grok.com self-host `UniversalSans_Display` and `UniversalSans_Text` woff2 files. It is commercial-only from Family Type and we hold no licence. IBM Plex Sans Condensed is a **deliberate substitute** for that face, not a default. Families are wired through `--dallas-font` / `--dallas-font-mono` so a licensed swap is one line in `tokens.css`.
+This is a justified stand-in, not a generic default: xAI's own site pairs **Geist Mono** for its large display headline with Universal Sans for body and headings. Geist already appears on grok.com alongside the licensed face we cannot use.
 
-**Do not** install `geist` or switch to it. **Do not** load xAI's self-hosted font files under any circumstances.
+Universal Sans remains xAI's real production typeface — x.ai and grok.com self-host `UniversalSans_Display` and `UniversalSans_Text` woff2 files. It is commercial-only from Family Type and we hold no licence. Families stay behind `--dallas-font` / `--dallas-font-mono` so a licensed swap is one line in `tokens.css`. **Never** load xAI's self-hosted font files.
 
 ## Galaxy-line color provenance
 
@@ -63,7 +62,7 @@ On the original asset the motif is **hairlines on top of a soft mesh-gradient wa
 
 ## Dallas skyline
 
-Contested. Ships **behind a demo-rail toggle, default OFF** (EPG's composition loads). Additive layer only: toggling must not move the globe, the cube, or the type lockup.
+**Approved behind a demo-rail toggle, default OFF.** EPG's composition (no skyline) is what loads. The user flips it on to judge. Additive layer only: toggling must not move the globe, the cube, or the type lockup.
 
 Procedurally drawn flat-black silhouette. Proportions referenced from CC0 photograph by IcedCowboyCoffee: `https://commons.wikimedia.org/wiki/File:Dallas_Texas_skyline_overlooking_Trammell_Crow_Park.png` (CC0 1.0, no attribution required). Reunion Tower (ball-on-a-stalk) and Bank of America Plaza are the two reads that make it Dallas. No imported SVG, no Noun Project / clipart vectors (CC BY would drag attribution into a wallpaper).
 
@@ -96,7 +95,7 @@ Additional demo verification states:
 | Library | Canvas 2D + requestAnimationFrame | Deterministic timeline and frame-exact export control |
 | Duration | 12s default loop @ 30fps export | One full revolution = one seamless loop; 8s was too frantic for TV |
 | Easing | Constant angular velocity for globe; easeInOutCubic for blinks/glance | Globe rotation must not ease — a globe does not stop and start |
-| Font | IBM Plex Sans Condensed (+ Mono for readouts) via `--dallas-font` | Licensed substitute for Universal Sans; Geist is a named refusal |
+| Font | Geist Sans (+ Geist Mono for readouts) via `--dallas-font` | OFL stand-in for Universal Sans; grok.com already pairs Geist Mono with Universal Sans |
 
 ## Acceptance criteria
 
@@ -108,18 +107,17 @@ Additional demo verification states:
 - [x] Demo controls include play/pause, replay, scrub/step, reduced motion, face-forward toggle, revolution duration, skyline toggle, and export
 - [x] Presentation mode is fullscreen without demo overlays
 - [x] Galaxy colors wired to `--dallas-galaxy-1` through `-8` tokens
-- [x] Font wired through `--dallas-font` token (IBM Plex Sans Condensed; no Geist)
+- [x] Font wired through `--dallas-font` token (Geist Sans; Geist Mono for readouts)
 - [x] Skyline is additive, default off, no re-layout when toggled
 
 ## Open decisions
 
 - Whether target browser can emit MP4 directly via MediaRecorder or needs WebM fallback.
 - Final ramp tuning — Elite Pixel Guy owns the live preview sign-off on the galaxy colors.
-- Skyline on vs off — user judges on the live canvas. Default remains off until they settle it.
 
 ## Accepted decisions
 
 - Composition locked to approved still with a single ink tone for both marks and type.
-- IBM Plex Sans Condensed is the substitute for Universal Sans. Geist is refused on this project.
+- Geist Sans is the stand-in for Universal Sans. grok.com already uses Geist Mono on its display headline. Universal Sans remains the real production face; we never load xAI's self-hosted files.
 - Galaxy-line colors derived from one Grok 4 campaign asset (not an official palette).
-- Skyline, if used, is an additive layer behind a toggle — never a re-layout.
+- Skyline is an additive layer behind a rail toggle, default off — never a re-layout.

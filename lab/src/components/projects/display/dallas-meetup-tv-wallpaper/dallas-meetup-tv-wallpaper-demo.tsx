@@ -10,7 +10,7 @@ import {
   LabSelect,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
-import { dallasPlexMono, dallasPlexSansCondensed } from "./dallas-fonts";
+import { dallasGeistMono, dallasGeistSans } from "./dallas-fonts";
 import {
   DallasMeetupWallpaper,
   exportDallasMeetupWallpaperLoop,
@@ -133,7 +133,7 @@ export function DallasMeetupTvWallpaperDemo() {
 
   return (
     <div
-      className={`dallas-demo maser-lab ${dallasPlexSansCondensed.variable} ${dallasPlexMono.variable}`}
+      className={`dallas-demo maser-lab ${dallasGeistSans.variable} ${dallasGeistMono.variable}`}
     >
       <section
         ref={stageRef}
