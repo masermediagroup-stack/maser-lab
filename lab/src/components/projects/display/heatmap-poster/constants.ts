@@ -27,14 +27,16 @@ export const MASK_FADE_MS = 180;
  * Empirical set (see depth-confidence.test.ts):
  *   photo-like subject/bg split  → 0.0877
  *   planar logo + sensor noise   → 0.0000038
- *   line drawing (sparse strokes)→ 0.000040
- * Threshold 0.02 sits in the gap (~500× above line drawings,
- * ~4× below the photo fixture) so a small subject still passes
- * and a flat field never does.
- * A fake subject at 50% mix is still a fake subject — below this
- * we discard outright, we do not blend.
+ *   line drawing (sparse strokes) → 0.000040
+ *   low-contrast photo (gap≈0.8)  → 0.0035
+ *   landscape photo               → 0.062
+ * Threshold 0.001 sits in the gap: 25× above line drawings, 3.5×
+ * below the weakest real depth field. A low-contrast photo where
+ * the model resolves real near/far structure still passes; flat
+ * inputs never do. At 0.02 the gate discarded genuine narrow-range
+ * depth — case 5 in the verification matrix.
  */
-export const DEPTH_VARIANCE_MIN = 0.02;
+export const DEPTH_VARIANCE_MIN = 0.001;
 
 export const FORMAT_ASPECT: Record<"9-16" | "a4", number> = {
   "9-16": 9 / 16,

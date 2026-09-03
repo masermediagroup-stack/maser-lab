@@ -50,6 +50,53 @@ describe("depth field variance gate", () => {
     expect(v).toBeLessThan(DEPTH_VARIANCE_MIN);
     expect(isDepthFieldConfident(lines)).toBe(false);
   });
+
+  it("keeps a low-contrast photo with real depth structure (case 5)", () => {
+    // Subject at depth 5.0 against background at 5.8 — only 14% luma gap,
+    // but Depth Anything resolves this as a real near/far split.
+    // The depth field has genuine bimodal structure even though the image
+    // itself looks nearly uniform to luma+edge.
+    const lowContrast = field((_, w, h) => {
+      const x = _ % w;
+      const y = Math.floor(_ / w);
+      const cx = w * 0.45;
+      const cy = h * 0.5;
+      const rx = w * 0.2;
+      const ry = h * 0.35;
+      const inside =
+        (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 < 1;
+      // Near subject: 5.0, far bg: 5.8 — tight range but real structure
+      return inside ? 5.0 : 5.8;
+    });
+    const v = depthFieldVariance(lowContrast);
+    console.info("[heatmap] low-contrast photo variance", v);
+    expect(v).toBeGreaterThan(DEPTH_VARIANCE_MIN);
+    expect(isDepthFieldConfident(lowContrast)).toBe(true);
+  });
+
+  it("keeps a landscape photo (same gate, different crop)", () => {
+    // Landscape: wide image, subject blob offset. Depth gate is
+    // crop-agnostic — it runs on the raw depth field.
+    const landscape = field(
+      (_, w, h) => {
+        const x = _ % w;
+        const y = Math.floor(_ / w);
+        const cx = w * 0.6;
+        const cy = h * 0.45;
+        const inside =
+          (x - cx) ** 2 / (w * 0.15) ** 2 +
+            (y - cy) ** 2 / (h * 0.25) ** 2 <
+          1;
+        return inside ? 1.8 : 6.2;
+      },
+      128,
+      64,
+    );
+    const v = depthFieldVariance(landscape);
+    console.info("[heatmap] landscape variance", v);
+    expect(v).toBeGreaterThan(DEPTH_VARIANCE_MIN);
+    expect(isDepthFieldConfident(landscape)).toBe(true);
+  });
 });
 
 describe("Reading the image. always resolves", () => {
