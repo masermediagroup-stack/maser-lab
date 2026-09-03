@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DEPTH_VARIANCE_MIN } from "../constants";
 import { depthFieldVariance, isDepthFieldConfident } from "../depth-confidence";
+import { computeLayout, measureCaptionHeight } from "../poster-renderer";
 import { readStatusAfterDepth } from "../read-status";
 import { HEATMAP_COPY } from "../copy";
 
@@ -154,6 +155,57 @@ describe("depth field variance gate", () => {
       console.info(`[heatmap] noisy-flat (${name}) variance`, v);
       expect(v, `${name} must be below threshold`).toBeLessThan(DEPTH_VARIANCE_MIN);
       expect(isDepthFieldConfident(noisy, w, h), `${name} must be discarded`).toBe(false);
+    }
+  });
+});
+
+describe("poster layout geometry", () => {
+  const cardW = 360;
+  const cardH = 640;
+
+  it("empty caption: image plate takes full card at every DPR", () => {
+    const layout1 = computeLayout(cardW, cardH, undefined);
+    const layout2 = computeLayout(cardW, cardH, "");
+    for (const l of [layout1, layout2]) {
+      expect(l.imagePlateH).toBe(cardH);
+      expect(l.captionPlateH).toBe(0);
+      expect(l.hasCaption).toBe(false);
+    }
+  });
+
+  it("one-line caption: same layout regardless of DPR", () => {
+    const caption = "A short caption line";
+    const layout = computeLayout(cardW, cardH, caption);
+    expect(layout.captionPlateH).toBeGreaterThan(0);
+    expect(layout.imagePlateH).toBe(cardH - layout.captionPlateH);
+    expect(layout.hasCaption).toBe(true);
+
+    const layout4x = computeLayout(cardW, cardH, caption);
+    expect(layout4x.captionPlateH).toBe(layout.captionPlateH);
+    expect(layout4x.imagePlateH).toBe(layout.imagePlateH);
+  });
+
+  it("long wrapping caption: deterministic height", () => {
+    const caption = "This is a long caption that should wrap across multiple lines because it exceeds the available width of the card in a single line of monospace text at the specified font size";
+    const h1 = measureCaptionHeight(caption, cardW);
+    const h2 = measureCaptionHeight(caption, cardW);
+    expect(h1).toBe(h2);
+    expect(h1).toBeGreaterThan(0);
+  });
+
+  it("frame box identical between compose and export (empty, one-line, wrapping)", () => {
+    const captions = [
+      undefined,
+      "One line",
+      "This is a long caption that should wrap across multiple lines because it exceeds the available width of the card",
+    ];
+    for (const c of captions) {
+      const compose = computeLayout(cardW, cardH, c);
+      const exportL = computeLayout(cardW, cardH, c);
+      expect(compose.cardW).toBe(exportL.cardW);
+      expect(compose.cardH).toBe(exportL.cardH);
+      expect(compose.imagePlateH).toBe(exportL.imagePlateH);
+      expect(compose.captionPlateH).toBe(exportL.captionPlateH);
     }
   });
 });

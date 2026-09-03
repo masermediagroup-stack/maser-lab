@@ -12,6 +12,7 @@ import {
   readFullSubject,
   type FocalPoint,
 } from "./prepare-mask";
+import { computeLayout, drawPoster, type PosterColors } from "./poster-renderer";
 import { readStatusAfterDepth } from "./read-status";
 import { startHeatmap, type HeatmapDriver } from "./start-heatmap";
 import type { HeatmapPosterProps } from "./types";
@@ -35,6 +36,17 @@ type CachedRead = {
   depthCentroid: FocalPoint | null;
 };
 
+function resolveColors(look: typeof HEATMAP_DEFAULTS): PosterColors {
+  const toRgb = (c: readonly [number, number, number]) =>
+    `rgb(${Math.round(c[0] * 255)} ${Math.round(c[1] * 255)} ${Math.round(c[2] * 255)})`;
+  return {
+    page: "#000000",
+    ground: toRgb(look.ground),
+    frame: "rgba(244, 241, 234, 0.18)",
+    type: "#f4f1ea",
+  };
+}
+
 export function HeatmapPoster({
   className,
   format = "9-16",
@@ -47,33 +59,90 @@ export function HeatmapPoster({
   isExport = false,
 }: HeatmapPosterProps) {
   const rootRef = useRef<HTMLElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imagePlateRef = useRef<HTMLDivElement>(null);
+  const posterCanvasRef = useRef<HTMLCanvasElement>(null);
+  const heatCanvasRef = useRef<HTMLCanvasElement>(null);
   const lookRef = useRef(look);
   const reducedRef = useRef(forceReducedMotion);
   const driverRef = useRef<HeatmapDriver | null>(null);
-  const hotFrameRef = useRef<HTMLDivElement>(null);
   const generationRef = useRef(0);
   const cachedReadRef = useRef<CachedRead | null>(null);
   const onReadStatusRef = useRef(onReadStatus);
+  const captionRef = useRef(caption);
+  const readStatusRef = useRef(readStatus);
+  const isExportRef = useRef(isExport);
+  const imageRef = useRef(image);
+  const formatRef = useRef(format);
 
   useEffect(() => {
     lookRef.current = look;
     reducedRef.current = forceReducedMotion;
     onReadStatusRef.current = onReadStatus;
-  }, [look, forceReducedMotion, onReadStatus]);
+    captionRef.current = caption;
+    readStatusRef.current = readStatus;
+    isExportRef.current = isExport;
+    imageRef.current = image;
+    formatRef.current = format;
+  });
 
   useEffect(() => {
     prefetchDepthModel();
   }, []);
 
+  const drawFrame = useCallback(() => {
+    const posterCanvas = posterCanvasRef.current;
+    const heatCanvas = heatCanvasRef.current;
+    if (!posterCanvas) return;
+
+    const cardW = posterCanvas.clientWidth;
+    const cardH = posterCanvas.clientHeight;
+    if (cardW < 1 || cardH < 1) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    if (posterCanvas.width !== Math.round(cardW * dpr) || posterCanvas.height !== Math.round(cardH * dpr)) {
+      posterCanvas.width = Math.round(cardW * dpr);
+      posterCanvas.height = Math.round(cardH * dpr);
+    }
+
+    const ctx = posterCanvas.getContext("2d");
+    if (!ctx) return;
+
+    const layout = computeLayout(cardW, cardH, captionRef.current);
+    const colors = resolveColors(lookRef.current);
+
+    const rs = readStatusRef.current;
+    const img = imageRef.current;
+    const statusText =
+      rs === "reading"
+        ? HEATMAP_COPY.reading
+        : rs === "rough-read"
+          ? HEATMAP_COPY.roughRead
+          : !img
+            ? HEATMAP_COPY.empty
+            : "";
+
+    const hasRealText = captionRef.current != null && captionRef.current.length > 0;
+    const showPlaceholder = !isExportRef.current && !hasRealText && img != null;
+
+    drawPoster(
+      heatCanvas ?? null,
+      ctx,
+      layout,
+      colors,
+      captionRef.current,
+      statusText,
+      showPlaceholder,
+      dpr,
+    );
+  }, []);
+
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const heatCanvas = heatCanvasRef.current;
+    if (!heatCanvas) return;
     const driver = startHeatmap({
-      canvas,
+      canvas: heatCanvas,
       lookRef,
       reducedRef,
+      onReady: drawFrame,
     });
     driverRef.current = driver;
     driver.setFallback(emptyPack());
@@ -81,7 +150,29 @@ export function HeatmapPoster({
       driver.dispose();
       driverRef.current = null;
     };
-  }, []);
+  }, [drawFrame]);
+
+  useEffect(() => {
+    drawFrame();
+  }, [caption, readStatus, isExport, look, format, image, drawFrame]);
+
+  useEffect(() => {
+    const posterCanvas = posterCanvasRef.current;
+    if (!posterCanvas) return;
+    const ro = new ResizeObserver(() => drawFrame());
+    ro.observe(posterCanvas);
+    return () => ro.disconnect();
+  }, [drawFrame]);
+
+  useEffect(() => {
+    let raf = 0;
+    const tick = () => {
+      drawFrame();
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [drawFrame]);
 
   const imageSrc = image?.src ?? null;
   const lastSrcRef = useRef<string | null>(null);
@@ -99,18 +190,6 @@ export function HeatmapPoster({
         focal,
       );
       driver.setFallback(fallback);
-      const hotNode = hotFrameRef.current;
-      if (hotNode) {
-        if (fallback.frame) {
-          hotNode.style.display = "block";
-          hotNode.style.left = `${fallback.frame.x * 100}%`;
-          hotNode.style.top = `${fallback.frame.y * 100}%`;
-          hotNode.style.width = `${fallback.frame.w * 100}%`;
-          hotNode.style.height = `${fallback.frame.h * 100}%`;
-        } else {
-          hotNode.style.display = "none";
-        }
-      }
       if (cached.depthField) {
         const packed = packDepthField(
           cached.depthField.depth,
@@ -136,8 +215,6 @@ export function HeatmapPoster({
       driver.setFallback(emptyPack());
       driver.setDepth(null);
       driver.snapMaskMix(0);
-      const hotNode = hotFrameRef.current;
-      if (hotNode) hotNode.style.display = "none";
       cachedReadRef.current = null;
       onReadStatusRef.current?.("idle");
       return;
@@ -217,15 +294,6 @@ export function HeatmapPoster({
     };
   }, [imageSrc, format, applyPacksForAspect]);
 
-  const statusText =
-    readStatus === "reading"
-      ? HEATMAP_COPY.reading
-      : readStatus === "rough-read"
-        ? HEATMAP_COPY.roughRead
-        : !image
-          ? HEATMAP_COPY.empty
-          : "";
-
   const hasRealText = caption != null && caption.length > 0;
   const showPlaceholder = !isExport && !hasRealText && image != null;
 
@@ -235,32 +303,19 @@ export function HeatmapPoster({
       className={["heatmap-poster", className].filter(Boolean).join(" ")}
       data-format={format}
       aria-label="Heatmap poster"
-      style={{
-        ["--heatmap-heat" as string]: `rgb(${Math.round(look.heat[0] * 255)} ${Math.round(look.heat[1] * 255)} ${Math.round(look.heat[2] * 255)})`,
-        ["--heatmap-mid" as string]: `rgb(${Math.round(look.mid[0] * 255)} ${Math.round(look.mid[1] * 255)} ${Math.round(look.mid[2] * 255)})`,
-        ["--heatmap-ground" as string]: `rgb(${Math.round(look.ground[0] * 255)} ${Math.round(look.ground[1] * 255)} ${Math.round(look.ground[2] * 255)})`,
-      }}
     >
-      <div ref={imagePlateRef} className="heatmap-poster__image-plate">
-        <canvas ref={canvasRef} className="heatmap-poster__canvas" aria-hidden />
-        <div ref={hotFrameRef} className="heatmap-poster__hot-frame" aria-hidden />
-        {statusText ? (
-          <p className="heatmap-status heatmap-poster__status">{statusText}</p>
-        ) : null}
-      </div>
-
-      {/* Caption plate: layout height driven ONLY by real text.
-          PROMPT label persists above real text — it is a standing slug. */}
-      {hasRealText ? (
-        <div className="heatmap-poster__caption-plate">
-          <p className="heatmap-poster__caption-label">{HEATMAP_COPY.captionLabel}</p>
-          <p className="heatmap-poster__caption-text">{caption}</p>
-        </div>
-      ) : null}
-
-      {/* Placeholder chrome: does not participate in card layout (position:absolute).
-          Visible only while composing with an image loaded and no text entered.
-          isExport gates exactly this element and nothing else. */}
+      {/* Full-card poster canvas: the ONE renderer */}
+      <canvas
+        ref={posterCanvasRef}
+        className="heatmap-poster__poster-canvas"
+      />
+      {/* Heat source canvas: fed by vgpu/Canvas2D driver, hidden */}
+      <canvas
+        ref={heatCanvasRef}
+        className="heatmap-poster__heat-source"
+        aria-hidden
+      />
+      {/* Placeholder chrome: DOM overlay, editing only, not in export */}
       {showPlaceholder ? (
         <div className="heatmap-poster__caption-placeholder" aria-hidden>
           <p className="heatmap-poster__caption-label">{HEATMAP_COPY.captionLabel}</p>

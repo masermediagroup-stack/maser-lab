@@ -11,15 +11,12 @@
   --heatmap-frame: rgba(244, 241, 234, 0.18);
 }
 
-/* --- Card: named ratio, one hairline frame --- */
+/* --- Card: named ratio, single canvas surface --- */
 
 .heatmap-poster {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: block;
   background: var(--heatmap-page);
-  color: var(--heatmap-type);
-  border: 1px solid var(--heatmap-frame);
   border-radius: 0;
   box-shadow: none;
   overflow: hidden;
@@ -35,32 +32,39 @@
   width: min(100%, calc(100dvh / 1.414213562));
 }
 
-/* --- Image plate: fills remainder of card after caption --- */
-
-.heatmap-poster__image-plate {
-  position: relative;
-  flex: 1 1 0;
-  min-height: 0;
-  overflow: hidden;
-  background: var(--heatmap-ground);
-}
-
-.heatmap-poster__canvas {
+/* Full-card poster canvas: the one renderer */
+.heatmap-poster__poster-canvas {
   display: block;
   width: 100%;
   height: 100%;
-  position: absolute;
-  inset: 0;
+  position: relative;
+  z-index: 1;
 }
 
-/* --- Caption plate: content-driven, collapses when absent --- */
+/* Heat source canvas: fed by vgpu/Canvas2D, behind the poster canvas */
+.heatmap-poster__heat-source {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
 
-.heatmap-poster__caption-plate {
-  flex: 0 0 auto;
+/* --- Caption placeholder: editing chrome, not layout participant --- */
+
+.heatmap-poster__caption-placeholder {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
   padding: 0.75rem 1rem;
   background: var(--heatmap-page);
   border-top: 1px solid var(--heatmap-frame);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  opacity: 0.4;
+  pointer-events: none;
 }
 
 .heatmap-poster__caption-label {
@@ -80,51 +84,4 @@
   font-weight: 400;
   line-height: 1.4;
   color: var(--heatmap-type);
-}
-
-/* --- Caption placeholder: editing chrome, not layout participant --- */
-
-.heatmap-poster__caption-placeholder {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 0.75rem 1rem;
-  background: var(--heatmap-page);
-  border-top: 1px solid var(--heatmap-frame);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-/* --- Status label (reading / rough-read / empty) --- */
-
-.heatmap-status {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.4;
-  color: var(--heatmap-type);
-  background: none;
-  border: 0;
-}
-
-.heatmap-poster__status {
-  position: absolute;
-  left: 1rem;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* --- Hot-zone diagnostic frame (overlay on image plate) --- */
-
-.heatmap-poster__hot-frame {
-  display: none;
-  position: absolute;
-  z-index: 1;
-  pointer-events: none;
-  border: 1px solid color-mix(in srgb, var(--heatmap-mid) 55%, transparent);
-  box-sizing: border-box;
 }

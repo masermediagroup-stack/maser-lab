@@ -56,6 +56,8 @@ No "drag and drop your file here to get started." No exclamation points. Never a
 - Give the card the named ratio. 9:16 or A4 is the poster you export, so the card is that shape and the caption plate is inside it, never overflowing it.
 - Let the caption plate take the height its text needs and give the image plate the remainder. The image plate's aspect follows that remainder; the crop stays centered on the hot mass so the subject never slides out of frame.
 - Show the caption placeholder while composing and collapse the plate on export. The prompt to write is editing chrome; an empty poster carries no placeholder and the image plate takes the full card. The frame does not move either way.
+- Keep the placeholder out of card layout. It floats as chrome and takes no caption-plate height, so an empty caption collapses the same in compose and in export and the card geometry never differs between them.
+- Render the poster one way. What is on screen is the file; the export flag hides the placeholder and changes nothing else. No second renderer.
 - Leave knobs in the demo rail. Never on the poster.
 
 ## Primitives Spark may name
