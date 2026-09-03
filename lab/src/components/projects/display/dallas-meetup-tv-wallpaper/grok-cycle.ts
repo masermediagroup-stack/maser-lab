@@ -5,11 +5,11 @@
  * Green is not on the tree — skip it as a body fill (Working-stream ribbons may still use it).
  * Gray is never a body fill.
  *
- * Cold start / product rest: shape 2 + Black #000000.
+ * Cold start / product rest: shape 2 + ink #111111.
  * During the SAME 0.6s kick: shape BLENDS to the next picker body, color lerps
  * between the current pair HEX and the next pair HEX (two stops). Not a snap
  * after the kick. Not a rainbow lerp off-sheet.
- * First kick: oval+Black → rounded square + Teal.
+ * First kick: oval+ink → rounded square + Teal.
  * When the walk returns to oval, fill is Orange-red (tree color), not black.
  */
 
@@ -20,10 +20,11 @@ import {
 } from "./globe-motion";
 
 export const DALLAS_PAPER = "#F2F1ED";
-/** Cube, type, horizon ink. */
-export const DALLAS_MARK_INK = "#111111";
-/** Cold-start rest fill only. */
-export const DALLAS_GLOBE_BLACK = "#000000";
+/** Cube, type, skyline dither, and the rest mark fill. */
+export const DALLAS_INK = "#111111";
+export const DALLAS_MARK_INK = DALLAS_INK;
+/** Cold-start rest fill — ink, not chromatic orange-red. */
+export const DALLAS_GLOBE_BLACK = DALLAS_INK;
 export const DALLAS_EYE_WHITE = "#FFFFFF";
 
 export const DALLAS_GROK_GOLD = "#97683D";

@@ -315,8 +315,16 @@ export function DallasMeetupTvWallpaperDemo() {
               </LabButton>
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Dallas silhouette by Blaise Sewell / Noun Project. Credit stays
-              in this rail, not on the TV loop.
+              Trammell Crow Park photograph, CC0 1.0 (IcedCowboyCoffee).
+              Bayer-dithered to paper/ink. Default ON. Not on the globe.
+            </p>
+          </LabControlGroup>
+
+          <LabControlGroup label="Field">
+            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
+              Galaxy swooshes: eight stops sampled from xAI Grok 4 artwork
+              (not published brand tokens). Random assignment on the paper
+              field only — never meridians on the mark.
             </p>
           </LabControlGroup>
 

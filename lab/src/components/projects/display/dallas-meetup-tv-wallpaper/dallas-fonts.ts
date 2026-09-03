@@ -1,14 +1,13 @@
 import { IBM_Plex_Sans_Condensed } from "next/font/google";
 
 /**
- * Type split (settled).
+ * Type split (EPG lock).
  *
- * Display ("Dallas meetup"): self-hosted Universal Sans trial 400, exactly
- * once, on the canvas. Do not fetch xAI's webfonts.
+ * Display ("Dallas meetup"): Geist Sans, exactly once, on the canvas.
+ * Never fetch xAI webfonts.
  * Body / labels / info: IBM Plex Sans Condensed. Largest Plex ≤ 40% of the
  * display's rendered size; if a label creeps up, cut or shrink it — never
  * enlarge the display.
- * Geist is out. Geist Mono is unused on this demo.
  */
 export const dallasPlexCondensed = IBM_Plex_Sans_Condensed({
   subsets: ["latin"],
@@ -17,7 +16,8 @@ export const dallasPlexCondensed = IBM_Plex_Sans_Condensed({
   display: "swap",
 });
 
-export const DALLAS_UNIVERSAL_SANS_FAMILY =
-  '"UniversalSansGrokTest Display Trial 400", "UniversalSansGrokTest Display Trial"';
+/** Geist is loaded on <html> as `--font-geist-sans` (lab/src/app/layout.tsx). */
+export const DALLAS_GEIST_FAMILY =
+  'var(--font-geist-sans), Geist, "Geist Sans", ui-sans-serif, system-ui, sans-serif';
 
-export const DALLAS_SANS_FAMILY = DALLAS_UNIVERSAL_SANS_FAMILY;
+export const DALLAS_SANS_FAMILY = DALLAS_GEIST_FAMILY;

@@ -7,10 +7,11 @@
 
 ## Design reference
 
-- Figma: none
+- Figma: none. Full lockup stills pending from Elite Pixel Guy; globe stills + this text are the lock until they arrive.
 - Motion source: Grok Bot lifecycle tour at https://x.ai/news/designing-grok-bot (Idle / Working / Waiting / Blocked / Thinking / Done). Craft the kick from **Working** frames, not the blank Working-cycle gap.
 - Look lock: `LOOK.md` in this folder (authority)
 - Design spec: `FIGMA.md` / `design.md` in this folder
+- Horizon photograph: [Dallas Texas skyline overlooking Trammell Crow Park](https://commons.wikimedia.org/wiki/File:Dallas_Texas_skyline_overlooking_Trammell_Crow_Park.png) (CC0 1.0, IcedCowboyCoffee)
 
 ## Brief
 
@@ -21,12 +22,13 @@ The wallpaper runs continuously on a room TV during the Cursor + Grok Bot Dallas
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Paper field `#F2F1ED` with Cursor cube + Grok body + one line `Dallas meetup`. Grok follows the article Idle/Working face: flat body, white stadiums, one Working-stream kick per 8s loop.
+Paper field `#F2F1ED` with dithered Dallas horizon, Grok 4 field filaments, Cursor cube + solid Grok body + one Geist line `Dallas meetup`. Grok follows the article Idle/Working face: flat body, white stadiums, one Working-stream kick per 8s loop.
 
 ### Success signal
+- TV mode loads: paper ground, dithered horizon ON, field filaments, solid globe, whip, Geist display line.
 - Idle rest is still: current body, Idle eyes, no ribbons.
-- Whip is one kick: morph + two-stop color + wrapping ribbons + eye-whip.
-- First kick lands rounded square + Teal. Cold start is oval + Black.
+- Whip is one kick: morph + two-stop color + wrapping ribbons + eye-whip. Face-forward rest, 0.5–0.7s travel, hard ease, land face-forward. Tilt 16°.
+- First kick lands rounded square + Teal. Cold start is oval + ink `#111111`.
 - Presentation mode is fullscreen with zero demo chrome.
 - Reduced motion freezes Idle.
 
@@ -34,7 +36,9 @@ Paper field `#F2F1ED` with Cursor cube + Grok body + one line `Dallas meetup`. G
 - No event logistics, QR, RSVP, wordmarks, taglines, or secondary copy.
 - Do not hold the product Working loop (stream / gap / stream) through rest.
 - Do not fetch xAI webfonts. Do not steal article ribbon gradients.
-- Do not 360-rotate the disc. Not Thinking. Not a hairline nest.
+- Do not 360-rotate the disc. Not Thinking. Not a hairline nest on the mark.
+- Do not map the skyline onto the sphere. Do not use Noun Project or the teal tourist illustration.
+- Do not draw meridians / parallels / longitude on the globe. Field filaments stay in the wallpaper field.
 
 ## Type
 
@@ -42,10 +46,18 @@ Paper field `#F2F1ED` with Cursor cube + Grok body + one line `Dallas meetup`. G
 
 | Surface | Face | Token |
 | --- | --- | --- |
-| Display line — `Dallas meetup` on the wallpaper | Universal Sans trial 400, exactly once | `--dallas-font` |
+| Display line — `Dallas meetup` on the wallpaper | Geist Sans, exactly once | `--dallas-font` |
 | Body, labels, info, demo-rail notes | IBM Plex Sans Condensed | `--dallas-font-ui` |
 
-Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4. Geist is out.
+Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
+
+## Paper / ink / field
+
+| Token | Hex | Use |
+| --- | --- | --- |
+| `--dallas-paper` | `#F2F1ED` | Wallpaper background |
+| `--dallas-ink` | `#111111` | Type, cube, skyline dither, rest globe |
+| `--dallas-grok4-*` (8) | rose → indigo | Field filaments only. Sampled from xAI Grok 4 artwork, not published brand tokens. |
 
 ## States
 
@@ -69,6 +81,7 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4. 
 | Body | Planted SDF. Kick morphs to next picker. No disc spin | Turn is an illusion (ribbons + eye-whip) |
 | Stream | 2–4 flat Ver 02 ribbons, ~4.8% of face, −15° wrap | Product Working stream; TV plays it once |
 | Color | Two-stop lerp current pair → next pair on the kick | No settle snap, no off-sheet rainbow |
+| Field | Seeded random Grok 4 hairlines on paper | Artwork swooshes, never on the mark |
 
 ## Acceptance criteria
 
@@ -76,14 +89,16 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4. 
 - [ ] `npm run lint` and `npm run build` pass in `lab/` (verify this PR)
 - [x] 8s Idle → one kick (morph + ribbons + eye-whip) → Idle on the new body; reduced motion freezes Idle
 - [x] Front ribbons clip to the morphing body; back occluded; cube clean
-- [x] Shape→color pairing; color two-stop on the kick; cold-start oval+Black; first kick squircle+Teal
-- [x] Universal Sans once on the canvas line; Plex ≤ 40% of display
-- [x] Noun Project Dallas horizon default ON; credit in the rail
+- [x] Shape→color pairing; color two-stop on the kick; cold-start oval+ink; first kick squircle+Teal
+- [x] Geist Sans once on the canvas line; Plex ≤ 40% of display
+- [x] Trammell Crow CC0 skyline Bayer-dithered paper/ink, default ON, behind the globe
+- [x] Grok 4 field filaments on paper (random assignment, pale fallback, never meridians on the mark)
 - [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`
 
 ## Loaded skills (this pass)
 
 - `maser-lab-web` Implement (existing slug)
+- `maser-lab-web/references/skill-routing.md`
 - `maser-lab-demo-chrome`
 - `maser-lab-token-system`
 - `verification`

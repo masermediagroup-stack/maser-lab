@@ -3,6 +3,16 @@
 import { useCallback, useEffect, useRef } from "react";
 import { DALLAS_SANS_FAMILY } from "./dallas-fonts";
 import {
+  HORIZON_SRC,
+  drawDallasHorizon,
+  stampHorizon,
+} from "./dallas-horizon";
+import {
+  drawFieldFilaments,
+  generateFieldFilaments,
+  type FieldFilament,
+} from "./field-filaments";
+import {
   AXIS_TILT_DEG,
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
@@ -52,19 +62,6 @@ const EYE_W_FACE = 0.13;
 const EYE_H_FACE = 0.3;
 const EYE_GAP_FACE = 0.09;
 
-const HORIZON_SRC = "/images/dallas-noun-3583788.png";
-
-const BAYER8 = [
-  [0, 32, 8, 40, 2, 34, 10, 42],
-  [48, 16, 56, 24, 50, 18, 58, 26],
-  [12, 44, 4, 36, 14, 46, 6, 38],
-  [60, 28, 52, 20, 62, 30, 54, 22],
-  [3, 35, 11, 43, 1, 33, 9, 41],
-  [51, 19, 59, 27, 49, 17, 57, 25],
-  [15, 47, 7, 39, 13, 45, 5, 37],
-  [63, 31, 55, 23, 61, 29, 53, 21],
-] as const;
-
 type ExportResult = {
   blob: Blob;
   mimeType: string;
@@ -90,6 +87,8 @@ export type DallasMeetupWallpaperProps = {
 
 let horizonSource: HTMLImageElement | null = null;
 let horizonPlate: HTMLCanvasElement | null = null;
+let fieldCacheKey = "";
+let fieldFilaments: FieldFilament[] = [];
 
 function ensureHorizon(onReady?: () => void): HTMLCanvasElement | null {
   if (typeof Image === "undefined") return null;
@@ -106,46 +105,6 @@ function ensureHorizon(onReady?: () => void): HTMLCanvasElement | null {
     horizonPlate = stampHorizon(horizonSource);
   }
   return horizonPlate;
-}
-
-function stampHorizon(img: HTMLImageElement): HTMLCanvasElement {
-  const src = document.createElement("canvas");
-  src.width = img.naturalWidth;
-  src.height = img.naturalHeight;
-  const sctx = src.getContext("2d");
-  if (!sctx) return src;
-  sctx.drawImage(img, 0, 0);
-  const pixels = sctx.getImageData(0, 0, src.width, src.height);
-  const { data, width, height } = pixels;
-  let minY = height;
-  let maxY = 0;
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const i = (y * width + x) * 4;
-      const a = data[i + 3]!;
-      if (a < 8) continue;
-      if (y < minY) minY = y;
-      if (y > maxY) maxY = y;
-      const threshold = BAYER8[y & 7]![x & 7]! / 64;
-      if (a < 220 && a / 255 < threshold * 0.45 + 0.2) {
-        data[i + 3] = 0;
-        continue;
-      }
-      data[i] = 0x11;
-      data[i + 1] = 0x11;
-      data[i + 2] = 0x11;
-      data[i + 3] = 255;
-    }
-  }
-  sctx.putImageData(pixels, 0, 0);
-  const cropTop = Math.max(0, minY - 4);
-  const cropH = Math.max(1, maxY - cropTop + 5);
-  const cropped = document.createElement("canvas");
-  cropped.width = width;
-  cropped.height = cropH;
-  const cctx = cropped.getContext("2d");
-  cctx?.drawImage(src, 0, cropTop, width, cropH, 0, 0, width, cropH);
-  return cropped;
 }
 
 function resolveDallasFontFamily(el: Element | null): string {
@@ -170,18 +129,13 @@ function drawTrackedText(
   }
 }
 
-function drawDallasHorizon(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-) {
-  const plate = ensureHorizon();
-  if (!plate) return;
-  const destW = width * 0.72;
-  const destH = destW * (plate.height / plate.width);
-  const dx = (width - destW) * 0.5;
-  const dy = height - destH - height * 0.04;
-  ctx.drawImage(plate, dx, dy, destW, destH);
+function fieldForSize(width: number, height: number): FieldFilament[] {
+  const key = `${width}x${height}`;
+  if (fieldCacheKey !== key) {
+    fieldCacheKey = key;
+    fieldFilaments = generateFieldFilaments(width, height);
+  }
+  return fieldFilaments;
 }
 
 function drawStadiumEyes(
@@ -276,8 +230,11 @@ function renderFrame(
   ctx.fillStyle = DALLAS_PAPER;
   ctx.fillRect(0, 0, width, height);
 
+  drawFieldFilaments(ctx, width, fieldForSize(width, height));
+
   if (showSkyline) {
-    drawDallasHorizon(ctx, width, height);
+    const plate = ensureHorizon();
+    if (plate) drawDallasHorizon(ctx, width, height, plate);
   }
 
   const centerX = width * 0.5;
@@ -459,7 +416,7 @@ export function DallasMeetupWallpaper({
       <canvas
         ref={canvasRef}
         className="dallas-wallpaper-canvas"
-        data-dallas-display="universal-sans"
+        data-dallas-display="geist-sans"
         aria-label="Dallas meetup wallpaper"
       />
     </div>

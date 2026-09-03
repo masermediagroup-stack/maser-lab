@@ -1,39 +1,31 @@
 /*
  * Dallas Meetup TV Wallpaper — product tokens.
  *
+ * Paper / ink:
+ *   --dallas-paper  #F2F1ED
+ *   --dallas-ink    #111111  (type, cube, skyline dither, rest globe fill)
+ *
  * Ver 02 chromatic hues (HEX only; Figma sheet previews are inaccurate):
  *   gold, red, orange-red, orange, green, teal, blue, violet, magenta.
- * Gray exists as a named token and is never a globe fill or filament.
- * Sampled Grok 4 medians (#CF525C etc.) are deleted — not a fallback.
+ * Gray exists as a named token and is never a globe fill.
+ * Green is stream-only, never a body fill.
+ *
+ * Grok 4 field stops (sampled from xAI Grok 4 artwork, not published brand
+ * tokens). Field filaments only — never longitude / meridians / parallels
+ * on the mark. Pale cream/icy may vanish on paper; still keep all eight.
  *
  * Type split:
- *   --dallas-font      Universal Sans trial 400, exactly once: canvas "Dallas meetup"
+ *   --dallas-font      Geist Sans, exactly once: canvas "Dallas meetup"
  *   --dallas-font-ui   IBM Plex Sans Condensed for body, labels, info
  * Size check: largest Plex ≤ 40% of the display's rendered size (44px @ 1920).
- * Never load xAI's self-hosted woff2 files. Geist is out.
+ * Never load xAI's self-hosted woff2 files.
  */
-
-@font-face {
-  font-family: "UniversalSansGrokTest Display Trial 400";
-  src: url("/fonts/UniversalSansGrokTest-Display-Trial-400.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "UniversalSansGrokTest Display Trial";
-  src: url("/fonts/UniversalSansGrokTest-Display-Trial-400.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
 
 .dallas-demo,
 .dallas-demo.maser-lab {
   --dallas-paper: #f2f1ed;
-  --dallas-mark-ink: #111111;
-  --dallas-ink: #000000;
+  --dallas-ink: #111111;
+  --dallas-mark-ink: var(--dallas-ink);
   --dallas-loop-seconds: 8s;
 
   --dallas-grok-gold: #97683d;
@@ -47,7 +39,16 @@
   --dallas-grok-magenta: #ff309b;
   --dallas-grok-gray: #777777;
 
-  --dallas-font: "UniversalSansGrokTest Display Trial 400", "UniversalSansGrokTest Display Trial", sans-serif;
+  --dallas-grok4-rose: #cf525c;
+  --dallas-grok4-red: #f15336;
+  --dallas-grok4-orange: #feb87c;
+  --dallas-grok4-cream: #ffe4a6;
+  --dallas-grok4-icy: #c4d3e1;
+  --dallas-grok4-cyan: #aad5ea;
+  --dallas-grok4-blue: #86a4c6;
+  --dallas-grok4-indigo: #7775a5;
+
+  --dallas-font: var(--font-geist-sans), Geist, "Geist Sans", ui-sans-serif, system-ui, sans-serif;
   --dallas-font-ui: var(--font-ibm-plex-sans-condensed), "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", sans-serif;
 
   font-family: var(--dallas-font-ui);
@@ -61,7 +62,7 @@
 
   min-height: 100dvh;
   background: var(--dallas-paper);
-  color: var(--dallas-mark-ink);
+  color: var(--dallas-ink);
 }
 
 .dallas-demo__stage {
