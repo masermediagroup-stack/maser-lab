@@ -231,6 +231,7 @@ export function readFullSubject(
   try {
     data = ctx.getImageData(0, 0, width, height).data;
   } catch (err) {
+    console.error("[heatmap] luma:getImageData:fail", err);
     heatmapTrace("luma:getImageData:fail", {
       message: err instanceof Error ? err.message : String(err),
     });

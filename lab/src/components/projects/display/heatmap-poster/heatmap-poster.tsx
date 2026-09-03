@@ -437,7 +437,12 @@ export function HeatmapPoster({
         heatmapTrace("pipeline:error", {
           message: err instanceof Error ? err.message : String(err),
         });
+        console.error("[heatmap] pipeline:error", err);
         if (cancelled || gen !== generationRef.current) return;
+        if (!cachedReadRef.current) {
+          driver.setFallback(emptyPack());
+          driver.setDepth(null);
+        }
         onReadStatusRef.current?.("rough-read");
       }
     })();

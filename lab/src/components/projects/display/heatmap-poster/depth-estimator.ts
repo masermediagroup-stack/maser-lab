@@ -46,6 +46,7 @@ async function getDepthPipeline(): Promise<DepthPipe | null> {
       );
       return pipe as unknown as DepthPipe;
     } catch (err) {
+      console.error("[heatmap] depth:pipeline-fail", err);
       heatmapTrace("depth:pipeline-fail", {
         message: err instanceof Error ? err.message : String(err),
       });
@@ -133,6 +134,7 @@ export async function readDepth(
     cache.set(key, result);
     return result;
   } catch (err) {
+    console.error("[heatmap] depth:infer-fail", err);
     heatmapTrace("depth:infer-fail", {
       message: err instanceof Error ? err.message : String(err),
     });

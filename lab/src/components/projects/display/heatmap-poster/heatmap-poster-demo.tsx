@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type DragEvent } from "react";
 import {
   DemoBackButton,
   DemoControlMenu,
@@ -133,6 +133,22 @@ export function HeatmapPosterDemo() {
     setImage({ src: url, objectUrl: true });
   };
 
+  const onDragOver = (event: DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+  };
+
+  const onDrop = (event: DragEvent) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    heatmapTrace("file:drop", {
+      count: event.dataTransfer.files.length,
+      name: file?.name,
+      type: file?.type,
+    });
+    onFile(file);
+  };
+
   const railStatus =
     fileStatus === "error"
       ? HEATMAP_COPY.fileError
@@ -145,7 +161,11 @@ export function HeatmapPosterDemo() {
   };
 
   return (
-    <div className="heatmap-demo maser-lab relative min-h-screen">
+    <div
+      className="heatmap-demo maser-lab relative min-h-screen"
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+    >
       <input
         id={inputId}
         ref={inputRef}
@@ -153,12 +173,13 @@ export function HeatmapPosterDemo() {
         accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
         className="sr-only"
         data-heatmap-file-input=""
+        aria-label={HEATMAP_COPY.upload}
         onChange={(event) => {
           onFile(event.target.files?.[0]);
           event.currentTarget.value = "";
         }}
       />
-      <section className="lab-demo-field heatmap-stage">
+      <label className="lab-demo-field heatmap-stage" htmlFor={inputId}>
         <HeatmapPoster
           format={format}
           look={look}
@@ -169,7 +190,7 @@ export function HeatmapPosterDemo() {
           onReadStatus={setReadStatus}
           caption={caption || undefined}
         />
-      </section>
+      </label>
 
       <DemoControlMenu>
         <div className="flex flex-wrap items-center justify-between gap-2">

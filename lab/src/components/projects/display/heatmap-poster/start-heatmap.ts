@@ -1,8 +1,5 @@
-import type { Effect, FrameLoopHandle, Gpu, StorageBuffer } from "vgpu";
-import { effect, frameLoop, init, storage, surface } from "vgpu";
-import { MASK_FADE_MS, PACK_MAX } from "./constants";
+import { MASK_FADE_MS } from "./constants";
 import type { HeatmapLook, PackedMask } from "./types";
-import shader from "./heatmap.wgsl";
 import { heatmapTrace } from "./trace";
 
 export type HeatmapDriver = {
@@ -21,18 +18,7 @@ export type StartHeatmapOptions = {
   onReady?: () => void;
 };
 
-const MAX_TEXELS = PACK_MAX * PACK_MAX;
-
-function writePack(buffer: StorageBuffer, pack: PackedMask): void {
-  const count = pack.width * pack.height;
-  const bytes = pack.pixels.subarray(0, count * 4);
-  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  const src = new Uint32Array(count);
-  for (let i = 0; i < count; i++) {
-    src[i] = view.getUint32(i * 4, true);
-  }
-  buffer.write(src);
-}
+const GPU_BOOT_MS = 2500;
 
 function mixRgb(a: readonly [number, number, number], b: readonly [number, number, number], t: number): [number, number, number] {
   return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
@@ -208,204 +194,73 @@ export function startHeatmap({
   reducedRef,
   onReady,
 }: StartHeatmapOptions): HeatmapDriver {
+  heatmapTrace("canvas2d:start", { reason: "cpu-first" });
+  const cpu = startCanvas2d(canvas, lookRef, reducedRef, onReady);
+  let gpu: HeatmapDriver | undefined;
   let disposed = false;
-  let loop: FrameLoopHandle | undefined;
-  let gpu: Gpu | undefined;
-  let fallbackBuf: StorageBuffer | undefined;
-  let depthBuf: StorageBuffer | undefined;
-  let wash: Effect | undefined;
-  let packWidth = 1;
-  let packHeight = 1;
-  let maskMix = 0;
-  let maskMixTarget = 0;
-  let time = 0;
-  let last = performance.now();
-  let visible = true;
-  let fallback2d: HeatmapDriver | undefined;
+  let expired = false;
   let pendingFallback: PackedMask | null = null;
   let pendingDepth: PackedMask | null = null;
+  let pendingMix = 0;
 
-  const io = new IntersectionObserver((entries) => {
-    visible = entries.some((e) => e.isIntersecting);
-  });
-  io.observe(canvas);
+  const active = () => gpu ?? cpu;
+
+  const expire = window.setTimeout(() => {
+    expired = true;
+    heatmapTrace("gpu:unused", { reason: "timeout" });
+  }, GPU_BOOT_MS);
 
   void (async () => {
     try {
-      gpu = await init();
-      heatmapTrace("gpu:init:ok");
-    } catch (err) {
-      heatmapTrace("gpu:init:fail", {
-        message: err instanceof Error ? err.message : String(err),
-      });
-      if (disposed) return;
-      fallback2d = startCanvas2d(canvas, lookRef, reducedRef, onReady);
-      heatmapTrace("canvas2d:start", { reason: "gpu-init-fail" });
-      if (pendingFallback) fallback2d.setFallback(pendingFallback);
-      if (pendingDepth) fallback2d.setDepth(pendingDepth);
-      fallback2d.snapMaskMix(maskMixTarget);
-      return;
-    }
-    if (disposed) {
-      gpu.dispose();
-      return;
-    }
-
-    const canvasSurface = surface(gpu, canvas, {
-      dpr: [1, 2],
-      alphaMode: "opaque",
-      clearColor: [0.07, 0.03, 0.18, 1],
-      label: "heatmap-poster",
-    });
-
-    fallbackBuf = storage(gpu, MAX_TEXELS * 4, "read");
-    depthBuf = storage(gpu, MAX_TEXELS * 4, "read");
-    const empty = new Uint32Array(1);
-    fallbackBuf.write(empty);
-    depthBuf.write(empty);
-    if (pendingFallback !== null) {
-      const bootFallback = pendingFallback as PackedMask;
-      packWidth = bootFallback.width;
-      packHeight = bootFallback.height;
-      writePack(fallbackBuf, bootFallback);
-    }
-    if (pendingDepth !== null) {
-      const bootDepth = pendingDepth as PackedMask;
-      writePack(depthBuf, bootDepth);
-    }
-
-    const look = lookRef.current;
-    wash = effect(gpu, shader, {
-      label: "heatmap-poster-wash",
-      set: {
-        u: {
-          heat: [...look.heat],
-          pad0: 0,
-          mid: [...look.mid],
-          pad1: 0,
-          ground: [...look.ground],
-          pad2: 0,
-          grain: look.grain,
-          frequency: look.wave,
-          speed: look.speed,
-          time: 0,
-          maskMix: 0,
-          reducedMotion: 0,
-          packWidth: 1,
-          packHeight: 1,
-        },
-        fallbackPack: fallbackBuf,
-        depthPack: depthBuf,
-      },
-    });
-
-    try {
-      await wash.compile(canvasSurface);
-      heatmapTrace("gpu:compile:ok");
-    } catch (err) {
-      heatmapTrace("gpu:compile:fail", {
-        message: err instanceof Error ? err.message : String(err),
-      });
-      gpu.dispose();
-      gpu = undefined;
-      fallbackBuf = undefined;
-      depthBuf = undefined;
-      wash = undefined;
-      if (disposed) return;
-      fallback2d = startCanvas2d(canvas, lookRef, reducedRef, onReady);
-      heatmapTrace("canvas2d:start", { reason: "gpu-compile-fail" });
-      if (pendingFallback) fallback2d.setFallback(pendingFallback);
-      if (pendingDepth) fallback2d.setDepth(pendingDepth);
-      fallback2d.snapMaskMix(maskMixTarget);
-      return;
-    }
-    if (disposed) {
-      gpu.dispose();
-      return;
-    }
-
-    onReady?.();
-
-    loop = frameLoop(gpu, (frame) => {
-      if (!wash || !visible) return;
-      const now = performance.now();
-      const dt = Math.min(0.05, (now - last) / 1000);
-      last = now;
-      const reduced = reducedRef.current;
-      if (!reduced) time += dt;
-      if (reduced) {
-        maskMix = maskMixTarget;
-      } else if (maskMix !== maskMixTarget) {
-        const step = dt * (1000 / MASK_FADE_MS);
-        if (maskMix < maskMixTarget) maskMix = Math.min(maskMixTarget, maskMix + step);
-        else maskMix = Math.max(maskMixTarget, maskMix - step);
+      const { tryStartGpuDriver } = await import("./start-heatmap-gpu");
+      const next = await tryStartGpuDriver(
+        { canvas, lookRef, reducedRef },
+        () => disposed || expired,
+      );
+      window.clearTimeout(expire);
+      if (disposed || expired || !next) {
+        next?.dispose();
+        if (!expired) heatmapTrace("gpu:unused", { reason: "fail-or-cancel" });
+        return;
       }
-      const current = lookRef.current;
-      wash.set({
-        u: {
-          heat: [...current.heat],
-          pad0: 0,
-          mid: [...current.mid],
-          pad1: 0,
-          ground: [...current.ground],
-          pad2: 0,
-          grain: current.grain,
-          frequency: current.wave,
-          speed: current.speed,
-          time,
-          maskMix,
-          reducedMotion: reduced ? 1 : 0,
-          packWidth,
-          packHeight,
-        },
-        fallbackPack: fallbackBuf,
-        depthPack: depthBuf,
+      gpu = next;
+      cpu.dispose();
+      if (pendingFallback) next.setFallback(pendingFallback);
+      if (pendingDepth) next.setDepth(pendingDepth);
+      next.snapMaskMix(pendingMix);
+      heatmapTrace("gpu:takeover");
+    } catch (err) {
+      window.clearTimeout(expire);
+      console.error("[heatmap] gpu:unused", err);
+      heatmapTrace("gpu:unused", {
+        message: err instanceof Error ? err.message : String(err),
       });
-      frame.pass(canvasSurface, wash);
-    });
+    }
   })();
 
   return {
     setFallback: (pack) => {
       pendingFallback = pack;
       heatmapTrace("driver:setFallback", { w: pack.width, h: pack.height });
-      if (fallback2d) {
-        fallback2d.setFallback(pack);
-        return;
-      }
-      packWidth = pack.width;
-      packHeight = pack.height;
-      if (fallbackBuf) writePack(fallbackBuf, pack);
+      active().setFallback(pack);
     },
     setDepth: (pack) => {
       pendingDepth = pack;
-      if (fallback2d) {
-        fallback2d.setDepth(pack);
-        return;
-      }
-      if (pack && depthBuf) writePack(depthBuf, pack);
+      active().setDepth(pack);
     },
     setMaskMixTarget: (mix) => {
-      if (fallback2d) {
-        fallback2d.setMaskMixTarget(mix);
-        return;
-      }
-      maskMixTarget = mix;
+      pendingMix = mix;
+      active().setMaskMixTarget(mix);
     },
     snapMaskMix: (mix) => {
-      if (fallback2d) {
-        fallback2d.snapMaskMix(mix);
-        return;
-      }
-      maskMix = mix;
-      maskMixTarget = mix;
+      pendingMix = mix;
+      active().snapMaskMix(mix);
     },
     dispose: () => {
       disposed = true;
-      fallback2d?.dispose();
-      loop?.stop();
+      window.clearTimeout(expire);
       gpu?.dispose();
-      io.disconnect();
+      cpu.dispose();
     },
   };
 }
