@@ -90,6 +90,8 @@ function hasOwnText(el: Element): boolean {
 export function publishDallasDisplayPx(host: HTMLElement, displayPx: number): void {
   host.style.setProperty("--dallas-display-px", `${displayPx}px`);
   host.style.setProperty("--dallas-plex-max-ratio", String(DALLAS_PLEX_MAX_RATIO));
+  host.dataset.dallasDisplayPx = displayPx.toFixed(2);
+  host.dataset.dallasPlexMaxPx = plexMaxPx(displayPx).toFixed(2);
 }
 
 /**

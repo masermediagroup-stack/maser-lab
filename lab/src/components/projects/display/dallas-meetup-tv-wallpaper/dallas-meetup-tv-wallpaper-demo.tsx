@@ -67,7 +67,11 @@ export function DallasMeetupTvWallpaperDemo() {
     if (!root) return;
 
     const run = () => {
-      runDallasTypeLock(root);
+      try {
+        runDallasTypeLock(root);
+      } catch {
+        root.dataset.dallasTypeLock = "fail";
+      }
     };
 
     run();

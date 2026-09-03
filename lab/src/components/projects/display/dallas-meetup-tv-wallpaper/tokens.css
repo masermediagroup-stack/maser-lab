@@ -29,8 +29,9 @@
   --dallas-font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   font-family: var(--dallas-font-ui);
-  /* Shared chrome uses Tailwind font-mono / font-sans. Remap them here so
-     labels stay Plex; Geist never creeps into body. */
+  /* Shared chrome uses Tailwind font-mono / font-sans. Tailwind v4 inlines
+     @theme --font-mono to --font-geist-mono, so remapping the variable is
+     not enough — force the UI face on those utilities. */
   --font-sans: var(--dallas-font-ui);
   --font-mono: var(--dallas-font-ui);
 
@@ -83,6 +84,16 @@
 .dallas-demo__note {
   font-family: var(--dallas-font-ui);
   font-size: min(10px, var(--dallas-plex-max));
+}
+
+/* Kill Geist as a second/third voice on the frame. Canvas paints the one
+   Geist Sans line itself; DOM type is Plex unless a node earns mono. */
+.dallas-demo :where(.font-mono, .font-sans, button, label, p, h1, h2, span, a, li, select, option) {
+  font-family: var(--dallas-font-ui) !important;
+}
+
+.dallas-demo :where([data-dallas-mono="structural"]) {
+  font-family: var(--dallas-font-mono) !important;
 }
 
 /* Cap every explicit size in this demo (including shared chrome descendants).

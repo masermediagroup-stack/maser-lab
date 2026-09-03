@@ -6,6 +6,7 @@ import {
   DALLAS_DISPLAY_FONT_PX,
   displayRenderedPx,
   publishDallasDisplayPx,
+  runDallasTypeLock,
 } from "./type-lock";
 
 const DEFAULT_LOOP_SECONDS = 12;
@@ -635,7 +636,11 @@ export function DallasMeetupWallpaper({
       canvas.style.height = `${drawH}px`;
       const host =
         canvas.closest<HTMLElement>(".dallas-demo") ?? canvas.parentElement ?? canvas;
-      publishDallasDisplayPx(host, displayRenderedPx(drawW));
+      const displayPx = displayRenderedPx(drawW);
+      publishDallasDisplayPx(host, displayPx);
+      if (host.classList.contains("dallas-demo")) {
+        runDallasTypeLock(host);
+      }
       drawAtTime(timeSeconds ?? pausedAtRef.current);
     };
 
