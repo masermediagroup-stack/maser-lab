@@ -10,15 +10,20 @@ import {
   LabSelect,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
-import { dallasGeistSans, dallasPlexCondensed } from "./dallas-fonts";
+import { dallasPlexCondensed } from "./dallas-fonts";
 import {
   DallasMeetupWallpaper,
   exportDallasMeetupWallpaperLoop,
 } from "./dallas-meetup-tv-wallpaper";
+import {
+  DEFAULT_LOOP_SECONDS,
+  DEFAULT_WHIP_SECONDS,
+  WHIP_MAX_SECONDS,
+  WHIP_MIN_SECONDS,
+} from "./globe-motion";
 import { runDallasTypeLock } from "./type-lock";
 import "./tokens.css";
 
-const DEFAULT_LOOP = 12;
 const FPS = 30;
 
 function formatSeconds(value: number) {
@@ -26,10 +31,10 @@ function formatSeconds(value: number) {
 }
 
 const LOOP_OPTIONS = [
-  { value: "8", label: "8s (fast)" },
+  { value: "8", label: "8s (default)" },
   { value: "10", label: "10s" },
-  { value: "12", label: "12s (default)" },
-  { value: "16", label: "16s (slow)" },
+  { value: "12", label: "12s" },
+  { value: "16", label: "16s" },
 ];
 
 export function DallasMeetupTvWallpaperDemo() {
@@ -40,9 +45,11 @@ export function DallasMeetupTvWallpaperDemo() {
   const [time, setTime] = useState(0);
   const [scrubTime, setScrubTime] = useState(0);
   const [isPresentation, setIsPresentation] = useState(false);
-  const [loopSeconds, setLoopSeconds] = useState(DEFAULT_LOOP);
-  const [faceForward, setFaceForward] = useState(false);
-  const [showSkyline, setShowSkyline] = useState(false);
+  const [loopSeconds, setLoopSeconds] = useState(DEFAULT_LOOP_SECONDS);
+  const [whipSeconds, setWhipSeconds] = useState(DEFAULT_WHIP_SECONDS);
+  const [linearSpin, setLinearSpin] = useState(false);
+  const [showSkyline, setShowSkyline] = useState(true);
+  const [resetNonce, setResetNonce] = useState(0);
   const [exporting, setExporting] = useState(false);
   const [exportNote, setExportNote] = useState<string>("");
 
@@ -92,10 +99,11 @@ export function DallasMeetupTvWallpaperDemo() {
   const handleFrameTime = useCallback(
     (frameTime: number) => {
       if (reducedMotion || !playing) return;
-      setTime(frameTime);
-      setScrubTime(frameTime);
+      const wrapped = ((frameTime % loopSeconds) + loopSeconds) % loopSeconds;
+      setTime(wrapped);
+      setScrubTime(wrapped);
     },
-    [playing, reducedMotion],
+    [playing, reducedMotion, loopSeconds],
   );
 
   const enterPresentation = useCallback(async () => {
@@ -117,6 +125,7 @@ export function DallasMeetupTvWallpaperDemo() {
   const replay = useCallback(() => {
     setTime(0);
     setScrubTime(0);
+    setResetNonce((n) => n + 1);
     setPlaying(true);
   }, []);
 
@@ -138,7 +147,8 @@ export function DallasMeetupTvWallpaperDemo() {
     try {
       const result = await exportDallasMeetupWallpaperLoop({
         loopSeconds,
-        faceForward,
+        whipSeconds,
+        linearSpin,
         showSkyline,
       });
       const url = URL.createObjectURL(result.blob);
@@ -158,12 +168,12 @@ export function DallasMeetupTvWallpaperDemo() {
     } finally {
       setExporting(false);
     }
-  }, [loopSeconds, faceForward, showSkyline]);
+  }, [loopSeconds, whipSeconds, linearSpin, showSkyline]);
 
   return (
     <div
       ref={rootRef}
-      className={`dallas-demo maser-lab ${dallasGeistSans.variable} ${dallasPlexCondensed.variable}`}
+      className={`dallas-demo maser-lab ${dallasPlexCondensed.variable}`}
     >
       <section
         ref={stageRef}
@@ -177,8 +187,10 @@ export function DallasMeetupTvWallpaperDemo() {
           timeSeconds={controlledTime}
           onFrameTime={handleFrameTime}
           loopSeconds={loopSeconds}
-          faceForward={faceForward}
+          whipSeconds={whipSeconds}
+          linearSpin={linearSpin}
           showSkyline={showSkyline}
+          resetNonce={resetNonce}
         />
       </section>
 
@@ -198,7 +210,8 @@ export function DallasMeetupTvWallpaperDemo() {
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-              Cursor + Grok Bot globe. One revolution = one seamless loop.
+              Idle rest 6.4s, one Working-stream kick 0.6s, settle ~1s.
+              Ribbons leave with the kick — TV does not hold Working.
             </p>
           </div>
 
@@ -238,10 +251,10 @@ export function DallasMeetupTvWallpaperDemo() {
             </p>
           </LabControlGroup>
 
-          <LabControlGroup label="Globe">
+          <LabControlGroup label="Whip">
             <LabSelect
               id="dallas-loop-duration"
-              label="Revolution duration"
+              label="Loop duration"
               value={String(loopSeconds)}
               options={LOOP_OPTIONS}
               onChange={(v) => {
@@ -251,48 +264,59 @@ export function DallasMeetupTvWallpaperDemo() {
                 setScrubTime(0);
               }}
             />
+            <LabRange
+              id="dallas-whip"
+              label="Whip duration"
+              min={WHIP_MIN_SECONDS}
+              max={WHIP_MAX_SECONDS}
+              step={0.01}
+              value={whipSeconds}
+              display={formatSeconds(whipSeconds)}
+              onChange={setWhipSeconds}
+              className="w-full"
+            />
             <div className="flex items-center gap-1.5">
               <LabButton
-                variant={faceForward ? "ghost" : "accent"}
-                aria-pressed={!faceForward}
-                onClick={() => setFaceForward(false)}
+                variant={linearSpin ? "ghost" : "accent"}
+                aria-pressed={!linearSpin}
+                onClick={() => setLinearSpin(false)}
               >
-                Full rotation
+                Rest + whip
               </LabButton>
               <LabButton
-                variant={faceForward ? "accent" : "ghost"}
-                aria-pressed={faceForward}
-                onClick={() => setFaceForward(true)}
+                variant={linearSpin ? "accent" : "ghost"}
+                aria-pressed={linearSpin}
+                onClick={() => setLinearSpin(true)}
               >
-                Face-forward
+                Linear spin
               </LabButton>
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Full rotation: face travels with the globe. Face-forward: eyes
-              stay front while meridians rotate.
+              Linear spin is compare-only and default off. Body does not yaw.
+              Rest is Idle: no orbits.
             </p>
           </LabControlGroup>
 
-          <LabControlGroup label="Skyline">
+          <LabControlGroup label="Horizon">
             <div className="flex items-center gap-1.5">
-              <LabButton
-                variant={showSkyline ? "ghost" : "accent"}
-                aria-pressed={!showSkyline}
-                onClick={() => setShowSkyline(false)}
-              >
-                Off (default)
-              </LabButton>
               <LabButton
                 variant={showSkyline ? "accent" : "ghost"}
                 aria-pressed={showSkyline}
                 onClick={() => setShowSkyline(true)}
               >
-                On
+                On (default)
+              </LabButton>
+              <LabButton
+                variant={showSkyline ? "ghost" : "accent"}
+                aria-pressed={!showSkyline}
+                onClick={() => setShowSkyline(false)}
+              >
+                Off
               </LabButton>
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Additive Dallas silhouette. Off keeps the globe as the only
-              subject. Toggle does not move marks or type.
+              Dallas silhouette by Blaise Sewell / Noun Project. Credit stays
+              in this rail, not on the TV loop.
             </p>
           </LabControlGroup>
 

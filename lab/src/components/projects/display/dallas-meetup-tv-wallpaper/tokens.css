@@ -1,61 +1,67 @@
 /*
  * Dallas Meetup TV Wallpaper — product tokens.
  *
- * Galaxy-line colors: extracted from ONE campaign asset (Grok 4 hero at
- * https://media.x.ai/v1/website/grok-4-6bdb0520.webp). xAI has no fixed
- * galaxy palette — each campaign gets bespoke art; several heroes have no
- * lines at all. These are not published brand tokens.
+ * Ver 02 chromatic hues (HEX only; Figma sheet previews are inaccurate):
+ *   gold, red, orange-red, orange, green, teal, blue, violet, magenta.
+ * Gray exists as a named token and is never a globe fill or filament.
+ * Sampled Grok 4 medians (#CF525C etc.) are deleted — not a fallback.
  *
- * Type split (settled — do not re-open):
- *   --dallas-font      Geist Sans, exactly once: the canvas "Dallas meetup" line
+ * Type split:
+ *   --dallas-font      Universal Sans trial 400, exactly once: canvas "Dallas meetup"
  *   --dallas-font-ui   IBM Plex Sans Condensed for body, labels, info
- *   --dallas-font-mono Geist Mono, only if a slug/rule label earns
- *                      data-dallas-mono="structural". Not a third voice.
- * Size check: largest Plex ≤ 40% of the display's rendered size
- *   (--dallas-plex-max-ratio, from DALLAS_PLEX_MAX_RATIO). If a Plex label
- *   exceeds it, shrink or remove the label. Never enlarge the display.
- * Never Universal Sans. Never load xAI's self-hosted woff2 files.
+ * Size check: largest Plex ≤ 40% of the display's rendered size (44px @ 1920).
+ * Never load xAI's self-hosted woff2 files. Geist is out.
  */
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial 400";
+  src: url("/fonts/UniversalSansGrokTest-Display-Trial-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src: url("/fonts/UniversalSansGrokTest-Display-Trial-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 .dallas-demo,
 .dallas-demo.maser-lab {
-  --dallas-paper: #ffffff;
-  --dallas-ink: #26251e;
-  --dallas-loop-seconds: 12s;
+  --dallas-paper: #f2f1ed;
+  --dallas-mark-ink: #111111;
+  --dallas-ink: #000000;
+  --dallas-loop-seconds: 8s;
 
-  /* Display vs UI. One-line swap each. Display is never Mono. */
-  --dallas-font: var(--font-geist-sans), "Geist", "Geist Sans", sans-serif;
+  --dallas-grok-gold: #97683d;
+  --dallas-grok-red: #ff263c;
+  --dallas-grok-orange-red: #ff6700;
+  --dallas-grok-orange: #ff9800;
+  --dallas-grok-green: #00c972;
+  --dallas-grok-teal: #00bca6;
+  --dallas-grok-blue: #1084fe;
+  --dallas-grok-violet: #9159fe;
+  --dallas-grok-magenta: #ff309b;
+  --dallas-grok-gray: #777777;
+
+  --dallas-font: "UniversalSansGrokTest Display Trial 400", "UniversalSansGrokTest Display Trial", sans-serif;
   --dallas-font-ui: var(--font-ibm-plex-sans-condensed), "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", sans-serif;
-  --dallas-font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   font-family: var(--dallas-font-ui);
-  /* Shared chrome uses Tailwind font-mono / font-sans. Tailwind v4 inlines
-     @theme --font-mono to --font-geist-mono, so remapping the variable is
-     not enough — force the UI face on those utilities. */
   --font-sans: var(--dallas-font-ui);
   --font-mono: var(--dallas-font-ui);
 
-  /* Mechanical Plex cap: 40% of the canvas display's rendered size.
-     --dallas-display-px is published from the wallpaper resize. */
-  --dallas-display-px: 56px;
+  --dallas-display-px: 44px;
   --dallas-plex-max-ratio: 0.4;
   --dallas-plex-max: calc(var(--dallas-display-px) * var(--dallas-plex-max-ratio));
   font-size: min(0.8125rem, var(--dallas-plex-max));
 
-  /* Galaxy ramp — continuous interpolated, pole-to-pole along meridians.
-     Saturated stops carry on white; pale stops (4-6) may read near-transparent. */
-  --dallas-galaxy-1: #CF525C; /* rose/magenta */
-  --dallas-galaxy-2: #F15336; /* red */
-  --dallas-galaxy-3: #FEB87C; /* orange */
-  --dallas-galaxy-4: #FFE4A6; /* gold/cream */
-  --dallas-galaxy-5: #C4D3E1; /* pale icy */
-  --dallas-galaxy-6: #AAD5EA; /* cyan */
-  --dallas-galaxy-7: #86A4C6; /* blue */
-  --dallas-galaxy-8: #7775A5; /* indigo/violet */
-
   min-height: 100dvh;
   background: var(--dallas-paper);
-  color: var(--dallas-ink);
+  color: var(--dallas-mark-ink);
 }
 
 .dallas-demo__stage {
@@ -86,19 +92,10 @@
   font-size: min(10px, var(--dallas-plex-max));
 }
 
-/* Kill Geist as a second/third voice on the frame. Canvas paints the one
-   Geist Sans line itself; DOM type is Plex unless a node earns mono. */
 .dallas-demo :where(.font-mono, .font-sans, button, label, p, h1, h2, span, a, li, select, option) {
   font-family: var(--dallas-font-ui) !important;
 }
 
-.dallas-demo :where([data-dallas-mono="structural"]) {
-  font-family: var(--dallas-font-mono) !important;
-}
-
-/* Cap every explicit size in this demo (including shared chrome descendants).
-   If Plex still exceeds the ratio, type-lock.ts shrinks the label — it never
-   enlarges the display. */
 .dallas-demo :where(.text-xs) {
   font-size: min(0.75rem, var(--dallas-plex-max)) !important;
 }

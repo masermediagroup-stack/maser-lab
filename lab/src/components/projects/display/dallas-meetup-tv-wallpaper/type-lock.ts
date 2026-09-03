@@ -1,33 +1,29 @@
 /**
  * Mechanical type lock for the Dallas meetup TV wallpaper.
  *
- * Three rules (Elite Pixel Guy + engineering threshold). Not a judgment call:
- *
- * 1. Geist Sans appears exactly once on the frame — the canvas display line
- *    "Dallas meetup". If a second DOM element wants Geist, it does not get it.
+ * 1. Universal Sans trial appears exactly once — the canvas display line
+ *    "Dallas meetup". Geist is out. If a DOM element wants the display face,
+ *    it does not get it.
  * 2. Nothing in IBM Plex Sans Condensed sits close to the display in size.
  *    Largest Plex rendered size ≤ DALLAS_PLEX_MAX_RATIO of the display's
  *    rendered size. Fix: shrink or remove the label. Never enlarge the display.
- * 3. Geist Mono only if a small structural element genuinely earns it
- *    (`data-dallas-mono="structural"` — a slug or rule label). It is not a
- *    third voice and never appears just to add texture.
+ * 3. No third voice. Geist Mono is unused unless a node earns
+ *    `data-dallas-mono="structural"` (none on this demo).
  *
- * DALLAS_PLEX_MAX_RATIO (0.4) is the instructing-agent working threshold for
- * EPG's "decisive" jump. Re-weight off the live canvas; do not invent a
- * second ratio in CSS.
+ * Display size is 44px on the 1920 design frame (LOOK.md). 40% is the
+ * working threshold for EPG's decisive jump.
  */
 
-export const DALLAS_DISPLAY_FONT_PX = 56;
+export const DALLAS_DISPLAY_FONT_PX = 44;
+export const DALLAS_DISPLAY_TRACKING_PX = 2.4;
 export const DALLAS_TYPE_DESIGN_WIDTH_PX = 1920;
-/** Working threshold for a "decisive" Geist/Plex jump. EPG can re-weight. */
 export const DALLAS_PLEX_MAX_RATIO = 0.4;
-/** Subpixel slack so computed px vs calc() does not false-fail. */
 export const DALLAS_PLEX_SIZE_EPSILON_PX = 0.51;
 
-export type DallasFamilyKind = "geist-sans" | "geist-mono" | "plex" | "other";
+export type DallasFamilyKind = "universal-sans" | "geist-sans" | "geist-mono" | "plex" | "other";
 
 export type DallasTypeLockViolation = {
-  rule: "geist-once" | "plex-size" | "geist-mono";
+  rule: "universal-once" | "plex-size" | "geist-out";
   detail: string;
   selector?: string;
   sizePx?: number;
@@ -61,6 +57,9 @@ function familyTokens(family: string): string[] {
 
 export function classifyDallasFamily(family: string): DallasFamilyKind {
   const tokens = familyTokens(family);
+  if (tokens.some((token) => token.includes("universalsans") || token.includes("universal sans"))) {
+    return "universal-sans";
+  }
   if (tokens.some((token) => token.includes("geist") && token.includes("mono"))) {
     return "geist-mono";
   }
@@ -94,10 +93,6 @@ export function publishDallasDisplayPx(host: HTMLElement, displayPx: number): vo
   host.dataset.dallasPlexMaxPx = plexMaxPx(displayPx).toFixed(2);
 }
 
-/**
- * Shrink Plex (or other non-Geist) text that exceeds the cap.
- * Never mutates the canvas and never increases the display size.
- */
 export function enforcePlexCap(root: HTMLElement, maxPx: number): number {
   let shrunk = 0;
   const nodes = root.querySelectorAll<HTMLElement>("*:not(canvas)");
@@ -105,7 +100,7 @@ export function enforcePlexCap(root: HTMLElement, maxPx: number): number {
     if (!hasOwnText(el)) continue;
     const style = getComputedStyle(el);
     const kind = classifyDallasFamily(style.fontFamily);
-    if (kind === "geist-sans" || kind === "geist-mono") continue;
+    if (kind === "universal-sans" || kind === "geist-sans" || kind === "geist-mono") continue;
     const size = Number.parseFloat(style.fontSize);
     if (!Number.isFinite(size) || size <= maxPx + DALLAS_PLEX_SIZE_EPSILON_PX) {
       continue;
@@ -126,13 +121,13 @@ export function checkDallasTypeLock(
   const canvas = root.querySelector("canvas.dallas-wallpaper-canvas");
   if (!canvas) {
     violations.push({
-      rule: "geist-once",
-      detail: "Missing wallpaper canvas — Geist display has nowhere to appear once.",
+      rule: "universal-once",
+      detail: "Missing wallpaper canvas — Universal Sans display has nowhere to appear once.",
     });
-  } else if (canvas.getAttribute("data-dallas-geist") !== "display") {
+  } else if (canvas.getAttribute("data-dallas-display") !== "universal-sans") {
     violations.push({
-      rule: "geist-once",
-      detail: "Wallpaper canvas is not marked as the single Geist Sans display.",
+      rule: "universal-once",
+      detail: "Wallpaper canvas is not marked as the single Universal Sans display.",
       selector: "canvas.dallas-wallpaper-canvas",
     });
   }
@@ -145,24 +140,21 @@ export function checkDallasTypeLock(
     const kind = classifyDallasFamily(style.fontFamily);
     const selector = elementSelector(el);
 
-    if (kind === "geist-sans") {
+    if (kind === "universal-sans") {
       violations.push({
-        rule: "geist-once",
-        detail: `Geist Sans on DOM (${selector}). Only the canvas display line may use it.`,
+        rule: "universal-once",
+        detail: `Universal Sans on DOM (${selector}). Only the canvas display line may use it.`,
         selector,
       });
       continue;
     }
 
-    if (kind === "geist-mono") {
-      const earned = el.getAttribute("data-dallas-mono") === "structural";
-      if (!earned) {
-        violations.push({
-          rule: "geist-mono",
-          detail: `Geist Mono on ${selector} without data-dallas-mono="structural".`,
-          selector,
-        });
-      }
+    if (kind === "geist-sans" || kind === "geist-mono") {
+      violations.push({
+        rule: "geist-out",
+        detail: `Geist on ${selector}. Geist is out of this lockup.`,
+        selector,
+      });
       continue;
     }
 

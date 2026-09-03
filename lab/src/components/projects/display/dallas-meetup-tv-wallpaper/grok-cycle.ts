@@ -1,0 +1,163 @@
+/**
+ * Shape owns fill. Color is not an independent index.
+ *
+ * Official article tree pairing (picker shape → Ver 02 HEX). Sheet HEX wins.
+ * Green is not on the tree — skip it as a body fill (Working-stream ribbons may still use it).
+ * Gray is never a body fill.
+ *
+ * Cold start / product rest: shape 2 + Black #000000.
+ * After each whip settle: next picker shape 2→3→4→5→6→7→8→1→2…
+ * with THAT shape’s paired color. Snap, no rainbow lerp.
+ * First settle after rest = rounded square + Teal.
+ * When the walk returns to oval, fill is Orange-red (tree color), not black.
+ */
+
+import {
+  DEFAULT_LOOP_SECONDS,
+  clampWhipSeconds,
+  restSeconds,
+} from "./globe-motion";
+
+export const DALLAS_PAPER = "#F2F1ED";
+/** Cube, type, horizon ink. */
+export const DALLAS_MARK_INK = "#111111";
+/** Cold-start rest fill only. */
+export const DALLAS_GLOBE_BLACK = "#000000";
+export const DALLAS_EYE_WHITE = "#FFFFFF";
+
+export const DALLAS_GROK_GOLD = "#97683D";
+export const DALLAS_GROK_RED = "#FF263C";
+export const DALLAS_GROK_ORANGE_RED = "#FF6700";
+export const DALLAS_GROK_ORANGE = "#FF9800";
+export const DALLAS_GROK_GREEN = "#00C972";
+export const DALLAS_GROK_TEAL = "#00BCA6";
+export const DALLAS_GROK_BLUE = "#1084FE";
+export const DALLAS_GROK_VIOLET = "#9159FE";
+export const DALLAS_GROK_MAGENTA = "#FF309B";
+/** Named token; never a globe fill. */
+export const DALLAS_GROK_GRAY = "#777777";
+
+export const GROK_CHROMATIC_FILLS = [
+  DALLAS_GROK_GOLD,
+  DALLAS_GROK_RED,
+  DALLAS_GROK_ORANGE_RED,
+  DALLAS_GROK_ORANGE,
+  DALLAS_GROK_GREEN,
+  DALLAS_GROK_TEAL,
+  DALLAS_GROK_BLUE,
+  DALLAS_GROK_VIOLET,
+  DALLAS_GROK_MAGENTA,
+] as const;
+
+/** Sparse Working-stream hues. Green is allowed here, never as a body fill. Flat HEX. */
+export const VER02_ORBIT_HUES = [
+  DALLAS_GROK_BLUE,
+  DALLAS_GROK_GREEN,
+  DALLAS_GROK_MAGENTA,
+  DALLAS_GROK_ORANGE_RED,
+] as const;
+
+export type GrokShapeId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+/** Picker order starting at rest (#2 irregular oval). */
+export const GROK_SHAPE_WALK: readonly GrokShapeId[] = [2, 3, 4, 5, 6, 7, 8, 1];
+
+/**
+ * Family-tree pairing. Green is omitted on purpose.
+ * 1 Circle → Blue
+ * 2 Irregular oval → Orange-red
+ * 3 Squircle → Teal
+ * 4 Pill → Red
+ * 5 Rounded triangle → Magenta
+ * 6 Hexagon → Violet
+ * 7 Cloud → Orange
+ * 8 Teardrop → Gold
+ */
+export const GROK_SHAPE_FILL: Record<GrokShapeId, string> = {
+  1: DALLAS_GROK_BLUE,
+  2: DALLAS_GROK_ORANGE_RED,
+  3: DALLAS_GROK_TEAL,
+  4: DALLAS_GROK_RED,
+  5: DALLAS_GROK_MAGENTA,
+  6: DALLAS_GROK_VIOLET,
+  7: DALLAS_GROK_ORANGE,
+  8: DALLAS_GROK_GOLD,
+};
+
+export type GrokCyclePose = {
+  fromShape: GrokShapeId;
+  toShape: GrokShapeId;
+  morphT: number;
+  fill: string;
+  inSettle: boolean;
+};
+
+function loopLength(loopSeconds: number): number {
+  return loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
+}
+
+function timeInLoop(elapsed: number, loopSeconds: number): number {
+  const loop = loopLength(loopSeconds);
+  return ((elapsed % loop) + loop) % loop;
+}
+
+export function cycleIndex(elapsed: number, loopSeconds: number): number {
+  const loop = loopLength(loopSeconds);
+  if (!Number.isFinite(elapsed) || elapsed < 0) return 0;
+  return Math.floor(elapsed / loop);
+}
+
+function smoothstep(t: number): number {
+  const u = Math.min(1, Math.max(0, t));
+  return u * u * (3 - 2 * u);
+}
+
+export function fillForShape(shape: GrokShapeId, cycles: number): string {
+  if (cycles === 0) return DALLAS_GLOBE_BLACK;
+  return GROK_SHAPE_FILL[shape];
+}
+
+export function grokCyclePose(
+  elapsed: number,
+  loopSeconds: number,
+  whipSeconds: number,
+  reducedMotion: boolean,
+): GrokCyclePose {
+  if (reducedMotion) {
+    return {
+      fromShape: 2,
+      toShape: 2,
+      morphT: 0,
+      fill: DALLAS_GLOBE_BLACK,
+      inSettle: false,
+    };
+  }
+
+  const loop = loopLength(loopSeconds);
+  const t = timeInLoop(elapsed, loop);
+  const whip = clampWhipSeconds(whipSeconds);
+  const rest = restSeconds(loop, whip);
+  const whipEnd = rest + whip;
+  const cycles = cycleIndex(elapsed, loop);
+  const fromShape = GROK_SHAPE_WALK[cycles % GROK_SHAPE_WALK.length]!;
+  const toShape = GROK_SHAPE_WALK[(cycles + 1) % GROK_SHAPE_WALK.length]!;
+
+  if (t < whipEnd) {
+    return {
+      fromShape,
+      toShape: fromShape,
+      morphT: 0,
+      fill: fillForShape(fromShape, cycles),
+      inSettle: false,
+    };
+  }
+
+  const settleLen = Math.max(1e-6, loop - whipEnd);
+  return {
+    fromShape,
+    toShape,
+    morphT: smoothstep((t - whipEnd) / settleLen),
+    fill: GROK_SHAPE_FILL[toShape],
+    inSettle: true,
+  };
+}

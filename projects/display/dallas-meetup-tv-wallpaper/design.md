@@ -1,85 +1,22 @@
 # Dallas Meetup TV Wallpaper — Design Directives
 
-## Galaxy ramp: hue follows density, not position (EPG)
+Look lock lives in `LOOK.md`. This file is the short rationale.
 
-On the original Grok 4 hero the motif is not pure linework: it is
-**hairlines on top of a soft mesh-gradient wash**. The lines themselves are
-white/silvery; the COLOR lives in the glow underneath. That does not change
-the white-ground build — it reinforces it. On black the lines are light and
-the wash carries colour. On white we invert: the ink carries the colour and
-density does the job the wash did.
+## Working stream vs the gap
 
-On black the Grok 4 artwork paints light; on white we paint INK. The ramp
-inverts in role: density does what bloom did, and hue follows density instead
-of screen position.
+Product Working is a **sparse orbit stream**: 2–5 thick ribbons, rounded caps, wrapping front/back so they **cross the eyes**, then a gap, then they return. Article frames with **no** ribbons are that gap — not Idle, not “Working has no orbits.”
 
-### Ramp rules
+The TV loop does **not** hold Working. It plays Idle, one kick (one stream wraps and leaves), then Idle again. Reduced motion freezes Idle.
 
-- **Cut** cream `#FFE4A6` and pale icy `#C4D3E1` as line colors. On white
-  they are the paper. Never stroke with them.
-- **Indigo `#7775A5`** is the default filament. It is the darkest stop and
-  carries the bulk of every bundle.
-- **Blue `#86A4C6` and cyan `#AAD5EA`** take the open body, but only where
-  a bundle is dense enough to hold value. A lone cyan hairline on white is
-  a dropout.
-- **Rose `#CF525C`, red `#F15336`, orange `#FEB87C`** are reserved for the
-  compressed limb seam. Heat is earned where the ellipse collapses and
-  filaments stack, nowhere else.
-- **Orange** is the weakest hot stop on white; walk it only as the transition
-  into the seam.
+## Kick craft
 
-### Density computation
+- Thickness ~4–5% of face (~one eye-bar). At 300px: 12–15px.
+- 2–4 bands. Rounded caps. Flat Ver 02 HEX. No article ribbon gradients.
+- Wrap + clip on the current SDF body. Back occluded by the fill. Front over the face, including the white stadiums.
+- Cube stays clean.
 
-Two components, both from existing geometry:
+Kill: 7+ hairlines, wallpaper field, a nest of meridians, a square of doodles behind a PNG, 1–3px filaments, Thinking.
 
-1. **Edge-on-ness of the meridian.** `edgeOn = 1 - abs(sin(lambda + theta))`.
-   1 at the limb, 0 face-on.
-2. **Arc-length compression.** Points crowd near vertical tangents. Take local
-   arc compression and normalize.
+## Body + type + horizon
 
-Combined: `density = edgeOn * 0.7 + arcCompression * 0.3`, clamped to 0..1.
-
-Mapping: low density → indigo, mid → blue → cyan, high → orange → red → rose.
-
-### Legibility floor
-
-Every filament that reads as a line must be legible against white at 1×.
-Cyan on white is marginal. If a filament's stop + opacity + width would not
-hold on its own, either raise opacity or fall back toward indigo. Do not ship
-hairlines that dissolve into the paper. If a stop cannot be line, it is paper.
-
-### Refusals
-
-- No bloom, glow, screen, or add blend on white.
-- No banded ramp (discrete colour bands).
-- No hot stop painted on a sparse bundle.
-- No star specks (black-background language; looks like dust on white).
-- Normal blending only.
-- Parallels: quiet, largely indigo. Colour lives in the meridians.
-
-## Type
-
-Settled. Do not re-open.
-
-- Display (`Dallas meetup`): Geist Sans, **exactly once**, on the canvas.
-  The user named Geist sans twice. Never Geist Mono on that line. If a
-  second element wants Geist, it does not get it.
-- Body, labels, info: IBM Plex Sans Condensed. Geist does not creep
-  into small type. Nothing in Plex sits close to the display in size.
-  **Check:** largest Plex rendered size ≤ **40%** of the display's
-  rendered size (`56 × canvasCssWidth / 1920`). If a label exceeds it,
-  cut or shrink the label. Never enlarge the display to restore the
-  ratio. 40% is the engineering working threshold for EPG's "decisive"
-  jump; he can re-weight off the live canvas.
-- GeistMono only if a small structural element earns
-  `data-dallas-mono="structural"` (slug or rule label). Not a third
-  voice. Never applied for texture. Unused on this demo today.
-- Never Universal Sans. Never load xAI's self-hosted files.
-- Tokens: `--dallas-font` (display), `--dallas-font-ui` (body).
-- Enforcement: `type-lock.ts` + `--dallas-plex-max` on `.dallas-demo`.
-
-## Skyline
-
-Approved. Additive only, demo-rail toggle, default OFF. Procedural
-silhouette from the CC0 Trammell Crow Park photo as a proportion
-reference. Must not re-layout marks or type.
+Unchanged from `LOOK.md`: shape→color pairing, cold-start oval+Black, flat HEX, white stadiums, Universal Sans once, Noun Project Dallas 3583788, 8s (6.4 / 0.6 / ~1).
