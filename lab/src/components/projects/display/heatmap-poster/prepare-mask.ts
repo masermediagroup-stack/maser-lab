@@ -166,6 +166,22 @@ function readLumaAndFind(
   return { luma, find };
 }
 
+/** Non-Ground pixels after the Ground composite. Exact Ground is absence, not ink. */
+function inkMask(data: Uint8ClampedArray, w: number, h: number): Uint8Array {
+  const gr = Math.round(HEATMAP_GROUND[0] * 255);
+  const gg = Math.round(HEATMAP_GROUND[1] * 255);
+  const gb = Math.round(HEATMAP_GROUND[2] * 255);
+  const ink = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    const r = data[i * 4] ?? 0;
+    const g = data[i * 4 + 1] ?? 0;
+    const b = data[i * 4 + 2] ?? 0;
+    const ground = Math.abs(r - gr) <= 2 && Math.abs(g - gg) <= 2 && Math.abs(b - gb) <= 2;
+    ink[i] = ground ? 0 : 1;
+  }
+  return ink;
+}
+
 export type FullSubjectRead = {
   subject: Float32Array;
   labels: Int32Array;
@@ -203,6 +219,7 @@ export function readFullSubject(
         blobs: [],
         dropped: [],
         fallbackFired: false,
+        skippedFlat: false,
         band: null,
       },
     };
@@ -220,7 +237,8 @@ export function readFullSubject(
     throw err;
   }
   const { luma, find } = readLumaAndFind(data, width, height);
-  const mass = applyLumaMass(find, luma, width, height);
+  const ink = inkMask(data, width, height);
+  const mass = applyLumaMass(find, luma, width, height, ink);
   heatmapTrace("mass:luma", {
     path: mass.report.path,
     area: mass.report.winner?.area ?? 0,
@@ -229,6 +247,7 @@ export function readFullSubject(
     cx: mass.centroid.cx,
     cy: mass.centroid.cy,
     fallbackFired: mass.report.fallbackFired,
+    skippedFlat: mass.report.skippedFlat,
     blobCount: mass.report.blobs.length,
     droppedCount: mass.report.dropped.length,
   });

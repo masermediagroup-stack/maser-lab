@@ -96,6 +96,18 @@ Find-field binarize (luma path): Otsu on `|luma − borderMean| + Sobel`. Named,
 
 Winner centroid is the cached focal point, once per upload. Normalize the LUT inside the winner only. No morphological opening on the winner.
 
+Mass selection is a photograph rule. A flat mark (logo, type, line) has no mass — compactness 0.012 is the tell, not a failed subject. Skip the winner-blob and paint luma+edge across the ink. Crowning an outline fragment would make the rest of the lockup Ground, which is the wrong read.
+
+If the real file still hands Heat to the head and leaves the torso as an Otsu outline, bring that blob map. Don't invent a shoulder fill to make this selfie work.
+
+After a would-be winner from area × compactness:
+
+- If that winner's compactness is below **0.05** (`FLAT_MASS_COMPACTNESS`), this is a flat input. Skip winner-blob entirely. Do not normalize the LUT inside that outline. Paint luma+edge across the ink of the mark (the actual non-Ground pixels of the upload, after the usual Ground composite). The rest of the lockup must not fall to Ground just because an outline fragment scored highest.
+- 0.05 is the named check of the 0.012 tell (`FLAT_MASS_EVIDENCE`). Logo compactness was 0.012; the reconstruction's head fill was 0.182. The floor has to catch outlines and miss filled masses. 0.05 is a re-weightable check. 0.012 stays in this file as the evidence, not the cutoff.
+- If compactness is at or above 0.05, this is a photograph: keep the winner, normalize inside it, competing thin regions stay Ground, internal detail of the winner stays.
+
+Do not use centre-bias, a second model, or morphological fill to "rescue" a torso. If Otsu only traces an outline on a real photograph, that is a blob-map case, not a skip case.
+
 ## Primitives Spark may name
 
 `--heatmap-heat` white/yellow mass

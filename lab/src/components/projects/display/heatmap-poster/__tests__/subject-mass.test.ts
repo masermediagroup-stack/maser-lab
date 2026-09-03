@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
   CENTRE_TIEBREAK,
+  FLAT_MASS_COMPACTNESS,
+  FLAT_MASS_EVIDENCE,
   FRAME_CONTACT_MAX,
   FRAME_CONTACT_REFUSAL,
   NEAR_BAND_THIN_COMPACTNESS,
   NEAR_FIELD_BAND_START,
 } from "../constants";
 import {
+  applyLumaMass,
   applyNearFieldMass,
   compactness,
   connectedComponents,
@@ -185,5 +188,77 @@ describe("near-field band widening", () => {
     const result = applyNearFieldMass(depth, w, h);
     expect(result.crowned).toBe(false);
     expect(result.report.path).toBe("luma-fallback");
+  });
+});
+
+describe("flat-mark skip (compactness 0.05)", () => {
+  it("treats 0.012 as evidence and 0.05 as the cutoff", () => {
+    expect(FLAT_MASS_EVIDENCE).toBe(0.012);
+    expect(FLAT_MASS_COMPACTNESS).toBe(0.05);
+    expect(FLAT_MASS_EVIDENCE).toBeLessThan(FLAT_MASS_COMPACTNESS);
+  });
+
+  it("skips an outline winner and paints luma+edge across the ink", () => {
+    const w = 80;
+    const h = 80;
+    const find = new Float32Array(w * h);
+    const luma = new Float32Array(w * h);
+    const ink = new Uint8Array(w * h);
+    // Spread the ground/interior histogram so Otsu splits on the stroke,
+    // not on bin 0 (which would paint the whole frame as one blob).
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        find[y * w + x] = 0.02 + 0.0004 * (x + y);
+        luma[y * w + x] = 0.12;
+      }
+    }
+    const x0 = 12;
+    const y0 = 14;
+    const x1 = 68;
+    const y1 = 66;
+    for (let y = y0; y < y1; y++) {
+      for (let x = x0; x < x1; x++) {
+        ink[y * w + x] = 1;
+        luma[y * w + x] = 0.45;
+        find[y * w + x] = 0.04 + 0.0003 * (x + y);
+      }
+    }
+    for (let y = y0; y < y1; y++) {
+      for (let x = x0; x < x1; x++) {
+        if (x === x0 || x === x1 - 1 || y === y0 || y === y1 - 1) {
+          find[y * w + x] = 0.98;
+          luma[y * w + x] = 0.7;
+        }
+      }
+    }
+    const result = applyLumaMass(find, luma, w, h, ink);
+    expect(result.report.winner).not.toBeNull();
+    expect(result.report.winner!.compactness).toBeLessThan(FLAT_MASS_COMPACTNESS);
+    expect(result.report.skippedFlat).toBe(true);
+    expect(result.report.path).toBe("luma-flat-ink");
+    const interior = result.field[40 * w + 40] ?? 0;
+    const stroke = result.field[y0 * w + 40] ?? 0;
+    const ground = result.field[2 * w + 2] ?? 0;
+    expect(interior).toBeGreaterThan(0);
+    expect(stroke).toBeGreaterThan(interior);
+    expect(ground).toBe(0);
+  });
+
+  it("keeps a filled photograph mass at or above 0.05", () => {
+    const w = 80;
+    const h = 80;
+    const find = new Float32Array(w * h);
+    const luma = new Float32Array(w * h);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const inside = (x + 0.5 - 40) ** 2 + (y + 0.5 - 40) ** 2 <= 18 * 18;
+        find[y * w + x] = inside ? 0.92 : 0.03 + 0.0005 * (x + y);
+        luma[y * w + x] = inside ? 0.6 : 0.12;
+      }
+    }
+    const result = applyLumaMass(find, luma, w, h);
+    expect(result.report.skippedFlat).toBe(false);
+    expect(result.report.winner!.compactness).toBeGreaterThanOrEqual(FLAT_MASS_COMPACTNESS);
+    expect(result.report.path).toMatch(/^luma-(frame-contact|full-bleed-fallback)$/);
   });
 });

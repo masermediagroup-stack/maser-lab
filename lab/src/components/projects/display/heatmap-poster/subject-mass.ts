@@ -1,5 +1,6 @@
 import {
   CENTRE_TIEBREAK,
+  FLAT_MASS_COMPACTNESS,
   FRAME_CONTACT_MAX,
   NEAR_BAND_STEP,
   NEAR_BAND_THIN_COMPACTNESS,
@@ -24,6 +25,7 @@ export type SubjectMassReport = {
   blobs: BlobStats[];
   dropped: BlobStats[];
   fallbackFired: boolean;
+  skippedFlat: boolean;
   band: number | null;
 };
 
@@ -219,11 +221,55 @@ export function normalizeInsideWinner(
   return out;
 }
 
+export function normalizeInsideInk(
+  source: Float32Array,
+  ink: Uint8Array,
+): Float32Array {
+  const out = new Float32Array(source.length);
+  let min = Infinity;
+  let max = -Infinity;
+  for (let i = 0; i < source.length; i++) {
+    if ((ink[i] ?? 0) === 0) continue;
+    const v = source[i] ?? 0;
+    if (v < min) min = v;
+    if (v > max) max = v;
+  }
+  const range = max - min;
+  if (!Number.isFinite(min) || range < 1e-8) {
+    for (let i = 0; i < source.length; i++) {
+      out[i] = (ink[i] ?? 0) === 0 ? 0 : 1;
+    }
+    return out;
+  }
+  for (let i = 0; i < source.length; i++) {
+    out[i] = (ink[i] ?? 0) === 0 ? 0 : ((source[i] ?? 0) - min) / range;
+  }
+  return out;
+}
+
+function inkCentroid(ink: Uint8Array, w: number, h: number): FocalPoint {
+  let sumW = 0;
+  let sumX = 0;
+  let sumY = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const v = ink[y * w + x] ?? 0;
+      if (v === 0) continue;
+      sumW += 1;
+      sumX += x + 0.5;
+      sumY += y + 0.5;
+    }
+  }
+  if (sumW < 1) return { cx: 0.5, cy: 0.5 };
+  return { cx: sumX / sumW / w, cy: sumY / sumW / h };
+}
+
 export function applyLumaMass(
   findField: Float32Array,
   luma: Float32Array,
   w: number,
   h: number,
+  ink?: Uint8Array,
 ): SubjectMassResult {
   const binary = binarizeOtsu(findField);
   const { labels, blobs } = connectedComponents(binary, w, h);
@@ -243,6 +289,25 @@ export function applyLumaMass(
         blobs,
         dropped,
         fallbackFired,
+        skippedFlat: false,
+        band: null,
+      },
+    };
+  }
+  if (winner.compactness < FLAT_MASS_COMPACTNESS) {
+    const mask = ink ?? new Uint8Array(w * h).fill(1);
+    const field = normalizeInsideInk(findField, mask);
+    return {
+      field,
+      labels,
+      centroid: inkCentroid(mask, w, h),
+      report: {
+        path: "luma-flat-ink",
+        winner,
+        blobs,
+        dropped,
+        fallbackFired,
+        skippedFlat: true,
         band: null,
       },
     };
@@ -258,6 +323,7 @@ export function applyLumaMass(
       blobs,
       dropped,
       fallbackFired,
+      skippedFlat: false,
       band: null,
     },
   };
@@ -297,6 +363,7 @@ export function applyNearFieldMass(
           blobs,
           dropped,
           fallbackFired,
+          skippedFlat: false,
           band,
         },
       };
@@ -311,6 +378,7 @@ export function applyNearFieldMass(
         blobs,
         dropped,
         fallbackFired,
+        skippedFlat: false,
         band,
       },
     };
@@ -330,6 +398,7 @@ export function applyNearFieldMass(
       blobs: last?.report.blobs ?? [],
       dropped: last?.report.dropped ?? [],
       fallbackFired: false,
+      skippedFlat: false,
       band: 1,
     },
   };
