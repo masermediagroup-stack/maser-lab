@@ -127,6 +127,7 @@ export function HeatmapPosterDemo() {
           forceReducedMotion={reduced}
           readStatus={readStatus}
           onReadStatus={setReadStatus}
+          caption={image ? HEATMAP_COPY.captionEmpty : undefined}
         />
       </section>
 

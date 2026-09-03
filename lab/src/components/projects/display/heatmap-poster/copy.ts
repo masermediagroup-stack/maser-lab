@@ -15,4 +15,8 @@ export const HEATMAP_COPY = {
   size916: "9:16",
   sizeA4: "A4",
   title: "Heatmap",
+  /** PENDING: EPG owes the caption label string. */
+  captionLabel: "[LABEL]",
+  /** PENDING: EPG owes the empty-caption line. */
+  captionEmpty: "[CAPTION]",
 } as const;

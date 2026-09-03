@@ -29,6 +29,7 @@ export type HeatmapPosterProps = {
   forceReducedMotion?: boolean;
   readStatus?: HeatmapReadStatus;
   onReadStatus?: (status: HeatmapReadStatus) => void;
+  caption?: string;
 };
 
 export type PackedMask = {

@@ -44,6 +44,11 @@ No "drag and drop your file here to get started." No exclamation points.
 - Keep 9:16 and A4 as the only sizes. Same lock on both. Crop changes, the LUT does not.
 - Read transparency as Ground. Alpha is absence, not cold and never heat; composite the upload onto Ground before any read so a cutout PNG cannot grow a fake subject.
 - Keep noise off the heat read. Texture and grain are surface, not mass; a noisy flat input stays on Ground.
+- Set the page to black. Black is the page, indigo Ground is the coldest stop inside the read. They are not the same surface and the poster must not bleed into the page.
+- Build the poster as one card on that black: image plate on top, caption plate directly under it, both inside a single hairline frame. No gap, no shadow, no floating panels.
+- Give the image plate the crop and the caption plate the words. Type never sits on the heat.
+- Set the caption plate on black with a mono label above the line, both in --heatmap-type. It reads as a specimen slug, not a UI card.
+- Let the caption plate grow with the text and keep the image plate's crop fixed. Empty caption collapses; the frame does not.
 - Leave knobs in the demo rail. Never on the poster.
 
 ## Primitives Spark may name
@@ -55,6 +60,8 @@ No "drag and drop your file here to get started." No exclamation points.
 `--heatmap-grain` sensor, low
 `--heatmap-wave` frequency of the wash through the three stops
 `--heatmap-speed` rate of that wash
+`--heatmap-page` black, the page behind the poster
+`--heatmap-frame` hairline around the card
 
 No other color names. No Geist, vbg, triangle, or shared studio sheet.
 
@@ -69,3 +76,5 @@ No other color names. No Geist, vbg, triangle, or shared studio sheet.
 - Spinner, skeleton, or remount while the model loads.
 - Knobs on the poster.
 - Cafe orange, Cursor paper, Dallas meetup assets.
+- Poster floating on a gradient, drop shadow, or device mockup.
+- Caption plate styled as a UI card: no rounded chips, no button, no border radius fighting the frame.

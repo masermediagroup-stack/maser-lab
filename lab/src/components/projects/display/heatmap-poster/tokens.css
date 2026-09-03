@@ -7,26 +7,39 @@
   --heatmap-grain: 0.35;
   --heatmap-wave: 0.55;
   --heatmap-speed: 0.45;
+  --heatmap-page: #000000;
+  --heatmap-frame: rgba(244, 241, 234, 0.18);
 }
+
+/* --- Card: one hairline frame around both plates --- */
 
 .heatmap-poster {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: min(100%, calc(100dvh * 9 / 16));
-  height: auto;
-  max-height: 100%;
-  background: var(--heatmap-ground);
+  background: var(--heatmap-page);
   color: var(--heatmap-type);
+  border: 1px solid var(--heatmap-frame);
+  border-radius: 0;
+  box-shadow: none;
 }
 
-.heatmap-poster[data-format="9-16"] {
+/* --- Image plate: fixed aspect, holds the canvas --- */
+
+.heatmap-poster__image-plate {
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: var(--heatmap-ground);
+}
+
+.heatmap-poster[data-format="9-16"] .heatmap-poster__image-plate {
   aspect-ratio: 9 / 16;
-  width: min(100%, calc(100dvh * 9 / 16));
 }
 
-.heatmap-poster[data-format="a4"] {
+.heatmap-poster[data-format="a4"] .heatmap-poster__image-plate {
   aspect-ratio: 1 / 1.414213562;
-  width: min(100%, calc(100dvh / 1.414213562));
 }
 
 .heatmap-poster__canvas {
@@ -36,6 +49,46 @@
   position: absolute;
   inset: 0;
 }
+
+/* --- Caption plate: content-driven height, collapses when empty --- */
+
+.heatmap-poster__caption-plate {
+  flex: 0 0 auto;
+  padding: 0.75rem 1rem;
+  background: var(--heatmap-page);
+  border-top: 1px solid var(--heatmap-frame);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.heatmap-poster__caption-plate:empty,
+.heatmap-poster__caption-plate[data-empty="true"] {
+  display: none;
+}
+
+.heatmap-poster__caption-plate[data-empty="true"] + .heatmap-poster__caption-spacer {
+  display: none;
+}
+
+.heatmap-poster__caption-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--heatmap-type);
+  opacity: 0.55;
+}
+
+.heatmap-poster__caption-text {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--heatmap-type);
+}
+
+/* --- Status label (reading / rough-read / empty) --- */
 
 .heatmap-status {
   margin: 0;
@@ -56,7 +109,9 @@
   pointer-events: none;
 }
 
-.heatmap-poster__frame {
+/* --- Hot-zone diagnostic frame (overlay on image plate) --- */
+
+.heatmap-poster__hot-frame {
   display: none;
   position: absolute;
   z-index: 1;

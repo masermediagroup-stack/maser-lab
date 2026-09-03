@@ -3,7 +3,7 @@
 .heatmap-demo.maser-lab,
 .heatmap-demo {
   min-height: 100dvh;
-  background: var(--heatmap-ground);
+  background: var(--heatmap-page);
   color: var(--heatmap-type);
 }
 
@@ -11,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--heatmap-ground);
+  background: var(--heatmap-page);
 }
 
 .heatmap-demo .heatmap-stage {

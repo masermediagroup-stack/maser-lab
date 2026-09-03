@@ -28,13 +28,14 @@ export function HeatmapPoster({
   forceReducedMotion = false,
   readStatus = "idle",
   onReadStatus,
+  caption,
 }: HeatmapPosterProps) {
   const rootRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lookRef = useRef(look);
   const reducedRef = useRef(forceReducedMotion);
   const driverRef = useRef<HeatmapDriver | null>(null);
-  const frameRef = useRef<HTMLDivElement>(null);
+  const hotFrameRef = useRef<HTMLDivElement>(null);
   const generationRef = useRef(0);
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export function HeatmapPoster({
     const driver = driverRef.current;
     if (!driver) return;
     const gen = ++generationRef.current;
-    const frameNode = frameRef.current;
+    const hotNode = hotFrameRef.current;
     const srcChanged = lastSrcRef.current !== imageSrc;
     lastSrcRef.current = imageSrc;
 
@@ -77,7 +78,7 @@ export function HeatmapPoster({
       driver.setFallback(emptyPack());
       driver.setDepth(null);
       driver.snapMaskMix(0);
-      if (frameNode) frameNode.style.display = "none";
+      if (hotNode) hotNode.style.display = "none";
       onReadStatus?.("idle");
       return;
     }
@@ -99,15 +100,15 @@ export function HeatmapPoster({
           format,
         );
         driver.setFallback(fallback);
-        if (frameNode) {
+        if (hotNode) {
           if (fallback.frame) {
-            frameNode.style.display = "block";
-            frameNode.style.left = `${fallback.frame.x * 100}%`;
-            frameNode.style.top = `${fallback.frame.y * 100}%`;
-            frameNode.style.width = `${fallback.frame.w * 100}%`;
-            frameNode.style.height = `${fallback.frame.h * 100}%`;
+            hotNode.style.display = "block";
+            hotNode.style.left = `${fallback.frame.x * 100}%`;
+            hotNode.style.top = `${fallback.frame.y * 100}%`;
+            hotNode.style.width = `${fallback.frame.w * 100}%`;
+            hotNode.style.height = `${fallback.frame.h * 100}%`;
           } else {
-            frameNode.style.display = "none";
+            hotNode.style.display = "none";
           }
         }
 
@@ -141,6 +142,8 @@ export function HeatmapPoster({
           ? HEATMAP_COPY.empty
           : "";
 
+  const hasCaption = caption != null && caption.length > 0;
+
   return (
     <section
       ref={rootRef}
@@ -153,10 +156,21 @@ export function HeatmapPoster({
         ["--heatmap-ground" as string]: `rgb(${Math.round(look.ground[0] * 255)} ${Math.round(look.ground[1] * 255)} ${Math.round(look.ground[2] * 255)})`,
       }}
     >
-      <canvas ref={canvasRef} className="heatmap-poster__canvas" aria-hidden />
-      <div ref={frameRef} className="heatmap-poster__frame" aria-hidden />
-      {statusText ? (
-        <p className="heatmap-status heatmap-poster__status">{statusText}</p>
+      {/* Image plate: fixed aspect, holds the heat canvas */}
+      <div className="heatmap-poster__image-plate">
+        <canvas ref={canvasRef} className="heatmap-poster__canvas" aria-hidden />
+        <div ref={hotFrameRef} className="heatmap-poster__hot-frame" aria-hidden />
+        {statusText ? (
+          <p className="heatmap-status heatmap-poster__status">{statusText}</p>
+        ) : null}
+      </div>
+
+      {/* Caption plate: content-driven, collapses when empty */}
+      {hasCaption ? (
+        <div className="heatmap-poster__caption-plate">
+          <p className="heatmap-poster__caption-label">{HEATMAP_COPY.captionLabel}</p>
+          <p className="heatmap-poster__caption-text">{caption}</p>
+        </div>
       ) : null}
     </section>
   );
