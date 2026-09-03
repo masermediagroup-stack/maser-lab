@@ -1,17 +1,31 @@
+/*
+ * Dallas Meetup TV Wallpaper — product tokens.
+ *
+ * Galaxy-line colors: sampled medians from xAI's Grok 4 artwork
+ * (https://media.x.ai/v1/website/grok-4-6bdb0520.webp).
+ * These are NOT official xAI brand tokens — they faithfully represent that
+ * official artwork but xAI publishes no galaxy-line palette.
+ */
+
 .dallas-demo,
 .dallas-demo.maser-lab {
   --dallas-paper: #ffffff;
   --dallas-ink: #26251e;
   --dallas-loop-seconds: 12s;
 
-  /* Galaxy-line meridian ramp — PLACEHOLDER values.
-     Real Grok brand colors will be swapped in as a token-only change. */
-  --dallas-galaxy-1: #6366f1;
-  --dallas-galaxy-2: #8b5cf6;
-  --dallas-galaxy-3: #a855f7;
-  --dallas-galaxy-4: #c084fc;
-  --dallas-galaxy-5: #818cf8;
-  --dallas-galaxy-6: #7c3aed;
+  /* Font: Geist Sans (OFL 1.1). Swap to Universal Sans here if licenced. */
+  --dallas-font: "Geist", "Geist Sans", sans-serif;
+
+  /* Galaxy ramp — continuous interpolated, pole-to-pole along meridians.
+     Saturated stops carry on white; pale stops (4-6) may read near-transparent. */
+  --dallas-galaxy-1: #CF525C; /* rose/magenta */
+  --dallas-galaxy-2: #F15336; /* red */
+  --dallas-galaxy-3: #FEB87C; /* orange */
+  --dallas-galaxy-4: #FFE4A6; /* gold/cream */
+  --dallas-galaxy-5: #C4D3E1; /* pale icy */
+  --dallas-galaxy-6: #AAD5EA; /* cyan */
+  --dallas-galaxy-7: #86A4C6; /* blue */
+  --dallas-galaxy-8: #7775A5; /* indigo/violet */
 
   min-height: 100dvh;
   background: var(--dallas-paper);

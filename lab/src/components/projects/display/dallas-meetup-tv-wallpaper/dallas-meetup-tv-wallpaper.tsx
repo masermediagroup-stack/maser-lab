@@ -21,9 +21,11 @@ const COS_TILT = Math.cos(AXIS_TILT);
 const SIN_TILT = Math.sin(AXIS_TILT);
 
 const MERIDIAN_COUNT = 12;
+const FILAMENTS_PER_MERIDIAN = 6;
+const FILAMENT_SPREAD = 0.012;
 const PARALLEL_COUNT = 5;
-const MERIDIAN_LINE_WIDTH_FRAC = 0.012;
-const PARALLEL_LINE_WIDTH_FRAC = 0.007;
+const PARALLEL_LINE_WIDTH_FRAC = 0.005;
+const GALAXY_STOP_COUNT = 8;
 
 type ExportResult = {
   blob: Blob;
@@ -115,10 +117,35 @@ function drawTrackedText(
   }
 }
 
-/**
- * Project a point on the unit sphere through the tilted-axis orthographic
- * projection. Returns screen-space [sx, sy, z] where z>0 is front hemisphere.
- */
+function parseHex(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  return [
+    parseInt(h.slice(0, 2), 16),
+    parseInt(h.slice(2, 4), 16),
+    parseInt(h.slice(4, 6), 16),
+  ];
+}
+
+function lerpColor(
+  colors: [number, number, number][],
+  t: number,
+): [number, number, number] {
+  const clamped = Math.max(0, Math.min(1, t));
+  const idx = clamped * (colors.length - 1);
+  const lo = Math.floor(idx);
+  const hi = Math.min(lo + 1, colors.length - 1);
+  const frac = idx - lo;
+  return [
+    Math.round(lerp(colors[lo][0], colors[hi][0], frac)),
+    Math.round(lerp(colors[lo][1], colors[hi][1], frac)),
+    Math.round(lerp(colors[lo][2], colors[hi][2], frac)),
+  ];
+}
+
+function rgbString(c: [number, number, number], alpha: number): string {
+  return `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
+}
+
 function sphereProject(
   phi: number,
   lambda: number,
@@ -130,15 +157,86 @@ function sphereProject(
   const lam = lambda + theta;
   const cosL = Math.cos(lam);
   const sinL = Math.sin(lam);
-
   const xWorld = cosP * sinL;
   const yWorld = sinP;
   const zWorld = cosP * cosL;
-
   const yTilted = yWorld * COS_TILT - zWorld * SIN_TILT;
   const zTilted = yWorld * SIN_TILT + zWorld * COS_TILT;
-
   return [R * xWorld, -R * yTilted, zTilted];
+}
+
+/** Deterministic pseudo-random from two ints, returns 0–1. */
+function frand(a: number, b: number): number {
+  let h = (a * 2654435761) ^ (b * 2246822519);
+  h = ((h >>> 16) ^ h) * 0x45d9f3b;
+  h = ((h >>> 16) ^ h) * 0x45d9f3b;
+  h = (h >>> 16) ^ h;
+  return (h & 0x7fffffff) / 0x7fffffff;
+}
+
+function drawFilamentMeridians(
+  ctx: CanvasRenderingContext2D,
+  R: number,
+  theta: number,
+  parsedColors: [number, number, number][],
+) {
+  const ARC_SEGMENTS = 48;
+
+  for (let m = 0; m < MERIDIAN_COUNT; m++) {
+    const baseLam = (m / MERIDIAN_COUNT) * Math.PI * 2;
+
+    for (let f = 0; f < FILAMENTS_PER_MERIDIAN; f++) {
+      const lonOffset = (frand(m, f) - 0.5) * 2 * FILAMENT_SPREAD * Math.PI * 2;
+      const filamentLam = baseLam + lonOffset;
+      const baseOpacity = 0.35 + frand(m, f + 100) * 0.55;
+      const lineW = 0.4 + frand(m, f + 200) * 0.8;
+      const colorPhase = frand(m, f + 300) * 0.3;
+
+      ctx.lineWidth = lineW;
+
+      let prevSx = 0, prevSy = 0, prevZ = 0, prevValid = false;
+
+      for (let s = 0; s <= ARC_SEGMENTS; s++) {
+        const phi = ((s / ARC_SEGMENTS) * Math.PI) - Math.PI / 2;
+
+        const effLam = filamentLam + theta;
+        const cosP = Math.cos(phi);
+        const sinP = Math.sin(phi);
+        const cosL = Math.cos(effLam);
+        const sinL = Math.sin(effLam);
+        const xWorld = cosP * sinL;
+        const yWorld = sinP;
+        const zWorld = cosP * cosL;
+        const yTilted = yWorld * COS_TILT - zWorld * SIN_TILT;
+        const zTilted = yWorld * SIN_TILT + zWorld * COS_TILT;
+        const sx = R * xWorld;
+        const sy = -R * yTilted;
+
+        const visible = zTilted > -0.05;
+
+        if (visible && prevValid && prevZ > -0.05) {
+          const depthFade = Math.min(1, Math.max(0, zTilted * 3));
+          const prevDepth = Math.min(1, Math.max(0, prevZ * 3));
+          const segAlpha = Math.min(depthFade, prevDepth) * baseOpacity;
+          if (segAlpha > 0.01) {
+            const colorT = Math.max(0, Math.min(1, (s / ARC_SEGMENTS) + colorPhase)) % 1.0;
+            const rampT = colorT * (parsedColors.length - 1) / (parsedColors.length - 1);
+            const col = lerpColor(parsedColors, rampT);
+            ctx.strokeStyle = rgbString(col, segAlpha);
+            ctx.beginPath();
+            ctx.moveTo(prevSx, prevSy);
+            ctx.lineTo(sx, sy);
+            ctx.stroke();
+          }
+        }
+
+        prevSx = sx;
+        prevSy = sy;
+        prevZ = zTilted;
+        prevValid = visible;
+      }
+    }
+  }
 }
 
 function drawGrokGlobe(
@@ -153,7 +251,7 @@ function drawGrokGlobe(
   leftEyeScale: number,
   rightEyeScale: number,
   grokScaleY: number,
-  galaxyColors: string[],
+  parsedColors: [number, number, number][],
   ink: string,
   paper: string,
   scale: number,
@@ -172,36 +270,9 @@ function drawGrokGlobe(
   ctx.arc(0, 0, R, 0, Math.PI * 2);
   ctx.clip();
 
-  const meridianLW = R * MERIDIAN_LINE_WIDTH_FRAC * 2;
+  drawFilamentMeridians(ctx, R, theta, parsedColors);
+
   const parallelLW = R * PARALLEL_LINE_WIDTH_FRAC * 2;
-
-  for (let i = 0; i < MERIDIAN_COUNT; i++) {
-    const lam = (i / MERIDIAN_COUNT) * Math.PI * 2;
-    const effLam = lam + theta;
-    const sinEff = Math.sin(effLam);
-    const cosEff = Math.cos(effLam);
-
-    const semiMinor = R * Math.abs(sinEff);
-
-    const ellipseCx = R * sinEff * COS_TILT * 0;
-    const tiltAngle = -AXIS_TILT;
-
-    const colorIdx = i % galaxyColors.length;
-
-    const behindLimb = cosEff < 0;
-    const opacity = behindLimb ? 0 : Math.min(1, Math.abs(cosEff) * 3);
-    if (opacity <= 0.01) continue;
-
-    ctx.save();
-    ctx.globalAlpha = opacity * 0.7;
-    ctx.strokeStyle = galaxyColors[colorIdx];
-    ctx.lineWidth = meridianLW;
-    ctx.beginPath();
-    ctx.ellipse(ellipseCx, 0, semiMinor, R, tiltAngle, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
-  }
-
   for (let i = 1; i <= PARALLEL_COUNT; i++) {
     const phi = ((i / (PARALLEL_COUNT + 1)) * Math.PI) - Math.PI / 2;
     const cosP = Math.cos(phi);
@@ -214,8 +285,8 @@ function drawGrokGlobe(
     if (opacity <= 0.01) continue;
 
     ctx.save();
-    ctx.globalAlpha = opacity * 0.4;
-    ctx.strokeStyle = galaxyColors[i % galaxyColors.length];
+    ctx.globalAlpha = opacity * 0.2;
+    ctx.strokeStyle = "rgba(180,180,200,0.5)";
     ctx.lineWidth = parallelLW;
     ctx.beginPath();
     ctx.ellipse(0, parallelY, parallelR, parallelR * Math.abs(SIN_TILT), 0, 0, Math.PI * 2);
@@ -226,15 +297,12 @@ function drawGrokGlobe(
   ctx.restore();
 
   const faceTheta = faceForward ? 0 : theta;
-
   const eyeW_base = R * 0.26;
   const eyeH_base = R * 0.60;
   const eyeGap = R * 0.18;
-  const eyeRotDeg = 28;
-  const eyeRot = (eyeRotDeg * Math.PI) / 180;
+  const eyeRot = (28 * Math.PI) / 180;
   const eyePairLat = 0.15;
   const eyePairLon = 0;
-
   const leftLon = eyePairLon - (eyeGap / R) * 0.5;
   const rightLon = eyePairLon + (eyeGap / R) * 0.5;
 
@@ -245,16 +313,11 @@ function drawGrokGlobe(
     offX: number,
     offY: number,
   ) => {
-    const effLon = lon + offX / R;
-    const effLat = lat + offY / R;
-    const [sx, sy, z] = sphereProject(effLat, effLon, faceTheta, R);
-
+    const [sx, sy, z] = sphereProject(lat + offY / R, lon + offX / R, faceTheta, R);
     if (z < -0.1) return;
-
     const foreshorten = Math.max(0, z);
     const fadeAlpha = Math.min(1, Math.max(0, (z + 0.1) * 5));
     if (fadeAlpha <= 0.01) return;
-
     const drawW = eyeW_base * foreshorten;
     const drawH = eyeH_base * yScale;
     if (drawW < 0.5) return;
@@ -276,6 +339,90 @@ function drawGrokGlobe(
   ctx.restore();
 }
 
+/**
+ * Procedural Dallas skyline silhouette. Flat black rectangles with setbacks.
+ * Landmarks: Reunion Tower (ball-on-stalk) and Bank of America Plaza (tallest,
+ * antenna spire). Proportions referenced from CC0 photograph by IcedCowboyCoffee:
+ * https://commons.wikimedia.org/wiki/File:Dallas_Texas_skyline_overlooking_Trammell_Crow_Park.png
+ */
+function drawDallasSkyline(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  ink: string,
+) {
+  const baseY = height * 0.88;
+  const skylineW = width * 0.7;
+  const offsetX = (width - skylineW) * 0.5;
+  const unit = skylineW / 100;
+
+  ctx.fillStyle = ink;
+  ctx.globalAlpha = 0.06;
+
+  const buildings: [number, number, number, number][] = [
+    [5, 7, baseY - unit * 18, unit * 18],
+    [13, 5, baseY - unit * 24, unit * 24],
+    [19, 6, baseY - unit * 20, unit * 20],
+    [26, 8, baseY - unit * 30, unit * 30],
+    [35, 7, baseY - unit * 38, unit * 38],
+    [43, 6, baseY - unit * 32, unit * 32],
+    [50, 5, baseY - unit * 26, unit * 26],
+    [56, 7, baseY - unit * 22, unit * 22],
+    [64, 5, baseY - unit * 28, unit * 28],
+    [70, 6, baseY - unit * 20, unit * 20],
+    [77, 8, baseY - unit * 16, unit * 16],
+    [86, 6, baseY - unit * 14, unit * 14],
+    [93, 5, baseY - unit * 10, unit * 10],
+  ];
+
+  for (const [xPct, wPct, y, h] of buildings) {
+    ctx.fillRect(offsetX + unit * xPct, y, unit * wPct, h);
+  }
+
+  const boaX = offsetX + unit * 35;
+  const boaW = unit * 7;
+  const boaH = unit * 38;
+  ctx.fillRect(boaX, baseY - boaH, boaW, boaH);
+  ctx.fillRect(boaX + boaW * 0.4, baseY - boaH - unit * 6, boaW * 0.2, unit * 6);
+
+  const rtX = offsetX + unit * 15;
+  const rtStalkW = unit * 0.8;
+  const rtStalkH = unit * 20;
+  const rtBallR = unit * 2.5;
+  ctx.fillRect(rtX - rtStalkW * 0.5, baseY - rtStalkH, rtStalkW, rtStalkH);
+  ctx.beginPath();
+  ctx.arc(rtX, baseY - rtStalkH - rtBallR * 0.3, rtBallR, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillRect(offsetX, baseY, skylineW, height - baseY);
+
+  ctx.globalAlpha = 1;
+}
+
+const FALLBACK_GALAXY_PARSED: [number, number, number][] = [
+  [207, 82, 92],
+  [241, 83, 54],
+  [254, 184, 124],
+  [255, 228, 166],
+  [196, 211, 225],
+  [170, 213, 234],
+  [134, 164, 198],
+  [119, 117, 165],
+];
+
+function resolveGalaxyColors(element: HTMLElement | null): [number, number, number][] {
+  if (!element) return FALLBACK_GALAXY_PARSED;
+  const style = getComputedStyle(element);
+  const colors: [number, number, number][] = [];
+  for (let i = 1; i <= GALAXY_STOP_COUNT; i++) {
+    const val = style.getPropertyValue(`--dallas-galaxy-${i}`).trim();
+    if (val && val.startsWith("#") && val.length >= 7) {
+      colors.push(parseHex(val));
+    }
+  }
+  return colors.length >= 2 ? colors : FALLBACK_GALAXY_PARSED;
+}
+
 function renderFrame(
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -284,7 +431,7 @@ function renderFrame(
   reducedMotion: boolean,
   loopSeconds: number,
   faceForward: boolean,
-  galaxyColors: string[],
+  parsedColors: [number, number, number][],
 ) {
   const scale = width / BASE_WIDTH;
   const ink = INK_HEX;
@@ -292,6 +439,8 @@ function renderFrame(
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = PAPER_HEX;
   ctx.fillRect(0, 0, width, height);
+
+  drawDallasSkyline(ctx, width, height, ink);
 
   const centerX = width * 0.5;
   const centerY = height * 0.47;
@@ -369,7 +518,7 @@ function renderFrame(
     leftEyeScale,
     rightEyeScale,
     grokScaleY,
-    galaxyColors,
+    parsedColors,
     ink,
     PAPER_HEX,
     scale,
@@ -379,7 +528,7 @@ function renderFrame(
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
   const fontSize = 56 * scale;
-  ctx.font = `500 ${fontSize}px "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", "Helvetica Neue", sans-serif`;
+  ctx.font = `500 ${fontSize}px "Geist", "Geist Sans", var(--dallas-font, sans-serif), sans-serif`;
   const label = "Dallas meetup";
   const tracking = 1.3 * scale;
   const labelWidth =
@@ -392,26 +541,6 @@ function renderFrame(
     tracking,
   );
 }
-
-function resolveGalaxyColors(element: HTMLElement | null): string[] {
-  if (!element) return FALLBACK_GALAXY_COLORS;
-  const style = getComputedStyle(element);
-  const colors: string[] = [];
-  for (let i = 1; i <= 6; i++) {
-    const val = style.getPropertyValue(`--dallas-galaxy-${i}`).trim();
-    if (val) colors.push(val);
-  }
-  return colors.length > 0 ? colors : FALLBACK_GALAXY_COLORS;
-}
-
-const FALLBACK_GALAXY_COLORS = [
-  "#6366f1",
-  "#8b5cf6",
-  "#a855f7",
-  "#c084fc",
-  "#818cf8",
-  "#7c3aed",
-];
 
 export function DallasMeetupWallpaper({
   reducedMotion = false,
@@ -426,7 +555,7 @@ export function DallasMeetupWallpaper({
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const pausedAtRef = useRef(0);
-  const galaxyColorsRef = useRef<string[]>(FALLBACK_GALAXY_COLORS);
+  const galaxyColorsRef = useRef<[number, number, number][]>(FALLBACK_GALAXY_PARSED);
 
   const drawAtTime = useCallback(
     (time: number) => {
@@ -545,14 +674,12 @@ export async function exportDallasMeetupWallpaperLoop({
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
-
   const ctx = canvas.getContext("2d");
   if (!ctx) {
     throw new Error("Could not create a 2D canvas context.");
   }
 
   const totalFrames = loopSeconds * FPS;
-
   const mp4Mime = "video/mp4;codecs=avc1.42E01E";
   const webmMime = "video/webm;codecs=vp9";
   const fallbackWebm = "video/webm";
@@ -581,13 +708,11 @@ export async function exportDallasMeetupWallpaperLoop({
       mimeType,
       videoBitsPerSecond: 14_000_000,
     });
-
     recorder.ondataavailable = (event) => {
       if (event.data.size > 0) chunks.push(event.data);
     };
     recorder.onerror = () => reject(new Error("Recording failed."));
     recorder.onstop = () => resolve();
-
     recorder.start();
 
     let frame = 0;
@@ -596,22 +721,14 @@ export async function exportDallasMeetupWallpaperLoop({
         recorder.stop();
         return;
       }
-      const t = frame / FPS;
-      renderFrame(ctx, width, height, t, false, loopSeconds, faceForward, FALLBACK_GALAXY_COLORS);
+      renderFrame(ctx, width, height, frame / FPS, false, loopSeconds, faceForward, FALLBACK_GALAXY_PARSED);
       controlledTrack.requestFrame();
       frame += 1;
       window.setTimeout(recordFrame, 1000 / FPS);
     };
-
     recordFrame();
   });
 
   videoTrack.stop();
-
-  return {
-    blob: new Blob(chunks, { type: mimeType }),
-    mimeType,
-    extension,
-    codec: mimeType,
-  };
+  return { blob: new Blob(chunks, { type: mimeType }), mimeType, extension, codec: mimeType };
 }
