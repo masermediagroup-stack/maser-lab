@@ -15,15 +15,16 @@ https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor).
 
 Lifecycle: Idle / Working / Waiting / Blocked / Thinking / Done.
 
-TV maps **Idle → Working → Idle** onto the locked 8s loop. Do not use Thinking, Waiting, Blocked, or Done as the whip.
+TV maps **Idle → kick (bands) → Idle** onto the locked 8s loop. Do not use Thinking, Waiting, Blocked, or Done as the whip.
 
 | Beat | Duration | Article state | Job |
 | --- | --- | --- | --- |
-| Rest | 6.4s | **Idle** | Calm, slightly curious. Face-forward hold. No idle bob. Orbits may exist but they are quiet and parked — not a wallpaper field. |
-| Whip | 0.6s | **Working** | “Kicks into gear.” Chat-line filaments orbit the body and travel with the mark. One revolution, hard ease-in-out. |
-| Settle | ~1.0s | back to **Idle** | Ease-out. Fill **SNAP**. Official picker **SDF blend**. Orbits quiet again. |
+| Rest | 6.4s | **Idle** | Official body, flat HEX, white stadiums, **no orbits**. Face-forward hold. No idle bob. |
+| Whip | 0.6s | **Idle→Working kick** | 2–3 thick Ver 02 bands wrap front/back, travel with the spin, **then leave**. Eyes pump more upright. |
+| Held Working | late whip | **eye pump only** | More upright stadiums. Still no orbits. |
+| Settle | ~1.0s | back to **Idle** | Fill **SNAP**. Official picker **SDF blend**. No bands. Idle eyes. |
 
-Do not 360-rotate the disc. Do not draw meridians through the fill. Linear planet-spin is compare-only, default OFF. Reduced motion freezes Idle.
+Do not 360-rotate the disc. Do not draw meridians through the fill. Do not park bands through rest. Linear planet-spin is compare-only, default OFF. Reduced motion freezes Idle.
 
 ## Horizon
 
@@ -31,4 +32,4 @@ Noun Project Dallas skyline (Blaise Sewell, 3583788), ink, sit low, behind the g
 
 ## Pairing
 
-Cold start: oval + ink. First settle: rounded square + Teal. Oval return: Orange-red, not ink. Green is stream-only on mark orbits. Gray is never a body fill. Eyes planted, white.
+Cold start: oval + ink. First settle: rounded square + Teal. Oval return: Orange-red, not ink. Green is stream-only on kick bands. Gray is never a body fill. Eyes: Idle at rest, Working pump on the kick.

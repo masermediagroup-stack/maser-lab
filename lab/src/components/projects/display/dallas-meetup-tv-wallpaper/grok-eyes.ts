@@ -1,10 +1,13 @@
 /**
- * Article Idle stadiums, planted in face-space.
+ * Article stadiums, planted in face-space.
  *
- * EPG check: eyes stay planted through whip and morph. Orbiting the pair
- * mid-yaw smears the stadiums — that is a miss. No back-occlusion hide.
- * Reduced motion freezes the same rest pose.
+ * Idle rest / settle / reduced motion: diagonal Idle (~−28°), higher-right.
+ * Whip: Working eye pump (more upright). Still planted — no orbit, no yaw smear.
+ * Held Working after the bands leave is this pump only. Still no orbits.
+ * Linear-spin compare keeps Idle planted (smear miss).
  */
+
+import { loopBeat } from "./globe-motion";
 
 export type EyePose = {
   /** Radians. Negative = clockwise on canvas (article Idle ~−28°). */
@@ -30,27 +33,29 @@ export const IDLE_EYE: EyePose = {
   cy: -0.3,
 };
 
-/** Article Working pump — not applied on the TV loop (planted only). */
+/** Article Working pump — more upright. TV uses this for the kick only. */
 export const WORKING_EYE: EyePose = {
   tilt: (-6 * Math.PI) / 180,
   cx: 0.05,
   cy: 0.14,
 };
 
-const IDLE_Z = Math.sqrt(
-  Math.max(0.08, 1 - IDLE_EYE.cx * IDLE_EYE.cx - IDLE_EYE.cy * IDLE_EYE.cy),
-);
+function planted(pose: EyePose): EyeWhip {
+  return {
+    ...pose,
+    z: Math.sqrt(Math.max(0.08, 1 - pose.cx * pose.cx - pose.cy * pose.cy)),
+    visible: true,
+    squashX: 1,
+  };
+}
 
-const PLANTED: EyeWhip = {
-  ...IDLE_EYE,
-  z: IDLE_Z,
-  visible: true,
-  squashX: 1,
-};
+const IDLE_PLANTED = planted(IDLE_EYE);
+const WORKING_PLANTED = planted(WORKING_EYE);
 
 /**
- * Always the Idle seat. Whip and morph do not move the pair.
- * Linear-spin compare also keeps stadiums planted (smear miss).
+ * Idle at rest, settle, reduced motion, and linear-spin compare.
+ * Working pump for the whole whip beat (including after bands leave).
+ * Never yaws or occludes the pair.
  */
 export function eyeWhipAt(
   time: number,
@@ -59,12 +64,11 @@ export function eyeWhipAt(
   linearSpin: boolean,
   reducedMotion: boolean,
 ): EyeWhip {
-  void time;
-  void loopSeconds;
-  void whipSeconds;
-  void linearSpin;
-  void reducedMotion;
-  return PLANTED;
+  if (reducedMotion || linearSpin) return IDLE_PLANTED;
+  if (loopBeat(time, loopSeconds, whipSeconds, reducedMotion) === "whip") {
+    return WORKING_PLANTED;
+  }
+  return IDLE_PLANTED;
 }
 
 export function eyePoseAt(

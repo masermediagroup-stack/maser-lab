@@ -2,28 +2,33 @@
  * EPG timing lock. Loop is 8s. Do not shorten it to make the whip feel fast.
  * Super-fast means the 0.6s traveling bit is short.
  *
- * 6.4s rest = Idle: face-forward hold. No idle bob. Quiet parked orbits OK.
- * 0.6s whip = Working: chat-line filaments orbit the mark, one revolution.
- * ~1.0s settle back to Idle. Color SNAP + SDF blend land here.
+ * Loop: Idle → kick (bands) → Idle.
+ * 6.4s rest = Idle: official body, flat HEX, white stadiums, NO orbits.
+ * 0.6s whip = Idle→Working kick: 2–3 thick Ver 02 bands wrap then LEAVE.
+ * Held Working after they leave is only the eye pump. Still no orbits.
+ * ~1.0s settle: shape/color SNAP. Back to Idle. No bands.
  *
- * Silhouette stays planted. Eyes stay planted in face-space. No meridians.
- * Linear spin is compare-only (ribbons). Reduced motion freezes the rest pose.
+ * Silhouette stays planted. Eyes stay in face-space. No meridians.
+ * Linear spin is compare-only (ribbons). Reduced motion freezes Idle.
  */
 
 export const DEFAULT_LOOP_SECONDS = 8;
 export const DEFAULT_WHIP_SECONDS = 0.6;
 /** Settle window after the whip. Color + shape land here. */
 export const SETTLE_SECONDS = 1;
-/** Quiet Idle orbits on the mark — not a wallpaper field, not a second motion. */
-export const IDLE_ORBIT_ENERGY = 0.26;
 
 export type LoopBeat = "rest" | "whip" | "settle";
 export const WHIP_MIN_SECONDS = 0.5;
 export const WHIP_MAX_SECONDS = 0.7;
 export const AXIS_TILT_DEG = 16;
 
-/** Product face tilt is −28° (clockwise on canvas = +28). */
+/** Product Idle face tilt is −28° (clockwise on canvas = +28). */
 export const EYE_TILT_DEG = -28;
+
+/** First 12% of the kick: bands fade in. */
+export const WHIP_BAND_IN = 0.12;
+/** Last 28% of the kick: bands leave. Do not park into settle/rest. */
+export const WHIP_BAND_LEAVE = 0.72;
 
 export function clampWhipSeconds(seconds: number): number {
   if (!Number.isFinite(seconds)) return DEFAULT_WHIP_SECONDS;
@@ -104,10 +109,19 @@ export function streamPhase(
 export const globeYaw = streamPhase;
 
 /**
- * Orbit energy on the mark.
- * Idle rest: quiet. Working whip: full. Settle: ease back to Idle.
- * Reduced motion freezes the Idle rest pose (quiet orbits, no travel).
+ * Kick-band envelope. 0 at rest, settle, and reduced motion.
+ * During the whip: fade in, wrap, then leave before the beat ends.
+ * Linear-spin compare keeps energy 1 so the ribbons can be inspected.
  */
+export function kickBandEnergy(progress: number): number {
+  if (progress <= 0 || progress >= 1) return 0;
+  if (progress < WHIP_BAND_IN) return progress / WHIP_BAND_IN;
+  if (progress >= WHIP_BAND_LEAVE) {
+    return 1 - (progress - WHIP_BAND_LEAVE) / (1 - WHIP_BAND_LEAVE);
+  }
+  return 1;
+}
+
 export function whipEnergy(
   time: number,
   loopSeconds: number,
@@ -115,18 +129,13 @@ export function whipEnergy(
   linearSpin: boolean,
   reducedMotion: boolean,
 ): number {
-  if (reducedMotion) return IDLE_ORBIT_ENERGY;
+  if (reducedMotion) return 0;
   if (linearSpin) return 1;
   const beat = loopBeat(time, loopSeconds, whipSeconds, reducedMotion);
-  if (beat === "rest") return IDLE_ORBIT_ENERGY;
-  if (beat === "whip") return 1;
-  const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
-  const t = ((time % loop) + loop) % loop;
-  const whip = clampWhipSeconds(whipSeconds);
-  const rest = restSeconds(loop, whip);
-  const settle = settleSeconds(loop, whip);
-  const u = settle > 0 ? (t - rest - whip) / settle : 1;
-  return 1 + (IDLE_ORBIT_ENERGY - 1) * settleEaseOut(u);
+  if (beat !== "whip") return 0;
+  return kickBandEnergy(
+    kickProgress(time, loopSeconds, whipSeconds, linearSpin, reducedMotion),
+  );
 }
 
 /** 0–1 during the kick, else 0. */

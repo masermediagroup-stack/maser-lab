@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
-  IDLE_ORBIT_ENERGY,
   SETTLE_SECONDS,
+  WHIP_BAND_IN,
+  WHIP_BAND_LEAVE,
   kickEase,
   kickWobbleRad,
   loopBeat,
@@ -63,13 +64,27 @@ describe("look-lock motion", () => {
     expect(streamPhase(4, 8, 0.6, true, false)).toBeCloseTo(Math.PI);
   });
 
-  it("keeps Idle orbits quiet and Working orbits at full energy", () => {
-    expect(whipEnergy(1, 8, 0.6, false, false)).toBe(IDLE_ORBIT_ENERGY);
-    expect(whipEnergy(6.5, 8, 0.6, false, false)).toBe(1);
-    expect(whipEnergy(7.5, 8, 0.6, false, false)).toBeLessThan(1);
-    expect(whipEnergy(7.5, 8, 0.6, false, false)).toBeGreaterThan(IDLE_ORBIT_ENERGY);
-    expect(whipEnergy(6.5, 8, 0.6, false, true)).toBe(IDLE_ORBIT_ENERGY);
+  it("kills band energy at rest, settle, and reduced motion", () => {
+    expect(whipEnergy(1, 8, 0.6, false, false)).toBe(0);
+    expect(whipEnergy(6.39, 8, 0.6, false, false)).toBe(0);
+    expect(whipEnergy(7.01, 8, 0.6, false, false)).toBe(0);
+    expect(whipEnergy(7.5, 8, 0.6, false, false)).toBe(0);
+    expect(whipEnergy(7.9, 8, 0.6, false, false)).toBe(0);
+    expect(whipEnergy(6.5, 8, 0.6, false, true)).toBe(0);
     expect(whipEnergy(1, 8, 0.6, true, false)).toBe(1);
+  });
+
+  it("wraps at full energy mid-kick then leaves before settle", () => {
+    const rest = restSeconds(8, 0.6);
+    const whip = DEFAULT_WHIP_SECONDS;
+    const mid = rest + whip * 0.45;
+    const leaving = rest + whip * (WHIP_BAND_LEAVE + 0.14);
+    const late = rest + whip * 0.97;
+    expect(mid).toBeGreaterThan(rest + whip * WHIP_BAND_IN);
+    expect(whipEnergy(mid, 8, 0.6, false, false)).toBe(1);
+    expect(whipEnergy(leaving, 8, 0.6, false, false)).toBeLessThan(1);
+    expect(whipEnergy(leaving, 8, 0.6, false, false)).toBeGreaterThan(0.02);
+    expect(whipEnergy(late, 8, 0.6, false, false)).toBeLessThan(0.15);
   });
 
   it("adds no idle bob or kick wobble", () => {

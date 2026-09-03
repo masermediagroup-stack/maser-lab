@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { IDLE_EYE, WORKING_EYE, eyeWhipAt } from "../grok-eyes";
+import { VER02_ORBIT_HUES } from "../grok-cycle";
 import {
   ORBIT_PLANE_DEG,
   orbitBleedPx,
@@ -7,15 +8,15 @@ import {
   WORKING_ORBIT_COUNT,
 } from "../working-orbits";
 
-describe("Idle / planted eyes", () => {
-  it("plants Idle eyes higher-right and more diagonal than the unused Working pump", () => {
+describe("Idle / Working eye pump", () => {
+  it("plants Idle eyes higher-right and more diagonal than the Working pump", () => {
     expect(IDLE_EYE.cx).toBeGreaterThan(WORKING_EYE.cx);
     expect(IDLE_EYE.cy).toBeLessThan(WORKING_EYE.cy);
     expect(Math.abs(IDLE_EYE.tilt)).toBeGreaterThan(Math.abs(WORKING_EYE.tilt));
   });
 
-  it("keeps stadiums planted in face-space through rest, whip, settle, and reduced motion", () => {
-    for (const t of [1, 6.58, 6.7, 7.5, 7.9]) {
+  it("uses Idle stadiums at rest, settle, reduced motion, and linear-spin compare", () => {
+    for (const t of [1, 6.39, 7.01, 7.5, 7.9]) {
       const pose = eyeWhipAt(t, 8, 0.6, false, false);
       expect(pose.visible).toBe(true);
       expect(pose.cx).toBeCloseTo(IDLE_EYE.cx);
@@ -27,20 +28,33 @@ describe("Idle / planted eyes", () => {
     const frozen = eyeWhipAt(6.55, 8, 0.6, false, true);
     expect(frozen.visible).toBe(true);
     expect(frozen.cx).toBeCloseTo(IDLE_EYE.cx);
+    expect(frozen.tilt).toBeCloseTo(IDLE_EYE.tilt);
 
     const compare = eyeWhipAt(4, 8, 0.6, true, false);
     expect(compare.cx).toBeCloseTo(IDLE_EYE.cx);
     expect(compare.visible).toBe(true);
   });
+
+  it("pumps more upright for the whole whip beat, still planted in face-space", () => {
+    for (const t of [6.41, 6.58, 6.7, 6.95]) {
+      const pose = eyeWhipAt(t, 8, 0.6, false, false);
+      expect(pose.visible).toBe(true);
+      expect(pose.cx).toBeCloseTo(WORKING_EYE.cx);
+      expect(pose.cy).toBeCloseTo(WORKING_EYE.cy);
+      expect(pose.tilt).toBeCloseTo(WORKING_EYE.tilt);
+      expect(pose.squashX).toBe(1);
+    }
+  });
 });
 
-describe("Working chat-line filaments", () => {
-  it("uses a chat-line cluster on the mark (~8–12px at 300px)", () => {
-    expect(WORKING_ORBIT_COUNT).toBeGreaterThanOrEqual(4);
-    expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(6);
+describe("Working kick bands", () => {
+  it("uses 2–3 thick Ver 02 bands (~8–14px at 300px)", () => {
+    expect(WORKING_ORBIT_COUNT).toBeGreaterThanOrEqual(2);
+    expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(3);
     const stroke = orbitStrokePx(300);
     expect(stroke).toBeGreaterThanOrEqual(8);
-    expect(stroke).toBeLessThanOrEqual(12);
+    expect(stroke).toBeLessThanOrEqual(14);
+    expect(VER02_ORBIT_HUES).toHaveLength(4);
   });
 
   it("keeps a shallow ~−15° plane and bleed past the silhouette", () => {

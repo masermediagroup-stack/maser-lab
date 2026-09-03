@@ -210,9 +210,9 @@ export function DallasMeetupTvWallpaperDemo() {
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-              Loop is 8s. Rest 6.4s = Idle hold. Whip 0.6s = Working
-              (chat-line filaments travel with the mark). Settle ~1s back
-              to Idle: fill SNAP + SDF blend. Eyes stay planted.
+              Loop is 8s. Rest 6.4s = Idle (no orbits). Whip 0.6s = 2–3
+              thick bands wrap then leave; eyes pump more upright. Settle
+              ~1s: fill SNAP + SDF blend, back to Idle.
             </p>
           </div>
 
@@ -294,7 +294,7 @@ export function DallasMeetupTvWallpaperDemo() {
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
               Linear spin is compare-only and default off. Not the TV whip.
-              Idle = quiet parked orbits. Working = filaments travel with the mark.
+              Idle = no orbits. Kick = 2–3 bands wrap then leave.
             </p>
           </LabControlGroup>
 
@@ -321,11 +321,11 @@ export function DallasMeetupTvWallpaperDemo() {
             </p>
           </LabControlGroup>
 
-          <LabControlGroup label="Orbits">
+          <LabControlGroup label="Kick bands">
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Grok Bot Working: chat-line filaments on the mark (Ver 02 hues).
-              They travel with the body — not meridians, not a wallpaper field.
-              Idle orbits stay quiet. Gray never a filament.
+              Kick only: 2–3 thick Ver 02 bands wrap the body (front/back),
+              travel with the spin, then leave. Not Thinking. Not a held nest.
+              Idle rest has no orbits. Gray never a filament.
             </p>
           </LabControlGroup>
 

@@ -6,9 +6,9 @@
  * Gray is never a body fill.
  *
  * Cold start / product rest: shape 2 + ink #111111.
- * EPG timing: 6.4s rest hold → 0.6s whip (ribbons only, same body+fill) →
- * ~1s settle where the next Ver 02 hue SNAPS and the next picker SDF-blends.
- * Eyes stay planted in face-space through whip and morph.
+ * EPG timing: 6.4s Idle hold (no orbits) → 0.6s kick (bands wrap then leave;
+ * Working eye pump) → ~1s settle where the next Ver 02 hue SNAPS and the
+ * next picker SDF-blends. Eyes stay in face-space (no yaw smear).
  * First settle: oval+ink → rounded square + Teal.
  * When the walk returns to oval, fill is Orange-red (tree color), not black.
  */

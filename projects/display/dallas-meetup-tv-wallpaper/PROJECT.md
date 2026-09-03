@@ -22,21 +22,22 @@ The wallpaper runs continuously on a room TV during the Cursor + Grok Bot Dallas
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Paper field `#F2F1ED` with Noun Project Dallas horizon, Cursor cube + solid Grok body + one Universal Sans line `Dallas meetup`. Grok maps article Idle / Working onto the 8s loop: 6.4s Idle hold, 0.6s Working whip (chat-line filaments travel with the mark), ~1s settle back to Idle where color SNAP and SDF blend land.
+Paper field `#F2F1ED` with Noun Project Dallas horizon, Cursor cube + solid Grok body + one Universal Sans line `Dallas meetup`. Loop is Idle → kick (bands) → Idle: 6.4s Idle hold (no orbits), 0.6s kick (2–3 thick Ver 02 bands wrap then leave; Working eye pump), ~1s settle back to Idle where color SNAP and SDF blend land.
 
 ### Success signal
 - TV mode loads: paper ground, Noun Project horizon ON, solid globe, Universal Sans display line. Cube and type stay clean.
-- Rest = Idle (6.4s): calm, slightly curious, face-forward hold. Shape 2 irregular oval, ink `#111111`, official stadiums. No idle bob. Orbits quiet/parked on the mark — not a wallpaper field.
-- Whip = Working (0.6s): kicks into gear. Chat-line filaments orbit the body and travel with the mark. One revolution, hard ease-in-out, same body + fill, eyes planted, land face-forward. Tilt 16°. Not Thinking / Waiting / Blocked / Done.
-- Settle (~1s) back to Idle: next Ver 02 hue SNAP + next official picker SDF blend. First settle lands rounded square + Teal.
+- Rest = Idle (6.4s): official body, flat HEX, white stadiums, **no orbits**. Cube clean. Shape 2 irregular oval, ink `#111111`. No idle bob.
+- Whip = Idle→Working kick (0.6s): 2–3 thick Ver 02 bands wrap the body (front/back, ~8–14px at 300px face), travel with the spin, **then leave**. Sparse. Not Thinking. Not a held nest. Eyes pump more upright. Same body + fill. Tilt 16°.
+- Held Working after they leave: eye pump only. Still no orbits.
+- Settle (~1s) back to Idle: next Ver 02 hue SNAP + next official picker SDF blend. No bands. First settle lands rounded square + Teal.
 - Presentation mode is fullscreen with zero demo chrome.
-- Reduced motion freezes the Idle rest pose.
+- Reduced motion freezes Idle (no whip, no morph, no orbits, Idle eyes).
 
 ### Non-goals
 - No event logistics, QR, RSVP, wordmarks, taglines, or secondary copy.
 - Do not use Thinking, Waiting, Blocked, or Done as the TV whip.
-- Do not fill rest with idle bob or body spin. Quiet parked orbits on the mark are Idle, not a second motion. Do not shorten the 8s loop.
-- Eyes stay planted. No eye-whip. No meridians through the fill.
+- Do not fill rest with idle bob, body spin, or parked bands. Do not shorten the 8s loop.
+- Eyes stay in face-space. Working pump on the kick only. No yaw smear. No meridians through the fill.
 - Do not fetch xAI webfonts. Do not steal article ribbon gradients.
 - Do not 360-rotate the disc. Not a hairline nest. Not a square of doodles behind a PNG.
 - Do not map the skyline onto the sphere. Do not use the teal tourist illustration.
@@ -58,7 +59,7 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | --- | --- | --- |
 | `--dallas-paper` | `#F2F1ED` | Wallpaper background |
 | `--dallas-ink` | `#111111` | Type, cube, Noun Project skyline, rest globe |
-| Ver 02 chromatic (9) | gold → magenta | Chat-line filaments on the mark. Gray never a filament. |
+| Ver 02 chromatic (9) | gold → magenta | Palette. Kick bands use a sparse subset. Gray never a filament. |
 
 ## States
 
@@ -80,22 +81,22 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | Library | Canvas 2D + rAF | Deterministic timeline and export |
 | Duration | 8s: 6.4 Idle / 0.6 Working / ~1 settle | Do not shorten the loop. Super-fast = short whip |
 | Body | Planted SDF. Rest holds. Morph in settle. No disc spin | No idle bob. No meridians |
-| Stream | Chat-line filaments on the mark | Working whip travels with the mark; Idle orbits are quiet |
+| Stream | 2–3 thick Ver 02 bands, wrap then leave | Kick only. Idle and settle have no orbits |
 | Color + shape | SNAP + SDF blend land in settle | No rainbow lerp. Whip keeps current fill/body |
-| Eyes | Planted stadiums through whip and morph | Mid-yaw smear is a miss |
+| Eyes | Idle at rest; Working pump on the kick | Still planted in face-space. No yaw smear |
 | Horizon | Noun Project Dallas 3583788 | Ink silhouette, not a photograph |
 
 ## Acceptance criteria
 
 - [x] Demo route `/demos/dallas-meetup-tv-wallpaper` renders locked composition
 - [ ] `npm run lint` and `npm run build` pass in `lab/` (verify this PR)
-- [x] 8s Idle hold → 0.6s Working whip (filaments on the mark) → ~1s settle to Idle (SNAP + SDF); reduced motion freezes Idle
-- [x] Front filaments clip to the current body; back occluded; cube clean; no meridians; no wallpaper-field doodles
+- [x] 8s Idle hold (no orbits) → 0.6s kick (2–3 bands wrap then leave; eye pump) → ~1s settle to Idle (SNAP + SDF); reduced motion freezes Idle
+- [x] Front bands clip to the current body; back occluded; cube clean; no meridians; no wallpaper-field doodles; no parked rest bands
 - [x] Shape→color pairing; fill SNAP + SDF blend in settle; cold-start oval+ink; first settle squircle+Teal
-- [x] Eyes planted in face-space through whip and morph (no eye-whip, no yaw smear)
+- [x] Eyes Idle at rest/settle; Working pump (more upright) on the kick; still planted (no yaw smear)
 - [x] Universal Sans trial once on the canvas line; Plex ≤ 40% of display; Geist out
 - [x] Noun Project Dallas skyline (3583788) ink, default ON, behind the globe
-- [x] Ver 02 filaments on the mark (never meridians, never gray, never a wallpaper field)
+- [x] 2–3 thick Ver 02 kick bands on the mark (never meridians, never gray, never a wallpaper field, never parked at rest)
 - [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`
 
 ## Loaded skills (this pass)

@@ -16,7 +16,7 @@ Stills of the full lockup are rendering on EPG's side. Until they arrive, the tw
 - Cursor cube: SVG path, uniform scale from viewBox `466.73 × 532.09`, ~280px tall, ink. Cube stays clean — no ribbons, no filaments.
 - Grok face diameter 300px, gap 120px, pair lifted ~70px above vertical center. Axis tilt 16°.
 - One display line: `Dallas meetup`. Universal Sans trial, exactly once, 44px @ 1920, tracking ~2.4.
-- Draw order: paper → Noun Project horizon (low) → cube + globe (Idle/Working orbits on the mark) + type.
+- Draw order: paper → Noun Project horizon (low) → cube + globe (kick bands on the mark only) + type. Cube stays clean.
 
 ## Horizon — Noun Project Dallas skyline
 
@@ -30,13 +30,13 @@ Source: Noun Project Dallas icon **3583788** (Blaise Sewell, Skylines set). Ink 
 - Trammell Crow photograph-as-horizon (that read as a PNG with doodles behind it).
 - Skyline mapped onto the sphere.
 
-## Filaments — ON THE MARK (not a wallpaper field)
+## Filaments — KICK ONLY (not a wallpaper field, not a held nest)
 
-Chat-line filaments orbit the **body** and travel **with the mark**, like the Working avatar in Grok Bot chat (Benji Taylor). Never longitude / meridians / parallels through the fill. Never a square of doodles on the paper. Gray never a filament.
+**2–3 thick Ver 02 bands** wrap the body on the Idle→Working kick. Front and back. ~8–14px at a 300px face. They travel with the spin, **then leave**. Sparse. Not Thinking. Not a 5-filament chat-line cluster. Never longitude / meridians / parallels through the fill. Never a square of doodles on the paper. Gray never a filament.
 
-Idle: orbits may exist but they are **quiet** and parked. Working whip: they kick into gear and travel one revolution. Settle: ease back to Idle quiet.
+**Idle rest: NO orbits.** If bands are still sitting through rest, kill them. Settle: NO orbits. Held Working after they leave is only the eye pump.
 
-Nine Ver 02 chromatic hues on those mark orbits:
+Nine Ver 02 chromatic hues exist as the **palette**. Kick bands use a sparse subset (blue / green / magenta / orange-red):
 
 | Stop | Hex |
 | --- | --- |
@@ -60,8 +60,10 @@ Nine Ver 02 chromatic hues on those mark orbits:
 
 ## Eyes
 
-- Official **stadium** geometry, planted in face-space. Diagonal (~−28°), higher-right. No slices.
-- **Stay planted through whip and morph.** No eye-whip, no orbit, no back-occlusion hide, no Working-state pupil pump.
+- Official **stadium** geometry, planted in face-space. White. No slices.
+- **Rest / settle / reduced motion = Idle:** diagonal (~−28°), higher-right.
+- **Whip = Working pump:** more upright. Still planted — no orbit, no yaw smear, no back-occlusion hide.
+- Held Working after the bands leave is **this pump only**. Still no orbits.
 - Mid-yaw smearing the stadiums is a miss. Do not bring meridians back to sell round.
 
 ## Timing lock — 8s (this is the check, not a guess)
@@ -72,22 +74,23 @@ Loop = **8s** total. Whip slider still exists (0.5–0.7s); rest = `loop − whi
 
 | Beat | Time | Look |
 | --- | --- | --- |
-| **Rest = Idle** | **6.4s** | Calm, slightly curious. Face-forward **hold**. No idle bob, no body spin. First rest matches the solid-ball still: shape **2 irregular oval**, fill **ink `#111111`**, official stadiums. Orbits may exist but they are **quiet** and parked — not a wallpaper field. |
-| **Whip = Working** | **0.6s** | “Kicks into gear.” Chat-line filaments orbit the body and travel **with the mark**. Hard ease-in-out. **One revolution**. Land face-forward. Body stays the **current** picker + current fill (first whip is still the **black oval**). Eyes planted. Not Thinking / Waiting / Blocked / Done. |
-| **Settle → Idle** | **~1.0s** | Ease-out back to Idle. Next Ver 02 hue **SNAP**. Next official picker **SDF blend**. Orbits quiet again. Eyes planted. |
+| **Rest = Idle** | **6.4s** | Official body, flat HEX, white stadiums, **NO orbits**. Cube clean. First rest: shape **2 irregular oval**, fill **ink `#111111`**. Face-forward **hold**. No idle bob, no body spin. |
+| **Whip = Idle→Working kick** | **0.6s** | **2–3 thick Ver 02 bands** wrap the body (front/back, ~8–14px at 300px face), travel with the spin, **then leave**. Sparse. Not Thinking. Not a held nest. Eyes pump more upright. Body stays the **current** picker + current fill (first whip is still the **black oval**). |
+| **Held Working** | late whip, after bands leave | **Eye pump only** (more upright). Still no orbits. |
+| **Settle → Idle** | **~1.0s** | Shape/color **SNAP** (Ver 02 hue) + next official picker **SDF blend**. Back to Idle. No bands. Idle stadiums. |
 
-**Reduced motion:** freeze Idle (oval + ink, quiet parked orbits, no whip, no morph).
+**Reduced motion:** freeze Idle (oval + ink, white stadiums, **no orbits**, no whip, no morph).
 
-## Working stream (on the mark — Grok Bot Working only)
+## Working stream (kick only — Grok Bot Working wrap)
 
-Motion source: https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor). Lifecycle is Idle / Working / Waiting / Blocked / Thinking / Done. **TV maps Idle → Working → Idle.** Do not use Thinking, Waiting, Blocked, or Done as the whip.
+Motion source: https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor). Lifecycle is Idle / Working / Waiting / Blocked / Thinking / Done. **TV maps Idle → kick (bands) → Idle.** Do not use Thinking, Waiting, Blocked, or Done as the whip.
 
-Product Working is chat-line filaments that orbit the body and travel with the mark. Rest hold (Idle, quiet orbits) → one Working whip → settle back to Idle (color + shape land).
+Product kick: 2–3 thick Ver 02 bands wrap the **current** body (front/back), travel with the spin, then **leave**. Idle rest has **no** orbits. After they leave, held Working is only the eye pump. Settle snaps color/shape on a still Idle face.
 
-- Chat-line stroke, 5 bands. Not 7+ hairlines. Not a wallpaper field.
+- Stroke **8–14px** at a 300px face. Count **2–3**. Sparse. Not a 5-filament nest. Not a wallpaper field.
 - Plane ~−15° (upper-left → right). Wrap front/back on the **current** body. Back occluded by the fill. Front over the face. Not meridians through the fill.
 - Ver 02 HEX, **flat**. Do not steal the article ribbon gradients.
-- Kill: Thinking-state meridians, Waiting/Blocked/Done as the TV whip, a 360 disc spin, idle bob, eye-whip, fill SNAP or SDF morph **during** the whip, rainbow lerp on the body, doodles behind a PNG.
+- Kill: parked Idle orbits, a held nest through rest or settle, Thinking-state meridians, Waiting/Blocked/Done as the TV whip, a 360 disc spin, idle bob, yaw-smeared eyes, fill SNAP or SDF morph **during** the whip, rainbow lerp on the body, doodles behind a PNG.
 
 ## Pairing
 
