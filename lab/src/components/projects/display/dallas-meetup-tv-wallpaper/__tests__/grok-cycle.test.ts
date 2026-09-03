@@ -17,6 +17,7 @@ import {
   DALLAS_GROK_TEAL,
   DALLAS_GROK_VIOLET,
   grokCyclePose,
+  lerpHex,
 } from "../grok-cycle";
 
 describe("official picker SDFs", () => {
@@ -49,7 +50,7 @@ describe("family-tree shape→color pairing", () => {
     expect(rest.fromShape).toBe(2);
     expect(rest.morphT).toBe(0);
     expect(rest.fill).toBe(DALLAS_GLOBE_BLACK);
-    expect(rest.inSettle).toBe(false);
+    expect(rest.inKick).toBe(false);
   });
 
   it("pairs each picker body to its tree HEX and skips green/gray as body fills", () => {
@@ -65,18 +66,34 @@ describe("family-tree shape→color pairing", () => {
     expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_GRAY);
   });
 
-  it("snaps to squircle + teal on the first settle, not gold", () => {
-    const whip = grokCyclePose(6.5, 8, 0.6, false);
-    expect(whip.inSettle).toBe(false);
-    expect(whip.fill).toBe(DALLAS_GLOBE_BLACK);
-    expect(whip.fromShape).toBe(2);
+  it("blends oval+black → squircle+teal during the first kick, then holds Idle", () => {
+    const rest = grokCyclePose(1, 8, 0.6, false);
+    expect(rest.fill).toBe(DALLAS_GLOBE_BLACK);
+    expect(rest.morphT).toBe(0);
 
-    const settle = grokCyclePose(7.5, 8, 0.6, false);
-    expect(settle.inSettle).toBe(true);
-    expect(settle.fromShape).toBe(2);
-    expect(settle.toShape).toBe(3);
-    expect(settle.fill).toBe(DALLAS_GROK_TEAL);
-    expect(settle.morphT).toBeGreaterThan(0.4);
+    const kick = grokCyclePose(6.7, 8, 0.6, false);
+    expect(kick.inKick).toBe(true);
+    expect(kick.fromShape).toBe(2);
+    expect(kick.toShape).toBe(3);
+    expect(kick.morphT).toBeGreaterThan(0.4);
+    expect(kick.morphT).toBeLessThan(1);
+    expect(kick.fill).not.toBe(DALLAS_GLOBE_BLACK);
+    expect(kick.fill).not.toBe(DALLAS_GROK_TEAL);
+    expect(kick.fill.startsWith("#")).toBe(true);
+
+    const after = grokCyclePose(7.5, 8, 0.6, false);
+    expect(after.inKick).toBe(false);
+    expect(after.fromShape).toBe(3);
+    expect(after.toShape).toBe(3);
+    expect(after.fill).toBe(DALLAS_GROK_TEAL);
+    expect(after.morphT).toBe(1);
+  });
+
+  it("lerps only the two locked pair stops (no off-sheet rainbow)", () => {
+    expect(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, 0)).toBe(DALLAS_GLOBE_BLACK);
+    expect(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, 1)).toBe(DALLAS_GROK_TEAL);
+    const mid = lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, 0.5);
+    expect(mid).toBe("#005E53");
   });
 
   it("returns to oval with orange-red, not black", () => {
@@ -101,5 +118,6 @@ describe("family-tree shape→color pairing", () => {
     expect(pose.fromShape).toBe(2);
     expect(pose.fill).toBe(DALLAS_GLOBE_BLACK);
     expect(pose.morphT).toBe(0);
+    expect(pose.inKick).toBe(false);
   });
 });

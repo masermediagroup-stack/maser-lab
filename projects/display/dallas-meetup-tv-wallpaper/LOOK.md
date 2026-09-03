@@ -14,31 +14,37 @@ Authority for this slug. Later interrupts win. Do not re-open settled rows.
 
 - Official picker SDFs 1–8. Rest = #2 irregular oval.
 - Cold start: oval + Black `#000000`. Flat HEX. No Lambert.
-- Shape owns fill (article tree). Color SNAP on settle. Shape BLEND on settle.
-- Walk `2→3→4→5→6→7→8→1`. First settle = squircle + Teal. Oval return = Orange-red, not black.
-- White stadium eyes planted in face-space. Idle: diagonal, higher-right. Working kick: more upright, lower, small pump. Body itself does **not** yaw.
+- **Planted silhouette.** No 360° disc spin. No globe meridians. Tiny wobble (a few degrees) is fine.
+- During the kick: SDF-blend to the next official picker shape. Color lerps **only** current-pair HEX → next-pair HEX (two stops).
+- Walk `2→3→4→5→6→7→8→1`. First kick = rounded square + Teal. Oval return = Orange-red, not black.
+
+## Eyes
+
+- Idle: planted white stadiums, diagonal (~−28°), higher-right.
+- Kick: the pair **whips around the form** (project on the surface, occlude on the back, reappear on the front). Pump more upright mid-kick. That sells the turn.
+- Land Idle: planted stadiums on the new body, official idle tilt.
 
 ## Motion — 8s
 
 | Beat | Time | Look |
 | --- | --- | --- |
-| Idle rest | 6.4s | Current body fill. Idle eyes. **No ribbons.** Still. |
-| Whip / kick | 0.6s | One Working **stream**: 2–4 thick ribbons wrap once and leave. Eyes pump. Fill stays (snap at settle). |
-| Settle | ~1s | Idle eyes on the new shape+color. **No parked bands.** |
+| Idle rest | 6.4s | Planted face. Current shape+HEX. Idle eyes. **No ribbons.** |
+| Whip / kick | 0.6s | Morph + two-stop color + 2–4 ribbons wrap the morphing body + eye-whip. |
+| After | ~1s | Idle on the **new** body/color. Planted eyes. **No parked bands.** |
 
-Reduced motion freezes Idle (oval+black, no stream). Linear spin is compare-only, default OFF.
+Reduced motion freezes Idle (oval+black, no morph, no ribbons, no eye-whip). Linear spin is compare-only, default OFF.
 
-## Working stream (craft the kick from Working frames, not the gap)
+## Working stream
 
-Product Working is a sparse orbit stream: 2–5 thick ribbons, rounded caps, true wrap front/back that **cross the eyes**, then a gap, then they return. Frames with **no** ribbons are that **gap**, not Idle, not “Working has no orbits.”
+Product Working is a sparse orbit stream: 2–5 thick ribbons, rounded caps, wrap front/back, then a gap. Frames with **no** ribbons are that **gap**, not Idle.
 
-TV does **not** hold Working. Idle → one kick (one stream wraps and leaves) → Idle. Do not run the stream through rest.
+TV does **not** hold Working. Idle → one kick → Idle on the new body.
 
-- Thickness ~4–5% of face (~one eye-bar). At 300px: **12–15px**. Not hairlines. Not 8px.
-- 2–4 bands. Not 7. Not a nest.
-- Wrap + clip on the **current** body. Back occluded by the fill. Front **over** the face (crosses the white stadiums).
+- Thickness ~4–5% of face. At 300px: **12–15px**.
+- 2–4 bands. Not 7. Not a nest. Plane ~−15° (upper-left → right).
+- Wrap + clip on the **current** (morphing) body. Back occluded by the fill. Front over the face.
 - Ver 02 HEX, **flat**. Do not steal the article ribbon gradients.
-- Kill: 7+ hairlines, wallpaper field, meridians as a nest, a square of doodles behind a PNG, 1–3px filaments.
+- Kill: 7+ hairlines, wallpaper field, meridians as a nest, a 360 disc spin, planted-disc-with-ribbons-only, settle snap on a still face.
 
 ## Pairing
 
@@ -46,7 +52,7 @@ TV does **not** hold Working. Idle → one kick (one stream wraps and leaves) �
 | --- | --- | --- |
 | 1 | Circle | Blue `#1084FE` |
 | 2 | Irregular oval | Orange-red `#FF6700` |
-| 3 | Squircle | Teal `#00BCA6` |
+| 3 | Rounded square | Teal `#00BCA6` |
 | 4 | Pill | Red `#FF263C` |
 | 5 | Rounded triangle | Magenta `#FF309B` |
 | 6 | Hexagon (pointy top/bottom) | Violet `#9159FE` |

@@ -6,9 +6,10 @@
  * Gray is never a body fill.
  *
  * Cold start / product rest: shape 2 + Black #000000.
- * After each whip settle: next picker shape 2→3→4→5→6→7→8→1→2…
- * with THAT shape’s paired color. Snap, no rainbow lerp.
- * First settle after rest = rounded square + Teal.
+ * During the SAME 0.6s kick: shape BLENDS to the next picker body, color lerps
+ * between the current pair HEX and the next pair HEX (two stops). Not a snap
+ * after the kick. Not a rainbow lerp off-sheet.
+ * First kick: oval+Black → rounded square + Teal.
  * When the walk returns to oval, fill is Orange-red (tree color), not black.
  */
 
@@ -89,8 +90,31 @@ export type GrokCyclePose = {
   toShape: GrokShapeId;
   morphT: number;
   fill: string;
-  inSettle: boolean;
+  inKick: boolean;
 };
+
+function parseHex(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  return [
+    Number.parseInt(h.slice(0, 2), 16),
+    Number.parseInt(h.slice(2, 4), 16),
+    Number.parseInt(h.slice(4, 6), 16),
+  ];
+}
+
+function toHex(channel: number): string {
+  return Math.max(0, Math.min(255, Math.round(channel)))
+    .toString(16)
+    .padStart(2, "0");
+}
+
+/** Two-stop lerp between locked pair HEX values. No off-sheet rainbow. */
+export function lerpHex(from: string, to: string, t: number): string {
+  const u = Math.min(1, Math.max(0, t));
+  const a = parseHex(from);
+  const b = parseHex(to);
+  return `#${toHex(a[0]! + (b[0]! - a[0]!) * u)}${toHex(a[1]! + (b[1]! - a[1]!) * u)}${toHex(a[2]! + (b[2]! - a[2]!) * u)}`.toUpperCase();
+}
 
 function loopLength(loopSeconds: number): number {
   return loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
@@ -129,7 +153,7 @@ export function grokCyclePose(
       toShape: 2,
       morphT: 0,
       fill: DALLAS_GLOBE_BLACK,
-      inSettle: false,
+      inKick: false,
     };
   }
 
@@ -141,23 +165,35 @@ export function grokCyclePose(
   const cycles = cycleIndex(elapsed, loop);
   const fromShape = GROK_SHAPE_WALK[cycles % GROK_SHAPE_WALK.length]!;
   const toShape = GROK_SHAPE_WALK[(cycles + 1) % GROK_SHAPE_WALK.length]!;
+  const fromFill = fillForShape(fromShape, cycles);
+  const toFill = GROK_SHAPE_FILL[toShape];
 
-  if (t < whipEnd) {
+  if (t < rest) {
     return {
       fromShape,
       toShape: fromShape,
       morphT: 0,
-      fill: fillForShape(fromShape, cycles),
-      inSettle: false,
+      fill: fromFill,
+      inKick: false,
     };
   }
 
-  const settleLen = Math.max(1e-6, loop - whipEnd);
+  if (t < whipEnd) {
+    const morphT = smoothstep((t - rest) / whip);
+    return {
+      fromShape,
+      toShape,
+      morphT,
+      fill: lerpHex(fromFill, toFill, morphT),
+      inKick: true,
+    };
+  }
+
   return {
-    fromShape,
+    fromShape: toShape,
     toShape,
-    morphT: smoothstep((t - whipEnd) / settleLen),
-    fill: GROK_SHAPE_FILL[toShape],
-    inSettle: true,
+    morphT: 1,
+    fill: toFill,
+    inKick: false,
   };
 }

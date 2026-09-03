@@ -2,48 +2,63 @@
  * Product Working orbit STREAM (x.ai/news/designing-grok-bot).
  *
  * Official Working is 2–5 thick ribbons, rounded caps, true wrap front/back
- * that CROSS THE EYES, then a gap, then they come back. That loop is Working.
- * Frames with no ribbons are the GAP, not Idle, not “Working has no orbits.”
+ * that CROSS THE EYES, then a gap, then they come back. Frames with no ribbons
+ * are that GAP, not Idle.
  *
- * TV loop does not hold Working: Idle → one kick (one stream wraps and leaves)
- * → Idle. Do not park bands after the kick. Do not run the stream through rest.
- *
- * Craft from the Working frames, not the blank beat. Flat Ver 02 HEX — do not
- * steal the article ribbon gradients.
+ * TV: Idle → one kick (morph + ribbons + eye-whip) → Idle on the new body.
+ * Body stays planted. Shallow ~−15° plane, wrap the morphing silhouette.
+ * Flat Ver 02 HEX. Do not steal the article ribbon gradients.
  */
 
 import { VER02_ORBIT_HUES } from "./grok-cycle";
 
-/** ~4.5% of face ≈ one eye-bar. 12–15px at a 300px face. */
-export const ORBIT_STROKE_FACE_RATIO = 0.045;
+/** ~4.8% of face ≈ one eye-bar. 12–15px at a 300px face. */
+export const ORBIT_STROKE_FACE_RATIO = 0.048;
 
 export function orbitStrokePx(faceDiameter: number): number {
   return faceDiameter * ORBIT_STROKE_FACE_RATIO;
 }
 
 /** Sparse stream: 2–4, not a hairline nest. */
-export const WORKING_ORBIT_COUNT = 4;
+export const WORKING_ORBIT_COUNT = 3;
+
+/** Shallow equatorial plane, upper-left → right. Degrees. */
+export const ORBIT_PLANE_DEG = -17;
+
+/** Bleed past the silhouette at a 300px face. */
+export const ORBIT_BLEED_AT_300 = 55;
+
+export function orbitBleedPx(faceDiameter: number): number {
+  return (faceDiameter / 300) * ORBIT_BLEED_AT_300;
+}
+
+export function orbitRadius(bodyR: number, faceD: number): number {
+  return bodyR + orbitBleedPx(faceD);
+}
 
 type Vec3 = { x: number; y: number; z: number };
 
-function ringPoint(
+/**
+ * Point on a shallow orbit: equatorial ring, tilt around Z (~−15°), then yaw Y.
+ */
+function orbitPoint(
   theta: number,
   radius: number,
-  inclination: number,
+  planeTilt: number,
   yaw: number,
 ): Vec3 {
   const x0 = radius * Math.cos(theta);
   const z0 = radius * Math.sin(theta);
-  const ci = Math.cos(inclination);
-  const si = Math.sin(inclination);
-  const y1 = -z0 * si;
-  const z1 = z0 * ci;
+  const ct = Math.cos(planeTilt);
+  const st = Math.sin(planeTilt);
+  const x1 = x0 * ct;
+  const y1 = x0 * st;
   const cy = Math.cos(yaw);
   const sy = Math.sin(yaw);
   return {
-    x: x0 * cy + z1 * sy,
+    x: x1 * cy + z0 * sy,
     y: y1,
-    z: -x0 * sy + z1 * cy,
+    z: -x1 * sy + z0 * cy,
   };
 }
 
@@ -51,7 +66,7 @@ function drawRibbonPass(
   ctx: CanvasRenderingContext2D,
   layer: "back" | "front",
   radius: number,
-  inclination: number,
+  planeTilt: number,
   yaw: number,
   lineWidth: number,
   color: string,
@@ -68,7 +83,7 @@ function drawRibbonPass(
   let drawing = false;
   for (let s = 0; s <= steps; s += 1) {
     const theta = (s / steps) * Math.PI * 2;
-    const p = ringPoint(theta, radius, inclination, yaw);
+    const p = orbitPoint(theta, radius, planeTilt, yaw);
     const onLayer = layer === "back" ? p.z <= 0 : p.z > 0;
     if (!onLayer) {
       drawing = false;
@@ -86,9 +101,8 @@ function drawRibbonPass(
 }
 
 /**
- * One Working stream. Energy 0 = skip (Idle rest, settle, and the Working gap
- * at the ends of the kick). Draw back, then body+eyes, then front OVER the face.
- * `bodyR` is the current silhouette's max radius in pixels.
+ * One Working stream. Energy 0 = skip (Idle). Draw back, then the planted
+ * morphing body, then front clipped to that body so the sweep crosses the face.
  */
 export function drawWorkingOrbits(
   ctx: CanvasRenderingContext2D,
@@ -101,22 +115,15 @@ export function drawWorkingOrbits(
   if (energy < 0.02) return;
 
   const lineWidth = orbitStrokePx(faceD);
-  const radius = bodyR * 0.96;
-  const alpha = 0.88 + 0.12 * energy;
+  const radius = orbitRadius(bodyR, faceD);
+  const alpha = 0.9 + 0.1 * energy;
+  const baseTilt = (ORBIT_PLANE_DEG * Math.PI) / 180;
 
   for (let i = 0; i < WORKING_ORBIT_COUNT; i += 1) {
-    const inclination = 0.32 + i * 0.29;
-    const yaw = spin + i * 0.7;
+    const planeTilt = baseTilt + (i - 1) * 0.035;
+    const yaw = spin + i * 0.22;
+    const r = radius * (1 + (i - 1) * 0.04);
     const color = VER02_ORBIT_HUES[i % VER02_ORBIT_HUES.length]!;
-    drawRibbonPass(
-      ctx,
-      layer,
-      radius,
-      inclination,
-      yaw,
-      lineWidth,
-      color,
-      alpha,
-    );
+    drawRibbonPass(ctx, layer, r, planeTilt, yaw, lineWidth, color, alpha);
   }
 }

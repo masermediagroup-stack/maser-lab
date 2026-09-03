@@ -6,7 +6,9 @@ import {
   AXIS_TILT_DEG,
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
-  globeYaw,
+  kickProgress,
+  kickWobbleRad,
+  streamPhase,
   whipEnergy,
 } from "./globe-motion";
 import {
@@ -20,7 +22,7 @@ import {
   DALLAS_PAPER,
   grokCyclePose,
 } from "./grok-cycle";
-import { eyePoseAt } from "./grok-eyes";
+import { eyeWhipAt } from "./grok-eyes";
 import {
   DALLAS_DISPLAY_FONT_PX,
   DALLAS_DISPLAY_TRACKING_PX,
@@ -185,14 +187,16 @@ function drawDallasHorizon(
 function drawStadiumEyes(
   ctx: CanvasRenderingContext2D,
   faceD: number,
-  pose: { tilt: number; cx: number; cy: number },
+  pose: { tilt: number; cx: number; cy: number; squashX?: number },
 ) {
   const R = faceD * 0.5;
   const ew = faceD * EYE_W_FACE;
   const eh = faceD * EYE_H_FACE;
   const gap = faceD * EYE_GAP_FACE;
+  const squashX = pose.squashX ?? 1;
   ctx.save();
   ctx.translate(pose.cx * R, pose.cy * R);
+  ctx.scale(squashX, 1);
   ctx.rotate(pose.tilt);
   ctx.fillStyle = DALLAS_EYE_WHITE;
   const drawOne = (ox: number) => {
@@ -224,15 +228,17 @@ function drawGrokBody(
   const radii = bodyOutline(pose.fromShape, pose.toShape, pose.morphT);
   const R = faceD * 0.5;
   const bodyR = maxOutlineRadius(radii) * R;
-  const spin = globeYaw(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
+  const spin = streamPhase(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
   const energy = whipEnergy(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
-  const eyes = eyePoseAt(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
+  const progress = kickProgress(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
+  const eyes = eyeWhipAt(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
+  const wobble = kickWobbleRad(energy, progress);
 
   ctx.save();
   ctx.translate(cx, cy);
-  ctx.rotate(AXIS_TILT);
-  // Body does not yaw. No scale(cos) — that crushed the mark and invented a planet spin.
+  ctx.rotate(AXIS_TILT + wobble);
 
+  // Back stream first — occluded by the planted fill, peeks past the silhouette.
   drawWorkingOrbits(ctx, bodyR, faceD, energy, spin, "back");
 
   ctx.fillStyle = pose.fill;
@@ -242,8 +248,10 @@ function drawGrokBody(
   ctx.save();
   traceBodyPath(ctx, radii, R);
   ctx.clip();
-  drawStadiumEyes(ctx, faceD, eyes);
-  // Front stream OVER the face — crosses the white stadiums. Clip to current body.
+  if (eyes.visible) {
+    drawStadiumEyes(ctx, faceD, eyes);
+  }
+  // Front stream clipped to the morphing body — crosses the face, then leaves.
   drawWorkingOrbits(ctx, bodyR, faceD, energy, spin, "front");
   ctx.restore();
 

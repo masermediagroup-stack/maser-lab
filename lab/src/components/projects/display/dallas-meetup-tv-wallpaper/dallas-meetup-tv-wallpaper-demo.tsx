@@ -292,8 +292,8 @@ export function DallasMeetupTvWallpaperDemo() {
               </LabButton>
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Linear spin is compare-only and default off. Body does not yaw.
-              Rest is Idle: no orbits.
+              Linear spin is compare-only (ribbons + eye-whip) and default off.
+              The silhouette stays planted. Rest is Idle: no orbits.
             </p>
           </LabControlGroup>
 

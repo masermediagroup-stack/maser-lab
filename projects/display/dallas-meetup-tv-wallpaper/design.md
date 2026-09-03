@@ -2,21 +2,21 @@
 
 Look lock lives in `LOOK.md`. This file is the short rationale.
 
-## Working stream vs the gap
+## The turn is an illusion
 
-Product Working is a **sparse orbit stream**: 2–5 thick ribbons, rounded caps, wrapping front/back so they **cross the eyes**, then a gap, then they return. Article frames with **no** ribbons are that gap — not Idle, not “Working has no orbits.”
+Do not 360-rotate the disc. Ribbons wrapping the morphing silhouette + eyes whipping around the form (occlude on the back, reappear on the front) sell the spin. Tiny wobble is fine.
 
-The TV loop does **not** hold Working. It plays Idle, one kick (one stream wraps and leaves), then Idle again. Reduced motion freezes Idle.
+## Kick (0.6s, together)
 
-## Kick craft
+1. Body planted. SDF-blend to the next official picker shape.
+2. Color: current-pair HEX → next-pair HEX only (two stops).
+3. 2–4 thick flat Ver 02 ribbons wrap the morphing body, ~−15° plane, clip to current SDF, then leave.
+4. Eyes whip around the form. Land Idle planted on the new body.
 
-- Thickness ~4–5% of face (~one eye-bar). At 300px: 12–15px.
-- 2–4 bands. Rounded caps. Flat Ver 02 HEX. No article ribbon gradients.
-- Wrap + clip on the current SDF body. Back occluded by the fill. Front over the face, including the white stadiums.
-- Cube stays clean.
+Article frames with **no** ribbons are the Working **gap**, not Idle.
 
-Kill: 7+ hairlines, wallpaper field, a nest of meridians, a square of doodles behind a PNG, 1–3px filaments, Thinking.
+## Loop
 
-## Body + type + horizon
+Idle (planted, no bands, current shape+HEX) → one kick → Idle on the NEW body/color.
 
-Unchanged from `LOOK.md`: shape→color pairing, cold-start oval+Black, flat HEX, white stadiums, Universal Sans once, Noun Project Dallas 3583788, 8s (6.4 / 0.6 / ~1).
+Cold start: oval + Black. First kick: rounded square + Teal. Pairing, Universal Sans, Noun Project Dallas horizon, cube clean: `LOOK.md`.

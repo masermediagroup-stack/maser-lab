@@ -25,8 +25,8 @@ Paper field `#F2F1ED` with Cursor cube + Grok body + one line `Dallas meetup`. G
 
 ### Success signal
 - Idle rest is still: current body, Idle eyes, no ribbons.
-- Whip is one Working stream (2–4 thick bands wrap front/back, cross the eyes, leave).
-- First settle is squircle + Teal. Cold start is oval + Black.
+- Whip is one kick: morph + two-stop color + wrapping ribbons + eye-whip.
+- First kick lands rounded square + Teal. Cold start is oval + Black.
 - Presentation mode is fullscreen with zero demo chrome.
 - Reduced motion freezes Idle.
 
@@ -34,7 +34,7 @@ Paper field `#F2F1ED` with Cursor cube + Grok body + one line `Dallas meetup`. G
 - No event logistics, QR, RSVP, wordmarks, taglines, or secondary copy.
 - Do not hold the product Working loop (stream / gap / stream) through rest.
 - Do not fetch xAI webfonts. Do not steal article ribbon gradients.
-- Not Thinking. Not a hairline nest.
+- Do not 360-rotate the disc. Not Thinking. Not a hairline nest.
 
 ## Type
 
@@ -66,16 +66,17 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4. 
 | --- | --- | --- |
 | Library | Canvas 2D + rAF | Deterministic timeline and export |
 | Duration | 8s: 6.4 still / 0.6 whip / ~1 settle | Idle dwell, one Working kick, land |
-| Body | No yaw | Article Idle/Working body stays face-on |
-| Stream | 2–4 flat Ver 02 ribbons, ~4.5% of face, wrap+clip | Product Working stream; TV plays it once |
+| Body | Planted SDF. Kick morphs to next picker. No disc spin | Turn is an illusion (ribbons + eye-whip) |
+| Stream | 2–4 flat Ver 02 ribbons, ~4.8% of face, −15° wrap | Product Working stream; TV plays it once |
+| Color | Two-stop lerp current pair → next pair on the kick | No settle snap, no off-sheet rainbow |
 
 ## Acceptance criteria
 
 - [x] Demo route `/demos/dallas-meetup-tv-wallpaper` renders locked composition
 - [ ] `npm run lint` and `npm run build` pass in `lab/` (verify this PR)
-- [x] 8s Idle → one kick → Idle; reduced motion freezes Idle
-- [x] Front ribbons cross the eyes; back occluded; cube clean
-- [x] Shape→color pairing; cold-start oval+Black; first settle squircle+Teal
+- [x] 8s Idle → one kick (morph + ribbons + eye-whip) → Idle on the new body; reduced motion freezes Idle
+- [x] Front ribbons clip to the morphing body; back occluded; cube clean
+- [x] Shape→color pairing; color two-stop on the kick; cold-start oval+Black; first kick squircle+Teal
 - [x] Universal Sans once on the canvas line; Plex ≤ 40% of display
 - [x] Noun Project Dallas horizon default ON; credit in the rail
 - [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`
