@@ -32,13 +32,16 @@ describe("dallas type lock math", () => {
 });
 
 describe("dallas family classification", () => {
-  it("treats Geist Sans as the display face and Universal as a third voice", () => {
-    expect(classifyDallasFamily('GeistSans, "Geist Sans", sans-serif')).toBe("geist-sans");
-    expect(classifyDallasFamily('var(--font-geist-sans), Geist, sans-serif')).toBe("geist-sans");
-    expect(classifyDallasFamily('"Geist Mono", ui-monospace')).toBe("geist-mono");
+  it("treats Universal Sans trial as the display face and Geist as geist-out", () => {
+    expect(
+      classifyDallasFamily('"UniversalSansGrokTest Display Trial", sans-serif'),
+    ).toBe("universal-sans");
     expect(
       classifyDallasFamily('"UniversalSansGrokTest Display Trial 400", sans-serif'),
     ).toBe("universal-sans");
+    expect(classifyDallasFamily('GeistSans, "Geist Sans", sans-serif')).toBe("geist-sans");
+    expect(classifyDallasFamily('var(--font-geist-sans), Geist, sans-serif')).toBe("geist-sans");
+    expect(classifyDallasFamily('"Geist Mono", ui-monospace')).toBe("geist-mono");
   });
 
   it("treats IBM Plex Sans Condensed as the UI face", () => {

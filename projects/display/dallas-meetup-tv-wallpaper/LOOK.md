@@ -8,14 +8,14 @@ Stills of the full lockup are rendering on EPG's side. Until they arrive, the tw
 
 - `--dallas-paper`: `#F2F1ED` (not pure white). Wallpaper ground.
 - `--dallas-ink`: `#111111`. Type is ink. Cube is ink. Skyline dither is paper/ink. Rest globe fill is ink.
-- Geist Sans on the one canvas display line. IBM Plex Sans Condensed on everything small. Largest Plex ≤ 40% of display (44px @ 1920, tracking ~2.4). Never fetch xAI webfonts.
+- Universal Sans trial (`UniversalSansGrokTest Display Trial` / 400) on the one canvas display line. IBM Plex Sans Condensed on everything small. Largest Plex ≤ 40% of display (44px @ 1920, tracking ~2.4). Never fetch xAI webfonts. Geist is out.
 
 ## Surface
 
 - Canvas 1920×1080. Paper ground.
 - Cursor cube: SVG path, uniform scale from viewBox `466.73 × 532.09`, ~280px tall, ink. Cube stays clean — no ribbons, no filaments.
 - Grok face diameter 300px, gap 120px, pair lifted ~70px above vertical center. Axis tilt 16°.
-- One display line: `Dallas meetup`. Geist Sans, exactly once, 44px @ 1920, tracking ~2.4.
+- One display line: `Dallas meetup`. Universal Sans trial, exactly once, 44px @ 1920, tracking ~2.4.
 - Draw order: paper → field filaments → dithered horizon (low) → cube + globe + type.
 
 ## Horizon — dithered B/W Dallas skyline
@@ -36,29 +36,28 @@ Bayer-dither that photo to paper/ink. Fade the top of the silhouette/dither into
 
 ## Galaxy swooshes — FIELD only
 
-Eight sampled Grok 4 colors, **random assignment**, flowing filaments in the wallpaper field around/behind the ball. Never longitude on the mark. Never meridians. Never parallels.
-
-Provenance: sampled from xAI Grok 4 artwork, **not** published brand tokens. Keep all eight in tokens even if pale stops vanish on paper.
+Nine Ver 02 chromatic hues, **random assignment**, flowing filaments in the wallpaper field around/behind the ball. Never longitude on the mark. Never meridians. Never parallels. Gray never a filament.
 
 | Stop | Hex |
 | --- | --- |
-| rose | `#CF525C` |
-| red | `#F15336` |
-| orange | `#FEB87C` |
-| cream | `#FFE4A6` |
-| pale icy | `#C4D3E1` |
-| cyan | `#AAD5EA` |
-| blue | `#86A4C6` |
-| indigo | `#7775A5` |
+| gold | `#97683D` |
+| red | `#FF263C` |
+| orange-red | `#FF6700` |
+| orange | `#FF9800` |
+| green | `#00C972` |
+| teal | `#00BCA6` |
+| blue | `#1084FE` |
+| violet | `#9159FE` |
+| magenta | `#FF309B` |
 
-Each filament (or bundle) draws a stop from that set. Flow like the Grok 4 artwork: hairline filaments in near-parallel, fanning and compressing, on paper. No bloom, glow, screen, or add — paper is light. If a filament wouldn't hold at 1× vs `#F2F1ED`, fall back toward indigo/rose/red rather than drawing invisible paper-on-paper. No star specks.
+Each filament (or bundle) draws a stop from that set. Hairline filaments in near-parallel, fanning and compressing, on paper. No bloom, glow, screen, or add — paper is light. All nine hold at 1× vs `#F2F1ED`. No star specks.
 
 ## Body (globe lock — do not revert)
 
 - Official picker SDFs 1–8. Rest = #2 irregular oval.
 - Cold start: oval + ink `#111111`. Flat HEX. No Lambert. No photo-earth. Solid ball.
 - **Planted silhouette.** No 360° disc spin. No globe meridians. Tiny wobble (a few degrees) is fine.
-- During the kick: SDF-blend to the next official picker shape. Color lerps **only** current-pair HEX → next-pair HEX (two stops).
+- During the kick: SDF-blend to the next official picker shape. Fill **snaps** to the destination pair HEX at kick start and holds. No rainbow lerp.
 - Walk `2→3→4→5→6→7→8→1`. First kick = rounded square + Teal. Oval return = Orange-red, not ink.
 
 ## Eyes
@@ -74,7 +73,7 @@ Rest face-forward. One revolution, traveling portion ~0.5–0.7s (product 0.6s),
 | Beat | Time | Look |
 | --- | --- | --- |
 | Idle rest | 6.4s | Planted face. Current shape+HEX. Idle eyes. **No ribbons.** |
-| Whip / kick | 0.6s | Morph + two-stop color + 2–4 ribbons wrap the morphing body + eye-whip. |
+| Whip / kick | 0.6s | Morph + fill snap to next pair + 2–4 ribbons wrap the morphing body + eye-whip. |
 | After | ~1s | Idle on the **new** body/color. Planted eyes. **No parked bands.** |
 
 Reduced motion freezes Idle (oval+ink, no morph, no ribbons, no eye-whip).

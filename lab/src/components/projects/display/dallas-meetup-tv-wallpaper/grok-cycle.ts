@@ -6,10 +6,10 @@
  * Gray is never a body fill.
  *
  * Cold start / product rest: shape 2 + ink #111111.
- * During the SAME 0.6s kick: shape BLENDS to the next picker body, color lerps
- * between the current pair HEX and the next pair HEX (two stops). Not a snap
- * after the kick. Not a rainbow lerp off-sheet.
- * First kick: oval+ink → rounded square + Teal.
+ * During the SAME 0.6s kick: shape BLENDS to the next picker body. Fill
+ * SNAPS to the destination pair HEX at kick start and holds through morph
+ * and Idle. No rainbow lerp. Not a settle snap on a still face.
+ * First kick: oval+ink morphs 2→3; fill snaps to Teal.
  * When the walk returns to oval, fill is Orange-red (tree color), not black.
  */
 
@@ -185,7 +185,7 @@ export function grokCyclePose(
       fromShape,
       toShape,
       morphT,
-      fill: lerpHex(fromFill, toFill, morphT),
+      fill: toFill,
       inKick: true,
     };
   }

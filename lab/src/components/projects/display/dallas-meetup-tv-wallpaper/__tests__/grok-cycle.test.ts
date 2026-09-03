@@ -66,10 +66,16 @@ describe("family-tree shape→color pairing", () => {
     expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_GRAY);
   });
 
-  it("blends oval+ink → squircle+teal during the first kick, then holds Idle", () => {
+  it("snaps fill to Teal at first kick start while SDF still morphs", () => {
     const rest = grokCyclePose(1, 8, 0.6, false);
     expect(rest.fill).toBe(DALLAS_GLOBE_BLACK);
     expect(rest.morphT).toBe(0);
+
+    const kickStart = grokCyclePose(6.41, 8, 0.6, false);
+    expect(kickStart.inKick).toBe(true);
+    expect(kickStart.fromShape).toBe(2);
+    expect(kickStart.toShape).toBe(3);
+    expect(kickStart.fill).toBe(DALLAS_GROK_TEAL);
 
     const kick = grokCyclePose(6.7, 8, 0.6, false);
     expect(kick.inKick).toBe(true);
@@ -77,9 +83,7 @@ describe("family-tree shape→color pairing", () => {
     expect(kick.toShape).toBe(3);
     expect(kick.morphT).toBeGreaterThan(0.4);
     expect(kick.morphT).toBeLessThan(1);
-    expect(kick.fill).not.toBe(DALLAS_GLOBE_BLACK);
-    expect(kick.fill).not.toBe(DALLAS_GROK_TEAL);
-    expect(kick.fill.startsWith("#")).toBe(true);
+    expect(kick.fill).toBe(DALLAS_GROK_TEAL);
 
     const after = grokCyclePose(7.5, 8, 0.6, false);
     expect(after.inKick).toBe(false);
@@ -89,14 +93,11 @@ describe("family-tree shape→color pairing", () => {
     expect(after.morphT).toBe(1);
   });
 
-  it("lerps only the two locked pair stops (no off-sheet rainbow)", () => {
-    expect(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, 0)).toBe(DALLAS_GLOBE_BLACK);
-    expect(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, 1)).toBe(DALLAS_GROK_TEAL);
-    expect(DALLAS_GLOBE_BLACK).toBe("#111111");
-    const mid = lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, 0.5);
-    expect(mid).not.toBe(DALLAS_GLOBE_BLACK);
-    expect(mid).not.toBe(DALLAS_GROK_TEAL);
-    expect(mid).toMatch(/^#[0-9A-F]{6}$/);
+  it("does not rainbow-lerp the body (lerpHex stays a util, unused on fill)", () => {
+    expect(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, 0.5)).not.toBe(DALLAS_GROK_TEAL);
+    const kick = grokCyclePose(6.7, 8, 0.6, false);
+    expect(kick.fill).toBe(DALLAS_GROK_TEAL);
+    expect(kick.fill).not.toBe(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, kick.morphT));
   });
 
   it("returns to oval with orange-red, not black", () => {

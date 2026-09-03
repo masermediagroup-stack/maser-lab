@@ -1,14 +1,15 @@
 /**
  * Mechanical type lock for the Dallas meetup TV wallpaper.
  *
- * 1. Geist Sans appears exactly once — the canvas display line
+ * 1. Universal Sans trial appears exactly once — the canvas display line
  *    "Dallas meetup". If a DOM element wants the display face,
  *    it does not get it.
- * 2. Nothing in IBM Plex Sans Condensed sits close to the display in size.
+ * 2. Geist is out. Geist on the DOM is a fail (`geist-out`).
+ * 3. Nothing in IBM Plex Sans Condensed sits close to the display in size.
  *    Largest Plex rendered size ≤ DALLAS_PLEX_MAX_RATIO of the display's
  *    rendered size. Fix: shrink or remove the label. Never enlarge the display.
- * 3. No third voice. Universal Sans is out. Geist Mono is unused unless a node
- *    earns `data-dallas-mono="structural"` (none on this demo).
+ * 4. No third voice. Geist Mono is unused unless a node earns
+ *    `data-dallas-mono="structural"` (none on this demo).
  *
  * Display size is 44px on the 1920 design frame (LOOK.md). 40% is the
  * working threshold for EPG's decisive jump.
@@ -23,7 +24,7 @@ export const DALLAS_PLEX_SIZE_EPSILON_PX = 0.51;
 export type DallasFamilyKind = "geist-sans" | "geist-mono" | "universal-sans" | "plex" | "other";
 
 export type DallasTypeLockViolation = {
-  rule: "geist-once" | "plex-size" | "third-voice";
+  rule: "display-once" | "geist-out" | "plex-size" | "third-voice";
   detail: string;
   selector?: string;
   sizePx?: number;
@@ -121,13 +122,13 @@ export function checkDallasTypeLock(
   const canvas = root.querySelector("canvas.dallas-wallpaper-canvas");
   if (!canvas) {
     violations.push({
-      rule: "geist-once",
-      detail: "Missing wallpaper canvas — Geist Sans display has nowhere to appear once.",
+      rule: "display-once",
+      detail: "Missing wallpaper canvas — Universal Sans display has nowhere to appear once.",
     });
-  } else if (canvas.getAttribute("data-dallas-display") !== "geist-sans") {
+  } else if (canvas.getAttribute("data-dallas-display") !== "universal-sans") {
     violations.push({
-      rule: "geist-once",
-      detail: "Wallpaper canvas is not marked as the single Geist Sans display.",
+      rule: "display-once",
+      detail: "Wallpaper canvas is not marked as the single Universal Sans display.",
       selector: "canvas.dallas-wallpaper-canvas",
     });
   }
@@ -142,8 +143,8 @@ export function checkDallasTypeLock(
 
     if (kind === "geist-sans" || kind === "geist-mono") {
       violations.push({
-        rule: "geist-once",
-        detail: `Geist on DOM (${selector}). Only the canvas display line may use Geist Sans.`,
+        rule: "geist-out",
+        detail: `Geist on DOM (${selector}). Display is Universal Sans trial; chrome is Plex.`,
         selector,
       });
       continue;
@@ -152,7 +153,7 @@ export function checkDallasTypeLock(
     if (kind === "universal-sans") {
       violations.push({
         rule: "third-voice",
-        detail: `Universal Sans on ${selector}. Display is Geist; chrome is Plex.`,
+        detail: `Universal Sans on ${selector}. Only the canvas display line may use the trial face.`,
         selector,
       });
       continue;

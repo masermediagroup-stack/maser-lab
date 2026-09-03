@@ -322,9 +322,9 @@ export function DallasMeetupTvWallpaperDemo() {
 
           <LabControlGroup label="Field">
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Galaxy swooshes: eight stops sampled from xAI Grok 4 artwork
-              (not published brand tokens). Random assignment on the paper
-              field only — never meridians on the mark.
+              Galaxy swooshes: nine Ver 02 hues on paper (gold → magenta).
+              Random assignment on the field only — never meridians on the mark.
+              Gray never a filament.
             </p>
           </LabControlGroup>
 

@@ -416,7 +416,7 @@ export function DallasMeetupWallpaper({
       <canvas
         ref={canvasRef}
         className="dallas-wallpaper-canvas"
-        data-dallas-display="geist-sans"
+        data-dallas-display="universal-sans"
         aria-label="Dallas meetup wallpaper"
       />
     </div>

@@ -1,9 +1,10 @@
 /**
  * Grok look-lock motion (article Idle / Working lifecycle).
  *
- * The silhouette stays planted. The kick is an illusion: SDF morph + two-stop
- * color + wrapping ribbons + eyes that whip around the form (occlude on the
- * back, reappear on the front). Tiny wobble is fine. A 360° disc spin is not.
+ * The silhouette stays planted. The kick is an illusion: SDF morph + fill snap
+ * to the next pair HEX + wrapping ribbons + eyes that whip around the form
+ * (occlude on the back, reappear on the front). Tiny wobble is fine. A 360°
+ * disc spin is not.
  * Linear spin is compare-only (ribbons + eye-whip). Reduced motion freezes Idle.
  */
 

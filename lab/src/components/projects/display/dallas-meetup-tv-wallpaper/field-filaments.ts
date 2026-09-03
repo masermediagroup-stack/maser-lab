@@ -1,30 +1,40 @@
 /**
- * Grok 4 field filaments — wallpaper FIELD only.
+ * Ver 02 9-hue field swooshes — wallpaper FIELD only.
  *
- * Eight stops sampled from xAI Grok 4 artwork, not published brand tokens.
- * Random assignment per filament (seeded). Never longitude / meridians /
- * parallels on the mark. Hairlines on paper, source-over, no bloom/glow/add.
- * Pale stops that vanish on `--dallas-paper` fall back toward indigo/rose/red.
+ * Gold, red, orange-red, orange, green, teal, blue, violet, magenta.
+ * Random assignment per filament (seeded). Gray never a filament.
+ * Never longitude / meridians / parallels on the mark.
+ * Hairlines on paper, source-over, no bloom/glow/add. All nine hold on `#F2F1ED`.
  */
+
+import {
+  DALLAS_GROK_BLUE,
+  DALLAS_GROK_GOLD,
+  DALLAS_GROK_GRAY,
+  DALLAS_GROK_GREEN,
+  DALLAS_GROK_MAGENTA,
+  DALLAS_GROK_ORANGE,
+  DALLAS_GROK_ORANGE_RED,
+  DALLAS_GROK_RED,
+  DALLAS_GROK_TEAL,
+  DALLAS_GROK_VIOLET,
+} from "./grok-cycle";
 
 export const DALLAS_PAPER_HEX = "#F2F1ED";
 
-/** Provenance: sampled from xAI Grok 4 artwork, not published brand tokens. */
-export const GROK4_FIELD_STOPS = [
-  { id: "rose", hex: "#CF525C" },
-  { id: "red", hex: "#F15336" },
-  { id: "orange", hex: "#FEB87C" },
-  { id: "cream", hex: "#FFE4A6" },
-  { id: "icy", hex: "#C4D3E1" },
-  { id: "cyan", hex: "#AAD5EA" },
-  { id: "blue", hex: "#86A4C6" },
-  { id: "indigo", hex: "#7775A5" },
+export const FIELD_SWOOSH_HUES = [
+  { id: "gold", hex: DALLAS_GROK_GOLD },
+  { id: "red", hex: DALLAS_GROK_RED },
+  { id: "orange-red", hex: DALLAS_GROK_ORANGE_RED },
+  { id: "orange", hex: DALLAS_GROK_ORANGE },
+  { id: "green", hex: DALLAS_GROK_GREEN },
+  { id: "teal", hex: DALLAS_GROK_TEAL },
+  { id: "blue", hex: DALLAS_GROK_BLUE },
+  { id: "violet", hex: DALLAS_GROK_VIOLET },
+  { id: "magenta", hex: DALLAS_GROK_MAGENTA },
 ] as const;
 
-export type Grok4FieldStopId = (typeof GROK4_FIELD_STOPS)[number]["id"];
-
-/** Visible-at-1× fallbacks when a sampled stop would read as paper-on-paper. */
-export const GROK4_FIELD_FALLBACK = ["#7775A5", "#CF525C", "#F15336"] as const;
+export type FieldSwooshHueId = (typeof FIELD_SWOOSH_HUES)[number]["id"];
 
 export const FIELD_FILAMENT_SEED = 0xda11a5;
 export const FIELD_BUNDLE_COUNT = 3;
@@ -39,7 +49,7 @@ export type FieldFilament = {
   y1: number;
   width: number;
   hex: string;
-  sampledId: Grok4FieldStopId;
+  sampledId: FieldSwooshHueId;
 };
 
 function srgbToLinear(channel: number): number {
@@ -61,7 +71,6 @@ export function relativeLuminance(hex: string): number {
   return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
 }
 
-/** WCAG contrast vs Dallas paper. Pale cream/icy land near 1.05–1.2. */
 export function contrastVsPaper(hex: string, paper = DALLAS_PAPER_HEX): number {
   const a = relativeLuminance(hex);
   const p = relativeLuminance(paper);
@@ -70,17 +79,10 @@ export function contrastVsPaper(hex: string, paper = DALLAS_PAPER_HEX): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-/** Hairline must hold at 1× on `#F2F1ED` or it is invisible paper-on-paper. */
-const VANISH_ON_PAPER = new Set(["#FFE4A6", "#C4D3E1"]);
-
+/** All nine Ver 02 chromatic hues hold as hairlines on Dallas paper. */
 export function fieldStopHoldsAt1x(hex: string): boolean {
-  if (VANISH_ON_PAPER.has(hex.toUpperCase())) return false;
+  if (hex.toUpperCase() === DALLAS_GROK_GRAY.toUpperCase()) return false;
   return contrastVsPaper(hex) >= 1.35;
-}
-
-export function assignFieldHex(sampledHex: string, fallbackIndex: number): string {
-  if (fieldStopHoldsAt1x(sampledHex)) return sampledHex;
-  return GROK4_FIELD_FALLBACK[fallbackIndex % GROK4_FIELD_FALLBACK.length]!;
 }
 
 export function mulberry32(seed: number): () => number {
@@ -130,8 +132,7 @@ export function generateFieldFilaments(
       const x1 = x0 + nx * length + px * t * spread * 5;
       const y1 = y0 + ny * length + py * t * spread * 6;
 
-      const stop = GROK4_FIELD_STOPS[Math.floor(rng() * GROK4_FIELD_STOPS.length)]!;
-      const hex = assignFieldHex(stop.hex, Math.floor(rng() * GROK4_FIELD_FALLBACK.length));
+      const stop = FIELD_SWOOSH_HUES[Math.floor(rng() * FIELD_SWOOSH_HUES.length)]!;
 
       filaments.push({
         x0,
@@ -141,7 +142,7 @@ export function generateFieldFilaments(
         x1,
         y1,
         width: 0.65 + rng() * 0.55,
-        hex,
+        hex: stop.hex,
         sampledId: stop.id,
       });
     }

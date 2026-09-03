@@ -10,16 +10,32 @@
  * Gray exists as a named token and is never a globe fill.
  * Green is stream-only, never a body fill.
  *
- * Grok 4 field stops (sampled from xAI Grok 4 artwork, not published brand
- * tokens). Field filaments only — never longitude / meridians / parallels
- * on the mark. Pale cream/icy may vanish on paper; still keep all eight.
+ * Field swooshes use the 9 Ver 02 chromatic hues (not the Grok 4 sampled
+ * set). Gray never a filament. Hairlines on paper only — never longitude /
+ * meridians / parallels on the mark.
  *
  * Type split:
- *   --dallas-font      Geist Sans, exactly once: canvas "Dallas meetup"
+ *   --dallas-font      Universal Sans trial, exactly once: canvas "Dallas meetup"
  *   --dallas-font-ui   IBM Plex Sans Condensed for body, labels, info
  * Size check: largest Plex ≤ 40% of the display's rendered size (44px @ 1920).
- * Never load xAI's self-hosted woff2 files.
+ * Never load xAI's self-hosted woff2 files. Geist is out.
  */
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src: url("/fonts/UniversalSansGrokTest-Display-Trial-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial 400";
+  src: url("/fonts/UniversalSansGrokTest-Display-Trial-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 .dallas-demo,
 .dallas-demo.maser-lab {
@@ -48,7 +64,7 @@
   --dallas-grok4-blue: #86a4c6;
   --dallas-grok4-indigo: #7775a5;
 
-  --dallas-font: var(--font-geist-sans), Geist, "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+  --dallas-font: "UniversalSansGrokTest Display Trial", "UniversalSansGrokTest Display Trial 400", ui-sans-serif, system-ui, sans-serif;
   --dallas-font-ui: var(--font-ibm-plex-sans-condensed), "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", sans-serif;
 
   font-family: var(--dallas-font-ui);

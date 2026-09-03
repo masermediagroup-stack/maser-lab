@@ -1,48 +1,41 @@
 import { describe, expect, it } from "vitest";
 import {
-  GROK4_FIELD_FALLBACK,
-  GROK4_FIELD_STOPS,
-  assignFieldHex,
+  FIELD_SWOOSH_HUES,
   contrastVsPaper,
   fieldStopHoldsAt1x,
   generateFieldFilaments,
 } from "../field-filaments";
+import {
+  DALLAS_GROK_GRAY,
+  DALLAS_GROK_GREEN,
+  GROK_CHROMATIC_FILLS,
+} from "../grok-cycle";
 
-describe("Grok 4 field tokens", () => {
-  it("keeps all eight sampled stops with provenance hexes", () => {
-    expect(GROK4_FIELD_STOPS.map((s) => s.hex)).toEqual([
-      "#CF525C",
-      "#F15336",
-      "#FEB87C",
-      "#FFE4A6",
-      "#C4D3E1",
-      "#AAD5EA",
-      "#86A4C6",
-      "#7775A5",
-    ]);
-    expect(GROK4_FIELD_STOPS.map((s) => s.id)).toEqual([
-      "rose",
+describe("Ver 02 9-hue field swooshes", () => {
+  it("locks the nine chromatic hues in order and never includes gray", () => {
+    expect(FIELD_SWOOSH_HUES.map((s) => s.hex)).toEqual([...GROK_CHROMATIC_FILLS]);
+    expect(FIELD_SWOOSH_HUES.map((s) => s.id)).toEqual([
+      "gold",
       "red",
+      "orange-red",
       "orange",
-      "cream",
-      "icy",
-      "cyan",
+      "green",
+      "teal",
       "blue",
-      "indigo",
+      "violet",
+      "magenta",
     ]);
+    expect(FIELD_SWOOSH_HUES).toHaveLength(9);
+    expect(FIELD_SWOOSH_HUES.map((s) => s.hex)).not.toContain(DALLAS_GROK_GRAY);
+    expect(FIELD_SWOOSH_HUES.map((s) => s.hex)).toContain(DALLAS_GROK_GREEN);
   });
 
-  it("falls pale cream/icy back toward indigo/rose/red instead of paper-on-paper", () => {
-    expect(fieldStopHoldsAt1x("#FFE4A6")).toBe(false);
-    expect(fieldStopHoldsAt1x("#C4D3E1")).toBe(false);
-    expect(fieldStopHoldsAt1x("#CF525C")).toBe(true);
-    expect(fieldStopHoldsAt1x("#F15336")).toBe(true);
-    expect(fieldStopHoldsAt1x("#7775A5")).toBe(true);
-    expect(GROK4_FIELD_FALLBACK).toEqual(["#7775A5", "#CF525C", "#F15336"]);
-    expect(assignFieldHex("#FFE4A6", 0)).toBe("#7775A5");
-    expect(assignFieldHex("#CF525C", 0)).toBe("#CF525C");
-    expect(contrastVsPaper("#FFE4A6")).toBeLessThan(1.35);
-    expect(contrastVsPaper("#C4D3E1")).toBeLessThan(1.8);
+  it("holds every hue at 1× on paper", () => {
+    for (const stop of FIELD_SWOOSH_HUES) {
+      expect(fieldStopHoldsAt1x(stop.hex)).toBe(true);
+      expect(contrastVsPaper(stop.hex)).toBeGreaterThanOrEqual(1.35);
+    }
+    expect(fieldStopHoldsAt1x(DALLAS_GROK_GRAY)).toBe(false);
   });
 });
 
@@ -65,12 +58,13 @@ describe("field filament layout", () => {
     expect(polar.length).toBeLessThan(filaments.length * 0.25);
   });
 
-  it("assigns from the eight-stop set and never uses Ver 02 globe fills", () => {
+  it("assigns from the nine Ver 02 hues and never gray", () => {
     const filaments = generateFieldFilaments(1920, 1080);
     const hexes = new Set(filaments.map((f) => f.hex));
-    expect(hexes.has("#1084FE")).toBe(false);
-    expect(hexes.has("#00BCA6")).toBe(false);
+    expect(hexes.has(DALLAS_GROK_GRAY)).toBe(false);
+    expect(hexes.size).toBeGreaterThanOrEqual(4);
     for (const hex of hexes) {
+      expect((GROK_CHROMATIC_FILLS as readonly string[]).includes(hex)).toBe(true);
       expect(fieldStopHoldsAt1x(hex)).toBe(true);
     }
   });
