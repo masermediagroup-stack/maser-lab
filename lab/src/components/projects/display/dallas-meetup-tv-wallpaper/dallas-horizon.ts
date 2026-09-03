@@ -17,10 +17,12 @@ export const HORIZON_SOURCE_CREDIT =
   "Trammell Crow Park skyline, CC0 1.0 (IcedCowboyCoffee). Wikimedia Commons.";
 
 /** Crop to the building band: Reunion Tower (ball-on-a-stalk) + Bank of America Plaza. */
-export const SKYLINE_CROP_TOP = 0.2;
-export const SKYLINE_CROP_BOTTOM = 0.52;
-export const HORIZON_PROCESS_WIDTH = 1280;
-export const HORIZON_TOP_FADE = 0.22;
+export const SKYLINE_CROP_TOP = 0.28;
+export const SKYLINE_CROP_BOTTOM = 0.5;
+export const HORIZON_PROCESS_WIDTH = 1600;
+export const HORIZON_TOP_FADE = 0.14;
+/** Uniform scale so the strip occupies the lower ~26% of the 1080 frame. */
+export const HORIZON_HEIGHT_FRAC = 0.26;
 
 export const BAYER8 = [
   [0, 32, 8, 40, 2, 34, 10, 42],
@@ -85,14 +87,19 @@ export function ditherHorizonImageData(
       const b = data[i + 2]!;
       const a = data[i + 3]!;
 
-      if (a < 8 || fade <= 0.002 || isSkyPixel(r, g, b) || isFoliagePixel(r, g, b)) {
+      if (
+        a < 8 ||
+        fade <= 0.002 ||
+        isSkyPixel(r, g, b) ||
+        (y / height > 0.78 && isFoliagePixel(r, g, b))
+      ) {
         data[i + 3] = 0;
         continue;
       }
 
       const luma = lumaOf(r, g, b);
       // Pale structures (Reunion Tower ball) still occupy; dark towers go solid.
-      const occupancy = Math.min(1, Math.max(0.42, 1 - luma / 255)) * fade;
+      const occupancy = Math.min(1, Math.max(0.7, 1.08 - luma / 240)) * fade;
       const threshold = (BAYER8[y & 7]![x & 7]! + 0.5) / 64;
       if (occupancy < threshold) {
         data[i + 3] = 0;
@@ -132,16 +139,16 @@ export function stampHorizon(img: HTMLImageElement): HTMLCanvasElement {
   return crop;
 }
 
-/** Full-width, bottom-sitting blit. Uniform scale — not mapped onto the globe. */
+/** Full-width-ish, bottom-sitting blit. Uniform scale — not mapped onto the globe. */
 export function drawDallasHorizon(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
   plate: HTMLCanvasElement,
 ) {
-  const destW = width;
-  const destH = destW * (plate.height / plate.width);
-  const dx = 0;
+  const destH = height * HORIZON_HEIGHT_FRAC;
+  const destW = destH * (plate.width / plate.height);
+  const dx = (width - destW) * 0.5;
   const dy = height - destH;
   ctx.drawImage(plate, dx, dy, destW, destH);
 }

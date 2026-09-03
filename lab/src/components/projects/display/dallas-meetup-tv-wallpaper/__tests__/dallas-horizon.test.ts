@@ -40,7 +40,7 @@ describe("skyline paper/ink dither", () => {
           data[i] = 130;
           data[i + 1] = 175;
           data[i + 2] = 235;
-        } else if (x > 20 && y > 22) {
+        } else if (x > 20 && y > 26) {
           data[i] = 60;
           data[i + 1] = 170;
           data[i + 2] = 55;

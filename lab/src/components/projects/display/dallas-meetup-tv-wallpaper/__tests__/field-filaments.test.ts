@@ -49,7 +49,7 @@ describe("Grok 4 field tokens", () => {
 describe("field filament layout", () => {
   it("flows laterally across the paper, not as meridians on a globe", () => {
     const filaments = generateFieldFilaments(1920, 1080);
-    expect(filaments.length).toBeGreaterThan(40);
+    expect(filaments.length).toBeGreaterThan(28);
     const lateral = filaments.filter((f) => Math.abs(f.x1 - f.x0) > Math.abs(f.y1 - f.y0) * 0.55);
     expect(lateral.length).toBeGreaterThan(filaments.length * 0.7);
 

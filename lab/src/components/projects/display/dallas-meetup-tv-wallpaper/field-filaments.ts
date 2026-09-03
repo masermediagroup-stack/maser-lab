@@ -27,8 +27,8 @@ export type Grok4FieldStopId = (typeof GROK4_FIELD_STOPS)[number]["id"];
 export const GROK4_FIELD_FALLBACK = ["#7775A5", "#CF525C", "#F15336"] as const;
 
 export const FIELD_FILAMENT_SEED = 0xda11a5;
-export const FIELD_BUNDLE_COUNT = 5;
-export const FIELD_FILAMENTS_PER_BUNDLE = [14, 16, 12, 15, 13] as const;
+export const FIELD_BUNDLE_COUNT = 3;
+export const FIELD_FILAMENTS_PER_BUNDLE = [11, 13, 10] as const;
 
 export type FieldFilament = {
   x0: number;
@@ -108,7 +108,7 @@ export function generateFieldFilaments(
 
   for (let b = 0; b < FIELD_BUNDLE_COUNT; b += 1) {
     const count = FIELD_FILAMENTS_PER_BUNDLE[b] ?? 14;
-    const angle = -0.42 + b * 0.19 + (rng() - 0.5) * 0.06;
+    const angle = -0.32 + b * 0.11 + (rng() - 0.5) * 0.03;
     const nx = Math.cos(angle);
     const ny = Math.sin(angle);
     const px = -ny;
@@ -120,7 +120,8 @@ export function generateFieldFilaments(
     const compress = 0.35 + rng() * 0.9;
 
     for (let i = 0; i < count; i += 1) {
-      const t = count === 1 ? 0 : i / (count - 1) - 0.5;
+      const span = Math.max(1, count - 1);
+      const t = i / span - 0.5;
       const spread = fan * (1 + t * 2 * (compress - 0.5));
       const x0 = originX + px * spread * t * 14;
       const y0 = originY + py * spread * t * 14;
