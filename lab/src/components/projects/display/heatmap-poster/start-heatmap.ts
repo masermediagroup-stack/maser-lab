@@ -10,6 +10,7 @@ import { heatmapTrace } from "./trace";
 export type HeatmapDriver = {
   setFallback: (pack: PackedMask) => void;
   setPack: (pack: PackedMask) => void;
+  setSourceImage: (pack: PackedMask) => void;
   dispose: () => void;
 };
 
@@ -100,16 +101,10 @@ export function startCanvas2d(
   let last = performance.now();
   let time = 0;
   let raf = 0;
-  let visible = true;
-  let pendingPresent = true;
-
-  const io = new IntersectionObserver((entries) => {
-    visible = entries.some((e) => e.isIntersecting);
-  });
-  io.observe(canvas);
+  let hidden = false;
 
   const onHidden = () => {
-    visible = document.visibilityState !== "hidden" && visible;
+    hidden = document.visibilityState === "hidden";
   };
   document.addEventListener("visibilitychange", onHidden);
 
@@ -204,8 +199,7 @@ export function startCanvas2d(
     raf = window.requestAnimationFrame(tick);
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (!visible && !pendingPresent) return;
-    pendingPresent = false;
+    if (hidden) return;
     paint(true, dt);
   };
 
@@ -215,8 +209,7 @@ export function startCanvas2d(
 
   const setPack = (next: PackedMask) => {
     pack = next;
-    pendingPresent = true;
-    heatmapTrace("driver:setPack", { w: next.width, h: next.height });
+    heatmapTrace("driver:setSourceImage", { w: next.width, h: next.height });
     paint(false, 0);
     heatmapTrace("field:presented", {
       w: canvas.width,
@@ -230,10 +223,10 @@ export function startCanvas2d(
   return {
     setFallback: setPack,
     setPack,
+    setSourceImage: setPack,
     dispose: () => {
       disposed = true;
       window.cancelAnimationFrame(raf);
-      io.disconnect();
       document.removeEventListener("visibilitychange", onHidden);
     },
   };
@@ -260,8 +253,17 @@ export async function startHeatmapField(
     return gpu;
   }
   heatmapTrace("canvas2d:start", { reason: "gpu-unavailable" });
+  const parent = opts.canvas.parentElement;
+  let canvas = opts.canvas;
+  if (parent) {
+    const fresh = document.createElement("canvas");
+    fresh.className = opts.canvas.className;
+    fresh.setAttribute("aria-hidden", "true");
+    parent.replaceChild(fresh, opts.canvas);
+    canvas = fresh;
+  }
   return startCanvas2d(
-    opts.canvas,
+    canvas,
     opts.lookRef,
     opts.reducedRef,
     opts.onReady,

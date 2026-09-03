@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { HEATMAP_COPY } from "./copy";
 import { HEATMAP_DEFAULTS } from "./constants";
+import { closeDecoded, decodeImageSource, sourceKey } from "./decode-source";
 import { emptyPack, packImageField } from "./prepare-shape";
 import { computeLayout, drawPoster, type PosterColors } from "./poster-renderer";
 import { startHeatmapField, type HeatmapDriver } from "./start-heatmap";
@@ -10,36 +11,8 @@ import { heatmapTrace } from "./trace";
 import type { HeatmapPosterProps, PackedMask } from "./types";
 import "./tokens.css";
 
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    const local = src.startsWith("blob:") || src.startsWith("data:");
-    if (!local) image.crossOrigin = "anonymous";
-    heatmapTrace("decode:start", { srcKind: local ? "local" : "remote" });
-    image.onload = () => {
-      const finish = () => {
-        heatmapTrace("decode:resolved", {
-          w: image.naturalWidth,
-          h: image.naturalHeight,
-        });
-        resolve(image);
-      };
-      if (typeof image.decode === "function") {
-        image.decode().then(finish).catch(finish);
-      } else {
-        finish();
-      }
-    };
-    image.onerror = () => {
-      heatmapTrace("decode:failed", { srcKind: local ? "local" : "remote" });
-      reject(new Error("image load failed"));
-    };
-    image.src = src;
-  });
-}
-
 type CachedRead = {
-  src: string;
+  key: string;
   pack: PackedMask;
 };
 
@@ -63,11 +36,12 @@ export function HeatmapPoster({
   readStatus = "idle",
   fileStatus = "ok",
   onReadStatus,
+  onFileStatus,
   caption,
   isExport = false,
 }: HeatmapPosterProps) {
   const posterCanvasRef = useRef<HTMLCanvasElement>(null);
-  const heatCanvasRef = useRef<HTMLCanvasElement>(null);
+  const heatHostRef = useRef<HTMLDivElement>(null);
   const lookRef = useRef(look);
   const reducedRef = useRef(forceReducedMotion);
   const driverRef = useRef<HeatmapDriver | null>(null);
@@ -75,6 +49,7 @@ export function HeatmapPoster({
   const generationRef = useRef(0);
   const cachedReadRef = useRef<CachedRead | null>(null);
   const onReadStatusRef = useRef(onReadStatus);
+  const onFileStatusRef = useRef(onFileStatus);
   const captionRef = useRef(caption);
   const readStatusRef = useRef(readStatus);
   const imageRef = useRef(image);
@@ -84,6 +59,7 @@ export function HeatmapPoster({
     lookRef.current = look;
     reducedRef.current = forceReducedMotion;
     onReadStatusRef.current = onReadStatus;
+    onFileStatusRef.current = onFileStatus;
     captionRef.current = caption;
     readStatusRef.current = readStatus;
     imageRef.current = image;
@@ -93,12 +69,13 @@ export function HeatmapPoster({
   const applyPack = useCallback((pack: PackedMask) => {
     queuedPackRef.current = pack;
     const driver = driverRef.current;
-    if (driver) driver.setPack(pack);
+    if (!driver) return;
+    driver.setSourceImage(pack);
   }, []);
 
   const drawFrame = useCallback(() => {
     const posterCanvas = posterCanvasRef.current;
-    const heatCanvas = heatCanvasRef.current;
+    const heatHost = heatHostRef.current;
     if (!posterCanvas) return;
 
     const cardW = posterCanvas.clientWidth;
@@ -134,31 +111,29 @@ export function HeatmapPoster({
               ? HEATMAP_COPY.empty
               : "";
 
-    if (heatCanvas) {
-      heatCanvas.style.height = `${layout.imagePlateH}px`;
+    if (heatHost) {
+      heatHost.style.height = `${layout.imagePlateH}px`;
     }
 
-    drawPoster(
-      heatCanvas ?? null,
-      ctx,
-      layout,
-      colors,
-      captionRef.current,
-      statusText,
-      dpr,
-    );
+    drawPoster(ctx, layout, colors, captionRef.current, statusText, dpr);
   }, []);
 
   useEffect(() => {
-    const heatCanvas = heatCanvasRef.current;
-    if (!heatCanvas) return;
+    const host = heatHostRef.current;
+    if (!host) return;
     let cancelled = false;
     let driver: HeatmapDriver | null = null;
+
+    const canvas = document.createElement("canvas");
+    canvas.className = "heatmap-poster__heat-canvas";
+    canvas.setAttribute("aria-hidden", "true");
+    host.replaceChildren(canvas);
+
     heatmapTrace("driver:start");
     void (async () => {
       driver = await startHeatmapField(
         {
-          canvas: heatCanvas,
+          canvas,
           lookRef,
           reducedRef,
           onReady: () => {
@@ -174,13 +149,15 @@ export function HeatmapPoster({
       }
       if (!driver) return;
       driverRef.current = driver;
-      driver.setPack(queuedPackRef.current);
+      driver.setSourceImage(queuedPackRef.current);
       drawFrame();
     })();
+
     return () => {
       cancelled = true;
       driver?.dispose();
       driverRef.current = null;
+      host.replaceChildren();
     };
   }, [drawFrame]);
 
@@ -196,60 +173,62 @@ export function HeatmapPoster({
     return () => ro.disconnect();
   }, [drawFrame]);
 
-  useEffect(() => {
-    let raf = 0;
-    const tick = () => {
-      drawFrame();
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [drawFrame]);
-
-  const imageSrc = image?.src ?? null;
-  const lastSrcRef = useRef<string | null>(null);
+  const imageKey = sourceKey(image);
+  const lastKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     const gen = ++generationRef.current;
-    const srcChanged = lastSrcRef.current !== imageSrc;
-    lastSrcRef.current = imageSrc;
+    const keyChanged = lastKeyRef.current !== imageKey;
+    lastKeyRef.current = imageKey;
 
-    if (!imageSrc || !image) {
+    if (!imageKey || !image) {
       cachedReadRef.current = null;
       applyPack(emptyPack());
       onReadStatusRef.current?.("idle");
+      drawFrame();
       return;
     }
 
-    if (!srcChanged && cachedReadRef.current?.src === imageSrc) {
+    if (!keyChanged && cachedReadRef.current?.key === imageKey) {
       applyPack(cachedReadRef.current.pack);
       return;
     }
 
     let cancelled = false;
-    heatmapTrace("pipeline:start", { srcChanged });
+    heatmapTrace("pipeline:start", { keyChanged, hasFile: Boolean(image.file) });
     onReadStatusRef.current?.("reading");
+    drawFrame();
 
     void (async () => {
+      let decoded: CanvasImageSource | null = null;
       try {
-        const el = await loadImage(imageSrc);
+        decoded = await decodeImageSource(image);
         if (cancelled || gen !== generationRef.current) return;
-        if (el.naturalWidth < 1 || el.naturalHeight < 1) {
+
+        const size =
+          "naturalWidth" in decoded
+            ? {
+                w: (decoded as HTMLImageElement).naturalWidth,
+                h: (decoded as HTMLImageElement).naturalHeight,
+              }
+            : {
+                w: (decoded as ImageBitmap).width,
+                h: (decoded as ImageBitmap).height,
+              };
+        if (size.w < 1 || size.h < 1) {
           throw new Error("decoded image has no pixels");
         }
 
-        heatmapTrace("silhouette:start", {
-          w: el.naturalWidth,
-          h: el.naturalHeight,
-        });
-        const pack = packImageField(el);
+        heatmapTrace("silhouette:start", { w: size.w, h: size.h });
+        const pack = packImageField(decoded);
         heatmapTrace("field:packed", { w: pack.width, h: pack.height });
         if (cancelled || gen !== generationRef.current) return;
 
-        cachedReadRef.current = { src: imageSrc, pack };
+        cachedReadRef.current = { key: imageKey, pack };
         applyPack(pack);
-        drawFrame();
+        onFileStatusRef.current?.("ok");
         onReadStatusRef.current?.("idle");
+        drawFrame();
         heatmapTrace("field:bound-and-rendered");
       } catch (err) {
         heatmapTrace("pipeline:error", {
@@ -257,15 +236,20 @@ export function HeatmapPoster({
         });
         console.error("[heatmap] pipeline:error", err);
         if (cancelled || gen !== generationRef.current) return;
-        if (!cachedReadRef.current) applyPack(emptyPack());
+        cachedReadRef.current = null;
+        applyPack(emptyPack());
+        onFileStatusRef.current?.("error");
         onReadStatusRef.current?.("idle");
+        drawFrame();
+      } finally {
+        if (decoded) closeDecoded(decoded);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [imageSrc, image, applyPack, drawFrame]);
+  }, [imageKey, image, applyPack, drawFrame]);
 
   const hasRealText = caption != null && caption.length > 0;
   const showPlaceholder = !isExport && !hasRealText && image != null;
@@ -276,12 +260,8 @@ export function HeatmapPoster({
       data-format={format}
       aria-label="Heatmap poster"
     >
+      <div ref={heatHostRef} className="heatmap-poster__heat-host" aria-hidden />
       <canvas ref={posterCanvasRef} className="heatmap-poster__poster-canvas" />
-      <canvas
-        ref={heatCanvasRef}
-        className="heatmap-poster__heat-source"
-        aria-hidden
-      />
       {showPlaceholder ? (
         <div className="heatmap-poster__caption-placeholder" aria-hidden>
           <p className="heatmap-poster__caption-label">{HEATMAP_COPY.captionLabel}</p>

@@ -13,7 +13,9 @@ export type HeatmapLook = {
 
 export type HeatmapImageSource = {
   src: string;
-  /** Revoke on replace when this came from a file. */
+  /** Held File. Decode from this; do not drop it for a blob URL. */
+  file?: File;
+  /** Revoke on replace when this came from a sample blob URL. */
   objectUrl?: boolean;
 };
 
@@ -30,6 +32,7 @@ export type HeatmapPosterProps = {
   readStatus?: HeatmapReadStatus;
   fileStatus?: HeatmapFileStatus;
   onReadStatus?: (status: HeatmapReadStatus) => void;
+  onFileStatus?: (status: HeatmapFileStatus) => void;
   caption?: string;
   isExport?: boolean;
 };

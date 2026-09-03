@@ -20,22 +20,11 @@ struct Uniforms {
 }
 
 @group(0) @binding(0) var<uniform> u: Uniforms;
-@group(0) @binding(1) var<storage, read> fieldPack: array<u32>;
-
-fn unpackRgba(p: u32) -> vec4f {
-  let r = f32(p & 0xffu) / 255.0;
-  let g = f32((p >> 8u) & 0xffu) / 255.0;
-  let b = f32((p >> 16u) & 0xffu) / 255.0;
-  let a = f32((p >> 24u) & 0xffu) / 255.0;
-  return vec4f(r, g, b, a);
-}
+@group(0) @binding(1) var fieldTex: texture_2d<f32>;
+@group(0) @binding(2) var fieldSamp: sampler;
 
 fn samplePack(uv: vec2f) -> vec4f {
-  let w = max(u32(u.packWidth), 1u);
-  let h = max(u32(u.packHeight), 1u);
-  let x = min(u32(clamp(uv.x, 0.0, 0.9999) * f32(w)), w - 1u);
-  let y = min(u32(clamp(uv.y, 0.0, 0.9999) * f32(h)), h - 1u);
-  return unpackRgba(fieldPack[y * w + x]);
+  return textureSampleLevel(fieldTex, fieldSamp, uv, 0.0);
 }
 
 fn contain_uv(uv: vec2f) -> vec2f {

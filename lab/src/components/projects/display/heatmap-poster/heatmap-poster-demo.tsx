@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type DragEvent } from "react";
+import { useId, useRef, useState, type DragEvent } from "react";
 import {
   DemoBackButton,
   DemoControlMenu,
@@ -63,65 +63,33 @@ export function HeatmapPosterDemo() {
   const [readStatus, setReadStatus] = useState<HeatmapReadStatus>("idle");
   const [fileStatus, setFileStatus] = useState<HeatmapFileStatus>("ok");
   const [caption, setCaption] = useState("");
-  const objectUrlRef = useRef<string | null>(null);
-
-  const revoke = useCallback(() => {
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => () => revoke(), [revoke]);
+  const heldFileRef = useRef<File | null>(null);
 
   const setSample = (src: string) => {
-    revoke();
+    heldFileRef.current = null;
     heatmapTrace("sample:selected", { src });
     setFileStatus("ok");
     setReadStatus("reading");
     setImage({ src });
   };
 
-  const acceptFile = (file: File): boolean => {
-    if (file.size > MAX_UPLOAD_BYTES) {
-      setFileStatus("too-big");
-      setReadStatus("idle");
-      setImage(null);
-      return false;
-    }
-    const type = file.type.toLowerCase();
-    const name = file.name.toLowerCase();
-    const okType =
-      type === "" ||
-      type === "image/jpg" ||
-      type === "image/pjpeg" ||
-      /^image\/(jpeg|png|webp|gif|bmp|svg\+xml)$/.test(type) ||
-      /\.(jpe?g|png|webp|gif|bmp|svg)$/.test(name);
-    if (!okType) {
-      heatmapTrace("file:rejected", { name: file.name, type: file.type });
-      setFileStatus("error");
-      setReadStatus("idle");
-      setImage(null);
-      return false;
-    }
-    return true;
-  };
-
   const onFile = (file: File | undefined) => {
     if (!file) return;
+    heldFileRef.current = file;
     heatmapTrace("file:selected", {
       name: file.name,
       type: file.type,
       size: file.size,
     });
-    if (!acceptFile(file)) return;
-    revoke();
-    const url = URL.createObjectURL(file);
-    objectUrlRef.current = url;
-    heatmapTrace("file:object-url", { bytes: file.size });
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setFileStatus("too-big");
+      setReadStatus("idle");
+      setImage(null);
+      return;
+    }
     setFileStatus("ok");
     setReadStatus("reading");
-    setImage({ src: url, objectUrl: true });
+    setImage({ src: file.name, file });
   };
 
   const onDragOver = (event: DragEvent) => {
@@ -161,12 +129,16 @@ export function HeatmapPosterDemo() {
         id={inputId}
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
+        accept="image/*"
         className="sr-only"
         data-heatmap-file-input=""
         aria-label={HEATMAP_COPY.upload}
         onChange={(event) => {
-          onFile(event.target.files?.[0]);
+          const file = event.target.files?.[0];
+          if (file) {
+            heldFileRef.current = file;
+            onFile(file);
+          }
           event.currentTarget.value = "";
         }}
       />
@@ -179,6 +151,7 @@ export function HeatmapPosterDemo() {
           readStatus={readStatus}
           fileStatus={fileStatus}
           onReadStatus={setReadStatus}
+          onFileStatus={setFileStatus}
           caption={caption || undefined}
         />
       </label>

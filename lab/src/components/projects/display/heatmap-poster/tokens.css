@@ -32,25 +32,32 @@
   width: min(100%, calc(100dvh / 1.414213562));
 }
 
-/* Full-card poster canvas: the one renderer */
+/* Overlay chrome only. Image plate is punched transparent so the field shows. */
 .heatmap-poster__poster-canvas {
   display: block;
   width: 100%;
   height: 100%;
   position: relative;
   z-index: 1;
-  background: var(--heatmap-ground);
+  background: transparent;
 }
 
-/* Heat source canvas: sized to the image plate, hidden from the card */
-.heatmap-poster__heat-source {
+/* Live field. Never z-index -1 — IntersectionObserver would stall presents. */
+.heatmap-poster__heat-host {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  z-index: -1;
+  z-index: 0;
+  overflow: hidden;
   pointer-events: none;
+  background: var(--heatmap-ground);
+}
+
+.heatmap-poster__heat-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* --- Caption placeholder: editing chrome, not layout participant --- */

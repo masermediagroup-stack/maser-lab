@@ -111,11 +111,13 @@ export function computeLayout(
 }
 
 /**
- * Draw the full poster card onto a canvas context. This is the ONE
+ * Draw the poster chrome onto a canvas context. This is the ONE
  * renderer used by both compose and export. The only difference:
  * export calls this at a higher DPR.
  *
- * @param heatSource - the heat shader's canvas (image plate content)
+ * The heat field lives on its own canvas behind this overlay.
+ * Do not drawImage that canvas — WebGPU surfaces go blank when stolen.
+ *
  * @param ctx - the output canvas 2D context (sized to cardW*dpr × cardH*dpr)
  * @param layout - computed in layout units
  * @param colors - resolved CSS custom property values
@@ -126,7 +128,6 @@ export function computeLayout(
  * Placeholder and caption input stay outside this surface (editing chrome).
  */
 export function drawPoster(
-  heatSource: HTMLCanvasElement | null,
   ctx: CanvasRenderingContext2D,
   layout: PosterLayout,
   colors: PosterColors,
@@ -140,18 +141,10 @@ export function drawPoster(
   ctx.save();
   ctx.scale(s, s);
 
-  // Page/card background
+  // Page/card background, then punch the image plate so the field shows through.
   ctx.fillStyle = colors.page;
   ctx.fillRect(0, 0, cardW, cardH);
-
-  // Image plate background (Ground)
-  ctx.fillStyle = colors.ground;
-  ctx.fillRect(0, 0, cardW, imagePlateH);
-
-  // Draw heat canvas into image plate region
-  if (heatSource && heatSource.width > 0 && heatSource.height > 0) {
-    ctx.drawImage(heatSource, 0, 0, cardW, imagePlateH);
-  }
+  ctx.clearRect(0, 0, cardW, imagePlateH);
 
   // Status text (on image plate)
   if (statusText) {
@@ -208,7 +201,6 @@ export function drawPoster(
  * Wrap points are resolution-independent (measured at 1x layout units).
  */
 export function exportPoster(
-  heatSource: HTMLCanvasElement | null,
   cardW: number,
   cardH: number,
   caption: string | undefined,
@@ -222,6 +214,6 @@ export function exportPoster(
   canvas.height = Math.round(cardH * dpr);
   const ctx = canvas.getContext("2d");
   if (!ctx) return canvas;
-  drawPoster(heatSource, ctx, layout, colors, caption, statusText, dpr);
+  drawPoster(ctx, layout, colors, caption, statusText, dpr);
   return canvas;
 }

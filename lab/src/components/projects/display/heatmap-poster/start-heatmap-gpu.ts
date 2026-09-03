@@ -1,9 +1,7 @@
-import type { StorageBuffer } from "vgpu";
 import {
   FIELD_CONTOUR,
   FIELD_INNER_GLOW,
   FIELD_OUTER_GLOW,
-  FIELD_PACK_MAX,
   HEATMAP_GROUND,
 } from "./constants";
 import type { HeatmapDriver, StartHeatmapOptions } from "./start-heatmap";
@@ -11,18 +9,99 @@ import type { PackedMask } from "./types";
 import shader from "./heatmap.wgsl";
 import { heatmapTrace } from "./trace";
 
-const MAX_TEXELS = FIELD_PACK_MAX * FIELD_PACK_MAX;
-const WHITE_TEXEL = 0xffffffff;
+const WHITE_PACK: PackedMask = {
+  width: 1,
+  height: 1,
+  pixels: new Uint8ClampedArray([255, 255, 255, 255]),
+  frame: null,
+};
 
-function writePack(buffer: StorageBuffer, pack: PackedMask): void {
-  const count = Math.min(pack.width * pack.height, MAX_TEXELS);
-  const bytes = pack.pixels.subarray(0, count * 4);
-  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  const src = new Uint32Array(count);
-  for (let i = 0; i < count; i++) {
-    src[i] = view.getUint32(i * 4, true);
+type GpuQueue = {
+  copyExternalImageToTexture: (
+    source: { source: ImageData },
+    dest: { texture: { destroy?: () => void } },
+    size: readonly [number, number],
+  ) => void;
+  writeTexture: (
+    dest: { texture: { destroy?: () => void } },
+    data: Uint8Array,
+    layout: { bytesPerRow: number; rowsPerImage: number },
+    size: { width: number; height: number },
+  ) => void;
+};
+
+type VgpuTexture = { gpu: { destroy?: () => void } };
+
+type GpuHandle = {
+  device: {
+    gpu: { queue: GpuQueue };
+    createTexture: (opts: {
+      size: readonly [number, number];
+      format: string;
+      usage: number;
+      label?: string;
+    }) => VgpuTexture;
+  };
+  dispose: () => void;
+};
+
+const TEXTURE_BINDING = 0x04;
+const COPY_DST = 0x02;
+
+function packImageData(pack: PackedMask): ImageData {
+  const copy = new Uint8ClampedArray(pack.pixels);
+  return new ImageData(copy, pack.width, pack.height);
+}
+
+function paddedTexels(pack: PackedMask): { data: Uint8Array; bytesPerRow: number } {
+  const w = Math.max(1, pack.width);
+  const h = Math.max(1, pack.height);
+  const bytesPerRow = Math.ceil((w * 4) / 256) * 256;
+  const data = new Uint8Array(bytesPerRow * h);
+  const src = pack.pixels;
+  for (let y = 0; y < h; y += 1) {
+    data.set(src.subarray(y * w * 4, (y + 1) * w * 4), y * bytesPerRow);
   }
-  buffer.write(src);
+  return { data, bytesPerRow };
+}
+
+function uploadPackedTexture(
+  gpu: GpuHandle,
+  texture: VgpuTexture,
+  pack: PackedMask,
+): void {
+  const w = Math.max(1, pack.width);
+  const h = Math.max(1, pack.height);
+  const queue = gpu.device.gpu.queue;
+  const imageData = packImageData(pack);
+  try {
+    queue.copyExternalImageToTexture(
+      { source: imageData },
+      { texture: texture.gpu },
+      [w, h],
+    );
+    return;
+  } catch {
+    // ImageData copy is missing on some queues; write padded rows.
+  }
+  const padded = paddedTexels(pack);
+  queue.writeTexture(
+    { texture: texture.gpu },
+    padded.data,
+    { bytesPerRow: padded.bytesPerRow, rowsPerImage: h },
+    { width: w, height: h },
+  );
+}
+
+function makePackTexture(gpu: GpuHandle, pack: PackedMask): VgpuTexture {
+  const w = Math.max(1, pack.width);
+  const h = Math.max(1, pack.height);
+  return gpu.device.createTexture({
+    size: [w, h],
+    format: "rgba8unorm",
+    usage: TEXTURE_BINDING | COPY_DST,
+    label: "heatmap-pack",
+  });
 }
 
 function fieldUniforms(
@@ -61,6 +140,7 @@ function fieldUniforms(
 /**
  * Optional WebGPU wash. Must never be imported from the demo entry.
  * Call only on a canvas that has never had getContext('2d').
+ * After silhouette pack, setSourceImage uploads the packed RGB texture.
  */
 export async function tryStartGpuDriver(
   opts: StartHeatmapOptions,
@@ -68,13 +148,12 @@ export async function tryStartGpuDriver(
 ): Promise<HeatmapDriver | null> {
   const { canvas, lookRef, reducedRef } = opts;
   let loop: { stop: () => void } | undefined;
-  let gpu: { dispose: () => void } | undefined;
-  let io: IntersectionObserver | undefined;
+  let gpu: GpuHandle | undefined;
 
   try {
     const vgpu = await import("vgpu");
     if (cancelled()) return null;
-    const device = await vgpu.init();
+    const device = (await vgpu.init()) as unknown as GpuHandle;
     heatmapTrace("gpu:init:ok");
     if (cancelled()) {
       device.dispose();
@@ -82,18 +161,25 @@ export async function tryStartGpuDriver(
     }
     gpu = device;
 
-    const canvasSurface = vgpu.surface(device, canvas, {
+    const canvasSurface = vgpu.surface(device as never, canvas, {
       dpr: [1, 2] as [number, number],
       alphaMode: "opaque",
       clearColor: [...HEATMAP_GROUND, 1] as [number, number, number, number],
       label: "heatmap-poster",
     });
 
-    const fieldBuf = vgpu.storage(device, MAX_TEXELS * 4, "read");
-    fieldBuf.write(new Uint32Array([WHITE_TEXEL]));
+    let fieldTex = makePackTexture(device, WHITE_PACK);
+    uploadPackedTexture(device, fieldTex, WHITE_PACK);
+
+    const fieldSamp = vgpu.sampler(device as never, {
+      minFilter: "linear",
+      magFilter: "linear",
+      addressModeU: "clamp-to-edge",
+      addressModeV: "clamp-to-edge",
+    });
 
     const look = lookRef.current;
-    const wash = vgpu.effect(device, shader, {
+    const wash = vgpu.effect(device as never, shader, {
       label: "heatmap-poster-wash",
       set: {
         u: fieldUniforms(look, {
@@ -104,7 +190,8 @@ export async function tryStartGpuDriver(
           canvasWidth: Math.max(1, canvas.clientWidth || 1),
           canvasHeight: Math.max(1, canvas.clientHeight || 1),
         }),
-        fieldPack: fieldBuf,
+        fieldTex,
+        fieldSamp,
       },
     });
 
@@ -119,16 +206,10 @@ export async function tryStartGpuDriver(
     let packHeight = 1;
     let time = 0;
     let last = performance.now();
-    let visible = true;
     let disposed = false;
 
-    io = new IntersectionObserver((entries) => {
-      visible = entries.some((e) => e.isIntersecting);
-    });
-    io.observe(canvas);
-
-    loop = vgpu.frameLoop(device, (frame) => {
-      if (disposed || !visible) return;
+    loop = vgpu.frameLoop(device as never, (frame) => {
+      if (disposed) return;
       const now = performance.now();
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
@@ -144,26 +225,31 @@ export async function tryStartGpuDriver(
           canvasWidth: Math.max(1, canvas.width || canvas.clientWidth || 1),
           canvasHeight: Math.max(1, canvas.height || canvas.clientHeight || 1),
         }),
-        fieldPack: fieldBuf,
+        fieldTex,
+        fieldSamp,
       });
       frame.pass(canvasSurface, wash);
     });
 
-    const setPack = (pack: PackedMask) => {
+    const setSourceImage = (pack: PackedMask) => {
       packWidth = pack.width;
       packHeight = pack.height;
-      writePack(fieldBuf, pack);
-      heatmapTrace("gpu:setPack", { w: pack.width, h: pack.height });
+      const next = makePackTexture(device, pack);
+      uploadPackedTexture(device, next, pack);
+      fieldTex.gpu.destroy?.();
+      fieldTex = next;
+      wash.set({ fieldTex, fieldSamp });
+      heatmapTrace("gpu:setSourceImage", { w: pack.width, h: pack.height });
     };
 
     return {
-      setFallback: setPack,
-      setPack,
+      setFallback: setSourceImage,
+      setPack: setSourceImage,
+      setSourceImage,
       dispose: () => {
         disposed = true;
         loop?.stop();
         device.dispose();
-        io?.disconnect();
       },
     };
   } catch (err) {
@@ -173,7 +259,6 @@ export async function tryStartGpuDriver(
     });
     loop?.stop();
     gpu?.dispose();
-    io?.disconnect();
     return null;
   }
 }
