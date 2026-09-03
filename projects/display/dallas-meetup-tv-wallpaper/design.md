@@ -61,13 +61,22 @@ hairlines that dissolve into the paper. If a stop cannot be line, it is paper.
 
 Settled. Do not re-open.
 
-- Display (`Dallas meetup`): Geist Sans. The user named Geist sans
-  twice. Never Geist Mono on that line.
+- Display (`Dallas meetup`): Geist Sans, **exactly once**, on the canvas.
+  The user named Geist sans twice. Never Geist Mono on that line. If a
+  second element wants Geist, it does not get it.
 - Body, labels, info: IBM Plex Sans Condensed. Geist does not creep
-  into small type.
-- GeistMono is available for a genuine structural mono cut only.
+  into small type. Nothing in Plex sits close to the display in size.
+  **Check:** largest Plex rendered size ≤ **40%** of the display's
+  rendered size (`56 × canvasCssWidth / 1920`). If a label exceeds it,
+  cut or shrink the label. Never enlarge the display to restore the
+  ratio. 40% is the engineering working threshold for EPG's "decisive"
+  jump; he can re-weight off the live canvas.
+- GeistMono only if a small structural element earns
+  `data-dallas-mono="structural"` (slug or rule label). Not a third
+  voice. Never applied for texture. Unused on this demo today.
 - Never Universal Sans. Never load xAI's self-hosted files.
 - Tokens: `--dallas-font` (display), `--dallas-font-ui` (body).
+- Enforcement: `type-lock.ts` + `--dallas-plex-max` on `.dallas-demo`.
 
 ## Skyline
 

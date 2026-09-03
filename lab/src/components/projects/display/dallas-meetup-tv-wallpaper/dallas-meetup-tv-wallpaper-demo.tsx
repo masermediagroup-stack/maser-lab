@@ -15,6 +15,7 @@ import {
   DallasMeetupWallpaper,
   exportDallasMeetupWallpaperLoop,
 } from "./dallas-meetup-tv-wallpaper";
+import { runDallasTypeLock } from "./type-lock";
 import "./tokens.css";
 
 const DEFAULT_LOOP = 12;
@@ -32,6 +33,7 @@ const LOOP_OPTIONS = [
 ];
 
 export function DallasMeetupTvWallpaperDemo() {
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const [playing, setPlaying] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -59,6 +61,29 @@ export function DallasMeetupTvWallpaperDemo() {
     sync();
     return () => document.removeEventListener("fullscreenchange", sync);
   }, []);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    const run = () => {
+      runDallasTypeLock(root);
+    };
+
+    run();
+    const observer = new ResizeObserver(run);
+    observer.observe(root);
+    const canvas = root.querySelector("canvas");
+    if (canvas) observer.observe(canvas);
+    document.fonts.addEventListener("loadingdone", run);
+    const later = window.setTimeout(run, 80);
+
+    return () => {
+      observer.disconnect();
+      document.fonts.removeEventListener("loadingdone", run);
+      window.clearTimeout(later);
+    };
+  }, [isPresentation]);
 
   const handleFrameTime = useCallback(
     (frameTime: number) => {
@@ -133,6 +158,7 @@ export function DallasMeetupTvWallpaperDemo() {
 
   return (
     <div
+      ref={rootRef}
       className={`dallas-demo maser-lab ${dallasGeistSans.variable} ${dallasPlexCondensed.variable}`}
     >
       <section

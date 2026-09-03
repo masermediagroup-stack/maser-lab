@@ -3,12 +3,15 @@ import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 
 /**
- * Settled type split — do not re-open.
+ * Settled type split — do not re-open. Mechanical checks in type-lock.ts.
  *
- * Display ("Dallas meetup"): Geist Sans. The user named Geist sans twice.
- * Body / labels / info: IBM Plex Sans Condensed. Geist does not creep into
- * small type. GeistMono is available for a genuine structural mono need;
- * the display line is never Mono.
+ * Display ("Dallas meetup"): Geist Sans, exactly once, on the canvas.
+ * Body / labels / info: IBM Plex Sans Condensed. Largest Plex ≤ 40% of the
+ * display's rendered size; if a label creeps up, cut or shrink it — never
+ * enlarge the display.
+ * GeistMono is available only if a slug or rule label earns
+ * data-dallas-mono="structural". It is not a third voice. Do not apply the
+ * Mono variable class just to add texture. The display line is never Mono.
  *
  * Never Universal Sans. Never load xAI's self-hosted
  * UniversalSans_Display / UniversalSans_Text files.

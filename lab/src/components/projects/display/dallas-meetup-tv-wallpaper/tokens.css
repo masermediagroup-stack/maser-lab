@@ -7,9 +7,13 @@
  * lines at all. These are not published brand tokens.
  *
  * Type split (settled — do not re-open):
- *   --dallas-font      Geist Sans for the "Dallas meetup" display line
+ *   --dallas-font      Geist Sans, exactly once: the canvas "Dallas meetup" line
  *   --dallas-font-ui   IBM Plex Sans Condensed for body, labels, info
- *   --dallas-font-mono Geist Mono, only if a genuine structural mono cut is needed
+ *   --dallas-font-mono Geist Mono, only if a slug/rule label earns
+ *                      data-dallas-mono="structural". Not a third voice.
+ * Size check: largest Plex ≤ 40% of the display's rendered size
+ *   (--dallas-plex-max-ratio, from DALLAS_PLEX_MAX_RATIO). If a Plex label
+ *   exceeds it, shrink or remove the label. Never enlarge the display.
  * Never Universal Sans. Never load xAI's self-hosted woff2 files.
  */
 
@@ -29,6 +33,13 @@
      labels stay Plex; Geist never creeps into body. */
   --font-sans: var(--dallas-font-ui);
   --font-mono: var(--dallas-font-ui);
+
+  /* Mechanical Plex cap: 40% of the canvas display's rendered size.
+     --dallas-display-px is published from the wallpaper resize. */
+  --dallas-display-px: 56px;
+  --dallas-plex-max-ratio: 0.4;
+  --dallas-plex-max: calc(var(--dallas-display-px) * var(--dallas-plex-max-ratio));
+  font-size: min(0.8125rem, var(--dallas-plex-max));
 
   /* Galaxy ramp — continuous interpolated, pole-to-pole along meridians.
      Saturated stops carry on white; pale stops (4-6) may read near-transparent. */
@@ -71,4 +82,32 @@
 
 .dallas-demo__note {
   font-family: var(--dallas-font-ui);
+  font-size: min(10px, var(--dallas-plex-max));
+}
+
+/* Cap every explicit size in this demo (including shared chrome descendants).
+   If Plex still exceeds the ratio, type-lock.ts shrinks the label — it never
+   enlarges the display. */
+.dallas-demo :where(.text-xs) {
+  font-size: min(0.75rem, var(--dallas-plex-max)) !important;
+}
+
+.dallas-demo :where(.text-sm) {
+  font-size: min(0.875rem, var(--dallas-plex-max)) !important;
+}
+
+.dallas-demo :where(.text-base) {
+  font-size: min(1rem, var(--dallas-plex-max)) !important;
+}
+
+.dallas-demo :where(.text-lg) {
+  font-size: min(1.125rem, var(--dallas-plex-max)) !important;
+}
+
+.dallas-demo :where(.text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl) {
+  font-size: var(--dallas-plex-max) !important;
+}
+
+.dallas-demo :where([class*="text-[10px]"]) {
+  font-size: min(10px, var(--dallas-plex-max)) !important;
 }

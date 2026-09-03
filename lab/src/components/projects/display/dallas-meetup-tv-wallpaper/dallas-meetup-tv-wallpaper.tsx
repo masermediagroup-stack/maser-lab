@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { DALLAS_SANS_FAMILY } from "./dallas-fonts";
+import {
+  DALLAS_DISPLAY_FONT_PX,
+  displayRenderedPx,
+  publishDallasDisplayPx,
+} from "./type-lock";
 
 const DEFAULT_LOOP_SECONDS = 12;
 const BASE_WIDTH = 1920;
@@ -555,7 +560,7 @@ function renderFrame(
   ctx.fillStyle = ink;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  const fontSize = 56 * scale;
+  const fontSize = DALLAS_DISPLAY_FONT_PX * scale;
   ctx.font = `500 ${fontSize}px ${fontFamily}`;
   const label = "Dallas meetup";
   const tracking = 1.3 * scale;
@@ -628,6 +633,9 @@ export function DallasMeetupWallpaper({
       canvas.height = Math.max(1, Math.round(drawH * dpr));
       canvas.style.width = `${drawW}px`;
       canvas.style.height = `${drawH}px`;
+      const host =
+        canvas.closest<HTMLElement>(".dallas-demo") ?? canvas.parentElement ?? canvas;
+      publishDallasDisplayPx(host, displayRenderedPx(drawW));
       drawAtTime(timeSeconds ?? pausedAtRef.current);
     };
 
@@ -685,6 +693,7 @@ export function DallasMeetupWallpaper({
       <canvas
         ref={canvasRef}
         className="dallas-wallpaper-canvas"
+        data-dallas-geist="display"
         aria-label="Dallas meetup wallpaper"
       />
     </div>
@@ -712,7 +721,7 @@ export async function exportDallasMeetupWallpaperLoop({
   }
 
   if (document.fonts) {
-    await document.fonts.load(`500 56px ${DEFAULT_SANS}`);
+    await document.fonts.load(`500 ${DALLAS_DISPLAY_FONT_PX}px ${DEFAULT_SANS}`);
     await document.fonts.ready;
   }
 
