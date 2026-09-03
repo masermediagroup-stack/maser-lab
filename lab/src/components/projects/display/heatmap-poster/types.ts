@@ -28,6 +28,7 @@ export type HeatmapPosterProps = {
   image?: HeatmapImageSource | null;
   forceReducedMotion?: boolean;
   readStatus?: HeatmapReadStatus;
+  fileStatus?: HeatmapFileStatus;
   onReadStatus?: (status: HeatmapReadStatus) => void;
   caption?: string;
   isExport?: boolean;

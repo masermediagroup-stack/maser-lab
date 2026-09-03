@@ -1,5 +1,6 @@
-import { FORMAT_ASPECT, HEATMAP_GROUND, PACK_MAX } from "./constants";
-import type { HeatmapFormat, PackedMask } from "./types";
+import { HEATMAP_GROUND, PACK_MAX } from "./constants";
+import { heatmapTrace } from "./trace";
+import type { PackedMask } from "./types";
 
 export type FocalPoint = { cx: number; cy: number };
 
@@ -203,7 +204,14 @@ function sampleImage(
   ctx.fillStyle = `rgb(${Math.round(HEATMAP_GROUND[0] * 255)} ${Math.round(HEATMAP_GROUND[1] * 255)} ${Math.round(HEATMAP_GROUND[2] * 255)})`;
   ctx.fillRect(0, 0, width, height);
   ctx.drawImage(image, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, width, height);
-  return { data: ctx.getImageData(0, 0, width, height).data, width, height };
+  try {
+    return { data: ctx.getImageData(0, 0, width, height).data, width, height };
+  } catch (err) {
+    heatmapTrace("luma:getImageData:fail", {
+      message: err instanceof Error ? err.message : String(err),
+    });
+    throw err;
+  }
 }
 
 /**
@@ -227,7 +235,15 @@ export function readFullSubject(
   ctx.fillStyle = `rgb(${Math.round(HEATMAP_GROUND[0] * 255)} ${Math.round(HEATMAP_GROUND[1] * 255)} ${Math.round(HEATMAP_GROUND[2] * 255)})`;
   ctx.fillRect(0, 0, width, height);
   ctx.drawImage(image, 0, 0, width, height);
-  const data = ctx.getImageData(0, 0, width, height).data;
+  let data: Uint8ClampedArray;
+  try {
+    data = ctx.getImageData(0, 0, width, height).data;
+  } catch (err) {
+    heatmapTrace("luma:getImageData:fail", {
+      message: err instanceof Error ? err.message : String(err),
+    });
+    throw err;
+  }
   const subject = lumaEdgeSubject(data, width, height);
   const centroid = subjectCentroid(subject, width, height);
   return { subject, width, height, centroid };

@@ -20,6 +20,7 @@ import {
 import { HEATMAP_COPY } from "./copy";
 import { setDepthEstimatorTestHook } from "./depth-estimator";
 import { HeatmapPoster } from "./heatmap-poster";
+import { heatmapTrace } from "./trace";
 import type {
   HeatmapFileStatus,
   HeatmapFormat,
@@ -84,26 +85,51 @@ export function HeatmapPosterDemo() {
 
   const setSample = (src: string) => {
     revoke();
+    heatmapTrace("sample:selected", { src });
     setFileStatus("ok");
-    setReadStatus("idle");
+    setReadStatus("reading");
     setImage({ src });
+  };
+
+  const acceptFile = (file: File): boolean => {
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setFileStatus("too-big");
+      setReadStatus("idle");
+      setImage(null);
+      return false;
+    }
+    const type = file.type.toLowerCase();
+    const name = file.name.toLowerCase();
+    const okType =
+      type === "" ||
+      type === "image/jpg" ||
+      type === "image/pjpeg" ||
+      /^image\/(jpeg|png|webp|gif|bmp|svg\+xml)$/.test(type) ||
+      /\.(jpe?g|png|webp|gif|bmp|svg)$/.test(name);
+    if (!okType) {
+      heatmapTrace("file:rejected", { name: file.name, type: file.type });
+      setFileStatus("error");
+      setReadStatus("idle");
+      setImage(null);
+      return false;
+    }
+    return true;
   };
 
   const onFile = (file: File | undefined) => {
     if (!file) return;
-    if (file.size > MAX_UPLOAD_BYTES) {
-      setFileStatus("too-big");
-      return;
-    }
-    if (file.type !== "image/jpeg" && file.type !== "image/png") {
-      setFileStatus("error");
-      return;
-    }
+    heatmapTrace("file:selected", {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
+    if (!acceptFile(file)) return;
     revoke();
     const url = URL.createObjectURL(file);
     objectUrlRef.current = url;
+    heatmapTrace("file:object-url", { bytes: file.size });
     setFileStatus("ok");
-    setReadStatus("idle");
+    setReadStatus("reading");
     setImage({ src: url, objectUrl: true });
   };
 
@@ -120,6 +146,18 @@ export function HeatmapPosterDemo() {
 
   return (
     <div className="heatmap-demo maser-lab relative min-h-screen">
+      <input
+        id={inputId}
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
+        className="sr-only"
+        data-heatmap-file-input=""
+        onChange={(event) => {
+          onFile(event.target.files?.[0]);
+          event.currentTarget.value = "";
+        }}
+      />
       <section className="lab-demo-field heatmap-stage">
         <HeatmapPoster
           format={format}
@@ -127,6 +165,7 @@ export function HeatmapPosterDemo() {
           image={image}
           forceReducedMotion={reduced}
           readStatus={readStatus}
+          fileStatus={fileStatus}
           onReadStatus={setReadStatus}
           caption={caption || undefined}
         />
@@ -143,17 +182,6 @@ export function HeatmapPosterDemo() {
         <div>
           <h1 className="text-sm font-semibold tracking-tight">{HEATMAP_COPY.title}</h1>
         </div>
-        <input
-          id={inputId}
-          ref={inputRef}
-          type="file"
-          accept="image/jpeg,image/png"
-          className="sr-only"
-          onChange={(event) => {
-            onFile(event.target.files?.[0]);
-            event.currentTarget.value = "";
-          }}
-        />
         <LabButton
           type="button"
           variant="accent"

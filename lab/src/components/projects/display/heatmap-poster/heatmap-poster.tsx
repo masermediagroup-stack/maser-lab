@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HEATMAP_COPY } from "./copy";
 import { FORMAT_ASPECT, HEATMAP_DEFAULTS } from "./constants";
 import { prefetchDepthModel, readDepth } from "./depth-estimator";
@@ -15,15 +15,35 @@ import {
 import { computeLayout, drawPoster, type PosterColors } from "./poster-renderer";
 import { readStatusAfterDepth } from "./read-status";
 import { startHeatmap, type HeatmapDriver } from "./start-heatmap";
+import { heatmapTrace } from "./trace";
 import type { HeatmapPosterProps } from "./types";
 import "./tokens.css";
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error("image"));
+    const local = src.startsWith("blob:") || src.startsWith("data:");
+    // blob:/data: are same-origin. Anonymous CORS on them rejects decode in Chrome.
+    if (!local) image.crossOrigin = "anonymous";
+    heatmapTrace("decode:start", { srcKind: local ? "local" : "remote" });
+    image.onload = () => {
+      const finish = () => {
+        heatmapTrace("decode:resolved", {
+          w: image.naturalWidth,
+          h: image.naturalHeight,
+        });
+        resolve(image);
+      };
+      if (typeof image.decode === "function") {
+        image.decode().then(finish).catch(finish);
+      } else {
+        finish();
+      }
+    };
+    image.onerror = () => {
+      heatmapTrace("decode:failed", { srcKind: local ? "local" : "remote" });
+      reject(new Error("image load failed"));
+    };
     image.src = src;
   });
 }
@@ -64,6 +84,7 @@ export function HeatmapPoster({
   image = null,
   forceReducedMotion = false,
   readStatus = "idle",
+  fileStatus = "ok",
   onReadStatus,
   caption,
   isExport = false,
@@ -74,6 +95,7 @@ export function HeatmapPoster({
   const lookRef = useRef(look);
   const reducedRef = useRef(forceReducedMotion);
   const driverRef = useRef<HeatmapDriver | null>(null);
+  const [driverBoot, setDriverBoot] = useState(0);
   const generationRef = useRef(0);
   const cachedReadRef = useRef<CachedRead | null>(null);
   const onReadStatusRef = useRef(onReadStatus);
@@ -82,6 +104,7 @@ export function HeatmapPoster({
   const isExportRef = useRef(isExport);
   const imageRef = useRef(image);
   const formatRef = useRef(format);
+  const fileStatusRef = useRef(fileStatus);
   const lastPlateAspectRef = useRef<number | null>(null);
   const applyPacksForAspectRef = useRef<
     ((cached: CachedRead, aspect: number) => void) | null
@@ -96,6 +119,7 @@ export function HeatmapPoster({
     isExportRef.current = isExport;
     imageRef.current = image;
     formatRef.current = format;
+    fileStatusRef.current = fileStatus;
   });
 
   useEffect(() => {
@@ -125,14 +149,19 @@ export function HeatmapPoster({
 
     const rs = readStatusRef.current;
     const img = imageRef.current;
+    const fs = fileStatusRef.current;
     const statusText =
-      rs === "reading"
-        ? HEATMAP_COPY.reading
-        : rs === "rough-read"
-          ? HEATMAP_COPY.roughRead
-          : !img
-            ? HEATMAP_COPY.empty
-            : "";
+      fs === "error"
+        ? HEATMAP_COPY.fileError
+        : fs === "too-big"
+          ? HEATMAP_COPY.tooBig
+          : rs === "reading"
+            ? HEATMAP_COPY.reading
+            : rs === "rough-read"
+              ? HEATMAP_COPY.roughRead
+              : !img
+                ? HEATMAP_COPY.empty
+                : "";
 
     if (heatCanvas) {
       heatCanvas.style.height = `${layout.imagePlateH}px`;
@@ -159,13 +188,19 @@ export function HeatmapPoster({
   useEffect(() => {
     const heatCanvas = heatCanvasRef.current;
     if (!heatCanvas) return;
+    heatmapTrace("driver:start");
     const driver = startHeatmap({
       canvas: heatCanvas,
       lookRef,
       reducedRef,
-      onReady: drawFrame,
+      onReady: () => {
+        heatmapTrace("driver:ready");
+        setDriverBoot((n) => n + 1);
+        drawFrame();
+      },
     });
     driverRef.current = driver;
+    setDriverBoot((n) => n + 1);
     driver.setFallback(emptyPack());
     return () => {
       driver.dispose();
@@ -175,7 +210,7 @@ export function HeatmapPoster({
 
   useEffect(() => {
     drawFrame();
-  }, [caption, readStatus, isExport, look, format, image, drawFrame]);
+  }, [caption, readStatus, fileStatus, isExport, look, format, image, drawFrame]);
 
   useEffect(() => {
     const posterCanvas = posterCanvasRef.current;
@@ -210,7 +245,13 @@ export function HeatmapPoster({
         aspect,
         focal,
       );
+      heatmapTrace("luma:bound", {
+        w: fallback.width,
+        h: fallback.height,
+        hasDepth: Boolean(cached.depthField),
+      });
       driver.setFallback(fallback);
+      heatmapTrace("frame:luma-set");
       if (cached.depthField) {
         const packed = packDepthField(
           cached.depthField.depth,
@@ -244,7 +285,10 @@ export function HeatmapPoster({
 
   useEffect(() => {
     const driver = driverRef.current;
-    if (!driver) return;
+    if (!driver) {
+      heatmapTrace("pipeline:wait-driver", { hasSrc: Boolean(imageSrc) });
+      return;
+    }
     const gen = ++generationRef.current;
     const srcChanged = lastSrcRef.current !== imageSrc;
     lastSrcRef.current = imageSrc;
@@ -267,6 +311,7 @@ export function HeatmapPoster({
     }
 
     let cancelled = false;
+    heatmapTrace("pipeline:start", { srcChanged });
     onReadStatusRef.current?.("reading");
     driver.snapMaskMix(0);
 
@@ -274,8 +319,21 @@ export function HeatmapPoster({
       try {
         const el = await loadImage(imageSrc);
         if (cancelled || gen !== generationRef.current) return;
+        if (el.naturalWidth < 1 || el.naturalHeight < 1) {
+          throw new Error("decoded image has no pixels");
+        }
 
+        heatmapTrace("flatten:start", {
+          w: el.naturalWidth,
+          h: el.naturalHeight,
+        });
         const fullRead = readFullSubject(el, el.naturalWidth, el.naturalHeight);
+        heatmapTrace("luma:packed", {
+          w: fullRead.width,
+          h: fullRead.height,
+          cx: fullRead.centroid.cx,
+          cy: fullRead.centroid.cy,
+        });
 
         const cached: CachedRead = {
           src: imageSrc,
@@ -289,10 +347,14 @@ export function HeatmapPoster({
         const firstAspect = currentPlateAspect();
         lastPlateAspectRef.current = firstAspect;
         applyPacksForAspect(cached, firstAspect);
+        heatmapTrace("luma:bound-and-rendered");
 
         const flat = flattenOntoGround(el, el.naturalWidth, el.naturalHeight);
+        heatmapTrace("ground:composited");
+        heatmapTrace("depth:start");
         const depth = await readDepth(flat, imageSrc);
         if (cancelled || gen !== generationRef.current) return;
+        heatmapTrace("depth:result", { outcome: depth.outcome });
 
         onReadStatusRef.current?.(readStatusAfterDepth(depth.outcome));
 
@@ -324,20 +386,24 @@ export function HeatmapPoster({
           const depthAspect = currentPlateAspect();
           lastPlateAspectRef.current = depthAspect;
           applyPacksForAspect(cached, depthAspect);
+          heatmapTrace("depth:bound");
 
           if (!reducedRef.current) driver.setMaskMixTarget(1);
           else driver.snapMaskMix(1);
         }
-      } catch {
+      } catch (err) {
+        heatmapTrace("pipeline:error", {
+          message: err instanceof Error ? err.message : String(err),
+        });
         if (cancelled || gen !== generationRef.current) return;
-        onReadStatusRef.current?.("idle");
+        onReadStatusRef.current?.("rough-read");
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [imageSrc, format, applyPacksForAspect]);
+  }, [imageSrc, format, applyPacksForAspect, driverBoot]);
 
   const hasRealText = caption != null && caption.length > 0;
   const showPlaceholder = !isExport && !hasRealText && image != null;

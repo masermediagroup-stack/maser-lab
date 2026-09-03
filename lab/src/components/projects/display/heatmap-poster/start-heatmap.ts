@@ -3,6 +3,7 @@ import { effect, frameLoop, init, storage, surface } from "vgpu";
 import { MASK_FADE_MS, PACK_MAX } from "./constants";
 import type { HeatmapLook, PackedMask } from "./types";
 import shader from "./heatmap.wgsl";
+import { heatmapTrace } from "./trace";
 
 export type HeatmapDriver = {
   setFallback: (pack: PackedMask) => void;
@@ -175,6 +176,7 @@ function startCanvas2d(
   };
 
   raf = window.requestAnimationFrame(tick);
+  heatmapTrace("canvas2d:loop");
   onReady?.();
 
   return {
@@ -231,9 +233,14 @@ export function startHeatmap({
   void (async () => {
     try {
       gpu = await init();
-    } catch {
+      heatmapTrace("gpu:init:ok");
+    } catch (err) {
+      heatmapTrace("gpu:init:fail", {
+        message: err instanceof Error ? err.message : String(err),
+      });
       if (disposed) return;
       fallback2d = startCanvas2d(canvas, lookRef, reducedRef, onReady);
+      heatmapTrace("canvas2d:start", { reason: "gpu-init-fail" });
       if (pendingFallback) fallback2d.setFallback(pendingFallback);
       if (pendingDepth) fallback2d.setDepth(pendingDepth);
       fallback2d.snapMaskMix(maskMixTarget);
@@ -294,8 +301,22 @@ export function startHeatmap({
 
     try {
       await wash.compile(canvasSurface);
-    } catch {
+      heatmapTrace("gpu:compile:ok");
+    } catch (err) {
+      heatmapTrace("gpu:compile:fail", {
+        message: err instanceof Error ? err.message : String(err),
+      });
       gpu.dispose();
+      gpu = undefined;
+      fallbackBuf = undefined;
+      depthBuf = undefined;
+      wash = undefined;
+      if (disposed) return;
+      fallback2d = startCanvas2d(canvas, lookRef, reducedRef, onReady);
+      heatmapTrace("canvas2d:start", { reason: "gpu-compile-fail" });
+      if (pendingFallback) fallback2d.setFallback(pendingFallback);
+      if (pendingDepth) fallback2d.setDepth(pendingDepth);
+      fallback2d.snapMaskMix(maskMixTarget);
       return;
     }
     if (disposed) {
@@ -347,6 +368,7 @@ export function startHeatmap({
   return {
     setFallback: (pack) => {
       pendingFallback = pack;
+      heatmapTrace("driver:setFallback", { w: pack.width, h: pack.height });
       if (fallback2d) {
         fallback2d.setFallback(pack);
         return;

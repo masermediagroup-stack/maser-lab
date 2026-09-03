@@ -39,6 +39,7 @@
   height: 100%;
   position: relative;
   z-index: 1;
+  background: var(--heatmap-ground);
 }
 
 /* Heat source canvas: sized to the image plate, hidden from the card */

@@ -1,4 +1,5 @@
 import { isDepthFieldConfident } from "./depth-confidence";
+import { heatmapTrace } from "./trace";
 import type { DepthOutcome } from "./types";
 
 export type DepthRead =
@@ -33,7 +34,10 @@ async function getDepthPipeline(): Promise<DepthPipe | null> {
   if (pipePromise) return pipePromise;
   pipePromise = (async () => {
     try {
-      if (typeof navigator === "undefined" || !("gpu" in navigator)) return null;
+      if (typeof navigator === "undefined" || !("gpu" in navigator)) {
+        heatmapTrace("depth:no-webgpu");
+        return null;
+      }
       const { pipeline } = await import("@huggingface/transformers");
       const pipe = await pipeline(
         "depth-estimation",
@@ -41,7 +45,10 @@ async function getDepthPipeline(): Promise<DepthPipe | null> {
         { device: "webgpu", dtype: "fp16" },
       );
       return pipe as unknown as DepthPipe;
-    } catch {
+    } catch (err) {
+      heatmapTrace("depth:pipeline-fail", {
+        message: err instanceof Error ? err.message : String(err),
+      });
       return null;
     }
   })();
@@ -125,7 +132,10 @@ export async function readDepth(
     };
     cache.set(key, result);
     return result;
-  } catch {
+  } catch (err) {
+    heatmapTrace("depth:infer-fail", {
+      message: err instanceof Error ? err.message : String(err),
+    });
     const result: DepthRead = { outcome: "error" };
     cache.set(key, result);
     return result;
