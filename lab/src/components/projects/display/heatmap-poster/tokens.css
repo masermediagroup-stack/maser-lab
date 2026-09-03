@@ -11,35 +11,38 @@
   --heatmap-frame: rgba(244, 241, 234, 0.18);
 }
 
-/* --- Card: one hairline frame around both plates --- */
+/* --- Card: named ratio, one hairline frame --- */
 
 .heatmap-poster {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(100%, calc(100dvh * 9 / 16));
   background: var(--heatmap-page);
   color: var(--heatmap-type);
   border: 1px solid var(--heatmap-frame);
   border-radius: 0;
   box-shadow: none;
+  overflow: hidden;
 }
 
-/* --- Image plate: fixed aspect, holds the canvas --- */
+.heatmap-poster[data-format="9-16"] {
+  aspect-ratio: 9 / 16;
+  width: min(100%, calc(100dvh * 9 / 16));
+}
+
+.heatmap-poster[data-format="a4"] {
+  aspect-ratio: 1 / 1.414213562;
+  width: min(100%, calc(100dvh / 1.414213562));
+}
+
+/* --- Image plate: fills remainder of card after caption --- */
 
 .heatmap-poster__image-plate {
   position: relative;
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-height: 0;
   overflow: hidden;
   background: var(--heatmap-ground);
-}
-
-.heatmap-poster[data-format="9-16"] .heatmap-poster__image-plate {
-  aspect-ratio: 9 / 16;
-}
-
-.heatmap-poster[data-format="a4"] .heatmap-poster__image-plate {
-  aspect-ratio: 1 / 1.414213562;
 }
 
 .heatmap-poster__canvas {
@@ -50,7 +53,7 @@
   inset: 0;
 }
 
-/* --- Caption plate: content-driven height, collapses when empty --- */
+/* --- Caption plate: content-driven, collapses when absent --- */
 
 .heatmap-poster__caption-plate {
   flex: 0 0 auto;
@@ -58,15 +61,6 @@
   background: var(--heatmap-page);
   border-top: 1px solid var(--heatmap-frame);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.heatmap-poster__caption-plate:empty,
-.heatmap-poster__caption-plate[data-empty="true"] {
-  display: none;
-}
-
-.heatmap-poster__caption-plate[data-empty="true"] + .heatmap-poster__caption-spacer {
-  display: none;
 }
 
 .heatmap-poster__caption-label {

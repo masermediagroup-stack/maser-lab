@@ -1,18 +1,51 @@
 import { FORMAT_ASPECT, HEATMAP_GROUND, PACK_MAX } from "./constants";
 import type { HeatmapFormat, PackedMask } from "./types";
 
+export type FocalPoint = { cx: number; cy: number };
+
+/**
+ * Weighted centroid of a subject mask. Weight = mask intensity so
+ * the hottest region pulls hardest. Returns normalized 0–1 coords.
+ */
+export function subjectCentroid(
+  mask: Float32Array,
+  w: number,
+  h: number,
+): FocalPoint {
+  let sumW = 0;
+  let sumX = 0;
+  let sumY = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const v = mask[y * w + x] ?? 0;
+      sumW += v;
+      sumX += v * (x + 0.5);
+      sumY += v * (y + 0.5);
+    }
+  }
+  if (sumW < 1e-8) return { cx: 0.5, cy: 0.5 };
+  return { cx: sumX / sumW / w, cy: sumY / sumW / h };
+}
+
 export function coverCrop(
   srcW: number,
   srcH: number,
   aspect: number,
+  focal?: FocalPoint,
 ): { sx: number; sy: number; sw: number; sh: number } {
+  const fx = focal?.cx ?? 0.5;
+  const fy = focal?.cy ?? 0.5;
   const srcAspect = srcW / srcH;
   if (srcAspect > aspect) {
     const sw = srcH * aspect;
-    return { sx: (srcW - sw) / 2, sy: 0, sw, sh: srcH };
+    const idealX = fx * srcW - sw / 2;
+    const sx = Math.max(0, Math.min(srcW - sw, idealX));
+    return { sx, sy: 0, sw, sh: srcH };
   }
   const sh = srcW / aspect;
-  return { sx: 0, sy: (srcH - sh) / 2, sw: srcW, sh };
+  const idealY = fy * srcH - sh / 2;
+  const sy = Math.max(0, Math.min(srcH - sh, idealY));
+  return { sx: 0, sy, sw: srcW, sh };
 }
 
 function packSize(cropW: number, cropH: number): { width: number; height: number } {
@@ -155,9 +188,10 @@ function sampleImage(
   image: CanvasImageSource,
   srcW: number,
   srcH: number,
-  format: HeatmapFormat,
+  aspect: number,
+  focal?: FocalPoint,
 ): { data: Uint8ClampedArray; width: number; height: number } {
-  const crop = coverCrop(srcW, srcH, FORMAT_ASPECT[format]);
+  const crop = coverCrop(srcW, srcH, aspect, focal);
   const { width, height } = packSize(crop.sw, crop.sh);
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -172,13 +206,41 @@ function sampleImage(
   return { data: ctx.getImageData(0, 0, width, height).data, width, height };
 }
 
+/**
+ * Run the full luma+edge read on the FULL image (no crop). Returns the
+ * subject mask and its weighted centroid for downstream crop centering.
+ */
+export function readFullSubject(
+  image: CanvasImageSource,
+  srcW: number,
+  srcH: number,
+): { subject: Float32Array; width: number; height: number; centroid: FocalPoint } {
+  const { width, height } = packSize(srcW, srcH);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) {
+    const empty = new Float32Array(width * height);
+    return { subject: empty, width, height, centroid: { cx: 0.5, cy: 0.5 } };
+  }
+  ctx.fillStyle = `rgb(${Math.round(HEATMAP_GROUND[0] * 255)} ${Math.round(HEATMAP_GROUND[1] * 255)} ${Math.round(HEATMAP_GROUND[2] * 255)})`;
+  ctx.fillRect(0, 0, width, height);
+  ctx.drawImage(image, 0, 0, width, height);
+  const data = ctx.getImageData(0, 0, width, height).data;
+  const subject = lumaEdgeSubject(data, width, height);
+  const centroid = subjectCentroid(subject, width, height);
+  return { subject, width, height, centroid };
+}
+
 export function packFallbackFromImage(
   image: CanvasImageSource,
   srcW: number,
   srcH: number,
-  format: HeatmapFormat,
+  aspect: number,
+  focal?: FocalPoint,
 ): PackedMask {
-  const sampled = sampleImage(image, srcW, srcH, format);
+  const sampled = sampleImage(image, srcW, srcH, aspect, focal);
   const subject = lumaEdgeSubject(sampled.data, sampled.width, sampled.height);
   return packChannels(subject, sampled.width, sampled.height);
 }
@@ -187,9 +249,10 @@ export function packDepthField(
   depth: Float32Array,
   depthW: number,
   depthH: number,
-  format: HeatmapFormat,
+  aspect: number,
+  focal?: FocalPoint,
 ): PackedMask {
-  const crop = coverCrop(depthW, depthH, FORMAT_ASPECT[format]);
+  const crop = coverCrop(depthW, depthH, aspect, focal);
   const { width, height } = packSize(crop.sw, crop.sh);
   const subject = new Float32Array(width * height);
   const xScale = crop.sw / width;

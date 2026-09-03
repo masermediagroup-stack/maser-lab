@@ -41,14 +41,17 @@ No "drag and drop your file here to get started." No exclamation points.
 - Resolve Reading the image every time. Silent to fallback on no-WebGPU or a discarded field; on a model error the poster still renders and the label reads Rough read. Depth is off on this browser.
 - Set every state label on Ground or the rail at one size and weight. A downgrade is not a warning: no badge, no amber, no icon.
 - Run the model once per upload, cached. Not per frame.
-- Keep 9:16 and A4 as the only sizes. Same lock on both. Crop changes, the LUT does not.
+- Keep 9:16 and A4 as the only sizes. Same lock on both. The card's shape changes, the LUT does not.
 - Read transparency as Ground. Alpha is absence, not cold and never heat; composite the upload onto Ground before any read so a cutout PNG cannot grow a fake subject.
 - Keep noise off the heat read. Texture and grain are surface, not mass; a noisy flat input stays on Ground.
 - Set the page to black. Black is the page, indigo Ground is the coldest stop inside the read. They are not the same surface and the poster must not bleed into the page.
+- Keep Ground clearly lighter than the page. The poster reads as a lit plate on a dead page, so the hairline confirms the edge rather than carrying it alone. If the two fuse on a dim screen, lift Ground, never lighten the page.
 - Build the poster as one card on that black: image plate on top, caption plate directly under it, both inside a single hairline frame. No gap, no shadow, no floating panels.
 - Give the image plate the crop and the caption plate the words. Type never sits on the heat.
 - Set the caption plate on black with a mono label above the line, both in --heatmap-type. It reads as a specimen slug, not a UI card.
-- Let the caption plate grow with the text and keep the image plate's crop fixed. Empty caption collapses; the frame does not.
+- Give the card the named ratio. 9:16 or A4 is the poster you export, so the card is that shape and the caption plate is inside it, never overflowing it.
+- Let the caption plate take the height its text needs and give the image plate the remainder. The image plate's aspect follows that remainder; the crop stays centered on the hot mass so the subject never slides out of frame.
+- Collapse the caption plate when there are no words and let the image plate take the full card. The frame does not move.
 - Leave knobs in the demo rail. Never on the poster.
 
 ## Primitives Spark may name
