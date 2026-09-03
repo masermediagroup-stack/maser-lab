@@ -62,6 +62,40 @@ No "drag and drop your file here to get started." No exclamation points. Never a
 - Enter the reading state the instant a file lands. The plate fills to Ground, the reading line shows, and the luma pass paints immediately. The depth cross-fade arrives on top. A blank card is never a legal state: it either reads, or it shows the error line. Never nothing.
 - Leave knobs in the demo rail. Never on the poster.
 
+## Subject mass (Elite Pixel Guy, locked)
+
+**The subject is the largest compact coherent mass.**
+
+Depth, when it runs, is the near-field gate: threshold the nearest band, keep the biggest blob, score area × compactness. A seatbelt is near and long and has no area; it loses. Then normalize the ramp *inside* the winner, not across the frame.
+
+On luma+edge: `|luma − borderMean|` is the bug in the look, not just a weak signal. "Unlike the frame edge" is how you find a window and a ceiling. Same mass rule, different stand-in for near-field: drop blobs whose contact with the frame is a large fraction of their own perimeter (ground planes, sky, ceiling, the window). Shoulders touching the bottom edge stay — they kiss one side, they don't *be* the frame. Largest compact remainder is the body. Then normalize inside it.
+
+**Refusals, also verbatim:**
+- Centre-bias is a tiebreak between two masses of comparable size. Not a prior. It would rescue this selfie and lie on a valid off-centre subject.
+- Do not discount fingers, glasses, or hair after the region is chosen. They belong to the mass. Thinness only kills a *competing* region (the strap), not detail inside the winner.
+- No saliency model. That's the true subject-mass answer and it is out of scope for a lab poster. Depth × area × compactness is the cheap version of the same idea.
+- Hue is never heat. Sunset on skin stays structure.
+
+This applies to **both** paths. This test had no adapter, so a depth-only rule would leave the window hot.
+
+### Named checks (re-weight off the live canvas)
+
+Compactness is `4π · area / perimeter²` (1 for a disk, ~0 for a long thin strap). Formula, not a knob. Relative score, no cutoff. Do not expose it as a slider. Engineering pick of EPG's "compactness."
+
+Frame-contact fraction is `perimeter-on-image-edge / blob-perimeter`. Drop a blob when that fraction is **≥ 0.40** (`FRAME_CONTACT_MAX`). One full-side kiss survives (~0.25–0.30). A window or ceiling that eats two sides still dies. Do not add a second test (no "which sides" heuristic, no "bottom edge is allowed" special case).
+
+**0.25 is a refusal** (`FRAME_CONTACT_REFUSAL`). It drops a valid 9:16 portrait whose body fills the bottom edge — the "shoulders kiss one side, they stay" case. Do not ship 0.25.
+
+If dropping frame-contact blobs leaves nothing, fall back to the largest compact blob even if it touched the frame — a full-bleed subject is legal. Report when this fallback fires.
+
+Centre-bias at **15%** (`CENTRE_TIEBREAK`) is the definition of "comparable": if the top two remaining blobs score within 15% of each other, prefer the one whose centroid is closer to frame centre. Tiebreak only. Never a prior. Never a weight on a clear winner.
+
+Nearest-band starts at **30%** of the valid depth range (`NEAR_FIELD_BAND_START`) — first experiment, not a hard floor. If that band contains only a thin structure, do not crown it. Widen the band (`NEAR_BAND_STEP`) until a compact mass appears, or fall through to the luma mass. A 30% slice that is nothing but the belt is not a subject. Thin-structure for this widening test only: compactness **< 0.15** (`NEAR_BAND_THIN_COMPACTNESS`). That constant is not a cutoff when scoring blobs against each other. Do not crown a 100% band — that is the whole field, not a near mass.
+
+Find-field binarize (luma path): Otsu on `|luma − borderMean| + Sobel`. Named, parameter-free. That field finds blobs. It is never the whole-frame ramp.
+
+Winner centroid is the cached focal point, once per upload. Normalize the LUT inside the winner only. No morphological opening on the winner.
+
 ## Primitives Spark may name
 
 `--heatmap-heat` white/yellow mass

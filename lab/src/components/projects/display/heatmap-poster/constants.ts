@@ -38,6 +38,34 @@ export const MASK_FADE_MS = 180;
  */
 export const DEPTH_VARIANCE_MIN = 0.001;
 
+/**
+ * Frame-contact drop: perimeter-on-image-edge / blob-perimeter.
+ * 0.40 lets a one-side kiss (~0.25–0.30) survive; two-side
+ * ceiling/window still dies. Not a "which edge" heuristic.
+ */
+export const FRAME_CONTACT_MAX = 0.4;
+
+/**
+ * REFUSAL. 0.25 drops a valid 9:16 body that fills the bottom
+ * edge (shoulders kiss one side, they stay). Do not use as the gate.
+ */
+export const FRAME_CONTACT_REFUSAL = 0.25;
+
+/** Top-two scores within this relative gap are "comparable"; centre is tiebreak only. */
+export const CENTRE_TIEBREAK = 0.15;
+
+/** First near-field band, as a fraction of the valid depth range. Not a hard floor. */
+export const NEAR_FIELD_BAND_START = 0.3;
+
+/** Widen the near band by this fraction until a compact mass appears. */
+export const NEAR_BAND_STEP = 0.1;
+
+/**
+ * Widening test only: a near-band winner below this compactness is
+ * "thin structure" (a strap), not a subject. Not a scoring cutoff.
+ */
+export const NEAR_BAND_THIN_COMPACTNESS = 0.15;
+
 export const FORMAT_ASPECT: Record<"9-16" | "a4", number> = {
   "9-16": 9 / 16,
   a4: 1 / Math.SQRT2,

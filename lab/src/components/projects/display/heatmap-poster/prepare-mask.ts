@@ -1,32 +1,9 @@
 import { HEATMAP_GROUND, PACK_MAX } from "./constants";
+import { applyLumaMass, applyNearFieldMass, type SubjectMassReport } from "./subject-mass";
 import { heatmapTrace } from "./trace";
-import type { PackedMask } from "./types";
+import type { FocalPoint, PackedMask } from "./types";
 
-export type FocalPoint = { cx: number; cy: number };
-
-/**
- * Weighted centroid of a subject mask. Weight = mask intensity so
- * the hottest region pulls hardest. Returns normalized 0–1 coords.
- */
-export function subjectCentroid(
-  mask: Float32Array,
-  w: number,
-  h: number,
-): FocalPoint {
-  let sumW = 0;
-  let sumX = 0;
-  let sumY = 0;
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const v = mask[y * w + x] ?? 0;
-      sumW += v;
-      sumX += v * (x + 0.5);
-      sumY += v * (y + 0.5);
-    }
-  }
-  if (sumW < 1e-8) return { cx: 0.5, cy: 0.5 };
-  return { cx: sumX / sumW / w, cy: sumY / sumW / h };
-}
+export type { FocalPoint, SubjectMassReport };
 
 export function coverCrop(
   srcW: number,
@@ -155,7 +132,11 @@ function packChannels(subject: Float32Array, w: number, h: number): PackedMask {
   return { width: w, height: h, pixels, frame: hotFrame(subject, w, h) };
 }
 
-function lumaEdgeSubject(data: Uint8ClampedArray, w: number, h: number): Float32Array {
+function readLumaAndFind(
+  data: Uint8ClampedArray,
+  w: number,
+  h: number,
+): { luma: Float32Array; find: Float32Array } {
   const luma = new Float32Array(w * h);
   for (let i = 0; i < w * h; i++) {
     const r = (data[i * 4] ?? 0) / 255;
@@ -176,53 +157,33 @@ function lumaEdgeSubject(data: Uint8ClampedArray, w: number, h: number): Float32
   }
   const borderMean = bc > 0 ? border / bc : 0.5;
   const edge = sobelMag(luma, w, h);
-  const subject = new Float32Array(w * h);
+  const find = new Float32Array(w * h);
   for (let i = 0; i < w * h; i++) {
     const unlikeBorder = Math.abs((luma[i] ?? 0) - borderMean);
     const e = Math.min(1, (edge[i] ?? 0) * 2.2);
-    subject[i] = Math.min(1, unlikeBorder * 1.6 + e * 0.55);
+    find[i] = Math.min(1, unlikeBorder * 1.6 + e * 0.55);
   }
-  return subject;
+  return { luma, find };
 }
 
-function sampleImage(
-  image: CanvasImageSource,
-  srcW: number,
-  srcH: number,
-  aspect: number,
-  focal?: FocalPoint,
-): { data: Uint8ClampedArray; width: number; height: number } {
-  const crop = coverCrop(srcW, srcH, aspect, focal);
-  const { width, height } = packSize(crop.sw, crop.sh);
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) {
-    return { data: new Uint8ClampedArray(width * height * 4), width, height };
-  }
-  ctx.fillStyle = `rgb(${Math.round(HEATMAP_GROUND[0] * 255)} ${Math.round(HEATMAP_GROUND[1] * 255)} ${Math.round(HEATMAP_GROUND[2] * 255)})`;
-  ctx.fillRect(0, 0, width, height);
-  ctx.drawImage(image, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, width, height);
-  try {
-    return { data: ctx.getImageData(0, 0, width, height).data, width, height };
-  } catch (err) {
-    heatmapTrace("luma:getImageData:fail", {
-      message: err instanceof Error ? err.message : String(err),
-    });
-    throw err;
-  }
-}
+export type FullSubjectRead = {
+  subject: Float32Array;
+  labels: Int32Array;
+  width: number;
+  height: number;
+  centroid: FocalPoint;
+  report: SubjectMassReport;
+};
 
 /**
- * Run the full luma+edge read on the FULL image (no crop). Returns the
- * subject mask and its weighted centroid for downstream crop centering.
+ * Run the luma find-field + subject-mass rule on the FULL image (no crop).
+ * Focal point is the winner centroid. The find field is never the ramp.
  */
 export function readFullSubject(
   image: CanvasImageSource,
   srcW: number,
   srcH: number,
-): { subject: Float32Array; width: number; height: number; centroid: FocalPoint } {
+): FullSubjectRead {
   const { width, height } = packSize(srcW, srcH);
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -230,7 +191,21 @@ export function readFullSubject(
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) {
     const empty = new Float32Array(width * height);
-    return { subject: empty, width, height, centroid: { cx: 0.5, cy: 0.5 } };
+    return {
+      subject: empty,
+      labels: new Int32Array(width * height),
+      width,
+      height,
+      centroid: { cx: 0.5, cy: 0.5 },
+      report: {
+        path: "luma-empty",
+        winner: null,
+        blobs: [],
+        dropped: [],
+        fallbackFired: false,
+        band: null,
+      },
+    };
   }
   ctx.fillStyle = `rgb(${Math.round(HEATMAP_GROUND[0] * 255)} ${Math.round(HEATMAP_GROUND[1] * 255)} ${Math.round(HEATMAP_GROUND[2] * 255)})`;
   ctx.fillRect(0, 0, width, height);
@@ -244,44 +219,78 @@ export function readFullSubject(
     });
     throw err;
   }
-  const subject = lumaEdgeSubject(data, width, height);
-  const centroid = subjectCentroid(subject, width, height);
-  return { subject, width, height, centroid };
+  const { luma, find } = readLumaAndFind(data, width, height);
+  const mass = applyLumaMass(find, luma, width, height);
+  heatmapTrace("mass:luma", {
+    path: mass.report.path,
+    area: mass.report.winner?.area ?? 0,
+    compactness: mass.report.winner?.compactness ?? 0,
+    frameContact: mass.report.winner?.frameContact ?? 0,
+    cx: mass.centroid.cx,
+    cy: mass.centroid.cy,
+    fallbackFired: mass.report.fallbackFired,
+    blobCount: mass.report.blobs.length,
+    droppedCount: mass.report.dropped.length,
+  });
+  return {
+    subject: mass.field,
+    labels: mass.labels,
+    width,
+    height,
+    centroid: mass.centroid,
+    report: mass.report,
+  };
 }
 
-export function packFallbackFromImage(
-  image: CanvasImageSource,
-  srcW: number,
-  srcH: number,
+/** Crop a cached mass field. Never re-runs unlike-border on the crop. */
+export function packSubjectField(
+  field: Float32Array,
+  fieldW: number,
+  fieldH: number,
   aspect: number,
   focal?: FocalPoint,
 ): PackedMask {
-  const sampled = sampleImage(image, srcW, srcH, aspect, focal);
-  const subject = lumaEdgeSubject(sampled.data, sampled.width, sampled.height);
-  return packChannels(subject, sampled.width, sampled.height);
-}
-
-export function packDepthField(
-  depth: Float32Array,
-  depthW: number,
-  depthH: number,
-  aspect: number,
-  focal?: FocalPoint,
-): PackedMask {
-  const crop = coverCrop(depthW, depthH, aspect, focal);
+  const crop = coverCrop(fieldW, fieldH, aspect, focal);
   const { width, height } = packSize(crop.sw, crop.sh);
   const subject = new Float32Array(width * height);
   const xScale = crop.sw / width;
   const yScale = crop.sh / height;
   for (let y = 0; y < height; y++) {
-    const sy = Math.min(depthH - 1, Math.floor(crop.sy + (y + 0.5) * yScale));
+    const sy = Math.min(fieldH - 1, Math.floor(crop.sy + (y + 0.5) * yScale));
     for (let x = 0; x < width; x++) {
-      const sx = Math.min(depthW - 1, Math.floor(crop.sx + (x + 0.5) * xScale));
-      subject[y * width + x] = depth[sy * depthW + sx] ?? 0;
+      const sx = Math.min(fieldW - 1, Math.floor(crop.sx + (x + 0.5) * xScale));
+      subject[y * width + x] = field[sy * fieldW + sx] ?? 0;
     }
   }
-  orientNearHot(subject, width, height);
   return packChannels(subject, width, height);
+}
+
+export function readFullDepthMass(
+  depth: Float32Array,
+  depthW: number,
+  depthH: number,
+): FullSubjectRead & { crowned: boolean } {
+  const oriented = depth.slice();
+  orientNearHot(oriented, depthW, depthH);
+  const mass = applyNearFieldMass(oriented, depthW, depthH);
+  heatmapTrace("mass:depth", {
+    path: mass.report.path,
+    crowned: mass.crowned,
+    band: mass.report.band,
+    area: mass.report.winner?.area ?? 0,
+    compactness: mass.report.winner?.compactness ?? 0,
+    cx: mass.centroid.cx,
+    cy: mass.centroid.cy,
+  });
+  return {
+    subject: mass.field,
+    labels: mass.labels,
+    width: depthW,
+    height: depthH,
+    centroid: mass.centroid,
+    report: mass.report,
+    crowned: mass.crowned,
+  };
 }
 
 function orientNearHot(depth: Float32Array, w: number, h: number): void {

@@ -34,6 +34,8 @@ export type HeatmapPosterProps = {
   isExport?: boolean;
 };
 
+export type FocalPoint = { cx: number; cy: number };
+
 export type PackedMask = {
   width: number;
   height: number;

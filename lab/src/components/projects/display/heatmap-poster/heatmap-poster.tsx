@@ -7,11 +7,12 @@ import { prefetchDepthModel, readDepth } from "./depth-estimator";
 import {
   emptyPack,
   flattenOntoGround,
-  packDepthField,
-  packFallbackFromImage,
+  packSubjectField,
+  readFullDepthMass,
   readFullSubject,
   type FocalPoint,
 } from "./prepare-mask";
+import { paintBlobMap, type SubjectMassReport } from "./subject-mass";
 import { computeLayout, drawPoster, type PosterColors } from "./poster-renderer";
 import { readStatusAfterDepth } from "./read-status";
 import { startHeatmap, type HeatmapDriver } from "./start-heatmap";
@@ -52,9 +53,38 @@ type CachedRead = {
   src: string;
   el: HTMLImageElement;
   centroid: FocalPoint;
-  depthField: { depth: Float32Array; width: number; height: number } | null;
+  lumaField: { field: Float32Array; width: number; height: number; labels: Int32Array };
+  lumaReport: SubjectMassReport;
+  depthField: { field: Float32Array; width: number; height: number } | null;
   depthCentroid: FocalPoint | null;
+  depthReport: SubjectMassReport | null;
 };
+
+function publishMass(
+  report: SubjectMassReport,
+  labels?: Int32Array,
+  w?: number,
+  h?: number,
+  field?: Float32Array,
+) {
+  if (typeof window === "undefined") return;
+  const win = window as Window & {
+    __heatmapMassReport?: SubjectMassReport;
+    __heatmapBlobMap?: { width: number; height: number; pixels: Uint8ClampedArray };
+    __heatmapMassField?: { width: number; height: number; field: Float32Array };
+  };
+  win.__heatmapMassReport = report;
+  if (labels && w && h) {
+    win.__heatmapBlobMap = {
+      width: w,
+      height: h,
+      pixels: paintBlobMap(labels, w, h, report.winner?.label ?? null),
+    };
+  }
+  if (field && w && h) {
+    win.__heatmapMassField = { width: w, height: h, field };
+  }
+}
 
 function plateAspect(
   cardW: number,
@@ -238,10 +268,10 @@ export function HeatmapPoster({
       const driver = driverRef.current;
       if (!driver) return;
       const focal = cached.depthCentroid ?? cached.centroid;
-      const fallback = packFallbackFromImage(
-        cached.el,
-        cached.el.naturalWidth,
-        cached.el.naturalHeight,
+      const fallback = packSubjectField(
+        cached.lumaField.field,
+        cached.lumaField.width,
+        cached.lumaField.height,
         aspect,
         focal,
       );
@@ -253,8 +283,8 @@ export function HeatmapPoster({
       driver.setFallback(fallback);
       heatmapTrace("frame:luma-set");
       if (cached.depthField) {
-        const packed = packDepthField(
-          cached.depthField.depth,
+        const packed = packSubjectField(
+          cached.depthField.field,
           cached.depthField.width,
           cached.depthField.height,
           aspect,
@@ -334,13 +364,28 @@ export function HeatmapPoster({
           cx: fullRead.centroid.cx,
           cy: fullRead.centroid.cy,
         });
+        publishMass(
+          fullRead.report,
+          fullRead.labels,
+          fullRead.width,
+          fullRead.height,
+          fullRead.subject,
+        );
 
         const cached: CachedRead = {
           src: imageSrc,
           el,
           centroid: fullRead.centroid,
+          lumaField: {
+            field: fullRead.subject,
+            width: fullRead.width,
+            height: fullRead.height,
+            labels: fullRead.labels,
+          },
+          lumaReport: fullRead.report,
           depthField: null,
           depthCentroid: null,
+          depthReport: null,
         };
         cachedReadRef.current = cached;
 
@@ -359,37 +404,34 @@ export function HeatmapPoster({
         onReadStatusRef.current?.(readStatusAfterDepth(depth.outcome));
 
         if (depth.outcome === "ok") {
-          cached.depthField = {
-            depth: depth.depth,
-            width: depth.width,
-            height: depth.height,
-          };
+          const depthMass = readFullDepthMass(depth.depth, depth.width, depth.height);
+          if (depthMass.crowned) {
+            cached.depthField = {
+              field: depthMass.subject,
+              width: depthMass.width,
+              height: depthMass.height,
+            };
+            cached.depthCentroid = depthMass.centroid;
+            cached.depthReport = depthMass.report;
+            publishMass(
+              depthMass.report,
+              depthMass.labels,
+              depthMass.width,
+              depthMass.height,
+              depthMass.subject,
+            );
 
-          const { subjectCentroid } = await import("./prepare-mask");
-          const depthSubject = new Float32Array(depth.width * depth.height);
-          for (let i = 0; i < depthSubject.length; i++) {
-            depthSubject[i] = depth.depth[i] ?? 0;
-          }
-          let min = Infinity, max = -Infinity;
-          for (let i = 0; i < depthSubject.length; i++) {
-            if (depthSubject[i]! < min) min = depthSubject[i]!;
-            if (depthSubject[i]! > max) max = depthSubject[i]!;
-          }
-          const range = max - min;
-          if (range > 1e-8) {
-            for (let i = 0; i < depthSubject.length; i++) {
-              depthSubject[i] = (depthSubject[i]! - min) / range;
-            }
-          }
-          cached.depthCentroid = subjectCentroid(depthSubject, depth.width, depth.height);
+            const depthAspect = currentPlateAspect();
+            lastPlateAspectRef.current = depthAspect;
+            applyPacksForAspect(cached, depthAspect);
+            heatmapTrace("depth:bound");
 
-          const depthAspect = currentPlateAspect();
-          lastPlateAspectRef.current = depthAspect;
-          applyPacksForAspect(cached, depthAspect);
-          heatmapTrace("depth:bound");
-
-          if (!reducedRef.current) driver.setMaskMixTarget(1);
-          else driver.snapMaskMix(1);
+            if (!reducedRef.current) driver.setMaskMixTarget(1);
+            else driver.snapMaskMix(1);
+          } else {
+            heatmapTrace("depth:luma-fallback", { path: depthMass.report.path });
+            cached.depthReport = depthMass.report;
+          }
         }
       } catch (err) {
         heatmapTrace("pipeline:error", {
