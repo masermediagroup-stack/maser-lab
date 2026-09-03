@@ -1,32 +1,29 @@
 /**
- * Kick ribbons. Disc stays. These wrap the planted body, then leave.
+ * Kick ribbons. Disc stays black and planted. These wrap, clip, then leave.
  *
- * Source: https://x.ai/news/designing-grok-bot (Benji Taylor avatar motion).
- * 2–4 thick flat Ver 02, front/back, ~−15° plane, cross the eyes, leave.
- * Not Thinking. Not a held nest. Idle has NO bands. Cube stays clean.
- * Not meridians through the fill. Not a wallpaper field.
+ * Article Working (Benji Taylor): thickness ≈ one stadium eye-bar
+ * ≈ 8% of face height (~24px at 300px). Rounded hemispherical caps.
+ * Distinct paths. Flat HEX. Depth only via occlusion.
+ * Tails behind bottom-left. Cross the left eye. Not a nest.
  */
 
-import { VER02_ORBIT_HUES } from "./grok-cycle";
+import { IDLE_EYE } from "./grok-eyes";
 
-/** Thick wrap: 8–14px at a 300px face. ~11px. */
-export const ORBIT_STROKE_FACE_RATIO = 0.037;
+/** Article lock: ~8% of face height. ~24px at a 300px face. */
+export const ORBIT_STROKE_FACE_RATIO = 0.08;
 
 export function orbitStrokePx(faceDiameter: number): number {
   return faceDiameter * ORBIT_STROKE_FACE_RATIO;
 }
 
-/** Sparse wrap. 2–4 thick bands — not a 5-filament nest. */
+/** Sparse wrap. 2–4 thick bands. */
 export const WORKING_ORBIT_COUNT = 3;
 
-/** Shallow equatorial plane, upper-left → right. Degrees. */
+/** Shallow equatorial plane. Degrees. */
 export const ORBIT_PLANE_DEG = -15;
 
-/**
- * Drop the wrap onto the Working eye line so front ribbons cross the stadiums.
- * Idle eyes sit higher; bands are gone by then.
- */
-export const ORBIT_Y_FACE = 0.14;
+/** Sit the wrap on the planted Idle eye line so front ribbons cross the stadiums. */
+export const ORBIT_Y_FACE = IDLE_EYE.cy;
 
 /** Bleed past the silhouette at a 300px face. */
 export const ORBIT_BLEED_AT_300 = 42;
@@ -44,7 +41,6 @@ export function orbitRadius(bodyR: number, faceD: number): number {
 
 type Vec3 = { x: number; y: number; z: number };
 
-/** Point on a fixed shallow orbit. No extra Y-yaw of the plane. */
 function orbitPoint(theta: number, radius: number, planeTilt: number): Vec3 {
   const x0 = radius * Math.cos(theta);
   const z0 = radius * Math.sin(theta);
@@ -102,7 +98,7 @@ function drawRibbonArc(
 /**
  * Kick bands on the mark. Skip when energy is ~0 (Idle rest, settle, leave).
  * `ribbonPhase` is the traveling head — not a globe yaw of the disc.
- * Thickness stays full; leave by fading. Front strokes cross the eyes.
+ * `hues` are this kick's Ver 02 chromatic assignment.
  */
 export function drawWorkingOrbits(
   ctx: CanvasRenderingContext2D,
@@ -111,6 +107,7 @@ export function drawWorkingOrbits(
   energy: number,
   ribbonPhase: number,
   layer: "back" | "front",
+  hues: readonly string[],
 ): void {
   if (energy < 0.02) return;
 
@@ -118,7 +115,8 @@ export function drawWorkingOrbits(
   const radius = orbitRadius(bodyR, faceD);
   const alpha = 0.94 * energy;
   const baseTilt = (ORBIT_PLANE_DEG * Math.PI) / 180;
-  const head0 = Math.PI + 0.45 - ribbonPhase;
+  // Start behind bottom-left, wrap across the face, leave.
+  const head0 = Math.PI * 1.25 - ribbonPhase;
   const mid = (WORKING_ORBIT_COUNT - 1) / 2;
   const yBias = (faceD * 0.5) * ORBIT_Y_FACE;
 
@@ -126,7 +124,8 @@ export function drawWorkingOrbits(
     const planeTilt = baseTilt + (i - mid) * 0.05;
     const head = head0 - i * 0.38;
     const r = radius * (1 + (i - mid) * 0.035);
-    const color = VER02_ORBIT_HUES[i % VER02_ORBIT_HUES.length]!;
+    const color = hues[i % hues.length] ?? hues[0];
+    if (!color) continue;
     drawRibbonArc(
       ctx,
       layer,

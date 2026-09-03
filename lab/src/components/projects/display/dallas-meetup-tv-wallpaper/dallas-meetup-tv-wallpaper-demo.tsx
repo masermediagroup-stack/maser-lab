@@ -47,8 +47,6 @@ export function DallasMeetupTvWallpaperDemo() {
   const [isPresentation, setIsPresentation] = useState(false);
   const [loopSeconds, setLoopSeconds] = useState(DEFAULT_LOOP_SECONDS);
   const [whipSeconds, setWhipSeconds] = useState(DEFAULT_WHIP_SECONDS);
-  const [linearSpin, setLinearSpin] = useState(false);
-  const [showSkyline, setShowSkyline] = useState(true);
   const [resetNonce, setResetNonce] = useState(0);
   const [exporting, setExporting] = useState(false);
   const [exportNote, setExportNote] = useState<string>("");
@@ -148,8 +146,6 @@ export function DallasMeetupTvWallpaperDemo() {
       const result = await exportDallasMeetupWallpaperLoop({
         loopSeconds,
         whipSeconds,
-        linearSpin,
-        showSkyline,
       });
       const url = URL.createObjectURL(result.blob);
       const anchor = document.createElement("a");
@@ -168,7 +164,7 @@ export function DallasMeetupTvWallpaperDemo() {
     } finally {
       setExporting(false);
     }
-  }, [loopSeconds, whipSeconds, linearSpin, showSkyline]);
+  }, [loopSeconds, whipSeconds]);
 
   return (
     <div
@@ -188,8 +184,6 @@ export function DallasMeetupTvWallpaperDemo() {
           onFrameTime={handleFrameTime}
           loopSeconds={loopSeconds}
           whipSeconds={whipSeconds}
-          linearSpin={linearSpin}
-          showSkyline={showSkyline}
           resetNonce={resetNonce}
         />
       </section>
@@ -210,9 +204,8 @@ export function DallasMeetupTvWallpaperDemo() {
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-              Loop is 8s. Disc stays. Kick = planted morph + ribbon wrap +
-              eyes whipping around the form. Color SNAPS with the next shape.
-              Lands Idle on the new face.
+              Loop is 8s. Black disc. Planted stadiums. Kick = article-thick
+              Ver 02 ribbons wrap, clip, leave. Idle has no ribbons. Geist is out.
             </p>
           </div>
 
@@ -276,56 +269,16 @@ export function DallasMeetupTvWallpaperDemo() {
               onChange={setWhipSeconds}
               className="w-full"
             />
-            <div className="flex items-center gap-1.5">
-              <LabButton
-                variant={linearSpin ? "ghost" : "accent"}
-                aria-pressed={!linearSpin}
-                onClick={() => setLinearSpin(false)}
-              >
-                Rest + whip
-              </LabButton>
-              <LabButton
-                variant={linearSpin ? "accent" : "ghost"}
-                aria-pressed={linearSpin}
-                onClick={() => setLinearSpin(true)}
-              >
-                Linear spin
-              </LabButton>
-            </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Linear spin is compare-only (ribbons, not the disc) and default off.
-              Kick = morph + wrap + eye whip. Color with the next shape.
-            </p>
-          </LabControlGroup>
-
-          <LabControlGroup label="Horizon">
-            <div className="flex items-center gap-1.5">
-              <LabButton
-                variant={showSkyline ? "accent" : "ghost"}
-                aria-pressed={showSkyline}
-                onClick={() => setShowSkyline(true)}
-              >
-                On (default)
-              </LabButton>
-              <LabButton
-                variant={showSkyline ? "ghost" : "accent"}
-                aria-pressed={!showSkyline}
-                onClick={() => setShowSkyline(false)}
-              >
-                Off
-              </LabButton>
-            </div>
-            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Noun Project Dallas skyline (Blaise Sewell, 3583788).
-              Ink silhouette. Default ON. Not on the globe.
+              Super-fast means the whip is short. Rest stays 6.4s at the 8s loop.
             </p>
           </LabControlGroup>
 
           <LabControlGroup label="Kick bands">
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Kick: 2–4 thick flat Ver 02 wrap the planted body (front/back,
-              −15°) while the pair whips around the form. Color SNAPS with
-              the next shape. Disc stays. No globe yaw. Idle has no bands.
+              Kick: 2–4 flat Ver 02, ~8% of face height, rounded caps.
+              Wrap front/back, clip, cross the left eye, then leave. Random
+              chromatic HEX per kick. Skip gray. Disc stays black. Eyes stay planted.
             </p>
           </LabControlGroup>
 

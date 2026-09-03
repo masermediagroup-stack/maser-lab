@@ -2,22 +2,18 @@
  * EPG timing lock. Loop is 8s. Do not shorten it to make the whip feel fast.
  * Super-fast means the 0.6s traveling bit is short.
  *
- * Kill globe yaw. Disc stays. Illusion of spin:
- * planted morph + ribbon wrap + eyes whipping around the form.
- * Color SNAPS with the next shape in the same kick. Lands Idle on the new face.
- *
- * Linear spin is compare-only (ribbons, not the disc). Reduced motion freezes Idle.
+ * USER LOCK: Idle → one kick → Idle. Black disc forever. No body turn.
+ * Kick = article-thick ribbons only. Eyes stay planted. Reduced motion freezes Idle.
  */
 
 export const DEFAULT_LOOP_SECONDS = 8;
 export const DEFAULT_WHIP_SECONDS = 0.6;
-/** Settle window after the whip. Idle hold on the new face. */
+/** Settle window after the whip. Idle hold. Same disc. */
 export const SETTLE_SECONDS = 1;
 
 export type LoopBeat = "rest" | "whip" | "settle";
 export const WHIP_MIN_SECONDS = 0.5;
 export const WHIP_MAX_SECONDS = 0.7;
-export const AXIS_TILT_DEG = 16;
 
 /** Product Idle face tilt is −28° (clockwise on canvas = +28). */
 export const EYE_TILT_DEG = -28;
@@ -44,7 +40,7 @@ export function kickEase(t: number): number {
 
 export const whipEase = kickEase;
 
-/** Ease-out kept for tests / compare — morph now happens during the kick. */
+/** Ease-out kept for tests. */
 export function settleEaseOut(t: number): number {
   const u = Math.min(1, Math.max(0, t));
   return 1 - (1 - u) ** 3;
@@ -79,20 +75,14 @@ export function loopBeat(
 /**
  * Ribbon head travel only. Never rotate the silhouette with this.
  * One wrap during the 0.6s kick. 0 at rest and settle — the face is still.
- * Linear spin is compare-only (ribbons).
  */
 export function streamPhase(
   time: number,
   loopSeconds: number,
   whipSeconds: number,
-  linearSpin: boolean,
   reducedMotion: boolean,
 ): number {
   if (reducedMotion) return 0;
-  if (linearSpin) {
-    const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
-    return ((time % loop) / loop) * Math.PI * 2;
-  }
   const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
   const t = ((time % loop) + loop) % loop;
   const whip = clampWhipSeconds(whipSeconds);
@@ -105,7 +95,6 @@ export function streamPhase(
 /**
  * Kick-band envelope. 0 at rest, settle, and reduced motion.
  * During the whip: fade in, wrap, then leave before the beat ends.
- * Linear-spin compare keeps energy 1 so the ribbons can be inspected.
  */
 export function kickBandEnergy(progress: number): number {
   if (progress <= 0 || progress >= 1) return 0;
@@ -120,16 +109,12 @@ export function whipEnergy(
   time: number,
   loopSeconds: number,
   whipSeconds: number,
-  linearSpin: boolean,
   reducedMotion: boolean,
 ): number {
   if (reducedMotion) return 0;
-  if (linearSpin) return 1;
   const beat = loopBeat(time, loopSeconds, whipSeconds, reducedMotion);
   if (beat !== "whip") return 0;
-  return kickBandEnergy(
-    kickProgress(time, loopSeconds, whipSeconds, linearSpin, reducedMotion),
-  );
+  return kickBandEnergy(kickProgress(time, loopSeconds, whipSeconds, reducedMotion));
 }
 
 /** 0–1 during the kick, else 0. */
@@ -137,15 +122,9 @@ export function kickProgress(
   time: number,
   loopSeconds: number,
   whipSeconds: number,
-  linearSpin: boolean,
   reducedMotion: boolean,
 ): number {
   if (reducedMotion) return 0;
-  if (linearSpin) {
-    const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
-    const t = ((time % loop) + loop) % loop;
-    return t / loop;
-  }
   const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
   const t = ((time % loop) + loop) % loop;
   const whip = clampWhipSeconds(whipSeconds);

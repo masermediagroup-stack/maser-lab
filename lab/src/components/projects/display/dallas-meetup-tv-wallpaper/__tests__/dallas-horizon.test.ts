@@ -1,18 +1,20 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import {
-  HORIZON_NOUN_ID,
-  HORIZON_SRC,
-  HORIZON_SOURCE_CREDIT,
-} from "../dallas-horizon";
-import { DALLAS_INK } from "../grok-cycle";
 
-describe("Noun Project Dallas horizon", () => {
-  it("points at the Noun Project silhouette, not the Trammell Crow photo", () => {
-    expect(HORIZON_NOUN_ID).toBe("3583788");
-    expect(HORIZON_SRC).toBe("/images/dallas-noun-skyline.svg");
-    expect(HORIZON_SRC).not.toMatch(/trammell|illustration/i);
-    expect(HORIZON_SOURCE_CREDIT).toMatch(/Noun Project/i);
-    expect(HORIZON_SOURCE_CREDIT).toMatch(/3583788/);
-    expect(DALLAS_INK).toBe("#111111");
+const wallpaperSrc = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "../dallas-meetup-tv-wallpaper.tsx"),
+  "utf8",
+);
+const demoSrc = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "../dallas-meetup-tv-wallpaper-demo.tsx"),
+  "utf8",
+);
+
+describe("skyline killed", () => {
+  it("does not import or draw a Dallas horizon on the product or demo", () => {
+    expect(wallpaperSrc).not.toMatch(/dallas-horizon|HORIZON_SRC|showSkyline|Noun Project|skyline/i);
+    expect(demoSrc).not.toMatch(/showSkyline|Noun Project|skyline/i);
   });
 });

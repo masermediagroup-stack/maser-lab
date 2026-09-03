@@ -44,19 +44,19 @@ describe("look-lock motion", () => {
   });
 
   it("holds stream phase at 0 during rest and settle (no residual spin)", () => {
-    expect(streamPhase(0, 8, 0.6, false, false)).toBe(0);
-    expect(streamPhase(6.39, 8, 0.6, false, false)).toBe(0);
-    expect(streamPhase(7.05, 8, 0.6, false, false)).toBe(0);
-    expect(streamPhase(7.9, 8, 0.6, false, false)).toBe(0);
+    expect(streamPhase(0, 8, 0.6, false)).toBe(0);
+    expect(streamPhase(6.39, 8, 0.6, false)).toBe(0);
+    expect(streamPhase(7.05, 8, 0.6, false)).toBe(0);
+    expect(streamPhase(7.9, 8, 0.6, false)).toBe(0);
   });
 
   it("travels ribbons one wrap during the kick; settle needs no spin", () => {
     const rest = restSeconds(8, 0.6);
-    const mid = streamPhase(rest + 0.3, 8, 0.6, false, false);
+    const mid = streamPhase(rest + 0.3, 8, 0.6, false);
     expect(mid).toBeCloseTo(Math.PI, 5);
-    const end = streamPhase(rest + 0.6, 8, 0.6, false, false);
+    const end = streamPhase(rest + 0.6, 8, 0.6, false);
     expect(end).toBe(0);
-    expect(streamPhase(7.2, 8, 0.6, false, false)).toBe(0);
+    expect(streamPhase(7.2, 8, 0.6, false)).toBe(0);
   });
 
   it("uses hard cubic ease-in-out on the whip and ease-out on settle", () => {
@@ -68,19 +68,17 @@ describe("look-lock motion", () => {
     expect(settleEaseOut(0.5)).toBeCloseTo(0.875);
   });
 
-  it("freezes reduced motion and uses constant ω only in compare mode", () => {
-    expect(streamPhase(4, 8, 0.6, false, true)).toBe(0);
-    expect(streamPhase(4, 8, 0.6, true, false)).toBeCloseTo(Math.PI);
+  it("freezes reduced motion", () => {
+    expect(streamPhase(4, 8, 0.6, true)).toBe(0);
   });
 
   it("kills band energy at rest, settle, and reduced motion", () => {
-    expect(whipEnergy(1, 8, 0.6, false, false)).toBe(0);
-    expect(whipEnergy(6.39, 8, 0.6, false, false)).toBe(0);
-    expect(whipEnergy(7.01, 8, 0.6, false, false)).toBe(0);
-    expect(whipEnergy(7.5, 8, 0.6, false, false)).toBe(0);
-    expect(whipEnergy(7.9, 8, 0.6, false, false)).toBe(0);
-    expect(whipEnergy(6.5, 8, 0.6, false, true)).toBe(0);
-    expect(whipEnergy(1, 8, 0.6, true, false)).toBe(1);
+    expect(whipEnergy(1, 8, 0.6, false)).toBe(0);
+    expect(whipEnergy(6.39, 8, 0.6, false)).toBe(0);
+    expect(whipEnergy(7.01, 8, 0.6, false)).toBe(0);
+    expect(whipEnergy(7.5, 8, 0.6, false)).toBe(0);
+    expect(whipEnergy(7.9, 8, 0.6, false)).toBe(0);
+    expect(whipEnergy(6.5, 8, 0.6, true)).toBe(0);
   });
 
   it("wraps at full energy mid-kick then leaves before settle", () => {
@@ -90,23 +88,27 @@ describe("look-lock motion", () => {
     const leaving = rest + whip * (WHIP_BAND_LEAVE + 0.14);
     const late = rest + whip * 0.97;
     expect(mid).toBeGreaterThan(rest + whip * WHIP_BAND_IN);
-    expect(whipEnergy(mid, 8, 0.6, false, false)).toBe(1);
-    expect(whipEnergy(leaving, 8, 0.6, false, false)).toBeLessThan(1);
-    expect(whipEnergy(leaving, 8, 0.6, false, false)).toBeGreaterThan(0.02);
-    expect(whipEnergy(late, 8, 0.6, false, false)).toBeLessThan(0.15);
+    expect(whipEnergy(mid, 8, 0.6, false)).toBe(1);
+    expect(whipEnergy(leaving, 8, 0.6, false)).toBeLessThan(1);
+    expect(whipEnergy(leaving, 8, 0.6, false)).toBeGreaterThan(0.02);
+    expect(whipEnergy(late, 8, 0.6, false)).toBeLessThan(0.15);
   });
 
   it("does not export a globe yaw — the disc stays planted", async () => {
     const motion = await import("../globe-motion");
     expect("globeYaw" in motion).toBe(false);
-    expect(motion.AXIS_TILT_DEG).toBe(16);
+    expect("AXIS_TILT_DEG" in motion).toBe(false);
   });
 
-  it("never 360-rotates the disc — body rotate is axis tilt only", () => {
-    expect(wallpaperSrc).toContain("ctx.rotate(AXIS_TILT)");
-    expect(wallpaperSrc).not.toMatch(/ctx\.rotate\(\s*(ribbonPhase|streamPhase)/);
+  it("never 360-rotates the disc — no body turn", () => {
+    expect(wallpaperSrc).not.toMatch(/ctx\.rotate\(\s*(ribbonPhase|streamPhase|AXIS_TILT)/);
     expect(wallpaperSrc).not.toMatch(/globeYaw/);
-    expect(wallpaperSrc).toContain("never streamPhase / globe yaw");
+    expect(wallpaperSrc).not.toMatch(/dallas-horizon/);
+    expect(wallpaperSrc).not.toMatch(/grok-bodies/);
+    expect(wallpaperSrc).not.toMatch(/eyeWhipAt/);
+    expect(wallpaperSrc).toContain("DALLAS_GROK_BLACK");
+    expect(wallpaperSrc).toContain("nonzero");
+    expect(wallpaperSrc).not.toMatch(/M444\.05/);
   });
 
   it("adds no idle bob or kick wobble", () => {

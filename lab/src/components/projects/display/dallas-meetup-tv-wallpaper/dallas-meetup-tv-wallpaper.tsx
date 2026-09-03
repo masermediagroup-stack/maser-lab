@@ -3,29 +3,19 @@
 import { useCallback, useEffect, useRef } from "react";
 import { DALLAS_SANS_FAMILY } from "./dallas-fonts";
 import {
-  HORIZON_SRC,
-  drawDallasHorizon,
-  stampHorizon,
-} from "./dallas-horizon";
-import {
-  AXIS_TILT_DEG,
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
   streamPhase,
   whipEnergy,
 } from "./globe-motion";
 import {
-  bodyOutline,
-  maxOutlineRadius,
-  traceBodyPath,
-} from "./grok-bodies";
-import {
   DALLAS_EYE_WHITE,
+  DALLAS_GROK_BLACK,
   DALLAS_MARK_INK,
   DALLAS_PAPER,
-  grokCyclePose,
+  kickRibbonHues,
 } from "./grok-cycle";
-import { eyeWhipAt } from "./grok-eyes";
+import { eyePoseAt, type EyePose } from "./grok-eyes";
 import {
   DALLAS_DISPLAY_FONT_PX,
   DALLAS_DISPLAY_TRACKING_PX,
@@ -33,19 +23,20 @@ import {
   publishDallasDisplayPx,
   runDallasTypeLock,
 } from "./type-lock";
-import { drawWorkingOrbits } from "./working-orbits";
+import { WORKING_ORBIT_COUNT, drawWorkingOrbits } from "./working-orbits";
 
 const BASE_WIDTH = 1920;
 const BASE_HEIGHT = 1080;
 const FPS = 30;
+
+/** Official Cursor cube outer silhouette only. No inner fold punch. */
 const CURSOR_PATH =
-  "M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3,9.46,9.3,16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z";
+  "M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3,9.46,9.3,16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01Z";
 
 const CURSOR_VB_W = 466.73;
 const CURSOR_VB_H = 532.09;
 const CURSOR_ASPECT = CURSOR_VB_W / CURSOR_VB_H;
 
-const AXIS_TILT = (AXIS_TILT_DEG * Math.PI) / 180;
 const CURSOR_H_PX = 280;
 const GROK_FACE_PX = 300;
 const MARK_GAP_PX = 120;
@@ -71,32 +62,10 @@ export type DallasMeetupWallpaperProps = {
   onFrameTime?: (seconds: number) => void;
   loopSeconds?: number;
   whipSeconds?: number;
-  linearSpin?: boolean;
-  showSkyline?: boolean;
   /** Bump to restart the 8s clock (Replay while already playing). */
   resetNonce?: number;
   className?: string;
 };
-
-let horizonSource: HTMLImageElement | null = null;
-let horizonPlate: HTMLCanvasElement | null = null;
-
-function ensureHorizon(onReady?: () => void): HTMLCanvasElement | null {
-  if (typeof Image === "undefined") return null;
-  if (horizonPlate) return horizonPlate;
-  if (!horizonSource) {
-    horizonSource = new Image();
-    horizonSource.decoding = "async";
-    horizonSource.src = HORIZON_SRC;
-    horizonSource.onload = () => {
-      horizonPlate = stampHorizon(horizonSource!);
-      onReady?.();
-    };
-  } else if (horizonSource.complete && horizonSource.naturalWidth > 0) {
-    horizonPlate = stampHorizon(horizonSource);
-  }
-  return horizonPlate;
-}
 
 function resolveDallasFontFamily(el: Element | null): string {
   if (el instanceof HTMLElement && el.isConnected) {
@@ -120,19 +89,13 @@ function drawTrackedText(
   }
 }
 
-function drawStadiumEyes(
-  ctx: CanvasRenderingContext2D,
-  faceD: number,
-  pose: { tilt: number; cx: number; cy: number; squashX?: number },
-) {
+function drawStadiumEyes(ctx: CanvasRenderingContext2D, faceD: number, pose: EyePose) {
   const R = faceD * 0.5;
   const ew = faceD * EYE_W_FACE;
   const eh = faceD * EYE_H_FACE;
   const gap = faceD * EYE_GAP_FACE;
-  const squashX = pose.squashX ?? 1;
   ctx.save();
   ctx.translate(pose.cx * R, pose.cy * R);
-  ctx.scale(squashX, 1);
   ctx.rotate(pose.tilt);
   ctx.fillStyle = DALLAS_EYE_WHITE;
   const drawOne = (ox: number) => {
@@ -149,6 +112,11 @@ function drawStadiumEyes(
   ctx.restore();
 }
 
+function traceDisc(ctx: CanvasRenderingContext2D, radius: number) {
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+}
+
 function drawGrokBody(
   ctx: CanvasRenderingContext2D,
   cx: number,
@@ -157,37 +125,29 @@ function drawGrokBody(
   elapsed: number,
   loopSeconds: number,
   whipSeconds: number,
-  linearSpin: boolean,
   reducedMotion: boolean,
 ) {
-  const pose = grokCyclePose(elapsed, loopSeconds, whipSeconds, reducedMotion);
-  const radii = bodyOutline(pose.fromShape, pose.toShape, pose.morphT);
   const R = faceD * 0.5;
-  const bodyR = maxOutlineRadius(radii) * R;
-  const ribbonPhase = streamPhase(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
-  const energy = whipEnergy(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
-  const eyes = eyeWhipAt(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
+  const ribbonPhase = streamPhase(elapsed, loopSeconds, whipSeconds, reducedMotion);
+  const energy = whipEnergy(elapsed, loopSeconds, whipSeconds, reducedMotion);
+  const eyes = eyePoseAt(elapsed, loopSeconds, whipSeconds, reducedMotion);
+  const hues = kickRibbonHues(elapsed, loopSeconds, WORKING_ORBIT_COUNT);
 
   ctx.save();
   ctx.translate(cx, cy);
-  // Disc stays. Axis tilt only — never streamPhase / globe yaw.
-  ctx.rotate(AXIS_TILT);
+  // Face-forward. No body turn. No globe yaw.
 
-  // Back ribbons first — occluded by the planted fill, peeks past the silhouette.
-  drawWorkingOrbits(ctx, bodyR, faceD, energy, ribbonPhase, "back");
+  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "back", hues);
 
-  ctx.fillStyle = pose.fill;
-  traceBodyPath(ctx, radii, R);
+  ctx.fillStyle = DALLAS_GROK_BLACK;
+  traceDisc(ctx, R);
   ctx.fill();
 
   ctx.save();
-  traceBodyPath(ctx, radii, R);
+  traceDisc(ctx, R);
   ctx.clip();
-  if (eyes.visible) {
-    drawStadiumEyes(ctx, faceD, eyes);
-  }
-  // Front ribbons clipped to the current body — wrap while eyes travel, then leave.
-  drawWorkingOrbits(ctx, bodyR, faceD, energy, ribbonPhase, "front");
+  drawStadiumEyes(ctx, faceD, eyes);
+  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "front", hues);
   ctx.restore();
 
   ctx.restore();
@@ -201,8 +161,6 @@ function renderFrame(
   reducedMotion: boolean,
   loopSeconds: number,
   whipSeconds: number,
-  linearSpin: boolean,
-  showSkyline: boolean,
   fontFamily: string,
 ) {
   const scale = width / BASE_WIDTH;
@@ -210,11 +168,6 @@ function renderFrame(
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = DALLAS_PAPER;
   ctx.fillRect(0, 0, width, height);
-
-  if (showSkyline) {
-    const plate = ensureHorizon();
-    if (plate) drawDallasHorizon(ctx, width, height, plate);
-  }
 
   const centerX = width * 0.5;
   const marksBaseY = height * 0.5 - PAIR_LIFT_PX * scale;
@@ -232,7 +185,7 @@ function renderFrame(
   ctx.scale(cursorUniformScale, cursorUniformScale);
   ctx.translate(-CURSOR_VB_W * 0.5, -CURSOR_VB_H * 0.5);
   ctx.fillStyle = DALLAS_MARK_INK;
-  ctx.fill(new Path2D(CURSOR_PATH));
+  ctx.fill(new Path2D(CURSOR_PATH), "nonzero");
   ctx.restore();
 
   drawGrokBody(
@@ -243,7 +196,6 @@ function renderFrame(
     elapsed,
     loopSeconds,
     whipSeconds,
-    linearSpin,
     reducedMotion,
   );
 
@@ -272,8 +224,6 @@ export function DallasMeetupWallpaper({
   onFrameTime,
   loopSeconds = DEFAULT_LOOP_SECONDS,
   whipSeconds = DEFAULT_WHIP_SECONDS,
-  linearSpin = false,
-  showSkyline = true,
   resetNonce = 0,
   className,
 }: DallasMeetupWallpaperProps) {
@@ -296,12 +246,10 @@ export function DallasMeetupWallpaper({
         reducedMotion,
         loopSeconds,
         whipSeconds,
-        linearSpin,
-        showSkyline,
         resolveDallasFontFamily(canvas),
       );
     },
-    [reducedMotion, loopSeconds, whipSeconds, linearSpin, showSkyline],
+    [reducedMotion, loopSeconds, whipSeconds],
   );
 
   useEffect(() => {
@@ -337,7 +285,6 @@ export function DallasMeetupWallpaper({
     };
 
     resize();
-    ensureHorizon(() => drawAtTime(timeSeconds ?? pausedAtRef.current));
     const observer = new ResizeObserver(resize);
     observer.observe(canvas.parentElement ?? canvas);
     window.addEventListener("resize", resize);
@@ -407,15 +354,11 @@ export async function exportDallasMeetupWallpaperLoop({
   height = BASE_HEIGHT,
   loopSeconds = DEFAULT_LOOP_SECONDS,
   whipSeconds = DEFAULT_WHIP_SECONDS,
-  linearSpin = false,
-  showSkyline = true,
 }: {
   width?: number;
   height?: number;
   loopSeconds?: number;
   whipSeconds?: number;
-  linearSpin?: boolean;
-  showSkyline?: boolean;
 } = {}): Promise<ExportResult> {
   if (typeof window === "undefined") {
     throw new Error("Export is only available in the browser.");
@@ -427,18 +370,6 @@ export async function exportDallasMeetupWallpaperLoop({
   if (document.fonts) {
     await document.fonts.load(`400 ${DALLAS_DISPLAY_FONT_PX}px ${DEFAULT_SANS}`);
     await document.fonts.ready;
-  }
-  ensureHorizon();
-  if (horizonSource && !horizonSource.complete) {
-    await new Promise<void>((resolve) => {
-      horizonSource!.onload = () => {
-        horizonPlate = stampHorizon(horizonSource!);
-        resolve();
-      };
-      horizonSource!.onerror = () => resolve();
-    });
-  } else if (horizonSource?.complete) {
-    horizonPlate = stampHorizon(horizonSource);
   }
 
   const canvas = document.createElement("canvas");
@@ -484,8 +415,6 @@ export async function exportDallasMeetupWallpaperLoop({
         false,
         loopSeconds,
         whipSeconds,
-        linearSpin,
-        showSkyline,
         resolveDallasFontFamily(document.querySelector(".dallas-demo")),
       );
       controlledTrack.requestFrame();
