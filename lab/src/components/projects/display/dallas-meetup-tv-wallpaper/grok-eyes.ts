@@ -1,19 +1,10 @@
 /**
- * Article Idle / Working eyes.
+ * Article Idle stadiums, planted in face-space.
  *
- * Idle: planted stadiums, diagonal, higher-right.
- * Kick: the pair WHIPS around the morphing form — projected on the surface,
- * occluded on the back, reappearing on the front. That sells the turn.
- * The disc itself does not spin. Land Idle on the new body.
+ * EPG check: eyes stay planted through whip and morph. Orbiting the pair
+ * mid-yaw smears the stadiums — that is a miss. No back-occlusion hide.
+ * Reduced motion freezes the same rest pose.
  */
-
-import {
-  DEFAULT_LOOP_SECONDS,
-  clampWhipSeconds,
-  kickProgress,
-  restSeconds,
-  streamPhase,
-} from "./globe-motion";
 
 export type EyePose = {
   /** Radians. Negative = clockwise on canvas (article Idle ~−28°). */
@@ -27,9 +18,8 @@ export type EyePose = {
 export type EyeWhip = EyePose & {
   /** Camera-facing depth. >0 is the front of the form. */
   z: number;
-  /** False when the pair is on the back — occluded. */
+  /** Always true on this lock — the pair never leaves the face. */
   visible: boolean;
-  /** Foreshorten as the pair nears the limb. */
   squashX: number;
 };
 
@@ -40,16 +30,12 @@ export const IDLE_EYE: EyePose = {
   cy: -0.3,
 };
 
-/** Mid-kick pump: more upright. */
+/** Article Working pump — not applied on the TV loop (planted only). */
 export const WORKING_EYE: EyePose = {
   tilt: (-6 * Math.PI) / 180,
   cx: 0.05,
   cy: 0.14,
 };
-
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
-}
 
 const IDLE_Z = Math.sqrt(
   Math.max(0.08, 1 - IDLE_EYE.cx * IDLE_EYE.cx - IDLE_EYE.cy * IDLE_EYE.cy),
@@ -63,48 +49,19 @@ const PLANTED: EyeWhip = {
 };
 
 /**
- * Idle: planted. Kick: one orbit of the pair around the form.
- * Reduced motion freezes Idle. Linear spin is compare (continuous whip).
+ * Always the Idle seat. Whip and morph do not move the pair.
+ * Linear-spin compare also keeps stadiums planted (smear miss).
  */
 export function eyeWhipAt(
-  time: number,
-  loopSeconds: number,
-  whipSeconds: number,
-  linearSpin: boolean,
-  reducedMotion: boolean,
+  _time: number,
+  _loopSeconds: number,
+  _whipSeconds: number,
+  _linearSpin: boolean,
+  _reducedMotion: boolean,
 ): EyeWhip {
-  if (reducedMotion) return PLANTED;
-
-  const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
-  const t = ((time % loop) + loop) % loop;
-  const whip = clampWhipSeconds(whipSeconds);
-  const rest = restSeconds(loop, whip);
-  const onKick =
-    linearSpin || (t >= rest && t < rest + whip);
-
-  if (!onKick) return PLANTED;
-
-  const theta = streamPhase(time, loop, whip, linearSpin, reducedMotion);
-  const ct = Math.cos(theta);
-  const st = Math.sin(theta);
-  const x = IDLE_EYE.cx * ct + IDLE_Z * st;
-  const z = -IDLE_EYE.cx * st + IDLE_Z * ct;
-  const y = IDLE_EYE.cy;
-  const u = kickProgress(time, loop, whip, linearSpin, reducedMotion);
-  const upright = Math.sin(Math.min(1, Math.max(0, u)) * Math.PI);
-  const visible = z > 0.05;
-
-  return {
-    tilt: lerp(IDLE_EYE.tilt, WORKING_EYE.tilt, upright),
-    cx: x,
-    cy: y,
-    z,
-    visible,
-    squashX: visible ? Math.max(0.28, z) : 1,
-  };
+  return PLANTED;
 }
 
-/** 2D pose for callers that only need cx/cy/tilt. Hidden kick frames still report the projected pair. */
 export function eyePoseAt(
   time: number,
   loopSeconds: number,

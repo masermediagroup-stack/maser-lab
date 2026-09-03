@@ -16,8 +16,6 @@ import {
   AXIS_TILT_DEG,
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
-  kickProgress,
-  kickWobbleRad,
   streamPhase,
   whipEnergy,
 } from "./globe-motion";
@@ -184,13 +182,11 @@ function drawGrokBody(
   const bodyR = maxOutlineRadius(radii) * R;
   const spin = streamPhase(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
   const energy = whipEnergy(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
-  const progress = kickProgress(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
   const eyes = eyeWhipAt(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
-  const wobble = kickWobbleRad(energy, progress);
 
   ctx.save();
   ctx.translate(cx, cy);
-  ctx.rotate(AXIS_TILT + wobble);
+  ctx.rotate(AXIS_TILT);
 
   // Back stream first — occluded by the planted fill, peeks past the silhouette.
   drawWorkingOrbits(ctx, bodyR, faceD, energy, spin, "back");
@@ -205,7 +201,7 @@ function drawGrokBody(
   if (eyes.visible) {
     drawStadiumEyes(ctx, faceD, eyes);
   }
-  // Front stream clipped to the morphing body — crosses the face, then leaves.
+  // Front stream clipped to the current body — crosses the face, then leaves.
   drawWorkingOrbits(ctx, bodyR, faceD, energy, spin, "front");
   ctx.restore();
 

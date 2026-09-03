@@ -7,39 +7,30 @@ import {
   WORKING_ORBIT_COUNT,
 } from "../working-orbits";
 
-describe("Idle / eye-whip", () => {
-  it("plants Idle eyes higher-right and more diagonal than the mid-kick pump", () => {
+describe("Idle / planted eyes", () => {
+  it("plants Idle eyes higher-right and more diagonal than the unused Working pump", () => {
     expect(IDLE_EYE.cx).toBeGreaterThan(WORKING_EYE.cx);
     expect(IDLE_EYE.cy).toBeLessThan(WORKING_EYE.cy);
     expect(Math.abs(IDLE_EYE.tilt)).toBeGreaterThan(Math.abs(WORKING_EYE.tilt));
   });
 
-  it("holds planted Idle at rest, occludes on the back mid-kick, lands Idle", () => {
-    const rest = eyeWhipAt(1, 8, 0.6, false, false);
-    expect(rest.visible).toBe(true);
-    expect(rest.cx).toBeCloseTo(IDLE_EYE.cx);
-    expect(rest.cy).toBeCloseTo(IDLE_EYE.cy);
-    expect(rest.tilt).toBeCloseTo(IDLE_EYE.tilt);
-
-    const back = eyeWhipAt(6.7, 8, 0.6, false, false);
-    expect(back.visible).toBe(false);
-    expect(back.z).toBeLessThan(0);
-
-    const land = eyeWhipAt(7.9, 8, 0.6, false, false);
-    expect(land.visible).toBe(true);
-    expect(land.cx).toBeCloseTo(IDLE_EYE.cx);
-    expect(land.tilt).toBeCloseTo(IDLE_EYE.tilt);
+  it("keeps stadiums planted in face-space through rest, whip, settle, and reduced motion", () => {
+    for (const t of [1, 6.58, 6.7, 7.5, 7.9]) {
+      const pose = eyeWhipAt(t, 8, 0.6, false, false);
+      expect(pose.visible).toBe(true);
+      expect(pose.cx).toBeCloseTo(IDLE_EYE.cx);
+      expect(pose.cy).toBeCloseTo(IDLE_EYE.cy);
+      expect(pose.tilt).toBeCloseTo(IDLE_EYE.tilt);
+      expect(pose.squashX).toBe(1);
+    }
 
     const frozen = eyeWhipAt(6.55, 8, 0.6, false, true);
     expect(frozen.visible).toBe(true);
     expect(frozen.cx).toBeCloseTo(IDLE_EYE.cx);
-  });
 
-  it("moves the pair off the planted Idle seat while visible on the kick", () => {
-    const early = eyeWhipAt(6.58, 8, 0.6, false, false);
-    if (early.visible) {
-      expect(Math.abs(early.cx - IDLE_EYE.cx)).toBeGreaterThan(0.02);
-    }
+    const compare = eyeWhipAt(4, 8, 0.6, true, false);
+    expect(compare.cx).toBeCloseTo(IDLE_EYE.cx);
+    expect(compare.visible).toBe(true);
   });
 });
 

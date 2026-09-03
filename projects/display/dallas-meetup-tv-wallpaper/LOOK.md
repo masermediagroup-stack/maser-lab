@@ -56,39 +56,39 @@ Each filament (or bundle) draws a stop from that set. Hairline filaments in near
 
 - Official picker SDFs 1–8. Rest = #2 irregular oval.
 - Cold start: oval + ink `#111111`. Flat HEX. No Lambert. No photo-earth. Solid ball.
-- **Planted silhouette.** No 360° disc spin. No globe meridians. Tiny wobble (a few degrees) is fine.
-- During the kick: SDF-blend to the next official picker shape. Fill **snaps** to the destination pair HEX at kick start and holds. No rainbow lerp.
-- Walk `2→3→4→5→6→7→8→1`. First kick = rounded square + Teal. Oval return = Orange-red, not ink.
+- **Planted silhouette.** No 360° disc spin. No globe meridians. **No idle bob.** Rest is a hold.
+- Walk `2→3→4→5→6→7→8→1`. First **settle** = rounded square + Teal. Oval return = Orange-red, not ink.
+- Color and shape **do not change on the whip.** They land in **settle**: next Ver 02 hue **SNAP** (not a rainbow lerp) + next official picker **SDF blend** (not a cut).
 
 ## Eyes
 
-- Idle: planted white stadiums, diagonal (~−28°), higher-right. Official stadium eyes. No slices.
-- Kick: the pair **whips around the form** (project on the surface, occlude on the back, reappear on the front). Pump more upright mid-kick. That sells the turn.
-- Land Idle: planted stadiums on the new body, official idle tilt.
+- Official **stadium** geometry, planted in face-space. Diagonal (~−28°), higher-right. No slices.
+- **Stay planted through whip and morph.** No eye-whip, no orbit, no back-occlusion hide, no Working-state pupil pump.
+- Mid-yaw smearing the stadiums is a miss. Do not bring meridians back to sell round.
 
-## Whip-spin — 8s (do not revert to linear planet-spin)
+## Timing lock — 8s (this is the check, not a guess)
 
-Rest face-forward. One revolution, traveling portion ~0.5–0.7s (product 0.6s), hard ease-in-out, then settle. Tilt 16°. Land face-forward every time. Linear planet-spin is the miss / compare-only, default OFF.
+Do **not** fill rest with a second motion. Do **not** shorten the loop to make it feel fast. Super-fast means the **whip is short**.
+
+Loop = **8s** total. Whip slider still exists (0.5–0.7s); rest = `loop − whip − 1s`. Product: rest **6.4s**, whip **0.6s**, settle **~1.0s**. Axis tilt 16°. Land face-forward every time. Linear planet-spin is compare-only, default **OFF**.
 
 | Beat | Time | Look |
 | --- | --- | --- |
-| Idle rest | 6.4s | Planted face. Current shape+HEX. Idle eyes. **No ribbons.** |
-| Whip / kick | 0.6s | Morph + fill snap to next pair + 2–4 ribbons wrap the morphing body + eye-whip. |
-| After | ~1s | Idle on the **new** body/color. Planted eyes. **No parked bands.** |
+| **Rest** | **6.4s** | Face-forward **hold**. No secondary motion, no idle bob, no slow residual spin. First rest **must match** the solid-ball still: shape **2 irregular oval**, fill **ink `#111111`**, official stadiums. **No ribbons.** |
+| **Whip** | **0.6s** | The **traveling** bit. Hard ease-in-out. **One revolution** of 2–4 ribbons. Land face-forward. Body stays the **current** picker + current fill (first whip is still the **black oval**). Eyes planted. |
+| **Settle** | **~1.0s** | Ease-out comes to rest **here**. Next Ver 02 hue **SNAP**. Next official picker **SDF blend**. **No parked bands.** Eyes planted. |
 
-Reduced motion freezes Idle (oval+ink, no morph, no ribbons, no eye-whip).
+**Reduced motion:** freeze the rest pose (oval + ink, no whip, no morph).
 
-## Working stream (on the mark, kick only)
+## Working stream (on the mark, whip only)
 
-Product Working is a sparse orbit stream: 2–5 thick ribbons, rounded caps, wrap front/back, then a gap. Frames with **no** ribbons are that **gap**, not Idle.
-
-TV does **not** hold Working. Idle → one kick → Idle on the new body.
+Product Working is a sparse orbit stream: 2–5 thick ribbons, rounded caps, wrap front/back, then a gap. TV does **not** hold Working. Rest hold → one whip (ribbons only) → settle (color + shape land) → rest.
 
 - Thickness ~4–5% of face. At 300px: **12–15px**.
 - 2–4 bands. Not 7. Not a nest. Plane ~−15° (upper-left → right).
-- Wrap + clip on the **current** (morphing) body. Back occluded by the fill. Front over the face.
+- Wrap + clip on the **current still** body during the whip. Back occluded by the fill. Front over the face. Then leave. Settle has no ribbons.
 - Ver 02 HEX, **flat**. Do not steal the article ribbon gradients.
-- Kill: 7+ hairlines on the mark, meridians/parallels/longitude on the mark, a 360 disc spin, planted-disc-with-ribbons-only, settle snap on a still face.
+- Kill: 7+ hairlines on the mark, meridians/parallels/longitude on the mark, a 360 disc spin, idle bob / residual spin in rest, eye-whip, fill SNAP or SDF morph **during** the whip, rainbow lerp on the body.
 
 ## Pairing
 

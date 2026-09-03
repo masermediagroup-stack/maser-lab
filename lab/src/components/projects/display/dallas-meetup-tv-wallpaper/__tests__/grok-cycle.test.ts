@@ -50,7 +50,7 @@ describe("family-tree shape→color pairing", () => {
     expect(rest.fromShape).toBe(2);
     expect(rest.morphT).toBe(0);
     expect(rest.fill).toBe(DALLAS_GLOBE_BLACK);
-    expect(rest.inKick).toBe(false);
+    expect(rest.phase).toBe("rest");
   });
 
   it("pairs each picker body to its tree HEX and skips green/gray as body fills", () => {
@@ -66,38 +66,45 @@ describe("family-tree shape→color pairing", () => {
     expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_GRAY);
   });
 
-  it("snaps fill to Teal at first kick start while SDF still morphs", () => {
+  it("snaps fill and blends SDF during settle, not during the 0.6s whip", () => {
     const rest = grokCyclePose(1, 8, 0.6, false);
     expect(rest.fill).toBe(DALLAS_GLOBE_BLACK);
     expect(rest.morphT).toBe(0);
+    expect(rest.phase).toBe("rest");
+    expect(rest.fromShape).toBe(2);
 
-    const kickStart = grokCyclePose(6.41, 8, 0.6, false);
-    expect(kickStart.inKick).toBe(true);
-    expect(kickStart.fromShape).toBe(2);
-    expect(kickStart.toShape).toBe(3);
-    expect(kickStart.fill).toBe(DALLAS_GROK_TEAL);
+    const whip = grokCyclePose(6.7, 8, 0.6, false);
+    expect(whip.phase).toBe("whip");
+    expect(whip.fromShape).toBe(2);
+    expect(whip.morphT).toBe(0);
+    expect(whip.fill).toBe(DALLAS_GLOBE_BLACK);
 
-    const kick = grokCyclePose(6.7, 8, 0.6, false);
-    expect(kick.inKick).toBe(true);
-    expect(kick.fromShape).toBe(2);
-    expect(kick.toShape).toBe(3);
-    expect(kick.morphT).toBeGreaterThan(0.4);
-    expect(kick.morphT).toBeLessThan(1);
-    expect(kick.fill).toBe(DALLAS_GROK_TEAL);
+    const settleStart = grokCyclePose(7.02, 8, 0.6, false);
+    expect(settleStart.phase).toBe("settle");
+    expect(settleStart.fromShape).toBe(2);
+    expect(settleStart.toShape).toBe(3);
+    expect(settleStart.fill).toBe(DALLAS_GROK_TEAL);
+    expect(settleStart.morphT).toBeGreaterThan(0);
+    expect(settleStart.morphT).toBeLessThan(0.5);
 
-    const after = grokCyclePose(7.5, 8, 0.6, false);
-    expect(after.inKick).toBe(false);
-    expect(after.fromShape).toBe(3);
-    expect(after.toShape).toBe(3);
-    expect(after.fill).toBe(DALLAS_GROK_TEAL);
-    expect(after.morphT).toBe(1);
+    const settleMid = grokCyclePose(7.5, 8, 0.6, false);
+    expect(settleMid.phase).toBe("settle");
+    expect(settleMid.fill).toBe(DALLAS_GROK_TEAL);
+    expect(settleMid.morphT).toBeGreaterThan(0.4);
+    expect(settleMid.morphT).toBeLessThan(1);
+    expect(settleMid.fill).not.toBe(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, settleMid.morphT));
+
+    const nextRest = grokCyclePose(8.2, 8, 0.6, false);
+    expect(nextRest.phase).toBe("rest");
+    expect(nextRest.fromShape).toBe(3);
+    expect(nextRest.fill).toBe(DALLAS_GROK_TEAL);
+    expect(nextRest.morphT).toBe(0);
   });
 
   it("does not rainbow-lerp the body (lerpHex stays a util, unused on fill)", () => {
     expect(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, 0.5)).not.toBe(DALLAS_GROK_TEAL);
-    const kick = grokCyclePose(6.7, 8, 0.6, false);
-    expect(kick.fill).toBe(DALLAS_GROK_TEAL);
-    expect(kick.fill).not.toBe(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, kick.morphT));
+    const settle = grokCyclePose(7.5, 8, 0.6, false);
+    expect(settle.fill).toBe(DALLAS_GROK_TEAL);
   });
 
   it("returns to oval with orange-red, not black", () => {
@@ -122,6 +129,6 @@ describe("family-tree shape→color pairing", () => {
     expect(pose.fromShape).toBe(2);
     expect(pose.fill).toBe(DALLAS_GLOBE_BLACK);
     expect(pose.morphT).toBe(0);
-    expect(pose.inKick).toBe(false);
+    expect(pose.phase).toBe("rest");
   });
 });

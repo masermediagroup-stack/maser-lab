@@ -1,9 +1,9 @@
 /**
  * Product Working orbit STREAM (x.ai/news/designing-grok-bot).
  *
- * Sparse cluster on a FIXED shallow ~−15° plane. The bands travel around the
- * planted morphing silhouette (front/back), then leave. Do not yaw a closed
- * ring-cage — that reads as a spinning globe.
+ * Sparse cluster on a FIXED shallow ~−15° plane. Bands travel around the
+ * current still silhouette during the 0.6s whip (front/back), then leave.
+ * Morph happens in settle with no ribbons. Do not yaw a closed ring-cage.
  *
  * Flat Ver 02 HEX. Do not steal the article ribbon gradients.
  */

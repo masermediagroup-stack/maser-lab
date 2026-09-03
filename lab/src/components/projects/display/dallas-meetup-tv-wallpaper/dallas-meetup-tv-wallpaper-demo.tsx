@@ -210,8 +210,9 @@ export function DallasMeetupTvWallpaperDemo() {
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-              Idle rest 6.4s, one Working-stream kick 0.6s, settle ~1s.
-              Ribbons leave with the kick — TV does not hold Working.
+              Loop is 8s. Rest 6.4s is a hold — no second motion.
+              Whip 0.6s is the traveling bit (one revolution, hard ease-in-out).
+              Settle ~1s: fill SNAP + SDF blend. Eyes stay planted.
             </p>
           </div>
 
@@ -292,8 +293,8 @@ export function DallasMeetupTvWallpaperDemo() {
               </LabButton>
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Linear spin is compare-only (ribbons + eye-whip) and default off.
-              The silhouette stays planted. Rest is Idle: no orbits.
+              Linear spin is compare-only (ribbons) and default off.
+              Silhouette and eyes stay planted. Rest has no residual spin.
             </p>
           </LabControlGroup>
 

@@ -6,17 +6,20 @@
  * Gray is never a body fill.
  *
  * Cold start / product rest: shape 2 + ink #111111.
- * During the SAME 0.6s kick: shape BLENDS to the next picker body. Fill
- * SNAPS to the destination pair HEX at kick start and holds through morph
- * and Idle. No rainbow lerp. Not a settle snap on a still face.
- * First kick: oval+ink morphs 2→3; fill snaps to Teal.
+ * EPG timing: 6.4s rest hold → 0.6s whip (ribbons only, same body+fill) →
+ * ~1s settle where the next Ver 02 hue SNAPS and the next picker SDF-blends.
+ * Eyes stay planted in face-space through whip and morph.
+ * First settle: oval+ink → rounded square + Teal.
  * When the walk returns to oval, fill is Orange-red (tree color), not black.
  */
 
 import {
   DEFAULT_LOOP_SECONDS,
   clampWhipSeconds,
+  loopBeat,
   restSeconds,
+  settleEaseOut,
+  settleSeconds,
 } from "./globe-motion";
 
 export const DALLAS_PAPER = "#F2F1ED";
@@ -86,12 +89,14 @@ export const GROK_SHAPE_FILL: Record<GrokShapeId, string> = {
   8: DALLAS_GROK_GOLD,
 };
 
+export type GrokCyclePhase = "rest" | "whip" | "settle";
+
 export type GrokCyclePose = {
   fromShape: GrokShapeId;
   toShape: GrokShapeId;
   morphT: number;
   fill: string;
-  inKick: boolean;
+  phase: GrokCyclePhase;
 };
 
 function parseHex(hex: string): [number, number, number] {
@@ -132,11 +137,6 @@ export function cycleIndex(elapsed: number, loopSeconds: number): number {
   return Math.floor(elapsed / loop);
 }
 
-function smoothstep(t: number): number {
-  const u = Math.min(1, Math.max(0, t));
-  return u * u * (3 - 2 * u);
-}
-
 export function fillForShape(shape: GrokShapeId, cycles: number): string {
   if (cycles === 0) return DALLAS_GLOBE_BLACK;
   return GROK_SHAPE_FILL[shape];
@@ -154,7 +154,7 @@ export function grokCyclePose(
       toShape: 2,
       morphT: 0,
       fill: DALLAS_GLOBE_BLACK,
-      inKick: false,
+      phase: "rest",
     };
   }
 
@@ -163,38 +163,40 @@ export function grokCyclePose(
   const whip = clampWhipSeconds(whipSeconds);
   const rest = restSeconds(loop, whip);
   const whipEnd = rest + whip;
+  const settle = settleSeconds(loop, whip);
   const cycles = cycleIndex(elapsed, loop);
   const fromShape = GROK_SHAPE_WALK[cycles % GROK_SHAPE_WALK.length]!;
   const toShape = GROK_SHAPE_WALK[(cycles + 1) % GROK_SHAPE_WALK.length]!;
   const fromFill = fillForShape(fromShape, cycles);
   const toFill = GROK_SHAPE_FILL[toShape];
+  const beat = loopBeat(elapsed, loop, whip, reducedMotion);
 
-  if (t < rest) {
+  if (beat === "rest") {
     return {
       fromShape,
       toShape: fromShape,
       morphT: 0,
       fill: fromFill,
-      inKick: false,
+      phase: "rest",
     };
   }
 
-  if (t < whipEnd) {
-    const morphT = smoothstep((t - rest) / whip);
+  if (beat === "whip") {
     return {
       fromShape,
       toShape,
-      morphT,
-      fill: toFill,
-      inKick: true,
+      morphT: 0,
+      fill: fromFill,
+      phase: "whip",
     };
   }
 
+  const morphT = settleEaseOut(settle > 0 ? (t - whipEnd) / settle : 1);
   return {
-    fromShape: toShape,
+    fromShape,
     toShape,
-    morphT: 1,
+    morphT,
     fill: toFill,
-    inKick: false,
+    phase: "settle",
   };
 }
