@@ -42,12 +42,13 @@ describe("look-lock motion", () => {
     expect(streamPhase(7.9, 8, 0.6, false, false)).toBe(0);
   });
 
-  it("whips one stream turn during the 0.6s traveling bit, then lands face-forward", () => {
+  it("travels ribbons one wrap during the kick; settle needs no spin", () => {
     const rest = restSeconds(8, 0.6);
     const mid = streamPhase(rest + 0.3, 8, 0.6, false, false);
     expect(mid).toBeCloseTo(Math.PI, 5);
     const end = streamPhase(rest + 0.6, 8, 0.6, false, false);
     expect(end).toBe(0);
+    expect(streamPhase(7.2, 8, 0.6, false, false)).toBe(0);
   });
 
   it("uses hard cubic ease-in-out on the whip and ease-out on settle", () => {
@@ -85,6 +86,12 @@ describe("look-lock motion", () => {
     expect(whipEnergy(leaving, 8, 0.6, false, false)).toBeLessThan(1);
     expect(whipEnergy(leaving, 8, 0.6, false, false)).toBeGreaterThan(0.02);
     expect(whipEnergy(late, 8, 0.6, false, false)).toBeLessThan(0.15);
+  });
+
+  it("does not export a globe yaw — the disc stays planted", async () => {
+    const motion = await import("../globe-motion");
+    expect("globeYaw" in motion).toBe(false);
+    expect(motion.AXIS_TILT_DEG).toBe(16);
   });
 
   it("adds no idle bob or kick wobble", () => {

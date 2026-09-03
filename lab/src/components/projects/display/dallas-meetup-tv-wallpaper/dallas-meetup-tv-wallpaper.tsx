@@ -164,16 +164,17 @@ function drawGrokBody(
   const radii = bodyOutline(pose.fromShape, pose.toShape, pose.morphT);
   const R = faceD * 0.5;
   const bodyR = maxOutlineRadius(radii) * R;
-  const spin = streamPhase(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
+  const ribbonPhase = streamPhase(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
   const energy = whipEnergy(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
   const eyes = eyeWhipAt(elapsed, loopSeconds, whipSeconds, linearSpin, reducedMotion);
 
   ctx.save();
   ctx.translate(cx, cy);
+  // Disc stays. Axis tilt only — never streamPhase / globe yaw.
   ctx.rotate(AXIS_TILT);
 
-  // Back stream first — occluded by the planted fill, peeks past the silhouette.
-  drawWorkingOrbits(ctx, bodyR, faceD, energy, spin, "back");
+  // Back ribbons first — occluded by the planted fill, peeks past the silhouette.
+  drawWorkingOrbits(ctx, bodyR, faceD, energy, ribbonPhase, "back");
 
   ctx.fillStyle = pose.fill;
   traceBodyPath(ctx, radii, R);
@@ -185,8 +186,8 @@ function drawGrokBody(
   if (eyes.visible) {
     drawStadiumEyes(ctx, faceD, eyes);
   }
-  // Front stream clipped to the current body — crosses the face, then leaves.
-  drawWorkingOrbits(ctx, bodyR, faceD, energy, spin, "front");
+  // Front ribbons clipped to the current body — cross the eyes, then leave.
+  drawWorkingOrbits(ctx, bodyR, faceD, energy, ribbonPhase, "front");
   ctx.restore();
 
   ctx.restore();

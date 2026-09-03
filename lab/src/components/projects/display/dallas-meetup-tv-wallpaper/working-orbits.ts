@@ -1,12 +1,10 @@
 /**
- * Idle→Working kick bands. Sparse. Wrap the body, travel with the spin, leave.
+ * Kick ribbons. Disc stays. These wrap the planted body, then leave.
  *
  * Source: https://x.ai/news/designing-grok-bot (Benji Taylor avatar motion).
- * TV kick = Working wrap only. Not Thinking, Waiting, Blocked, or Done.
- * Not a held nest. Idle rest has NO orbits. Cube stays clean.
- *
- * 2–3 thick Ver 02 bands, front/back. Not meridians through the fill.
- * Not a wallpaper field of doodles. Flat HEX — no article ribbon gradients.
+ * 2–4 thick flat Ver 02, front/back, ~−15° plane, cross the eyes, leave.
+ * Not Thinking. Not a held nest. Idle has NO bands. Cube stays clean.
+ * Not meridians through the fill. Not a wallpaper field.
  */
 
 import { VER02_ORBIT_HUES } from "./grok-cycle";
@@ -18,11 +16,17 @@ export function orbitStrokePx(faceDiameter: number): number {
   return faceDiameter * ORBIT_STROKE_FACE_RATIO;
 }
 
-/** Sparse wrap. Not a 5-filament chat-line cluster. */
+/** Sparse wrap. 2–4 thick bands — not a 5-filament nest. */
 export const WORKING_ORBIT_COUNT = 3;
 
 /** Shallow equatorial plane, upper-left → right. Degrees. */
-export const ORBIT_PLANE_DEG = -17;
+export const ORBIT_PLANE_DEG = -15;
+
+/**
+ * Drop the wrap onto the Working eye line so front ribbons cross the stadiums.
+ * Idle eyes sit higher; bands are gone by then.
+ */
+export const ORBIT_Y_FACE = 0.14;
 
 /** Bleed past the silhouette at a 300px face. */
 export const ORBIT_BLEED_AT_300 = 42;
@@ -63,6 +67,7 @@ function drawRibbonArc(
   lineWidth: number,
   color: string,
   alpha: number,
+  yBias: number,
 ): void {
   const steps = 64;
   ctx.save();
@@ -77,6 +82,7 @@ function drawRibbonArc(
     const t = s / steps;
     const theta = head - t * arcLen;
     const p = orbitPoint(theta, radius, planeTilt);
+    p.y += yBias;
     const onLayer = layer === "back" ? p.z <= 0 : p.z > 0;
     if (!onLayer) {
       drawing = false;
@@ -95,15 +101,15 @@ function drawRibbonArc(
 
 /**
  * Kick bands on the mark. Skip when energy is ~0 (Idle rest, settle, leave).
- * `spin` is the traveling head angle (one wrap during whip), not a globe yaw.
- * Thickness stays full; leave by fading, not by thinning into a nest.
+ * `ribbonPhase` is the traveling head — not a globe yaw of the disc.
+ * Thickness stays full; leave by fading. Front strokes cross the eyes.
  */
 export function drawWorkingOrbits(
   ctx: CanvasRenderingContext2D,
   bodyR: number,
   faceD: number,
   energy: number,
-  spin: number,
+  ribbonPhase: number,
   layer: "back" | "front",
 ): void {
   if (energy < 0.02) return;
@@ -112,8 +118,9 @@ export function drawWorkingOrbits(
   const radius = orbitRadius(bodyR, faceD);
   const alpha = 0.94 * energy;
   const baseTilt = (ORBIT_PLANE_DEG * Math.PI) / 180;
-  const head0 = Math.PI + 0.45 - spin;
+  const head0 = Math.PI + 0.45 - ribbonPhase;
   const mid = (WORKING_ORBIT_COUNT - 1) / 2;
+  const yBias = (faceD * 0.5) * ORBIT_Y_FACE;
 
   for (let i = 0; i < WORKING_ORBIT_COUNT; i += 1) {
     const planeTilt = baseTilt + (i - mid) * 0.05;
@@ -130,6 +137,7 @@ export function drawWorkingOrbits(
       lineWidth,
       color,
       alpha,
+      yBias,
     );
   }
 }

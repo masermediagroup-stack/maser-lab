@@ -2,14 +2,13 @@
  * EPG timing lock. Loop is 8s. Do not shorten it to make the whip feel fast.
  * Super-fast means the 0.6s traveling bit is short.
  *
- * Loop: Idle → kick (bands) → Idle.
- * 6.4s rest = Idle: official body, flat HEX, white stadiums, NO orbits.
- * 0.6s whip = Idle→Working kick: 2–3 thick Ver 02 bands wrap then LEAVE.
- * Held Working after they leave is only the eye pump. Still no orbits.
- * ~1.0s settle: shape/color SNAP. Back to Idle. No bands.
+ * Disc stays. Ribbons are the whip. No globe yaw.
+ * Idle: planted face, no bands.
+ * Kick: 2–4 thick flat Ver 02 wrap front/back, then leave.
+ * Settle: shape/color SNAP on the still face — no spin needed.
+ * Eyes can pump more upright on the kick, then Idle.
  *
- * Silhouette stays planted. Eyes stay in face-space. No meridians.
- * Linear spin is compare-only (ribbons). Reduced motion freezes Idle.
+ * Linear spin is compare-only (ribbons, not the disc). Reduced motion freezes Idle.
  */
 
 export const DEFAULT_LOOP_SECONDS = 8;
@@ -80,9 +79,9 @@ export function loopBeat(
 }
 
 /**
- * Ribbon travel only. Never yaw the silhouette or the eyes with this.
- * One turn during the 0.6s whip, 0 at rest and settle (landed face-forward).
- * Linear spin is compare-only.
+ * Ribbon head travel only. Never rotate the silhouette with this.
+ * One wrap during the 0.6s kick. 0 at rest and settle — the face is still.
+ * Linear spin is compare-only (ribbons).
  */
 export function streamPhase(
   time: number,
@@ -104,9 +103,6 @@ export function streamPhase(
   if (t >= rest + whip) return 0;
   return kickEase((t - rest) / whip) * Math.PI * 2;
 }
-
-/** @deprecated use streamPhase — not a globe yaw of the body. */
-export const globeYaw = streamPhase;
 
 /**
  * Kick-band envelope. 0 at rest, settle, and reduced motion.

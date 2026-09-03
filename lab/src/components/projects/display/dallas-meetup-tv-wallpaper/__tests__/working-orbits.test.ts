@@ -3,6 +3,7 @@ import { IDLE_EYE, WORKING_EYE, eyeWhipAt } from "../grok-eyes";
 import { VER02_ORBIT_HUES } from "../grok-cycle";
 import {
   ORBIT_PLANE_DEG,
+  ORBIT_Y_FACE,
   orbitBleedPx,
   orbitStrokePx,
   WORKING_ORBIT_COUNT,
@@ -48,18 +49,18 @@ describe("Idle / Working eye pump", () => {
 });
 
 describe("Working kick bands", () => {
-  it("uses 2–3 thick Ver 02 bands (~8–14px at 300px)", () => {
+  it("uses 2–4 thick flat Ver 02 bands (~8–14px at 300px)", () => {
     expect(WORKING_ORBIT_COUNT).toBeGreaterThanOrEqual(2);
-    expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(3);
+    expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(4);
     const stroke = orbitStrokePx(300);
     expect(stroke).toBeGreaterThanOrEqual(8);
     expect(stroke).toBeLessThanOrEqual(14);
     expect(VER02_ORBIT_HUES).toHaveLength(4);
   });
 
-  it("keeps a shallow ~−15° plane and bleed past the silhouette", () => {
-    expect(ORBIT_PLANE_DEG).toBeGreaterThanOrEqual(-20);
-    expect(ORBIT_PLANE_DEG).toBeLessThanOrEqual(-15);
+  it("keeps a −15° plane, sits on the Working eye line, and bleeds past the silhouette", () => {
+    expect(ORBIT_PLANE_DEG).toBe(-15);
+    expect(ORBIT_Y_FACE).toBeCloseTo(WORKING_EYE.cy);
     const bleed = orbitBleedPx(300);
     expect(bleed).toBeGreaterThanOrEqual(40);
     expect(bleed).toBeLessThanOrEqual(70);

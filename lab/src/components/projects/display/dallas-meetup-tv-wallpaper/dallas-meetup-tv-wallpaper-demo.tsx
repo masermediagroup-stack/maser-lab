@@ -210,9 +210,9 @@ export function DallasMeetupTvWallpaperDemo() {
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-              Loop is 8s. Rest 6.4s = Idle (no orbits). Whip 0.6s = 2–3
-              thick bands wrap then leave; eyes pump more upright. Settle
-              ~1s: fill SNAP + SDF blend, back to Idle.
+              Loop is 8s. Disc stays — ribbons are the whip. Rest 6.4s =
+              Idle, no bands. Kick 0.6s = 2–4 thick Ver 02 wrap at −15°,
+              cross the eyes, leave. Settle ~1s SNAP on the still face.
             </p>
           </div>
 
@@ -293,8 +293,8 @@ export function DallasMeetupTvWallpaperDemo() {
               </LabButton>
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Linear spin is compare-only and default off. Not the TV whip.
-              Idle = no orbits. Kick = 2–3 bands wrap then leave.
+              Linear spin is compare-only (ribbons, not the disc) and default off.
+              Idle = no bands. Kick = wrap, cross the eyes, leave.
             </p>
           </LabControlGroup>
 
@@ -323,9 +323,9 @@ export function DallasMeetupTvWallpaperDemo() {
 
           <LabControlGroup label="Kick bands">
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Kick only: 2–3 thick Ver 02 bands wrap the body (front/back),
-              travel with the spin, then leave. Not Thinking. Not a held nest.
-              Idle rest has no orbits. Gray never a filament.
+              Kick only: 2–4 thick flat Ver 02 wrap the planted body
+              (front/back, −15°), cross the eyes, then leave. Disc stays.
+              No globe yaw. Idle has no bands. Gray never a filament.
             </p>
           </LabControlGroup>
 

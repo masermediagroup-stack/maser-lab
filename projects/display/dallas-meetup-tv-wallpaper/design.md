@@ -19,12 +19,11 @@ TV maps **Idle → kick (bands) → Idle** onto the locked 8s loop. Do not use T
 
 | Beat | Duration | Article state | Job |
 | --- | --- | --- | --- |
-| Rest | 6.4s | **Idle** | Official body, flat HEX, white stadiums, **no orbits**. Face-forward hold. No idle bob. |
-| Whip | 0.6s | **Idle→Working kick** | 2–3 thick Ver 02 bands wrap front/back, travel with the spin, **then leave**. Eyes pump more upright. |
-| Held Working | late whip | **eye pump only** | More upright stadiums. Still no orbits. |
-| Settle | ~1.0s | back to **Idle** | Fill **SNAP**. Official picker **SDF blend**. No bands. Idle eyes. |
+| Rest | 6.4s | **Idle** | Planted face. Official body, flat HEX, white stadiums, **no bands**. No globe yaw. |
+| Whip | 0.6s | **kick** | Ribbons are the whip. 2–4 thick flat Ver 02 wrap front/back, −15°, **cross the eyes**, leave. Eyes can pump. Disc stays. |
+| Settle | ~1.0s | back to **Idle** | Shape/color **SNAP** on the **still face** — no spin needed. No bands. Idle eyes. |
 
-Do not 360-rotate the disc. Do not draw meridians through the fill. Do not park bands through rest. Linear planet-spin is compare-only, default OFF. Reduced motion freezes Idle.
+Do not 360-rotate the disc. No globe yaw. Do not draw meridians through the fill. Do not park bands through rest. Linear planet-spin is compare-only (ribbons), default OFF. Reduced motion freezes Idle.
 
 ## Horizon
 
