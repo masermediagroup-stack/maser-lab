@@ -18,7 +18,7 @@ Decisions below are the look.
 
 - Button: Upload a picture.
 - Then: Replace picture.
-- Empty: No image yet. Upload one and the heat follows the subject.
+- Empty: No image yet. Upload a photo or a logo.
 - Reading: Reading the image.
 - Error: That file won't open. Use a JPG or PNG.
 - Too big: Too large. Under 20 MB.
@@ -29,6 +29,24 @@ Decisions below are the look.
 - Caption placeholder: Describe the image or add your own line.
 
 No "drag and drop your file here to get started." No exclamation points. Never auto-write a description. No generated caption, no filename echo, no "Untitled". If the user writes nothing, there is no line.
+
+There is no Rough read line. Depth is gone. That state died with it. No replacement.
+
+## Parked (Maser) — encode, do not implement this pass
+
+- Subject-read is off.
+- Paper's heatmap is the field, not their rainbow skin.
+- Photos and logos both heat as silhouettes.
+- Poster stays.
+
+Do not `npm i @paper-design/shaders-react`. New lab shaders stay on vgpu. Steal the field (image-as-shape, innerGlow, outerGlow, contour, animated intensity wave), not their component, not their rainbow.
+
+## Preprocess (Groot) — next pass check
+
+Do not feed a JPEG to Paper's preprocess as-is. Their field heats dark pixels, so a photo will thermal-paint shadows and clothes.
+Logos already are the shape.
+Photos need a silhouette first (ink on Ground), then the same inner/outer/contour wave.
+Same field, two inputs.
 
 ## Observable decisions
 
@@ -41,7 +59,7 @@ No "drag and drop your file here to get started." No exclamation points. Never a
 - Swap as soon as depth lands. Cross-fade the mask so it settles. Do not hold the fallback to hide the shift. No spinner. No remount.
 - Move only the heat field on that swap. Crop, frame, and the three stops stay put.
 - Discard a low-variance depth field outright and stay on luma+edge. Never blend a weak field in at half strength; a flat input (logo, type, line drawing) is not a subject.
-- Resolve Reading the image every time. Silent to fallback on no-WebGPU or a discarded field; on a model error the poster still renders and the label reads Rough read. Depth is off on this browser.
+- Resolve Reading the image every time. Silent to fallback on no-WebGPU or a discarded field. On a model error the poster still renders. No Rough read line.
 - Set every state label on Ground or the rail at one size and weight. A downgrade is not a warning: no badge, no amber, no icon.
 - Run the model once per upload, cached. Not per frame.
 - Read the upload once and cache the focal point with it. Caption length, size toggle, and knobs are layout events: they recrop against that cached point and never re-read the image, so the subject holds still and Reading the image never comes back.

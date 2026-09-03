@@ -226,11 +226,10 @@ describe("Reading the image. always resolves", () => {
     expect(readStatusAfterDepth("ok")).toBe("idle");
   });
 
-  it("uses the rough-read line only on model error", () => {
-    expect(readStatusAfterDepth("error")).toBe("rough-read");
-    expect(HEATMAP_COPY.roughRead).toBe(
-      "Rough read. Depth is off on this browser.",
-    );
+  it("never surfaces Rough read; model error is silent", () => {
+    expect(readStatusAfterDepth("error")).toBe("idle");
+    expect("roughRead" in HEATMAP_COPY).toBe(false);
+    expect(HEATMAP_COPY.empty).toBe("No image yet. Upload a photo or a logo.");
     expect(HEATMAP_COPY.reading).toBe("Reading the image.");
   });
 });

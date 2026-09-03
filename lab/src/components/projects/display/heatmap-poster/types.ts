@@ -17,7 +17,7 @@ export type HeatmapImageSource = {
   objectUrl?: boolean;
 };
 
-export type HeatmapReadStatus = "idle" | "reading" | "rough-read";
+export type HeatmapReadStatus = "idle" | "reading";
 
 export type HeatmapFileStatus = "ok" | "error" | "too-big";
 

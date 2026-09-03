@@ -2,11 +2,10 @@
 export const HEATMAP_COPY = {
   upload: "Upload a picture.",
   replace: "Replace picture.",
-  empty: "No image yet. Upload one and the heat follows the subject.",
+  empty: "No image yet. Upload a photo or a logo.",
   reading: "Reading the image.",
   fileError: "That file won't open. Use a JPG or PNG.",
   tooBig: "Too large. Under 20 MB.",
-  roughRead: "Rough read. Depth is off on this browser.",
   heat: "Heat",
   mid: "Mid",
   ground: "Ground",

@@ -120,7 +120,7 @@ export function computeLayout(
  * @param layout - computed in layout units
  * @param colors - resolved CSS custom property values
  * @param caption - user's text (empty = no caption plate)
- * @param statusText - reading/rough-read/empty label
+ * @param statusText - reading/empty/error label
  * @param dpr - device pixel ratio (1 for preview, 2-4 for export)
  *
  * Placeholder and caption input stay outside this surface (editing chrome).

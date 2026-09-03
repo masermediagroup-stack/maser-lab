@@ -2,10 +2,9 @@ import type { HeatmapReadStatus } from "./types";
 import type { DepthOutcome } from "./types";
 
 /**
- * Reading the image. is in-flight only. It always resolves:
- * silence (unavailable / discarded / ok) or the rough-read line (model error).
+ * Reading the image. is in-flight only. It always resolves to silence.
+ * Depth is gone; there is no Rough read line.
  */
-export function readStatusAfterDepth(outcome: DepthOutcome): HeatmapReadStatus {
-  if (outcome === "error") return "rough-read";
+export function readStatusAfterDepth(_outcome: DepthOutcome): HeatmapReadStatus {
   return "idle";
 }

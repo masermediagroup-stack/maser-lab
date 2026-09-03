@@ -183,11 +183,9 @@ export function HeatmapPoster({
           ? HEATMAP_COPY.tooBig
           : rs === "reading"
             ? HEATMAP_COPY.reading
-            : rs === "rough-read"
-              ? HEATMAP_COPY.roughRead
-              : !img
-                ? HEATMAP_COPY.empty
-                : "";
+            : !img
+              ? HEATMAP_COPY.empty
+              : "";
 
     if (heatCanvas) {
       heatCanvas.style.height = `${layout.imagePlateH}px`;
@@ -440,7 +438,7 @@ export function HeatmapPoster({
           driver.setFallback(emptyPack());
           driver.setDepth(null);
         }
-        onReadStatusRef.current?.("rough-read");
+        onReadStatusRef.current?.("idle");
       }
     })();
 

@@ -37,7 +37,7 @@ Dallas meetup. Cafe orange. Paper rainbow. Generated-face hero. Drag-and-drop sl
 - [ ] reading (in-flight only)
 - [ ] fallback heat (no-WebGPU or discarded depth) — silent
 - [ ] depth heat (confident field) — mask cross-fade only
-- [ ] model error — poster still renders; Rough read. Depth is off on this browser.
+- [ ] model error — poster still renders; no status line
 - [ ] file error
 - [ ] too big
 - [ ] 9:16 / A4
