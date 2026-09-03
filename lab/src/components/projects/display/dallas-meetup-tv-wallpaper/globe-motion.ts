@@ -147,6 +147,8 @@ export function kickProgress(
 }
 
 /** Rest has no second motion. Whip does not bob the ball. Always 0. */
-export function kickWobbleRad(_energy: number, _progress: number): number {
+export function kickWobbleRad(energy = 0, progress = 0): number {
+  void energy;
+  void progress;
   return 0;
 }

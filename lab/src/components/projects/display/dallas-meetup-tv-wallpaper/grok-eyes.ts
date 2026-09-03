@@ -53,12 +53,17 @@ const PLANTED: EyeWhip = {
  * Linear-spin compare also keeps stadiums planted (smear miss).
  */
 export function eyeWhipAt(
-  _time: number,
-  _loopSeconds: number,
-  _whipSeconds: number,
-  _linearSpin: boolean,
-  _reducedMotion: boolean,
+  time: number,
+  loopSeconds: number,
+  whipSeconds: number,
+  linearSpin: boolean,
+  reducedMotion: boolean,
 ): EyeWhip {
+  void time;
+  void loopSeconds;
+  void whipSeconds;
+  void linearSpin;
+  void reducedMotion;
   return PLANTED;
 }
 
