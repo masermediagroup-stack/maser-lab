@@ -9,8 +9,8 @@ import {
   WORKING_ORBIT_COUNT,
 } from "../working-orbits";
 
-describe("Idle / Working eye pump", () => {
-  it("plants Idle eyes higher-right and more diagonal than the Working pump", () => {
+describe("Idle / eye whip around the form", () => {
+  it("plants Idle eyes higher-right and more diagonal than the unused Working pump", () => {
     expect(IDLE_EYE.cx).toBeGreaterThan(WORKING_EYE.cx);
     expect(IDLE_EYE.cy).toBeLessThan(WORKING_EYE.cy);
     expect(Math.abs(IDLE_EYE.tilt)).toBeGreaterThan(Math.abs(WORKING_EYE.tilt));
@@ -36,15 +36,18 @@ describe("Idle / Working eye pump", () => {
     expect(compare.visible).toBe(true);
   });
 
-  it("pumps more upright for the whole whip beat, still planted in face-space", () => {
-    for (const t of [6.41, 6.58, 6.7, 6.95]) {
-      const pose = eyeWhipAt(t, 8, 0.6, false, false);
-      expect(pose.visible).toBe(true);
-      expect(pose.cx).toBeCloseTo(WORKING_EYE.cx);
-      expect(pose.cy).toBeCloseTo(WORKING_EYE.cy);
-      expect(pose.tilt).toBeCloseTo(WORKING_EYE.tilt);
-      expect(pose.squashX).toBe(1);
-    }
+  it("whips the pair around the form during the kick, then lands Idle", () => {
+    const early = eyeWhipAt(6.55, 8, 0.6, false, false);
+    expect(early.cy).toBeCloseTo(IDLE_EYE.cy);
+    expect(Math.abs(early.cx - IDLE_EYE.cx)).toBeGreaterThan(0.02);
+
+    const mid = eyeWhipAt(6.7, 8, 0.6, false, false);
+    expect(mid.visible).toBe(false);
+    expect(mid.z).toBeLessThan(0);
+
+    const late = eyeWhipAt(6.98, 8, 0.6, false, false);
+    expect(late.visible).toBe(true);
+    expect(late.cx).toBeCloseTo(IDLE_EYE.cx, 1);
   });
 });
 

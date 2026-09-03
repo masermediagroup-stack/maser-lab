@@ -2,18 +2,16 @@
  * EPG timing lock. Loop is 8s. Do not shorten it to make the whip feel fast.
  * Super-fast means the 0.6s traveling bit is short.
  *
- * Disc stays. Ribbons are the whip. No globe yaw.
- * Idle: planted face, no bands.
- * Kick: 2–4 thick flat Ver 02 wrap front/back, then leave.
- * Settle: shape/color SNAP on the still face — no spin needed.
- * Eyes can pump more upright on the kick, then Idle.
+ * Kill globe yaw. Disc stays. Illusion of spin:
+ * planted morph + ribbon wrap + eyes whipping around the form.
+ * Color SNAPS with the next shape in the same kick. Lands Idle on the new face.
  *
  * Linear spin is compare-only (ribbons, not the disc). Reduced motion freezes Idle.
  */
 
 export const DEFAULT_LOOP_SECONDS = 8;
 export const DEFAULT_WHIP_SECONDS = 0.6;
-/** Settle window after the whip. Color + shape land here. */
+/** Settle window after the whip. Idle hold on the new face. */
 export const SETTLE_SECONDS = 1;
 
 export type LoopBeat = "rest" | "whip" | "settle";
@@ -46,7 +44,7 @@ export function kickEase(t: number): number {
 
 export const whipEase = kickEase;
 
-/** Ease-out for the settle morph — comes to rest in the ~1s window. */
+/** Ease-out kept for tests / compare — morph now happens during the kick. */
 export function settleEaseOut(t: number): number {
   const u = Math.min(1, Math.max(0, t));
   return 1 - (1 - u) ** 3;

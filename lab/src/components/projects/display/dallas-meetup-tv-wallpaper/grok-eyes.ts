@@ -1,13 +1,12 @@
 /**
- * Article stadiums, planted in face-space.
+ * Article stadiums. Idle is planted. Kick whips the pair around the form.
  *
- * Idle rest / settle / reduced motion: diagonal Idle (~−28°), higher-right.
- * Whip: Working eye pump (more upright). Still planted — no orbit, no yaw smear.
- * Held Working after the bands leave is this pump only. Still no orbits.
- * Linear-spin compare keeps Idle planted (smear miss).
+ * Illusion of spin (disc stays): planted SDF morph + ribbon wrap + this orbit.
+ * Rotate the Idle seat around Y with the kick ease. Hide when z ≤ 0 (behind).
+ * Land Idle on the new face. Reduced motion and linear-spin compare freeze Idle.
  */
 
-import { loopBeat } from "./globe-motion";
+import { kickEase, kickProgress, loopBeat } from "./globe-motion";
 
 export type EyePose = {
   /** Radians. Negative = clockwise on canvas (article Idle ~−28°). */
@@ -21,7 +20,7 @@ export type EyePose = {
 export type EyeWhip = EyePose & {
   /** Camera-facing depth. >0 is the front of the form. */
   z: number;
-  /** Always true on this lock — the pair never leaves the face. */
+  /** False when the pair is behind the planted fill. */
   visible: boolean;
   squashX: number;
 };
@@ -33,29 +32,31 @@ export const IDLE_EYE: EyePose = {
   cy: -0.3,
 };
 
-/** Article Working pump — more upright. TV uses this for the kick only. */
+/** Article Working pump — geometry lock only. TV kick orbits Idle, then lands Idle. */
 export const WORKING_EYE: EyePose = {
   tilt: (-6 * Math.PI) / 180,
   cx: 0.05,
   cy: 0.14,
 };
 
-function planted(pose: EyePose): EyeWhip {
+const IDLE_Z = Math.sqrt(
+  Math.max(0.08, 1 - IDLE_EYE.cx * IDLE_EYE.cx - IDLE_EYE.cy * IDLE_EYE.cy),
+);
+
+function planted(pose: EyePose, z: number): EyeWhip {
   return {
     ...pose,
-    z: Math.sqrt(Math.max(0.08, 1 - pose.cx * pose.cx - pose.cy * pose.cy)),
+    z,
     visible: true,
     squashX: 1,
   };
 }
 
-const IDLE_PLANTED = planted(IDLE_EYE);
-const WORKING_PLANTED = planted(WORKING_EYE);
+const IDLE_PLANTED = planted(IDLE_EYE, IDLE_Z);
 
 /**
  * Idle at rest, settle, reduced motion, and linear-spin compare.
- * Working pump for the whole whip beat (including after bands leave).
- * Never yaws or occludes the pair.
+ * Kick: one Y-orbit of the Idle seat with the ribbon wrap. Hide behind the fill.
  */
 export function eyeWhipAt(
   time: number,
@@ -65,10 +66,36 @@ export function eyeWhipAt(
   reducedMotion: boolean,
 ): EyeWhip {
   if (reducedMotion || linearSpin) return IDLE_PLANTED;
-  if (loopBeat(time, loopSeconds, whipSeconds, reducedMotion) === "whip") {
-    return WORKING_PLANTED;
+  if (loopBeat(time, loopSeconds, whipSeconds, reducedMotion) !== "whip") {
+    return IDLE_PLANTED;
   }
-  return IDLE_PLANTED;
+
+  const progress = kickProgress(time, loopSeconds, whipSeconds, linearSpin, reducedMotion);
+  const yaw = kickEase(progress) * Math.PI * 2;
+  const c = Math.cos(yaw);
+  const s = Math.sin(yaw);
+  const x = IDLE_EYE.cx * c + IDLE_Z * s;
+  const z = -IDLE_EYE.cx * s + IDLE_Z * c;
+
+  if (z <= 0) {
+    return {
+      tilt: IDLE_EYE.tilt,
+      cx: x,
+      cy: IDLE_EYE.cy,
+      z,
+      visible: false,
+      squashX: 0.2,
+    };
+  }
+
+  return {
+    tilt: IDLE_EYE.tilt,
+    cx: x,
+    cy: IDLE_EYE.cy,
+    z,
+    visible: true,
+    squashX: Math.max(0.28, Math.min(1, z / IDLE_Z)),
+  };
 }
 
 export function eyePoseAt(

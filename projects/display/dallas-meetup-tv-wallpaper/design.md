@@ -20,8 +20,8 @@ TV maps **Idle → kick (bands) → Idle** onto the locked 8s loop. Do not use T
 | Beat | Duration | Article state | Job |
 | --- | --- | --- | --- |
 | Rest | 6.4s | **Idle** | Planted face. Official body, flat HEX, white stadiums, **no bands**. No globe yaw. |
-| Whip | 0.6s | **kick** | Ribbons are the whip. 2–4 thick flat Ver 02 wrap front/back, −15°, **cross the eyes**, leave. Eyes can pump. Disc stays. |
-| Settle | ~1.0s | back to **Idle** | Shape/color **SNAP** on the **still face** — no spin needed. No bands. Idle eyes. |
+| Whip | 0.6s | **kick** | Illusion of spin: planted morph + ribbon wrap + eyes whipping around the form. Color SNAPS with the next shape. Disc stays. |
+| Settle | ~1.0s | **Idle on the new face** | No second morph. No bands. Idle eyes. |
 
 Do not 360-rotate the disc. No globe yaw. Do not draw meridians through the fill. Do not park bands through rest. Linear planet-spin is compare-only (ribbons), default OFF. Reduced motion freezes Idle.
 
@@ -31,4 +31,4 @@ Noun Project Dallas skyline (Blaise Sewell, 3583788), ink, sit low, behind the g
 
 ## Pairing
 
-Cold start: oval + ink. First settle: rounded square + Teal. Oval return: Orange-red, not ink. Green is stream-only on kick bands. Gray is never a body fill. Eyes: Idle at rest, Working pump on the kick.
+Cold start: oval + ink. First kick lands rounded square + Teal. Oval return: Orange-red, not ink. Green is stream-only on kick bands. Gray is never a body fill. Eyes: Idle at rest, whip around the form on the kick.

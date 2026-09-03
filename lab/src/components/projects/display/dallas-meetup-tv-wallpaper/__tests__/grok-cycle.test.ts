@@ -66,7 +66,7 @@ describe("family-tree shape→color pairing", () => {
     expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_GRAY);
   });
 
-  it("snaps fill and blends SDF during settle, not during the 0.6s whip", () => {
+  it("snaps fill and blends SDF during the kick, then holds Idle on the new face", () => {
     const rest = grokCyclePose(1, 8, 0.6, false);
     expect(rest.fill).toBe(DALLAS_GLOBE_BLACK);
     expect(rest.morphT).toBe(0);
@@ -76,23 +76,23 @@ describe("family-tree shape→color pairing", () => {
     const whip = grokCyclePose(6.7, 8, 0.6, false);
     expect(whip.phase).toBe("whip");
     expect(whip.fromShape).toBe(2);
-    expect(whip.morphT).toBe(0);
-    expect(whip.fill).toBe(DALLAS_GLOBE_BLACK);
+    expect(whip.toShape).toBe(3);
+    expect(whip.morphT).toBeGreaterThan(0.4);
+    expect(whip.morphT).toBeLessThan(0.6);
+    expect(whip.fill).toBe(DALLAS_GROK_TEAL);
+    expect(whip.fill).not.toBe(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, whip.morphT));
 
-    const settleStart = grokCyclePose(7.02, 8, 0.6, false);
-    expect(settleStart.phase).toBe("settle");
-    expect(settleStart.fromShape).toBe(2);
-    expect(settleStart.toShape).toBe(3);
-    expect(settleStart.fill).toBe(DALLAS_GROK_TEAL);
-    expect(settleStart.morphT).toBeGreaterThan(0);
-    expect(settleStart.morphT).toBeLessThan(0.5);
+    const settle = grokCyclePose(7.02, 8, 0.6, false);
+    expect(settle.phase).toBe("settle");
+    expect(settle.fromShape).toBe(2);
+    expect(settle.toShape).toBe(3);
+    expect(settle.fill).toBe(DALLAS_GROK_TEAL);
+    expect(settle.morphT).toBe(1);
 
     const settleMid = grokCyclePose(7.5, 8, 0.6, false);
     expect(settleMid.phase).toBe("settle");
     expect(settleMid.fill).toBe(DALLAS_GROK_TEAL);
-    expect(settleMid.morphT).toBeGreaterThan(0.4);
-    expect(settleMid.morphT).toBeLessThan(1);
-    expect(settleMid.fill).not.toBe(lerpHex(DALLAS_GLOBE_BLACK, DALLAS_GROK_TEAL, settleMid.morphT));
+    expect(settleMid.morphT).toBe(1);
 
     const nextRest = grokCyclePose(8.2, 8, 0.6, false);
     expect(nextRest.phase).toBe("rest");

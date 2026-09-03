@@ -22,21 +22,21 @@ The wallpaper runs continuously on a room TV during the Cursor + Grok Bot Dallas
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Paper field `#F2F1ED` with Noun Project Dallas horizon, Cursor cube + solid Grok body + one Universal Sans line `Dallas meetup`. Disc stays; ribbons are the whip. Loop: 6.4s Idle (planted face, no bands), 0.6s kick (2–4 thick flat Ver 02 wrap front/back at −15°, cross the eyes, leave; eyes may pump), ~1s settle SNAP on the still face.
+Paper field `#F2F1ED` with Noun Project Dallas horizon, Cursor cube + solid Grok body + one Universal Sans line `Dallas meetup`. Disc stays. Illusion of spin: planted morph + ribbon wrap + eyes whipping around the form. Color SNAPS with the next shape in the same kick. Lands Idle on the new face.
 
 ### Success signal
 - TV mode loads: paper ground, Noun Project horizon ON, solid globe, Universal Sans display line. Cube and type stay clean.
 - Rest = Idle (6.4s): planted face, official body, flat HEX, white stadiums, **no bands**. Cube clean. Shape 2 irregular oval, ink `#111111`. No idle bob. No globe yaw.
-- Whip = kick (0.6s): **ribbons are the whip.** 2–4 thick flat Ver 02 wrap front/back, −15° plane, **cross the eyes**, then leave. Eyes can pump more upright. Disc stays (same body + fill). Tilt 16°.
-- Settle (~1s): shape/color SNAP on the **still face** — no spin needed. First settle lands rounded square + Teal. Idle eyes. No bands.
+- Whip = kick (0.6s): planted morph + ribbon wrap + eyes whipping around the form. Color SNAPS with the next shape. First kick lands rounded square + Teal. Disc stays.
+- After kick (~1s): Idle on the new face. No bands. No second morph.
 - Presentation mode is fullscreen with zero demo chrome.
-- Reduced motion freezes Idle (no whip, no morph, no orbits, Idle eyes).
+- Reduced motion freezes Idle (no whip, no morph, no bands, Idle eyes).
 
 ### Non-goals
 - No event logistics, QR, RSVP, wordmarks, taglines, or secondary copy.
 - Do not use Thinking, Waiting, Blocked, or Done as the TV whip.
 - Do not fill rest with idle bob, body spin, or parked bands. Do not shorten the 8s loop.
-- Eyes stay in face-space. Working pump on the kick only. No yaw smear. No meridians through the fill.
+- Eyes whip around the form on the kick, then Idle. Do not yaw the disc. No meridians through the fill.
 - Do not fetch xAI webfonts. Do not steal article ribbon gradients.
 - Do not 360-rotate the disc. No globe yaw. Not a hairline nest. Not a square of doodles behind a PNG.
 - Do not map the skyline onto the sphere. Do not use the teal tourist illustration.
@@ -79,20 +79,20 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | --- | --- | --- |
 | Library | Canvas 2D + rAF | Deterministic timeline and export |
 | Duration | 8s: 6.4 Idle / 0.6 Working / ~1 settle | Do not shorten the loop. Super-fast = short whip |
-| Body | Planted SDF. Disc stays. Morph in settle. No globe yaw | Ribbons are the whip. No 360 disc spin |
-| Stream | 2–4 thick flat Ver 02, −15°, wrap then leave | Front crosses the eyes. Idle/settle have no bands |
-| Color + shape | SNAP + SDF blend on the still face | No spin needed at settle. Whip keeps current fill/body |
-| Eyes | Idle at rest; Working pump on the kick | Still planted in face-space. No yaw smear |
+| Body | Planted SDF. Disc stays. Morph during the kick. No globe yaw | Illusion of spin is morph + ribbons + eye whip |
+| Stream | 2–4 thick flat Ver 02, −15°, wrap then leave | Idle/settle have no bands |
+| Color + shape | SNAP + SDF blend in the same kick | Lands Idle on the new face. No rainbow lerp |
+| Eyes | Idle at rest; whip around the form on the kick | Hide behind the fill. Land Idle |
 | Horizon | Noun Project Dallas 3583788 | Ink silhouette, not a photograph |
 
 ## Acceptance criteria
 
 - [x] Demo route `/demos/dallas-meetup-tv-wallpaper` renders locked composition
 - [ ] `npm run lint` and `npm run build` pass in `lab/` (verify this PR)
-- [x] 8s Idle (no bands) → 0.6s kick (2–4 ribbons wrap, cross eyes, leave; disc stays) → ~1s still-face SNAP; reduced motion freezes Idle
-- [x] Front bands clip to the current body and cross the eyes; back occluded; cube clean; no meridians; no globe yaw; no parked rest bands
-- [x] Shape→color pairing; fill SNAP + SDF blend in settle; cold-start oval+ink; first settle squircle+Teal
-- [x] Eyes Idle at rest/settle; Working pump (more upright) on the kick; still planted (no yaw smear)
+- [x] 8s Idle (no bands) → 0.6s kick (planted morph + ribbons + eye whip; color with next shape) → Idle on the new face; reduced motion freezes Idle
+- [x] Front bands clip to the current body; back occluded; cube clean; no meridians; no globe yaw; no parked rest bands
+- [x] Shape→color pairing; fill SNAP + SDF blend in the kick; cold-start oval+ink; first kick lands squircle+Teal
+- [x] Eyes Idle at rest; whip around the form on the kick (hide behind); land Idle
 - [x] Universal Sans trial once on the canvas line; Plex ≤ 40% of display; Geist out
 - [x] Noun Project Dallas skyline (3583788) ink, default ON, behind the globe
 - [x] 2–4 thick flat Ver 02 kick bands, −15° plane (never meridians, never gray, never a wallpaper field, never parked at rest)

@@ -210,9 +210,9 @@ export function DallasMeetupTvWallpaperDemo() {
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-              Loop is 8s. Disc stays — ribbons are the whip. Rest 6.4s =
-              Idle, no bands. Kick 0.6s = 2–4 thick Ver 02 wrap at −15°,
-              cross the eyes, leave. Settle ~1s SNAP on the still face.
+              Loop is 8s. Disc stays. Kick = planted morph + ribbon wrap +
+              eyes whipping around the form. Color SNAPS with the next shape.
+              Lands Idle on the new face.
             </p>
           </div>
 
@@ -294,7 +294,7 @@ export function DallasMeetupTvWallpaperDemo() {
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
               Linear spin is compare-only (ribbons, not the disc) and default off.
-              Idle = no bands. Kick = wrap, cross the eyes, leave.
+              Kick = morph + wrap + eye whip. Color with the next shape.
             </p>
           </LabControlGroup>
 
@@ -323,9 +323,9 @@ export function DallasMeetupTvWallpaperDemo() {
 
           <LabControlGroup label="Kick bands">
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Kick only: 2–4 thick flat Ver 02 wrap the planted body
-              (front/back, −15°), cross the eyes, then leave. Disc stays.
-              No globe yaw. Idle has no bands. Gray never a filament.
+              Kick: 2–4 thick flat Ver 02 wrap the planted body (front/back,
+              −15°) while the pair whips around the form. Color SNAPS with
+              the next shape. Disc stays. No globe yaw. Idle has no bands.
             </p>
           </LabControlGroup>
 

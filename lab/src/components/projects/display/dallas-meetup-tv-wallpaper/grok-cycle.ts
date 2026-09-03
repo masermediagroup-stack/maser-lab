@@ -6,20 +6,19 @@
  * Gray is never a body fill.
  *
  * Cold start / product rest: shape 2 + ink #111111.
- * EPG timing: 6.4s Idle hold (no bands, disc stays) → 0.6s kick (ribbons wrap
- * then leave; Working eye pump) → ~1s settle SNAP on the still face (no spin).
- * Eyes stay in face-space (no yaw smear).
- * First settle: oval+ink → rounded square + Teal.
+ * EPG: 6.4s Idle (disc stays) → 0.6s kick (planted morph + ribbon wrap +
+ * eyes whipping around the form; color SNAPS with the next shape) →
+ * ~1s Idle on the new face. No globe yaw. No rainbow lerp.
+ * First kick lands rounded square + Teal.
  * When the walk returns to oval, fill is Orange-red (tree color), not black.
  */
 
 import {
   DEFAULT_LOOP_SECONDS,
   clampWhipSeconds,
+  kickEase,
+  kickProgress,
   loopBeat,
-  restSeconds,
-  settleEaseOut,
-  settleSeconds,
 } from "./globe-motion";
 
 export const DALLAS_PAPER = "#F2F1ED";
@@ -126,11 +125,6 @@ function loopLength(loopSeconds: number): number {
   return loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
 }
 
-function timeInLoop(elapsed: number, loopSeconds: number): number {
-  const loop = loopLength(loopSeconds);
-  return ((elapsed % loop) + loop) % loop;
-}
-
 export function cycleIndex(elapsed: number, loopSeconds: number): number {
   const loop = loopLength(loopSeconds);
   if (!Number.isFinite(elapsed) || elapsed < 0) return 0;
@@ -159,11 +153,7 @@ export function grokCyclePose(
   }
 
   const loop = loopLength(loopSeconds);
-  const t = timeInLoop(elapsed, loop);
   const whip = clampWhipSeconds(whipSeconds);
-  const rest = restSeconds(loop, whip);
-  const whipEnd = rest + whip;
-  const settle = settleSeconds(loop, whip);
   const cycles = cycleIndex(elapsed, loop);
   const fromShape = GROK_SHAPE_WALK[cycles % GROK_SHAPE_WALK.length]!;
   const toShape = GROK_SHAPE_WALK[(cycles + 1) % GROK_SHAPE_WALK.length]!;
@@ -182,20 +172,20 @@ export function grokCyclePose(
   }
 
   if (beat === "whip") {
+    const p = kickProgress(elapsed, loop, whip, false, reducedMotion);
     return {
       fromShape,
       toShape,
-      morphT: 0,
-      fill: fromFill,
+      morphT: kickEase(p),
+      fill: toFill,
       phase: "whip",
     };
   }
 
-  const morphT = settleEaseOut(settle > 0 ? (t - whipEnd) / settle : 1);
   return {
     fromShape,
     toShape,
-    morphT,
+    morphT: 1,
     fill: toFill,
     phase: "settle",
   };

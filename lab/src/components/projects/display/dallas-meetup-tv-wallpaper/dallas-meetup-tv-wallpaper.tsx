@@ -186,7 +186,7 @@ function drawGrokBody(
   if (eyes.visible) {
     drawStadiumEyes(ctx, faceD, eyes);
   }
-  // Front ribbons clipped to the current body — cross the eyes, then leave.
+  // Front ribbons clipped to the current body — wrap while eyes travel, then leave.
   drawWorkingOrbits(ctx, bodyR, faceD, energy, ribbonPhase, "front");
   ctx.restore();
 

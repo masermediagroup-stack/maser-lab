@@ -34,9 +34,11 @@ Source: Noun Project Dallas icon **3583788** (Blaise Sewell, Skylines set). Ink 
 
 **2–4 thick flat Ver 02 bands** wrap the planted body. Front and back. ~8–14px at a 300px face. Plane **−15°**. They **cross the eyes**, travel, **then leave**. Sparse. Not Thinking. Not a held nest. Never meridians through the fill. Never a square of doodles on the paper. Gray never a filament.
 
-**Disc stays.** Ribbons are the whip. No globe yaw. If the body is still doing a 360 yaw, kill it.
+**Disc stays.** Kill globe yaw. If a 360 disc spin is still in the code, kill it.
 
-**Idle: planted face, no bands.** Settle: no bands. Eyes can pump more upright on the kick, then Idle.
+Illusion of spin (all in the kick): **planted morph + ribbon wrap + eyes whipping around the form.** Color SNAPS with the next shape in the same kick. Lands **Idle on the new face.**
+
+**Idle: planted face, no bands.** Cube stays clean.
 
 Nine Ver 02 chromatic hues exist as the **palette**. Kick bands use a sparse subset (blue / green / magenta / orange-red):
 
@@ -57,16 +59,15 @@ Nine Ver 02 chromatic hues exist as the **palette**. Kick bands use a sparse sub
 - Official picker SDFs 1–8. Rest = #2 irregular oval.
 - Cold start: oval + ink `#111111`. Flat HEX. No Lambert. No photo-earth. Solid ball.
 - **Planted silhouette.** Disc stays. **No 360° disc spin. No globe yaw.** No globe meridians. **No idle bob.** Rest is a hold.
-- Walk `2→3→4→5→6→7→8→1`. First **settle** = rounded square + Teal. Oval return = Orange-red, not ink.
-- Color and shape **do not change on the whip.** They land in **settle** on the **still face** (no spin needed): next Ver 02 hue **SNAP** (not a rainbow lerp) + next official picker **SDF blend** (not a cut).
+- Walk `2→3→4→5→6→7→8→1`. First **kick** lands rounded square + Teal. Oval return = Orange-red, not ink.
+- Color and shape change **in the same kick**: next Ver 02 hue **SNAP** (not a rainbow lerp) + planted official picker **SDF blend**. Lands Idle on the new face. The 1s after the kick is Idle hold, not a second morph.
 
 ## Eyes
 
-- Official **stadium** geometry, planted in face-space. White. No slices.
-- **Rest / settle / reduced motion = Idle:** diagonal (~−28°), higher-right.
-- **Whip = Working pump:** more upright. Still planted — no orbit, no yaw smear, no back-occlusion hide.
-- Then Idle. Held Working after the bands leave is **this pump only**. Still no orbits.
-- Mid-yaw smearing the stadiums is a miss. Do not bring meridians back to sell round.
+- Official **stadium** geometry. White. No slices.
+- **Rest / after-kick Idle / reduced motion:** diagonal (~−28°), higher-right, planted.
+- **Kick:** the pair **whips around the form** (Y-orbit of the Idle seat with the ribbon wrap). Hide when they go behind the planted fill. Land Idle on the new face.
+- Do not yaw the disc to sell this. Do not bring meridians back to sell round.
 
 ## Timing lock — 8s (this is the check, not a guess)
 
@@ -77,8 +78,8 @@ Loop = **8s** total. Whip slider still exists (0.5–0.7s); rest = `loop − whi
 | Beat | Time | Look |
 | --- | --- | --- |
 | **Rest = Idle** | **6.4s** | Planted face. Official body, flat HEX, white stadiums, **no bands**. Cube clean. First rest: shape **2 irregular oval**, fill **ink `#111111`**. No idle bob, **no globe yaw**. |
-| **Whip = kick** | **0.6s** | **Ribbons are the whip.** **2–4 thick flat Ver 02** wrap front/back, **−15°** plane, **cross the eyes**, leave. Eyes can pump more upright. Disc stays on the **current** picker + fill (first whip is still the **black oval**). |
-| **Settle → Idle** | **~1.0s** | Shape/color **SNAP** on the **still face** — no spin needed. Next Ver 02 hue + next official picker **SDF blend**. Idle stadiums. No bands. |
+| **Whip = kick** | **0.6s** | Illusion of spin: **planted morph + ribbon wrap + eyes whipping around the form.** Color SNAPS with the next shape. 2–4 thick flat Ver 02 wrap front/back, −15°, leave. Disc stays. First kick: oval+ink → rounded square + Teal. |
+| **Settle → Idle** | **~1.0s** | Already the **new face**. Idle stadiums. No bands. No second morph. Cube clean. |
 
 **Reduced motion:** freeze Idle (oval + ink, white stadiums, **no bands**, no whip, no morph).
 
@@ -86,12 +87,12 @@ Loop = **8s** total. Whip slider still exists (0.5–0.7s); rest = `loop − whi
 
 Motion source: https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor). Lifecycle is Idle / Working / Waiting / Blocked / Thinking / Done. **TV maps Idle → kick (bands) → Idle.** Do not use Thinking, Waiting, Blocked, or Done as the whip.
 
-Product kick: **2–4 thick flat Ver 02** wrap the **planted** body (front/back, −15°), **cross the eyes**, then **leave**. Disc stays. Ribbons are the whip. No globe yaw. Idle has **no** bands. Eyes can pump more upright, then Idle. Settle snaps color/shape on a still face — no spin needed.
+Product kick: illusion of spin without globe yaw — planted SDF morph + 2–4 thick flat Ver 02 wrap (front/back, −15°) + eyes whipping around the form. Color SNAPS with the next shape in that same kick. Lands Idle on the new face. Cube stays clean.
 
 - Stroke **8–14px** at a 300px face. Count **2–4**. Sparse. Not a wallpaper field.
-- Plane **−15°** (upper-left → right). Wrap front/back. Back occluded by the fill. Front over the face, **crossing the eyes**. Not meridians through the fill.
+- Plane **−15°**. Wrap front/back. Back occluded by the fill. Front over the face. Not meridians through the fill.
 - Ver 02 HEX, **flat**. Do not steal the article ribbon gradients.
-- Kill: globe yaw / 360 disc spin, parked Idle bands, a held nest through rest or settle, Thinking-state meridians, Waiting/Blocked/Done as the TV whip, idle bob, yaw-smeared eyes, fill SNAP or SDF morph **during** the whip, rainbow lerp on the body, doodles behind a PNG.
+- Kill: globe yaw / 360 disc spin, parked Idle bands, a held nest through rest, Thinking-state meridians, Waiting/Blocked/Done as the TV whip, idle bob, rainbow lerp on the body, doodles behind a PNG, morph/color delayed until after the kick.
 
 ## Pairing
 
