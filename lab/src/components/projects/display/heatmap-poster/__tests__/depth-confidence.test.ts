@@ -111,6 +111,51 @@ describe("depth field variance gate", () => {
     expect(v).toBeGreaterThan(DEPTH_VARIANCE_MIN);
     expect(isDepthFieldConfident(landscape, w, h)).toBe(true);
   });
+
+  it("case 7: transparent PNG flattened onto Ground — depth discarded", () => {
+    // After composite-onto-Ground, a cutout PNG's depth field is flat:
+    // the model sees Ground-color indigo where alpha was, and the opaque
+    // subject at a similar synthetic depth. The alpha boundary does not
+    // produce a near/far split that would pass the variance gate.
+    //
+    // Simulate: a subject blob at depth 4.0, transparent region composited
+    // to Ground produces depth ~4.0 too (same synthetic plane), with small
+    // sensor noise. The field is flat.
+    const w = 64, h = 64;
+    let seed = 99;
+    const rng = () => { seed = (seed * 16807) % 2147483647; return (seed & 0x7fffffff) / 2147483647; };
+    const cutout = field((_, w, h) => {
+      const x = _ % w;
+      const y = Math.floor(_ / w);
+      const cx = w * 0.5, cy = h * 0.5, r = w * 0.25;
+      const inside = (x - cx) ** 2 + (y - cy) ** 2 < r * r;
+      // Both regions at similar depth (model sees flat composited image)
+      return inside ? 4.0 + rng() * 0.05 : 4.0 + rng() * 0.05;
+    }, w, h);
+    const v = depthFieldVariance(cutout, w, h);
+    console.info("[heatmap] cutout-PNG (flattened) variance", v);
+    expect(v).toBeLessThan(DEPTH_VARIANCE_MIN);
+    expect(isDepthFieldConfident(cutout, w, h)).toBe(false);
+  });
+
+  it("case 8: noisy texture (multiple noise profiles) — all discarded", () => {
+    const w = 64, h = 64;
+    const profiles = [
+      { name: "film grain (±0.4)", amp: 0.4, base: 4.0 },
+      { name: "heavy JPEG (±1.0)", amp: 1.0, base: 5.0 },
+      { name: "dithered graphic (±0.2)", amp: 0.2, base: 3.5 },
+      { name: "paper scan (±0.6)", amp: 0.6, base: 4.5 },
+    ];
+    for (const { name, amp, base } of profiles) {
+      let seed = 42;
+      const rng = () => { seed = (seed * 16807) % 2147483647; return (seed & 0x7fffffff) / 2147483647; };
+      const noisy = field(() => base + (rng() - 0.5) * amp * 2, w, h);
+      const v = depthFieldVariance(noisy, w, h);
+      console.info(`[heatmap] noisy-flat (${name}) variance`, v);
+      expect(v, `${name} must be below threshold`).toBeLessThan(DEPTH_VARIANCE_MIN);
+      expect(isDepthFieldConfident(noisy, w, h), `${name} must be discarded`).toBe(false);
+    }
+  });
 });
 
 describe("Reading the image. always resolves", () => {
