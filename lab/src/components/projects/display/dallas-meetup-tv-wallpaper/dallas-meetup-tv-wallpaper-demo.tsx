@@ -10,7 +10,7 @@ import {
   LabSelect,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
-import { dallasGeistMono, dallasGeistSans } from "./dallas-fonts";
+import { dallasGeistSans, dallasPlexCondensed } from "./dallas-fonts";
 import {
   DallasMeetupWallpaper,
   exportDallasMeetupWallpaperLoop,
@@ -133,7 +133,7 @@ export function DallasMeetupTvWallpaperDemo() {
 
   return (
     <div
-      className={`dallas-demo maser-lab ${dallasGeistSans.variable} ${dallasGeistMono.variable}`}
+      className={`dallas-demo maser-lab ${dallasGeistSans.variable} ${dallasPlexCondensed.variable}`}
     >
       <section
         ref={stageRef}
@@ -203,7 +203,7 @@ export function DallasMeetupTvWallpaperDemo() {
               }}
               className="w-full"
             />
-            <p className="dallas-demo__mono text-[10px] text-[var(--lab-text-muted)]">
+            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
               Live t: {formatSeconds(time)} / {loopSeconds}s @ 30fps
             </p>
           </LabControlGroup>
@@ -237,7 +237,7 @@ export function DallasMeetupTvWallpaperDemo() {
                 Face-forward
               </LabButton>
             </div>
-            <p className="dallas-demo__mono text-[10px] text-[var(--lab-text-muted)]">
+            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
               Full rotation: face travels with the globe. Face-forward: eyes
               stay front while meridians rotate.
             </p>
@@ -260,7 +260,7 @@ export function DallasMeetupTvWallpaperDemo() {
                 On
               </LabButton>
             </div>
-            <p className="dallas-demo__mono text-[10px] text-[var(--lab-text-muted)]">
+            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
               Additive Dallas silhouette. Off keeps the globe as the only
               subject. Toggle does not move marks or type.
             </p>
@@ -272,7 +272,7 @@ export function DallasMeetupTvWallpaperDemo() {
                 TV / presentation mode
               </LabButton>
             </div>
-            <p className="dallas-demo__mono text-[10px] text-[var(--lab-text-muted)]">
+            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
               Fullscreen with zero demo chrome. Exit with Esc.
             </p>
           </LabControlGroup>
@@ -283,11 +283,11 @@ export function DallasMeetupTvWallpaperDemo() {
                 {exporting ? "Exporting…" : "Export MP4"}
               </LabButton>
             </div>
-            <p className="dallas-demo__mono text-[10px] text-[var(--lab-text-muted)]">
+            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
               1920x1080 @ 30fps, {loopSeconds}s, silent.
             </p>
             {exportNote ? (
-              <p className="dallas-demo__mono text-[10px] text-[var(--lab-text-secondary)]">{exportNote}</p>
+              <p className="dallas-demo__note text-[10px] text-[var(--lab-text-secondary)]">{exportNote}</p>
             ) : null}
           </LabControlGroup>
         </DemoControlMenu>

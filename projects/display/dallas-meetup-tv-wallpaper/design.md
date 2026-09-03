@@ -59,12 +59,15 @@ hairlines that dissolve into the paper. If a stop cannot be line, it is paper.
 
 ## Type
 
-Geist Sans for the lockup. Geist Mono for demo readouts. OFL 1.1 via
-the `geist` package. grok.com already pairs Geist Mono on its display
-headline with Universal Sans for body — Geist is not a foreign skin.
-Universal Sans remains xAI's production face; we hold no licence and
-must not load their self-hosted files. Family stays behind
-`--dallas-font` for a one-line swap.
+Settled. Do not re-open.
+
+- Display (`Dallas meetup`): Geist Sans. The user named Geist sans
+  twice. Never Geist Mono on that line.
+- Body, labels, info: IBM Plex Sans Condensed. Geist does not creep
+  into small type.
+- GeistMono is available for a genuine structural mono cut only.
+- Never Universal Sans. Never load xAI's self-hosted files.
+- Tokens: `--dallas-font` (display), `--dallas-font-ui` (body).
 
 ## Skyline
 

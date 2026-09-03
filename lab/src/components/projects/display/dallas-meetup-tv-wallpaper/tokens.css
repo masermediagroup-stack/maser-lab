@@ -6,10 +6,11 @@
  * galaxy palette — each campaign gets bespoke art; several heroes have no
  * lines at all. These are not published brand tokens.
  *
- * Type: Geist Sans / Geist Mono (OFL 1.1), stand-in for Universal Sans.
- * grok.com already pairs Geist Mono on its display headline with Universal
- * Sans for body. We hold no Universal Sans licence. Swap the family here
- * if a licence arrives. Never load xAI's self-hosted woff2 files.
+ * Type split (settled — do not re-open):
+ *   --dallas-font      Geist Sans for the "Dallas meetup" display line
+ *   --dallas-font-ui   IBM Plex Sans Condensed for body, labels, info
+ *   --dallas-font-mono Geist Mono, only if a genuine structural mono cut is needed
+ * Never Universal Sans. Never load xAI's self-hosted woff2 files.
  */
 
 .dallas-demo,
@@ -18,9 +19,16 @@
   --dallas-ink: #26251e;
   --dallas-loop-seconds: 12s;
 
-  /* One-line family swap. Sans for the lockup; mono for demo readouts. */
+  /* Display vs UI. One-line swap each. Display is never Mono. */
   --dallas-font: var(--font-geist-sans), "Geist", "Geist Sans", sans-serif;
+  --dallas-font-ui: var(--font-ibm-plex-sans-condensed), "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", sans-serif;
   --dallas-font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  font-family: var(--dallas-font-ui);
+  /* Shared chrome uses Tailwind font-mono / font-sans. Remap them here so
+     labels stay Plex; Geist never creeps into body. */
+  --font-sans: var(--dallas-font-ui);
+  --font-mono: var(--dallas-font-ui);
 
   /* Galaxy ramp — continuous interpolated, pole-to-pole along meridians.
      Saturated stops carry on white; pale stops (4-6) may read near-transparent. */
@@ -61,6 +69,6 @@
   background: var(--dallas-paper);
 }
 
-.dallas-demo__mono {
-  font-family: var(--dallas-font-mono);
+.dallas-demo__note {
+  font-family: var(--dallas-font-ui);
 }

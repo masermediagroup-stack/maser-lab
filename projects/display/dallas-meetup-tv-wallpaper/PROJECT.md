@@ -38,11 +38,17 @@ Pure-white field with two ink marks and one line of type matching the approved s
 
 ## Type
 
-**Geist Sans** (OFL 1.1, `geist` package, `GeistSans` from `geist/font/sans`, variable 100–900) for the `Dallas meetup` lockup and any type on the wallpaper. **Geist Mono** (`GeistMono` from `geist/font/mono`) for demo-rail readouts.
+**Settled. Do not re-open.**
 
-This is a justified stand-in, not a generic default: xAI's own site pairs **Geist Mono** for its large display headline with Universal Sans for body and headings. Geist already appears on grok.com alongside the licensed face we cannot use.
+| Surface | Face | Token |
+| --- | --- | --- |
+| Display line — `Dallas meetup` on the wallpaper | **Geist Sans** (`GeistSans` from `geist/font/sans`, variable 100–900) | `--dallas-font` |
+| Body, labels, info blocks, demo-rail notes | **IBM Plex Sans Condensed** | `--dallas-font-ui` |
+| Genuine structural mono only (not the display line) | Geist Mono, available | `--dallas-font-mono` |
 
-Universal Sans remains xAI's real production typeface — x.ai and grok.com self-host `UniversalSans_Display` and `UniversalSans_Text` woff2 files. It is commercial-only from Family Type and we hold no licence. Families stay behind `--dallas-font` / `--dallas-font-mono` so a licensed swap is one line in `tokens.css`. **Never** load xAI's self-hosted font files.
+The user named **Geist sans** twice for the display line. Mono on that line would read technical and is refused. Geist does not creep into body text. EPG's Plex Condensed call stands for everything small.
+
+Never Universal Sans. It remains xAI's real production typeface (commercial, Family Type). x.ai and grok.com self-host `UniversalSans_Display` and `UniversalSans_Text` woff2 files. We hold no licence and **never** load those files. Families stay behind tokens so a licensed display swap is one line in `tokens.css`.
 
 ## Galaxy-line color provenance
 
@@ -95,7 +101,7 @@ Additional demo verification states:
 | Library | Canvas 2D + requestAnimationFrame | Deterministic timeline and frame-exact export control |
 | Duration | 12s default loop @ 30fps export | One full revolution = one seamless loop; 8s was too frantic for TV |
 | Easing | Constant angular velocity for globe; easeInOutCubic for blinks/glance | Globe rotation must not ease — a globe does not stop and start |
-| Font | Geist Sans (+ Geist Mono for readouts) via `--dallas-font` | OFL stand-in for Universal Sans; grok.com already pairs Geist Mono with Universal Sans |
+| Font | Geist Sans on `Dallas meetup`; IBM Plex Sans Condensed on body/labels | User named Geist sans for display; EPG's Plex call for small type. Split is settled. |
 
 ## Acceptance criteria
 
@@ -107,7 +113,7 @@ Additional demo verification states:
 - [x] Demo controls include play/pause, replay, scrub/step, reduced motion, face-forward toggle, revolution duration, skyline toggle, and export
 - [x] Presentation mode is fullscreen without demo overlays
 - [x] Galaxy colors wired to `--dallas-galaxy-1` through `-8` tokens
-- [x] Font wired through `--dallas-font` token (Geist Sans; Geist Mono for readouts)
+- [x] Font split: Geist Sans on the display line (`--dallas-font`); IBM Plex Sans Condensed on body/labels (`--dallas-font-ui`)
 - [x] Skyline is additive, default off, no re-layout when toggled
 
 ## Open decisions
@@ -118,6 +124,6 @@ Additional demo verification states:
 ## Accepted decisions
 
 - Composition locked to approved still with a single ink tone for both marks and type.
-- Geist Sans is the stand-in for Universal Sans. grok.com already uses Geist Mono on its display headline. Universal Sans remains the real production face; we never load xAI's self-hosted files.
+- Type split is settled: Geist Sans on `Dallas meetup`, IBM Plex Sans Condensed on body/labels. Display is never Mono. Universal Sans is licensed; we never load xAI's self-hosted files.
 - Galaxy-line colors derived from one Grok 4 campaign asset (not an official palette).
 - Skyline is an additive layer behind a rail toggle, default off — never a re-layout.
