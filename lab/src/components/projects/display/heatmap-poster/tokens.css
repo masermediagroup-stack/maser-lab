@@ -1,0 +1,66 @@
+.heatmap-poster,
+.heatmap-demo {
+  --heatmap-heat: #fff4c2;
+  --heatmap-mid: #e21b70;
+  --heatmap-ground: #12082e;
+  --heatmap-type: #f4f1ea;
+  --heatmap-grain: 0.35;
+  --heatmap-wave: 0.55;
+  --heatmap-speed: 0.45;
+}
+
+.heatmap-poster {
+  position: relative;
+  display: block;
+  width: min(100%, calc(100dvh * 9 / 16));
+  height: auto;
+  max-height: 100%;
+  background: var(--heatmap-ground);
+  color: var(--heatmap-type);
+}
+
+.heatmap-poster[data-format="9-16"] {
+  aspect-ratio: 9 / 16;
+  width: min(100%, calc(100dvh * 9 / 16));
+}
+
+.heatmap-poster[data-format="a4"] {
+  aspect-ratio: 1 / 1.414213562;
+  width: min(100%, calc(100dvh / 1.414213562));
+}
+
+.heatmap-poster__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.heatmap-status {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--heatmap-type);
+  background: none;
+  border: 0;
+}
+
+.heatmap-poster__status {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.heatmap-poster__frame {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--heatmap-mid) 55%, transparent);
+  box-sizing: border-box;
+}

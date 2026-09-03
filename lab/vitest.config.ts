@@ -7,6 +7,7 @@ export default defineConfig({
     include: [
       "src/components/projects/display/maser-dither-engine/export/__tests__/**/*.test.ts",
       "src/components/projects/scroll/type-world/__tests__/**/*.test.ts",
+      "src/components/projects/display/heatmap-poster/__tests__/**/*.test.ts",
     ],
   },
   resolve: {

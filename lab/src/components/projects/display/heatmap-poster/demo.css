@@ -1,0 +1,29 @@
+/* Lab demo page only. Not part of the product barrel. */
+
+.heatmap-demo.maser-lab,
+.heatmap-demo {
+  min-height: 100dvh;
+  background: var(--heatmap-ground);
+  color: var(--heatmap-type);
+}
+
+.heatmap-demo .lab-demo-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--heatmap-ground);
+}
+
+.heatmap-demo .heatmap-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 1.25rem;
+  box-sizing: border-box;
+}
+
+.heatmap-rail-status {
+  margin: 0;
+}

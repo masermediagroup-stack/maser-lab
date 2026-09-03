@@ -105,6 +105,13 @@
       "status": "review",
       "category": "marketing",
       "description": "Homepage CtaLogoTilt replacement: four-blob wash + in-place ASCII tick (not the footer wave)"
+    },
+    {
+      "slug": "heatmap-poster",
+      "title": "Heatmap",
+      "status": "building",
+      "category": "display",
+      "description": "IR heatmap poster — heat follows the subject, three stops, depth-aware"
     }
   ]
 }

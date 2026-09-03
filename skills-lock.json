@@ -349,6 +349,12 @@
       "skillPath": "skills/verification/SKILL.md",
       "computedHash": "c5a8d9eeb6975672ca5bae7d017bfd9504507ae226a4afc42da72f2e14406ed8"
     },
+    "vgpu": {
+      "source": "vercel-labs/vgpu",
+      "sourceType": "github",
+      "skillPath": "skills/vgpu/SKILL.md",
+      "computedHash": "6807eb456d284d2f8f7cf7b8ab722ec021058dc7fea1e21598547316f57ab44b"
+    },
     "wait-what": {
       "source": "mattpocock/skills",
       "sourceType": "github",
