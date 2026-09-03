@@ -38,18 +38,16 @@ export function DallasMeetupTvWallpaperDemo() {
     [playing, reducedMotion, scrubTime],
   );
 
+  // Hide demo chrome while anything is in fullscreen.
+  // This covers both our control and the browser's own fullscreen.
   useEffect(() => {
-    if (!isPresentation) return;
-
-    const onFullscreenChange = () => {
-      if (!document.fullscreenElement) {
-        setIsPresentation(false);
-      }
+    const sync = () => {
+      setIsPresentation(!!document.fullscreenElement);
     };
-
-    document.addEventListener("fullscreenchange", onFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
-  }, [isPresentation]);
+    document.addEventListener("fullscreenchange", sync);
+    sync();
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
 
   const handleFrameTime = useCallback(
     (frameTime: number) => {
@@ -63,10 +61,14 @@ export function DallasMeetupTvWallpaperDemo() {
   const enterPresentation = useCallback(async () => {
     const root = stageRef.current;
     if (!root) return;
-    setIsPresentation(true);
     try {
       if (!document.fullscreenElement) {
         await root.requestFullscreen();
+      }
+      // Some headless environments resolve without entering fullscreen.
+      await new Promise((r) => setTimeout(r, 50));
+      if (!document.fullscreenElement) {
+        setIsPresentation(false);
       }
     } catch {
       setIsPresentation(false);

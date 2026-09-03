@@ -7,7 +7,9 @@ const BASE_WIDTH = 1920;
 const BASE_HEIGHT = 1080;
 const FPS = 30;
 const TOTAL_FRAMES = LOOP_SECONDS * FPS;
-const INK_HEX = "#101010";
+// Single normalized ink for Cursor, Grok face, and the type.
+// Matches Cursor brand-kit light mark ink.
+const INK_HEX = "#26251e";
 const PAPER_HEX = "#FFFFFF";
 const CURSOR_PATH =
   "M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3-9.46,9.3-16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z";
@@ -131,16 +133,30 @@ function renderFrame(
   const cursorAnswerTilt = reducedMotion ? 0 : -2 * glanceLeftWeight;
   const cursorTiltDeg = baseCursorTilt + cursorAnswerTilt;
 
-  const grokScaleY = reducedMotion ? 1 : pingPongScaleY(time, 7.35, 7.92);
+  // Tiny squash/stretch right after the wink; must settle by t=8.
+  const grokScaleY = reducedMotion ? 1 : pingPongScaleY(time, 7.4, 7.92);
 
-  const singleA = blinkScale(time, 1.15, 1.32);
-  const singleB = blinkScale(time, 3.55, 3.72);
-  const doubleA = blinkScale(time, 6.05, 6.19);
-  const doubleB = blinkScale(time, 6.22, 6.42);
-  const leftWink = blinkScale(time, 7.15, 7.38);
+  const rightEyeScale = reducedMotion
+    ? 1
+    : (() => {
+        const singleA = blinkScale(time, 1.15, 1.32);
+        const singleB = blinkScale(time, 3.55, 3.72);
+        const doubleA = blinkScale(time, 6.05, 6.19);
+        const doubleB = blinkScale(time, 6.22, 6.42);
+        return Math.min(singleA, singleB, doubleA, doubleB);
+      })();
 
-  const rightEyeScale = Math.min(singleA, singleB, doubleA, doubleB);
-  const leftEyeScale = Math.min(rightEyeScale, leftWink);
+  const leftEyeScale = reducedMotion
+    ? 1
+    : (() => {
+        const singleA = blinkScale(time, 1.15, 1.32);
+        const singleB = blinkScale(time, 3.55, 3.72);
+        const doubleA = blinkScale(time, 6.05, 6.19);
+        const doubleB = blinkScale(time, 6.22, 6.42);
+        const right = Math.min(singleA, singleB, doubleA, doubleB);
+        const leftWink = blinkScale(time, 7.15, 7.38);
+        return Math.min(right, leftWink);
+      })();
 
   const marksBaseY = centerY;
 
