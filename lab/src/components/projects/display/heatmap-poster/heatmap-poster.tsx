@@ -403,7 +403,7 @@ export function HeatmapPoster({
     return () => {
       cancelled = true;
     };
-  }, [imageSrc, format, applyPacksForAspect, driverBoot]);
+  }, [imageSrc, image, format, applyPacksForAspect, driverBoot]);
 
   const hasRealText = caption != null && caption.length > 0;
   const showPlaceholder = !isExport && !hasRealText && image != null;
