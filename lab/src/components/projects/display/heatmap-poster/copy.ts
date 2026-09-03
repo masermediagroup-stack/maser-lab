@@ -4,7 +4,7 @@ export const HEATMAP_COPY = {
   replace: "Replace picture.",
   empty: "No image yet. Upload a photo or a logo.",
   reading: "Reading the image.",
-  fileError: "That file won't open. Use a JPG or PNG.",
+  fileError: "That file won't open.",
   tooBig: "Too large. Under 20 MB.",
   heat: "Heat",
   mid: "Mid",

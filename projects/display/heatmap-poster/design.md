@@ -55,7 +55,7 @@ Same pack, same shader. A full-bleed photo with no hole in the frame is still a 
 - Then: Replace picture.
 - Empty: No image yet. Upload a photo or a logo.
 - Reading: Reading the image.
-- Error: That file won't open. Use a JPG or PNG.
+- Error: That file won't open.
 - Too big: Too large. Under 20 MB.
 - Knobs: Heat, Mid, Ground / Speed / Wave.
 - Size toggle: 9:16 · A4.
@@ -64,6 +64,8 @@ Same pack, same shader. A full-bleed photo with no hole in the frame is still a 
 - Caption placeholder: Describe the image or add your own line.
 
 No "drag and drop your file here to get started." No exclamation points. Never auto-write a description. No generated caption, no filename echo, no "Untitled". If the user writes nothing, there is no line.
+
+The file input is `accept="image/*"`. Do not gate on jpeg/png/webp/gif. An iPhone photo (HEIC) is a valid pick. Hold the File, decode it, pack once, then `setSourceImage`. If decode fails, show **That file won't open.** Never a silent empty plate. Never “Use a JPG or PNG.” — that line made a failed iPhone photo look format-rejected.
 
 There is no Rough read line. Depth is gone. That state died with it. No replacement.
 
@@ -149,4 +151,5 @@ No other color names. No Geist, vbg, triangle, or shared studio sheet.
 
 ## Last-ten-corrections
 
-1. **Field swap (this pass).** Steal Paper’s shape field (image-as-shape, contour, inner/outer glow, intensity wave, CPU RGB pack once, vgpu). Keep the poster card, the three IR stops, type out of the LUT, and the rail knobs. Photos silhouette first. Subject-read is a named refusal. Empty copy stays: No image yet. Upload a photo or a logo.
+1. **Error copy (this pass).** Kill “Use a JPG or PNG.” The fail line is **That file won't open.** Empty, PROMPT, and Reading stay. `image/*`, File hold, and `setSourceImage` stay. A decode miss is this line, never a silent Ground plate.
+2. **Field swap.** Steal Paper’s shape field (image-as-shape, contour, inner/outer glow, intensity wave, CPU RGB pack once, vgpu). Keep the poster card, the three IR stops, type out of the LUT, and the rail knobs. Photos silhouette first. Subject-read is a named refusal. Empty copy stays: No image yet. Upload a photo or a logo.
