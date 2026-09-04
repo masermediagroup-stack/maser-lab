@@ -1,15 +1,7 @@
 "use client";
 
-import { demoRegistry } from "@/components/projects/registry";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import Link from "next/link";
+import { demoRegistry } from "@/components/projects/registry";
 
 type DemoHostProps = {
   slug: string;
@@ -20,26 +12,24 @@ export function DemoHost({ slug }: DemoHostProps) {
 
   if (!Demo) {
     return (
-      <div className="lab-shell flex min-h-screen items-center justify-center p-8">
-        <Card className="max-w-lg">
-          <CardHeader>
-            <CardTitle className="text-xl">Demo not wired</CardTitle>
-            <CardDescription className="text-base">
-              Register this project in{" "}
-              <code className="rounded-md bg-muted px-1.5 py-0.5">
-                lab/src/components/projects/registry.ts
-              </code>
-              .
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/">
-              <Button variant="outline" size="lg">
-                ← Back to lab
-              </Button>
+      <div className="maser-lab lab-shell flex min-h-screen items-center justify-center p-8">
+        <div className="lab-card w-full max-w-lg p-6">
+          <h1 className="lab-type-title text-[var(--lab-text-primary)]">
+            Demo not wired
+          </h1>
+          <p className="lab-type-body mt-2 text-[var(--lab-text-secondary)]">
+            Register this project in{" "}
+            <code className="lab-type-value rounded-md border border-[var(--lab-border)] bg-[var(--lab-surface)] px-1.5 py-0.5">
+              lab/src/components/projects/registry.ts
+            </code>
+            .
+          </p>
+          <p className="mt-4">
+            <Link href="/" className="lab-back-link lab-type-label">
+              Lab
             </Link>
-          </CardContent>
-        </Card>
+          </p>
+        </div>
       </div>
     );
   }
