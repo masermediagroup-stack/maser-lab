@@ -6,7 +6,7 @@ USER OVERRIDE. Later interrupts win. Encode corrections in `design.md`. Do not s
 
 Dallas skyline. Picker SDF morph. Shape→color pairs. Body HEX cycling. Eye-whip. Globe yaw / 360 **disc** spin / any Grok body turn.
 **Light organic / white head Grok.** **Static PNG face crop.** **Smashed overlapping white pills that never wink.**
-**Stuck bottom-left stadiums.** **Thick Working ribbons / tapered-thick-middle / ~24px capsules.** **Sparse 2–4 orbits.**
+**Dim article Thinking eyes.** **Stuck bottom-left stadiums.** **Thick Working ribbons / tapered-thick-middle / ~24px capsules.** **Sparse 2–4 orbits.** **2px-too-thin nest.**
 
 ## Tokens
 
@@ -29,5 +29,5 @@ Canvas 1920×1080. Paper → cube + Grok (300px, gap 120px, lift 70px) + `Dallas
 ## Motion
 
 Idle: upright cube, black disc, gaze-pair stadiums, no lines.
-Kick: Cursor 360 + **Thinking nest** — many even hairline Ver 02 arcs, interlaced around the whole disc, true wrap + clip, cross the eyes, leave. Flat HEX, skip gray. No thick mid. No 2–4 fat bands.
+Kick: Cursor 360 + **Thinking nest** — ~8–10 even Ver 02 orbits at **3% of head** (~9px @ 300), interlaced around the whole disc, true wrap + clip. Flat HEX, skip gray. White gaze-pair eyes (not dim). No thick mid. No 2–4 fat bands.
 Reduced motion freezes Idle.

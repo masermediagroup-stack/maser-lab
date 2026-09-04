@@ -1,16 +1,16 @@
 /**
  * Kick nest around the black Grok disc only.
  *
- * Article Thinking frames: many even hairline / brush arcs, interlaced,
- * wrap front and back around the whole disc. Not 2–4 Working capsules.
- * Not a tapered mid-arc. Not a solid ring.
+ * EPG inspect: ~8–10 even orbits at 3% of head (~9px @ 300).
+ * Wrap front and back around the whole disc. Not 2–4 Working capsules.
+ * Not a tapered mid-arc (~8%/24px). Not a solid ring.
  */
 
 import type { KickRibbonPlan } from "./grok-cycle";
 import { IDLE_EYE } from "./grok-eyes";
 
-/** Thinking lock: ~0.7% of face height. ~2px at a 300px face. Even weight. */
-export const ORBIT_STROKE_FACE_RATIO = 0.007;
+/** EPG Thinking lock: 3% of head diameter. ~9px at a 300px face. Even weight. */
+export const ORBIT_STROKE_FACE_RATIO = 0.03;
 
 export function orbitStrokePx(faceDiameter: number): number {
   return faceDiameter * ORBIT_STROKE_FACE_RATIO;

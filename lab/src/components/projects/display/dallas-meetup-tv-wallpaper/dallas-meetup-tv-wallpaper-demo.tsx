@@ -277,7 +277,7 @@ export function DallasMeetupTvWallpaperDemo() {
 
           <LabControlGroup label="Kick bands">
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Kick: many even hairline Ver 02 arcs (Thinking nest, not 2–4).
+              Kick: ~8–10 even Ver 02 orbits at 3% of head (~9px @ 300).
               Wrap the whole disc, clip, cross the eyes, then leave.
               Random chromatic HEX per kick. Skip gray. Cube stays clean.
             </p>

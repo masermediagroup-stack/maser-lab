@@ -80,7 +80,7 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | Library | Canvas 2D + rAF | Deterministic timeline and export. No new shader. |
 | Duration | 8s: 6.4 Idle / 0.6 Working / ~1 settle | Do not shorten. Super-fast = short whip |
 | Body | Black disc forever | USER OVERRIDE. Article Idle/Working |
-| Stream | 8–10 even hairline Ver 02, interlaced, wrap+clip whole disc | Article Thinking nest. No thick mid. No 2–4 |
+| Stream | 8–10 even Ver 02 orbits, 3% head (~9px @ 300), interlaced wrap+clip | EPG Thinking nest. Not 8%/24px. Not 2–4 |
 | Eyes | White stadiums, gaze pair + wink, planted | Not BL. Not a PNG. No eye-whip |
 | Cube | Official path, evenodd hole, ink; 360 on kick | Hole is the cursor. Paper through |
 | Horizon | Gone | USER LOCK |
@@ -92,7 +92,7 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 - [x] Idle (no ribbons, cube upright, eyes wink) → one kick (Grok bands + Cursor 360) → Idle; reduced motion freezes Idle
 - [x] Official cube evenodd hole; Grok black disc + white stadiums; no skyline; no SDF morph; no eye-whip; no Grok body turn
 - [x] Front nest clips to the disc; back wraps behind; cube clean of lines
-- [x] Kick nest is many even hairlines (~0.7% face, 8–10 arcs), interlaced, random Ver 02 chromatic / phase per kick, skip gray; no mid-arc taper; not 2–4 fat bands
+- [x] Kick nest is ~8–10 even orbits at 3% of head (~9px @ 300), interlaced, random Ver 02 chromatic / phase per kick, skip gray; no mid-arc taper; not 2–4 fat bands; not dim article eyes
 - [x] Eyes gaze as a planted pair (up / side / center / return) and wink; never a light PNG head; never stuck BL
 - [x] Universal Sans trial once on the canvas line; Plex ≤ 40% of display; Geist out
 - [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`

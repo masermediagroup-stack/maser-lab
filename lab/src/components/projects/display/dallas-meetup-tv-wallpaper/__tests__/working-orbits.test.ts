@@ -76,14 +76,14 @@ describe("Idle / planted white stadiums", () => {
 });
 
 describe("Thinking kick nest", () => {
-  it("uses many thin even Thinking-weight Ver 02 hairlines (~0.7% of face / ~2px at 300px)", () => {
+  it("uses ~8–10 even Thinking-weight Ver 02 orbits (3% of head / ~9px at 300px)", () => {
     expect(WORKING_ORBIT_COUNT).toBeGreaterThanOrEqual(8);
     expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(10);
-    expect(ORBIT_STROKE_FACE_RATIO).toBeCloseTo(0.007);
+    expect(ORBIT_STROKE_FACE_RATIO).toBeCloseTo(0.03);
     const stroke = orbitStrokePx(300);
-    expect(stroke).toBeCloseTo(2.1);
-    expect(stroke).toBeLessThan(4);
-    expect(stroke).toBeGreaterThan(1);
+    expect(stroke).toBeCloseTo(9);
+    expect(stroke).toBeLessThan(16);
+    expect(stroke).toBeGreaterThan(6);
     expect(kickRibbonHues(1, 8, WORKING_ORBIT_COUNT)).toHaveLength(WORKING_ORBIT_COUNT);
     expect(new Set(kickRibbonHues(1, 8, WORKING_ORBIT_COUNT)).size).toBe(WORKING_ORBIT_COUNT);
     expect(GROK_CHROMATIC_FILLS).toHaveLength(9);
@@ -152,7 +152,7 @@ describe("Thinking kick nest", () => {
     const hues = plan.map((b) => b.hue);
     for (const s of strokes) {
       expect(hues).toContain(s.color);
-      expect(s.width).toBeCloseTo(2.1);
+      expect(s.width).toBeCloseTo(9);
       expect(s.cap).toBe("round");
     }
   });

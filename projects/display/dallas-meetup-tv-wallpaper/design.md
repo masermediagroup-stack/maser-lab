@@ -13,7 +13,8 @@ Do not ask anyone to retime the thick-band cut or the light-head cut.
 - **Smashed overlapping white pills** that sit still on the disc. Gap must keep two distinct stadiums.
 - **Stuck bottom-left stadiums.** Independent lower-left rest that never looks around.
 - **Thick Working capsules.** Chunky mid / tapered-thick-middle / `ORBIT_STROKE_FACE_RATIO ≈ 0.08` (~24px) / `drawTaperedRibbon` / `fillStrip`. Do not ship that cut again.
-- **Sparse 2–4 fat / 2–4 thin bands.** Article Thinking is a **nest of many** hairlines, not three orbits.
+- **Sparse 2–4 fat / 2–4 thin bands.** Article Thinking is a **nest of ~8–10** even orbits, not three ribbons.
+- **Dim article Thinking eyes.** Wallpaper eyes stay **white** stadiums (gaze pair + wink). Do not copy the subdued charcoal pills.
 - Jagged solid Cursor polygon. Outer-only / `nonzero` flood / bbox-trim / flattened hexagon. The hole is the cursor.
 - Eye-whip around the form. Eyes do not orbit the disc. Eyes do not leave the disc.
 - Globe yaw / 360 disc spin / any **Grok** body turn. The disc stays planted.
@@ -23,8 +24,9 @@ Do not ask anyone to retime the thick-band cut or the light-head cut.
 
 | File | Job |
 | --- | --- |
-| `thinking_frame_01.png` … `_03.png` | **Kick density lock.** Article **Thinking** tab (not Working). Many thin even brush arcs, interlaced, wrap front/back around the whole disc. Paths: attached, `/workspace/grokbot_thinking/`, `dallas-meetup/refs/thinking/`. |
-| `article-idle-black-disc.png` | Idle: black disc, two planted white stadiums. Rest is a **gaze pair on the face**, not a BL crop. |
+| `thinking_tight_crop.png` / `thinking_avatar_tight.png` | **EPG nest lock.** ~8–10 even orbits, wrap front/back. Stroke ≈ **3% of head** (~9px at 300). |
+| `thinking_frame_01.png` … `_03.png` | Article Thinking tab (not Working). Same nest. Paths: attached, `/workspace/grokbot_thinking/`, `dallas-meetup/refs/thinking/`. |
+| `article-idle-black-disc.png` | Idle: black disc, two planted **white** stadiums. Rest is a gaze pair, not a BL crop. |
 | `article-working-black-disc.png` | **Do not steal thickness or count from this.** Color family only. |
 | `CUBE_2D_DARK.svg` | Official Cursor. Hexagon with cursor-shaped hole. Keep. |
 
@@ -58,7 +60,7 @@ NEVER bbox-trim, flood-fill, flatten to a solid polygon, drop the inner subpath,
 Article Idle face. Draw as geometry.
 
 - Perfect solid circle, fill `--dallas-grok-black` `#000000`. Not a squircle. Not a PNG.
-- Two **white** stadiums (pills), planted on the disc as a **gaze pair**. Distinct gap. Asymmetric / slightly tilted.
+- Two **white** stadiums (pills), planted on the disc as a **gaze pair**. Distinct gap. Asymmetric / slightly tilted. **Not** the dim charcoal Thinking-tab eyes.
 - Rest looks at **camera / center** of the disc — **not** stuck bottom-left.
 - Both stadiums move **together as a gaze**: look at different points on the screen (up, side, center), then return. Translate/rotate as a pair on the face.
 - Eyes **wink** on Idle and through the kick. Not a static crop.
@@ -76,7 +78,7 @@ Article Idle face. Draw as geometry.
 
 ## Motion — Idle / one kick / Idle
 
-Motion source: https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor). Lifecycle is Idle / Working / Waiting / Blocked / Thinking / Done. **TV maps Idle → one kick → Idle.** Do not hold Thinking as a TV state. **Steal Thinking nest density / weight for the kick** from `thinking_frame_01–03`.
+Motion source: https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor). Lifecycle is Idle / Working / Waiting / Blocked / Thinking / Done. **TV maps Idle → one kick → Idle.** Do not hold Thinking as a TV state. **Steal Thinking nest density / weight for the kick** from EPG inspect of `thinking_tight_crop` / `thinking_frame_01–03` / `thinking_avatar_tight`.
 
 Idle: official Cursor (upright) + black disc + gaze-pair white stadiums (look around, wink). **No lines.**
 Kick: **Thinking nest** of many thin even flat Ver 02 lines around **Grok only**, **and** Cursor 360 whip. Disc stays planted.
@@ -93,19 +95,20 @@ Loop = **8s**. Whip slider 0.5–0.7s; rest = `loop − whip − 1s`. Product: r
 
 **Reduced motion:** freeze Idle (upright cube, disc + planted pair, no lines, no spin).
 
-## Kick nest (Grok only) — article Thinking frames
+## Kick nest (Grok only) — EPG inspect numbers
 
-**Many** thin even lines. Hairline / brush arcs. Interlaced orbits spread around the **whole** disc. True wrap: front clipped on the disc, back unclipped behind. Still readable — not a solid ring, not 2–4 capsules.
+**~8–10** even orbital strokes. Dense nest around the **whole** disc. True wrap: front clipped on the disc, back unclipped behind. Readable — not a solid ring, not 2–4 Working ribbons.
 
-From `thinking_frame_01–03`:
+EPG closed inspect (`thinking_tight_crop`, `thinking_frame_03`, `thinking_avatar_tight`):
 
 - Count ≈ **8–10** distinct arcs (product: **9**, one pass of Ver 02 chromatic).
-- Stroke ≈ **~0.7% of face height** (~2px if the face is 300px). Same weight along the whole arc. Round caps. **No mid-arc fattening. No taper envelope.**
+- Stroke ≈ **3% of head diameter** (~9px if the face is 300px). Same weight along the whole arc. Round caps. **No mid-arc fattening. No taper envelope. Not Working ~8% / ~24px capsules.**
 - Planes cover the sphere: inclination spread + azimuth so the nest is not a single equatorial ribbon.
 - Mix of radii: some hug the face, some loop just outside so the nest reads around the silhouette.
 - Partial arcs (not closed rings). Travel, clip, leave.
-- Flat Ver 02 HEX. Skip Cool Gray `#777777`. No article glow soup. No body-fill cycling.
+- Flat Ver 02 HEX only. Skip Cool Gray `#777777`. No gradients. No glow soup. No body-fill cycling.
 - Cube clean — no lines on Cursor.
+- Eyes stay wallpaper **white** stadiums. Do not copy dim article Thinking eyes.
 
 | Token | Hex |
 | --- | --- |
