@@ -1,7 +1,8 @@
 /**
- * White stadiums on the black disc. Parallel pair, slight left lean.
+ * White stadiums in face-space on the morphing body. Parallel pair, slight left lean.
  * They translate together as a gaze (center, up, side), then return. They still wink.
  * They do not spin independently. They do not orbit. They are not stuck BL or TR.
+ * Clip them to the SDF silhouette so they stay readable through the blend.
  */
 
 export type EyePose = {

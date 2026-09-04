@@ -4,13 +4,13 @@
  * Paper / ink:
  *   --dallas-paper       #F2F1ED
  *   --dallas-ink         #111111  (type, cube fill)
- *   --dallas-grok-black  #000000  (Grok disc)
+ *   --dallas-grok-black  #000000  (cold-start oval rest only)
  *   --dallas-eye-white   #FFFFFF  (Grok stadium eyes)
  *
  * Ver 02 chromatic hues (HEX only; Figma sheet previews are inaccurate):
  *   gold, red, orange-red, orange, green, teal, blue, violet, magenta.
- * Gray exists as a named token and is never a disc fill and never a ribbon.
- * The nine chromatic hues are named tokens only. Body stays --dallas-grok-black.
+ * Body fills follow the Ver 02 tree pairing. Green is never a body fill.
+ * Gray exists as a named token and is never a body fill and never a ribbon.
  * They are never drawn as orbits on Grok.
  *
  * Type split:

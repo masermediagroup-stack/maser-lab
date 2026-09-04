@@ -21,14 +21,16 @@ describe("official Cursor mark", () => {
     expect(wallpaperSrc).not.toMatch(/"nonzero"/);
   });
 
-  it("draws Grok as a black disc + white stadiums, not a PNG face", () => {
+  it("draws Grok as an SDF picker body + white stadiums, not a PNG face", () => {
     expect(existsSync(join(publicDir, "CUBE_2D_DARK.svg"))).toBe(true);
-    expect(wallpaperSrc).toContain("traceDisc");
-    expect(wallpaperSrc).toContain("DALLAS_GROK_BLACK");
+    expect(wallpaperSrc).toContain("traceBodyPath");
+    expect(wallpaperSrc).toContain("grokCyclePose");
+    expect(wallpaperSrc).toContain("bodyOutline");
     expect(wallpaperSrc).toContain("DALLAS_EYE_WHITE");
     expect(wallpaperSrc).toContain("eyesAt");
     expect(wallpaperSrc).not.toMatch(/drawImage/);
     expect(wallpaperSrc).not.toMatch(/GROK_FACE_SRC|grok-bot-face-tight/);
     expect(wallpaperSrc).not.toMatch(/GROK_HEAD_PATH/);
+    expect(wallpaperSrc).not.toMatch(/traceDisc/);
   });
 });

@@ -1,7 +1,7 @@
 /**
  * Official Cursor 2D mark. viewBox 0 0 466.73 532.09.
  * The second subpath is the cursor hole — fill evenodd so paper shows through.
- * Grok is geometry (black disc + white stadiums), not this file.
+ * Grok is SDF picker geometry (morphing body + white stadiums), not this file.
  */
 
 export const CURSOR_VB_W = 466.73;

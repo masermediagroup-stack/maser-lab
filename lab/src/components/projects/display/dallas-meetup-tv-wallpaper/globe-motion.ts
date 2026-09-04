@@ -2,9 +2,9 @@
  * EPG timing lock. Loop is 8s. Do not shorten it to make the whip feel fast.
  * Super-fast means the 0.6s traveling bit is short.
  *
- * USER OVERRIDE: Idle → one kick → Idle. Black disc forever. No Grok body turn.
- * Kick = Cursor 360 whip only. Eyes may gaze/wink. No nest. No ribbons on Grok.
- * Reduced motion freezes Idle.
+ * USER OVERRIDE: Idle → one kick → Idle. Body stays planted (no globe yaw).
+ * Kick = SDF morph + pair-locked HEX blend + Cursor 360. Eyes may gaze/wink.
+ * No nest. No ribbons on Grok. Reduced motion freezes Idle (oval + black).
  */
 
 export const DEFAULT_LOOP_SECONDS = 8;
@@ -93,7 +93,7 @@ export function streamPhase(
   return kickEase((t - rest) / whip) * Math.PI * 2;
 }
 
-/** Cursor cube 360° during the kick. Lands upright. No Grok bands. */
+/** Cursor cube 360° during the kick. Lands upright. No Grok bands. Body morph is separate. */
 export function cursorWhipRad(
   time: number,
   loopSeconds: number,

@@ -7,11 +7,12 @@ import {
   DEFAULT_WHIP_SECONDS,
   cursorWhipRad,
 } from "./globe-motion";
+import { bodyOutline, traceBodyPath } from "./grok-bodies";
 import {
   DALLAS_EYE_WHITE,
-  DALLAS_GROK_BLACK,
   DALLAS_MARK_INK,
   DALLAS_PAPER,
+  grokCyclePose,
 } from "./grok-cycle";
 import { eyesAt, type EyePose } from "./grok-eyes";
 import {
@@ -101,11 +102,6 @@ function drawOneStadium(ctx: CanvasRenderingContext2D, faceD: number, pose: EyeP
   ctx.restore();
 }
 
-function traceDisc(ctx: CanvasRenderingContext2D, radius: number) {
-  ctx.beginPath();
-  ctx.arc(0, 0, radius, 0, Math.PI * 2);
-}
-
 function drawGrokBody(
   ctx: CanvasRenderingContext2D,
   cx: number,
@@ -116,18 +112,20 @@ function drawGrokBody(
   whipSeconds: number,
   reducedMotion: boolean,
 ) {
+  const pose = grokCyclePose(elapsed, loopSeconds, whipSeconds, reducedMotion);
+  const radii = bodyOutline(pose.fromShape, pose.toShape, pose.morphT);
   const R = faceD * 0.5;
   const pair = eyesAt(elapsed, loopSeconds, whipSeconds, reducedMotion);
 
   ctx.save();
   ctx.translate(cx, cy);
 
-  ctx.fillStyle = DALLAS_GROK_BLACK;
-  traceDisc(ctx, R);
+  ctx.fillStyle = pose.fill;
+  traceBodyPath(ctx, radii, R);
   ctx.fill();
 
   ctx.save();
-  traceDisc(ctx, R);
+  traceBodyPath(ctx, radii, R);
   ctx.clip();
   drawOneStadium(ctx, faceD, pair.left);
   drawOneStadium(ctx, faceD, pair.right);

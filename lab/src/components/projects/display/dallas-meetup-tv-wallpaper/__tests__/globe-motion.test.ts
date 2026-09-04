@@ -114,13 +114,13 @@ describe("look-lock motion", () => {
     expect(wallpaperSrc).toMatch(/ctx\.rotate\(cursorWhipRad/);
     expect(wallpaperSrc).not.toMatch(/globeYaw/);
     expect(wallpaperSrc).not.toMatch(/dallas-horizon/);
-    expect(wallpaperSrc).not.toMatch(/grok-bodies/);
     expect(wallpaperSrc).not.toMatch(/eyeWhipAt/);
     expect(wallpaperSrc).not.toMatch(/drawWorkingOrbits/);
     expect(wallpaperSrc).not.toMatch(/kickRibbonPlan/);
     expect(wallpaperSrc).toContain("CURSOR_FILL_RULE");
-    expect(wallpaperSrc).toContain("traceDisc");
-    expect(wallpaperSrc).toContain("DALLAS_GROK_BLACK");
+    expect(wallpaperSrc).toContain("traceBodyPath");
+    expect(wallpaperSrc).toContain("grokCyclePose");
+    expect(wallpaperSrc).toContain("bodyOutline");
     expect(marksSrc).toContain("evenodd");
     expect(marksSrc).toContain("M444.05");
     expect(wallpaperSrc).not.toMatch(/fill\(new Path2D\(CURSOR_PATH\),\s*"nonzero"\)/);

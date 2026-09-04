@@ -204,9 +204,9 @@ export function DallasMeetupTvWallpaperDemo() {
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-              Loop is 8s. Official Cursor cube (hole) + black Grok disc.
-              Kick = Cursor 360 only. No nest, no ribbons on Grok.
-              Geist is out.
+              Loop is 8s. Official Cursor cube (hole) + Grok picker morph
+              (shape owns HEX). Kick = SDF blend + Cursor 360. No nest, no
+              ribbons on Grok. Geist is out.
             </p>
           </div>
 
