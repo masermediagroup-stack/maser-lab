@@ -1,23 +1,20 @@
 /**
- * Official Grok Bot body picker — 8 silhouettes, 1-indexed.
+ * Official Grok Bot body picker — kept Ver 02 subset (5 silhouettes).
  * Body is an SDF. Morph is a blend of SDFs, not a bitmap crossfade, not a cut,
  * not globe yaw. Body stays planted; blend in place during the kick.
- * Do not invent extra bodies. Do not put meridians, orbits, or bands on any of them.
- * Every official body contains the face disc (`FACE_DISC_R`) so eyes never shear.
+ * Pill, Cloud, and Teardrop are out of the cycle.
+ * Do not put meridians, orbits, or bands on any of them.
+ * Every kept body contains the face disc (`FACE_DISC_R`) so eyes never shear.
+ * Draw through `outlineFitScale` so every silhouette fits the shared mark box.
  */
 
 import type { GrokShapeId } from "./grok-cycle";
 import { FACE_DISC_R } from "./grok-eyes";
 
-export const GROK_SHAPE_COUNT = 8;
+export const GROK_SHAPE_COUNT = 5;
 
 function clamp(v: number, a: number, b: number): number {
   return Math.min(b, Math.max(a, v));
-}
-
-function smin(a: number, b: number, k: number): number {
-  const h = clamp(0.5 + (0.5 * (b - a)) / k, 0, 1);
-  return a * h + b * (1 - h) - k * h * (1 - h);
 }
 
 function sdCircle(x: number, y: number, r: number): number {
@@ -36,24 +33,6 @@ function sdRoundedBox(
   const ox = Math.max(ax, 0);
   const oy = Math.max(ay, 0);
   return Math.hypot(ox, oy) + Math.min(Math.max(ax, ay), 0) - r;
-}
-
-function sdCapsule(
-  x: number,
-  y: number,
-  ax: number,
-  ay: number,
-  bx: number,
-  by: number,
-  r: number,
-): number {
-  const pax = x - ax;
-  const pay = y - ay;
-  const bax = bx - ax;
-  const bay = by - ay;
-  const denom = bax * bax + bay * bay;
-  const h = denom <= 1e-8 ? 0 : clamp((pax * bax + pay * bay) / denom, 0, 1);
-  return Math.hypot(pax - bax * h, pay - bay * h) - r;
 }
 
 /** IQ equilateral triangle, then rounded. Point up in y-up space. */
@@ -86,31 +65,14 @@ function sdHexagonPointy(x: number, y: number, r: number): number {
   return Math.hypot(px, py) * Math.sign(py);
 }
 
-function sdCloud(x: number, y: number): number {
-  const center = sdCircle(x, y - 0.06, 0.92);
-  const left = sdCircle(x + 0.55, y - 0.18, 0.5);
-  const right = sdCircle(x - 0.55, y - 0.18, 0.5);
-  const base = sdRoundedBox(x, y + 0.2, 0.92, 0.5, 0.48);
-  return smin(smin(center, left, 0.18), smin(right, base, 0.18), 0.16);
-}
-
-function sdTeardrop(x: number, y: number): number {
-  const bulb = sdCircle(x, y + 0.1, 0.94);
-  const tip = sdRoundedTriangle(x, y - 0.22, 1.18, 0.2);
-  return smin(bulb, tip, 0.22);
-}
-
 /**
  * 1 Circle — geometrically perfect.
  * 2 Irregular oval — SELECTED product blob / REST.
  *    Squashed, slightly wider at the bottom-left than the top-right.
  *    Not a perfect circle. Not a regular ellipse.
  * 3 Rounded square / squircle
- * 4 Pill — horizontal stadium
  * 5 Rounded triangle — soft vertices, slightly bowed sides
  * 6 Hexagon — vertical, two parallel vertical sides, pointed top and bottom
- * 7 Cloud — three-lobed, larger center hump + two smaller side humps
- * 8 Teardrop — point up, wide rounded base
  */
 export function grokBodySd(id: GrokShapeId, x: number, y: number): number {
   switch (id) {
@@ -124,16 +86,10 @@ export function grokBodySd(id: GrokShapeId, x: number, y: number): number {
     }
     case 3:
       return sdRoundedBox(x, y, 0.88, 0.88, 0.36);
-    case 4:
-      return sdCapsule(x, y, -0.88, 0, 0.88, 0, 0.88);
     case 5:
       return sdRoundedTriangle(x, y + 0.06, 1.38, 0.18);
     case 6:
       return sdHexagonPointy(x, y, 1.05);
-    case 7:
-      return sdCloud(x, y);
-    case 8:
-      return sdTeardrop(x, y);
   }
 }
 
@@ -208,6 +164,33 @@ export function minOutlineRadius(radii: Float64Array): number {
     if (r < min) min = r;
   }
   return min;
+}
+
+/** Axis-aligned half-extents of the polar outline in SDF units. */
+export function outlineAabb(radii: Float64Array): {
+  halfW: number;
+  halfH: number;
+} {
+  let halfW = 0;
+  let halfH = 0;
+  const n = radii.length;
+  for (let i = 0; i < n; i += 1) {
+    const a = (i / n) * Math.PI * 2;
+    const r = radii[i]!;
+    halfW = Math.max(halfW, Math.abs(r * Math.cos(a)));
+    halfH = Math.max(halfH, Math.abs(r * Math.sin(a)));
+  }
+  return { halfW, halfH };
+}
+
+/**
+ * Uniform scale that fits the outline into the unit square.
+ * Apply to body, face disc, and stadiums together so eyes stay planted.
+ * Never scale the Cursor cube to match a runaway silhouette.
+ */
+export function outlineFitScale(radii: Float64Array): number {
+  const { halfW, halfH } = outlineAabb(radii);
+  return 1 / Math.max(halfW, halfH, 1e-6);
 }
 
 /**

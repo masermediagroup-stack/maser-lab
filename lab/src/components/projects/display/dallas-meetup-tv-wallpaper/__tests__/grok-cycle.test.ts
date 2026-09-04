@@ -4,6 +4,8 @@ import {
   grokBodySd,
   minOutlineRadius,
   mixedBodySd,
+  outlineAabb,
+  outlineFitScale,
   sdContainsDisc,
 } from "../grok-bodies";
 import { FACE_DISC_R } from "../grok-eyes";
@@ -23,15 +25,20 @@ import {
   DALLAS_GROK_VIOLET,
   DALLAS_INK,
   GROK_CHROMATIC_FILLS,
+  GROK_DROPPED_FILLS,
   GROK_SHAPE_FILL,
   GROK_SHAPE_WALK,
+  type GrokShapeId,
   grokCyclePose,
   lerpHex,
 } from "../grok-cycle";
 
+const KEPT_IDS: readonly GrokShapeId[] = [1, 2, 3, 5, 6];
+const DROPPED_IDS = [4, 7, 8] as const;
+
 describe("official picker SDFs", () => {
-  it("keeps the origin inside all eight official bodies", () => {
-    for (const id of [1, 2, 3, 4, 5, 6, 7, 8] as const) {
+  it("keeps the origin inside every kept body", () => {
+    for (const id of KEPT_IDS) {
       expect(grokBodySd(id, 0, 0)).toBeLessThan(0);
     }
   });
@@ -51,9 +58,8 @@ describe("official picker SDFs", () => {
     expect(mid).toBeCloseTo((a + b) * 0.5);
   });
 
-  it("keeps the face disc inside every official body and every mid-blend", () => {
-    const ids = [1, 2, 3, 4, 5, 6, 7, 8] as const;
-    for (const id of ids) {
+  it("keeps the face disc inside every kept body and every mid-blend", () => {
+    for (const id of KEPT_IDS) {
       expect(sdContainsDisc(id, id, 0, FACE_DISC_R)).toBe(true);
       expect(minOutlineRadius(bodyOutline(id, id, 0))).toBeGreaterThanOrEqual(
         FACE_DISC_R - 0.02,
@@ -67,6 +73,41 @@ describe("official picker SDFs", () => {
         minOutlineRadius(bodyOutline(from, to, 0.5)),
       ).toBeGreaterThanOrEqual(FACE_DISC_R - 0.02);
     }
+  });
+});
+
+describe("shared mark box", () => {
+  it("walks the five kept silhouettes and never the dropped three", () => {
+    expect(GROK_SHAPE_WALK).toEqual([2, 3, 5, 6, 1]);
+    expect(GROK_SHAPE_WALK).toHaveLength(5);
+    for (const dropped of DROPPED_IDS) {
+      expect(GROK_SHAPE_WALK).not.toContain(dropped);
+    }
+  });
+
+  it("fits every kept body and mid-blend inside the unit square", () => {
+    const check = (from: GrokShapeId, to: GrokShapeId, morphT: number) => {
+      const radii = bodyOutline(from, to, morphT);
+      const fit = outlineFitScale(radii);
+      const { halfW, halfH } = outlineAabb(radii);
+      expect(halfW * fit).toBeLessThanOrEqual(1 + 1e-6);
+      expect(halfH * fit).toBeLessThanOrEqual(1 + 1e-6);
+    };
+    for (const id of KEPT_IDS) {
+      check(id, id, 0);
+    }
+    for (let i = 0; i < GROK_SHAPE_WALK.length; i += 1) {
+      const from = GROK_SHAPE_WALK[i]!;
+      const to = GROK_SHAPE_WALK[(i + 1) % GROK_SHAPE_WALK.length]!;
+      check(from, to, 0.5);
+    }
+  });
+
+  it("shrinks the magenta triangle instead of overflowing the cube-height box", () => {
+    const radii = bodyOutline(5, 5, 0);
+    const { halfH } = outlineAabb(radii);
+    expect(halfH).toBeGreaterThan(1);
+    expect(halfH * outlineFitScale(radii)).toBeLessThanOrEqual(1 + 1e-6);
   });
 });
 
@@ -84,20 +125,38 @@ describe("family-tree shape→color pairing", () => {
     expect(DALLAS_GROK_BLACK).not.toBe(DALLAS_INK);
   });
 
-  it("pairs each picker body to its tree HEX and skips green/gray as body fills", () => {
+  it("pairs each kept body to its tree HEX and never fills dropped or skipped colors", () => {
     expect(GROK_SHAPE_FILL[1]).toBe(DALLAS_GROK_BLUE);
     expect(GROK_SHAPE_FILL[2]).toBe(DALLAS_GROK_ORANGE_RED);
     expect(GROK_SHAPE_FILL[3]).toBe(DALLAS_GROK_TEAL);
-    expect(GROK_SHAPE_FILL[4]).toBe(DALLAS_GROK_RED);
     expect(GROK_SHAPE_FILL[5]).toBe(DALLAS_GROK_MAGENTA);
     expect(GROK_SHAPE_FILL[6]).toBe(DALLAS_GROK_VIOLET);
-    expect(GROK_SHAPE_FILL[7]).toBe(DALLAS_GROK_ORANGE);
-    expect(GROK_SHAPE_FILL[8]).toBe(DALLAS_GROK_GOLD);
+    expect(Object.keys(GROK_SHAPE_FILL)).toHaveLength(5);
     expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_GREEN);
     expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_GRAY);
+    expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_RED);
+    expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_ORANGE);
+    expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_GOLD);
+    expect(GROK_DROPPED_FILLS).toEqual([
+      DALLAS_GROK_RED,
+      DALLAS_GROK_ORANGE,
+      DALLAS_GROK_GOLD,
+    ]);
     expect(GROK_CHROMATIC_FILLS).toContain(DALLAS_GROK_GREEN);
     expect(GROK_CHROMATIC_FILLS).not.toContain(DALLAS_GROK_GRAY);
     expect(GROK_CHROMATIC_FILLS).toHaveLength(9);
+  });
+
+  it("never lands on pill, cloud, or teardrop across many loops", () => {
+    for (let cycle = 0; cycle < 20; cycle += 1) {
+      const rest = grokCyclePose(cycle * 8 + 0.2, 8, 0.6, false);
+      const kick = grokCyclePose(cycle * 8 + 6.7, 8, 0.6, false);
+      for (const pose of [rest, kick]) {
+        expect(DROPPED_IDS).not.toContain(pose.fromShape);
+        expect(DROPPED_IDS).not.toContain(pose.toShape);
+        expect(GROK_DROPPED_FILLS).not.toContain(pose.fill);
+      }
+    }
   });
 
   it("blends oval+black → squircle+teal during the first kick, then holds Idle", () => {
@@ -135,7 +194,7 @@ describe("family-tree shape→color pairing", () => {
     expect(nextRest.fromShape).toBe(3);
     expect(nextRest.fill).toBe(DALLAS_GROK_TEAL);
 
-    const ovalAgain = grokCyclePose(8 * 8 + 0.2, 8, 0.6, false);
+    const ovalAgain = grokCyclePose(5 * 8 + 0.2, 8, 0.6, false);
     expect(ovalAgain.fromShape).toBe(2);
     expect(ovalAgain.fill).toBe(DALLAS_GROK_ORANGE_RED);
   });

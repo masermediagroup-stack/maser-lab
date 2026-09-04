@@ -11,9 +11,13 @@
  * First kick: oval+Black → rounded square + Teal.
  * When the walk returns to oval, fill is Orange-red (tree color), not black.
  *
+ * Cycle is a Ver 02 subset. Pill, Cloud, and Teardrop are dropped — never land.
+ * Walk: oval → square → triangle → hexagon → circle → oval…
+ *
  * USER OVERRIDE: no bands, no orbits, no nest around Grok. Morph is the kick
  * body. Cursor 360 is separate. Eyes stay white stadiums in face-space
  * on every body — they survive the morph; they are not sheared by the SDF.
+ * Every body fits the shared mark box (cube height). Do not scale the cube up.
  */
 
 import {
@@ -58,32 +62,35 @@ export const GROK_CHROMATIC_FILLS = [
   DALLAS_GROK_MAGENTA,
 ] as const;
 
-export type GrokShapeId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+/** Kept picker ids. 4 Pill, 7 Cloud, 8 Teardrop are dropped from the cycle. */
+export type GrokShapeId = 1 | 2 | 3 | 5 | 6;
 
-/** Picker order starting at rest (#2 irregular oval). */
-export const GROK_SHAPE_WALK: readonly GrokShapeId[] = [2, 3, 4, 5, 6, 7, 8, 1];
+/** Picker order starting at rest (#2 irregular oval). Subset of the Ver 02 tree. */
+export const GROK_SHAPE_WALK: readonly GrokShapeId[] = [2, 3, 5, 6, 1];
 
 /**
- * Family-tree pairing. Green is omitted on purpose.
+ * Family-tree pairing for the kept set. Green is omitted on purpose.
+ * Pill / Cloud / Teardrop HEX stay named tokens and never fill a body.
  * 1 Circle → Blue
  * 2 Irregular oval / product blob → Orange-red (also REST cold-start with Black)
  * 3 Rounded square → Teal
- * 4 Pill → Red
  * 5 Rounded triangle → Magenta
  * 6 Hexagon → Violet
- * 7 Cloud → Orange
- * 8 Teardrop → Gold
  */
 export const GROK_SHAPE_FILL: Record<GrokShapeId, string> = {
   1: DALLAS_GROK_BLUE,
   2: DALLAS_GROK_ORANGE_RED,
   3: DALLAS_GROK_TEAL,
-  4: DALLAS_GROK_RED,
   5: DALLAS_GROK_MAGENTA,
   6: DALLAS_GROK_VIOLET,
-  7: DALLAS_GROK_ORANGE,
-  8: DALLAS_GROK_GOLD,
 };
+
+/** Dropped from the cycle. Named, never a body fill. */
+export const GROK_DROPPED_FILLS = [
+  DALLAS_GROK_RED,
+  DALLAS_GROK_ORANGE,
+  DALLAS_GROK_GOLD,
+] as const;
 
 export type GrokCyclePose = {
   fromShape: GrokShapeId;

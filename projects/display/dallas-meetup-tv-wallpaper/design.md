@@ -26,12 +26,15 @@ Do not ask anyone to retime the thick-band cut or the light-head cut.
 - Eye-whip around the form. Eyes do not orbit the body. Eyes do not leave the face.
 - Ribbons on the Cursor cube. Type lockup stays clean.
 - Independent HEX wraps (color cycling without its paired silhouette). Shape owns fill.
+- **Pill / Red, Cloud / Orange, Teardrop / Gold as cycle landings.** Named tokens. Never a body. Never a walk stop.
+- **Oversized Grok vs Cursor.** Runaway triangle (or any silhouette) taller than the cube. Pair deformed. Do not scale the cube up to match. Fit Grok inside the shared mark box.
 
 ## Refs (this override)
 
 | File | Job |
 | --- | --- |
-| `ver02_shape_color_tree.png` | **Morph targets.** 1:1 shape↔color. Eight official silhouettes. Skip Green. Skip Cool Gray. |
+| `ver02_shape_color_tree.png` | **Morph reference only.** Cycle is a 5-shape subset. Skip Green. Skip Cool Gray. Skip Pill, Cloud, Teardrop. |
+| `triangle_oversized_vs_cube.png` | **Refuse.** Magenta triangle taller than the cube. Shared mark box is the fix. |
 | `article_idle_gaze_pair.png` | **Steal paired gaze travel only.** Stadiums shift together around the face. Do **not** copy the stuck-TR / ~45° rest. |
 | `article_working_upright.png` | **Shape lock.** More upright stadiums, slight left lean (~−8° to −15°). Parallel pair. |
 | `article-idle-black-disc.png` | Cold-start rest: oval + Black `#000000`, two planted **white** stadiums. Rest is camera / slight-left, not a BL or TR crop. |
@@ -64,26 +67,36 @@ NEVER bbox-trim, flood-fill, flatten to a solid polygon, drop the inner subpath,
 
 **Kick whip:** the cube does a **quick 360° spin**, hard cubic ease-in-out, then lands face-forward / upright for Idle. Hole stays evenodd (paper through) while it spins. Reduced motion: cube planted, no spin. **Grok has no bands during this window.**
 
-## Grok — morph (Ver 02 tree)
+## Grok — morph (Ver 02 subset)
 
-SDF blend between the 8 official silhouettes. Not a cut. Not globe yaw. Body stays planted; morph in place during the kick. After each kick, land on the next shape WITH its paired HEX.
+SDF blend between the **kept** silhouettes. Not a cut. Not globe yaw. Body stays planted; morph in place during the kick. After each kick, land on the next kept shape WITH its paired HEX.
 
-| # | Shape | Paired HEX |
-| --- | --- | --- |
-| 1 | Circle | Blue `#1084FE` |
-| 2 | Irregular oval / product blob | Orange-red `#FF6700` (REST cold-start = this shape + Black `#000000`) |
-| 3 | Rounded square | Teal `#00BCA6` |
-| 4 | Pill | Red `#FF263C` |
-| 5 | Rounded triangle | Magenta `#FF309B` |
-| 6 | Hexagon | Violet `#9159FE` |
-| 7 | Cloud | Orange `#FF9800` |
-| 8 | Teardrop | Gold `#97683D` |
+**Dropped from the cycle** (do not land): Pill / Red `#FF263C`, Cloud / Orange `#FF9800`, Teardrop / Gold `#97683D`.
 
-Walk: `2 → 3 → 4 → 5 → 6 → 7 → 8 → 1 → 2…`
+| # | Shape | Paired HEX | Cycle |
+| --- | --- | --- | --- |
+| 1 | Circle | Blue `#1084FE` | Keep |
+| 2 | Irregular oval / product blob | Orange-red `#FF6700` (REST cold-start = this shape + Black `#000000`) | Keep |
+| 3 | Rounded square | Teal `#00BCA6` | Keep |
+| 4 | Pill | Red `#FF263C` | **Drop** |
+| 5 | Rounded triangle | Magenta `#FF309B` | Keep |
+| 6 | Hexagon | Violet `#9159FE` | Keep |
+| 7 | Cloud | Orange `#FF9800` | **Drop** |
+| 8 | Teardrop | Gold `#97683D` | **Drop** |
+
+Walk: `2 → 3 → 5 → 6 → 1 → 2…`
 First settle after first kick = rounded square + Teal.
 When the walk returns to oval, fill is Orange-red, not black.
 
-Color lerp is **only the two locked pair stops** (current → next). No off-sheet rainbow. Green and Cool Gray never enter the lerp.
+Color lerp is **only the two locked pair stops** (current → next). No off-sheet rainbow. Green, Cool Gray, Red, Orange, and Gold never enter the lerp.
+
+## Shared mark box
+
+Every Grok body shares **one fixed bounding box** matched to the Cursor cube’s face height (~280px). Same optical mass. Center Cursor and Grok on the same midline.
+
+Fit the silhouette **inside** that box. Circumradius and apex must not blow past the cube. The attached oversized-triangle frame is the refuse: too tall, pair deformed.
+
+Do **not** scale the cube up to match a runaway triangle. Shrink / fit Grok.
 
 ## Eyes — do not break
 
@@ -99,7 +112,7 @@ Color lerp is **only the two locked pair stops** (current → next). No off-shee
 ## Surface (do not invent)
 
 - Canvas 1920×1080. Paper ground.
-- Cursor cube ~280px tall. Grok face diameter 300px, gap 120px, pair lifted ~70px above vertical center. Grok face-forward. No Grok body rotate.
+- Cursor cube ~280px tall. Grok shares that height as the mark box (fit inside, never taller). Gap 120px, pair lifted ~70px above vertical center. Both marks on the same midline. Grok face-forward. No Grok body rotate.
 - One display line: `Dallas meetup`. Universal Sans trial, exactly once, 44px @ 1920, tracking ~2.4.
 - Draw order: paper → cube (kick 360, else upright) + Grok (SDF body + stadiums only) + type.
 
@@ -129,10 +142,10 @@ Ver 02 HEX. Body fills follow the tree pairing. Green and Gray are named and nev
 
 | Token | Hex | Body? |
 | --- | --- | --- |
-| `--dallas-grok-gold` | `#97683D` | Teardrop |
-| `--dallas-grok-red` | `#FF263C` | Pill |
+| `--dallas-grok-gold` | `#97683D` | **Never** (dropped teardrop) |
+| `--dallas-grok-red` | `#FF263C` | **Never** (dropped pill) |
 | `--dallas-grok-orange-red` | `#FF6700` | Oval (after walk) |
-| `--dallas-grok-orange` | `#FF9800` | Cloud |
+| `--dallas-grok-orange` | `#FF9800` | **Never** (dropped cloud) |
 | `--dallas-grok-green` | `#00C972` | **Never** |
 | `--dallas-grok-teal` | `#00BCA6` | Rounded square |
 | `--dallas-grok-blue` | `#1084FE` | Circle |

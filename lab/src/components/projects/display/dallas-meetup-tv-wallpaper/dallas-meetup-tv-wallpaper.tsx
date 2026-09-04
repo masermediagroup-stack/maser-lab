@@ -7,7 +7,7 @@ import {
   DEFAULT_WHIP_SECONDS,
   cursorWhipRad,
 } from "./globe-motion";
-import { bodyOutline, traceBodyPath } from "./grok-bodies";
+import { bodyOutline, outlineFitScale, traceBodyPath } from "./grok-bodies";
 import {
   DALLAS_EYE_WHITE,
   DALLAS_MARK_INK,
@@ -41,7 +41,8 @@ const BASE_HEIGHT = 1080;
 const FPS = 30;
 
 const CURSOR_H_PX = 280;
-const GROK_FACE_PX = 300;
+/** Shared mark box. Grok fits inside this — same height as the Cursor cube. */
+const MARK_BOX_PX = CURSOR_H_PX;
 const MARK_GAP_PX = 120;
 const PAIR_LIFT_PX = 70;
 
@@ -116,7 +117,8 @@ function drawGrokBody(
 ) {
   const pose = grokCyclePose(elapsed, loopSeconds, whipSeconds, reducedMotion);
   const radii = bodyOutline(pose.fromShape, pose.toShape, pose.morphT);
-  const R = faceD * 0.5;
+  const fit = outlineFitScale(radii);
+  const R = faceD * 0.5 * fit;
   const pair = eyesAt(elapsed, loopSeconds, whipSeconds, reducedMotion);
 
   ctx.save();
@@ -130,8 +132,9 @@ function drawGrokBody(
   ctx.beginPath();
   ctx.arc(0, 0, R * FACE_DISC_R, 0, Math.PI * 2);
   ctx.clip();
-  drawOneStadium(ctx, faceD, pair.left);
-  drawOneStadium(ctx, faceD, pair.right);
+  const fittedD = faceD * fit;
+  drawOneStadium(ctx, fittedD, pair.left);
+  drawOneStadium(ctx, fittedD, pair.right);
   ctx.restore();
 
   ctx.restore();
@@ -159,7 +162,7 @@ function renderFrame(
   const marksBaseY = height * 0.5 - PAIR_LIFT_PX * scale;
   const cursorH = CURSOR_H_PX * scale;
   const cursorW = cursorH * CURSOR_ASPECT;
-  const grokSize = GROK_FACE_PX * scale;
+  const grokSize = MARK_BOX_PX * scale;
   const markGap = MARK_GAP_PX * scale;
   const groupWidth = cursorW + grokSize + markGap;
   const cursorX = centerX - groupWidth * 0.5 + cursorW * 0.5;
