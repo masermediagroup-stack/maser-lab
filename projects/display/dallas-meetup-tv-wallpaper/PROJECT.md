@@ -95,6 +95,7 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 - [x] Wallpaper never draws Thinking nest, Working ribbons, or colored bands around Grok; cube clean of lines
 - [x] Eyes are a parallel pair at −8° to −15° (product −12°), translate together (center / up / side / return), wink; never stuck BL or TR; never independent spin; never sheared/smashed mid-morph; never a light PNG head
 - [x] Cycle is oval → square → triangle → hex → circle; no Pill, Cloud, or Teardrop landings; Grok fits the cube-height mark box
+- [x] Magenta triangle is ~10% tighter than the circle in that box; stadiums sit in its upper third (point-down face)
 - [x] Universal Sans trial once on the canvas line; Plex ≤ 40% of display; Geist out
 - [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`
 
@@ -107,5 +108,5 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 - `maser-lab-demo-chrome`
 - `maser-lab-token-system`
 - `ui-animation` (easing character for cube whip + wink)
-- `projects/display/dallas-meetup-tv-wallpaper/design.md` (correction log; subset + shared box)
+- `projects/display/dallas-meetup-tv-wallpaper/design.md` (correction log; subset + shared box + triangle mass/face)
 - `LOOK.md` as look lock

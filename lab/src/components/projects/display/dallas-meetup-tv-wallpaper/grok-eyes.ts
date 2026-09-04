@@ -211,9 +211,9 @@ export function eyePoseAt(
  * Half-diagonal of one stadium in face-radii after tilt (and wink scale).
  * Stadiums are never warped by the SDF — this reach is constant geometry.
  */
-export function stadiumReach(scaleY = 1): number {
-  const hw = EYE_W_FACE;
-  const hh = EYE_H_FACE * scaleY;
+export function stadiumReach(scaleY = 1, sizeScale = 1): number {
+  const hw = EYE_W_FACE * sizeScale;
+  const hh = EYE_H_FACE * scaleY * sizeScale;
   const c = Math.cos(STADIUM_TILT);
   const s = Math.sin(STADIUM_TILT);
   let max = 0;
@@ -226,6 +226,32 @@ export function stadiumReach(scaleY = 1): number {
 }
 
 /** True when the stadium's AABB corners sit inside the face disc. */
-export function eyeFitsFaceDisc(pose: EyePose, discR = FACE_DISC_R): boolean {
-  return Math.hypot(pose.cx, pose.cy) + stadiumReach(pose.scaleY) <= discR;
+export function eyeFitsFaceDisc(
+  pose: EyePose,
+  discR = FACE_DISC_R,
+  sizeScale = 1,
+): boolean {
+  return Math.hypot(pose.cx, pose.cy) + stadiumReach(pose.scaleY, sizeScale) <= discR;
+}
+
+/**
+ * Seat a gaze pair on a body: scale travel from camera rest, then lift.
+ * Triangle uses this so the upper-third face still fits the disc on "look up".
+ */
+export function seatPair(
+  pair: { left: EyePose; right: EyePose },
+  faceLift: number,
+  gazeTravel = 1,
+): { left: EyePose; right: EyePose } {
+  const travel = gazeTravel;
+  const seat = (pose: EyePose, rest: EyePose): EyePose => ({
+    tilt: pose.tilt,
+    cx: rest.cx + (pose.cx - rest.cx) * travel,
+    cy: rest.cy + (pose.cy - rest.cy) * travel + faceLift,
+    scaleY: pose.scaleY,
+  });
+  return {
+    left: seat(pair.left, GROK_LEFT_EYE),
+    right: seat(pair.right, GROK_RIGHT_EYE),
+  };
 }

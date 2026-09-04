@@ -7,7 +7,7 @@ import {
   DEFAULT_WHIP_SECONDS,
   cursorWhipRad,
 } from "./globe-motion";
-import { bodyOutline, outlineFitScale, traceBodyPath } from "./grok-bodies";
+import { bodyOutline, markLayout, outlineFitScale, traceBodyPath } from "./grok-bodies";
 import {
   DALLAS_EYE_WHITE,
   DALLAS_MARK_INK,
@@ -19,6 +19,7 @@ import {
   EYE_W_FACE,
   FACE_DISC_R,
   eyesAt,
+  seatPair,
   type EyePose,
 } from "./grok-eyes";
 import {
@@ -89,10 +90,15 @@ function drawTrackedText(
   }
 }
 
-function drawOneStadium(ctx: CanvasRenderingContext2D, faceD: number, pose: EyePose) {
+function drawOneStadium(
+  ctx: CanvasRenderingContext2D,
+  faceD: number,
+  pose: EyePose,
+  sizeScale = 1,
+) {
   const R = faceD * 0.5;
-  const ew = faceD * EYE_W_FACE;
-  const eh = faceD * EYE_H_FACE;
+  const ew = faceD * EYE_W_FACE * sizeScale;
+  const eh = faceD * EYE_H_FACE * sizeScale;
   ctx.save();
   ctx.translate(pose.cx * R, pose.cy * R);
   ctx.rotate(pose.tilt);
@@ -117,9 +123,14 @@ function drawGrokBody(
 ) {
   const pose = grokCyclePose(elapsed, loopSeconds, whipSeconds, reducedMotion);
   const radii = bodyOutline(pose.fromShape, pose.toShape, pose.morphT);
-  const fit = outlineFitScale(radii);
+  const layout = markLayout(pose.fromShape, pose.toShape, pose.morphT);
+  const fit = outlineFitScale(radii) * layout.massScale;
   const R = faceD * 0.5 * fit;
-  const pair = eyesAt(elapsed, loopSeconds, whipSeconds, reducedMotion);
+  const pair = seatPair(
+    eyesAt(elapsed, loopSeconds, whipSeconds, reducedMotion),
+    layout.faceLift,
+    layout.gazeTravel,
+  );
 
   ctx.save();
   ctx.translate(cx, cy);
@@ -133,8 +144,8 @@ function drawGrokBody(
   ctx.arc(0, 0, R * FACE_DISC_R, 0, Math.PI * 2);
   ctx.clip();
   const fittedD = faceD * fit;
-  drawOneStadium(ctx, fittedD, pair.left);
-  drawOneStadium(ctx, fittedD, pair.right);
+  drawOneStadium(ctx, fittedD, pair.left, layout.eyeScale);
+  drawOneStadium(ctx, fittedD, pair.right, layout.eyeScale);
   ctx.restore();
 
   ctx.restore();

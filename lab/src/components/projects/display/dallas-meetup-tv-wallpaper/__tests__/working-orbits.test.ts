@@ -12,9 +12,11 @@ import {
   eyePoseAt,
   eyesAt,
   gazeAt,
+  seatPair,
   stadiumReach,
   winkEnvelope,
 } from "../grok-eyes";
+import { markLayout } from "../grok-bodies";
 
 const wallpaperSrc = readFileSync(
   join(dirname(fileURLToPath(import.meta.url)), "../dallas-meetup-tv-wallpaper.tsx"),
@@ -105,9 +107,27 @@ describe("Idle / planted white stadiums", () => {
 
     expect(wallpaperSrc).toContain("FACE_DISC_R");
     expect(wallpaperSrc).toMatch(/ctx\.arc\(0, 0, R \* FACE_DISC_R/);
+    expect(wallpaperSrc).toContain("markLayout");
+    expect(wallpaperSrc).toContain("seatPair");
     expect(wallpaperSrc).not.toMatch(
       /traceBodyPath\(ctx, radii, R\);\s*ctx\.clip\(\)/s,
     );
+  });
+
+  it("plants triangle stadiums in the upper third without leaving the face disc", () => {
+    const layout = markLayout(5, 5, 0);
+    expect(layout.faceLift).toBeLessThan(-0.2);
+    const samples = [0.2, 1.65, 1.73, 2.1, 3.6, 4.85, 4.93, 6.5, 6.7];
+    for (const t of samples) {
+      const raw = eyesAt(t, 8, 0.6, false);
+      const pair = seatPair(raw, layout.faceLift, layout.gazeTravel);
+      expect(pair.left.cy).toBeLessThan(raw.left.cy);
+      expect(eyeFitsFaceDisc(pair.left, FACE_DISC_R, layout.eyeScale)).toBe(true);
+      expect(eyeFitsFaceDisc(pair.right, FACE_DISC_R, layout.eyeScale)).toBe(true);
+    }
+    const rest = seatPair(eyesAt(0.2, 8, 0.6, false), layout.faceLift, layout.gazeTravel);
+    expect(rest.left.cy).toBeLessThan(-0.2);
+    expect(rest.left.tilt).toBeCloseTo(GROK_LEFT_EYE.tilt);
   });
 });
 

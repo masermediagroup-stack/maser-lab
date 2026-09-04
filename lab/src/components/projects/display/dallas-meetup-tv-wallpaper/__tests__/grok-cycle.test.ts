@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   bodyOutline,
   grokBodySd,
+  markLayout,
   minOutlineRadius,
   mixedBodySd,
   outlineAabb,
@@ -108,6 +109,26 @@ describe("shared mark box", () => {
     const { halfH } = outlineAabb(radii);
     expect(halfH).toBeGreaterThan(1);
     expect(halfH * outlineFitScale(radii)).toBeLessThanOrEqual(1 + 1e-6);
+  });
+
+  it("points the magenta triangle down (wide top) and pulls optical mass in vs the circle", () => {
+    // Wide at +y (canvas top / base), narrower toward the apex at -y.
+    expect(grokBodySd(5, 0.5, 0.35)).toBeLessThan(grokBodySd(5, 0.5, -0.35));
+
+    const circle = markLayout(1, 1, 0);
+    const triangle = markLayout(5, 5, 0);
+    const oval = markLayout(2, 2, 0);
+    expect(circle.massScale).toBe(1);
+    expect(oval.massScale).toBe(1);
+    expect(triangle.massScale).toBeCloseTo(0.9);
+    expect(triangle.faceLift).toBeLessThan(-0.2);
+    expect(triangle.eyeScale).toBeLessThan(1);
+    expect(triangle.eyeScale).toBeGreaterThan(0.8);
+    expect(triangle.gazeTravel).toBeLessThan(1);
+
+    const mid = markLayout(3, 5, 0.5);
+    expect(mid.massScale).toBeGreaterThan(0.9);
+    expect(mid.massScale).toBeLessThan(1);
   });
 });
 

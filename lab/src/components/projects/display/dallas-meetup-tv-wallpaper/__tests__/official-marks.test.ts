@@ -28,6 +28,7 @@ describe("official Cursor mark", () => {
     expect(wallpaperSrc).toContain("grokCyclePose");
     expect(wallpaperSrc).toContain("bodyOutline");
     expect(wallpaperSrc).toContain("outlineFitScale");
+    expect(wallpaperSrc).toContain("markLayout");
     expect(wallpaperSrc).toMatch(/MARK_BOX_PX = CURSOR_H_PX/);
     expect(wallpaperSrc).not.toMatch(/GROK_FACE_PX/);
     expect(wallpaperSrc).toContain("DALLAS_EYE_WHITE");

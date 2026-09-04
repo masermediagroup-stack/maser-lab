@@ -6,10 +6,26 @@
  * Do not put meridians, orbits, or bands on any of them.
  * Every kept body contains the face disc (`FACE_DISC_R`) so eyes never shear.
  * Draw through `outlineFitScale` so every silhouette fits the shared mark box.
+ * Magenta triangle is point-down; pull its optical mass in vs the circle and
+ * plant the face in the wide upper third. Other kept bodies fill the box.
  */
 
 import type { GrokShapeId } from "./grok-cycle";
 import { FACE_DISC_R } from "./grok-eyes";
+
+/** Rounded triangle (picker #5 / Magenta). Point-down Grok body. */
+export const TRIANGLE_ID: GrokShapeId = 5;
+/** ~10% tighter than the circle inside the same mark box. Do not grow the box. */
+export const TRIANGLE_MASS_SCALE = 0.9;
+/**
+ * Face-radii, +down. Shift the pair into the wide upper third of the
+ * point-down triangle. Clip disc stays origin-centered (face-space).
+ */
+export const TRIANGLE_FACE_LIFT = -0.28;
+/** Slightly smaller stadiums on the triangle so they don't smash the edges. */
+export const TRIANGLE_EYE_SCALE = 0.86;
+/** Damp gaze travel on the triangle so "up" stays in the wide third. */
+export const TRIANGLE_GAZE_TRAVEL = 0.7;
 
 export const GROK_SHAPE_COUNT = 5;
 
@@ -35,7 +51,7 @@ function sdRoundedBox(
   return Math.hypot(ox, oy) + Math.min(Math.max(ax, ay), 0) - r;
 }
 
-/** IQ equilateral triangle, then rounded. Point up in y-up space. */
+/** IQ equilateral triangle, then rounded. Point down in y-up / canvas-up (wide top). */
 function sdRoundedTriangle(x: number, y: number, r: number, round: number): number {
   const k = Math.sqrt(3);
   let px = Math.abs(x) - r;
@@ -71,7 +87,7 @@ function sdHexagonPointy(x: number, y: number, r: number): number {
  *    Squashed, slightly wider at the bottom-left than the top-right.
  *    Not a perfect circle. Not a regular ellipse.
  * 3 Rounded square / squircle
- * 5 Rounded triangle — soft vertices, slightly bowed sides
+ * 5 Rounded triangle — point-down, soft vertices, slightly bowed sides
  * 6 Hexagon — vertical, two parallel vertical sides, pointed top and bottom
  */
 export function grokBodySd(id: GrokShapeId, x: number, y: number): number {
@@ -191,6 +207,46 @@ export function outlineAabb(radii: Float64Array): {
 export function outlineFitScale(radii: Float64Array): number {
   const { halfW, halfH } = outlineAabb(radii);
   return 1 / Math.max(halfW, halfH, 1e-6);
+}
+
+/** 1 when the blend is fully `id`, 0 when it is fully the other body. */
+export function morphWeight(
+  from: GrokShapeId,
+  to: GrokShapeId,
+  morphT: number,
+  id: GrokShapeId,
+): number {
+  const t = clamp(morphT, 0, 1);
+  const a = from === id ? 1 : 0;
+  const b = to === id ? 1 : 0;
+  if (t <= 0 || from === to) return a;
+  if (t >= 1) return b;
+  return a * (1 - t) + b * t;
+}
+
+export type MarkLayout = {
+  massScale: number;
+  faceLift: number;
+  eyeScale: number;
+  gazeTravel: number;
+};
+
+/**
+ * Triangle-only optical mass + face seat. Other bodies stay at identity
+ * (fill the shared box, camera face at the disc origin).
+ */
+export function markLayout(
+  from: GrokShapeId,
+  to: GrokShapeId,
+  morphT: number,
+): MarkLayout {
+  const tri = morphWeight(from, to, morphT, TRIANGLE_ID);
+  return {
+    massScale: 1 + (TRIANGLE_MASS_SCALE - 1) * tri,
+    faceLift: TRIANGLE_FACE_LIFT * tri,
+    eyeScale: 1 + (TRIANGLE_EYE_SCALE - 1) * tri,
+    gazeTravel: 1 + (TRIANGLE_GAZE_TRAVEL - 1) * tri,
+  };
 }
 
 /**
