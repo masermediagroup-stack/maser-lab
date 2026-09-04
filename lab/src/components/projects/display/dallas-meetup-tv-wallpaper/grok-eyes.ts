@@ -1,53 +1,45 @@
 /**
- * Article stadiums. Idle planted. Kick may pump more upright.
- * Eyes stay on the face. They do not orbit the disc. They do not leave.
+ * Official product-face stadiums. Black. Planted. No morph.
+ * Fallback if the PNG has not loaded. Matches grok-bot-face-tight.png.
  */
 
-import { kickEase, kickProgress, loopBeat } from "./globe-motion";
-
 export type EyePose = {
-  /** Radians. Negative = clockwise on canvas (article Idle ~−28°). */
   tilt: number;
-  /** Face-radii, +right of body center. */
   cx: number;
-  /** Face-radii, +down of body center. */
   cy: number;
 };
 
-/** Article Idle: diagonal, higher-right, calm/curious. */
+/** Left / right black stadiums on the light organic head. Face-radii. */
+export const GROK_LEFT_EYE: EyePose = {
+  tilt: (18 * Math.PI) / 180,
+  cx: -0.16,
+  cy: 0.031,
+};
+
+export const GROK_RIGHT_EYE: EyePose = {
+  tilt: (-15 * Math.PI) / 180,
+  cx: 0.176,
+  cy: 0.055,
+};
+
+/** Pair seat used by kick ribbons so bands cross the eyes. */
 export const IDLE_EYE: EyePose = {
-  tilt: (-28 * Math.PI) / 180,
-  cx: 0.22,
-  cy: -0.3,
+  tilt: GROK_LEFT_EYE.tilt,
+  cx: (GROK_LEFT_EYE.cx + GROK_RIGHT_EYE.cx) * 0.5,
+  cy: (GROK_LEFT_EYE.cy + GROK_RIGHT_EYE.cy) * 0.5,
 };
 
-/** Article Working pump — more upright. Position stays planted Idle. */
-export const WORKING_EYE: EyePose = {
-  tilt: (-6 * Math.PI) / 180,
-  cx: 0.05,
-  cy: 0.14,
-};
+export const WORKING_EYE = IDLE_EYE;
 
-/**
- * Idle at rest, settle, and reduced motion.
- * Kick: same seat, tilt pumps toward Working then back. Always visible.
- */
 export function eyePoseAt(
   time: number,
   loopSeconds: number,
   whipSeconds: number,
   reducedMotion: boolean,
 ): EyePose {
-  if (reducedMotion) return IDLE_EYE;
-  if (loopBeat(time, loopSeconds, whipSeconds, reducedMotion) !== "whip") {
-    return IDLE_EYE;
-  }
-
-  const progress = kickProgress(time, loopSeconds, whipSeconds, reducedMotion);
-  const pump = Math.sin(kickEase(progress) * Math.PI);
-  return {
-    cx: IDLE_EYE.cx,
-    cy: IDLE_EYE.cy,
-    tilt: IDLE_EYE.tilt + (WORKING_EYE.tilt - IDLE_EYE.tilt) * pump,
-  };
+  void time;
+  void loopSeconds;
+  void whipSeconds;
+  void reducedMotion;
+  return IDLE_EYE;
 }

@@ -1,22 +1,23 @@
 import { describe, expect, it } from "vitest";
 import {
   GROK_CHROMATIC_FILLS,
-  DALLAS_GLOBE_BLACK,
   DALLAS_GROK_BLACK,
   DALLAS_GROK_GRAY,
   DALLAS_GROK_GREEN,
+  DALLAS_GROK_HEAD,
   DALLAS_INK,
   kickRibbonHues,
 } from "../grok-cycle";
 
-describe("disc fill lock", () => {
-  it("keeps the Grok disc Black forever — not ink, not a chromatic fill", () => {
+describe("product face lock", () => {
+  it("keeps the Grok head light and the stadiums black — never a black disc", () => {
+    expect(DALLAS_GROK_HEAD).toBe("#FFFFFF");
     expect(DALLAS_GROK_BLACK).toBe("#000000");
-    expect(DALLAS_GLOBE_BLACK).toBe(DALLAS_GROK_BLACK);
     expect(DALLAS_INK).toBe("#111111");
-    expect(DALLAS_GROK_BLACK).not.toBe(DALLAS_INK);
+    expect(DALLAS_GROK_HEAD).not.toBe(DALLAS_GROK_BLACK);
     expect(GROK_CHROMATIC_FILLS).not.toContain(DALLAS_GROK_BLACK);
     expect(GROK_CHROMATIC_FILLS).not.toContain(DALLAS_GROK_GRAY);
+    expect(GROK_CHROMATIC_FILLS).not.toContain(DALLAS_GROK_HEAD);
   });
 
   it("assigns distinct chromatic ribbon hues per kick and skips gray", () => {

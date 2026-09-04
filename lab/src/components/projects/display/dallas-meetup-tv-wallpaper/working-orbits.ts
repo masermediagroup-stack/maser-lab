@@ -1,10 +1,9 @@
 /**
- * Kick ribbons. Disc stays black and planted. These wrap, clip, then leave.
+ * Kick ribbons around the official Grok head only.
  *
- * Article Working (Benji Taylor): thickness ≈ one stadium eye-bar
- * ≈ 8% of face height (~24px at 300px). Rounded hemispherical caps.
- * Distinct paths. Flat HEX. Depth only via occlusion.
- * Tails behind bottom-left. Cross the left eye. Not a nest.
+ * Thickness ≈ one stadium eye-bar ≈ 8% of face height (~24px at 300px).
+ * Rounded hemispherical caps. Distinct paths. Flat HEX.
+ * Centerline hugs the head so bands are visible (not a 42px halo outside clip).
  */
 
 import { IDLE_EYE } from "./grok-eyes";
@@ -22,21 +21,21 @@ export const WORKING_ORBIT_COUNT = 3;
 /** Shallow equatorial plane. Degrees. */
 export const ORBIT_PLANE_DEG = -15;
 
-/** Sit the wrap on the planted Idle eye line so front ribbons cross the stadiums. */
+/** Sit the wrap on the planted eye line so front ribbons cross the stadiums. */
 export const ORBIT_Y_FACE = IDLE_EYE.cy;
 
-/** Bleed past the silhouette at a 300px face. */
-export const ORBIT_BLEED_AT_300 = 42;
+/**
+ * Centerline as a fraction of the face radius. Must stay on the head
+ * so clipped front bands actually paint (live never showed ribbons).
+ */
+export const ORBIT_RADIUS_FACE = 0.9;
 
 /** Arc length of one traveling band (radians). Wrap, not a closed halo. */
 export const ORBIT_ARC_LEN = 1.85;
 
-export function orbitBleedPx(faceDiameter: number): number {
-  return (faceDiameter / 300) * ORBIT_BLEED_AT_300;
-}
-
-export function orbitRadius(bodyR: number, faceD: number): number {
-  return bodyR + orbitBleedPx(faceD);
+export function orbitRadius(bodyR: number, faceD?: number): number {
+  void faceD;
+  return bodyR * ORBIT_RADIUS_FACE;
 }
 
 type Vec3 = { x: number; y: number; z: number };
@@ -96,8 +95,8 @@ function drawRibbonArc(
 }
 
 /**
- * Kick bands on the mark. Skip when energy is ~0 (Idle rest, settle, leave).
- * `ribbonPhase` is the traveling head — not a globe yaw of the disc.
+ * Kick bands on the Grok head. Skip when energy is ~0 (Idle rest, settle, leave).
+ * `ribbonPhase` is the traveling head — not a body yaw.
  * `hues` are this kick's Ver 02 chromatic assignment.
  */
 export function drawWorkingOrbits(
@@ -113,17 +112,16 @@ export function drawWorkingOrbits(
 
   const lineWidth = orbitStrokePx(faceD);
   const radius = orbitRadius(bodyR, faceD);
-  const alpha = 0.94 * energy;
+  const alpha = energy;
   const baseTilt = (ORBIT_PLANE_DEG * Math.PI) / 180;
-  // Start behind bottom-left, wrap across the face, leave.
   const head0 = Math.PI * 1.25 - ribbonPhase;
   const mid = (WORKING_ORBIT_COUNT - 1) / 2;
-  const yBias = (faceD * 0.5) * ORBIT_Y_FACE;
+  const yBias = bodyR * ORBIT_Y_FACE;
 
   for (let i = 0; i < WORKING_ORBIT_COUNT; i += 1) {
     const planeTilt = baseTilt + (i - mid) * 0.05;
     const head = head0 - i * 0.38;
-    const r = radius * (1 + (i - mid) * 0.035);
+    const r = radius * (1 + (i - mid) * 0.028);
     const color = hues[i % hues.length] ?? hues[0];
     if (!color) continue;
     drawRibbonArc(

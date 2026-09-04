@@ -7,11 +7,11 @@
 
 ## Design reference
 
-- Figma: none. USER LOCK encoded in `design.md`.
+- Figma: none. USER + EPG LOCK encoded in `design.md`.
 - Motion source: Grok Bot lifecycle tour at https://x.ai/news/designing-grok-bot (Idle / Working only on TV). Avatar motion by Benji Taylor.
-- Article Working refs: `article-working-thickness.png`, `article-working-cross-eye.png`
+- Official marks: `CUBE_2D_DARK.svg`, `grok-bot-face-tight.png`, `beginning-promo-1080.png`. `live-broken` is the bug.
 - Look lock: `LOOK.md` (later interrupts win)
-- Design spec: `design.md` (correction log for this pivot)
+- Design spec: `design.md` (correction log)
 
 ## Brief
 
@@ -23,18 +23,19 @@ Trigger frequency: rare / ambient (TV loop).
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Paper `#F2F1ED`. Official 2D Cursor cube (whole mark, ink) + black `#000000` Grok disc with planted white stadiums + one Universal Sans line `Dallas meetup`. Kick = article-thick Ver 02 ribbons only. Same disc forever.
+Paper `#F2F1ED`. Official Cursor cube (evenodd hole, ink) + official Grok product face (light organic head, black stadiums) + one Universal Sans line `Dallas meetup`. Kick = article-thick Ver 02 ribbons around Grok only.
 
 ### Success signal
 - Skyline gone.
-- Disc always black `#000000`.
-- Eyes planted (may pump more upright on the kick; never orbit).
-- Ribbons article-thick with rounded caps, wrap and clip, cross the left eye, then leave.
-- Cube uncut. Same demo route `/demos/dallas-meetup-tv-wallpaper`.
+- Cursor reads as hexagon with cursor-shaped hole (paper through), not a solid blob.
+- Grok reads as light organic head + black stadiums, not black disc + white pills.
+- Kick shows thick Ver 02 ribbons around Grok; Idle has none.
+- Same demo route `/demos/dallas-meetup-tv-wallpaper`.
 - Reduced motion freezes Idle (no ribbons).
 
 ### Non-goals
 - No skyline / Noun Project horizon / dither under the globe.
+- No black-disc rebuild. No jagged solid cube.
 - No picker morph, no SDF cycle, no HEX body cycling.
 - No eye-whip. No globe yaw. No 360 disc spin. No body turn.
 - No Thinking / Waiting / Blocked / Done as the whip.
@@ -56,8 +57,9 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | Token | Hex | Use |
 | --- | --- | --- |
 | `--dallas-paper` | `#F2F1ED` | Wallpaper background |
-| `--dallas-ink` | `#111111` | Type, cube |
-| `--dallas-grok-black` | `#000000` | Grok disc, forever |
+| `--dallas-ink` | `#111111` | Type, cube fill |
+| `--dallas-grok-head` | `#FFFFFF` | Grok organic head |
+| `--dallas-grok-black` | `#000000` | Grok stadium eyes |
 | Ver 02 chromatic (9) | gold → magenta | Kick ribbons only. Gray never a ribbon. |
 
 ## States
@@ -77,21 +79,21 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | --- | --- | --- |
 | Library | Canvas 2D + rAF | Deterministic timeline and export. No new shader. |
 | Duration | 8s: 6.4 Idle / 0.6 Working / ~1 settle | Do not shorten. Super-fast = short whip |
-| Body | Black circle disc, forever | USER LOCK. No morph, no fill cycle |
-| Stream | 2–4 article-thick Ver 02, −15°, wrap then leave | Idle has no bands |
-| Eyes | Planted. Pump more upright on kick | Do not orbit. Do not leave the face |
-| Cube | Whole 2D mark, ink | Cutout was a bug |
+| Body | Official light organic head, forever | USER+EPG LOCK. No black disc |
+| Stream | 2–4 article-thick Ver 02, −15°, hug head, wrap then leave | Idle has no bands. Kick must draw |
+| Eyes | Black stadiums baked in the product face | Planted. No morph. No white pills |
+| Cube | Official path, evenodd hole, ink | Hole is the cursor. Paper through |
 | Horizon | Gone | USER LOCK |
 
 ## Acceptance criteria
 
 - [x] Demo route `/demos/dallas-meetup-tv-wallpaper` renders locked composition
 - [x] `npm run lint` and `npm run build` pass in `lab/` (this PR: slug ESLint `--max-warnings=0`; repo lint has pre-existing `ui/` warnings)
-- [x] Idle (no ribbons) → one kick (thick wrap + clip) → Idle; reduced motion freezes Idle
-- [x] Disc always `--dallas-grok-black` `#000000`; no skyline; no SDF morph; no eye-whip; no body turn
-- [x] Front bands clip to the disc; back occluded; cube whole and clean; no meridians
-- [x] Kick ribbons ~8% of face height, rounded caps, random Ver 02 chromatic per kick, skip gray
-- [x] Eyes Idle planted; may pump more upright on kick; never leave the face
+- [x] Idle (no ribbons) → one kick (thick wrap + clip on Grok) → Idle; reduced motion freezes Idle
+- [x] Official cube evenodd hole; official Grok PNG face; no skyline; no SDF morph; no eye-whip; no body turn
+- [x] Front bands clip to the organic head; back occluded; cube clean; no meridians
+- [x] Kick ribbons ~8% of face height, rounded caps, hug the head so they fire, random Ver 02 chromatic per kick, skip gray
+- [x] Eyes are black stadiums on the product face; never white pills on a black disc
 - [x] Universal Sans trial once on the canvas line; Plex ≤ 40% of display; Geist out
 - [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`
 

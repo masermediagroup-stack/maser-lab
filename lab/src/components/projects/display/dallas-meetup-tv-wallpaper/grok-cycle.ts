@@ -1,21 +1,22 @@
 /**
- * Named tokens. Body fill is Black forever. Ribbons pick chromatic HEX per kick.
+ * Named tokens. Head is the light product face. Eyes are black stadiums.
+ * Ribbons pick chromatic HEX per kick.
  *
- * USER LOCK: no shape→color pairs, no globe fill cycling, no picker morph.
+ * USER + EPG LOCK: no black-disc body, no white pills, no shape→color pairs.
  * Gray is never a body fill and never a ribbon.
  */
 
 import { DEFAULT_LOOP_SECONDS } from "./globe-motion";
 
 export const DALLAS_PAPER = "#F2F1ED";
-/** Type and Cursor cube. */
+/** Type and Cursor cube fill. */
 export const DALLAS_INK = "#111111";
 export const DALLAS_MARK_INK = DALLAS_INK;
-/** Article Grok disc. Forever. */
+/** Official Grok organic head. Never a black disc. */
+export const DALLAS_GROK_HEAD = "#FFFFFF";
+/** Grok stadium eyes. Not the body. */
 export const DALLAS_GROK_BLACK = "#000000";
-/** Alias kept so older tests/comments that say "globe black" still mean the disc. */
-export const DALLAS_GLOBE_BLACK = DALLAS_GROK_BLACK;
-export const DALLAS_EYE_WHITE = "#FFFFFF";
+export const DALLAS_EYE_BLACK = DALLAS_GROK_BLACK;
 
 export const DALLAS_GROK_GOLD = "#97683D";
 export const DALLAS_GROK_RED = "#FF263C";
@@ -26,7 +27,7 @@ export const DALLAS_GROK_TEAL = "#00BCA6";
 export const DALLAS_GROK_BLUE = "#1084FE";
 export const DALLAS_GROK_VIOLET = "#9159FE";
 export const DALLAS_GROK_MAGENTA = "#FF309B";
-/** Named token. Never a disc fill. Never a ribbon. */
+/** Named token. Never a body fill. Never a ribbon. */
 export const DALLAS_GROK_GRAY = "#777777";
 
 export const GROK_CHROMATIC_FILLS = [

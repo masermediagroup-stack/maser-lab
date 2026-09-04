@@ -2,13 +2,13 @@
  * EPG timing lock. Loop is 8s. Do not shorten it to make the whip feel fast.
  * Super-fast means the 0.6s traveling bit is short.
  *
- * USER LOCK: Idle → one kick → Idle. Black disc forever. No body turn.
- * Kick = article-thick ribbons only. Eyes stay planted. Reduced motion freezes Idle.
+ * USER + EPG LOCK: Idle → one kick → Idle. Official product face forever. No body turn.
+ * Kick = article-thick ribbons on Grok only. Eyes stay planted. Reduced motion freezes Idle.
  */
 
 export const DEFAULT_LOOP_SECONDS = 8;
 export const DEFAULT_WHIP_SECONDS = 0.6;
-/** Settle window after the whip. Idle hold. Same disc. */
+/** Settle window after the whip. Idle hold. Same product face. */
 export const SETTLE_SECONDS = 1;
 
 export type LoopBeat = "rest" | "whip" | "settle";

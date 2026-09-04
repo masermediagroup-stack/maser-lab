@@ -22,6 +22,10 @@ const wallpaperSrc = readFileSync(
   join(dirname(fileURLToPath(import.meta.url)), "../dallas-meetup-tv-wallpaper.tsx"),
   "utf8",
 );
+const marksSrc = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "../official-marks.ts"),
+  "utf8",
+);
 
 describe("look-lock motion", () => {
   it("names an 8s cycle with 6.4s rest, 0.6s whip, 1s settle — loop stays 8s", () => {
@@ -100,15 +104,19 @@ describe("look-lock motion", () => {
     expect("AXIS_TILT_DEG" in motion).toBe(false);
   });
 
-  it("never 360-rotates the disc — no body turn", () => {
+  it("never 360-rotates the body — official cube evenodd hole, official Grok PNG", () => {
     expect(wallpaperSrc).not.toMatch(/ctx\.rotate\(\s*(ribbonPhase|streamPhase|AXIS_TILT)/);
     expect(wallpaperSrc).not.toMatch(/globeYaw/);
     expect(wallpaperSrc).not.toMatch(/dallas-horizon/);
     expect(wallpaperSrc).not.toMatch(/grok-bodies/);
     expect(wallpaperSrc).not.toMatch(/eyeWhipAt/);
-    expect(wallpaperSrc).toContain("DALLAS_GROK_BLACK");
-    expect(wallpaperSrc).toContain("nonzero");
-    expect(wallpaperSrc).not.toMatch(/M444\.05/);
+    expect(wallpaperSrc).toContain("GROK_FACE_SRC");
+    expect(wallpaperSrc).toContain("CURSOR_FILL_RULE");
+    expect(marksSrc).toContain("evenodd");
+    expect(marksSrc).toContain("M444.05");
+    expect(wallpaperSrc).not.toMatch(/fill\(new Path2D\(CURSOR_PATH\),\s*"nonzero"\)/);
+    expect(wallpaperSrc).not.toMatch(/DALLAS_GROK_BLACK/);
+    expect(wallpaperSrc).not.toMatch(/traceDisc/);
   });
 
   it("adds no idle bob or kick wobble", () => {
