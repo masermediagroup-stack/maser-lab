@@ -129,7 +129,8 @@ function drawGrokBody(
   ctx.save();
   ctx.translate(cx, cy);
 
-  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "back", plan);
+  const gazeCy = (pair.left.cy + pair.right.cy) * 0.5;
+  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "back", plan, gazeCy);
 
   ctx.fillStyle = DALLAS_GROK_BLACK;
   traceDisc(ctx, R);
@@ -140,7 +141,7 @@ function drawGrokBody(
   ctx.clip();
   drawOneStadium(ctx, faceD, pair.left);
   drawOneStadium(ctx, faceD, pair.right);
-  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "front", plan);
+  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "front", plan, gazeCy);
   ctx.restore();
 
   ctx.restore();

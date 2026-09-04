@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { GROK_LEFT_EYE, GROK_RIGHT_EYE, IDLE_EYE, eyePoseAt, eyesAt, winkEnvelope } from "../grok-eyes";
+import { GROK_LEFT_EYE, GROK_RIGHT_EYE, IDLE_EYE, eyePoseAt, eyesAt, gazeAt, winkEnvelope } from "../grok-eyes";
 import { GROK_CHROMATIC_FILLS, DALLAS_GROK_GRAY, kickRibbonHues, kickRibbonPlan } from "../grok-cycle";
 import {
-  ORBIT_CAP_SCALE,
-  ORBIT_MID_SCALE,
   ORBIT_PHASE_SPREAD,
   ORBIT_PLANE_DEG,
   ORBIT_PLANE_SPREAD,
@@ -17,14 +15,17 @@ import {
 } from "../working-orbits";
 
 describe("Idle / planted white stadiums", () => {
-  it("plants two distinct inward-tilted white stadiums, asymmetric, on the disc", () => {
+  it("plants two distinct inward-tilted white stadiums as a camera pair, not stuck BL", () => {
     expect(GROK_LEFT_EYE.cx).toBeLessThan(GROK_RIGHT_EYE.cx);
-    expect(GROK_LEFT_EYE.cy).toBeGreaterThan(GROK_RIGHT_EYE.cy);
     expect(GROK_LEFT_EYE.tilt).toBeLessThan(0);
     expect(GROK_RIGHT_EYE.tilt).toBeLessThan(0);
     const dx = GROK_RIGHT_EYE.cx - GROK_LEFT_EYE.cx;
     const dy = GROK_RIGHT_EYE.cy - GROK_LEFT_EYE.cy;
     expect(Math.hypot(dx, dy)).toBeGreaterThan(0.28);
+    expect(Math.abs(IDLE_EYE.cx)).toBeLessThan(0.12);
+    expect(Math.abs(IDLE_EYE.cy)).toBeLessThan(0.12);
+    expect(GROK_LEFT_EYE.cy).toBeLessThan(0.2);
+    expect(GROK_LEFT_EYE.cx).toBeGreaterThan(-0.28);
   });
 
   it("winks one eye on Idle and keeps the pair planted through the kick", () => {
@@ -37,10 +38,26 @@ describe("Idle / planted white stadiums", () => {
     expect(Math.abs(kick.left.cy)).toBeLessThan(0.95);
   });
 
-  it("glances on Idle and freezes reduced motion", () => {
-    const a = eyesAt(1, 8, 0.6, false);
-    const b = eyesAt(3.2, 8, 0.6, false);
-    expect(a.left.cx).not.toBeCloseTo(b.left.cx, 5);
+  it("gazes as a pair to up and side, then returns, and freezes reduced motion", () => {
+    const rest = eyesAt(0.2, 8, 0.6, false);
+    const up = eyesAt(2.1, 8, 0.6, false);
+    const side = eyesAt(3.6, 8, 0.6, false);
+    const back = eyesAt(6.5, 8, 0.6, false);
+
+    expect(up.left.cy).toBeLessThan(rest.left.cy - 0.12);
+    expect(up.right.cy).toBeLessThan(rest.right.cy - 0.12);
+    expect(side.left.cx).toBeGreaterThan(rest.left.cx + 0.12);
+    expect(side.right.cx).toBeGreaterThan(rest.right.cx + 0.12);
+    expect(back.left.cx).toBeCloseTo(rest.left.cx, 1);
+    expect(back.left.cy).toBeCloseTo(rest.left.cy, 1);
+
+    const pairDx = up.left.cx - rest.left.cx;
+    const pairDxRight = up.right.cx - rest.right.cx;
+    expect(Math.abs(pairDx - pairDxRight)).toBeLessThan(0.08);
+
+    expect(gazeAt(2.1).cy).toBeLessThan(gazeAt(0.2).cy);
+    expect(gazeAt(3.6).cx).toBeGreaterThan(gazeAt(0.2).cx);
+
     const frozen = eyesAt(6.55, 8, 0.6, true);
     expect(frozen.left).toEqual(GROK_LEFT_EYE);
     expect(frozen.right).toEqual(GROK_RIGHT_EYE);
@@ -57,26 +74,26 @@ describe("Idle / planted white stadiums", () => {
 });
 
 describe("Working kick bands", () => {
-  it("uses 2–4 article-thick flat Ver 02 bands (~8% of face / ~24px at 300px)", () => {
+  it("uses 2–4 thin even Thinking-weight Ver 02 lines (~1% of face / ~3px at 300px)", () => {
     expect(WORKING_ORBIT_COUNT).toBeGreaterThanOrEqual(2);
     expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(4);
-    expect(ORBIT_STROKE_FACE_RATIO).toBeCloseTo(0.08);
+    expect(ORBIT_STROKE_FACE_RATIO).toBeCloseTo(0.01);
     const stroke = orbitStrokePx(300);
-    expect(stroke).toBeCloseTo(24);
+    expect(stroke).toBeCloseTo(3);
+    expect(stroke).toBeLessThan(8);
     expect(kickRibbonHues(1, 8, WORKING_ORBIT_COUNT)).toHaveLength(WORKING_ORBIT_COUNT);
     expect(GROK_CHROMATIC_FILLS).toHaveLength(9);
     expect(GROK_CHROMATIC_FILLS).not.toContain(DALLAS_GROK_GRAY);
   });
 
-  it("spreads bands and tapers mid-arc thicker than the caps", () => {
+  it("spreads even hairlines around the disc with no mid-arc taper", () => {
     expect(ORBIT_PLANE_DEG).toBe(-15);
     expect(ORBIT_Y_FACE).toBeCloseTo(IDLE_EYE.cy);
     expect(ORBIT_RADIUS_FACE).toBeGreaterThan(0.75);
     expect(ORBIT_RADIUS_FACE).toBeLessThanOrEqual(1);
     expect(orbitRadius(150, 300)).toBeCloseTo(135);
-    expect(ORBIT_PLANE_SPREAD).toBeGreaterThan(0.12);
-    expect(ORBIT_PHASE_SPREAD).toBeGreaterThan(0.5);
-    expect(ORBIT_MID_SCALE).toBeGreaterThan(ORBIT_CAP_SCALE);
+    expect(ORBIT_PLANE_SPREAD).toBeGreaterThan(0.24);
+    expect(ORBIT_PHASE_SPREAD).toBeGreaterThan(0.9);
   });
 
   it("seeds placement and hue per kick, stable within a loop", () => {
@@ -88,8 +105,9 @@ describe("Working kick bands", () => {
     expect(new Set(a.map((b) => b.phaseJitter)).size).toBe(WORKING_ORBIT_COUNT);
   });
 
-  it("fills chromatic tapered bands at full kick energy and skips Idle", () => {
-    const fills: Array<{ color: string }> = [];
+  it("strokes chromatic even lines at full kick energy and skips Idle", () => {
+    const strokes: Array<{ color: string; width: number; cap: string }> = [];
+    const fills: unknown[] = [];
     const ctx = {
       save() {},
       restore() {},
@@ -98,23 +116,38 @@ describe("Working kick bands", () => {
       lineTo() {},
       closePath() {},
       fill() {
-        fills.push({ color: String(this.fillStyle) });
+        fills.push(this.fillStyle);
+      },
+      stroke() {
+        strokes.push({
+          color: String(this.strokeStyle),
+          width: Number(this.lineWidth),
+          cap: String(this.lineCap),
+        });
       },
       arc() {},
       fillStyle: "",
+      strokeStyle: "",
+      lineWidth: 0,
+      lineCap: "",
+      lineJoin: "",
       globalAlpha: 1,
     } as unknown as CanvasRenderingContext2D;
 
     const plan = kickRibbonPlan(6.7, 8, WORKING_ORBIT_COUNT);
     drawWorkingOrbits(ctx, 150, 300, 0, Math.PI, "front", plan);
+    expect(strokes).toHaveLength(0);
     expect(fills).toHaveLength(0);
 
-    drawWorkingOrbits(ctx, 150, 300, 1, Math.PI, "back", plan);
-    drawWorkingOrbits(ctx, 150, 300, 1, Math.PI, "front", plan);
-    expect(fills.length).toBeGreaterThanOrEqual(WORKING_ORBIT_COUNT);
+    drawWorkingOrbits(ctx, 150, 300, 1, Math.PI, "back", plan, IDLE_EYE.cy);
+    drawWorkingOrbits(ctx, 150, 300, 1, Math.PI, "front", plan, IDLE_EYE.cy);
+    expect(fills).toHaveLength(0);
+    expect(strokes.length).toBeGreaterThanOrEqual(WORKING_ORBIT_COUNT);
     const hues = plan.map((b) => b.hue);
-    for (const f of fills) {
-      expect(hues).toContain(f.color);
+    for (const s of strokes) {
+      expect(hues).toContain(s.color);
+      expect(s.width).toBeCloseTo(3);
+      expect(s.cap).toBe("round");
     }
   });
 });
