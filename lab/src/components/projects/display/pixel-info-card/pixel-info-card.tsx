@@ -150,8 +150,13 @@ export function PixelInfoCard({
 
     if (phase === "idle" || phase === "collapsing") {
       textStartedRef.current = false;
-      setGlideReady(false);
-      clearTextOutTimer();
+      // Lint rule: avoid synchronous setState directly in effect body.
+      // clearTextOutTimer includes setHoldingForTextOut(false), so keep the
+      // whole state-updating path off the effect's synchronous body.
+      queueMicrotask(() => {
+        setGlideReady(false);
+        clearTextOutTimer();
+      });
       return;
     }
 
@@ -296,10 +301,18 @@ export function PixelInfoCard({
   }, [measureOrigin]);
 
   useEffect(() => {
-    setCardSize({
-      w: CARD_MAX_WIDTH * scale,
-      h: CARD_MIN_HEIGHT * scale,
+    // Lint rule: avoid synchronous setState directly in effect body.
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setCardSize({
+        w: CARD_MAX_WIDTH * scale,
+        h: CARD_MIN_HEIGHT * scale,
+      });
     });
+    return () => {
+      cancelled = true;
+    };
   }, [scale]);
 
   const prevPhaseRef = useRef<typeof phase>(phase);

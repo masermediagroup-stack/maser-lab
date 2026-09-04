@@ -1,0 +1,139 @@
+/*
+ * Dallas Meetup TV Wallpaper — product tokens.
+ *
+ * Paper / ink:
+ *   --dallas-paper       #F2F1ED
+ *   --dallas-ink         #111111  (type, cube fill)
+ *   --dallas-grok-black  #000000  (cold-start oval rest only)
+ *   --dallas-eye-white   #FFFFFF  (Grok stadium eyes)
+ *
+ * Ver 02 chromatic hues (HEX only; Figma sheet previews are inaccurate):
+ *   gold, red, orange-red, orange, green, teal, blue, violet, magenta.
+ * Body fills follow the Ver 02 tree pairing. Green is never a body fill.
+ * Gray exists as a named token and is never a body fill and never a ribbon.
+ * They are never drawn as orbits on Grok.
+ *
+ * Type split:
+ *   --dallas-font      Universal Sans trial, exactly once: canvas "Dallas meetup"
+ *   --dallas-font-ui   IBM Plex Sans Condensed for body, labels, info
+ * Size check: largest Plex ≤ 40% of the display's rendered size (44px @ 1920).
+ * Never load xAI's self-hosted woff2 files. Geist is out.
+ */
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src: url("/fonts/UniversalSansGrokTest-Display-Trial-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial 400";
+  src: url("/fonts/UniversalSansGrokTest-Display-Trial-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.dallas-demo,
+.dallas-demo.maser-lab {
+  --dallas-paper: #f2f1ed;
+  --dallas-ink: #111111;
+  --dallas-mark-ink: var(--dallas-ink);
+  --dallas-grok-black: #000000;
+  --dallas-eye-white: #ffffff;
+  --dallas-loop-seconds: 8s;
+
+  --dallas-grok-gold: #97683d;
+  --dallas-grok-red: #ff263c;
+  --dallas-grok-orange-red: #ff6700;
+  --dallas-grok-orange: #ff9800;
+  --dallas-grok-green: #00c972;
+  --dallas-grok-teal: #00bca6;
+  --dallas-grok-blue: #1084fe;
+  --dallas-grok-violet: #9159fe;
+  --dallas-grok-magenta: #ff309b;
+  --dallas-grok-gray: #777777;
+
+  --dallas-grok4-rose: #cf525c;
+  --dallas-grok4-red: #f15336;
+  --dallas-grok4-orange: #feb87c;
+  --dallas-grok4-cream: #ffe4a6;
+  --dallas-grok4-icy: #c4d3e1;
+  --dallas-grok4-cyan: #aad5ea;
+  --dallas-grok4-blue: #86a4c6;
+  --dallas-grok4-indigo: #7775a5;
+
+  --dallas-font: "UniversalSansGrokTest Display Trial", "UniversalSansGrokTest Display Trial 400", ui-sans-serif, system-ui, sans-serif;
+  --dallas-font-ui: var(--font-ibm-plex-sans-condensed), "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", sans-serif;
+
+  font-family: var(--dallas-font-ui);
+  --font-sans: var(--dallas-font-ui);
+  --font-mono: var(--dallas-font-ui);
+
+  --dallas-display-px: 44px;
+  --dallas-plex-max-ratio: 0.4;
+  --dallas-plex-max: calc(var(--dallas-display-px) * var(--dallas-plex-max-ratio));
+  font-size: min(0.8125rem, var(--dallas-plex-max));
+
+  min-height: 100dvh;
+  background: var(--dallas-paper);
+  color: var(--dallas-ink);
+}
+
+.dallas-demo__stage {
+  background: var(--dallas-paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.dallas-demo__wallpaper {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: var(--dallas-paper);
+}
+
+.dallas-wallpaper-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  background: var(--dallas-paper);
+}
+
+.dallas-demo__note {
+  font-family: var(--dallas-font-ui);
+  font-size: min(10px, var(--dallas-plex-max));
+}
+
+.dallas-demo :where(.font-mono, .font-sans, button, label, p, h1, h2, span, a, li, select, option) {
+  font-family: var(--dallas-font-ui) !important;
+}
+
+.dallas-demo :where(.text-xs) {
+  font-size: min(0.75rem, var(--dallas-plex-max)) !important;
+}
+
+.dallas-demo :where(.text-sm) {
+  font-size: min(0.875rem, var(--dallas-plex-max)) !important;
+}
+
+.dallas-demo :where(.text-base) {
+  font-size: min(1rem, var(--dallas-plex-max)) !important;
+}
+
+.dallas-demo :where(.text-lg) {
+  font-size: min(1.125rem, var(--dallas-plex-max)) !important;
+}
+
+.dallas-demo :where(.text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl) {
+  font-size: var(--dallas-plex-max) !important;
+}
+
+.dallas-demo :where([class*="text-[10px]"]) {
+  font-size: min(10px, var(--dallas-plex-max)) !important;
+}
