@@ -28,7 +28,7 @@ Paper `#F2F1ED`. Official Cursor cube (evenodd hole, ink; 360 whip on kick) + Gr
 ### Success signal
 - Skyline gone.
 - Cursor reads as hexagon with cursor-shaped hole (paper through), not a solid blob. Spins 360 on kick, lands upright.
-- Grok reads as the official picker silhouettes (oval rest → square/teal first land, then the tree) with white stadiums (vertical, slight left, parallel) that translate as a gaze pair (not stuck BL or TR) and wink through the blend. Not a light organic PNG head.
+- Grok reads as the official picker silhouettes (oval rest → square/teal first land, then the tree) with white stadiums (vertical, slight left, parallel) that translate as a gaze pair (not stuck BL or TR) and wink through the blend **without shearing**. Not a light organic PNG head.
 - Kick is SDF morph + pair HEX blend + Cursor 360. Eyes may gaze/wink. No Thinking nest. No Working ribbons. No orbits.
 - Same demo route `/demos/dallas-meetup-tv-wallpaper`.
 - Reduced motion freezes Idle (oval + Black, no ribbons, no cube spin, no morph).
@@ -82,7 +82,7 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | Duration | 8s: 6.4 Idle / 0.6 Working / ~1 settle | Do not shorten. Super-fast = short whip |
 | Body | SDF picker morph, 1:1 shape↔HEX. Cold start oval + Black | USER OVERRIDE. Ver 02 tree. No Green / Gray body |
 | Stream | None. Kick is morph + HEX blend + Cursor 360 | USER LOCK. Kill Thinking nest and Working ribbons |
-| Eyes | White stadiums, vertical + slight left (−12°), translate as a pair, wink | Not −28°. Not stuck BL/TR. No independent spin |
+| Eyes | White stadiums, vertical + slight left (−12°), translate as a pair, wink. Survive morph unsheared (face disc) | Not −28°. Not stuck BL/TR. No independent spin. No silhouette clip |
 | Cube | Official path, evenodd hole, ink; 360 on kick | Hole is the cursor. Paper through |
 | Horizon | Gone | USER LOCK |
 
@@ -93,7 +93,7 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 - [x] Idle (clean morph face, cube upright, eyes wink) → one kick (SDF morph + HEX blend + Cursor 360) → Idle on next pair; reduced motion freezes Idle
 - [x] Official cube evenodd hole; Grok SDF picker + white stadiums; no skyline; no eye-whip; no Grok body turn; no orbits on Grok
 - [x] Wallpaper never draws Thinking nest, Working ribbons, or colored bands around Grok; cube clean of lines
-- [x] Eyes are a parallel pair at −8° to −15° (product −12°), translate together (center / up / side / return), wink; never stuck BL or TR; never independent spin; never a light PNG head
+- [x] Eyes are a parallel pair at −8° to −15° (product −12°), translate together (center / up / side / return), wink; never stuck BL or TR; never independent spin; never sheared/smashed mid-morph; never a light PNG head
 - [x] Universal Sans trial once on the canvas line; Plex ≤ 40% of display; Geist out
 - [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`
 
@@ -106,5 +106,5 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 - `maser-lab-demo-chrome`
 - `maser-lab-token-system`
 - `ui-animation` (easing character for cube whip + wink)
-- `projects/display/dallas-meetup-tv-wallpaper/design.md` (correction log)
+- `projects/display/dallas-meetup-tv-wallpaper/design.md` (correction log; eye-survive)
 - `LOOK.md` as look lock

@@ -2,8 +2,18 @@
  * White stadiums in face-space on the morphing body. Parallel pair, slight left lean.
  * They translate together as a gaze (center, up, side), then return. They still wink.
  * They do not spin independently. They do not orbit. They are not stuck BL or TR.
- * Clip them to the SDF silhouette so they stay readable through the blend.
+ *
+ * They SURVIVE the morph: planted in face-space on every body, never sheared or
+ * smashed by the silhouette. Clip to the inscribed face disc — not the polar
+ * outline — so stadium geometry stays readable through the SDF blend.
  */
+
+/** Inscribed face disc (face-radii). Every official SDF and every blend contains it. */
+export const FACE_DISC_R = 0.86;
+
+/** Stadium size as a fraction of face diameter — article Idle/Working. */
+export const EYE_W_FACE = 0.12;
+export const EYE_H_FACE = 0.3;
 
 export type EyePose = {
   /** Radians. Negative = slight left lean on canvas. */
@@ -195,4 +205,27 @@ export function eyePoseAt(
     cy: (pair.left.cy + pair.right.cy) * 0.5,
     scaleY: 1,
   };
+}
+
+/**
+ * Half-diagonal of one stadium in face-radii after tilt (and wink scale).
+ * Stadiums are never warped by the SDF — this reach is constant geometry.
+ */
+export function stadiumReach(scaleY = 1): number {
+  const hw = EYE_W_FACE;
+  const hh = EYE_H_FACE * scaleY;
+  const c = Math.cos(STADIUM_TILT);
+  const s = Math.sin(STADIUM_TILT);
+  let max = 0;
+  for (const sx of [-hw, hw] as const) {
+    for (const sy of [-hh, hh] as const) {
+      max = Math.max(max, Math.hypot(sx * c - sy * s, sx * s + sy * c));
+    }
+  }
+  return max;
+}
+
+/** True when the stadium's AABB corners sit inside the face disc. */
+export function eyeFitsFaceDisc(pose: EyePose, discR = FACE_DISC_R): boolean {
+  return Math.hypot(pose.cx, pose.cy) + stadiumReach(pose.scaleY) <= discR;
 }

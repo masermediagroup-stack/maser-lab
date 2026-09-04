@@ -12,7 +12,8 @@
  * When the walk returns to oval, fill is Orange-red (tree color), not black.
  *
  * USER OVERRIDE: no bands, no orbits, no nest around Grok. Morph is the kick
- * body. Cursor 360 is separate. Eyes stay white stadiums in face-space.
+ * body. Cursor 360 is separate. Eyes stay white stadiums in face-space
+ * on every body — they survive the morph; they are not sheared by the SDF.
  */
 
 import {

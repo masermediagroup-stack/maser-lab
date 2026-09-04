@@ -14,7 +14,13 @@ import {
   DALLAS_PAPER,
   grokCyclePose,
 } from "./grok-cycle";
-import { eyesAt, type EyePose } from "./grok-eyes";
+import {
+  EYE_H_FACE,
+  EYE_W_FACE,
+  FACE_DISC_R,
+  eyesAt,
+  type EyePose,
+} from "./grok-eyes";
 import {
   CURSOR_ASPECT,
   CURSOR_FILL_RULE,
@@ -38,10 +44,6 @@ const CURSOR_H_PX = 280;
 const GROK_FACE_PX = 300;
 const MARK_GAP_PX = 120;
 const PAIR_LIFT_PX = 70;
-
-/** Stadium size as a fraction of face diameter — article Idle/Working. */
-const EYE_W_FACE = 0.12;
-const EYE_H_FACE = 0.3;
 
 type ExportResult = {
   blob: Blob;
@@ -125,7 +127,8 @@ function drawGrokBody(
   ctx.fill();
 
   ctx.save();
-  traceBodyPath(ctx, radii, R);
+  ctx.beginPath();
+  ctx.arc(0, 0, R * FACE_DISC_R, 0, Math.PI * 2);
   ctx.clip();
   drawOneStadium(ctx, faceD, pair.left);
   drawOneStadium(ctx, faceD, pair.right);

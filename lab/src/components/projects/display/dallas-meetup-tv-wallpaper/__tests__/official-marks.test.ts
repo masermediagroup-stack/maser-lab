@@ -24,6 +24,7 @@ describe("official Cursor mark", () => {
   it("draws Grok as an SDF picker body + white stadiums, not a PNG face", () => {
     expect(existsSync(join(publicDir, "CUBE_2D_DARK.svg"))).toBe(true);
     expect(wallpaperSrc).toContain("traceBodyPath");
+    expect(wallpaperSrc).toContain("FACE_DISC_R");
     expect(wallpaperSrc).toContain("grokCyclePose");
     expect(wallpaperSrc).toContain("bodyOutline");
     expect(wallpaperSrc).toContain("DALLAS_EYE_WHITE");

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { grokBodySd, mixedBodySd } from "../grok-bodies";
+import {
+  bodyOutline,
+  grokBodySd,
+  minOutlineRadius,
+  mixedBodySd,
+  sdContainsDisc,
+} from "../grok-bodies";
+import { FACE_DISC_R } from "../grok-eyes";
 import {
   DALLAS_EYE_WHITE,
   DALLAS_GLOBE_BLACK,
@@ -42,6 +49,24 @@ describe("official picker SDFs", () => {
     const a = grokBodySd(2, 0.4, 0.2);
     const b = grokBodySd(3, 0.4, 0.2);
     expect(mid).toBeCloseTo((a + b) * 0.5);
+  });
+
+  it("keeps the face disc inside every official body and every mid-blend", () => {
+    const ids = [1, 2, 3, 4, 5, 6, 7, 8] as const;
+    for (const id of ids) {
+      expect(sdContainsDisc(id, id, 0, FACE_DISC_R)).toBe(true);
+      expect(minOutlineRadius(bodyOutline(id, id, 0))).toBeGreaterThanOrEqual(
+        FACE_DISC_R - 0.02,
+      );
+    }
+    for (let i = 0; i < GROK_SHAPE_WALK.length; i += 1) {
+      const from = GROK_SHAPE_WALK[i]!;
+      const to = GROK_SHAPE_WALK[(i + 1) % GROK_SHAPE_WALK.length]!;
+      expect(sdContainsDisc(from, to, 0.5, FACE_DISC_R)).toBe(true);
+      expect(
+        minOutlineRadius(bodyOutline(from, to, 0.5)),
+      ).toBeGreaterThanOrEqual(FACE_DISC_R - 0.02);
+    }
   });
 });
 

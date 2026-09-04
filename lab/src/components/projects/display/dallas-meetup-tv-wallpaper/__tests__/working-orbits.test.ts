@@ -3,13 +3,16 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
+  FACE_DISC_R,
   GROK_LEFT_EYE,
   GROK_RIGHT_EYE,
   IDLE_EYE,
   STADIUM_TILT_DEG,
+  eyeFitsFaceDisc,
   eyePoseAt,
   eyesAt,
   gazeAt,
+  stadiumReach,
   winkEnvelope,
 } from "../grok-eyes";
 
@@ -87,6 +90,25 @@ describe("Idle / planted white stadiums", () => {
     expect(winkEnvelope(0.08)).toBeLessThan(0.5);
     expect(winkEnvelope(0.16)).toBe(1);
   });
+
+  it("keeps every gaze+wink pose inside the face disc and never clips stadiums to the silhouette", () => {
+    expect(stadiumReach(1)).toBeLessThan(FACE_DISC_R);
+    const samples = [0.2, 1.65, 1.73, 2.1, 3.6, 4.85, 4.93, 6.5, 6.7];
+    for (const t of samples) {
+      const pair = eyesAt(t, 8, 0.6, false);
+      expect(eyeFitsFaceDisc(pair.left)).toBe(true);
+      expect(eyeFitsFaceDisc(pair.right)).toBe(true);
+    }
+    const frozen = eyesAt(2.1, 8, 0.6, true);
+    expect(eyeFitsFaceDisc(frozen.left)).toBe(true);
+    expect(eyeFitsFaceDisc(frozen.right)).toBe(true);
+
+    expect(wallpaperSrc).toContain("FACE_DISC_R");
+    expect(wallpaperSrc).toMatch(/ctx\.arc\(0, 0, R \* FACE_DISC_R/);
+    expect(wallpaperSrc).not.toMatch(
+      /traceBodyPath\(ctx, radii, R\);\s*ctx\.clip\(\)/s,
+    );
+  });
 });
 
 describe("no bands on Grok", () => {
@@ -101,6 +123,7 @@ describe("no bands on Grok", () => {
     expect(wallpaperSrc).not.toMatch(/streamPhase/);
     expect(wallpaperSrc).toContain("cursorWhipRad");
     expect(wallpaperSrc).toContain("traceBodyPath");
+    expect(wallpaperSrc).toContain("FACE_DISC_R");
     expect(wallpaperSrc).toContain("eyesAt");
     expect(wallpaperSrc).toContain("grokCyclePose");
   });

@@ -11,7 +11,7 @@ Do not ask anyone to retime the thick-band cut or the light-head cut.
 - **Orbits on Grok.** Any colored arcs, bands, lines, or filaments around the body. Morph is the kick body. Cursor spin is separate.
 - **Globe yaw.** 360 disc spin / any **Grok** body turn. The silhouette stays planted. Morph in place.
 - **Independent eye spin.** Each stadium does not rotate on its own. Tilt stays locked. Pair translates together.
-- **Broken eyes during morph.** Stadiums stay white, readable, clipped to the SDF. Do not drop, dim, or detach them mid-blend.
+- **Broken eyes during morph.** Stadiums stay white, readable, **unsheared**. Planted in face-space on every body. Clip to the inscribed face disc — never to the morphing silhouette. Do not drop, dim, detach, shear, or smash them mid-blend.
 - **Green body fill.** `#00C972` is a named token. It is not on the Ver 02 tree. Never a body fill.
 - **Cool Gray.** `#777777` is a named token. Never a body fill. Never a line.
 - Dallas skyline: Noun Project, dither, horizon, any silhouette under the globe.
@@ -92,7 +92,7 @@ Color lerp is **only the two locked pair stops** (current → next). No off-shee
 - **Rest:** camera / center of the face, upright + slight left. **Not** stuck bottom-left. **Not** article Idle upper-right. User overrules that rest pose.
 - **Motion:** both stadiums **translate together** as a gaze — look at different points on the face (center, up, side), then return. Do **not** spin each eye independently. Tilt stays locked while the pair shifts.
 - Eyes **wink** on Idle and through the kick. Not a static crop.
-- Eyes stay readable through the SDF blend. Clip to the silhouette. No eye-whip around the form. No orbit off the face.
+- Eyes stay readable through the SDF blend. Clip to the **inscribed face disc**, not the polar silhouette, so stadiums never shear or smash mid-blend. No eye-whip around the form. No orbit off the face.
 
 **Reduced motion:** freeze Idle (oval + Black, planted pair at camera rest, no lines, cube planted). Wink may freeze.
 

@@ -7,7 +7,7 @@ USER OVERRIDE. Later interrupts win. Encode corrections in `design.md`. Morph is
 Dallas skyline. Globe yaw / 360 **body** spin / any Grok body turn. Eye-whip. Independent HEX wraps.
 **Light organic / white head Grok.** **Static PNG face crop.** **Smashed overlapping white pills that never wink.**
 **Dim article Thinking eyes.** **Stuck bottom-left stadiums.** **Stuck top-right / 45° article Idle rest.** **Independent eye spin.** **−28° stadiums.**
-**Broken eyes during morph.** **Green body fill.** **Cool Gray body fill.**
+**Broken eyes during morph / sheared stadiums.** **Green body fill.** **Cool Gray body fill.**
 **Thinking nest.** **Working ribbons.** **Thick mid.** **Sparse 2–4 bands.** **Any colored orbits / arcs / bands around Grok.**
 
 ## Tokens
@@ -22,7 +22,7 @@ Dallas skyline. Globe yaw / 360 **body** spin / any Grok body turn. Eye-whip. In
 ## Marks
 
 Cursor: official SVG path, evenodd, hole is the cursor, paper through. ~280px. Kick = quick 360° ease-in-out whip, lands upright. No ribbons on it. Reduced motion: planted.
-Grok: SDF picker body, 1:1 shape↔color from the Ver 02 tree. Cold start = irregular oval + Black. First kick lands rounded square + Teal. White stadiums as a **parallel gaze pair** — vertical long axis, slight left (~−12°). Translate together (center / up / side), wink. Rest is camera, not stuck BL or TR. Eyes live in face-space through the blend. No independent spin. **No orbits.**
+Grok: SDF picker body, 1:1 shape↔color from the Ver 02 tree. Cold start = irregular oval + Black. First kick lands rounded square + Teal. White stadiums as a **parallel gaze pair** — vertical long axis, slight left (~−12°). Translate together (center / up / side), wink. Rest is camera, not stuck BL or TR. Eyes live in face-space on **every** body and survive the blend unsheared (clip to face disc, not silhouette). No independent spin. **No orbits.**
 
 ## Surface
 

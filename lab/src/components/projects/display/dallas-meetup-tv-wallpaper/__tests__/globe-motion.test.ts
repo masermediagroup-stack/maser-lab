@@ -119,6 +119,7 @@ describe("look-lock motion", () => {
     expect(wallpaperSrc).not.toMatch(/kickRibbonPlan/);
     expect(wallpaperSrc).toContain("CURSOR_FILL_RULE");
     expect(wallpaperSrc).toContain("traceBodyPath");
+    expect(wallpaperSrc).toContain("FACE_DISC_R");
     expect(wallpaperSrc).toContain("grokCyclePose");
     expect(wallpaperSrc).toContain("bodyOutline");
     expect(marksSrc).toContain("evenodd");

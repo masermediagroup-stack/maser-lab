@@ -3,9 +3,11 @@
  * Body is an SDF. Morph is a blend of SDFs, not a bitmap crossfade, not a cut,
  * not globe yaw. Body stays planted; blend in place during the kick.
  * Do not invent extra bodies. Do not put meridians, orbits, or bands on any of them.
+ * Every official body contains the face disc (`FACE_DISC_R`) so eyes never shear.
  */
 
 import type { GrokShapeId } from "./grok-cycle";
+import { FACE_DISC_R } from "./grok-eyes";
 
 export const GROK_SHAPE_COUNT = 8;
 
@@ -15,7 +17,7 @@ function clamp(v: number, a: number, b: number): number {
 
 function smin(a: number, b: number, k: number): number {
   const h = clamp(0.5 + (0.5 * (b - a)) / k, 0, 1);
-  return b * h + a * (1 - h) - k * h * (1 - h);
+  return a * h + b * (1 - h) - k * h * (1 - h);
 }
 
 function sdCircle(x: number, y: number, r: number): number {
@@ -85,17 +87,17 @@ function sdHexagonPointy(x: number, y: number, r: number): number {
 }
 
 function sdCloud(x: number, y: number): number {
-  const center = sdCircle(x, y - 0.08, 0.7);
-  const left = sdCircle(x + 0.48, y + 0.04, 0.46);
-  const right = sdCircle(x - 0.48, y + 0.04, 0.46);
-  const base = sdRoundedBox(x, y + 0.22, 0.74, 0.4, 0.4);
-  return smin(smin(center, left, 0.16), smin(right, base, 0.16), 0.14);
+  const center = sdCircle(x, y - 0.06, 0.92);
+  const left = sdCircle(x + 0.55, y - 0.18, 0.5);
+  const right = sdCircle(x - 0.55, y - 0.18, 0.5);
+  const base = sdRoundedBox(x, y + 0.2, 0.92, 0.5, 0.48);
+  return smin(smin(center, left, 0.18), smin(right, base, 0.18), 0.16);
 }
 
 function sdTeardrop(x: number, y: number): number {
-  const bulb = sdCircle(x, y + 0.28, 0.7);
-  const tip = sdRoundedTriangle(x, y - 0.08, 0.72, 0.14);
-  return smin(bulb, tip, 0.18);
+  const bulb = sdCircle(x, y + 0.1, 0.94);
+  const tip = sdRoundedTriangle(x, y - 0.22, 1.18, 0.2);
+  return smin(bulb, tip, 0.22);
 }
 
 /**
@@ -117,17 +119,17 @@ export function grokBodySd(id: GrokShapeId, x: number, y: number): number {
     case 2: {
       const taper = 1.1 - 0.16 * y;
       const x2 = (x + 0.1 * Math.max(0, -y)) / taper;
-      const y2 = y / 0.84;
+      const y2 = y / 0.92;
       return sdCircle(x2, y2, 1);
     }
     case 3:
-      return sdRoundedBox(x, y, 0.8, 0.8, 0.36);
+      return sdRoundedBox(x, y, 0.88, 0.88, 0.36);
     case 4:
-      return sdCapsule(x, y, -0.5, 0, 0.5, 0, 0.5);
+      return sdCapsule(x, y, -0.88, 0, 0.88, 0, 0.88);
     case 5:
-      return sdRoundedTriangle(x, y + 0.18, 0.92, 0.14);
+      return sdRoundedTriangle(x, y + 0.06, 1.38, 0.18);
     case 6:
-      return sdHexagonPointy(x, y, 0.92);
+      return sdHexagonPointy(x, y, 1.05);
     case 7:
       return sdCloud(x, y);
     case 8:
@@ -165,7 +167,7 @@ function rayRadius(
   const dx = Math.cos(angle);
   const dy = Math.sin(angle);
   let lo = 0;
-  let hi = 2.4;
+  let hi = 2.8;
   for (let i = 0; i < 18; i += 1) {
     const mid = (lo + hi) * 0.5;
     if (mixedBodySd(from, to, morphT, dx * mid, dy * mid) < 0) lo = mid;
@@ -197,6 +199,36 @@ export function maxOutlineRadius(radii: Float64Array): number {
     if (r > max) max = r;
   }
   return max;
+}
+
+export function minOutlineRadius(radii: Float64Array): number {
+  let min = Number.POSITIVE_INFINITY;
+  for (let i = 0; i < radii.length; i += 1) {
+    const r = radii[i]!;
+    if (r < min) min = r;
+  }
+  return min;
+}
+
+/**
+ * True when the origin-centered disc of `radius` sits inside the blended SDF.
+ * Linear SDF mixes preserve this: if both bodies contain the disc, so does the blend.
+ */
+export function sdContainsDisc(
+  from: GrokShapeId,
+  to: GrokShapeId,
+  morphT: number,
+  radius: number = FACE_DISC_R,
+  samples = 72,
+): boolean {
+  if (mixedBodySd(from, to, morphT, 0, 0) > 0) return false;
+  for (let i = 0; i < samples; i += 1) {
+    const a = (i / samples) * Math.PI * 2;
+    const x = Math.cos(a) * radius;
+    const y = Math.sin(a) * radius;
+    if (mixedBodySd(from, to, morphT, x, y) > 1e-6) return false;
+  }
+  return true;
 }
 
 export function outlineRadiusAt(
