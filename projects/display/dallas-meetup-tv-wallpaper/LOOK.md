@@ -1,12 +1,13 @@
 # LOOK LOCK — Dallas meetup TV wallpaper
 
-USER OVERRIDE. Later interrupts win. Encode corrections in `design.md`. Do not ship thick mid Working capsules again. Do not ship sparse 2–4 bands.
+USER OVERRIDE. Later interrupts win. Encode corrections in `design.md`. Do not ship Thinking nest, Working ribbons, or any orbits on Grok.
 
 ## Killed, fully
 
 Dallas skyline. Picker SDF morph. Shape→color pairs. Body HEX cycling. Eye-whip. Globe yaw / 360 **disc** spin / any Grok body turn.
 **Light organic / white head Grok.** **Static PNG face crop.** **Smashed overlapping white pills that never wink.**
-**Dim article Thinking eyes.** **Stuck bottom-left stadiums.** **Thick Working ribbons / tapered-thick-middle / ~24px capsules.** **Sparse 2–4 orbits.** **2px-too-thin nest.**
+**Dim article Thinking eyes.** **Stuck bottom-left stadiums.** **Stuck top-right / 45° article Idle rest.** **Independent eye spin.** **−28° stadiums.**
+**Thinking nest.** **Working ribbons.** **Thick mid.** **Sparse 2–4 bands.** **Any colored orbits / arcs / bands around Grok.**
 
 ## Tokens
 
@@ -20,7 +21,7 @@ Dallas skyline. Picker SDF morph. Shape→color pairs. Body HEX cycling. Eye-whi
 ## Marks
 
 Cursor: official SVG path, evenodd, hole is the cursor, paper through. ~280px. Kick = quick 360° ease-in-out whip, lands upright. No ribbons on it. Reduced motion: planted.
-Grok: black disc + two white stadiums as a **gaze pair** (look up / side / center, return; still wink), planted on the disc. Same disc at rest and kick. No morph.
+Grok: black disc + two white stadiums as a **parallel gaze pair** — vertical long axis, slight left (~−12°). Translate together (center / up / side), wink. Rest is camera, not stuck BL or TR. Same disc at rest and kick. No morph. No independent spin. **No orbits.**
 
 ## Surface
 
@@ -28,6 +29,6 @@ Canvas 1920×1080. Paper → cube + Grok (300px, gap 120px, lift 70px) + `Dallas
 
 ## Motion
 
-Idle: upright cube, black disc, gaze-pair stadiums, no lines.
-Kick: Cursor 360 + **Thinking nest** — ~8–10 even Ver 02 orbits at **3% of head** (~9px @ 300), interlaced around the whole disc, true wrap + clip. Flat HEX, skip gray. White gaze-pair eyes (not dim). No thick mid. No 2–4 fat bands.
+Idle: upright cube, black disc, upright slight-left stadiums that gaze as a pair, no lines.
+Kick: Cursor 360 only. Eyes may still gaze/wink. **No nest. No ribbons. No bands on Grok.**
 Reduced motion freezes Idle.

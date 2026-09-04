@@ -1,33 +1,43 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { GROK_LEFT_EYE, GROK_RIGHT_EYE, IDLE_EYE, eyePoseAt, eyesAt, gazeAt, winkEnvelope } from "../grok-eyes";
-import { GROK_CHROMATIC_FILLS, DALLAS_GROK_GRAY, kickRibbonHues, kickRibbonPlan } from "../grok-cycle";
 import {
-  ORBIT_INCL_SPAN,
-  ORBIT_PHASE_SPREAD,
-  ORBIT_PLANE_DEG,
-  ORBIT_PLANE_SPREAD,
-  ORBIT_RADIUS_FACE,
-  ORBIT_RADIUS_STEP,
-  ORBIT_STROKE_FACE_RATIO,
-  ORBIT_Y_FACE,
-  orbitRadius,
-  orbitStrokePx,
-  WORKING_ORBIT_COUNT,
-  drawWorkingOrbits,
-} from "../working-orbits";
+  GROK_LEFT_EYE,
+  GROK_RIGHT_EYE,
+  IDLE_EYE,
+  STADIUM_TILT_DEG,
+  eyePoseAt,
+  eyesAt,
+  gazeAt,
+  winkEnvelope,
+} from "../grok-eyes";
+
+const wallpaperSrc = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "../dallas-meetup-tv-wallpaper.tsx"),
+  "utf8",
+);
 
 describe("Idle / planted white stadiums", () => {
-  it("plants two distinct inward-tilted white stadiums as a camera pair, not stuck BL", () => {
+  it("plants two distinct parallel stadiums, slight left, camera rest not stuck BL or TR", () => {
     expect(GROK_LEFT_EYE.cx).toBeLessThan(GROK_RIGHT_EYE.cx);
-    expect(GROK_LEFT_EYE.tilt).toBeLessThan(0);
-    expect(GROK_RIGHT_EYE.tilt).toBeLessThan(0);
+    expect(GROK_LEFT_EYE.tilt).toBeCloseTo(GROK_RIGHT_EYE.tilt);
+    expect(STADIUM_TILT_DEG).toBeGreaterThanOrEqual(-15);
+    expect(STADIUM_TILT_DEG).toBeLessThanOrEqual(-8);
+    expect(STADIUM_TILT_DEG).toBeCloseTo(-12);
+    const deg = (GROK_LEFT_EYE.tilt * 180) / Math.PI;
+    expect(deg).toBeGreaterThanOrEqual(-15);
+    expect(deg).toBeLessThanOrEqual(-8);
+    expect(deg).toBeGreaterThan(-20);
     const dx = GROK_RIGHT_EYE.cx - GROK_LEFT_EYE.cx;
     const dy = GROK_RIGHT_EYE.cy - GROK_LEFT_EYE.cy;
     expect(Math.hypot(dx, dy)).toBeGreaterThan(0.28);
     expect(Math.abs(IDLE_EYE.cx)).toBeLessThan(0.12);
     expect(Math.abs(IDLE_EYE.cy)).toBeLessThan(0.12);
     expect(GROK_LEFT_EYE.cy).toBeLessThan(0.2);
+    expect(GROK_LEFT_EYE.cy).toBeGreaterThan(-0.2);
     expect(GROK_LEFT_EYE.cx).toBeGreaterThan(-0.28);
+    expect(GROK_LEFT_EYE.cx).toBeLessThan(0.12);
   });
 
   it("winks one eye on Idle and keeps the pair planted through the kick", () => {
@@ -57,6 +67,10 @@ describe("Idle / planted white stadiums", () => {
     const pairDxRight = up.right.cx - rest.right.cx;
     expect(Math.abs(pairDx - pairDxRight)).toBeLessThan(0.08);
 
+    expect(up.left.tilt).toBeCloseTo(rest.left.tilt);
+    expect(up.right.tilt).toBeCloseTo(rest.right.tilt);
+    expect(side.left.tilt).toBeCloseTo(rest.left.tilt);
+
     expect(gazeAt(2.1).cy).toBeLessThan(gazeAt(0.2).cy);
     expect(gazeAt(3.6).cx).toBeGreaterThan(gazeAt(0.2).cx);
 
@@ -75,85 +89,18 @@ describe("Idle / planted white stadiums", () => {
   });
 });
 
-describe("Thinking kick nest", () => {
-  it("uses ~8–10 even Thinking-weight Ver 02 orbits (3% of head / ~9px at 300px)", () => {
-    expect(WORKING_ORBIT_COUNT).toBeGreaterThanOrEqual(8);
-    expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(10);
-    expect(ORBIT_STROKE_FACE_RATIO).toBeCloseTo(0.03);
-    const stroke = orbitStrokePx(300);
-    expect(stroke).toBeCloseTo(9);
-    expect(stroke).toBeLessThan(16);
-    expect(stroke).toBeGreaterThan(6);
-    expect(kickRibbonHues(1, 8, WORKING_ORBIT_COUNT)).toHaveLength(WORKING_ORBIT_COUNT);
-    expect(new Set(kickRibbonHues(1, 8, WORKING_ORBIT_COUNT)).size).toBe(WORKING_ORBIT_COUNT);
-    expect(GROK_CHROMATIC_FILLS).toHaveLength(9);
-    expect(GROK_CHROMATIC_FILLS).not.toContain(DALLAS_GROK_GRAY);
-  });
-
-  it("interlaces even hairlines around the whole disc with no mid-arc taper", () => {
-    expect(ORBIT_PLANE_DEG).toBe(-15);
-    expect(ORBIT_Y_FACE).toBeCloseTo(IDLE_EYE.cy);
-    expect(ORBIT_RADIUS_FACE).toBeGreaterThan(0.75);
-    expect(ORBIT_RADIUS_FACE).toBeLessThanOrEqual(1);
-    expect(orbitRadius(150, 300)).toBeCloseTo(138);
-    expect(ORBIT_INCL_SPAN).toBeGreaterThan(1.6);
-    expect(ORBIT_PLANE_SPREAD).toBeGreaterThan(0.2);
-    expect(ORBIT_PHASE_SPREAD).toBeGreaterThan(0.4);
-    expect(ORBIT_RADIUS_STEP).toBeGreaterThan(0.1);
-  });
-
-  it("seeds placement and hue per kick, stable within a loop", () => {
-    const a = kickRibbonPlan(1, 8, WORKING_ORBIT_COUNT);
-    const same = kickRibbonPlan(6.7, 8, WORKING_ORBIT_COUNT);
-    const next = kickRibbonPlan(8.2, 8, WORKING_ORBIT_COUNT);
-    expect(a).toEqual(same);
-    expect(a.map((b) => b.hue)).not.toEqual(next.map((b) => b.hue));
-    expect(new Set(a.map((b) => b.phaseJitter)).size).toBe(WORKING_ORBIT_COUNT);
-  });
-
-  it("strokes chromatic even lines at full kick energy and skips Idle", () => {
-    const strokes: Array<{ color: string; width: number; cap: string }> = [];
-    const fills: unknown[] = [];
-    const ctx = {
-      save() {},
-      restore() {},
-      beginPath() {},
-      moveTo() {},
-      lineTo() {},
-      closePath() {},
-      fill() {
-        fills.push(this.fillStyle);
-      },
-      stroke() {
-        strokes.push({
-          color: String(this.strokeStyle),
-          width: Number(this.lineWidth),
-          cap: String(this.lineCap),
-        });
-      },
-      arc() {},
-      fillStyle: "",
-      strokeStyle: "",
-      lineWidth: 0,
-      lineCap: "",
-      lineJoin: "",
-      globalAlpha: 1,
-    } as unknown as CanvasRenderingContext2D;
-
-    const plan = kickRibbonPlan(6.7, 8, WORKING_ORBIT_COUNT);
-    drawWorkingOrbits(ctx, 150, 300, 0, Math.PI, "front", plan);
-    expect(strokes).toHaveLength(0);
-    expect(fills).toHaveLength(0);
-
-    drawWorkingOrbits(ctx, 150, 300, 1, Math.PI, "back", plan, IDLE_EYE.cy);
-    drawWorkingOrbits(ctx, 150, 300, 1, Math.PI, "front", plan, IDLE_EYE.cy);
-    expect(fills).toHaveLength(0);
-    expect(strokes.length).toBeGreaterThanOrEqual(WORKING_ORBIT_COUNT);
-    const hues = plan.map((b) => b.hue);
-    for (const s of strokes) {
-      expect(hues).toContain(s.color);
-      expect(s.width).toBeCloseTo(9);
-      expect(s.cap).toBe("round");
-    }
+describe("no bands on Grok", () => {
+  it("never draws Thinking nest, Working ribbons, or colored orbits around the disc", () => {
+    expect(wallpaperSrc).not.toMatch(/drawWorkingOrbits/);
+    expect(wallpaperSrc).not.toMatch(/working-orbits/);
+    expect(wallpaperSrc).not.toMatch(/kickRibbonPlan/);
+    expect(wallpaperSrc).not.toMatch(/WORKING_ORBIT/);
+    expect(wallpaperSrc).not.toMatch(/drawTaperedRibbon/);
+    expect(wallpaperSrc).not.toMatch(/fillStrip/);
+    expect(wallpaperSrc).not.toMatch(/whipEnergy/);
+    expect(wallpaperSrc).not.toMatch(/streamPhase/);
+    expect(wallpaperSrc).toContain("cursorWhipRad");
+    expect(wallpaperSrc).toContain("traceDisc");
+    expect(wallpaperSrc).toContain("eyesAt");
   });
 });

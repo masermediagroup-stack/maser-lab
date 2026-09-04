@@ -9,7 +9,7 @@
 
 - Figma: none. USER OVERRIDE encoded in `design.md`.
 - Motion source: Grok Bot lifecycle tour at https://x.ai/news/designing-grok-bot (Idle / Working only on TV). Avatar motion by Benji Taylor.
-- Article frames: Thinking `thinking_frame_01–03` (kick nest), Idle black-disc (gaze pair). Cursor: `CUBE_2D_DARK.svg`. Working frames are thickness-refuse only.
+- Article frames: Idle gaze *travel* (not TR rest), Working blank for stadium shape. Cursor: `CUBE_2D_DARK.svg`. Thinking / Working band frames are **refuse** — no nest, no ribbons.
 - Look lock: `LOOK.md` (later interrupts win)
 - Design spec: `design.md` (correction log)
 
@@ -23,13 +23,13 @@ Trigger frequency: rare / ambient (TV loop).
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Paper `#F2F1ED`. Official Cursor cube (evenodd hole, ink; 360 whip on kick) + article Grok (black disc, white gaze-pair stadiums that look around and wink) + one Universal Sans line `Dallas meetup`. Kick = Thinking nest of many thin even Ver 02 lines around Grok only.
+Paper `#F2F1ED`. Official Cursor cube (evenodd hole, ink; 360 whip on kick) + article Grok (black disc, white gaze-pair stadiums that look around and wink) + one Universal Sans line `Dallas meetup`. Kick = Cursor spin only. No bands on Grok.
 
 ### Success signal
 - Skyline gone.
 - Cursor reads as hexagon with cursor-shaped hole (paper through), not a solid blob. Spins 360 on kick, lands upright.
-- Grok reads as black disc + white stadiums that gaze as a pair (not stuck BL) and wink, not a light organic PNG head.
-- Kick shows a Thinking nest of many thin even Ver 02 hairlines around Grok; Idle has none. No thick mid. No sparse 2–4 bands.
+- Grok reads as black disc + white stadiums (vertical, slight left, parallel) that translate as a gaze pair (not stuck BL or TR) and wink, not a light organic PNG head.
+- Kick is Cursor 360 only. Grok stays a clean disc (eyes may gaze/wink). No Thinking nest. No Working ribbons. No orbits.
 - Same demo route `/demos/dallas-meetup-tv-wallpaper`.
 - Reduced motion freezes Idle (no ribbons, no cube spin).
 
@@ -38,7 +38,8 @@ Paper `#F2F1ED`. Official Cursor cube (evenodd hole, ink; 360 whip on kick) + ar
 - No light organic PNG Grok. No smashed still pills.
 - No picker morph, no SDF cycle, no HEX body cycling.
 - No eye-whip. No Grok disc yaw. No 360 disc spin.
-- No Thinking / Waiting / Blocked / Done as a held TV state (steal Thinking nest density for the kick only).
+- No Thinking nest / Working ribbons / orbits on Grok.
+- No Thinking / Waiting / Blocked / Done as a held TV state.
 - Do not invent type, spacing, or layout. Geist out. No new shader.
 
 ## Type
@@ -60,7 +61,7 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | `--dallas-ink` | `#111111` | Type, cube fill |
 | `--dallas-grok-black` | `#000000` | Grok disc |
 | `--dallas-eye-white` | `#FFFFFF` | Grok stadium eyes |
-| Ver 02 chromatic (9) | gold → magenta | Kick ribbons only. Gray never a ribbon. |
+| Ver 02 chromatic (9) | gold → magenta | Named tokens. Never drawn as orbits. Gray never a fill. |
 
 ## States
 
@@ -80,8 +81,8 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | Library | Canvas 2D + rAF | Deterministic timeline and export. No new shader. |
 | Duration | 8s: 6.4 Idle / 0.6 Working / ~1 settle | Do not shorten. Super-fast = short whip |
 | Body | Black disc forever | USER OVERRIDE. Article Idle/Working |
-| Stream | 8–10 even Ver 02 orbits, 3% head (~9px @ 300), interlaced wrap+clip | EPG Thinking nest. Not 8%/24px. Not 2–4 |
-| Eyes | White stadiums, gaze pair + wink, planted | Not BL. Not a PNG. No eye-whip |
+| Stream | None. Kick is Cursor 360 only | USER LOCK. Kill Thinking nest and Working ribbons |
+| Eyes | White stadiums, vertical + slight left (−12°), translate as a pair, wink | Not −28°. Not stuck BL/TR. No independent spin |
 | Cube | Official path, evenodd hole, ink; 360 on kick | Hole is the cursor. Paper through |
 | Horizon | Gone | USER LOCK |
 
@@ -89,11 +90,10 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 
 - [x] Demo route `/demos/dallas-meetup-tv-wallpaper` renders locked composition
 - [x] `npm run lint` and `npm run build` pass in `lab/` (this PR: slug ESLint `--max-warnings=0`; repo lint has pre-existing `ui/` warnings)
-- [x] Idle (no ribbons, cube upright, eyes wink) → one kick (Grok bands + Cursor 360) → Idle; reduced motion freezes Idle
-- [x] Official cube evenodd hole; Grok black disc + white stadiums; no skyline; no SDF morph; no eye-whip; no Grok body turn
-- [x] Front nest clips to the disc; back wraps behind; cube clean of lines
-- [x] Kick nest is ~8–10 even orbits at 3% of head (~9px @ 300), interlaced, random Ver 02 chromatic / phase per kick, skip gray; no mid-arc taper; not 2–4 fat bands; not dim article eyes
-- [x] Eyes gaze as a planted pair (up / side / center / return) and wink; never a light PNG head; never stuck BL
+- [x] Idle (clean disc, cube upright, eyes wink) → one kick (Cursor 360 only) → Idle; reduced motion freezes Idle
+- [x] Official cube evenodd hole; Grok black disc + white stadiums; no skyline; no SDF morph; no eye-whip; no Grok body turn; no orbits on Grok
+- [x] Wallpaper never draws Thinking nest, Working ribbons, or colored bands around Grok; cube clean of lines
+- [x] Eyes are a parallel pair at −8° to −15° (product −12°), translate together (center / up / side / return), wink; never stuck BL or TR; never independent spin; never a light PNG head
 - [x] Universal Sans trial once on the canvas line; Plex ≤ 40% of display; Geist out
 - [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`
 

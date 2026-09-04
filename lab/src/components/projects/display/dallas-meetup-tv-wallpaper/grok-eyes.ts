@@ -1,11 +1,11 @@
 /**
- * White stadiums on the black disc. Planted as a gaze pair.
- * They look together (up, side, center), then return. They still wink.
- * They do not orbit. They do not leave. They are not stuck bottom-left.
+ * White stadiums on the black disc. Parallel pair, slight left lean.
+ * They translate together as a gaze (center, up, side), then return. They still wink.
+ * They do not spin independently. They do not orbit. They are not stuck BL or TR.
  */
 
 export type EyePose = {
-  /** Radians. Negative = clockwise on canvas. */
+  /** Radians. Negative = slight left lean on canvas. */
   tilt: number;
   /** Face-radii, +right of body center. */
   cx: number;
@@ -18,37 +18,37 @@ export type EyePose = {
 type PairLocal = {
   lx: number;
   ly: number;
-  tilt: number;
 };
 
 type Gaze = {
   cx: number;
   cy: number;
-  tilt: number;
 };
 
-/** Local pair geometry. Distinct gap. Slight article-ish asymmetry. */
+/** User lock: vertical long axis, slight left. Not −28°. Not 45° stuck. */
+export const STADIUM_TILT_DEG = -12;
+const STADIUM_TILT = (STADIUM_TILT_DEG * Math.PI) / 180;
+
+/** Local pair geometry. Distinct gap. Parallel — same tilt on both. */
 const LEFT_LOCAL: PairLocal = {
-  lx: -0.17,
-  ly: 0.03,
-  tilt: (-28 * Math.PI) / 180,
+  lx: -0.16,
+  ly: 0.02,
 };
 
 const RIGHT_LOCAL: PairLocal = {
-  lx: 0.17,
-  ly: -0.05,
-  tilt: (-22 * Math.PI) / 180,
+  lx: 0.16,
+  ly: -0.02,
 };
 
-/** Camera rest — center of the disc, not bottom-left. */
-const GAZE_CENTER: Gaze = { cx: 0, cy: 0, tilt: (-6 * Math.PI) / 180 };
-const GAZE_UP: Gaze = { cx: 0.04, cy: -0.3, tilt: (-10 * Math.PI) / 180 };
-const GAZE_RIGHT: Gaze = { cx: 0.34, cy: 0.02, tilt: (12 * Math.PI) / 180 };
-const GAZE_LEFT: Gaze = { cx: -0.34, cy: 0.05, tilt: (-16 * Math.PI) / 180 };
+/** Camera rest — center of the disc. Not stuck TR. Not stuck BL. */
+const GAZE_CENTER: Gaze = { cx: 0, cy: -0.02 };
+const GAZE_UP: Gaze = { cx: 0.08, cy: -0.32 };
+const GAZE_RIGHT: Gaze = { cx: 0.34, cy: -0.02 };
+const GAZE_LEFT: Gaze = { cx: -0.3, cy: 0.04 };
 
 /**
  * Idle rest: look around during the 6.4s hold, return to camera before the kick.
- * Keys are loop-local seconds.
+ * Keys are loop-local seconds. Travel is translation only.
  */
 const GAZE_KEYS: ReadonlyArray<{ t: number; pose: Gaze }> = [
   { t: 0, pose: GAZE_CENTER },
@@ -64,25 +64,23 @@ const GAZE_KEYS: ReadonlyArray<{ t: number; pose: Gaze }> = [
 ];
 
 function plant(local: PairLocal, gaze: Gaze): EyePose {
-  const c = Math.cos(gaze.tilt);
-  const s = Math.sin(gaze.tilt);
   return {
-    tilt: local.tilt + gaze.tilt,
-    cx: gaze.cx + local.lx * c - local.ly * s,
-    cy: gaze.cy + local.lx * s + local.ly * c,
+    tilt: STADIUM_TILT,
+    cx: gaze.cx + local.lx,
+    cy: gaze.cy + local.ly,
     scaleY: 1,
   };
 }
 
-/** Rest left stadium — camera pair, not stuck BL. */
+/** Rest left stadium — upright slight-left pair, not stuck BL/TR. */
 export const GROK_LEFT_EYE: EyePose = plant(LEFT_LOCAL, GAZE_CENTER);
 
-/** Rest right stadium — camera pair, distinct gap. */
+/** Rest right stadium — parallel to left, distinct gap. */
 export const GROK_RIGHT_EYE: EyePose = plant(RIGHT_LOCAL, GAZE_CENTER);
 
-/** Pair seat used by kick lines so bands cross the stadiums. */
+/** Pair seat (orbit y-bias leftover). Gaze + wink live on `eyesAt`. */
 export const IDLE_EYE: EyePose = {
-  tilt: GAZE_CENTER.tilt,
+  tilt: STADIUM_TILT,
   cx: (GROK_LEFT_EYE.cx + GROK_RIGHT_EYE.cx) * 0.5,
   cy: (GROK_LEFT_EYE.cy + GROK_RIGHT_EYE.cy) * 0.5,
   scaleY: 1,
@@ -114,11 +112,10 @@ function lerpGaze(a: Gaze, b: Gaze, u: number): Gaze {
   return {
     cx: lerp(a.cx, b.cx, e),
     cy: lerp(a.cy, b.cy, e),
-    tilt: lerp(a.tilt, b.tilt, e),
   };
 }
 
-/** Directed gaze of the planted pair at loop-local time. */
+/** Directed gaze of the planted pair at loop-local time. Translate only. */
 export function gazeAt(t: number): Gaze {
   const keys = GAZE_KEYS;
   const first = keys[0]!;
@@ -191,10 +188,8 @@ export function eyePoseAt(
 ): EyePose {
   if (reducedMotion) return IDLE_EYE;
   const pair = eyesAt(time, loopSeconds, whipSeconds, reducedMotion);
-  const t = loopTime(time, loopSeconds);
-  const gaze = gazeAt(t);
   return {
-    tilt: gaze.tilt,
+    tilt: STADIUM_TILT,
     cx: (pair.left.cx + pair.right.cx) * 0.5,
     cy: (pair.left.cy + pair.right.cy) * 0.5,
     scaleY: 1,

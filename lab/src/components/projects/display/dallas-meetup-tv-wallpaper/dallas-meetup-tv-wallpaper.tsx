@@ -6,15 +6,12 @@ import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
   cursorWhipRad,
-  streamPhase,
-  whipEnergy,
 } from "./globe-motion";
 import {
   DALLAS_EYE_WHITE,
   DALLAS_GROK_BLACK,
   DALLAS_MARK_INK,
   DALLAS_PAPER,
-  kickRibbonPlan,
 } from "./grok-cycle";
 import { eyesAt, type EyePose } from "./grok-eyes";
 import {
@@ -31,7 +28,6 @@ import {
   publishDallasDisplayPx,
   runDallasTypeLock,
 } from "./type-lock";
-import { WORKING_ORBIT_COUNT, drawWorkingOrbits } from "./working-orbits";
 
 const BASE_WIDTH = 1920;
 const BASE_HEIGHT = 1080;
@@ -121,16 +117,10 @@ function drawGrokBody(
   reducedMotion: boolean,
 ) {
   const R = faceD * 0.5;
-  const ribbonPhase = streamPhase(elapsed, loopSeconds, whipSeconds, reducedMotion);
-  const energy = whipEnergy(elapsed, loopSeconds, whipSeconds, reducedMotion);
-  const plan = kickRibbonPlan(elapsed, loopSeconds, WORKING_ORBIT_COUNT);
   const pair = eyesAt(elapsed, loopSeconds, whipSeconds, reducedMotion);
 
   ctx.save();
   ctx.translate(cx, cy);
-
-  const gazeCy = (pair.left.cy + pair.right.cy) * 0.5;
-  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "back", plan, gazeCy);
 
   ctx.fillStyle = DALLAS_GROK_BLACK;
   traceDisc(ctx, R);
@@ -141,7 +131,6 @@ function drawGrokBody(
   ctx.clip();
   drawOneStadium(ctx, faceD, pair.left);
   drawOneStadium(ctx, faceD, pair.right);
-  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "front", plan, gazeCy);
   ctx.restore();
 
   ctx.restore();

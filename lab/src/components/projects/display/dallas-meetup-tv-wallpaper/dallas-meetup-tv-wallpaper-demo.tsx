@@ -205,7 +205,7 @@ export function DallasMeetupTvWallpaperDemo() {
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
               Loop is 8s. Official Cursor cube (hole) + black Grok disc.
-              Kick = Thinking nest of thin Ver 02 lines wrap Grok only. Idle has none.
+              Kick = Cursor 360 only. No nest, no ribbons on Grok.
               Geist is out.
             </p>
           </div>
@@ -275,11 +275,10 @@ export function DallasMeetupTvWallpaperDemo() {
             </p>
           </LabControlGroup>
 
-          <LabControlGroup label="Kick bands">
+          <LabControlGroup label="Kick">
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Kick: ~8–10 even Ver 02 orbits at 3% of head (~9px @ 300).
-              Wrap the whole disc, clip, cross the eyes, then leave.
-              Random chromatic HEX per kick. Skip gray. Cube stays clean.
+              Kick is the Cursor cube 360. Grok stays a clean black disc.
+              Eyes may still gaze and wink. No Thinking nest. No Working ribbons.
             </p>
           </LabControlGroup>
 

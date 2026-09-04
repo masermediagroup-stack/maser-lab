@@ -3,7 +3,7 @@
  * Super-fast means the 0.6s traveling bit is short.
  *
  * USER OVERRIDE: Idle → one kick → Idle. Black disc forever. No Grok body turn.
- * Kick = Thinking nest of thin even Ver 02 lines on Grok + Cursor 360 whip. Gaze pair winks.
+ * Kick = Cursor 360 whip only. Eyes may gaze/wink. No nest. No ribbons on Grok.
  * Reduced motion freezes Idle.
  */
 
@@ -16,8 +16,8 @@ export type LoopBeat = "rest" | "whip" | "settle";
 export const WHIP_MIN_SECONDS = 0.5;
 export const WHIP_MAX_SECONDS = 0.7;
 
-/** Product Idle face tilt is −28° (clockwise on canvas = +28). */
-export const EYE_TILT_DEG = -28;
+/** Stadium lean on the disc. User lock: slight left, not −28°. */
+export const EYE_TILT_DEG = -12;
 
 /** First 12% of the kick: bands fade in. */
 export const WHIP_BAND_IN = 0.12;
@@ -74,8 +74,8 @@ export function loopBeat(
 }
 
 /**
- * Ribbon head travel **and** Cursor 360 whip. Never rotate the Grok disc with this.
- * One wrap / one cube revolution during the 0.6s kick. 0 at rest and settle.
+ * Cursor 360 whip. Never rotate the Grok disc with this.
+ * One cube revolution during the 0.6s kick. 0 at rest and settle.
  */
 export function streamPhase(
   time: number,
@@ -93,7 +93,7 @@ export function streamPhase(
   return kickEase((t - rest) / whip) * Math.PI * 2;
 }
 
-/** Cursor cube 360° during the kick. Same window as Grok bands. Lands upright. */
+/** Cursor cube 360° during the kick. Lands upright. No Grok bands. */
 export function cursorWhipRad(
   time: number,
   loopSeconds: number,

@@ -10,7 +10,8 @@
  * Ver 02 chromatic hues (HEX only; Figma sheet previews are inaccurate):
  *   gold, red, orange-red, orange, green, teal, blue, violet, magenta.
  * Gray exists as a named token and is never a disc fill and never a ribbon.
- * The nine chromatic hues are kick ribbons only. Body stays --dallas-grok-black.
+ * The nine chromatic hues are named tokens only. Body stays --dallas-grok-black.
+ * They are never drawn as orbits on Grok.
  *
  * Type split:
  *   --dallas-font      Universal Sans trial, exactly once: canvas "Dallas meetup"

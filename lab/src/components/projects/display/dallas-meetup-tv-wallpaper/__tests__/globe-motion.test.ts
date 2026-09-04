@@ -55,7 +55,7 @@ describe("look-lock motion", () => {
     expect(streamPhase(7.9, 8, 0.6, false)).toBe(0);
   });
 
-  it("travels ribbons one wrap during the kick; settle needs no spin", () => {
+  it("spins the cube one revolution during the kick; settle needs no spin", () => {
     const rest = restSeconds(8, 0.6);
     const mid = streamPhase(rest + 0.3, 8, 0.6, false);
     expect(mid).toBeCloseTo(Math.PI, 5);
@@ -116,6 +116,8 @@ describe("look-lock motion", () => {
     expect(wallpaperSrc).not.toMatch(/dallas-horizon/);
     expect(wallpaperSrc).not.toMatch(/grok-bodies/);
     expect(wallpaperSrc).not.toMatch(/eyeWhipAt/);
+    expect(wallpaperSrc).not.toMatch(/drawWorkingOrbits/);
+    expect(wallpaperSrc).not.toMatch(/kickRibbonPlan/);
     expect(wallpaperSrc).toContain("CURSOR_FILL_RULE");
     expect(wallpaperSrc).toContain("traceDisc");
     expect(wallpaperSrc).toContain("DALLAS_GROK_BLACK");

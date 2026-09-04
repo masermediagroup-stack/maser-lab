@@ -22,7 +22,7 @@ describe("disc fill lock", () => {
     expect(GROK_CHROMATIC_FILLS).not.toContain(DALLAS_EYE_WHITE);
   });
 
-  it("assigns distinct chromatic ribbon hues per kick and skips gray", () => {
+  it("keeps chromatic tokens named and never uses gray as a fill", () => {
     const a = kickRibbonHues(1, 8, 3);
     const sameKick = kickRibbonHues(6.7, 8, 3);
     const nextKick = kickRibbonHues(8.2, 8, 3);

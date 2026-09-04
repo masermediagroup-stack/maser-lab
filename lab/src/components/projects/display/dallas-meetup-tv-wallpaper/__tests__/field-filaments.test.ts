@@ -10,7 +10,7 @@ import {
   GROK_CHROMATIC_FILLS,
 } from "../grok-cycle";
 
-describe("Ver 02 hues for mark orbits (not a wallpaper field)", () => {
+describe("Ver 02 hues as named tokens (never drawn on Grok)", () => {
   it("locks the nine chromatic hues in order and never includes gray", () => {
     expect(FIELD_SWOOSH_HUES.map((s) => s.hex)).toEqual([...GROK_CHROMATIC_FILLS]);
     expect(FIELD_SWOOSH_HUES.map((s) => s.id)).toEqual([

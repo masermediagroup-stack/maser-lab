@@ -1,6 +1,6 @@
 /**
  * Named tokens. Disc fill is Black forever. Eyes are white stadiums.
- * Ribbons pick chromatic HEX per kick.
+ * Chromatic HEX stay named. They are never drawn as orbits on Grok.
  *
  * USER OVERRIDE: no light organic head, no PNG face, no shape→color pairs.
  * Gray is never a body fill and never a ribbon.
@@ -74,9 +74,8 @@ export type KickRibbonPlan = {
 };
 
 /**
- * Distinct Ver 02 chromatic hues + placement jitter for this kick.
+ * Distinct Ver 02 chromatic hues. Named tokens only — never drawn as orbits.
  * Stable for a whole loop. Skip gray. Never used as a body fill.
- * Count may exceed nine — hues wrap. Thinking nest uses the full nine.
  */
 export function kickRibbonPlan(
   elapsed: number,
