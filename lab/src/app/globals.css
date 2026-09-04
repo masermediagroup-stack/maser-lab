@@ -128,9 +128,13 @@
   }
   html {
     @apply font-sans;
+    /* Product rem scale. Chrome does not use this — .lab-shell and
+       .demo-control-bar lock a 16px root so 112.5% cannot enlarge the rail. */
     font-size: 112.5%;
   }
   .lab-shell {
-    @apply font-mono;
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 20px;
   }
 }
