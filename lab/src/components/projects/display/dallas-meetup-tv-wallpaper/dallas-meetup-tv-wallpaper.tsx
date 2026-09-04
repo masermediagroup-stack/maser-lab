@@ -1,29 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { DALLAS_SANS_FAMILY } from "./dallas-fonts";
 import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
+  cursorWhipRad,
   streamPhase,
   whipEnergy,
 } from "./globe-motion";
 import {
-  DALLAS_EYE_BLACK,
-  DALLAS_GROK_HEAD,
+  DALLAS_EYE_WHITE,
+  DALLAS_GROK_BLACK,
   DALLAS_MARK_INK,
   DALLAS_PAPER,
-  kickRibbonHues,
+  kickRibbonPlan,
 } from "./grok-cycle";
-import { GROK_LEFT_EYE, GROK_RIGHT_EYE, type EyePose } from "./grok-eyes";
+import { eyesAt, type EyePose } from "./grok-eyes";
 import {
   CURSOR_ASPECT,
   CURSOR_FILL_RULE,
   CURSOR_PATH,
   CURSOR_VB_H,
   CURSOR_VB_W,
-  GROK_FACE_SRC,
-  GROK_HEAD_PATH,
 } from "./official-marks";
 import {
   DALLAS_DISPLAY_FONT_PX,
@@ -43,9 +42,9 @@ const GROK_FACE_PX = 300;
 const MARK_GAP_PX = 120;
 const PAIR_LIFT_PX = 70;
 
-/** Stadium size as a fraction of face diameter — matches grok-bot-face-tight.png. */
-const EYE_W_FACE = 82 / 1024;
-const EYE_H_FACE = 292 / 1024;
+/** Stadium size as a fraction of face diameter — article Idle/Working. */
+const EYE_W_FACE = 0.12;
+const EYE_H_FACE = 0.3;
 
 type ExportResult = {
   blob: Blob;
@@ -97,7 +96,8 @@ function drawOneStadium(ctx: CanvasRenderingContext2D, faceD: number, pose: EyeP
   ctx.save();
   ctx.translate(pose.cx * R, pose.cy * R);
   ctx.rotate(pose.tilt);
-  ctx.fillStyle = DALLAS_EYE_BLACK;
+  ctx.scale(1, pose.scaleY);
+  ctx.fillStyle = DALLAS_EYE_WHITE;
   const r = Math.min(ew, eh) * 0.5;
   ctx.beginPath();
   ctx.roundRect(-ew * 0.5, -eh * 0.5, ew, eh, r);
@@ -105,22 +105,9 @@ function drawOneStadium(ctx: CanvasRenderingContext2D, faceD: number, pose: EyeP
   ctx.restore();
 }
 
-function clipGrokHead(ctx: CanvasRenderingContext2D, radius: number) {
-  ctx.save();
-  ctx.scale(radius, radius);
-  ctx.clip(new Path2D(GROK_HEAD_PATH));
-  ctx.scale(1 / radius, 1 / radius);
-}
-
-function drawGrokFallback(ctx: CanvasRenderingContext2D, faceD: number) {
-  const R = faceD * 0.5;
-  ctx.save();
-  ctx.scale(R, R);
-  ctx.fillStyle = DALLAS_GROK_HEAD;
-  ctx.fill(new Path2D(GROK_HEAD_PATH));
-  ctx.restore();
-  drawOneStadium(ctx, faceD, GROK_LEFT_EYE);
-  drawOneStadium(ctx, faceD, GROK_RIGHT_EYE);
+function traceDisc(ctx: CanvasRenderingContext2D, radius: number) {
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
 }
 
 function drawGrokBody(
@@ -132,27 +119,30 @@ function drawGrokBody(
   loopSeconds: number,
   whipSeconds: number,
   reducedMotion: boolean,
-  grokFace: CanvasImageSource | null,
 ) {
   const R = faceD * 0.5;
   const ribbonPhase = streamPhase(elapsed, loopSeconds, whipSeconds, reducedMotion);
   const energy = whipEnergy(elapsed, loopSeconds, whipSeconds, reducedMotion);
-  const hues = kickRibbonHues(elapsed, loopSeconds, WORKING_ORBIT_COUNT);
+  const plan = kickRibbonPlan(elapsed, loopSeconds, WORKING_ORBIT_COUNT);
+  const pair = eyesAt(elapsed, loopSeconds, whipSeconds, reducedMotion);
 
   ctx.save();
   ctx.translate(cx, cy);
 
-  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "back", hues);
+  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "back", plan);
 
-  if (grokFace) {
-    ctx.drawImage(grokFace, -R, -R, faceD, faceD);
-  } else {
-    drawGrokFallback(ctx, faceD);
-  }
+  ctx.fillStyle = DALLAS_GROK_BLACK;
+  traceDisc(ctx, R);
+  ctx.fill();
 
-  clipGrokHead(ctx, R);
-  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "front", hues);
+  ctx.save();
+  traceDisc(ctx, R);
+  ctx.clip();
+  drawOneStadium(ctx, faceD, pair.left);
+  drawOneStadium(ctx, faceD, pair.right);
+  drawWorkingOrbits(ctx, R, faceD, energy, ribbonPhase, "front", plan);
   ctx.restore();
+
   ctx.restore();
 }
 
@@ -165,7 +155,6 @@ function renderFrame(
   loopSeconds: number,
   whipSeconds: number,
   fontFamily: string,
-  grokFace: CanvasImageSource | null,
 ) {
   const scale = width / BASE_WIDTH;
 
@@ -187,6 +176,7 @@ function renderFrame(
 
   ctx.save();
   ctx.translate(cursorX, marksBaseY);
+  ctx.rotate(cursorWhipRad(elapsed, loopSeconds, whipSeconds, reducedMotion));
   const cursorUniformScale = cursorH / CURSOR_VB_H;
   ctx.scale(cursorUniformScale, cursorUniformScale);
   ctx.translate(-CURSOR_VB_W * 0.5, -CURSOR_VB_H * 0.5);
@@ -203,7 +193,6 @@ function renderFrame(
     loopSeconds,
     whipSeconds,
     reducedMotion,
-    grokFace,
   );
 
   ctx.fillStyle = DALLAS_MARK_INK;
@@ -224,16 +213,6 @@ function renderFrame(
   );
 }
 
-function loadGrokFaceImage(): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.decoding = "async";
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Failed to load Grok face"));
-    img.src = GROK_FACE_SRC;
-  });
-}
-
 export function DallasMeetupWallpaper({
   reducedMotion = false,
   playing = true,
@@ -248,8 +227,6 @@ export function DallasMeetupWallpaper({
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const pausedAtRef = useRef(0);
-  const grokFaceRef = useRef<HTMLImageElement | null>(null);
-  const [, setFaceEpoch] = useState(0);
 
   const drawAtTime = useCallback(
     (time: number) => {
@@ -266,24 +243,10 @@ export function DallasMeetupWallpaper({
         loopSeconds,
         whipSeconds,
         resolveDallasFontFamily(canvas),
-        grokFaceRef.current,
       );
     },
     [reducedMotion, loopSeconds, whipSeconds],
   );
-
-  useEffect(() => {
-    let cancelled = false;
-    void loadGrokFaceImage().then((img) => {
-      if (cancelled) return;
-      grokFaceRef.current = img;
-      setFaceEpoch((n) => n + 1);
-      drawAtTime(timeSeconds ?? pausedAtRef.current);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [drawAtTime, timeSeconds]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -405,8 +368,6 @@ export async function exportDallasMeetupWallpaperLoop({
     await document.fonts.ready;
   }
 
-  const grokFace = await loadGrokFaceImage().catch(() => null);
-
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -451,7 +412,6 @@ export async function exportDallasMeetupWallpaperLoop({
         loopSeconds,
         whipSeconds,
         resolveDallasFontFamily(document.querySelector(".dallas-demo")),
-        grokFace,
       );
       controlledTrack.requestFrame();
       frame += 1;

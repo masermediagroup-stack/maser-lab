@@ -2,8 +2,9 @@
  * EPG timing lock. Loop is 8s. Do not shorten it to make the whip feel fast.
  * Super-fast means the 0.6s traveling bit is short.
  *
- * USER + EPG LOCK: Idle → one kick → Idle. Official product face forever. No body turn.
- * Kick = article-thick ribbons on Grok only. Eyes stay planted. Reduced motion freezes Idle.
+ * USER OVERRIDE: Idle → one kick → Idle. Black disc forever. No Grok body turn.
+ * Kick = tapered ribbons on Grok + Cursor 360 whip. Eyes wink on the disc.
+ * Reduced motion freezes Idle.
  */
 
 export const DEFAULT_LOOP_SECONDS = 8;
@@ -73,8 +74,8 @@ export function loopBeat(
 }
 
 /**
- * Ribbon head travel only. Never rotate the silhouette with this.
- * One wrap during the 0.6s kick. 0 at rest and settle — the face is still.
+ * Ribbon head travel **and** Cursor 360 whip. Never rotate the Grok disc with this.
+ * One wrap / one cube revolution during the 0.6s kick. 0 at rest and settle.
  */
 export function streamPhase(
   time: number,
@@ -90,6 +91,16 @@ export function streamPhase(
   if (t < rest) return 0;
   if (t >= rest + whip) return 0;
   return kickEase((t - rest) / whip) * Math.PI * 2;
+}
+
+/** Cursor cube 360° during the kick. Same window as Grok bands. Lands upright. */
+export function cursorWhipRad(
+  time: number,
+  loopSeconds: number,
+  whipSeconds: number,
+  reducedMotion: boolean,
+): number {
+  return streamPhase(time, loopSeconds, whipSeconds, reducedMotion);
 }
 
 /**

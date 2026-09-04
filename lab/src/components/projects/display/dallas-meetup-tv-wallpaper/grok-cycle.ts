@@ -1,8 +1,8 @@
 /**
- * Named tokens. Head is the light product face. Eyes are black stadiums.
+ * Named tokens. Disc fill is Black forever. Eyes are white stadiums.
  * Ribbons pick chromatic HEX per kick.
  *
- * USER + EPG LOCK: no black-disc body, no white pills, no shape→color pairs.
+ * USER OVERRIDE: no light organic head, no PNG face, no shape→color pairs.
  * Gray is never a body fill and never a ribbon.
  */
 
@@ -12,11 +12,12 @@ export const DALLAS_PAPER = "#F2F1ED";
 /** Type and Cursor cube fill. */
 export const DALLAS_INK = "#111111";
 export const DALLAS_MARK_INK = DALLAS_INK;
-/** Official Grok organic head. Never a black disc. */
-export const DALLAS_GROK_HEAD = "#FFFFFF";
-/** Grok stadium eyes. Not the body. */
+/** Article Grok disc. Forever. */
 export const DALLAS_GROK_BLACK = "#000000";
-export const DALLAS_EYE_BLACK = DALLAS_GROK_BLACK;
+/** Alias kept so older tests that say "globe black" still mean the disc. */
+export const DALLAS_GLOBE_BLACK = DALLAS_GROK_BLACK;
+/** Grok stadium eyes. Not the body. */
+export const DALLAS_EYE_WHITE = "#FFFFFF";
 
 export const DALLAS_GROK_GOLD = "#97683D";
 export const DALLAS_GROK_RED = "#FF263C";
@@ -27,7 +28,7 @@ export const DALLAS_GROK_TEAL = "#00BCA6";
 export const DALLAS_GROK_BLUE = "#1084FE";
 export const DALLAS_GROK_VIOLET = "#9159FE";
 export const DALLAS_GROK_MAGENTA = "#FF309B";
-/** Named token. Never a body fill. Never a ribbon. */
+/** Named token. Never a disc fill. Never a ribbon. */
 export const DALLAS_GROK_GRAY = "#777777";
 
 export const GROK_CHROMATIC_FILLS = [
@@ -62,15 +63,24 @@ function mulberry32(seed: number): () => number {
   };
 }
 
+export type KickRibbonPlan = {
+  hue: string;
+  phaseJitter: number;
+  planeJitter: number;
+  radiusJitter: number;
+  yJitter: number;
+  arcJitter: number;
+};
+
 /**
- * Distinct Ver 02 chromatic hues for this kick. Stable for a whole loop.
- * Skip gray. Never used as a body fill.
+ * Distinct Ver 02 chromatic hues + placement jitter for this kick.
+ * Stable for a whole loop. Skip gray. Never used as a body fill.
  */
-export function kickRibbonHues(
+export function kickRibbonPlan(
   elapsed: number,
   loopSeconds: number,
   count: number,
-): string[] {
+): KickRibbonPlan[] {
   const n = Math.max(0, Math.min(count, GROK_CHROMATIC_FILLS.length));
   const rand = mulberry32(0xda11a5 ^ (cycleIndex(elapsed, loopSeconds) + 1) * 0x9e3779b9);
   const pool = [...GROK_CHROMATIC_FILLS];
@@ -80,5 +90,25 @@ export function kickRibbonHues(
     pool[i] = pool[j]!;
     pool[j] = a;
   }
-  return pool.slice(0, n);
+  const plan: KickRibbonPlan[] = [];
+  for (let i = 0; i < n; i += 1) {
+    plan.push({
+      hue: pool[i]!,
+      phaseJitter: (rand() - 0.5) * 1.15,
+      planeJitter: (rand() - 0.5) * 0.28,
+      radiusJitter: (rand() - 0.5) * 0.1,
+      yJitter: (rand() - 0.5) * 0.16,
+      arcJitter: (rand() - 0.5) * 0.55,
+    });
+  }
+  return plan;
+}
+
+/** Hue list for this kick (tests / callers that only need color). */
+export function kickRibbonHues(
+  elapsed: number,
+  loopSeconds: number,
+  count: number,
+): string[] {
+  return kickRibbonPlan(elapsed, loopSeconds, count).map((band) => band.hue);
 }

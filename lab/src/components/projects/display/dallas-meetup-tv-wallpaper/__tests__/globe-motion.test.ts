@@ -8,6 +8,7 @@ import {
   SETTLE_SECONDS,
   WHIP_BAND_IN,
   WHIP_BAND_LEAVE,
+  cursorWhipRad,
   kickEase,
   kickWobbleRad,
   loopBeat,
@@ -104,19 +105,25 @@ describe("look-lock motion", () => {
     expect("AXIS_TILT_DEG" in motion).toBe(false);
   });
 
-  it("never 360-rotates the body — official cube evenodd hole, official Grok PNG", () => {
-    expect(wallpaperSrc).not.toMatch(/ctx\.rotate\(\s*(ribbonPhase|streamPhase|AXIS_TILT)/);
+  it("spins the Cursor cube 360 on kick and keeps the Grok disc planted", () => {
+    const rest = restSeconds(8, 0.6);
+    expect(cursorWhipRad(1, 8, 0.6, false)).toBe(0);
+    expect(cursorWhipRad(rest + 0.3, 8, 0.6, false)).toBeCloseTo(Math.PI, 5);
+    expect(cursorWhipRad(rest + 0.3, 8, 0.6, true)).toBe(0);
+    expect(wallpaperSrc).toContain("cursorWhipRad");
+    expect(wallpaperSrc).toMatch(/ctx\.rotate\(cursorWhipRad/);
     expect(wallpaperSrc).not.toMatch(/globeYaw/);
     expect(wallpaperSrc).not.toMatch(/dallas-horizon/);
     expect(wallpaperSrc).not.toMatch(/grok-bodies/);
     expect(wallpaperSrc).not.toMatch(/eyeWhipAt/);
-    expect(wallpaperSrc).toContain("GROK_FACE_SRC");
     expect(wallpaperSrc).toContain("CURSOR_FILL_RULE");
+    expect(wallpaperSrc).toContain("traceDisc");
+    expect(wallpaperSrc).toContain("DALLAS_GROK_BLACK");
     expect(marksSrc).toContain("evenodd");
     expect(marksSrc).toContain("M444.05");
     expect(wallpaperSrc).not.toMatch(/fill\(new Path2D\(CURSOR_PATH\),\s*"nonzero"\)/);
-    expect(wallpaperSrc).not.toMatch(/DALLAS_GROK_BLACK/);
-    expect(wallpaperSrc).not.toMatch(/traceDisc/);
+    expect(wallpaperSrc).not.toMatch(/drawImage/);
+    expect(wallpaperSrc).not.toMatch(/GROK_FACE_SRC/);
   });
 
   it("adds no idle bob or kick wobble", () => {

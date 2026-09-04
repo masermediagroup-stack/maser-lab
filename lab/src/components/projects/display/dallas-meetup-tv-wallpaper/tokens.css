@@ -4,13 +4,13 @@
  * Paper / ink:
  *   --dallas-paper       #F2F1ED
  *   --dallas-ink         #111111  (type, cube fill)
- *   --dallas-grok-head   #FFFFFF  (organic Grok head)
- *   --dallas-grok-black  #000000  (Grok stadium eyes)
+ *   --dallas-grok-black  #000000  (Grok disc)
+ *   --dallas-eye-white   #FFFFFF  (Grok stadium eyes)
  *
  * Ver 02 chromatic hues (HEX only; Figma sheet previews are inaccurate):
  *   gold, red, orange-red, orange, green, teal, blue, violet, magenta.
  * Gray exists as a named token and is never a disc fill and never a ribbon.
- * The nine chromatic hues are kick ribbons only. Body stays --dallas-grok-head.
+ * The nine chromatic hues are kick ribbons only. Body stays --dallas-grok-black.
  *
  * Type split:
  *   --dallas-font      Universal Sans trial, exactly once: canvas "Dallas meetup"
@@ -40,8 +40,8 @@
   --dallas-paper: #f2f1ed;
   --dallas-ink: #111111;
   --dallas-mark-ink: var(--dallas-ink);
-  --dallas-grok-head: #ffffff;
   --dallas-grok-black: #000000;
+  --dallas-eye-white: #ffffff;
   --dallas-loop-seconds: 8s;
 
   --dallas-grok-gold: #97683d;
