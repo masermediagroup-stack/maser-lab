@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { GROK_LEFT_EYE, GROK_RIGHT_EYE, IDLE_EYE, eyePoseAt, eyesAt, gazeAt, winkEnvelope } from "../grok-eyes";
 import { GROK_CHROMATIC_FILLS, DALLAS_GROK_GRAY, kickRibbonHues, kickRibbonPlan } from "../grok-cycle";
 import {
+  ORBIT_INCL_SPAN,
   ORBIT_PHASE_SPREAD,
   ORBIT_PLANE_DEG,
   ORBIT_PLANE_SPREAD,
   ORBIT_RADIUS_FACE,
+  ORBIT_RADIUS_STEP,
   ORBIT_STROKE_FACE_RATIO,
   ORBIT_Y_FACE,
   orbitRadius,
@@ -73,27 +75,31 @@ describe("Idle / planted white stadiums", () => {
   });
 });
 
-describe("Working kick bands", () => {
-  it("uses 2–4 thin even Thinking-weight Ver 02 lines (~1% of face / ~3px at 300px)", () => {
-    expect(WORKING_ORBIT_COUNT).toBeGreaterThanOrEqual(2);
-    expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(4);
-    expect(ORBIT_STROKE_FACE_RATIO).toBeCloseTo(0.01);
+describe("Thinking kick nest", () => {
+  it("uses many thin even Thinking-weight Ver 02 hairlines (~0.7% of face / ~2px at 300px)", () => {
+    expect(WORKING_ORBIT_COUNT).toBeGreaterThanOrEqual(8);
+    expect(WORKING_ORBIT_COUNT).toBeLessThanOrEqual(10);
+    expect(ORBIT_STROKE_FACE_RATIO).toBeCloseTo(0.007);
     const stroke = orbitStrokePx(300);
-    expect(stroke).toBeCloseTo(3);
-    expect(stroke).toBeLessThan(8);
+    expect(stroke).toBeCloseTo(2.1);
+    expect(stroke).toBeLessThan(4);
+    expect(stroke).toBeGreaterThan(1);
     expect(kickRibbonHues(1, 8, WORKING_ORBIT_COUNT)).toHaveLength(WORKING_ORBIT_COUNT);
+    expect(new Set(kickRibbonHues(1, 8, WORKING_ORBIT_COUNT)).size).toBe(WORKING_ORBIT_COUNT);
     expect(GROK_CHROMATIC_FILLS).toHaveLength(9);
     expect(GROK_CHROMATIC_FILLS).not.toContain(DALLAS_GROK_GRAY);
   });
 
-  it("spreads even hairlines around the disc with no mid-arc taper", () => {
+  it("interlaces even hairlines around the whole disc with no mid-arc taper", () => {
     expect(ORBIT_PLANE_DEG).toBe(-15);
     expect(ORBIT_Y_FACE).toBeCloseTo(IDLE_EYE.cy);
     expect(ORBIT_RADIUS_FACE).toBeGreaterThan(0.75);
     expect(ORBIT_RADIUS_FACE).toBeLessThanOrEqual(1);
-    expect(orbitRadius(150, 300)).toBeCloseTo(135);
-    expect(ORBIT_PLANE_SPREAD).toBeGreaterThan(0.24);
-    expect(ORBIT_PHASE_SPREAD).toBeGreaterThan(0.9);
+    expect(orbitRadius(150, 300)).toBeCloseTo(138);
+    expect(ORBIT_INCL_SPAN).toBeGreaterThan(1.6);
+    expect(ORBIT_PLANE_SPREAD).toBeGreaterThan(0.2);
+    expect(ORBIT_PHASE_SPREAD).toBeGreaterThan(0.4);
+    expect(ORBIT_RADIUS_STEP).toBeGreaterThan(0.1);
   });
 
   it("seeds placement and hue per kick, stable within a loop", () => {
@@ -146,7 +152,7 @@ describe("Working kick bands", () => {
     const hues = plan.map((b) => b.hue);
     for (const s of strokes) {
       expect(hues).toContain(s.color);
-      expect(s.width).toBeCloseTo(3);
+      expect(s.width).toBeCloseTo(2.1);
       expect(s.cap).toBe("round");
     }
   });

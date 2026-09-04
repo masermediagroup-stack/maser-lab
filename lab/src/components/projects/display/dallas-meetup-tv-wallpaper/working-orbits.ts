@@ -1,44 +1,47 @@
 /**
- * Kick lines around the black Grok disc only.
+ * Kick nest around the black Grok disc only.
  *
- * Thinking weight: even hairline stroke, sparse nest, spread around the disc.
- * Not thick Working capsules. Not a tapered mid-arc.
- * Centerline hugs the disc so clipped front lines actually paint.
+ * Article Thinking frames: many even hairline / brush arcs, interlaced,
+ * wrap front and back around the whole disc. Not 2–4 Working capsules.
+ * Not a tapered mid-arc. Not a solid ring.
  */
 
 import type { KickRibbonPlan } from "./grok-cycle";
 import { IDLE_EYE } from "./grok-eyes";
 
-/** Thinking lock: ~1% of face height. ~3px at a 300px face. Even weight. */
-export const ORBIT_STROKE_FACE_RATIO = 0.01;
+/** Thinking lock: ~0.7% of face height. ~2px at a 300px face. Even weight. */
+export const ORBIT_STROKE_FACE_RATIO = 0.007;
 
 export function orbitStrokePx(faceDiameter: number): number {
   return faceDiameter * ORBIT_STROKE_FACE_RATIO;
 }
 
-/** Sparse wrap. 2–4 thin lines. */
-export const WORKING_ORBIT_COUNT = 3;
+/** Nest of many thin lines — article Thinking, not a 2–4 Working wrap. */
+export const WORKING_ORBIT_COUNT = 9;
 
-/** Shallow equatorial plane. Degrees. */
+/** Small equatorial bias. Degrees. Inclination spread does the nest. */
 export const ORBIT_PLANE_DEG = -15;
+
+/** Total inclination span across the nest (radians). Covers the disc. */
+export const ORBIT_INCL_SPAN = 2.05;
 
 /** Default y-bias when the caller does not pass the current gaze. */
 export const ORBIT_Y_FACE = IDLE_EYE.cy;
 
-/**
- * Centerline as a fraction of the face radius. Must stay on the disc
- * so clipped front bands actually paint.
- */
-export const ORBIT_RADIUS_FACE = 0.9;
+/** Inner nest radius as a fraction of the face radius. */
+export const ORBIT_RADIUS_FACE = 0.92;
 
-/** Arc length of one traveling line (radians). Wrap, not a closed halo. */
-export const ORBIT_ARC_LEN = 1.85;
+/** Step between the three radius families (inner / hug / outer loop). */
+export const ORBIT_RADIUS_STEP = 0.18;
 
-/** Extra plane spread between bands (radians). Open the nest a bit. */
-export const ORBIT_PLANE_SPREAD = 0.32;
+/** Arc length of one traveling stroke (radians). Partial — not a closed ring. */
+export const ORBIT_ARC_LEN = 2.05;
 
-/** Extra angular spacing between band heads (radians). */
-export const ORBIT_PHASE_SPREAD = 1.12;
+/** Inclination step leftover name — tests assert the nest is open. */
+export const ORBIT_PLANE_SPREAD = ORBIT_INCL_SPAN / (WORKING_ORBIT_COUNT - 1);
+
+/** Angular spacing between band heads (radians). */
+export const ORBIT_PHASE_SPREAD = 0.58;
 
 export function orbitRadius(bodyR: number, faceD?: number): number {
   void faceD;
@@ -47,15 +50,20 @@ export function orbitRadius(bodyR: number, faceD?: number): number {
 
 type Vec3 = { x: number; y: number; z: number };
 
-function orbitPoint(theta: number, radius: number, planeTilt: number): Vec3 {
+function orbitPoint(theta: number, radius: number, incl: number, azim: number): Vec3 {
   const x0 = radius * Math.cos(theta);
   const z0 = radius * Math.sin(theta);
-  const ct = Math.cos(planeTilt);
-  const st = Math.sin(planeTilt);
+  const ci = Math.cos(incl);
+  const si = Math.sin(incl);
+  const x1 = x0 * ci;
+  const y1 = x0 * si;
+  const z1 = z0;
+  const ca = Math.cos(azim);
+  const sa = Math.sin(azim);
   return {
-    x: x0 * ct,
-    y: x0 * st,
-    z: z0,
+    x: x1 * ca + z1 * sa,
+    y: y1,
+    z: -x1 * sa + z1 * ca,
   };
 }
 
@@ -63,7 +71,8 @@ function strokeArc(
   ctx: CanvasRenderingContext2D,
   layer: "back" | "front",
   radius: number,
-  planeTilt: number,
+  incl: number,
+  azim: number,
   head: number,
   arcLen: number,
   strokePx: number,
@@ -83,7 +92,7 @@ function strokeArc(
   for (let s = 0; s <= steps; s += 1) {
     const t = s / steps;
     const theta = head - t * arcLen;
-    const p = orbitPoint(theta, radius, planeTilt);
+    const p = orbitPoint(theta, radius, incl, azim);
     p.y += yBias;
     const onLayer = layer === "back" ? p.z <= 0 : p.z > 0;
     if (!onLayer) {
@@ -106,7 +115,7 @@ function strokeArc(
 }
 
 /**
- * Kick lines on the Grok disc. Skip when energy is ~0 (Idle rest, settle, leave).
+ * Kick nest on the Grok disc. Skip when energy is ~0 (Idle rest, settle, leave).
  * `ribbonPhase` is the traveling head — not a body yaw.
  * `plan` is this kick's Ver 02 assignment + placement jitter.
  * `eyeYFace` follows the gaze pair so front lines cross the stadiums.
@@ -124,26 +133,28 @@ export function drawWorkingOrbits(
   if (energy < 0.02) return;
 
   const strokePx = orbitStrokePx(faceD);
-  const radius = orbitRadius(bodyR, faceD);
+  const n = WORKING_ORBIT_COUNT;
   const alpha = energy;
-  const baseTilt = (ORBIT_PLANE_DEG * Math.PI) / 180;
-  const head0 = Math.PI * 1.25 - ribbonPhase;
-  const mid = (WORKING_ORBIT_COUNT - 1) / 2;
+  const incl0 = (ORBIT_PLANE_DEG * Math.PI) / 180;
   const yBias0 = bodyR * eyeYFace;
 
-  for (let i = 0; i < WORKING_ORBIT_COUNT; i += 1) {
+  for (let i = 0; i < n; i += 1) {
     const band = plan[i % plan.length];
     if (!band) continue;
-    const planeTilt = baseTilt + (i - mid) * ORBIT_PLANE_SPREAD + band.planeJitter;
-    const head = head0 - i * ORBIT_PHASE_SPREAD + band.phaseJitter;
-    const r = radius * (1 + (i - mid) * 0.12 + band.radiusJitter);
+    const u = n <= 1 ? 0.5 : i / (n - 1);
+    const incl = incl0 + (u - 0.5) * ORBIT_INCL_SPAN + band.planeJitter;
+    const azim = i * 2.399 + band.azimJitter;
+    const dir = i % 2 === 0 ? 1 : -1.12;
+    const head = dir * ribbonPhase + i * ORBIT_PHASE_SPREAD + band.phaseJitter;
+    const r = bodyR * (ORBIT_RADIUS_FACE + (i % 3) * ORBIT_RADIUS_STEP + band.radiusJitter);
     const arcLen = ORBIT_ARC_LEN + band.arcJitter;
     const yBias = yBias0 + bodyR * band.yJitter;
     strokeArc(
       ctx,
       layer,
       r,
-      planeTilt,
+      incl,
+      azim,
       head,
       arcLen,
       strokePx,

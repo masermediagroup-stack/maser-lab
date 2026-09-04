@@ -67,6 +67,7 @@ export type KickRibbonPlan = {
   hue: string;
   phaseJitter: number;
   planeJitter: number;
+  azimJitter: number;
   radiusJitter: number;
   yJitter: number;
   arcJitter: number;
@@ -75,13 +76,14 @@ export type KickRibbonPlan = {
 /**
  * Distinct Ver 02 chromatic hues + placement jitter for this kick.
  * Stable for a whole loop. Skip gray. Never used as a body fill.
+ * Count may exceed nine — hues wrap. Thinking nest uses the full nine.
  */
 export function kickRibbonPlan(
   elapsed: number,
   loopSeconds: number,
   count: number,
 ): KickRibbonPlan[] {
-  const n = Math.max(0, Math.min(count, GROK_CHROMATIC_FILLS.length));
+  const n = Math.max(0, Math.floor(count));
   const rand = mulberry32(0xda11a5 ^ (cycleIndex(elapsed, loopSeconds) + 1) * 0x9e3779b9);
   const pool = [...GROK_CHROMATIC_FILLS];
   for (let i = pool.length - 1; i > 0; i -= 1) {
@@ -93,12 +95,13 @@ export function kickRibbonPlan(
   const plan: KickRibbonPlan[] = [];
   for (let i = 0; i < n; i += 1) {
     plan.push({
-      hue: pool[i]!,
-      phaseJitter: (rand() - 0.5) * 1.15,
-      planeJitter: (rand() - 0.5) * 0.28,
-      radiusJitter: (rand() - 0.5) * 0.1,
-      yJitter: (rand() - 0.5) * 0.16,
-      arcJitter: (rand() - 0.5) * 0.55,
+      hue: pool[i % pool.length]!,
+      phaseJitter: (rand() - 0.5) * 1.35,
+      planeJitter: (rand() - 0.5) * 0.5,
+      azimJitter: (rand() - 0.5) * 1.15,
+      radiusJitter: (rand() - 0.5) * 0.12,
+      yJitter: (rand() - 0.5) * 0.1,
+      arcJitter: (rand() - 0.5) * 0.7,
     });
   }
   return plan;

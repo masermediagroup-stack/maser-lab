@@ -205,7 +205,7 @@ export function DallasMeetupTvWallpaperDemo() {
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
               Loop is 8s. Official Cursor cube (hole) + black Grok disc.
-              Kick = thin Ver 02 lines wrap Grok only. Idle has none.
+              Kick = Thinking nest of thin Ver 02 lines wrap Grok only. Idle has none.
               Geist is out.
             </p>
           </div>
@@ -277,8 +277,8 @@ export function DallasMeetupTvWallpaperDemo() {
 
           <LabControlGroup label="Kick bands">
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Kick: 2–4 even hairline Ver 02 orbits, Thinking weight.
-              Wrap Grok, clip, cross the eyes, then leave.
+              Kick: many even hairline Ver 02 arcs (Thinking nest, not 2–4).
+              Wrap the whole disc, clip, cross the eyes, then leave.
               Random chromatic HEX per kick. Skip gray. Cube stays clean.
             </p>
           </LabControlGroup>

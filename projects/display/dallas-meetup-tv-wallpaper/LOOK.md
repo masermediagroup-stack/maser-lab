@@ -1,12 +1,12 @@
 # LOOK LOCK — Dallas meetup TV wallpaper
 
-USER OVERRIDE. Later interrupts win. Encode corrections in `design.md`. Do not ship thick mid Working capsules again.
+USER OVERRIDE. Later interrupts win. Encode corrections in `design.md`. Do not ship thick mid Working capsules again. Do not ship sparse 2–4 bands.
 
 ## Killed, fully
 
 Dallas skyline. Picker SDF morph. Shape→color pairs. Body HEX cycling. Eye-whip. Globe yaw / 360 **disc** spin / any Grok body turn.
 **Light organic / white head Grok.** **Static PNG face crop.** **Smashed overlapping white pills that never wink.**
-**Stuck bottom-left stadiums.** **Thick Working ribbons / tapered-thick-middle / ~24px capsules.**
+**Stuck bottom-left stadiums.** **Thick Working ribbons / tapered-thick-middle / ~24px capsules.** **Sparse 2–4 orbits.**
 
 ## Tokens
 
@@ -29,5 +29,5 @@ Canvas 1920×1080. Paper → cube + Grok (300px, gap 120px, lift 70px) + `Dallas
 ## Motion
 
 Idle: upright cube, black disc, gaze-pair stadiums, no lines.
-Kick: Cursor 360 + 2–4 **thin even Thinking-weight** Ver 02 lines around Grok, spread (not a nest), hug/clip the disc, cross the eyes, leave. Random chromatic HEX / phase / plane per kick. Skip gray. No thick mid.
+Kick: Cursor 360 + **Thinking nest** — many even hairline Ver 02 arcs, interlaced around the whole disc, true wrap + clip, cross the eyes, leave. Flat HEX, skip gray. No thick mid. No 2–4 fat bands.
 Reduced motion freezes Idle.

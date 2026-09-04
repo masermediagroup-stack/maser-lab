@@ -1,6 +1,6 @@
 # Dallas Meetup TV Wallpaper — Design Directives
 
-USER OVERRIDE. Later interrupts win. Do not wait on Thinking frame files — implement from this lock; if EPG sends those paths mid-run, match line density to them. Named tokens only. Do not invent type, spacing, or layout. Display is Universal Sans. Body/labels IBM Plex Sans Condensed. Geist is out. No new shader — canvas 2D only.
+USER OVERRIDE. Later interrupts win. Named tokens only. Do not invent type, spacing, or layout. Display is Universal Sans. Body/labels IBM Plex Sans Condensed. Geist is out. No new shader — canvas 2D only.
 
 Do not ask anyone to retime the thick-band cut or the light-head cut.
 
@@ -10,9 +10,10 @@ Do not ask anyone to retime the thick-band cut or the light-head cut.
 - Grok body morph / picker silhouettes / SDF shape cycle / HEX body cycling.
 - **Light organic / white head Grok.** App-icon PNG as the live Idle face. `grok-bot-face-tight.png` `drawImage`.
 - **Static bitmap face.** Frozen crop. Eyes that never wink.
-- **Smashed overlapping white pills** that sit still on the disc (the live-broken / light-head inverse). Gap must keep two distinct stadiums.
-- **Stuck bottom-left stadiums.** Independent lower-left rest (`cx: −0.3 / cy: 0.28`) that never looks around.
-- **Thick Working capsules.** Chunky mid / tapered-thick-middle stroke / `ORBIT_STROKE_FACE_RATIO ≈ 0.08` (~24px) / `drawTaperedRibbon` / `fillStrip`. Do not ship that cut again.
+- **Smashed overlapping white pills** that sit still on the disc. Gap must keep two distinct stadiums.
+- **Stuck bottom-left stadiums.** Independent lower-left rest that never looks around.
+- **Thick Working capsules.** Chunky mid / tapered-thick-middle / `ORBIT_STROKE_FACE_RATIO ≈ 0.08` (~24px) / `drawTaperedRibbon` / `fillStrip`. Do not ship that cut again.
+- **Sparse 2–4 fat / 2–4 thin bands.** Article Thinking is a **nest of many** hairlines, not three orbits.
 - Jagged solid Cursor polygon. Outer-only / `nonzero` flood / bbox-trim / flattened hexagon. The hole is the cursor.
 - Eye-whip around the form. Eyes do not orbit the disc. Eyes do not leave the disc.
 - Globe yaw / 360 disc spin / any **Grok** body turn. The disc stays planted.
@@ -22,9 +23,9 @@ Do not ask anyone to retime the thick-band cut or the light-head cut.
 
 | File | Job |
 | --- | --- |
+| `thinking_frame_01.png` … `_03.png` | **Kick density lock.** Article **Thinking** tab (not Working). Many thin even brush arcs, interlaced, wrap front/back around the whole disc. Paths: attached, `/workspace/grokbot_thinking/`, `dallas-meetup/refs/thinking/`. |
 | `article-idle-black-disc.png` | Idle: black disc, two planted white stadiums. Rest is a **gaze pair on the face**, not a BL crop. |
-| Thinking frames (EPG, when they arrive) | Kick **line** density / weight. Sparse thin nest. Not Working ribbons. |
-| `article-working-black-disc.png` | **Do not steal thickness from this.** Color + wrap only. |
+| `article-working-black-disc.png` | **Do not steal thickness or count from this.** Color family only. |
 | `CUBE_2D_DARK.svg` | Official Cursor. Hexagon with cursor-shaped hole. Keep. |
 
 ## Paper / ink / disc / eyes
@@ -50,11 +51,11 @@ NEVER bbox-trim, flood-fill, flatten to a solid polygon, drop the inner subpath,
 
 ~280px tall, uniform scale from the viewBox. No ribbons on the cube.
 
-**Kick whip:** in the same 0.6s Working window as the Grok bands, the cube does a **quick 360° spin**, hard cubic ease-in-out, then lands face-forward / upright for Idle. Hole stays evenodd (paper through) while it spins. Reduced motion: cube planted, no spin.
+**Kick whip:** in the same 0.6s window as the Grok nest, the cube does a **quick 360° spin**, hard cubic ease-in-out, then lands face-forward / upright for Idle. Hole stays evenodd (paper through) while it spins. Reduced motion: cube planted, no spin.
 
 ## Grok
 
-Article Idle / Working face. Draw as geometry.
+Article Idle face. Draw as geometry.
 
 - Perfect solid circle, fill `--dallas-grok-black` `#000000`. Not a squircle. Not a PNG.
 - Two **white** stadiums (pills), planted on the disc as a **gaze pair**. Distinct gap. Asymmetric / slightly tilted.
@@ -64,44 +65,47 @@ Article Idle / Working face. Draw as geometry.
 - Eyes stay planted on the disc. No eye-whip around the form. No orbit off the face.
 - No morph. No HEX cycle. Disc stays black forever.
 
-**Reduced motion:** freeze Idle (disc + planted pair at camera rest, no ribbons). Wink may freeze.
+**Reduced motion:** freeze Idle (disc + planted pair at camera rest, no lines). Wink may freeze.
 
 ## Surface (do not invent)
 
 - Canvas 1920×1080. Paper ground.
 - Cursor cube ~280px tall. Grok face diameter 300px, gap 120px, pair lifted ~70px above vertical center. Grok face-forward. No Grok body rotate.
 - One display line: `Dallas meetup`. Universal Sans trial, exactly once, 44px @ 1920, tracking ~2.4.
-- Draw order: paper → cube (kick 360, else upright) + Grok (kick lines on the disc only) + type.
+- Draw order: paper → cube (kick 360, else upright) + Grok (kick nest on the disc only) + type.
 
-## Motion — Idle / Working only
+## Motion — Idle / one kick / Idle
 
-Motion source: https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor). Lifecycle is Idle / Working / Waiting / Blocked / Thinking / Done. **TV maps Idle → one kick → Idle.** Do not use Thinking, Waiting, Blocked, or Done as the whip. Steal **Thinking line weight** for the kick orbits only.
+Motion source: https://x.ai/news/designing-grok-bot (John Bai; avatar motion by Benji Taylor). Lifecycle is Idle / Working / Waiting / Blocked / Thinking / Done. **TV maps Idle → one kick → Idle.** Do not hold Thinking as a TV state. **Steal Thinking nest density / weight for the kick** from `thinking_frame_01–03`.
 
 Idle: official Cursor (upright) + black disc + gaze-pair white stadiums (look around, wink). **No lines.**
-Kick: 2–4 **thin even** flat Ver 02 lines around **Grok only**, **and** Cursor 360 whip. Disc stays planted.
+Kick: **Thinking nest** of many thin even flat Ver 02 lines around **Grok only**, **and** Cursor 360 whip. Disc stays planted.
 
 ## Timing — 8s (do not shorten)
 
 Loop = **8s**. Whip slider 0.5–0.7s; rest = `loop − whip − 1s`. Product: rest **6.4s**, whip **0.6s**, settle **~1.0s**. Super-fast means the whip is short.
 
-| Beat | Duration | Article state | Job |
+| Beat | Duration | Article steal | Job |
 | --- | --- | --- | --- |
 | Rest | 6.4s | **Idle** | Upright cube + black disc. Gaze pair looks up / side / center then returns. Wink. No lines. |
-| Whip | 0.6s | **Working** | Cube 360 (ease-in-out) + 2–4 thin even Ver 02 lines wrap, clip, cross the eyes, leave. Eyes still wink. Disc planted. |
+| Whip | 0.6s | **Thinking nest** (not Working ribbons) | Cube 360 (ease-in-out) + many thin even Ver 02 hairlines wrap the whole disc, clip, cross the eyes, leave. Eyes still wink. Disc planted. |
 | Settle | ~1.0s | **Idle** | Cube upright. Same disc. No lines. |
 
 **Reduced motion:** freeze Idle (upright cube, disc + planted pair, no lines, no spin).
 
-## Kick lines (Grok only) — Thinking weight, not Working ribbons
+## Kick nest (Grok only) — article Thinking frames
 
-2–4 flat Ver 02 chromatic **lines**. Even stroke weight. Hairline / thin orbits. Steal Thinking density (sparse thin nest), **not** the thick Working capsules.
+**Many** thin even lines. Hairline / brush arcs. Interlaced orbits spread around the **whole** disc. True wrap: front clipped on the disc, back unclipped behind. Still readable — not a solid ring, not 2–4 capsules.
 
-- Stroke ≈ **~1% of face height** (~3px if the face is 300px). Same weight along the whole arc. Round caps. **No mid-arc fattening. No taper envelope.**
-- Spread them out a little more around the disc — not a tight nest.
-- Plane **−15°** base. Extra per-band plane / phase / radius jitter **seeded per kick**.
-- Wrap front/back around Grok only. Clip on the **disc**. Cross the eyes. Then leave.
+From `thinking_frame_01–03`:
+
+- Count ≈ **8–10** distinct arcs (product: **9**, one pass of Ver 02 chromatic).
+- Stroke ≈ **~0.7% of face height** (~2px if the face is 300px). Same weight along the whole arc. Round caps. **No mid-arc fattening. No taper envelope.**
+- Planes cover the sphere: inclination spread + azimuth so the nest is not a single equatorial ribbon.
+- Mix of radii: some hug the face, some loop just outside so the nest reads around the silhouette.
+- Partial arcs (not closed rings). Travel, clip, leave.
+- Flat Ver 02 HEX. Skip Cool Gray `#777777`. No article glow soup. No body-fill cycling.
 - Cube clean — no lines on Cursor.
-- Random assignment **per kick** from the nine Ver 02 chromatic tokens. Skip Cool Gray `#777777`. Skip body-fill cycling — lines only.
 
 | Token | Hex |
 | --- | --- |

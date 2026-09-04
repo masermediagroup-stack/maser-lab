@@ -3,7 +3,7 @@
  * Super-fast means the 0.6s traveling bit is short.
  *
  * USER OVERRIDE: Idle → one kick → Idle. Black disc forever. No Grok body turn.
- * Kick = thin even Ver 02 lines on Grok + Cursor 360 whip. Gaze pair winks.
+ * Kick = Thinking nest of thin even Ver 02 lines on Grok + Cursor 360 whip. Gaze pair winks.
  * Reduced motion freezes Idle.
  */
 
