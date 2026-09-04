@@ -3,11 +3,42 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /** Shared demo viewport modes — keep out of product project slugs (rule/project-isolation). */
 export type ViewportMode = "desktop" | "mobile" | "responsive";
+
+const LAB_EASE = "cubic-bezier(0.2, 0, 0, 1)";
+
+function asSectionTitle(label: string): string {
+  const trimmed = label.trim();
+  if (trimmed.length === 0) return trimmed;
+  const letters = trimmed.replace(/[^A-Za-z]/g, "");
+  const isAllCaps =
+    letters.length > 0 && letters === letters.toUpperCase();
+  if (!isAllCaps) return trimmed;
+  return trimmed
+    .split(/(\s+|\/)/)
+    .map((part) => {
+      if (!/[A-Za-z]/.test(part)) return part;
+      return part.charAt(0) + part.slice(1).toLowerCase();
+    })
+    .join("");
+}
+
+function cumulativeAncestorScale(node: HTMLElement): number {
+  let scale = 1;
+  let el: HTMLElement | null = node.parentElement;
+  while (el) {
+    const transform = getComputedStyle(el).transform;
+    if (transform && transform !== "none") {
+      const matrix = new DOMMatrixReadOnly(transform);
+      scale *= Math.hypot(matrix.a, matrix.b);
+    }
+    el = el.parentElement;
+  }
+  return scale;
+}
 
 type DemoBackButtonProps = {
   className?: string;
@@ -15,8 +46,8 @@ type DemoBackButtonProps = {
 
 export function DemoBackButton({ className }: DemoBackButtonProps) {
   return (
-    <Link href="/" className={className}>
-      <LabButton variant="ghost">← Lab</LabButton>
+    <Link href="/" className={cn("lab-back-link lab-type-label", className)}>
+      Lab
     </Link>
   );
 }
@@ -27,7 +58,7 @@ type DemoLabBrandProps = {
 
 export function DemoLabBrand({ className }: DemoLabBrandProps) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+    <div className={cn("flex flex-wrap items-center gap-3", className)}>
       <DemoBackButton />
       <Image
         src="/brand/masermedia-logo-bold-blue.png"
@@ -75,13 +106,14 @@ export function LabButton({
       aria-expanded={ariaExpanded}
       aria-controls={ariaControls}
       className={cn(
-        "min-h-11 shrink-0 whitespace-nowrap rounded-[var(--lab-radius-sm)] border px-3 py-2 font-mono text-sm transition-[color,background-color,box-shadow,transform] duration-150 max-sm:px-2.5 max-sm:text-xs disabled:cursor-not-allowed disabled:opacity-50",
+        "lab-chrome-btn lab-type-label min-h-11 shrink-0 whitespace-nowrap border px-[12px] py-[12px] disabled:cursor-not-allowed disabled:opacity-40",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--lab-focus)]",
         variant === "ghost" &&
-          "border-[var(--lab-border)] bg-[var(--lab-surface)] text-[var(--lab-text-primary)] hover:bg-[rgba(16,164,255,0.08)] hover:text-[var(--lab-accent-primary)]",
+          "border-[var(--lab-border)] bg-[var(--lab-surface)] text-[var(--lab-text-primary)]",
         variant === "accent" &&
-          "border-[var(--lab-accent-primary)] bg-[rgba(16,164,255,0.12)] text-[var(--lab-accent-primary)]",
+          "border-[var(--lab-border-strong)] bg-[var(--lab-bg-elevated)] text-[var(--lab-text-primary)]",
         variant === "outline" &&
-          "border-[var(--lab-border-strong)] bg-transparent text-[var(--lab-text-secondary)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--lab-text-primary)]",
+          "border-[var(--lab-border-strong)] bg-transparent text-[var(--lab-text-secondary)]",
         className,
       )}
     >
@@ -108,7 +140,7 @@ type LabRangeProps = {
   className?: string;
 };
 
-/** Shared demo range — 44px hit target, mono type. Use only in demo chrome. */
+/** Shared demo range — 44px hit target. Use only in demo chrome. */
 export function LabRange({
   id,
   label,
@@ -121,10 +153,12 @@ export function LabRange({
   className,
 }: LabRangeProps) {
   return (
-    <div className={cn("flex min-w-0 flex-col gap-1", className)}>
-      <div className="flex items-baseline justify-between gap-2 font-mono text-xs text-[var(--lab-text-secondary)]">
-        <label htmlFor={id}>{label}</label>
-        <span className="tabular-nums text-[var(--lab-text-muted)]">{display}</span>
+    <div className={cn("lab-chrome-control flex min-w-0 flex-col gap-1", className)}>
+      <div className="flex items-baseline justify-between gap-2">
+        <label htmlFor={id} className="lab-type-label text-[var(--lab-text-primary)]">
+          {label}
+        </label>
+        <span className="lab-type-value text-[var(--lab-text-muted)]">{display}</span>
       </div>
       <input
         id={id}
@@ -134,7 +168,7 @@ export function LabRange({
         step={step}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="h-11 w-full min-w-0 accent-[var(--lab-accent-primary)]"
+        className="lab-range-input h-11 w-full min-w-0"
       />
     </div>
   );
@@ -150,8 +184,13 @@ type LabColorProps = {
 
 export function LabColor({ id, label, value, onChange, className }: LabColorProps) {
   return (
-    <div className={cn("flex min-h-11 items-center justify-between gap-2", className)}>
-      <label htmlFor={id} className="font-mono text-xs text-[var(--lab-text-secondary)]">
+    <div
+      className={cn(
+        "lab-chrome-control flex min-h-11 items-center justify-between gap-2",
+        className,
+      )}
+    >
+      <label htmlFor={id} className="lab-type-label text-[var(--lab-text-primary)]">
         {label}
       </label>
       <input
@@ -159,7 +198,7 @@ export function LabColor({ id, label, value, onChange, className }: LabColorProp
         type="color"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-11 w-11 shrink-0 cursor-pointer rounded-[var(--lab-radius-sm)] border border-[var(--lab-border)] bg-[var(--lab-surface)] p-1"
+        className="h-11 w-11 shrink-0 cursor-pointer rounded-[6px] border border-[var(--lab-border)] bg-[var(--lab-surface)] p-1"
       />
     </div>
   );
@@ -183,15 +222,15 @@ export function LabSelect({
   className,
 }: LabSelectProps) {
   return (
-    <div className={cn("flex min-w-0 flex-col gap-1", className)}>
-      <label htmlFor={id} className="font-mono text-xs text-[var(--lab-text-secondary)]">
+    <div className={cn("lab-chrome-control flex min-w-0 flex-col gap-1", className)}>
+      <label htmlFor={id} className="lab-type-label text-[var(--lab-text-primary)]">
         {label}
       </label>
       <select
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-11 w-full rounded-[var(--lab-radius-sm)] border border-[var(--lab-border)] bg-[var(--lab-surface)] px-2 font-mono text-xs text-[var(--lab-text-primary)]"
+        className="lab-type-label min-h-11 w-full rounded-[6px] border border-[var(--lab-border)] bg-[var(--lab-surface)] px-[12px] text-[var(--lab-text-primary)]"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -210,19 +249,15 @@ type LabControlGroupProps = {
 };
 
 export function LabControlGroup({ label, children, className }: LabControlGroupProps) {
+  const title = label ? asSectionTitle(label) : undefined;
   return (
     <div
-      className={cn(
-        "flex flex-col gap-2 border-t border-[var(--lab-border)] pt-2",
-        className,
-      )}
+      className={cn("flex flex-col gap-3 pt-3", className)}
       role="group"
-      aria-label={label}
+      aria-label={title}
     >
-      {label ? (
-        <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--lab-text-muted)]">
-          {label}
-        </p>
+      {title ? (
+        <p className="lab-type-section text-[var(--lab-text-secondary)]">{title}</p>
       ) : null}
       {children}
     </div>
@@ -243,10 +278,7 @@ export function ReducedMotionToggle({
       aria-label="Toggle reduced motion"
       aria-pressed={enabled}
     >
-      <span className="sm:hidden">RM: {enabled ? "on" : "off"}</span>
-      <span className="hidden sm:inline">
-        Reduced motion: {enabled ? "on" : "off"}
-      </span>
+      Reduce motion
     </LabButton>
   );
 }
@@ -257,17 +289,21 @@ type ViewportModeToggleProps = {
   className?: string;
 };
 
-const VIEWPORT_OPTIONS: { id: ViewportMode; label: string }[] = [
-  { id: "desktop", label: "Desktop 1920" },
-  { id: "mobile", label: "Mobile 452" },
-  { id: "responsive", label: "Responsive" },
+const VIEWPORT_OPTIONS: {
+  id: ViewportMode;
+  label: string;
+  ariaLabel: string;
+}[] = [
+  { id: "desktop", label: "Desktop", ariaLabel: "Desktop, 1920 pixels wide" },
+  { id: "mobile", label: "Phone", ariaLabel: "Phone, 452 pixels wide" },
+  { id: "responsive", label: "Live", ariaLabel: "Live, responsive" },
 ];
 
 export function ViewportModeToggle({ mode, onChange, className }: ViewportModeToggleProps) {
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-1 rounded-[var(--lab-radius-sm)] border border-[var(--lab-border)] bg-[var(--lab-surface)] p-1",
+        "flex flex-wrap items-center gap-1 rounded-[6px] border border-[var(--lab-border)] bg-[var(--lab-surface)] p-[4px]",
         className,
       )}
       role="group"
@@ -278,11 +314,13 @@ export function ViewportModeToggle({ mode, onChange, className }: ViewportModeTo
           key={option.id}
           type="button"
           onClick={() => onChange(option.id)}
+          aria-label={option.ariaLabel}
+          aria-pressed={mode === option.id}
           className={cn(
-            "min-h-11 rounded px-2 py-1 font-mono text-xs transition-colors",
+            "lab-chrome-seg lab-type-label min-h-11 rounded-[6px] px-[12px] py-[8px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--lab-focus)]",
             mode === option.id
-              ? "bg-[rgba(16,164,255,0.15)] text-[var(--lab-accent-primary)]"
-              : "text-[var(--lab-text-muted)] hover:text-[var(--lab-text-secondary)]",
+              ? "border border-[var(--lab-border-strong)] bg-[var(--lab-bg-elevated)] text-[var(--lab-text-primary)]"
+              : "border border-transparent text-[var(--lab-text-muted)]",
           )}
         >
           {option.label}
@@ -338,6 +376,13 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
         tokenRoot.style.removeProperty("--lab-control-dock-top");
         tokenRoot.style.removeProperty("--lab-control-dock-bottom");
       }
+
+      const ancestorScale = cumulativeAncestorScale(node);
+      if (Math.abs(ancestorScale - 1) > 0.02) {
+        node.style.zoom = String(1 / ancestorScale);
+      } else {
+        node.style.removeProperty("zoom");
+      }
     };
 
     syncOffset();
@@ -358,6 +403,7 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
       tokenRoot.style.removeProperty("--lab-control-dock-left");
       tokenRoot.style.removeProperty("--lab-control-dock-top");
       tokenRoot.style.removeProperty("--lab-control-dock-bottom");
+      node.style.removeProperty("zoom");
     };
   }, []);
 
@@ -370,7 +416,7 @@ export function DemoControlBar({ className, children }: DemoControlBarProps) {
         /* Opaque strip — never a glass overlay/scrim over the product field.
            Desktop: fixed. Mobile collapsed: fixed chip. Mobile open: in-flow
            (max-sm:relative on lab-dock-open) so knobs sit under the fold. */
-        "demo-control-bar z-[60] flex flex-wrap items-center gap-3 rounded-[var(--lab-radius-md)] border border-[var(--lab-border)] bg-[var(--lab-bg)] p-2 max-sm:gap-1.5 max-sm:p-1.5 sm:fixed",
+        "demo-control-bar z-[60] flex flex-wrap items-center gap-3 border border-[var(--lab-border)] bg-[var(--lab-bg)] p-2 sm:fixed",
         className,
       )}
     >
@@ -384,21 +430,36 @@ function DemoMenuIcon({ open }: { open: boolean }) {
     <span className="relative block h-4 w-4 shrink-0" aria-hidden>
       <span
         className={cn(
-          "absolute left-0 block h-0.5 w-4 rounded-full bg-current transition-[transform,top] duration-150 motion-reduce:transition-none",
+          "absolute left-0 block h-0.5 w-4 rounded-full bg-current motion-reduce:transition-none",
           open ? "top-1.5 rotate-45" : "top-0",
         )}
+        style={{
+          transitionDuration: "150ms",
+          transitionProperty: "transform, top",
+          transitionTimingFunction: LAB_EASE,
+        }}
       />
       <span
         className={cn(
-          "absolute left-0 top-1.5 block h-0.5 w-4 rounded-full bg-current transition-opacity duration-150 motion-reduce:transition-none",
+          "absolute left-0 top-1.5 block h-0.5 w-4 rounded-full bg-current motion-reduce:transition-none",
           open && "opacity-0",
         )}
+        style={{
+          transitionDuration: "150ms",
+          transitionProperty: "opacity",
+          transitionTimingFunction: LAB_EASE,
+        }}
       />
       <span
         className={cn(
-          "absolute left-0 block h-0.5 w-4 rounded-full bg-current transition-[transform,top] duration-150 motion-reduce:transition-none",
+          "absolute left-0 block h-0.5 w-4 rounded-full bg-current motion-reduce:transition-none",
           open ? "top-1.5 -rotate-45" : "top-3",
         )}
+        style={{
+          transitionDuration: "150ms",
+          transitionProperty: "transform, top",
+          transitionTimingFunction: LAB_EASE,
+        }}
       />
     </span>
   );
@@ -413,7 +474,8 @@ type DemoControlMenuProps = {
 
 /** Collapsible demo controls. Collapsed: small toggle. Open: left rail from sm
  *  up; on small screens knobs sit in document flow under the fold (scroll).
- *  Opaque strip — not a sheet, sticky footer, or dim overlay. */
+ *  Opaque strip — not a sheet, sticky footer, or dim overlay.
+ *  One menu toggle, always in this bar — never a second control on the field. */
 export function DemoControlMenu({
   className,
   children,
@@ -437,10 +499,10 @@ export function DemoControlMenu({
         "flex-col items-stretch",
         open
           ? [
-              "lab-dock-open flex-nowrap w-full max-w-none rounded-none border-x-0 border-b-0 p-3 max-sm:relative max-sm:inset-auto max-sm:max-h-none",
-              "sm:fixed sm:left-0 sm:top-0 sm:h-dvh sm:max-h-none sm:w-[min(20.5rem,38vw)] sm:max-w-[20.5rem] sm:rounded-none sm:border-b-0 sm:border-l-0 sm:border-r sm:border-t-0",
+              "lab-dock-open flex-nowrap w-full max-w-none rounded-none border-x-0 border-b-0 p-3 max-sm:relative max-sm:inset-auto max-sm:right-auto max-sm:max-h-none",
+              "sm:fixed sm:left-0 sm:top-0 sm:right-auto sm:h-dvh sm:max-h-none sm:w-[min(20.5rem,38vw)] sm:max-w-[20.5rem] sm:rounded-none sm:border-b-0 sm:border-l-0 sm:border-r sm:border-t-0",
             ]
-          : "fixed left-2 top-2 w-max max-w-none gap-0 p-1.5 sm:left-4 sm:top-4",
+          : "fixed left-2 top-2 right-auto w-max max-w-none gap-0 p-1 sm:left-4 sm:top-4",
         className,
       )}
     >
@@ -451,14 +513,14 @@ export function DemoControlMenu({
         aria-controls={panelId}
         aria-label={open ? "Close demo menu" : "Open demo menu"}
         onClick={() => setOpen((value) => !value)}
-        className="self-start px-2.5"
+        className="self-start"
       >
         <DemoMenuIcon open={open} />
       </LabButton>
       {open ? (
         <div
           id={panelId}
-          className="flex flex-col gap-1.5 max-sm:overflow-visible sm:min-h-0 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain"
+          className="flex flex-col gap-3 max-sm:overflow-visible sm:min-h-0 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain"
         >
           {children}
         </div>
@@ -519,20 +581,18 @@ export function DemoViewportFrame({
           {children}
         </div>
       </div>
-      <p className="lab-muted mt-3 text-center font-mono text-xs">
+      <p className="lab-type-caption lab-muted mt-3 text-center">
         Frame {width}×{height} · scale {(scale * 100).toFixed(0)}%
       </p>
     </div>
   );
 }
 
-/** @deprecated Use LabButton in Maser-Lab demos */
+/** @deprecated Use DemoBackButton in Maser-Lab demos */
 export function LegacyDemoBackButton({ className }: DemoBackButtonProps) {
   return (
-    <Link href="/" className={className}>
-      <Button variant="outline" size="lg" className="text-base font-mono">
-        ← Lab
-      </Button>
+    <Link href="/" className={cn("lab-back-link lab-type-label", className)}>
+      Lab
     </Link>
   );
 }
