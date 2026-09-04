@@ -123,7 +123,7 @@ describe("look-lock motion", () => {
     expect(wallpaperSrc).toContain("grokCyclePose");
     expect(wallpaperSrc).toContain("bodyOutline");
     expect(wallpaperSrc).toContain("outlineFitScale");
-    expect(wallpaperSrc).toContain("markLayout");
+    expect(wallpaperSrc).toContain("pickRedBody");
     expect(wallpaperSrc).toMatch(/MARK_BOX_PX = CURSOR_H_PX/);
     expect(wallpaperSrc).not.toMatch(/GROK_FACE_PX/);
     expect(marksSrc).toContain("evenodd");

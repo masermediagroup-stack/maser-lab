@@ -8,11 +8,16 @@
  * Cold start / product rest: shape 2 (irregular oval) + Black #000000.
  * During the SAME 0.6s kick: SDF blend to the next picker body, color lerps
  * between the current pair HEX and the next pair HEX (two stops).
- * First kick: oval+Black → rounded square + Teal.
- * When the walk returns to oval, fill is Orange-red (tree color), not black.
+ * First kick: oval+Black → rounded square + Teal (unless square drew Red).
+ * When the walk returns to oval, fill is Orange-red (tree color), not black
+ * — unless oval drew Red this seed.
  *
- * Cycle is a Ver 02 subset. Pill, Cloud, and Teardrop are dropped — never land.
- * Walk: oval → square → triangle → hexagon → circle → oval…
+ * Cycle is a Ver 02 subset. Pill, Cloud, Teardrop, and Triangle are dropped
+ * — never land. Walk: oval → square → hexagon → circle → oval…
+ *
+ * Red #FF263C does not bring the Pill shape back. At seed, one of the four
+ * remaining bodies draws Red for the whole run (overrides that body's tree
+ * pair). Other bodies keep their locked pairing.
  *
  * USER OVERRIDE: no bands, no orbits, no nest around Grok. Morph is the kick
  * body. Cursor 360 is separate. Eyes stay white stadiums in face-space
@@ -62,32 +67,38 @@ export const GROK_CHROMATIC_FILLS = [
   DALLAS_GROK_MAGENTA,
 ] as const;
 
-/** Kept picker ids. 4 Pill, 7 Cloud, 8 Teardrop are dropped from the cycle. */
-export type GrokShapeId = 1 | 2 | 3 | 5 | 6;
+/** Kept picker ids. 4 Pill, 5 Triangle, 7 Cloud, 8 Teardrop never land. */
+export type GrokShapeId = 1 | 2 | 3 | 6;
 
 /** Picker order starting at rest (#2 irregular oval). Subset of the Ver 02 tree. */
-export const GROK_SHAPE_WALK: readonly GrokShapeId[] = [2, 3, 5, 6, 1];
+export const GROK_SHAPE_WALK: readonly GrokShapeId[] = [2, 3, 6, 1];
 
 /**
- * Family-tree pairing for the kept set. Green is omitted on purpose.
- * Pill / Cloud / Teardrop HEX stay named tokens and never fill a body.
+ * The four remaining morph bodies. Seed picks exactly one to draw Red
+ * `#FF263C` for the run. Does not resurrect the Pill silhouette.
+ */
+export const GROK_RED_CANDIDATES: readonly GrokShapeId[] = [1, 2, 3, 6];
+
+/**
+ * Locked Ver 02 pairing for the kept set (before the Red seed override).
  * 1 Circle → Blue
  * 2 Irregular oval / product blob → Orange-red (also REST cold-start with Black)
  * 3 Rounded square → Teal
- * 5 Rounded triangle → Magenta
  * 6 Hexagon → Violet
  */
-export const GROK_SHAPE_FILL: Record<GrokShapeId, string> = {
+export const GROK_TREE_FILL: Record<GrokShapeId, string> = {
   1: DALLAS_GROK_BLUE,
   2: DALLAS_GROK_ORANGE_RED,
   3: DALLAS_GROK_TEAL,
-  5: DALLAS_GROK_MAGENTA,
   6: DALLAS_GROK_VIOLET,
 };
 
-/** Dropped from the cycle. Named, never a body fill. */
+/** Alias: tree pairing with no Red override applied. */
+export const GROK_SHAPE_FILL = GROK_TREE_FILL;
+
+/** Named tokens that never fill a body (dropped shapes + skipped Green sibling). */
 export const GROK_DROPPED_FILLS = [
-  DALLAS_GROK_RED,
+  DALLAS_GROK_MAGENTA,
   DALLAS_GROK_ORANGE,
   DALLAS_GROK_GOLD,
 ] as const;
@@ -138,9 +149,26 @@ export function cycleIndex(elapsed: number, loopSeconds: number): number {
   return Math.floor(elapsed / loop);
 }
 
-export function fillForShape(shape: GrokShapeId, cycles: number): string {
+/** Pick which of the four remaining bodies draws Red. Once per wallpaper boot. */
+export function pickRedBody(rand: () => number = Math.random): GrokShapeId {
+  const span = GROK_RED_CANDIDATES.length;
+  const u = rand();
+  const i = Math.min(span - 1, Math.max(0, Math.floor(u * span)));
+  return GROK_RED_CANDIDATES[i]!;
+}
+
+/** Tree HEX, or Red if this body drew the seed override. */
+export function fillForSeed(shape: GrokShapeId, redBody: GrokShapeId): string {
+  return shape === redBody ? DALLAS_GROK_RED : GROK_TREE_FILL[shape];
+}
+
+export function fillForShape(
+  shape: GrokShapeId,
+  cycles: number,
+  redBody: GrokShapeId,
+): string {
   if (cycles === 0) return DALLAS_GROK_BLACK;
-  return GROK_SHAPE_FILL[shape];
+  return fillForSeed(shape, redBody);
 }
 
 export function grokCyclePose(
@@ -148,6 +176,7 @@ export function grokCyclePose(
   loopSeconds: number,
   whipSeconds: number,
   reducedMotion: boolean,
+  redBody: GrokShapeId,
 ): GrokCyclePose {
   if (reducedMotion) {
     return {
@@ -167,8 +196,8 @@ export function grokCyclePose(
   const cycles = cycleIndex(elapsed, loop);
   const fromShape = GROK_SHAPE_WALK[cycles % GROK_SHAPE_WALK.length]!;
   const toShape = GROK_SHAPE_WALK[(cycles + 1) % GROK_SHAPE_WALK.length]!;
-  const fromFill = fillForShape(fromShape, cycles);
-  const toFill = GROK_SHAPE_FILL[toShape];
+  const fromFill = fillForShape(fromShape, cycles, redBody);
+  const toFill = fillForSeed(toShape, redBody);
 
   if (t < rest) {
     return {

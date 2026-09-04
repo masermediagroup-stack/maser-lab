@@ -235,8 +235,8 @@ export function eyeFitsFaceDisc(
 }
 
 /**
- * Seat a gaze pair on a body: scale travel from camera rest, then lift.
- * Triangle uses this so the upper-third face still fits the disc on "look up".
+ * Seat a gaze pair in face-space: scale travel from camera rest, then lift.
+ * Kept bodies use camera rest (lift 0, travel 1). Helper stays for tests.
  */
 export function seatPair(
   pair: { left: EyePose; right: EyePose },

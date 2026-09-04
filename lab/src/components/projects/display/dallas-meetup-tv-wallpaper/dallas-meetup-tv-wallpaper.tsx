@@ -7,19 +7,20 @@ import {
   DEFAULT_WHIP_SECONDS,
   cursorWhipRad,
 } from "./globe-motion";
-import { bodyOutline, markLayout, outlineFitScale, traceBodyPath } from "./grok-bodies";
+import { bodyOutline, outlineFitScale, traceBodyPath } from "./grok-bodies";
 import {
   DALLAS_EYE_WHITE,
   DALLAS_MARK_INK,
   DALLAS_PAPER,
   grokCyclePose,
+  pickRedBody,
+  type GrokShapeId,
 } from "./grok-cycle";
 import {
   EYE_H_FACE,
   EYE_W_FACE,
   FACE_DISC_R,
   eyesAt,
-  seatPair,
   type EyePose,
 } from "./grok-eyes";
 import {
@@ -55,6 +56,12 @@ type ExportResult = {
 };
 
 const DEFAULT_SANS = DALLAS_SANS_FAMILY;
+
+/**
+ * One of the four remaining morph bodies draws Red `#FF263C` this boot.
+ * Picked once at seed. Does not bring the Pill shape back.
+ */
+const SEEDED_RED_BODY: GrokShapeId = pickRedBody();
 
 export type DallasMeetupWallpaperProps = {
   reducedMotion?: boolean;
@@ -94,11 +101,10 @@ function drawOneStadium(
   ctx: CanvasRenderingContext2D,
   faceD: number,
   pose: EyePose,
-  sizeScale = 1,
 ) {
   const R = faceD * 0.5;
-  const ew = faceD * EYE_W_FACE * sizeScale;
-  const eh = faceD * EYE_H_FACE * sizeScale;
+  const ew = faceD * EYE_W_FACE;
+  const eh = faceD * EYE_H_FACE;
   ctx.save();
   ctx.translate(pose.cx * R, pose.cy * R);
   ctx.rotate(pose.tilt);
@@ -121,16 +127,17 @@ function drawGrokBody(
   whipSeconds: number,
   reducedMotion: boolean,
 ) {
-  const pose = grokCyclePose(elapsed, loopSeconds, whipSeconds, reducedMotion);
-  const radii = bodyOutline(pose.fromShape, pose.toShape, pose.morphT);
-  const layout = markLayout(pose.fromShape, pose.toShape, pose.morphT);
-  const fit = outlineFitScale(radii) * layout.massScale;
-  const R = faceD * 0.5 * fit;
-  const pair = seatPair(
-    eyesAt(elapsed, loopSeconds, whipSeconds, reducedMotion),
-    layout.faceLift,
-    layout.gazeTravel,
+  const pose = grokCyclePose(
+    elapsed,
+    loopSeconds,
+    whipSeconds,
+    reducedMotion,
+    SEEDED_RED_BODY,
   );
+  const radii = bodyOutline(pose.fromShape, pose.toShape, pose.morphT);
+  const fit = outlineFitScale(radii);
+  const R = faceD * 0.5 * fit;
+  const pair = eyesAt(elapsed, loopSeconds, whipSeconds, reducedMotion);
 
   ctx.save();
   ctx.translate(cx, cy);
@@ -144,8 +151,8 @@ function drawGrokBody(
   ctx.arc(0, 0, R * FACE_DISC_R, 0, Math.PI * 2);
   ctx.clip();
   const fittedD = faceD * fit;
-  drawOneStadium(ctx, fittedD, pair.left, layout.eyeScale);
-  drawOneStadium(ctx, fittedD, pair.right, layout.eyeScale);
+  drawOneStadium(ctx, fittedD, pair.left);
+  drawOneStadium(ctx, fittedD, pair.right);
   ctx.restore();
 
   ctx.restore();

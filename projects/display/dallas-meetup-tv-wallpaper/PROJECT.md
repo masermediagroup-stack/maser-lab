@@ -28,7 +28,7 @@ Paper `#F2F1ED`. Official Cursor cube (evenodd hole, ink; 360 whip on kick) + Gr
 ### Success signal
 - Skyline gone.
 - Cursor reads as hexagon with cursor-shaped hole (paper through), not a solid blob. Spins 360 on kick, lands upright.
-- Grok reads as the kept picker silhouettes (oval rest → square/teal first land, then triangle / hex / circle) with white stadiums that translate as a gaze pair and wink through the blend **without shearing**. Every body fits the cube-height mark box. Not a light organic PNG head.
+- Grok reads as the kept picker silhouettes (oval rest → square/teal first land unless square drew Red, then hex / circle) with white stadiums that translate as a gaze pair and wink through the blend **without shearing**. Every body fits the cube-height mark box. Not a light organic PNG head.
 - Kick is SDF morph + pair HEX blend + Cursor 360. Eyes may gaze/wink. No Thinking nest. No Working ribbons. No orbits.
 - Same demo route `/demos/dallas-meetup-tv-wallpaper`.
 - Reduced motion freezes Idle (oval + Black, no ribbons, no cube spin, no morph).
@@ -39,7 +39,8 @@ Paper `#F2F1ED`. Official Cursor cube (evenodd hole, ink; 360 whip on kick) + Gr
 - No independent HEX wraps (color without its paired silhouette). No Green body fill. No Cool Gray body fill.
 - No eye-whip. No Grok body yaw. No 360 body spin. Morph in place only.
 - No Thinking nest / Working ribbons / orbits on Grok.
-- No Pill / Cloud / Teardrop cycle landings. No oversized Grok vs cube (do not scale the cube up).
+- No Pill / Cloud / Teardrop / Triangle cycle landings. No oversized Grok vs cube (do not scale the cube up).
+- Red `#FF263C` may fill one remaining body this seed; never resurrect the Pill silhouette.
 - Do not invent type, spacing, or layout. Geist out. No new shader.
 
 ## Type
@@ -61,7 +62,7 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | `--dallas-ink` | `#111111` | Type, cube fill |
 | `--dallas-grok-black` | `#000000` | Cold-start oval rest only |
 | `--dallas-eye-white` | `#FFFFFF` | Grok stadium eyes |
-| Ver 02 kept pairs (5) | blue / orange-red / teal / magenta / violet | Body fills. Green, Gray, Red, Orange, Gold never a fill. Never orbits. |
+| Ver 02 kept pairs (4) | blue / orange-red / teal / violet | Body fills. One of the four draws Red `#FF263C` this seed. Green, Gray, Magenta, Orange, Gold never a fill. Never orbits. |
 
 ## States
 
@@ -80,7 +81,7 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 | --- | --- | --- |
 | Library | Canvas 2D + rAF | Deterministic timeline and export. No new shader. |
 | Duration | 8s: 6.4 Idle / 0.6 Working / ~1 settle | Do not shorten. Super-fast = short whip |
-| Body | SDF subset morph, 1:1 shape↔HEX. Shared mark box = cube height. Cold start oval + Black | USER OVERRIDE. No Pill/Cloud/Teardrop. No Green/Gray/Red/Orange/Gold body |
+| Body | SDF subset morph, 1:1 shape↔HEX. Shared mark box = cube height. Cold start oval + Black. Seeded Red on one of four. | USER OVERRIDE. No Pill/Cloud/Teardrop/Triangle. No Green/Gray/Magenta/Orange/Gold body |
 | Stream | None. Kick is morph + HEX blend + Cursor 360 | USER LOCK. Kill Thinking nest and Working ribbons |
 | Eyes | White stadiums, vertical + slight left (−12°), translate as a pair, wink. Survive morph unsheared (face disc) | Not −28°. Not stuck BL/TR. No independent spin. No silhouette clip |
 | Cube | Official path, evenodd hole, ink; 360 on kick | Hole is the cursor. Paper through |
@@ -94,8 +95,8 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 - [x] Official cube evenodd hole; Grok SDF picker + white stadiums; no skyline; no eye-whip; no Grok body turn; no orbits on Grok
 - [x] Wallpaper never draws Thinking nest, Working ribbons, or colored bands around Grok; cube clean of lines
 - [x] Eyes are a parallel pair at −8° to −15° (product −12°), translate together (center / up / side / return), wink; never stuck BL or TR; never independent spin; never sheared/smashed mid-morph; never a light PNG head
-- [x] Cycle is oval → square → triangle → hex → circle; no Pill, Cloud, or Teardrop landings; Grok fits the cube-height mark box
-- [x] Magenta triangle is ~10% tighter than the circle in that box; stadiums sit in its upper third (point-down face)
+- [x] Cycle is oval → square → hex → circle; no Pill, Cloud, Teardrop, or Triangle landings; Grok fits the cube-height mark box
+- [x] At seed, one of the four remaining bodies draws Red `#FF263C` (Pill silhouette stays dropped); other three keep tree pairing; Green skipped
 - [x] Universal Sans trial once on the canvas line; Plex ≤ 40% of display; Geist out
 - [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`
 
@@ -108,5 +109,5 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 - `maser-lab-demo-chrome`
 - `maser-lab-token-system`
 - `ui-animation` (easing character for cube whip + wink)
-- `projects/display/dallas-meetup-tv-wallpaper/design.md` (correction log; subset + shared box + triangle mass/face)
+- `projects/display/dallas-meetup-tv-wallpaper/design.md` (correction log; four-body subset + seeded Red)
 - `LOOK.md` as look lock

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   bodyOutline,
   grokBodySd,
-  markLayout,
   minOutlineRadius,
   mixedBodySd,
   outlineAabb,
@@ -27,15 +26,21 @@ import {
   DALLAS_INK,
   GROK_CHROMATIC_FILLS,
   GROK_DROPPED_FILLS,
+  GROK_RED_CANDIDATES,
   GROK_SHAPE_FILL,
   GROK_SHAPE_WALK,
+  GROK_TREE_FILL,
   type GrokShapeId,
+  fillForSeed,
   grokCyclePose,
   lerpHex,
+  pickRedBody,
 } from "../grok-cycle";
 
-const KEPT_IDS: readonly GrokShapeId[] = [1, 2, 3, 5, 6];
-const DROPPED_IDS = [4, 7, 8] as const;
+const KEPT_IDS: readonly GrokShapeId[] = [1, 2, 3, 6];
+const DROPPED_IDS = [4, 5, 7, 8] as const;
+/** Circle draws Red so first-kick teal path stays the tree default. */
+const TREE_RED: GrokShapeId = 1;
 
 describe("official picker SDFs", () => {
   it("keeps the origin inside every kept body", () => {
@@ -78,9 +83,9 @@ describe("official picker SDFs", () => {
 });
 
 describe("shared mark box", () => {
-  it("walks the five kept silhouettes and never the dropped three", () => {
-    expect(GROK_SHAPE_WALK).toEqual([2, 3, 5, 6, 1]);
-    expect(GROK_SHAPE_WALK).toHaveLength(5);
+  it("walks the four kept silhouettes and never the dropped four", () => {
+    expect(GROK_SHAPE_WALK).toEqual([2, 3, 6, 1]);
+    expect(GROK_SHAPE_WALK).toHaveLength(4);
     for (const dropped of DROPPED_IDS) {
       expect(GROK_SHAPE_WALK).not.toContain(dropped);
     }
@@ -103,39 +108,12 @@ describe("shared mark box", () => {
       check(from, to, 0.5);
     }
   });
-
-  it("shrinks the magenta triangle instead of overflowing the cube-height box", () => {
-    const radii = bodyOutline(5, 5, 0);
-    const { halfH } = outlineAabb(radii);
-    expect(halfH).toBeGreaterThan(1);
-    expect(halfH * outlineFitScale(radii)).toBeLessThanOrEqual(1 + 1e-6);
-  });
-
-  it("points the magenta triangle down (wide top) and pulls optical mass in vs the circle", () => {
-    // Wide at +y (canvas top / base), narrower toward the apex at -y.
-    expect(grokBodySd(5, 0.5, 0.35)).toBeLessThan(grokBodySd(5, 0.5, -0.35));
-
-    const circle = markLayout(1, 1, 0);
-    const triangle = markLayout(5, 5, 0);
-    const oval = markLayout(2, 2, 0);
-    expect(circle.massScale).toBe(1);
-    expect(oval.massScale).toBe(1);
-    expect(triangle.massScale).toBeCloseTo(0.9);
-    expect(triangle.faceLift).toBeLessThan(-0.2);
-    expect(triangle.eyeScale).toBeLessThan(1);
-    expect(triangle.eyeScale).toBeGreaterThan(0.8);
-    expect(triangle.gazeTravel).toBeLessThan(1);
-
-    const mid = markLayout(3, 5, 0.5);
-    expect(mid.massScale).toBeGreaterThan(0.9);
-    expect(mid.massScale).toBeLessThan(1);
-  });
 });
 
 describe("family-tree shape→color pairing", () => {
   it("starts at irregular oval + black (cold-start rest)", () => {
     expect(GROK_SHAPE_WALK[0]).toBe(2);
-    const rest = grokCyclePose(1, 8, 0.6, false);
+    const rest = grokCyclePose(1, 8, 0.6, false, TREE_RED);
     expect(rest.fromShape).toBe(2);
     expect(rest.morphT).toBe(0);
     expect(rest.fill).toBe(DALLAS_GLOBE_BLACK);
@@ -146,20 +124,21 @@ describe("family-tree shape→color pairing", () => {
     expect(DALLAS_GROK_BLACK).not.toBe(DALLAS_INK);
   });
 
-  it("pairs each kept body to its tree HEX and never fills dropped or skipped colors", () => {
-    expect(GROK_SHAPE_FILL[1]).toBe(DALLAS_GROK_BLUE);
-    expect(GROK_SHAPE_FILL[2]).toBe(DALLAS_GROK_ORANGE_RED);
-    expect(GROK_SHAPE_FILL[3]).toBe(DALLAS_GROK_TEAL);
-    expect(GROK_SHAPE_FILL[5]).toBe(DALLAS_GROK_MAGENTA);
-    expect(GROK_SHAPE_FILL[6]).toBe(DALLAS_GROK_VIOLET);
-    expect(Object.keys(GROK_SHAPE_FILL)).toHaveLength(5);
-    expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_GREEN);
-    expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_GRAY);
-    expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_RED);
-    expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_ORANGE);
-    expect(Object.values(GROK_SHAPE_FILL)).not.toContain(DALLAS_GROK_GOLD);
+  it("pairs each kept body to its tree HEX; magenta/orange/gold never fill", () => {
+    expect(GROK_TREE_FILL[1]).toBe(DALLAS_GROK_BLUE);
+    expect(GROK_TREE_FILL[2]).toBe(DALLAS_GROK_ORANGE_RED);
+    expect(GROK_TREE_FILL[3]).toBe(DALLAS_GROK_TEAL);
+    expect(GROK_TREE_FILL[6]).toBe(DALLAS_GROK_VIOLET);
+    expect(GROK_SHAPE_FILL).toBe(GROK_TREE_FILL);
+    expect(Object.keys(GROK_TREE_FILL)).toHaveLength(4);
+    expect(Object.values(GROK_TREE_FILL)).not.toContain(DALLAS_GROK_GREEN);
+    expect(Object.values(GROK_TREE_FILL)).not.toContain(DALLAS_GROK_GRAY);
+    expect(Object.values(GROK_TREE_FILL)).not.toContain(DALLAS_GROK_RED);
+    expect(Object.values(GROK_TREE_FILL)).not.toContain(DALLAS_GROK_ORANGE);
+    expect(Object.values(GROK_TREE_FILL)).not.toContain(DALLAS_GROK_GOLD);
+    expect(Object.values(GROK_TREE_FILL)).not.toContain(DALLAS_GROK_MAGENTA);
     expect(GROK_DROPPED_FILLS).toEqual([
-      DALLAS_GROK_RED,
+      DALLAS_GROK_MAGENTA,
       DALLAS_GROK_ORANGE,
       DALLAS_GROK_GOLD,
     ]);
@@ -168,24 +147,25 @@ describe("family-tree shape→color pairing", () => {
     expect(GROK_CHROMATIC_FILLS).toHaveLength(9);
   });
 
-  it("never lands on pill, cloud, or teardrop across many loops", () => {
+  it("never lands on pill, triangle, cloud, or teardrop across many loops", () => {
     for (let cycle = 0; cycle < 20; cycle += 1) {
-      const rest = grokCyclePose(cycle * 8 + 0.2, 8, 0.6, false);
-      const kick = grokCyclePose(cycle * 8 + 6.7, 8, 0.6, false);
+      const rest = grokCyclePose(cycle * 8 + 0.2, 8, 0.6, false, TREE_RED);
+      const kick = grokCyclePose(cycle * 8 + 6.7, 8, 0.6, false, TREE_RED);
       for (const pose of [rest, kick]) {
         expect(DROPPED_IDS).not.toContain(pose.fromShape);
         expect(DROPPED_IDS).not.toContain(pose.toShape);
         expect(GROK_DROPPED_FILLS).not.toContain(pose.fill);
+        expect(pose.fill).not.toBe(DALLAS_GROK_MAGENTA);
       }
     }
   });
 
   it("blends oval+black → squircle+teal during the first kick, then holds Idle", () => {
-    const rest = grokCyclePose(1, 8, 0.6, false);
+    const rest = grokCyclePose(1, 8, 0.6, false, TREE_RED);
     expect(rest.fill).toBe(DALLAS_GLOBE_BLACK);
     expect(rest.morphT).toBe(0);
 
-    const kick = grokCyclePose(6.7, 8, 0.6, false);
+    const kick = grokCyclePose(6.7, 8, 0.6, false, TREE_RED);
     expect(kick.inKick).toBe(true);
     expect(kick.fromShape).toBe(2);
     expect(kick.toShape).toBe(3);
@@ -195,7 +175,7 @@ describe("family-tree shape→color pairing", () => {
     expect(kick.fill).not.toBe(DALLAS_GROK_TEAL);
     expect(kick.fill.startsWith("#")).toBe(true);
 
-    const after = grokCyclePose(7.5, 8, 0.6, false);
+    const after = grokCyclePose(7.5, 8, 0.6, false, TREE_RED);
     expect(after.inKick).toBe(false);
     expect(after.fromShape).toBe(3);
     expect(after.toShape).toBe(3);
@@ -210,21 +190,65 @@ describe("family-tree shape→color pairing", () => {
     expect(mid).toBe("#005E53");
   });
 
-  it("returns to oval with orange-red, not black", () => {
-    const nextRest = grokCyclePose(8.2, 8, 0.6, false);
+  it("returns to oval with orange-red, not black, when oval did not draw Red", () => {
+    const nextRest = grokCyclePose(8.2, 8, 0.6, false, TREE_RED);
     expect(nextRest.fromShape).toBe(3);
     expect(nextRest.fill).toBe(DALLAS_GROK_TEAL);
 
-    const ovalAgain = grokCyclePose(5 * 8 + 0.2, 8, 0.6, false);
+    const ovalAgain = grokCyclePose(4 * 8 + 0.2, 8, 0.6, false, TREE_RED);
     expect(ovalAgain.fromShape).toBe(2);
     expect(ovalAgain.fill).toBe(DALLAS_GROK_ORANGE_RED);
   });
 
   it("freezes cold-start rest for reduced motion", () => {
-    const pose = grokCyclePose(7.5, 8, 0.6, true);
+    const pose = grokCyclePose(7.5, 8, 0.6, true, TREE_RED);
     expect(pose.fromShape).toBe(2);
     expect(pose.fill).toBe(DALLAS_GLOBE_BLACK);
     expect(pose.morphT).toBe(0);
     expect(pose.inKick).toBe(false);
+  });
+});
+
+describe("seeded Red override", () => {
+  it("picks one of the four remaining bodies and never the dropped silhouettes", () => {
+    expect(GROK_RED_CANDIDATES).toEqual([1, 2, 3, 6]);
+    expect(pickRedBody(() => 0)).toBe(1);
+    expect(pickRedBody(() => 0.25)).toBe(2);
+    expect(pickRedBody(() => 0.5)).toBe(3);
+    expect(pickRedBody(() => 0.99)).toBe(6);
+  });
+
+  it("overrides only the seeded body; others keep the tree pair", () => {
+    for (const redBody of GROK_RED_CANDIDATES) {
+      for (const shape of KEPT_IDS) {
+        const fill = fillForSeed(shape, redBody);
+        if (shape === redBody) expect(fill).toBe(DALLAS_GROK_RED);
+        else expect(fill).toBe(GROK_TREE_FILL[shape]);
+      }
+    }
+  });
+
+  it("lands Red on the seeded body without bringing Pill back", () => {
+    const squareRed = grokCyclePose(7.5, 8, 0.6, false, 3);
+    expect(squareRed.fromShape).toBe(3);
+    expect(squareRed.fill).toBe(DALLAS_GROK_RED);
+
+    const ovalRed = grokCyclePose(4 * 8 + 0.2, 8, 0.6, false, 2);
+    expect(ovalRed.fromShape).toBe(2);
+    expect(ovalRed.fill).toBe(DALLAS_GROK_RED);
+
+    const hexRed = grokCyclePose(8 + 7.5, 8, 0.6, false, 6);
+    expect(hexRed.fromShape).toBe(6);
+    expect(hexRed.fill).toBe(DALLAS_GROK_RED);
+
+    const circleRed = grokCyclePose(2 * 8 + 7.5, 8, 0.6, false, 1);
+    expect(circleRed.fromShape).toBe(1);
+    expect(circleRed.fill).toBe(DALLAS_GROK_RED);
+  });
+
+  it("keeps cold-start oval black even when oval drew Red this seed", () => {
+    const rest = grokCyclePose(1, 8, 0.6, false, 2);
+    expect(rest.fromShape).toBe(2);
+    expect(rest.fill).toBe(DALLAS_GROK_BLACK);
   });
 });
