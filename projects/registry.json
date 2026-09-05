@@ -105,6 +105,13 @@
       "status": "review",
       "category": "marketing",
       "description": "Homepage CtaLogoTilt replacement: four-blob wash + in-place ASCII tick (not the footer wave)"
+    },
+    {
+      "slug": "meetup-loop-viz",
+      "title": "Meetup loop visualization",
+      "status": "building",
+      "category": "display",
+      "description": "Dallas meetup teaching spine — six Lab hands, official Grok Bot face, dots for the handoff"
     }
   ]
 }
