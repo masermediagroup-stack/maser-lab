@@ -154,11 +154,11 @@ export function MaserBotCardDemo() {
               Band {bandEnabled ? "on" : "off"}
             </LabButton>
           </LabControlGroup>
-          <LabControlGroup label="Bg">
+          <LabControlGroup label="Stage bg">
             <div
               className="flex flex-wrap gap-1"
               role="group"
-              aria-label="Background mode"
+              aria-label="Stage background mode"
             >
               <LabButton
                 type="button"

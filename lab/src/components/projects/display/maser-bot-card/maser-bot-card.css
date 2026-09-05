@@ -9,6 +9,7 @@
   font-family: inherit;
 }
 
+/* Empty stage-bg stub. Not a plate shader. No invented look. */
 .maser-bot-card__bg {
   position: absolute;
   inset: 0;

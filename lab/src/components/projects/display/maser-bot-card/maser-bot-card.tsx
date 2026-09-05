@@ -201,6 +201,7 @@ export function MaserBotCard({
         className="maser-bot-card__bg"
         data-mode={bgMode}
         data-interactive={bgInteractive ? "true" : "false"}
+        data-slot="stage-bg"
         aria-hidden
       />
       <div className="maser-bot-card__scene">

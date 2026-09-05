@@ -10,6 +10,7 @@ export type MaserBotCardProps = {
   bandEnabled?: boolean;
   face?: MaserBotCardFace;
   onFaceChange?: (face: MaserBotCardFace) => void;
+  /** Stage-bg stub only. Never a plate shader. */
   bgMode?: MaserBotCardBgMode;
   bgIntensity?: number;
   bgSpeed?: number;

@@ -25,7 +25,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 | `bandEnabled` | `boolean` | `true` | Optional diagonal light mask |
 | `face` | `"front" \| "back"` | `"front"` | Controlled face |
 | `onFaceChange` | `(face) => void` | | Flip callback |
-| `bgMode` | `"calm" \| "interactive"` | `"calm"` | Stub slot only (no vgpu) |
+| `bgMode` | `"calm" \| "interactive"` | `"calm"` | Stage-bg stub only. Not a plate shader. |
 | `forceReducedMotion` | `boolean` | `false` | Demo toggle; also honors OS |
 
 ## Public assets
@@ -44,7 +44,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 
 ## Notes
 
-- Live URL (after deploy): pending unique preview of `/demos/maser-bot-card`
+- Live URL: https://maser-mtbrec48d-masermediagroup.vercel.app/demos/maser-bot-card
 - Skeleton: empty portrait faces. Parked copy is not typeset.
 - Product must not import lab demo chrome tokens as its look.
-- Build order: CSS first. No vgpu. No Bloub mark anim.
+- Plate is CSS only. Optional vgpu = stage bg (not implemented). No Bloub mark anim.

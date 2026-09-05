@@ -51,7 +51,7 @@ Until Figma locks values, Spark may scaffold knobs only:
 - **Shine** — on/off, intensity
 - **Band** — on/off for optional diagonal light mask
 - **Face** — front / back (same as the product flip control)
-- **Bg** — calm / interactive; if vgpu, speed or intensity
+- **Bg** — calm / interactive stage-bg stub (speed or intensity). Not a plate shader. No vgpu now.
 - **Replay / reduced motion** — shared lab row
 
 Look knobs live in the demo. The product card never imports demo chrome.
@@ -60,7 +60,7 @@ Look knobs live in the demo. The product card never imports demo chrome.
 
 - Hold Shape until Figma lands.
 - Steal Zoah tilt+shine structure; refuse Zoah skin.
-- Use CSS 3D for tilt/shine; vgpu only if the bg earns a real shader.
+- Use CSS 3D for tilt + specular overlay + flip. Plate stays CSS. Optional vgpu is stage bg only — killed for the plate.
 - One card as the hero. No collage of windows.
 - Encode every Figma lock into this file the same turn it lands.
 
@@ -153,7 +153,17 @@ Refuse (confirmed):
 Zoah’s plate is WebGL2; bg is a separate low-res WebGL. We steal the *feel* (pose + specular), not their stack.
 
 1. **CSS first** — square/vertical front/back, flip control, tilt + sheen (+ optional band) for rehearsal speed.
-2. **Optional vgpu plate** — only if CSS feels flat after timing. Not a default.
+2. **Optional vgpu plate** — KILLED. Do not implement. Overridden by Tech reconcile.
 3. **Bloub-style SVG mark anim** — later, optional, only if Figma wants a living mark.
 
 Refuse Zoah skin. EP owns look from Figma. Spark does not invent type/layout/mark.
+
+## Tech reconcile (locked 2026-09-05)
+
+Card interaction = **CSS 3D tilt + specular overlay + front/back flip**. That is enough. Do not put the plate on WebGL by default.
+
+Zoah page canvases are mainly **environment** (starfield / noise). Optional **vgpu** is for stage **background** only — not the card plate.
+
+Meetup default: CSS portrait card. Optional vgpu = stage bg. Bloub mark anim stays later-optional.
+
+Overrides earlier “optional vgpu plate if CSS feels flat” — plate stays CSS unless EP reopens after Figma.
