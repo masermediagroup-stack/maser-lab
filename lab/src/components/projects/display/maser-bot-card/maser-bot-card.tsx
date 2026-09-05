@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { startPlate, type PlateUniforms } from "./start-plate";
 import type { MaserBotCardFace, MaserBotCardProps } from "./types";
 import "./maser-bot-card.css";
 
@@ -9,6 +10,16 @@ const YAW_DEG = 8;
 const PITCH_DEG = 5;
 const TRACK_LERP = 0.16;
 const REST_LERP = 0.09;
+
+const REST_UNIFORMS: PlateUniforms = {
+  pointerX: 0.5,
+  pointerY: 0.42,
+  yaw: 0,
+  pitch: 0,
+  shine: 0,
+  band: 0,
+  reduced: 1,
+};
 
 function lerp(current: number, target: number, amount: number) {
   return current + (target - current) * amount;
@@ -30,6 +41,9 @@ export function MaserBotCard({
 }: MaserBotCardProps) {
   const rootRef = useRef<HTMLElement>(null);
   const plateRef = useRef<HTMLDivElement>(null);
+  const frontGpuRef = useRef<HTMLCanvasElement>(null);
+  const backGpuRef = useRef<HTMLCanvasElement>(null);
+  const uniformsRef = useRef<PlateUniforms>(REST_UNIFORMS);
   const yawRef = useRef(0);
   const pitchRef = useRef(0);
   const targetYawRef = useRef(0);
@@ -51,6 +65,7 @@ export function MaserBotCard({
 
   const [osReduced, setOsReduced] = useState(false);
   const [finePointer, setFinePointer] = useState(false);
+  const [gpuPainted, setGpuPainted] = useState(false);
   const [uncontrolledFace, setUncontrolledFace] =
     useState<MaserBotCardFace>("front");
 
@@ -99,6 +114,18 @@ export function MaserBotCard({
   }, []);
 
   useEffect(() => {
+    const front = frontGpuRef.current;
+    const back = backGpuRef.current;
+    if (!front || !back) return;
+    return startPlate({
+      front,
+      back,
+      uniformsRef,
+      onPainted: () => setGpuPainted(true),
+    });
+  }, []);
+
+  useEffect(() => {
     let frame = 0;
     const tick = () => {
       const plate = plateRef.current;
@@ -136,6 +163,16 @@ export function MaserBotCard({
         "--band-on",
         bandOnRef.current && shineOnRef.current ? "1" : "0",
       );
+
+      uniformsRef.current = {
+        pointerX: sheenXRef.current,
+        pointerY: sheenYRef.current,
+        yaw: yawRef.current / YAW_DEG,
+        pitch: pitchRef.current / PITCH_DEG,
+        shine: shineOnRef.current ? intensityRef.current : 0,
+        band: bandOnRef.current && shineOnRef.current ? 1 : 0,
+        reduced: reducedRef.current ? 1 : 0,
+      };
 
       if (bgInteractiveRef.current && root) {
         root.style.setProperty("--bg-x", String(sheenXRef.current));
@@ -196,6 +233,7 @@ export function MaserBotCard({
       data-band={bandEnabled ? "true" : "false"}
       data-face={face}
       data-bg={bgMode}
+      data-gpu={gpuPainted ? "painting" : "pending"}
     >
       <div
         className="maser-bot-card__bg"
@@ -216,11 +254,21 @@ export function MaserBotCard({
           <div className="maser-bot-card__body">
             <div className="maser-bot-card__flip">
               <div className="maser-bot-card__side maser-bot-card__side--front">
+                <canvas
+                  ref={frontGpuRef}
+                  className="maser-bot-card__gpu"
+                  aria-hidden
+                />
                 <div className="maser-bot-card__slot maser-bot-card__slot--name" />
                 <div className="maser-bot-card__slot maser-bot-card__slot--role" />
                 <div className="maser-bot-card__slot maser-bot-card__slot--bio" />
               </div>
               <div className="maser-bot-card__side maser-bot-card__side--back">
+                <canvas
+                  ref={backGpuRef}
+                  className="maser-bot-card__gpu"
+                  aria-hidden
+                />
                 <div className="maser-bot-card__slot maser-bot-card__slot--mark" />
               </div>
             </div>

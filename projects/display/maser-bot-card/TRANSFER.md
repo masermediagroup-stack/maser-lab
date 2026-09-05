@@ -12,7 +12,8 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 
 ## Dependencies
 
-- None beyond the lab React/Next runtime (CSS skeleton).
+- `vgpu` (WebGPU plate). CSS specular fallback if `init()` fails.
+- Product type: **Universal Sans** — wait for the font file. Do not substitute Geist.
 
 ## Props
 
@@ -25,26 +26,26 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 | `bandEnabled` | `boolean` | `true` | Optional diagonal light mask |
 | `face` | `"front" \| "back"` | `"front"` | Controlled face |
 | `onFaceChange` | `(face) => void` | | Flip callback |
-| `bgMode` | `"calm" \| "interactive"` | `"calm"` | Stage-bg stub only. Not a plate shader. |
+| `bgMode` | `"calm" \| "interactive"` | `"calm"` | Stage-bg stub. May use vgpu later. |
 | `forceReducedMotion` | `boolean` | `false` | Demo toggle; also honors OS |
 
 ## Public assets
 
-- none
+- none (Universal Sans file not in yet)
 
 ## Porting steps
 
 1. Copy `lab/src/components/projects/display/maser-bot-card/` to portfolio repo
 2. Copy public assets listed above
-3. Install dependencies listed above
-4. Adjust import paths / theme tokens (none named yet)
+3. Install dependencies listed above (`vgpu`, WGSL loader)
+4. Adjust import paths / theme tokens (none named yet). Do not wire Geist onto the product.
 5. Add showcase page; wire props to portfolio router
 6. Preview deploy on Vercel → QA → production deploy
 7. Set registry status → `transferred`
 
 ## Notes
 
-- Live URL: https://maser-mtbrec48d-masermediagroup.vercel.app/demos/maser-bot-card
+- Live URL: stale until Track A preview lands (prior aliases including `https://maser-mtbrec48d-masermediagroup.vercel.app/demos/maser-bot-card`).
 - Skeleton: empty portrait faces. Parked copy is not typeset.
 - Product must not import lab demo chrome tokens as its look.
-- Plate is CSS only. Optional vgpu = stage bg (not implemented). No Bloub mark anim.
+- Plate is vgpu / WebGL. Stage bg stub may still use vgpu. No Bloub mark anim.

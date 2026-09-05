@@ -32,7 +32,7 @@ None yet. Do not invent `--maser-card-*` until Figma names them in `design.md`.
 
 | Date | Direction | Notes |
 | --- | --- | --- |
-| 2026-09-05 | skeleton | Env prep only. No invented look. |
+| 2026-09-05 | skeleton | Env prep. Track A: vgpu plate. Universal Sans waits. |
 
 ## Code Connect
 

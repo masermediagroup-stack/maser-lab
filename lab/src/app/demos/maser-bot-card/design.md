@@ -51,7 +51,7 @@ Until Figma locks values, Spark may scaffold knobs only:
 - **Shine** — on/off, intensity
 - **Band** — on/off for optional diagonal light mask
 - **Face** — front / back (same as the product flip control)
-- **Bg** — calm / interactive stage-bg stub (speed or intensity). Not a plate shader. No vgpu now.
+- **Bg** — calm / interactive stage-bg stub (speed or intensity). Stage bg may still use vgpu; not required for this pass.
 - **Replay / reduced motion** — shared lab row
 
 Look knobs live in the demo. The product card never imports demo chrome.
@@ -60,7 +60,7 @@ Look knobs live in the demo. The product card never imports demo chrome.
 
 - Hold Shape until Figma lands.
 - Steal Zoah tilt+shine structure; refuse Zoah skin.
-- Use CSS 3D for tilt + specular overlay + flip. Plate stays CSS. Optional vgpu is stage bg only — killed for the plate.
+- Use CSS 3D for tilt + front/back flip. Plate shine + light is vgpu / WebGL (Track A override 2026-09-05 evening). Stage bg may still use vgpu.
 - One card as the hero. No collage of windows.
 - Encode every Figma lock into this file the same turn it lands.
 
@@ -79,7 +79,12 @@ Look knobs live in the demo. The product card never imports demo chrome.
 
 ## Tokens
 
-None yet. Figma → named `--maser-card-*` (or slug) primitives here. Spark may only use what this file names.
+None named from Figma yet. Until then, surfaces (not `--maser-card-*` tokens):
+
+- Card bg: dark-mode gray (`#242429` rehearsal)
+- Text: white
+- Type: **Universal Sans** (local file — wait for Figma / font handoff; do not substitute Geist on the product)
+- Mark: Maser blue on the card (`#10a4ff`)
 
 ## Hand-off
 
@@ -152,9 +157,9 @@ Refuse (confirmed):
 
 Zoah’s plate is WebGL2; bg is a separate low-res WebGL. We steal the *feel* (pose + specular), not their stack.
 
-1. **CSS first** — square/vertical front/back, flip control, tilt + sheen (+ optional band) for rehearsal speed.
-2. **Optional vgpu plate** — KILLED. Do not implement. Overridden by Tech reconcile.
-3. **Bloub-style SVG mark anim** — later, optional, only if Figma wants a living mark.
+1. **CSS first** — square/vertical front/back, flip control, tilt pose (rehearsal).
+2. **vgpu plate** — Track A override 2026-09-05 evening. Pointer drives tilt + shine + light on the card. Not CSS-only.
+3. **Bloub-style SVG mark anim** — later, optional, only if Figma wants a living mark. Do not invent the logo anim.
 
 Refuse Zoah skin. EP owns look from Figma. Spark does not invent type/layout/mark.
 
@@ -167,3 +172,22 @@ Zoah page canvases are mainly **environment** (starfield / noise). Optional **vg
 Meetup default: CSS portrait card. Optional vgpu = stage bg. Bloub mark anim stays later-optional.
 
 Overrides earlier “optional vgpu plate if CSS feels flat” — plate stays CSS unless EP reopens after Figma.
+
+**Superseded the same evening** by Track A override below. Keep this section as history.
+
+## Track A override (locked 2026-09-05 evening)
+
+Plate + interactivity: **vgpu / WebGL** for a premium shader look. Not CSS-only. Pointer drives tilt + shine + light on the card.
+
+Surfaces (until Figma tokens):
+
+- Card bg: dark-mode gray
+- Text: white
+- Type: **Universal Sans** (local file — wait for Figma / font handoff; do not substitute Geist on the product)
+- Mark: Maser blue on the card
+
+Portrait / square stays. Front copy parked verbatim.
+
+Optional later: animated Grok-style mark (idle / thinking / wink). Bloub is the motion ref. Do not invent the logo anim until human picks export vs custom.
+
+This overrides “CSS plate only / vgpu = stage bg only.” Stage bg may still use vgpu; the **plate** is now vgpu too.

@@ -1,4 +1,7 @@
 .maser-bot-card {
+  --mbc-card-bg: #242429;
+  --mbc-text: #ffffff;
+  --mbc-mark: #10a4ff;
   position: relative;
   display: grid;
   place-items: center;
@@ -6,10 +9,11 @@
   height: 100%;
   isolation: isolate;
   perspective: 64rem;
-  font-family: inherit;
+  color: var(--mbc-text);
+  font-family: "Universal Sans", sans-serif;
 }
 
-/* Empty stage-bg stub. Not a plate shader. No invented look. */
+/* Empty stage-bg stub. Optional vgpu later. No invented look. */
 .maser-bot-card__bg {
   position: absolute;
   inset: 0;
@@ -43,7 +47,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  border: 1px solid currentColor;
+  border: 1px solid color-mix(in srgb, var(--mbc-text) 28%, transparent);
   transform: translateZ(-10px);
 }
 
@@ -53,8 +57,8 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border: 1px solid currentColor;
-  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--mbc-text) 28%, transparent);
+  background: var(--mbc-card-bg);
   transform-style: preserve-3d;
 }
 
@@ -73,6 +77,7 @@
 .maser-bot-card__side {
   position: absolute;
   inset: 0;
+  background: var(--mbc-card-bg);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
@@ -81,8 +86,19 @@
   transform: rotateY(180deg);
 }
 
+.maser-bot-card__gpu {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 .maser-bot-card__slot {
   position: absolute;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -147,20 +163,28 @@
   opacity: 0;
 }
 
+/* GPU plate owns shine + light. CSS overlays stay as fallback until paint. */
+.maser-bot-card[data-gpu="painting"] .maser-bot-card__sheen,
+.maser-bot-card[data-gpu="painting"] .maser-bot-card__rim,
+.maser-bot-card[data-gpu="painting"] .maser-bot-card__band {
+  opacity: 0;
+}
+
 .maser-bot-card__flip-control {
   min-height: 44px;
   min-width: 44px;
   margin: 0;
   padding: 0.5rem 0.75rem;
-  border: 1px solid currentColor;
+  border: 1px solid color-mix(in srgb, var(--mbc-text) 40%, transparent);
   background: transparent;
-  color: inherit;
-  font: inherit;
+  color: var(--mbc-text);
+  font-family: "Universal Sans", sans-serif;
+  font-size: 0.875rem;
   cursor: pointer;
 }
 
 .maser-bot-card__flip-control:focus-visible {
-  outline: 2px solid currentColor;
+  outline: 2px solid var(--mbc-text);
   outline-offset: 3px;
 }
 
