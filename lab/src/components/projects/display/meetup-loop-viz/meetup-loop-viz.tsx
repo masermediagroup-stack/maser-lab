@@ -1,14 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
   DOTS_PER_CONNECTOR,
-  GROK_BOT_MARK_SRC,
   GROOT_SPUR_LABEL,
   GROOT_SPUR_LINE,
   LOOP_STEPS,
 } from "./constants";
+import { GrokBotMark } from "./grok-bot-mark";
 import type { MeetupLoopVizProps } from "./types";
 import "./tokens.css";
 
@@ -41,13 +40,7 @@ export function MeetupLoopViz({
       data-reduced-motion={reduced ? "true" : undefined}
     >
       <div className="meetup-loop-viz__stage">
-        <Image
-          className="meetup-loop-viz__mark"
-          src={GROK_BOT_MARK_SRC}
-          alt="Grok Bot"
-          width={112}
-          height={128}
-        />
+        <GrokBotMark reduced={reduced} />
         <ol className="meetup-loop-viz__spine">
           {LOOP_STEPS.map((step, index) => {
             const dimmed = focusedStep !== "all" && focusedStep !== step.id;

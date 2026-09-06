@@ -39,6 +39,4 @@ export const GROOT_SPUR_LINE = "when product/IA is unknown.";
 
 export const GROOT_SPUR_LABEL = "Groot";
 
-export const GROK_BOT_MARK_SRC = "/assets/meetup-loop-viz/grok-bot-face.png";
-
 export const DOTS_PER_CONNECTOR = 4;

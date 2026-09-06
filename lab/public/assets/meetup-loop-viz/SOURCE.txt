@@ -1,4 +1,5 @@
-Official Grok Bot face (grey pebble avatar) cropped from xAI published art:
-https://x.ai/images/news/designing-grok-bot-og.png
-https://x.ai/news/designing-grok-bot
-Eyes are cutouts (white in source on white field). Not a newly drawn mark.
+Grok Bot mark: SVG avatar from https://github.com/masermediagroup-stack/Grokbot-animations (Bloub lineage).
+
+Vendored into lab/src/components/projects/display/meetup-loop-viz/bloub/. Playback is defaultCycle() as-is (~31s SEQUENCE). Do not invent a shorter timeline until the human style list lands.
+
+The PNG crop (grok-bot-face.png) was a placeholder droplet and is no longer used on the canvas.

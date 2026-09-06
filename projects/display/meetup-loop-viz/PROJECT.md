@@ -11,7 +11,7 @@
 - Figma: none
 - Other: `design.md` in this folder (canonical brief + locked copy)
 - Duplicate for the demo folder: `lab/src/app/demos/meetup-loop-viz/design.md`
-- Official Grok Bot face: `lab/public/assets/meetup-loop-viz/grok-bot-face.png` (cropped from xAI published Grok Bot art; see `SOURCE.txt`)
+- Grok Bot mark: SVG avatar vendored from `https://github.com/masermediagroup-stack/Grokbot-animations` (Bloub lineage) into `lab/src/components/projects/display/meetup-loop-viz/bloub/`. Playback is `defaultCycle()` as-is. See `SOURCE.txt`.
 
 ## Brief
 
@@ -48,7 +48,7 @@ Process-diagram spaghetti; glass step cards; inventing Dice Sans metrics; Univer
 - [x] default — all six steps; dots idle/travel
 - [x] step focus (demo knob) — one step emphasized
 - [x] Groot spur on/off (demo knob, default off)
-- [x] prefers-reduced-motion — static dots, no travel (OS + lab toggle)
+- [x] prefers-reduced-motion — static dots, no travel; mark holds first frame (OS + lab toggle)
 
 ## Motion decisions
 
@@ -71,7 +71,7 @@ Process-diagram spaghetti; glass step cards; inventing Dice Sans metrics; Univer
 ## Open decisions
 
 - Typeface: Dice Sans pending human confirm. Scaffold uses `--loop-font-temp` (system grotesk). Approver required before Status: accepted.
-- Grok Bot mark: official face crop from xAI Grok Bot published art until a vector file is filed from brand zip (zip currently has Grok Saturn logomark, not the Bot face).
+- Mark choreography: human style list not landed. Engine plays `defaultCycle()` (SEQUENCE) as-is; do not invent a shorter idle/thinking/wink edit.
 
 ## Accepted decisions
 

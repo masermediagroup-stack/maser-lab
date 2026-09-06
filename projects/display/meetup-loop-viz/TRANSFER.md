@@ -12,7 +12,7 @@ import { MeetupLoopViz } from "@/components/projects/display/meetup-loop-viz";
 
 ## Dependencies
 
-- None beyond React / Next.js (CSS tokens + public PNG)
+- None beyond React / Next.js (CSS tokens + vendored Bloub engine)
 
 ## Props
 
@@ -24,8 +24,8 @@ import { MeetupLoopViz } from "@/components/projects/display/meetup-loop-viz";
 
 ## Public assets
 
-- `lab/public/assets/meetup-loop-viz/grok-bot-face.png`
 - `lab/public/assets/meetup-loop-viz/SOURCE.txt`
+- Engine sources: `lab/src/components/projects/display/meetup-loop-viz/bloub/` (from Grokbot-animations; do not import maser-bot-card)
 
 ## Porting steps
 

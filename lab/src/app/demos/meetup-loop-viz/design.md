@@ -105,3 +105,11 @@ Short spoken-demo titles + 1-line descriptions for the six steps. Unslop. Separa
 | 6 | Critique | Human times the live canvas. Keep, cut, or recut. |
 
 Titles stay these six words. Do not rewrite. Separate from the stage script.
+
+## Mark asset (parked 2026-09-05)
+
+Repo: `https://github.com/masermediagroup-stack/Grokbot-animations` — SVG Grok bot avatar (Bloub lineage).
+
+Replace the droplet / placeholder mark top-right with this asset. Target: ~30s seamless loop. Few states: idle / thinking / wink at minimum.
+
+Do **not** invent the timeline until the human style list lands. Same asset as Track A card. Keep PRs separate.

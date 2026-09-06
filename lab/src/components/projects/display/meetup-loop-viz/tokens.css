@@ -41,6 +41,7 @@
   height: auto;
   display: block;
   pointer-events: none;
+  overflow: visible;
 }
 
 .meetup-loop-viz__spine {
