@@ -49,4 +49,4 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 - Live URL: stale until this mark-asset preview lands (prior aliases including `https://maser-phhilidsh-masermediagroup.vercel.app/demos/maser-bot-card`).
 - Skeleton: empty identity slots; back mark is Grokbot SVG. Parked copy is not typeset.
 - Product must not import lab demo chrome tokens as its look.
-- Plate is vgpu / WebGL. Stage bg stub may still use vgpu. Mark plays upstream `defaultCycle()`; do not invent a timeline.
+- Plate is vgpu / WebGL. Stage bg stub may still use vgpu. Mark: capsule + bleu `#3b93f0`, cycle idle → thinking → wide → thinking → idle. Refuse `defaultCycle` montage.

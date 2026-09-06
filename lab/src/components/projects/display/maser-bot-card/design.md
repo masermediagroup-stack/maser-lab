@@ -61,6 +61,7 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Hold Shape until Figma lands.
 - Steal Zoah tilt+shine structure; refuse Zoah skin.
 - Use CSS 3D for tilt + front/back flip. Plate shine + light is vgpu / WebGL (Track A override 2026-09-05 evening). Stage bg may still use vgpu.
+- Lock card-back mark to Bloub engine, capsule, bleu `#3b93f0`, cycle idle → thinking → wide → thinking → idle. Refuse `defaultCycle` montage and Maser blue `#10A4FF` on this mark.
 - One card as the hero. No collage of windows.
 - Encode every Figma lock into this file the same turn it lands.
 
@@ -84,7 +85,7 @@ None named from Figma yet. Until then, surfaces (not `--maser-card-*` tokens):
 - Card bg: dark-mode gray (`#242429` rehearsal)
 - Text: white
 - Type: **Universal Sans** (local file — wait for Figma / font handoff; do not substitute Geist on the product)
-- Mark: Maser blue on the card (`#10a4ff`)
+- Mark: stock bloub **bleu** (`#3b93f0`) on the card-back mark. Refuse Maser blue `#10A4FF` on this mark.
 
 ## Hand-off
 
@@ -187,18 +188,26 @@ Surfaces (until Figma tokens):
 - Card bg: dark-mode gray
 - Text: white
 - Type: **Universal Sans** (local file — wait for Figma / font handoff; do not substitute Geist on the product)
-- Mark: Maser blue on the card
+- Mark: stock bloub **bleu** (`#3b93f0`). Refuse Maser blue `#10A4FF` on this mark
 
-Portrait / square stays. Front copy parked verbatim.
-
-Optional later: animated Grok-style mark (idle / thinking / wink). Bloub is the motion ref. Do not invent the logo anim until human picks export vs custom.
+Portrait / square stays. Front copy parked verbatim. Mark animation is locked in the section below — not optional later.
 
 This overrides “CSS plate only / vgpu = stage bg only.” Stage bg may still use vgpu; the **plate** is now vgpu too.
 
-## Mark asset (parked 2026-09-05)
+## Mark animation (locked 2026-09-06 — Grok meetup capsule)
 
-Repo: `https://github.com/masermediagroup-stack/Grokbot-animations` — SVG Grok bot avatar, morphs through states (Bloub lineage).
+Repo inspect: `/workspace/grokbot-animations-inspect` (org fork of **bloub**, live https://bloub.vercel.app). Engine is pure JS time → radial silhouette (`BotEngine.sample`), not SMIL / CSS path morph. Eyes are mask holes (`capsulePath`), not white overlays.
 
-Use on this card as the mark (and on the loop viz page — replace droplet). Target: ~30s seamless loop. Few states: idle / thinking / wink at minimum.
+Context: **Grok Bot meetup** teaching demo — mark reads as Grok, not Maser brand chrome.
 
-Do **not** invent the timeline until the human style list lands. Wire the asset; hold choreography.
+**Locks (human 2026-09-06):**
+- Keep the Bloub engine. Do **not** hand-redraw a static capsule SVG.
+- Body: ShapeId **`capsule`** — horizontal stadium as shipped (`skins.ts`). Vertical pill refused unless human reopens.
+- Color: stock bloub **`bleu` `#3b93f0`**. Refuse Maser blue `#10A4FF` on this mark.
+- Eyes: paper stadium holes. `paper` = card-back fill.
+- Card-back loop (curl, seamless): **idle → thinking → wide (interested/excited) → thinking → idle**. Repeat.
+  - EP maps “interested/excited” → engine state **`wide`** (baseBody; keeps capsule).
+  - `thinking` is `baseBody: false` — silhouette briefly leaves capsule for the thinking gag, then morphs back. Accept that (engine truth). Do not invent a custom thinking capsule.
+- Refuse full ~31s `defaultCycle` montage on the card. Refuse orbit/burst/egg/hex on this face unless human adds them.
+
+**Spark:** wire now — `shape="capsule"`, `color="bleu"` (`#3b93f0`), cycle above. Fresh URL. Time feel on the live preview; no invented ms.

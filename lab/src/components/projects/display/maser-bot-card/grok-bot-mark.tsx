@@ -1,22 +1,29 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { blockAt, defaultCycle, offsetOf } from "./grokbot/cycles";
+import { blockAt, makeBlock, offsetOf } from "./grokbot/cycles";
 import { NOTIF_BLUE, type DotRender } from "./grokbot/decor";
 import { BotEngine, type BotFrame } from "./grokbot/engine";
 import { DEMI_VIEWBOX, RAYON } from "./grokbot/repere";
-import { COLOR_BY_ID, DEFAULT_COLOR, mixHex } from "./grokbot/skins";
+import { COLOR_BY_ID, SHAPE_BY_ID, mixHex } from "./grokbot/skins";
 
 const PAPER = "#242429";
-const INK = COLOR_BY_ID.get(DEFAULT_COLOR)?.hex ?? "#0a0a0c";
-const CYCLE = defaultCycle().blocks;
+const INK = COLOR_BY_ID.get("bleu")?.hex ?? "#3b93f0";
+const CAPSULE = SHAPE_BY_ID.get("capsule")?.radii ?? null;
+/** Card-back loop. Durations from engine `makeBlock` / measured state table. */
+const CYCLE = (
+  ["idle", "thinking", "wide", "thinking", "idle"] as const
+).map((state) => makeBlock(state));
+
+function makeEngine(): BotEngine {
+  const engine = new BotEngine(RAYON, "idle", CAPSULE);
+  engine.setShape(CAPSULE, 0);
+  engine.reset("idle", 0);
+  return engine;
+}
 
 function sampleFirstFrame(): BotFrame {
-  const engine = new BotEngine(RAYON, "idle");
-  const first = CYCLE[0];
-  if (first) engine.reset(first.state, 0);
-  else engine.reset("idle", 0);
-  return engine.sample(0);
+  return makeEngine().sample(0);
 }
 
 const FIRST_FRAME = sampleFirstFrame();
@@ -54,8 +61,8 @@ function GrokBotDot({
 }
 
 /**
- * SVG Grok bot mark. Plays the upstream default cycle as-is.
- * Reduced motion: first frame of that cycle, still.
+ * SVG Grok bot mark. Bloub engine, capsule + bleu, card-back cycle.
+ * Reduced motion: first frame (idle capsule), still.
  */
 export function GrokBotMark({
   reduced,
@@ -66,7 +73,7 @@ export function GrokBotMark({
 }) {
   const reactId = useId().replace(/:/g, "");
   const maskId = `mbc-bot-mask-${reactId}`;
-  const [engine] = useState(() => new BotEngine(RAYON, "idle"));
+  const [engine] = useState(() => makeEngine());
   const [frame, setFrame] = useState<BotFrame>(FIRST_FRAME);
 
   useEffect(() => {
@@ -75,6 +82,7 @@ export function GrokBotMark({
     const first = CYCLE[0];
     if (!first) return;
 
+    engine.setShape(CAPSULE, 0);
     engine.reset(first.state, 0);
     let raf = 0;
     let last = 0;

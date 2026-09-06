@@ -32,7 +32,8 @@ None yet. Do not invent `--maser-card-*` until Figma names them in `design.md`.
 
 | Date | Direction | Notes |
 | --- | --- | --- |
-| 2026-09-05 | skeleton | Env prep. Track A: vgpu plate. Grokbot mark wired (`defaultCycle`). Universal Sans waits. |
+| 2026-09-05 | skeleton | Env prep. Track A: vgpu plate. Universal Sans waits. |
+| 2026-09-06 | mark lock | Capsule + bleu `#3b93f0`. Cycle idle → thinking → wide → thinking → idle. |
 
 ## Code Connect
 
