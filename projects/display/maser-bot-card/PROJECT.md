@@ -10,7 +10,7 @@
 
 - Figma: none — Shape holds until the drop. See `design.md` in this folder.
 - Other: steal Zoah **pose + specular feel** only. Refuse Zoah skin, landscape, dither, embossed type.
-- Build: CSS 3D pose + flip. Plate shine/light is **vgpu**. Stage bg may still use vgpu (stub now). No Bloub mark anim.
+- Build: CSS 3D pose + flip. Plate shine/light is **vgpu**. Mark is vendored Grokbot SVG (`defaultCycle` as-is). Stage bg may still use vgpu (stub now).
 
 ## Brief
 
@@ -21,16 +21,16 @@ Dallas meetup stage: pointer over a single portrait card; explicit View front/ba
 Teaching prop for the Lab loop. Planted at rest, alive under pointer (restrained yaw/pitch + shader shine/light). Look is not invented here.
 
 ### Current behavior
-Portrait 3:4 plate. Empty identity + mark slots. Keyboardable flip. CSS 3D tilt. vgpu plate for shine + light (CSS specular fallback if GPU fails). Optional band. Empty stage-bg stub. Dark-mode gray card, white text, Universal Sans named (file not in). Static Maser-blue disc on the back — not a logo animation.
+Portrait 3:4 plate. Empty identity slots. Keyboardable flip. CSS 3D tilt. vgpu plate for shine + light (CSS specular fallback if GPU fails). Optional band. Empty stage-bg stub. Dark-mode gray card, white text, Universal Sans named (file not in). Back mark is the Grokbot SVG (Bloub lineage) playing the upstream default cycle.
 
 ### Desired outcome
 Figma locks type/color/mark/layout. Until then: portrait frame, parked copy off-face, vgpu plate.
 
 ### Success signal
-`/demos/maser-bot-card` boots. Knobs: tilt, shine, band, face, bg, reduced motion. Flip is keyboardable. Reduced motion: no tilt, no shine chase, instant/opacity face swap. Present hides demo chrome (Esc out).
+`/demos/maser-bot-card` boots. Knobs: tilt, shine, band, face, bg, reduced motion. Flip is keyboardable. Reduced motion: no tilt, no shine chase, instant/opacity face swap, mark still on first frame. Present hides demo chrome (Esc out).
 
 ### Non-goals
-Lab shell chrome. Stage script. Zoah landscape/skin/dither/embossed type. Dallas wallpaper morphs. Invented logo anim. Typesetting parked copy. Geist on the product.
+Lab shell chrome. Stage script. Zoah landscape/skin/dither/embossed type. Dallas wallpaper morphs. Invented mark timeline. Typesetting parked copy. Geist on the product.
 
 ## States
 
@@ -54,7 +54,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin/dither/embossed type. Dallas
 | Band | optional diagonal mask | mute via knob |
 | Plate | vgpu / WebGL | Track A override 2026-09-05 evening |
 | Stage bg | empty calm / interactive stub | may still use vgpu; not invented now |
-| Mark | static Maser blue disc | no invented idle/wink anim |
+| Mark | Grokbot SVG, upstream `defaultCycle()` | Do not invent the timeline |
 
 ## Acceptance criteria
 
@@ -63,8 +63,8 @@ Lab shell chrome. Stage script. Zoah landscape/skin/dither/embossed type. Dallas
 - [ ] Portrait / square-vertical (not landscape)
 - [ ] Parked copy is not typeset on the card face
 - [ ] Product does not import demo chrome or `--lab-*` as its look
-- [ ] Reduced motion: no tilt, no sheen chase, bg still, face swap without 3D flip
-- [ ] Plate is vgpu (CSS fallback if GPU fails). No Bloub mark animation. No starfield/noise bg now
+- [ ] Reduced motion: no tilt, no sheen chase, bg still, mark first frame still, face swap without 3D flip
+- [ ] Plate is vgpu (CSS fallback if GPU fails). Mark uses Grokbot `defaultCycle` as-is. No starfield/noise bg now
 - [ ] Product type stack names Universal Sans (no Geist substitute). Font file waits for Figma
 - [ ] Component exported from `lab/src/components/projects/display/maser-bot-card/index.ts`
 
@@ -74,12 +74,13 @@ Lab shell chrome. Stage script. Zoah landscape/skin/dither/embossed type. Dallas
 - Card face strings — parked verbatim.
 - Universal Sans file — wait for handoff.
 - Stage bg vgpu (environment only) — optional; EP after Figma if needed.
-- Animated Grok-style mark — later, after human picks export vs custom.
+- Mark choreography / human style list — hold. Asset is wired; do not rewrite `defaultCycle`.
 
 ## Accepted decisions
 
 - Park Copy lines verbatim. Do not typeset until Figma.
 - Square / vertical. Refuse Zoah landscape.
 - Two faces + explicit flip. Refuse hover-only.
-- Track A: vgpu plate for shine + light. CSS 3D tilt + flip. No Bloub now.
+- Track A: vgpu plate for shine + light. CSS 3D tilt + flip.
+- Mark: vendored Grokbot-animations engine; play `defaultCycle()` as-is.
 - Product never imports demo chrome.

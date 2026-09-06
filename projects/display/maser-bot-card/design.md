@@ -191,3 +191,11 @@ Portrait / square stays. Front copy parked verbatim.
 Optional later: animated Grok-style mark (idle / thinking / wink). Bloub is the motion ref. Do not invent the logo anim until human picks export vs custom.
 
 This overrides “CSS plate only / vgpu = stage bg only.” Stage bg may still use vgpu; the **plate** is now vgpu too.
+
+## Mark asset (parked 2026-09-05)
+
+Repo: `https://github.com/masermediagroup-stack/Grokbot-animations` — SVG Grok bot avatar, morphs through states (Bloub lineage).
+
+Use on this card as the mark (and on the loop viz page — replace droplet). Target: ~30s seamless loop. Few states: idle / thinking / wink at minimum.
+
+Do **not** invent the timeline until the human style list lands. Wire the asset; hold choreography.

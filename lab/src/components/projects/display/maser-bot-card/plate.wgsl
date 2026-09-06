@@ -13,7 +13,6 @@ struct Plate {
 
 const GRAY = vec3f(0.141176, 0.141176, 0.160784);
 const WHITE = vec3f(1.0, 1.0, 1.0);
-const MASER = vec3f(0.062745, 0.643137, 1.0);
 
 @fragment fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
   var px = plate.pointer_x;
@@ -37,13 +36,6 @@ const MASER = vec3f(0.062745, 0.643137, 1.0);
   let band_axis = n.x * 0.82 + n.y * 0.5 + plate.yaw * 0.04 - plate.pitch * 0.03;
   let stripe = smoothstep(0.09, 0.0, abs(band_axis)) * plate.band * shine;
   col += WHITE * stripe * 0.16;
-
-  if (plate.face > 0.5) {
-    let mark_c = vec2f(0.5, 0.36);
-    let d = length((uv - mark_c) * vec2f(1.0, 1.333333));
-    let disc = smoothstep(0.2, 0.168, d);
-    col = mix(col, MASER, disc);
-  }
 
   return vec4f(clamp(col, vec3f(0.0), vec3f(1.0)), 1.0);
 }

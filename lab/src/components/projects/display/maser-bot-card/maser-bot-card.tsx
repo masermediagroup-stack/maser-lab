@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { GrokBotMark } from "./grok-bot-mark";
 import { startPlate, type PlateUniforms } from "./start-plate";
 import type { MaserBotCardFace, MaserBotCardProps } from "./types";
 import "./maser-bot-card.css";
@@ -269,7 +270,12 @@ export function MaserBotCard({
                   className="maser-bot-card__gpu"
                   aria-hidden
                 />
-                <div className="maser-bot-card__slot maser-bot-card__slot--mark" />
+                <div className="maser-bot-card__slot maser-bot-card__slot--mark">
+                  <GrokBotMark
+                    reduced={reduced}
+                    className="maser-bot-card__mark"
+                  />
+                </div>
               </div>
             </div>
             <div className="maser-bot-card__sheen" aria-hidden />

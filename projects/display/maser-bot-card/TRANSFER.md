@@ -13,6 +13,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 ## Dependencies
 
 - `vgpu` (WebGPU plate). CSS specular fallback if `init()` fails.
+- Vendored Grokbot engine: `lab/src/components/projects/display/maser-bot-card/grokbot/` from https://github.com/masermediagroup-stack/Grokbot-animations (MIT).
 - Product type: **Universal Sans** — wait for the font file. Do not substitute Geist.
 
 ## Props
@@ -45,7 +46,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 
 ## Notes
 
-- Live URL: stale until Track A preview lands (prior aliases including `https://maser-mtbrec48d-masermediagroup.vercel.app/demos/maser-bot-card`).
-- Skeleton: empty portrait faces. Parked copy is not typeset.
+- Live URL: stale until this mark-asset preview lands (prior aliases including `https://maser-phhilidsh-masermediagroup.vercel.app/demos/maser-bot-card`).
+- Skeleton: empty identity slots; back mark is Grokbot SVG. Parked copy is not typeset.
 - Product must not import lab demo chrome tokens as its look.
-- Plate is vgpu / WebGL. Stage bg stub may still use vgpu. No Bloub mark anim.
+- Plate is vgpu / WebGL. Stage bg stub may still use vgpu. Mark plays upstream `defaultCycle()`; do not invent a timeline.

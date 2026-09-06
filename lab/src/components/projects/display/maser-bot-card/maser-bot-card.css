@@ -1,7 +1,6 @@
 .maser-bot-card {
   --mbc-card-bg: #242429;
   --mbc-text: #ffffff;
-  --mbc-mark: #10a4ff;
   position: relative;
   display: grid;
   place-items: center;
@@ -116,6 +115,14 @@
 
 .maser-bot-card__slot--mark {
   inset: 18% 18% 42%;
+  display: grid;
+  place-items: center;
+}
+
+.maser-bot-card__mark {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .maser-bot-card__sheen,
