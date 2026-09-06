@@ -3,7 +3,7 @@
  * until Figma names slots. Meta: skip.
  */
 export const PARKED_COPY = {
-  name: "Maser",
+  name: "mace",
   role: "Producer",
   body: "Takes the drop, writes the kickoff, parks what’s locked. Keeps Lab and Crew in sequence.",
 } as const;

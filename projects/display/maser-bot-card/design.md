@@ -95,7 +95,9 @@ None named from Figma yet. Until then, surfaces (not `--maser-card-*` tokens):
 
 ## Locked copy (verbatim — do not rewrite)
 
-- Name: Maser
+Name lock (2026-09-06): **mace** (not Maser). Role and body unchanged.
+
+- Name: mace
 - Role: Producer
 - Body: Takes the drop, writes the kickoff, parks what’s locked. Keeps Lab and Crew in sequence.
 - Meta: skip.
@@ -109,6 +111,7 @@ Portrait first. Stage-readable from the back of the room. Scaffold the demo fram
 ## Observable decisions (add)
 
 - Park Copy lines verbatim. Do not rewrite.
+- Lock card Name to **mace** (not Maser). Role Producer, body unchanged.
 - Set card orientation to square / vertical. Refuse Zoah landscape.
 
 ## Card faces (locked 2026-09-05)
