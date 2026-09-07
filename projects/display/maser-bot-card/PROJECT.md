@@ -78,7 +78,8 @@ Lab shell chrome. Stage script. Zoah landscape/skin/dither/embossed type. Dallas
 ## Accepted decisions
 
 - Park Copy lines verbatim. Do not typeset until Figma.
-- Lock card Name to **mace** (not Maser). Role Producer, body unchanged.
+- Lock card Name to **mace** (not Maser). Role Producer.
+- Lock longer Producer body (2026-09-06). Old short body stale. Verbatim — do not rewrite.
 - Square / vertical. Refuse Zoah landscape.
 - Two faces + explicit flip. Refuse hover-only.
 - Track A: vgpu plate for shine + light. CSS 3D tilt + flip.
