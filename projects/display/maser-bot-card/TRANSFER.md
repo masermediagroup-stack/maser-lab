@@ -12,34 +12,34 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 
 ## Dependencies
 
-- `vgpu` (WebGPU **stage** dither). CSS 135° stripe fallback if `init()` fails.
+- `vgpu` (WebGPU **stage** field: black + TL grey + pointer cloud). CSS gradient fallback if `init()` fails. Do not boot a new raw WebGL stack for the stage.
+- Three.js / `@react-three/fiber` / `@react-three/drei` — one card object (extruded rounded rect + Html face). Type stays Html on the card face.
 - Vendored Grokbot engine: `lab/src/components/projects/display/maser-bot-card/grokbot/` from https://github.com/masermediagroup-stack/Grokbot-animations (MIT).
-- Product type: **UniversalSansGrokTest Display Trial** — `@font-face` swap. Do not substitute Geist or Inter.
+- Product type: **UniversalSansGrokTest Display Trial** — `@font-face` swap. Do not substitute Geist or Inter. Do not load Text Trial.
 
 ## Props
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `tiltEnabled` | `boolean` | `true` | Pointer tilt on/off |
-| `maxAngleFeel` | `number` | `1` | Live feel multiplier around ~±8° yaw / ±5° pitch. Not a token. |
+| `maxAngleFeel` | `number` | `1` | Live feel multiplier around ~±16° yaw / ±10° pitch. Not a token. |
 | `shineEnabled` | `boolean` | `true` | Specular wash on/off |
-| `shineIntensity` | `number` | demo-owned | Wash + rim strength 0–1 |
-| `bandEnabled` | `boolean` | `true` | Optional diagonal light mask |
+| `shineIntensity` | `number` | demo-owned | Quiet wash + rim strength 0–1 |
 | `face` | `"front" \| "back"` | `"front"` | Controlled face |
 | `onFaceChange` | `(face) => void` | | Flip callback |
-| `bgMode` | `"calm" \| "interactive"` | `"interactive"` | Stage dither still vs travelling |
+| `bgMode` | `"calm" \| "interactive"` | `"interactive"` | Stage still vs pointer cloud |
 | `forceReducedMotion` | `boolean` | `false` | Demo toggle; also honors OS |
 
 ## Public assets
 
 - `lab/public/maser-bot-card/grok-bot-wordmark.svg` (Figma node 1:22)
-- `lab/public/maser-bot-card/fonts/` — drop UniversalSansGrokTest Display Trial woff2 here (400 + 300)
+- `lab/public/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf` — Display Trial 400 (also used for 300 slots)
 
 ## Porting steps
 
 1. Copy `lab/src/components/projects/display/maser-bot-card/` to portfolio repo
 2. Copy public assets listed above
-3. Install dependencies listed above (`vgpu`, WGSL loader)
+3. Install dependencies listed above (`vgpu`, Three.js / R3F / drei, WGSL loader)
 4. Adjust import paths. Do not wire Geist or Inter onto the product.
 5. Add showcase page; wire props to portfolio router
 6. Preview deploy on Vercel → QA → production deploy
@@ -47,7 +47,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 
 ## Notes
 
-- Live URL: set after this recut’s unique preview (prior aliases including `https://maser-pzzh176dj-masermediagroup.vercel.app/demos/maser-bot-card` are stale).
+- Live URL: set after this recut’s unique preview. `asse776w2` and earlier hosts are stale. Do not hand the branch alias.
 - Card face is solid `#000`. Stage is vgpu (TL grey + pointer cloud), not on the card face. Front v1 wordmark. Back v1 capsule + typeset copy.
 - Product must not import lab demo chrome tokens as its look.
-- Mark: capsule + bleu `#3b93f0`, cycle idle → thinking → wide → thinking → idle. Refuse `defaultCycle` montage.
+- Mark: capsule + bleu `#3b93f0`. One curl per page load (`neutre` → `attentif` → `curieux` → `mefiant` → `thinking` → `fier` → `neutre`), then pointer gaze until refresh. Do not replay. Refuse `defaultCycle` montage.

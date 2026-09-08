@@ -10,7 +10,7 @@
 
 - Figma file: **GrokBot-Loop-DemoCard**. Front v1 `1:20` (mark-forward). Back v1 `1:2` (identity). Wordmark `1:22`. Artboard 1299×1299. v2/v3/Assets parked.
 - Other: steal Zoah **pose + specular + slab-edge feel** only. Refuse Zoah skin, landscape, dither on the card face, embossed type.
-- Build: CSS 3D slab (bezel + contact shadow) + flip + quieter sheen on a solid `#000` card face. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card.
+- Build: One Three.js card object (extruded rounded rect physical edge + Html face) so face, bezel, rim, and sheen share one transform. Quiet pointer sheen on a solid `#000` card face. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card.
 
 ## Brief
 
@@ -21,7 +21,7 @@ Dallas meetup stage: pointer over a single 1299-square card; explicit Back / Fro
 Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + quieter sheen. Stage stays behind the card.
 
 ### Current behavior
-1299 square card face, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable flip. CSS 3D tilt + CSS sheen. vgpu black + TL grey + pointer cloud on the stage field.
+1299 square card face, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable flip. One Three.js object for tilt + physical edge + quieter sheen. vgpu black + TL grey + pointer cloud on the stage field.
 
 ### Desired outcome
 Match Figma boxes at `n / 1299`. Keep live tilt/sheen and stage field. Do not bake the stage shader into the card face.
@@ -46,15 +46,15 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | CSS 3D pose + CSS sheen; vgpu stage | Figma card face must stay `#000` |
-| Yaw / pitch | Live ~±16° / ±10° × feel knob | Enough tilt to read the thin slab edge; not a flip toy; not frozen tokens |
+| Library | Three.js card object (extruded rounded rect + kinetic-bars edge strokes) + Html face; vgpu stage | Figma card face must stay `#000`; stacked CSS bezels broke tilt/shine |
+| Yaw / pitch | Live ~±16° / ±10° × feel knob | Enough tilt to read the thin physical edge; not a flip toy; not frozen tokens |
 | Return | damped lerp | not a hard snap |
-| Sheen / light | Quiet CSS wash **only while pointer is on the card face**; snap off on leave | no rest sheen, no idle center, no leftover specular |
+| Sheen / light | Quiet wash **only while pointer is on the card face**; snap off on leave | no rest sheen, no idle center, no leftover specular, no light that sticks when the card tilts |
 | Band | none | critique killed parked highlight / band |
 | Card face | solid `#000` | Figma lock; no center bloom |
-| Bezel | CSS `preserve-3d` side faces + rim + contact shadow | physical object; not WebGL on the card face |
-| Stage bg | vgpu black + TL grey + quiet pointer cloud | behind the card; not Bayer wave |
-| Mark | Bloub engine, capsule + bleu, 30s curl / 30s break on Back v1 | Catalog expressions; refuse `defaultCycle` and idle→thinking→wide |
+| Bezel | Three.js ExtrudeGeometry + edge strokes (one group) | physical object; not stacked CSS planes; Figma radius 80 holds on a thin card |
+| Stage bg | vgpu black + TL grey + quiet pointer cloud | behind the card; not Bayer wave; not on the card face |
+| Mark | Bloub engine, capsule + bleu, **one curl per page load** then pointer gaze | Catalog once; do not replay; clamp gaze inside capsule |
 
 ## Acceptance criteria
 
@@ -79,6 +79,6 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 - Figma body (2026-09-08). Prior short/package Producer bodies are stale. Verbatim — do not rewrite.
 - 1299 square. Refuse Zoah landscape.
 - Two faces + explicit flip. Refuse hover-only.
-- Plate solid `#000`. No idle light. Pointer sheen only. vgpu = stage field (not Bayer wave).
-- Mark: Bloub engine; capsule; bleu `#3b93f0`; 30s curl / 30s break on Back v1 only. Catalog: neutre → attentif → curieux → mefiant → thinking → fier → neutre. Refuse `defaultCycle`, idle→thinking→wide, and Maser blue `#10A4FF`.
+- Card face solid `#000`. No idle light. Pointer sheen only. vgpu = stage field (not Bayer wave).
+- Mark: Bloub engine; capsule; bleu `#3b93f0`; **one curl per page load** on Back v1 only, then pointer gaze until refresh. Catalog: neutre → attentif → curieux → mefiant → thinking → fier → neutre. Clamp gaze so the full eye stays inside the capsule. Refuse `defaultCycle`, idle→thinking→wide, and Maser blue `#10A4FF`.
 - Product never imports demo chrome.

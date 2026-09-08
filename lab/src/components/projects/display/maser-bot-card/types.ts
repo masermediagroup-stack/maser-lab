@@ -9,7 +9,7 @@ export type MaserBotCardProps = {
   shineIntensity?: number;
   face?: MaserBotCardFace;
   onFaceChange?: (face: MaserBotCardFace) => void;
-  /** Stage field (vgpu). Plate stays solid #000. */
+  /** Stage field (vgpu). Card face stays solid #000. */
   bgMode?: MaserBotCardBgMode;
   bgIntensity?: number;
   forceReducedMotion?: boolean;

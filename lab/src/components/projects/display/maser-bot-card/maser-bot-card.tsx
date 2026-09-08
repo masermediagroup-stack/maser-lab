@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { CardObject, type CardObjectPose } from "./card-object";
 import { PARKED_COPY } from "./copy";
 import { GrokBotMark, type MarkLookPointer } from "./grok-bot-mark";
 import { GrokBotWordmark } from "./grok-bot-wordmark";
@@ -10,8 +11,6 @@ import "./maser-bot-card.css";
 
 const YAW_DEG = 16;
 const PITCH_DEG = 10;
-const TRACK_LERP = 0.18;
-const REST_LERP = 0.11;
 const QUIET_SHEEN = 0.22;
 
 const REST_STAGE: StageUniforms = {
@@ -23,27 +22,27 @@ const REST_STAGE: StageUniforms = {
   reduced: 1,
 };
 
-function lerp(current: number, target: number, amount: number) {
-  return current + (target - current) * amount;
-}
+const REST_POSE: CardObjectPose = {
+  yaw: 0,
+  pitch: 0,
+  sheenX: 0.5,
+  sheenY: 0.5,
+  shineOn: 0,
+  shineA: 0,
+  tracking: false,
+};
 
 function setCardFaceLight(
-  slab: HTMLDivElement,
+  face: HTMLElement,
   on: boolean,
   x: number,
   y: number,
   amount: number,
 ) {
-  slab.style.setProperty("--sheen-x", `${x * 100}%`);
-  slab.style.setProperty("--sheen-y", `${y * 100}%`);
-  slab.style.setProperty("--rim-x", String(x));
-  slab.style.setProperty("--rim-y", String(y));
-  slab.style.setProperty("--rim-l", String(x));
-  slab.style.setProperty("--rim-r", String(1 - x));
-  slab.style.setProperty("--rim-t", String(1 - y));
-  slab.style.setProperty("--rim-b", String(y));
-  slab.style.setProperty("--shine-a", on ? String(amount) : "0");
-  slab.style.setProperty("--shine-on", on ? "1" : "0");
+  face.style.setProperty("--sheen-x", `${x * 100}%`);
+  face.style.setProperty("--sheen-y", `${y * 100}%`);
+  face.style.setProperty("--shine-a", on ? String(amount) : "0");
+  face.style.setProperty("--shine-on", on ? "1" : "0");
 }
 
 export function MaserBotCard({
@@ -58,19 +57,11 @@ export function MaserBotCard({
   forceReducedMotion = false,
   className,
 }: MaserBotCardProps) {
-  const rootRef = useRef<HTMLElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
-  const slabRef = useRef<HTMLDivElement>(null);
+  const faceRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLCanvasElement>(null);
   const stageUniformsRef = useRef<StageUniforms>(REST_STAGE);
-  const yawRef = useRef(0);
-  const pitchRef = useRef(0);
-  const targetYawRef = useRef(0);
-  const targetPitchRef = useRef(0);
-  const sheenXRef = useRef(0.5);
-  const sheenYRef = useRef(0.5);
-  const trackingRef = useRef(false);
-  const stagePointerRef = useRef({ x: 0.22, y: 0.18, tracking: false });
+  const poseRef = useRef<CardObjectPose>({ ...REST_POSE });
   const lookPointerRef = useRef<MarkLookPointer | null>(null);
   const reducedRef = useRef(false);
   const tiltOnRef = useRef(true);
@@ -101,11 +92,17 @@ export function MaserBotCard({
     bgInteractiveRef.current = bgInteractive;
     bgIntensityRef.current = bgIntensity;
     if (reduced) {
-      trackingRef.current = false;
-      stagePointerRef.current.tracking = false;
-      const slab = slabRef.current;
-      if (slab) setCardFaceLight(slab, false, 0.5, 0.5, 0);
+      poseRef.current = { ...REST_POSE };
+      lookPointerRef.current = null;
+      const faceEl = faceRef.current;
+      if (faceEl) setCardFaceLight(faceEl, false, 0.5, 0.5, 0);
     }
+    stageUniformsRef.current = {
+      ...stageUniformsRef.current,
+      tracking: bgInteractive && !reduced ? stageUniformsRef.current.tracking : 0,
+      intensity: bgIntensity,
+      reduced: reduced || !bgInteractive ? 1 : 0,
+    };
   }, [
     reduced,
     tiltOn,
@@ -144,10 +141,16 @@ export function MaserBotCard({
 
   useEffect(() => {
     const onWinPointerMove = (event: globalThis.PointerEvent) => {
-      if (!trackingRef.current || reducedRef.current) return;
-      const slab = slabRef.current;
-      if (!slab) return;
-      const rect = slab.getBoundingClientRect();
+      if (reducedRef.current) return;
+      lookPointerRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        tracking: true,
+      };
+      if (!poseRef.current.tracking) return;
+      const faceEl = faceRef.current;
+      if (!faceEl) return;
+      const rect = faceEl.getBoundingClientRect();
       const pad = 8;
       const inside =
         event.clientX >= rect.left - pad &&
@@ -155,69 +158,10 @@ export function MaserBotCard({
         event.clientY >= rect.top - pad &&
         event.clientY <= rect.bottom + pad;
       if (inside) return;
-      trackingRef.current = false;
-      lookPointerRef.current = null;
-      targetYawRef.current = 0;
-      targetPitchRef.current = 0;
-      setCardFaceLight(slab, false, 0.5, 0.5, 0);
+      killCardLight();
     };
     window.addEventListener("pointermove", onWinPointerMove);
     return () => window.removeEventListener("pointermove", onWinPointerMove);
-  }, []);
-
-  useEffect(() => {
-    let frame = 0;
-    const tick = () => {
-      const slab = slabRef.current;
-      if (!slab) {
-        frame = window.requestAnimationFrame(tick);
-        return;
-      }
-
-      const rest = !trackingRef.current || reducedRef.current || !tiltOnRef.current;
-      const amount = rest ? REST_LERP : TRACK_LERP;
-      const yawTarget = reducedRef.current || !tiltOnRef.current ? 0 : targetYawRef.current;
-      const pitchTarget =
-        reducedRef.current || !tiltOnRef.current ? 0 : targetPitchRef.current;
-
-      yawRef.current = lerp(yawRef.current, yawTarget, amount);
-      pitchRef.current = lerp(pitchRef.current, pitchTarget, amount);
-
-      slab.style.setProperty("--yaw", `${yawRef.current}deg`);
-      slab.style.setProperty("--pitch", `${pitchRef.current}deg`);
-      const scene = sceneRef.current;
-      if (scene) {
-        scene.style.setProperty("--shadow-x", `${yawRef.current * 1.15}px`);
-      }
-
-      const sheenLive =
-        trackingRef.current && shineOnRef.current && !reducedRef.current;
-      if (sheenLive) {
-        setCardFaceLight(
-          slab,
-          true,
-          sheenXRef.current,
-          sheenYRef.current,
-          intensityRef.current,
-        );
-      } else {
-        setCardFaceLight(slab, false, sheenXRef.current, sheenYRef.current, 0);
-      }
-
-      const stagePtr = stagePointerRef.current;
-      stageUniformsRef.current = {
-        time: stageUniformsRef.current.time,
-        pointerX: stagePtr.x,
-        pointerY: stagePtr.y,
-        tracking: stagePtr.tracking && bgInteractiveRef.current ? 1 : 0,
-        intensity: bgIntensityRef.current,
-        reduced: reducedRef.current || !bgInteractiveRef.current ? 1 : 0,
-      };
-
-      frame = window.requestAnimationFrame(tick);
-    };
-    frame = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   function setFace(next: MaserBotCardFace) {
@@ -226,20 +170,21 @@ export function MaserBotCard({
   }
 
   function killCardLight() {
-    trackingRef.current = false;
-    lookPointerRef.current = null;
-    targetYawRef.current = 0;
-    targetPitchRef.current = 0;
-    const slab = slabRef.current;
-    if (slab) setCardFaceLight(slab, false, 0.5, 0.5, 0);
+    poseRef.current.tracking = false;
+    poseRef.current.yaw = 0;
+    poseRef.current.pitch = 0;
+    poseRef.current.shineOn = 0;
+    poseRef.current.shineA = 0;
+    const faceEl = faceRef.current;
+    if (faceEl) setCardFaceLight(faceEl, false, 0.5, 0.5, 0);
   }
 
-  function pointerStillOnSlab(event: PointerEvent<HTMLDivElement>) {
-    const slab = slabRef.current;
-    if (!slab) return false;
+  function pointerStillOnFace(event: PointerEvent<HTMLDivElement>) {
+    const faceEl = faceRef.current;
+    if (!faceEl) return false;
     const related = event.relatedTarget;
-    if (related instanceof Node && slab.contains(related)) return true;
-    const rect = slab.getBoundingClientRect();
+    if (related instanceof Node && faceEl.contains(related)) return true;
+    const rect = faceEl.getBoundingClientRect();
     const pad = 8;
     return (
       event.clientX >= rect.left - pad &&
@@ -251,58 +196,138 @@ export function MaserBotCard({
 
   function onCardEnter() {
     if (reduced) return;
-    trackingRef.current = true;
+    poseRef.current.tracking = true;
   }
 
   function onCardMove(event: PointerEvent<HTMLDivElement>) {
     if (reduced) return;
-    trackingRef.current = true;
+    poseRef.current.tracking = true;
+    const faceEl = faceRef.current;
+    if (!faceEl) return;
+    const rect = faceEl.getBoundingClientRect();
+    const nx = Math.min(
+      1,
+      Math.max(0, (event.clientX - rect.left) / Math.max(rect.width, 1)),
+    );
+    const ny = Math.min(
+      1,
+      Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1)),
+    );
+    poseRef.current.sheenX = nx;
+    poseRef.current.sheenY = ny;
+    if (shineOnRef.current) {
+      poseRef.current.shineOn = 1;
+      poseRef.current.shineA = intensityRef.current;
+      setCardFaceLight(faceEl, true, nx, ny, intensityRef.current);
+    } else {
+      poseRef.current.shineOn = 0;
+      poseRef.current.shineA = 0;
+      setCardFaceLight(faceEl, false, nx, ny, 0);
+    }
+    if (!tiltOnRef.current) {
+      poseRef.current.yaw = 0;
+      poseRef.current.pitch = 0;
+      return;
+    }
+    const feel = feelRef.current;
+    poseRef.current.yaw = (nx - 0.5) * 2 * YAW_DEG * feel;
+    poseRef.current.pitch = (0.5 - ny) * 2 * PITCH_DEG * feel;
+  }
+
+  function onCardLeave(event: PointerEvent<HTMLDivElement>) {
+    if (pointerStillOnFace(event)) return;
+    killCardLight();
+  }
+
+  function onStageMove(event: PointerEvent<HTMLElement>) {
+    if (reduced) return;
     lookPointerRef.current = {
       clientX: event.clientX,
       clientY: event.clientY,
       tracking: true,
     };
-    const slab = slabRef.current;
-    if (!slab) return;
-    const rect = slab.getBoundingClientRect();
-    const nx = Math.min(1, Math.max(0, (event.clientX - rect.left) / Math.max(rect.width, 1)));
-    const ny = Math.min(1, Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1)));
-    sheenXRef.current = nx;
-    sheenYRef.current = ny;
-    if (shineOnRef.current) setCardFaceLight(slab, true, nx, ny, intensityRef.current);
-    if (!tiltOnRef.current) return;
-    const feel = feelRef.current;
-    targetYawRef.current = (nx - 0.5) * 2 * YAW_DEG * feel;
-    targetPitchRef.current = (0.5 - ny) * 2 * PITCH_DEG * feel;
-  }
-
-  function onCardLeave(event: PointerEvent<HTMLDivElement>) {
-    if (pointerStillOnSlab(event)) return;
-    killCardLight();
-  }
-
-  function onStageMove(event: PointerEvent<HTMLElement>) {
-    if (reduced || !bgInteractive) return;
+    if (!bgInteractive) return;
     const canvas = stageRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    stagePointerRef.current = {
-      x: Math.min(1, Math.max(0, (event.clientX - rect.left) / Math.max(rect.width, 1))),
-      y: Math.min(1, Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1))),
-      tracking: true,
+    stageUniformsRef.current = {
+      time: stageUniformsRef.current.time,
+      pointerX: Math.min(
+        1,
+        Math.max(0, (event.clientX - rect.left) / Math.max(rect.width, 1)),
+      ),
+      pointerY: Math.min(
+        1,
+        Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1)),
+      ),
+      tracking: 1,
+      intensity: bgIntensityRef.current,
+      reduced: 0,
     };
   }
 
   function onStageLeave() {
-    stagePointerRef.current.tracking = false;
+    lookPointerRef.current = null;
+    stageUniformsRef.current = {
+      ...stageUniformsRef.current,
+      tracking: 0,
+      reduced: reducedRef.current || !bgInteractiveRef.current ? 1 : 0,
+      intensity: bgIntensityRef.current,
+    };
   }
 
   const otherFace: MaserBotCardFace = face === "front" ? "back" : "front";
   const flipLabel = face === "front" ? "Back" : "Front";
 
+  const cardFace = (
+    <div
+      ref={faceRef}
+      className="maser-bot-card__face"
+      onPointerEnter={onCardEnter}
+      onPointerMove={onCardMove}
+      onPointerLeave={onCardLeave}
+      onPointerCancel={killCardLight}
+    >
+      <div className="maser-bot-card__flip">
+        <div className="maser-bot-card__side maser-bot-card__side--front">
+          <div className="maser-bot-card__slot maser-bot-card__slot--wordmark">
+            <GrokBotWordmark className="maser-bot-card__wordmark" />
+          </div>
+        </div>
+        <div className="maser-bot-card__side maser-bot-card__side--back">
+          <div className="maser-bot-card__slot maser-bot-card__slot--mark">
+            <GrokBotMark
+              reduced={reduced}
+              followLook={!reduced && finePointer}
+              lookPointerRef={lookPointerRef}
+              className="maser-bot-card__mark"
+            />
+          </div>
+          <p className="maser-bot-card__slot maser-bot-card__slot--name">
+            {PARKED_COPY.name}
+          </p>
+          <p className="maser-bot-card__slot maser-bot-card__slot--role">
+            {PARKED_COPY.role}
+          </p>
+          <p className="maser-bot-card__slot maser-bot-card__slot--bio">
+            {PARKED_COPY.body}
+          </p>
+        </div>
+      </div>
+      <div className="maser-bot-card__sheen" aria-hidden />
+      <button
+        type="button"
+        className="maser-bot-card__flip-control"
+        onClick={() => setFace(otherFace)}
+        aria-pressed={face === "back"}
+      >
+        {flipLabel}
+      </button>
+    </div>
+  );
+
   return (
     <article
-      ref={rootRef}
       className={["maser-bot-card", className].filter(Boolean).join(" ")}
       aria-label="Maser bot card"
       data-reduced={reduced ? "true" : "false"}
@@ -325,58 +350,9 @@ export function MaserBotCard({
       </div>
       <div ref={sceneRef} className="maser-bot-card__scene">
         <div className="maser-bot-card__shadow" aria-hidden />
-        <div
-          ref={slabRef}
-          className="maser-bot-card__slab"
-          onPointerEnter={onCardEnter}
-          onPointerMove={onCardMove}
-          onPointerLeave={onCardLeave}
-          onPointerCancel={killCardLight}
-        >
-          <div className="maser-bot-card__core" aria-hidden />
-          <div className="maser-bot-card__bezel maser-bot-card__bezel--top" aria-hidden />
-          <div className="maser-bot-card__bezel maser-bot-card__bezel--right" aria-hidden />
-          <div className="maser-bot-card__bezel maser-bot-card__bezel--bottom" aria-hidden />
-          <div className="maser-bot-card__bezel maser-bot-card__bezel--left" aria-hidden />
-          <div className="maser-bot-card__face">
-            <div className="maser-bot-card__flip">
-              <div className="maser-bot-card__side maser-bot-card__side--front">
-                <div className="maser-bot-card__slot maser-bot-card__slot--wordmark">
-                  <GrokBotWordmark className="maser-bot-card__wordmark" />
-                </div>
-              </div>
-              <div className="maser-bot-card__side maser-bot-card__side--back">
-                <div className="maser-bot-card__slot maser-bot-card__slot--mark">
-                  <GrokBotMark
-                    reduced={reduced}
-                    followLook={!reduced && finePointer}
-                    lookPointerRef={lookPointerRef}
-                    className="maser-bot-card__mark"
-                  />
-                </div>
-                <p className="maser-bot-card__slot maser-bot-card__slot--name">
-                  {PARKED_COPY.name}
-                </p>
-                <p className="maser-bot-card__slot maser-bot-card__slot--role">
-                  {PARKED_COPY.role}
-                </p>
-                <p className="maser-bot-card__slot maser-bot-card__slot--bio">
-                  {PARKED_COPY.body}
-                </p>
-              </div>
-            </div>
-            <div className="maser-bot-card__rim" aria-hidden />
-            <div className="maser-bot-card__sheen" aria-hidden />
-            <button
-              type="button"
-              className="maser-bot-card__flip-control"
-              onClick={() => setFace(otherFace)}
-              aria-pressed={face === "back"}
-            >
-              {flipLabel}
-            </button>
-          </div>
-        </div>
+        <CardObject poseRef={poseRef} reduced={reduced} shadowRef={sceneRef}>
+          {cardFace}
+        </CardObject>
       </div>
     </article>
   );

@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Back v1 identity mark (Figma 1:2). 30s catalog curl, then 30s pointer-owned
- * neutre break, then curl again. Front v1 has no animated mark.
+ * Back v1 identity mark (Figma 1:2). One catalog curl per page load, then
+ * pointer gaze until refresh. Do not replay the curl. Front v1 has no mark.
  */
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { NOTIF_BLUE, type DotRender } from "./grokbot/decor";
@@ -20,10 +20,12 @@ const INK = COLOR_BY_ID.get("bleu")?.hex ?? "#3b93f0";
 const CAPSULE = SHAPE_BY_ID.get("capsule")?.radii ?? null;
 const NEUTRE = EXPRESSION_BY_ID.get("neutre") ?? null;
 
-/** Human-locked periods. Beat splits stay internal — time feel on the preview. */
+/** One catalog pass, then stop. Beat splits stay internal. */
 const CURL_S = 30;
-const BREAK_S = 30;
-const PERIOD_S = CURL_S + BREAK_S;
+
+/** Pointer look stays inside the capsule: full eye inset, never clipped. */
+const MAX_LOOK_YAW = 8;
+const MAX_LOOK_PITCH = 5.5;
 
 type CurlBeat =
   | { kind: "expr"; expr: ExpressionId; state: "idle" }
@@ -109,16 +111,20 @@ function lookFromPointer(
   const nx = (pointer.clientX - rect.left) / rect.width;
   const ny = (pointer.clientY - rect.top) / rect.height;
   if (!Number.isFinite(nx) || !Number.isFinite(ny)) return null;
-  return {
-    yaw: (nx - 0.5) * 36,
-    pitch: (0.5 - ny) * 28,
-  };
+  let yaw = (nx - 0.5) * 2 * MAX_LOOK_YAW;
+  let pitch = (0.5 - ny) * 2 * MAX_LOOK_PITCH;
+  const mag = Math.hypot(yaw / MAX_LOOK_YAW, pitch / MAX_LOOK_PITCH);
+  if (mag > 1) {
+    yaw /= mag;
+    pitch /= mag;
+  }
+  return { yaw, pitch };
 }
 
 /**
  * SVG Grok bot mark. Bloub engine, capsule + bleu.
- * Back-v1 identity loop: ~30s expression curl, then 30s neutre break with pointer gaze.
- * Reduced motion: first frame (neutre capsule), still.
+ * One curl per load, then pointer gaze (clamped inside the capsule).
+ * Reduced motion: planted neutre, still.
  */
 export function GrokBotMark({
   reduced,
@@ -156,19 +162,18 @@ export function GrokBotMark({
     let clock = 0;
     let lastBeatKey = "";
     let lookArmed = false;
+    let curling = true;
 
     const tick = (ms: number) => {
       raf = window.requestAnimationFrame(tick);
       const dt = last ? Math.min((ms - last) / 1000, 0.064) : 0;
       last = ms;
       clock += dt;
-      const cycleT = ((clock % PERIOD_S) + PERIOD_S) % PERIOD_S;
-      const inCurl = cycleT < CURL_S;
 
-      if (inCurl) {
+      if (clock < CURL_S) {
         const beatIndex = Math.min(
           CURL_BEATS.length - 1,
-          Math.floor((cycleT / CURL_S) * CURL_BEATS.length),
+          Math.floor((clock / CURL_S) * CURL_BEATS.length),
         );
         const beat = CURL_BEATS[beatIndex];
         const beatKey = beat
@@ -185,10 +190,10 @@ export function GrokBotMark({
           lookArmed = false;
         }
       } else {
-        if (lastBeatKey !== "break") {
-          engine.setState("idle", clock);
-          engine.setExpression(NEUTRE, clock);
-          lastBeatKey = "break";
+        if (curling) {
+          const lastBeat = CURL_BEATS[CURL_BEATS.length - 1];
+          if (lastBeat) applyBeat(engine, lastBeat, clock);
+          curling = false;
         }
         const pointer = lookPointerRef?.current ?? null;
         const svg = svgRef.current;

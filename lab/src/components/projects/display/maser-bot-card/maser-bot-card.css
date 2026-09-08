@@ -21,7 +21,7 @@
   --mbc-art: 1299;
   --mbc-card-bg: #000000;
   --mbc-text: #ffffff;
-  --mbc-radius: calc(80 / 1299 * 100cqw);
+  --mbc-radius: calc(80 / 1299 * 100%);
   --shadow-x: 0px;
   position: relative;
   display: grid;
@@ -29,7 +29,6 @@
   width: 100%;
   height: 100%;
   isolation: isolate;
-  perspective: 42rem;
   color: var(--mbc-text);
   font-family: "UniversalSansGrokTest Display Trial";
 }
@@ -70,7 +69,6 @@
 }
 
 .maser-bot-card__scene {
-  --mbc-depth: 28px;
   position: relative;
   z-index: 1;
   display: flex;
@@ -78,7 +76,8 @@
   align-items: center;
   justify-content: center;
   width: min(90vw, 70dvh);
-  transform-style: preserve-3d;
+  aspect-ratio: 1 / 1;
+  max-height: 70dvh;
 }
 
 .maser-bot-card__shadow {
@@ -105,104 +104,42 @@
   filter: blur(26px);
 }
 
-.maser-bot-card__slab {
-  --yaw: 0deg;
-  --pitch: 0deg;
-  --sheen-x: 50%;
-  --sheen-y: 50%;
-  --rim-x: 0.5;
-  --rim-y: 0.5;
-  --rim-l: 0;
-  --rim-r: 0;
-  --rim-t: 0;
-  --rim-b: 0;
-  --shine-a: 0;
-  --shine-on: 0;
+.maser-bot-card__object,
+.maser-bot-card__object-fallback {
   position: relative;
   z-index: 1;
-  box-sizing: border-box;
-  aspect-ratio: 1 / 1;
   width: 100%;
-  max-height: 70dvh;
-  container-type: size;
-  container-name: mbc-slab;
-  transform-style: preserve-3d;
-  transform: rotateX(var(--pitch, 0deg)) rotateY(var(--yaw, 0deg));
-  will-change: transform;
+  height: 100%;
 }
 
-.maser-bot-card__core {
+.maser-bot-card__object [data-three-canvas] {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-  border-radius: var(--mbc-radius);
-  background: #080808;
-  transform: translateZ(calc(var(--mbc-depth) / -2));
 }
 
-.maser-bot-card__bezel {
-  position: absolute;
-  pointer-events: none;
-  background: #0c0c0c;
+.maser-bot-card__html {
+  pointer-events: none !important;
+  overflow: visible !important;
 }
 
-.maser-bot-card__bezel--left {
-  width: var(--mbc-depth);
-  height: 100%;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%) rotateY(-90deg) translateZ(50cqi);
-  background: linear-gradient(
-    to right,
-    #050505 0%,
-    #121212 55%,
-    rgb(232 236 245 / calc(0.12 + var(--shine-on, 0) * var(--rim-l, 0) * 0.7)) 100%
-  );
+.maser-bot-card__face-host {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(80 / 1299 * 100%);
+  background: var(--mbc-card-bg);
+  pointer-events: auto;
 }
 
-.maser-bot-card__bezel--right {
-  width: var(--mbc-depth);
-  height: 100%;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%) rotateY(90deg) translateZ(50cqi);
-  background: linear-gradient(
-    to left,
-    #050505 0%,
-    #121212 55%,
-    rgb(232 236 245 / calc(0.12 + var(--shine-on, 0) * var(--rim-r, 0) * 0.7)) 100%
-  );
-}
-
-.maser-bot-card__bezel--top {
-  width: 100%;
-  height: var(--mbc-depth);
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%) rotateX(90deg) translateZ(50cqb);
-  background: linear-gradient(
-    to bottom,
-    #050505 0%,
-    #121212 55%,
-    rgb(232 236 245 / calc(0.12 + var(--shine-on, 0) * var(--rim-t, 0) * 0.7)) 100%
-  );
-}
-
-.maser-bot-card__bezel--bottom {
-  width: 100%;
-  height: var(--mbc-depth);
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%) rotateX(-90deg) translateZ(50cqb);
-  background: linear-gradient(
-    to top,
-    #050505 0%,
-    #121212 55%,
-    rgb(232 236 245 / calc(0.12 + var(--shine-on, 0) * var(--rim-b, 0) * 0.7)) 100%
-  );
+.maser-bot-card__object-fallback {
+  container-type: size;
+  container-name: mbc-slab;
 }
 
 .maser-bot-card__face {
+  --sheen-x: 50%;
+  --sheen-y: 50%;
+  --shine-a: 0;
+  --shine-on: 0;
   position: relative;
   z-index: 1;
   width: 100%;
@@ -210,8 +147,6 @@
   overflow: hidden;
   border-radius: var(--mbc-radius);
   background: var(--mbc-card-bg);
-  transform: translateZ(calc(var(--mbc-depth) / 2));
-  transform-style: preserve-3d;
   container-type: inline-size;
   container-name: mbc-face;
 }
@@ -318,20 +253,6 @@
   height: 100%;
 }
 
-.maser-bot-card__rim {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2;
-  border-radius: inherit;
-  opacity: var(--shine-on, 0);
-  box-shadow: inset
-    calc((var(--rim-x, 0.5) - 0.5) * -36px)
-    calc((var(--rim-y, 0.5) - 0.5) * -36px)
-    0 1px rgb(232 236 245 / 0.62);
-  transition: none;
-}
-
 .maser-bot-card__sheen {
   position: absolute;
   inset: 0;
@@ -341,8 +262,8 @@
   opacity: var(--shine-on, 0);
   background: radial-gradient(
     ellipse 118% 78% at var(--sheen-x, 50%) var(--sheen-y, 50%),
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.16)) 0%,
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.055)) 38%,
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.11)) 0%,
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.04)) 38%,
     transparent 72%
   );
   transition: none;
@@ -353,15 +274,15 @@
   position: absolute;
   z-index: 4;
   left: 50%;
-  bottom: calc(18 / 1299 * 100%);
+  bottom: 0;
   transform: translateX(-50%);
   display: grid;
-  place-items: center;
-  height: calc(64 / 1299 * 100%);
+  place-items: end center;
+  height: calc(56 / 1299 * 100%);
   min-height: 0;
   min-width: 0;
   margin: 0;
-  padding: 0 calc(20 / 1299 * 100cqw);
+  padding: 0 calc(20 / 1299 * 100cqw) calc(8 / 1299 * 100%);
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -380,24 +301,9 @@
   text-underline-offset: 0.22em;
 }
 
-.maser-bot-card[data-reduced="true"] .maser-bot-card__slab {
-  transform: none;
-}
-
-.maser-bot-card[data-reduced="true"] .maser-bot-card__rim,
 .maser-bot-card[data-reduced="true"] .maser-bot-card__sheen,
-.maser-bot-card[data-shine="false"] .maser-bot-card__rim,
 .maser-bot-card[data-shine="false"] .maser-bot-card__sheen {
   opacity: 0;
-}
-
-.maser-bot-card[data-reduced="true"] .maser-bot-card__face {
-  transform: none;
-}
-
-.maser-bot-card[data-reduced="true"] .maser-bot-card__bezel,
-.maser-bot-card[data-reduced="true"] .maser-bot-card__core {
-  display: none;
 }
 
 .maser-bot-card[data-reduced="true"] .maser-bot-card__flip {
@@ -420,10 +326,4 @@
 
 .maser-bot-card[data-reduced="true"][data-face="back"] .maser-bot-card__side--back {
   opacity: 1;
-}
-
-@media (hover: none), (pointer: coarse) {
-  .maser-bot-card:not([data-reduced="true"]) .maser-bot-card__slab {
-    transform: none;
-  }
 }
