@@ -172,5 +172,5 @@ Human via mace. Do not treat any preview as a timing handoff. `rg80sk0em` stays 
 - Horizontally centered in the gap. Not shifted left.
 - Same rule on both rows.
 - No dots sitting on a heading.
-- Dots still wrap row 1 into row 2 in reading order.
+- Reading order is still row 1 then row 2. Do not add a centered wrap/loading bar of dots in the middle of the composition.
 - Copy stays verbatim. Do not invent a new system.

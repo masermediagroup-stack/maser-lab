@@ -64,10 +64,9 @@
     minmax(0, 1fr);
   grid-template-areas:
     "drop c1 kickoff c2 shape"
-    "wrap wrap wrap wrap wrap"
     "package c3 build c4 critique";
   column-gap: 0;
-  row-gap: 0;
+  row-gap: 1.35rem;
   align-items: stretch;
 }
 
@@ -206,12 +205,7 @@
 }
 
 .meetup-loop-viz__wrap {
-  grid-area: wrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 1.35rem;
-  padding-block: 0.45rem;
+  display: none;
 }
 
 .meetup-loop-viz__spur {
