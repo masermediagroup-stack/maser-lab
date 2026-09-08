@@ -10,18 +10,19 @@ Beginners → intermediate Grok users on stage. One glance should show how Lab h
 
 ## Thesis
 
-Showroom timeline. Black field, white type, one mark. Heavy step titles, lighter one-liners. Animated dots between steps carry the handoff — not arrows, not a flowchart, not a node graph.
+Showroom timeline. Black field, white type, one mark. Step titles one weight lighter than the first cut. Subheads the same white as titles. Animated dots between steps carry the handoff — not arrows, not a flowchart, not a node graph.
 
 Steal: restraint of a product changelog / docs outline. Refuse: SaaS process diagrams, purple gradients, glass cards, Zoah skin, inventing Dice Sans metrics before confirm.
 
 ## Composition
 
 - Full-bleed black bg. White text. No chrome clutter on the product (lab dock stays lab chrome).
-- **Grok Bot mark** top-right (official face; don’t invent a new mark).
-- One vertical stack of six steps. Each step: heavy title + lighter description.
-- Between steps: a short run of animated dots showing flow / handoff. Dots are the motion, not bouncing cards.
+- **Grok Bot mark** top-right (Bloub SVG; don’t invent a new mark).
+- Horizontal **2×3** grid. Row 1: Drop → Kickoff → Shape. Row 2: Package → Build → Critique. All six stay. Never drop a step to fit 3 columns.
+- Each cell: one small monoline icon sitting with the heading + heading + subhead (copy verbatim). Icon is not a badge.
+- Between steps: dots in reading order (left to right, wrap row 1 into row 2). Dots are the motion, not bouncing cards.
 - Optional **Groot spur**: a quiet side note off the main spine (not a required 7th step). Visible as “when product/IA is unknown.”
-- Mobile: same stack, tighter. Mark shrinks but stays top-right.
+- Narrow: keep 3 columns if readable. Stack to 1 column only if the stage cannot hold 3. Never drop a step. Mark shrinks but stays top-right.
 
 ## The six steps (structure — Copy owns final lines)
 
@@ -44,19 +45,19 @@ Until Dice Sans is confirmed + filed: scaffold with a system grotesk stack, name
 
 | Role | Treatment |
 | --- | --- |
-| Display / step title | Heavy weight, large, tight leading |
-| Body / step line | Lighter weight, smaller, readable at stage distance |
-| Caption / Groot spur | Quiet, smaller than body |
+| Display / step title | One weight lighter than the first cut (700, not 800). Still a heading, not caption. |
+| Body / step line | Same color as headings (`--loop-text`). Smaller size, readable at stage distance. |
+| Caption / Groot spur | Quiet, smaller than body. Only use muted here. |
 
 ## Color tokens (product)
 
 | Token | Value | Role |
 | --- | --- |
 | `--loop-bg` | `#000000` | Page |
-| `--loop-text` | `#FFFFFF` | Titles |
-| `--loop-text-muted` | `rgba(255,255,255,0.64)` | Descriptions (measure contrast ≥4.5:1) |
+| `--loop-text` | `#FFFFFF` | Titles **and** subheads |
+| `--loop-text-muted` | `rgba(255,255,255,0.64)` | Groot spur only |
 | `--loop-dot` | `#FFFFFF` | Flow dots |
-| `--loop-spur` | `rgba(255,255,255,0.4)` | Optional Groot spur |
+| `--loop-spur` | `rgba(255,255,255,0.64)` | Alias of muted for the optional Groot spur |
 
 No accent rainbow. Mark carries brand color only if the official asset needs it.
 

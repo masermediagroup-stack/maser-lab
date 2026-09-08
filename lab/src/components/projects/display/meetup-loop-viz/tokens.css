@@ -5,7 +5,7 @@
   --loop-text: #ffffff;
   --loop-text-muted: rgba(255, 255, 255, 0.64);
   --loop-dot: #ffffff;
-  --loop-spur: rgba(255, 255, 255, 0.4);
+  --loop-spur: var(--loop-text-muted);
   /* Temporary grotesk until Dice Sans is confirmed + filed. Not Inter / Geist / Universal Sans. */
   --loop-font-temp: ui-sans-serif, system-ui, "Segoe UI", "Helvetica Neue",
     Helvetica, Arial, sans-serif;
@@ -18,6 +18,8 @@
   background: var(--loop-bg);
   color: var(--loop-text);
   font-family: var(--loop-font-temp);
+  container-type: inline-size;
+  container-name: loop-stage;
 }
 
 .meetup-loop-viz *,
@@ -31,6 +33,7 @@
   min-height: 100%;
   padding: clamp(1.25rem, 4vw, 2.75rem) clamp(1rem, 5vw, 3.5rem)
     clamp(2rem, 6vw, 4rem);
+  padding-right: clamp(4.25rem, 10vw, 6.5rem);
 }
 
 .meetup-loop-viz__mark {
@@ -44,42 +47,93 @@
   overflow: visible;
 }
 
+.meetup-loop-viz__board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    "drop kickoff shape"
+    "wrap wrap wrap"
+    "package build critique";
+  column-gap: 0.85rem;
+  row-gap: 1.35rem;
+  align-items: start;
+}
+
 .meetup-loop-viz__spine {
+  display: contents;
   list-style: none;
   margin: 0;
   padding: 0;
-  max-width: 42rem;
-  display: flex;
-  flex-direction: column;
 }
 
 .meetup-loop-viz__block {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 0.45rem;
+}
+
+.meetup-loop-viz__block[data-step="drop"] {
+  grid-area: drop;
+}
+
+.meetup-loop-viz__block[data-step="kickoff"] {
+  grid-area: kickoff;
+}
+
+.meetup-loop-viz__block[data-step="shape"] {
+  grid-area: shape;
+}
+
+.meetup-loop-viz__block[data-step="package"] {
+  grid-area: package;
+}
+
+.meetup-loop-viz__block[data-step="build"] {
+  grid-area: build;
+}
+
+.meetup-loop-viz__block[data-step="critique"] {
+  grid-area: critique;
 }
 
 .meetup-loop-viz__step {
   margin: 0;
+  min-width: 0;
+}
+
+.meetup-loop-viz__heading {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.meetup-loop-viz__icon {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--loop-text);
+  overflow: visible;
 }
 
 .meetup-loop-viz__title {
   margin: 0;
   color: var(--loop-text);
   font-family: var(--loop-font-temp);
-  font-weight: 800;
-  font-size: clamp(1.75rem, 4.6vw, 3rem);
+  font-weight: 700;
+  font-size: clamp(1.35rem, 3.2vw, 2.25rem);
   line-height: 1.05;
   letter-spacing: -0.03em;
 }
 
 .meetup-loop-viz__line {
-  margin: 0.35rem 0 0;
-  color: var(--loop-text-muted);
+  margin: 0.4rem 0 0;
+  color: var(--loop-text);
   font-family: var(--loop-font-temp);
   font-weight: 400;
-  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  font-size: clamp(0.88rem, 1.6vw, 1.05rem);
   line-height: 1.35;
-  max-width: 36rem;
 }
 
 .meetup-loop-viz__step[data-dimmed="true"] {
@@ -87,18 +141,20 @@
 }
 
 .meetup-loop-viz__connector {
-  position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
-  padding: 0.7rem 0 0.85rem 0.35rem;
+  align-items: center;
+  padding-top: 0.28rem;
+}
+
+.meetup-loop-viz__connector[data-wrap="true"] {
+  display: none;
 }
 
 .meetup-loop-viz__dots {
   display: flex;
-  flex-direction: column;
-  gap: 0.42rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.34rem;
 }
 
 .meetup-loop-viz__dot {
@@ -124,10 +180,18 @@
   animation-delay: 450ms;
 }
 
+.meetup-loop-viz__wrap {
+  grid-area: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0.85rem;
+}
+
 .meetup-loop-viz__spur {
-  margin: 0;
-  padding: 0 0 0 1.15rem;
-  color: var(--loop-spur);
+  margin: 0.55rem 0 0;
+  padding: 0;
+  color: var(--loop-text-muted);
   font-family: var(--loop-font-temp);
   font-weight: 400;
   font-size: clamp(0.75rem, 1.6vw, 0.88rem);
@@ -137,7 +201,7 @@
 
 .meetup-loop-viz__spur-label {
   font-weight: 600;
-  color: var(--loop-spur);
+  color: var(--loop-text-muted);
 }
 
 @keyframes loop-dot-travel {
@@ -162,9 +226,10 @@
   opacity: 0.7;
 }
 
-@media (max-width: 640px) {
+@container loop-stage (max-width: 32rem) {
   .meetup-loop-viz__stage {
     padding: 1rem 1rem 2.25rem;
+    padding-right: 3.25rem;
   }
 
   .meetup-loop-viz__mark {
@@ -173,12 +238,44 @@
     right: 0.65rem;
   }
 
-  .meetup-loop-viz__title {
-    font-size: 1.65rem;
+  .meetup-loop-viz__board {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "drop"
+      "kickoff"
+      "shape"
+      "package"
+      "build"
+      "critique";
+    row-gap: 0.15rem;
+  }
+
+  .meetup-loop-viz__block {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
   }
 
   .meetup-loop-viz__connector {
-    padding: 0.5rem 0 0.65rem 0.2rem;
-    gap: 0.28rem;
+    display: flex;
+    grid-column: 1;
+    justify-content: flex-start;
+    padding: 0.45rem 0 0.55rem 0.55rem;
+  }
+
+  .meetup-loop-viz__connector[data-wrap="true"] {
+    display: flex;
+  }
+
+  .meetup-loop-viz__dots {
+    flex-direction: column;
+    gap: 0.42rem;
+  }
+
+  .meetup-loop-viz__wrap {
+    display: none;
+  }
+
+  .meetup-loop-viz__title {
+    font-size: 1.45rem;
   }
 }

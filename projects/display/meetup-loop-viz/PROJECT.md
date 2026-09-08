@@ -19,7 +19,7 @@
 Beginners → intermediate Grok users on a Dallas meetup stage. Speaker walks the six Lab hands out loud, once per rehearsal / show.
 
 ### Job
-One glance: how work hands across bots. Heavy titles, lighter lines, dots between steps for the handoff.
+One glance: how work hands across bots. 2×3 grid, titles one weight lighter, white subheads, dots between steps for the handoff.
 
 ### Brand signal
 Black field, white type, official Grok Bot face top-right. Removing lab chrome still reads as this teaching page.
@@ -29,7 +29,7 @@ Black field, white type, official Grok Bot face top-right. Removing lab chrome s
 - Headline: six-step spine (no extra marketing H1)
 - Support: locked one-liners
 - CTA: none
-- Visual: vertical spine + dots
+- Visual: 2×3 grid + reading-order dots + monoline icons
 
 ### Current behavior
 Greenfield. Separate track from wallpaper and maser-bot-card.
@@ -76,3 +76,4 @@ Process-diagram spaghetti; glass step cards; inventing Dice Sans metrics; Univer
 ## Accepted decisions
 
 - Copy lock 2026-09-05: six titles + lines verbatim (see `design.md` Locked copy).
+- Layout lock 2026-09-08: 2×3 horizontal grid, lighter headings, same-color subheads, EP icons.
