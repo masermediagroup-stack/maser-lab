@@ -1,6 +1,30 @@
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src:
+    local("UniversalSansGrokTest Display Trial"),
+    url("/maser-bot-card/fonts/UniversalSansGrokTest-DisplayTrial-400.woff2")
+      format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src:
+    local("UniversalSansGrokTest Display Trial"),
+    url("/maser-bot-card/fonts/UniversalSansGrokTest-DisplayTrial-300.woff2")
+      format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
 .maser-bot-card {
-  --mbc-card-bg: #242429;
+  --mbc-art: 1299;
+  --mbc-card-bg: #000000;
   --mbc-text: #ffffff;
+  --mbc-radius: calc(80 / 1299 * 100cqw);
   position: relative;
   display: grid;
   place-items: center;
@@ -9,15 +33,42 @@
   isolation: isolate;
   perspective: 64rem;
   color: var(--mbc-text);
-  font-family: "Universal Sans", sans-serif;
+  font-family: "UniversalSansGrokTest Display Trial";
 }
 
-/* Empty stage-bg stub. Optional vgpu later. No invented look. */
 .maser-bot-card__bg {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
+  background: #000000;
+}
+
+.maser-bot-card__stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.maser-bot-card[data-gpu="pending"] .maser-bot-card__bg {
+  background-color: #000000;
+  background-image: repeating-linear-gradient(
+    135deg,
+    #000000 0 3px,
+    #2a2a2a 3px 4px
+  );
+}
+
+.maser-bot-card[data-gpu="painting"] .maser-bot-card__bg {
+  background-image: none;
+}
+
+.maser-bot-card[data-reduced="true"] .maser-bot-card__bg {
+  background-image: none;
+  background-color: #000000;
 }
 
 .maser-bot-card__scene {
@@ -28,26 +79,18 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  width: min(90vw, calc(70dvh * 3 / 4));
+  width: min(90vw, 70dvh);
 }
 
 .maser-bot-card__plate {
   position: relative;
   box-sizing: border-box;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;
   width: 100%;
   max-height: 70dvh;
   transform-style: preserve-3d;
   transform: rotateX(var(--pitch, 0deg)) rotateY(var(--yaw, 0deg));
   will-change: transform;
-}
-
-.maser-bot-card__edge {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border: 1px solid color-mix(in srgb, var(--mbc-text) 28%, transparent);
-  transform: translateZ(-10px);
 }
 
 .maser-bot-card__body {
@@ -56,9 +99,11 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--mbc-text) 28%, transparent);
+  border-radius: var(--mbc-radius);
   background: var(--mbc-card-bg);
   transform-style: preserve-3d;
+  container-type: inline-size;
+  container-name: mbc-plate;
 }
 
 .maser-bot-card__flip {
@@ -85,41 +130,79 @@
   transform: rotateY(180deg);
 }
 
-.maser-bot-card__gpu {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
 .maser-bot-card__slot {
   position: absolute;
   z-index: 1;
-  pointer-events: none;
-}
-
-.maser-bot-card__slot--name {
-  inset: 58% 12% 32%;
-}
-
-.maser-bot-card__slot--role {
-  inset: 70% 12% 22%;
-}
-
-.maser-bot-card__slot--bio {
-  inset: 80% 12% 8%;
+  color: var(--mbc-text);
+  font-family: "UniversalSansGrokTest Display Trial";
+  line-height: 1.2;
 }
 
 .maser-bot-card__slot--mark {
-  inset: 18% 18% 42%;
-  display: grid;
-  place-items: center;
+  left: calc(100 / 1299 * 100%);
+  top: calc(142 / 1299 * 100%);
+  width: calc(273 / 1299 * 100%);
+  height: calc(162 / 1299 * 100%);
+  overflow: visible;
+  pointer-events: none;
 }
 
 .maser-bot-card__mark {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.maser-bot-card__slot--name {
+  left: calc(969 / 1299 * 100%);
+  top: calc(138 / 1299 * 100%);
+  width: calc(231 / 1299 * 100%);
+  height: calc(68 / 1299 * 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  text-align: right;
+  font-weight: 400;
+  font-size: calc(96 / 1299 * 100cqw);
+  pointer-events: none;
+}
+
+.maser-bot-card__slot--role {
+  left: calc(574 / 1299 * 100%);
+  top: calc(253 / 1299 * 100%);
+  width: calc(626 / 1299 * 100%);
+  height: calc(45 / 1299 * 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  text-align: right;
+  font-weight: 300;
+  font-size: calc(64 / 1299 * 100cqw);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.maser-bot-card__slot--bio {
+  left: calc(97 / 1299 * 100%);
+  top: calc(692 / 1299 * 100%);
+  width: calc(840 / 1299 * 100%);
+  height: calc(512 / 1299 * 100%);
+  text-align: left;
+  font-weight: 300;
+  font-size: calc(64 / 1299 * 100cqw);
+  pointer-events: none;
+}
+
+.maser-bot-card__slot--wordmark {
+  left: calc(100 / 1299 * 100%);
+  top: calc(988 / 1299 * 100%);
+  width: calc(1100 / 1299 * 100%);
+  height: calc(212 / 1299 * 100%);
+  pointer-events: none;
+}
+
+.maser-bot-card__wordmark {
   display: block;
   width: 100%;
   height: 100%;
@@ -132,6 +215,7 @@
   inset: 0;
   pointer-events: none;
   z-index: 2;
+  border-radius: inherit;
 }
 
 .maser-bot-card__sheen {
@@ -170,13 +254,6 @@
   opacity: 0;
 }
 
-/* GPU plate owns shine + light. CSS overlays stay as fallback until paint. */
-.maser-bot-card[data-gpu="painting"] .maser-bot-card__sheen,
-.maser-bot-card[data-gpu="painting"] .maser-bot-card__rim,
-.maser-bot-card[data-gpu="painting"] .maser-bot-card__band {
-  opacity: 0;
-}
-
 .maser-bot-card__flip-control {
   min-height: 44px;
   min-width: 44px;
@@ -185,7 +262,7 @@
   border: 1px solid color-mix(in srgb, var(--mbc-text) 40%, transparent);
   background: transparent;
   color: var(--mbc-text);
-  font-family: "Universal Sans", sans-serif;
+  font-family: "UniversalSansGrokTest Display Trial";
   font-size: 0.875rem;
   cursor: pointer;
 }

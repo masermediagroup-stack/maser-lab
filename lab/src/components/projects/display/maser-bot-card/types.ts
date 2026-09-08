@@ -10,7 +10,7 @@ export type MaserBotCardProps = {
   bandEnabled?: boolean;
   face?: MaserBotCardFace;
   onFaceChange?: (face: MaserBotCardFace) => void;
-  /** Stage-bg stub. Plate shine/light is vgpu; stage may use vgpu later. */
+  /** Stage dither (vgpu). Plate stays solid #000. */
   bgMode?: MaserBotCardBgMode;
   bgIntensity?: number;
   bgSpeed?: number;

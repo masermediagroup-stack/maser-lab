@@ -7,26 +7,31 @@
 
 | Source | URL | Notes |
 | --- | --- | --- |
-| Figma file | none | Shape holds until the drop lands |
-| Figma frame (primary) | | |
-| Figma prototype | | |
+| Figma file | GrokBot-Loop-DemoCard | Source of truth for the 2026-09-08 recut |
+| Figma frame (front) | node `1:2` | Identity face |
+| Figma frame (back) | node `1:20` | Wordmark face |
+| Wordmark vector | node `1:22` | Vendored SVG, 1100×212 |
 | Other | Zoah founding-member **structure** only | Tilt + mouse shine. Refuse skin and landscape. |
 
 ## Figma file (team)
 
 | Field | Value |
 | --- | --- |
-| `fileKey` | |
-| Demo frame `node-id` | |
-| Component set `node-id` | |
+| Name | GrokBot-Loop-DemoCard |
+| `fileKey` | (not in repo — use the team file of that name) |
+| Front `node-id` | `1:2` |
+| Back `node-id` | `1:20` |
+| Wordmark `node-id` | `1:22` |
+| Artboard | 1299×1299 |
 
 ## Token map
 
-None yet. Do not invent `--maser-card-*` until Figma names them in `design.md`.
-
 | Figma token / value | CSS variable | Notes |
 | --- | --- | --- |
-| | `--maser-card-*` | locked from Figma → design.md |
+| Plate fill `#000000` | `--mbc-card-bg` | solid; no dither |
+| Type `#FFFFFF` | `--mbc-text` | |
+| Radius 80 / 1299 | `--mbc-radius` | scale from board |
+| Family UniversalSansGrokTest Display Trial | `@font-face` | swap; no Geist/Inter |
 
 ## Implementation sync
 
@@ -34,9 +39,4 @@ None yet. Do not invent `--maser-card-*` until Figma names them in `design.md`.
 | --- | --- | --- |
 | 2026-09-05 | skeleton | Env prep. Track A: vgpu plate. Universal Sans waits. |
 | 2026-09-06 | mark lock | Capsule + bleu `#3b93f0`. Cycle idle → thinking → wide → thinking → idle. |
-
-## Code Connect
-
-| Component | `.figma.ts` path | Figma node | Status |
-| --- | --- | --- | --- |
-| | `lab/src/components/projects/display/maser-bot-card/` | | not started |
+| 2026-09-08 | Figma → code | Recut to 1299 square. Typeset copy. Capsule front. Wordmark back. vgpu stage dither. |

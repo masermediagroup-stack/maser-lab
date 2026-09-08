@@ -7,10 +7,10 @@ import { BotEngine, type BotFrame } from "./grokbot/engine";
 import { DEMI_VIEWBOX, RAYON } from "./grokbot/repere";
 import { COLOR_BY_ID, SHAPE_BY_ID, mixHex } from "./grokbot/skins";
 
-const PAPER = "#242429";
+const PAPER = "#000000";
 const INK = COLOR_BY_ID.get("bleu")?.hex ?? "#3b93f0";
 const CAPSULE = SHAPE_BY_ID.get("capsule")?.radii ?? null;
-/** Card-back loop. Durations from engine `makeBlock` / measured state table. */
+/** Card-front loop. Durations from engine `makeBlock` / measured state table. */
 const CYCLE = (
   ["idle", "thinking", "wide", "thinking", "idle"] as const
 ).map((state) => makeBlock(state));
@@ -61,7 +61,7 @@ function GrokBotDot({
 }
 
 /**
- * SVG Grok bot mark. Bloub engine, capsule + bleu, card-back cycle.
+ * SVG Grok bot mark. Bloub engine, capsule + bleu, front-face cycle.
  * Reduced motion: first frame (idle capsule), still.
  */
 export function GrokBotMark({

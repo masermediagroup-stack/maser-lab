@@ -4,7 +4,7 @@ Lab experiment for the Dallas meetup stage demo. Not a client. One PR in maser-l
 
 Shell chrome is already on main. This package is the **card product** only.
 
-Status: **skeleton**. Shape holds until the Figma drop lands. Type, color, mark, and layout lock from Figma → this file. Spark does not invent them.
+Status: **Figma static recut (2026-09-08)**. File **GrokBot-Loop-DemoCard**. Front frame `1:2`. Back frame `1:20`. Wordmark vector `1:22`. Artboard **1299×1299**. Scale from that board. Do not invent a second proportion. Do not eyeball.
 
 ## Reader and job
 
@@ -12,13 +12,11 @@ Stage audience: new → intermediate Grok Bot users. 8–12 min live demo of our
 
 Job of the artifact: a simple, fun **Maser** bot card. Readable from the back of the room. Pointer makes it feel alive (tilt + shine). Background can be interactive / shader-ish. Teaching prop first; portfolio piece second.
 
-## Thesis (open until Figma)
+## Thesis (Figma lock)
 
-Steal Zoah founding-member **structure**: a single card as the hero, pointer-driven 3D tilt, specular shine that tracks the mouse, quiet return to rest. Optional later: Bloub-style SVG mark motion (https://bloub.vercel.app) — only if Figma wants a living mark.
+Steal Zoah founding-member **structure**: a single card as the hero, pointer-driven 3D tilt, specular shine that tracks the mouse, quiet return to rest.
 
-Refuse Zoah skin: founding-member dither, Zoah type, Zoah colors, member-number chrome, community profile layout. Refuse generic AI glass cards, stock purple gradients, and Inter-on-white.
-
-Maser voice lands with Figma. Placeholder assumption: dark card, one accent, one clear face (bot mark + name). Correct when Figma arrives.
+Refuse Zoah skin: founding-member dither, Zoah type, Zoah colors, member-number chrome, community profile layout. Refuse generic AI glass cards, stock purple gradients, Inter, Geist, and system grotesk on the **product**. Refuse landscape recut. Refuse Maser blue `#10A4FF` on the capsule. Refuse rewriting locked copy. Refuse dither **on the plate**.
 
 ## Scope
 
@@ -51,7 +49,7 @@ Until Figma locks values, Spark may scaffold knobs only:
 - **Shine** — on/off, intensity
 - **Band** — on/off for optional diagonal light mask
 - **Face** — front / back (same as the product flip control)
-- **Bg** — calm / interactive stage-bg stub (speed or intensity). Stage bg may still use vgpu; not required for this pass.
+- **Bg** — calm (still dither) / interactive (travelling dither). vgpu stage only — not the plate.
 - **Replay / reduced motion** — shared lab row
 
 Look knobs live in the demo. The product card never imports demo chrome.
@@ -60,8 +58,11 @@ Look knobs live in the demo. The product card never imports demo chrome.
 
 - Hold Shape until Figma lands.
 - Steal Zoah tilt+shine structure; refuse Zoah skin.
-- Use CSS 3D for tilt + front/back flip. Plate shine + light is vgpu / WebGL (Track A override 2026-09-05 evening). Stage bg may still use vgpu.
-- Lock card-back mark to Bloub engine, capsule, bleu `#3b93f0`, cycle idle → thinking → wide → thinking → idle. Refuse `defaultCycle` montage and Maser blue `#10A4FF` on this mark.
+- Recut plate to Figma 1299×1299 square, radius 80, fill `#000000`. Scale from the board.
+- Capsule on **front**. White Grok Bot wordmark vector on **back**. No capsule on back.
+- Plate stays solid `#000`. Tilt + sheen + light are pointer-driven CSS overlays. Do not bake dither into the plate.
+- Stage bg is vgpu: black field + grey dither, wave/frequency, travel top-left → bottom-right. Quiet. Not rainbow, not grain soup, not on the type.
+- Lock front mark to Bloub engine, capsule, bleu `#3b93f0`, cycle idle → thinking → wide → thinking → idle. Refuse `defaultCycle` montage and Maser blue `#10A4FF` on this mark.
 - One card as the hero. No collage of windows.
 - Encode every Figma lock into this file the same turn it lands.
 
@@ -73,19 +74,23 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Generic glassmorphism / purple SaaS gradient
 - Orbiting chrome bands or Dallas wallpaper morphs on this card
 - Motion that ignores reduced-motion
-- Inventing type scale, palette, or mark before Figma
+- Inventing a second plate proportion or eyeballing off 1299
 - Zoah horizontal / landscape card
+- Maser blue `#10A4FF` on the capsule
+- Geist / Inter / system grotesk on the product
+- Dither on the plate
+- Rewriting locked body copy
 - Hover-only face reveal (no flip control)
 - Zoah embossed / iridescent type
 
-## Tokens
+## Tokens (Figma static — 2026-09-08)
 
-None named from Figma yet. Until then, surfaces (not `--maser-card-*` tokens):
+Scale every box as `n / 1299` of the plate. Artboard 1299×1299.
 
-- Card bg: dark-mode gray (`#242429` rehearsal)
-- Text: white
-- Type: **Universal Sans** (local file — wait for Figma / font handoff; do not substitute Geist on the product)
-- Mark: stock bloub **bleu** (`#3b93f0`) on the card-back mark. Refuse Maser blue `#10A4FF` on this mark.
+- Plate: 1299×1299, corner radius 80, fill `#000000`
+- Type: `#FFFFFF`
+- Family: **UniversalSansGrokTest Display Trial**. Name 400. Role and body 300. Leading 1.2. `@font-face` swap; do not substitute Geist, Inter, or system grotesk.
+- Capsule: bleu `#3b93f0`. Paper holes = plate `#000000`. Refuse `#10A4FF`.
 
 ## Hand-off
 
@@ -96,14 +101,34 @@ None named from Figma yet. Until then, surfaces (not `--maser-card-*` tokens):
 
 ## Locked copy (verbatim — do not rewrite)
 
-Name lock (2026-09-06): **mace** (not Maser). Role Producer.
-
-Longer body (locked 2026-09-06): human asked for longer; old short body is stale. Do not rewrite.
+Figma face lock (2026-09-08). Old Producer-only role and prior bodies are stale. Do not rewrite. Curly apostrophes. Meta: none. No extra lockup line.
 
 - Name: mace
-- Role: Producer
-- Body: Takes the drop, writes the kickoff, and parks what’s locked so nobody freelances the brief. Sequences Lab and Crew — Shape before build, package before ship. Doesn’t pick the look or rewrite the words. Keeps jobs clear so the handoff holds.
+- Role: Chief of Staff/Producer
+- Body: Chief of staff for the creative team. Turns a vague ask into a clear brief, keeps everyone on the same job, and locks decisions so work doesn’t drift. Doesn’t design, write, or build — keeps the room moving.
 - Meta: none.
+
+## Figma static lock (2026-09-08)
+
+File: **GrokBot-Loop-DemoCard**. Front `1:2`. Back `1:20`. Wordmark `1:22`.
+
+Front (identity):
+
+- Live capsule (Grokbot-animations engine, `capsule`, bleu `#3b93f0`). Cycle idle→thinking→wide→thinking→idle. Box 273×162 at x 100, y 142. Thinking may briefly leave the capsule (engine). Accept that.
+- Name: mace. 96 / 400. Box x 969, y 138, w 231, h 68. Right-edge of the box at 1200. Right aligned.
+- Role: Chief of Staff/Producer. 64 / 300. Box x 574, y 253, w 626, h 45. Right-edge at 1200. Right aligned.
+- Body: 64 / 300. Left aligned. Box x 97, y 692, w 840, h 512.
+
+Back (mark-forward):
+
+- Same plate. No capsule.
+- White Grok Bot wordmark vector, box x 100, y 988, w 1100, h 212. Bottom-anchored. Exact SVG from node `1:22`. Do not typeset a fake logotype.
+
+Live behavior (after static):
+
+1. Tilt + sheen + light on the card (pointer-driven). Plate stays the Figma square `#000`. Flip control stays (View front / View back), not hover-only. Reduced motion: planted, no chase.
+2. Stage background **behind** the card, not the plate: black field + grey dither. Slight motion, wave / frequency, travel top-left to bottom-right. Quiet. Not a rainbow, not grain soup, not on the type. Shader is **vgpu**.
+3. Plate stays solid `#000000` so type and capsule read as the Figma file.
 
 ## Orientation (locked 2026-09-05)
 
@@ -114,9 +139,10 @@ Portrait first. Stage-readable from the back of the room. Scaffold the demo fram
 ## Observable decisions (add)
 
 - Park Copy lines verbatim. Do not rewrite.
-- Lock card Name to **mace** (not Maser). Role Producer.
-- Lock longer Producer body (2026-09-06). Old short body stale. Verbatim — do not rewrite.
-- Set card orientation to square / vertical. Refuse Zoah landscape.
+- Lock card Name to **mace** (not Maser). Role **Chief of Staff/Producer**.
+- Recut plate to Figma 1299 square. Capsule on front. Wordmark on back.
+- Stage dither is vgpu behind the card. Do not bake dither into the plate.
+- Set card orientation to 1299 square. Refuse Zoah landscape.
 
 ## Card faces (locked 2026-09-05)
 
@@ -124,8 +150,8 @@ Two sides. Not a hover peek.
 
 | Face | Job |
 | --- | --- |
-| Front | Identity: name, role, bio (Copy parked verbatim). |
-| Back | Mark-forward: logo + short lockup. |
+| Front | Identity: live capsule + name, role, bio (Figma boxes). |
+| Back | Mark-forward: white Grok Bot wordmark vector. No capsule. |
 
 Toggle with an explicit **View front / View back** control (flip). Do not use hover-only to reveal the other face. Focusable, keyboardable, reduced-motion safe (instant swap or opacity crossfade when motion is off).
 
@@ -195,7 +221,7 @@ Surfaces (until Figma tokens):
 
 Portrait / square stays. Front copy parked verbatim. Mark animation is locked in the section below — not optional later.
 
-This overrides “CSS plate only / vgpu = stage bg only.” Stage bg may still use vgpu; the **plate** is now vgpu too.
+**Superseded 2026-09-08** by the Figma static lock: plate is solid `#000` CSS. Tilt/sheen/light stay pointer-driven overlays. **vgpu is the stage dither**, not the plate. Do not bake dither into the plate.
 
 ## Mark animation (locked 2026-09-06 — Grok meetup capsule)
 
@@ -207,8 +233,8 @@ Context: **Grok Bot meetup** teaching demo — mark reads as Grok, not Maser bra
 - Keep the Bloub engine. Do **not** hand-redraw a static capsule SVG.
 - Body: ShapeId **`capsule`** — horizontal stadium as shipped (`skins.ts`). Vertical pill refused unless human reopens.
 - Color: stock bloub **`bleu` `#3b93f0`**. Refuse Maser blue `#10A4FF` on this mark.
-- Eyes: paper stadium holes. `paper` = card-back fill.
-- Card-back loop (curl, seamless): **idle → thinking → wide (interested/excited) → thinking → idle**. Repeat.
+- Eyes: paper stadium holes. `paper` = plate `#000000`.
+- Front-face loop (curl, seamless): **idle → thinking → wide (interested/excited) → thinking → idle**. Repeat.
   - EP maps “interested/excited” → engine state **`wide`** (baseBody; keeps capsule).
   - `thinking` is `baseBody: false` — silhouette briefly leaves capsule for the thinking gag, then morphs back. Accept that (engine truth). Do not invent a custom thinking capsule.
 - Refuse full ~31s `defaultCycle` montage on the card. Refuse orbit/burst/egg/hex on this face unless human adds them.

@@ -1,24 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { PARKED_COPY } from "./copy";
 import { GrokBotMark } from "./grok-bot-mark";
-import { startPlate, type PlateUniforms } from "./start-plate";
+import { GrokBotWordmark } from "./grok-bot-wordmark";
+import { startStage, type StageUniforms } from "./start-stage";
 import type { MaserBotCardFace, MaserBotCardProps } from "./types";
 import "./maser-bot-card.css";
 
-/* Live rehearsal feel — not product tokens. */
 const YAW_DEG = 8;
 const PITCH_DEG = 5;
 const TRACK_LERP = 0.16;
 const REST_LERP = 0.09;
 
-const REST_UNIFORMS: PlateUniforms = {
-  pointerX: 0.5,
-  pointerY: 0.42,
-  yaw: 0,
-  pitch: 0,
-  shine: 0,
-  band: 0,
+const REST_STAGE: StageUniforms = {
+  time: 0,
+  intensity: 0.35,
+  speed: 1,
   reduced: 1,
 };
 
@@ -34,7 +32,7 @@ export function MaserBotCard({
   bandEnabled = true,
   face: faceProp,
   onFaceChange,
-  bgMode = "calm",
+  bgMode = "interactive",
   bgIntensity = 0.35,
   bgSpeed = 1,
   forceReducedMotion = false,
@@ -42,9 +40,8 @@ export function MaserBotCard({
 }: MaserBotCardProps) {
   const rootRef = useRef<HTMLElement>(null);
   const plateRef = useRef<HTMLDivElement>(null);
-  const frontGpuRef = useRef<HTMLCanvasElement>(null);
-  const backGpuRef = useRef<HTMLCanvasElement>(null);
-  const uniformsRef = useRef<PlateUniforms>(REST_UNIFORMS);
+  const stageRef = useRef<HTMLCanvasElement>(null);
+  const stageUniformsRef = useRef<StageUniforms>(REST_STAGE);
   const yawRef = useRef(0);
   const pitchRef = useRef(0);
   const targetYawRef = useRef(0);
@@ -115,13 +112,11 @@ export function MaserBotCard({
   }, []);
 
   useEffect(() => {
-    const front = frontGpuRef.current;
-    const back = backGpuRef.current;
-    if (!front || !back) return;
-    return startPlate({
-      front,
-      back,
-      uniformsRef,
+    const canvas = stageRef.current;
+    if (!canvas) return;
+    return startStage({
+      canvas,
+      uniformsRef: stageUniformsRef,
       onPainted: () => setGpuPainted(true),
     });
   }, []);
@@ -130,7 +125,6 @@ export function MaserBotCard({
     let frame = 0;
     const tick = () => {
       const plate = plateRef.current;
-      const root = rootRef.current;
       if (!plate) {
         frame = window.requestAnimationFrame(tick);
         return;
@@ -165,22 +159,12 @@ export function MaserBotCard({
         bandOnRef.current && shineOnRef.current ? "1" : "0",
       );
 
-      uniformsRef.current = {
-        pointerX: sheenXRef.current,
-        pointerY: sheenYRef.current,
-        yaw: yawRef.current / YAW_DEG,
-        pitch: pitchRef.current / PITCH_DEG,
-        shine: shineOnRef.current ? intensityRef.current : 0,
-        band: bandOnRef.current && shineOnRef.current ? 1 : 0,
-        reduced: reducedRef.current ? 1 : 0,
+      stageUniformsRef.current = {
+        time: stageUniformsRef.current.time,
+        intensity: bgInteractiveRef.current ? bgIntensityRef.current : 0.18,
+        speed: bgInteractiveRef.current ? bgSpeedRef.current : 0,
+        reduced: reducedRef.current || !bgInteractiveRef.current ? 1 : 0,
       };
-
-      if (bgInteractiveRef.current && root) {
-        root.style.setProperty("--bg-x", String(sheenXRef.current));
-        root.style.setProperty("--bg-y", String(sheenYRef.current));
-        root.style.setProperty("--bg-i", String(bgIntensityRef.current));
-        root.style.setProperty("--bg-s", String(bgSpeedRef.current));
-      }
 
       frame = window.requestAnimationFrame(tick);
     };
@@ -242,7 +226,9 @@ export function MaserBotCard({
         data-interactive={bgInteractive ? "true" : "false"}
         data-slot="stage-bg"
         aria-hidden
-      />
+      >
+        <canvas ref={stageRef} className="maser-bot-card__stage" />
+      </div>
       <div className="maser-bot-card__scene">
         <div
           ref={plateRef}
@@ -251,30 +237,28 @@ export function MaserBotCard({
           onPointerMove={onPointerMove}
           onPointerLeave={onPointerLeave}
         >
-          <div className="maser-bot-card__edge" aria-hidden />
           <div className="maser-bot-card__body">
             <div className="maser-bot-card__flip">
               <div className="maser-bot-card__side maser-bot-card__side--front">
-                <canvas
-                  ref={frontGpuRef}
-                  className="maser-bot-card__gpu"
-                  aria-hidden
-                />
-                <div className="maser-bot-card__slot maser-bot-card__slot--name" />
-                <div className="maser-bot-card__slot maser-bot-card__slot--role" />
-                <div className="maser-bot-card__slot maser-bot-card__slot--bio" />
-              </div>
-              <div className="maser-bot-card__side maser-bot-card__side--back">
-                <canvas
-                  ref={backGpuRef}
-                  className="maser-bot-card__gpu"
-                  aria-hidden
-                />
                 <div className="maser-bot-card__slot maser-bot-card__slot--mark">
                   <GrokBotMark
                     reduced={reduced}
                     className="maser-bot-card__mark"
                   />
+                </div>
+                <p className="maser-bot-card__slot maser-bot-card__slot--name">
+                  {PARKED_COPY.name}
+                </p>
+                <p className="maser-bot-card__slot maser-bot-card__slot--role">
+                  {PARKED_COPY.role}
+                </p>
+                <p className="maser-bot-card__slot maser-bot-card__slot--bio">
+                  {PARKED_COPY.body}
+                </p>
+              </div>
+              <div className="maser-bot-card__side maser-bot-card__side--back">
+                <div className="maser-bot-card__slot maser-bot-card__slot--wordmark">
+                  <GrokBotWordmark className="maser-bot-card__wordmark" />
                 </div>
               </div>
             </div>

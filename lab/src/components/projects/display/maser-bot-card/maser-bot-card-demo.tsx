@@ -19,7 +19,7 @@ export function MaserBotCardDemo() {
   const [shineIntensity, setShineIntensity] = useState(0.42);
   const [bandEnabled, setBandEnabled] = useState(true);
   const [face, setFace] = useState<MaserBotCardFace>("front");
-  const [bgMode, setBgMode] = useState<MaserBotCardBgMode>("calm");
+  const [bgMode, setBgMode] = useState<MaserBotCardBgMode>("interactive");
   const [bgIntensity, setBgIntensity] = useState(0.35);
   const [bgSpeed, setBgSpeed] = useState(1);
   const [reduced, setReduced] = useState(false);
