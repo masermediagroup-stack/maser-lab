@@ -19,6 +19,9 @@ export const DALLAS_DISPLAY_FONT_PX = 44;
 export const DALLAS_DISPLAY_TRACKING_PX = 2.4;
 export const DALLAS_TYPE_DESIGN_WIDTH_PX = 1920;
 export const DALLAS_PLEX_MAX_RATIO = 0.4;
+/** Plex on canvas — ≤ 40% of display (44px @ 1920). */
+export const DALLAS_BODY_FONT_PX = DALLAS_DISPLAY_FONT_PX * DALLAS_PLEX_MAX_RATIO;
+export const DALLAS_BODY_FONT_WEIGHT = 300;
 export const DALLAS_PLEX_SIZE_EPSILON_PX = 0.51;
 
 export type DallasFamilyKind = "geist-sans" | "geist-mono" | "universal-sans" | "plex" | "other";

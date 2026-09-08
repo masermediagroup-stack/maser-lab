@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { DALLAS_SANS_FAMILY } from "./dallas-fonts";
+import {
+  DALLAS_DEFAULT_HEADLINE,
+  DALLAS_DEFAULT_UP_NEXT,
+  DALLAS_PLEX_FAMILY,
+  DALLAS_SANS_FAMILY,
+} from "./dallas-fonts";
 import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
@@ -31,6 +36,8 @@ import {
   CURSOR_VB_W,
 } from "./official-marks";
 import {
+  DALLAS_BODY_FONT_PX,
+  DALLAS_BODY_FONT_WEIGHT,
   DALLAS_DISPLAY_FONT_PX,
   DALLAS_DISPLAY_TRACKING_PX,
   displayRenderedPx,
@@ -72,6 +79,8 @@ export type DallasMeetupWallpaperProps = {
   whipSeconds?: number;
   /** Bump to restart the 8s clock (Replay while already playing). */
   resetNonce?: number;
+  headlineText?: string;
+  upNextText?: string;
   className?: string;
 };
 
@@ -81,6 +90,14 @@ function resolveDallasFontFamily(el: Element | null): string {
     if (token) return token;
   }
   return DEFAULT_SANS;
+}
+
+function resolvePlexFontFamily(el: Element | null): string {
+  if (el instanceof HTMLElement && el.isConnected) {
+    const token = getComputedStyle(el).getPropertyValue("--dallas-font-ui").trim();
+    if (token) return token;
+  }
+  return DALLAS_PLEX_FAMILY;
 }
 
 function drawTrackedText(
@@ -167,6 +184,9 @@ function renderFrame(
   loopSeconds: number,
   whipSeconds: number,
   fontFamily: string,
+  plexFontFamily: string,
+  headlineText: string,
+  upNextText: string,
 ) {
   const scale = width / BASE_WIDTH;
 
@@ -184,6 +204,7 @@ function renderFrame(
   const markGap = MARK_GAP_PX * scale;
   const groupWidth = cursorW + grokSize + markGap;
   const cursorX = centerX - groupWidth * 0.5 + cursorW * 0.5;
+  const cursorLeftX = cursorX - cursorW * 0.5;
   const grokX = centerX + groupWidth * 0.5 - grokSize * 0.5;
 
   ctx.save();
@@ -211,18 +232,18 @@ function renderFrame(
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
   const fontSize = DALLAS_DISPLAY_FONT_PX * scale;
+  const headlineY = marksBaseY + grokSize * 0.72;
   ctx.font = `400 ${fontSize}px ${fontFamily}`;
-  const label = "Dallas meetup";
   const tracking = DALLAS_DISPLAY_TRACKING_PX * scale;
-  const labelWidth =
-    ctx.measureText(label).width + tracking * Math.max(0, label.length - 1);
-  drawTrackedText(
-    ctx,
-    label,
-    centerX - labelWidth * 0.5,
-    marksBaseY + grokSize * 0.72,
-    tracking,
-  );
+  drawTrackedText(ctx, headlineText, cursorLeftX, headlineY, tracking);
+
+  const trimmedUpNext = upNextText.trim();
+  if (trimmedUpNext) {
+    const bodySize = DALLAS_BODY_FONT_PX * scale;
+    const bodyGap = fontSize * 0.22;
+    ctx.font = `${DALLAS_BODY_FONT_WEIGHT} ${bodySize}px ${plexFontFamily}`;
+    ctx.fillText(trimmedUpNext, cursorLeftX, headlineY + fontSize + bodyGap);
+  }
 }
 
 export function DallasMeetupWallpaper({
@@ -233,6 +254,8 @@ export function DallasMeetupWallpaper({
   loopSeconds = DEFAULT_LOOP_SECONDS,
   whipSeconds = DEFAULT_WHIP_SECONDS,
   resetNonce = 0,
+  headlineText = DALLAS_DEFAULT_HEADLINE,
+  upNextText = DALLAS_DEFAULT_UP_NEXT,
   className,
 }: DallasMeetupWallpaperProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -255,9 +278,12 @@ export function DallasMeetupWallpaper({
         loopSeconds,
         whipSeconds,
         resolveDallasFontFamily(canvas),
+        resolvePlexFontFamily(canvas),
+        headlineText,
+        upNextText,
       );
     },
-    [reducedMotion, loopSeconds, whipSeconds],
+    [headlineText, reducedMotion, loopSeconds, upNextText, whipSeconds],
   );
 
   useEffect(() => {
@@ -362,11 +388,15 @@ export async function exportDallasMeetupWallpaperLoop({
   height = BASE_HEIGHT,
   loopSeconds = DEFAULT_LOOP_SECONDS,
   whipSeconds = DEFAULT_WHIP_SECONDS,
+  headlineText = DALLAS_DEFAULT_HEADLINE,
+  upNextText = DALLAS_DEFAULT_UP_NEXT,
 }: {
   width?: number;
   height?: number;
   loopSeconds?: number;
   whipSeconds?: number;
+  headlineText?: string;
+  upNextText?: string;
 } = {}): Promise<ExportResult> {
   if (typeof window === "undefined") {
     throw new Error("Export is only available in the browser.");
@@ -377,6 +407,9 @@ export async function exportDallasMeetupWallpaperLoop({
 
   if (document.fonts) {
     await document.fonts.load(`400 ${DALLAS_DISPLAY_FONT_PX}px ${DEFAULT_SANS}`);
+    await document.fonts.load(
+      `${DALLAS_BODY_FONT_WEIGHT} ${DALLAS_BODY_FONT_PX}px ${DALLAS_PLEX_FAMILY}`,
+    );
     await document.fonts.ready;
   }
 
@@ -424,6 +457,9 @@ export async function exportDallasMeetupWallpaperLoop({
         loopSeconds,
         whipSeconds,
         resolveDallasFontFamily(document.querySelector(".dallas-demo")),
+        resolvePlexFontFamily(document.querySelector(".dallas-demo")),
+        headlineText,
+        upNextText,
       );
       controlledTrack.requestFrame();
       frame += 1;

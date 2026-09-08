@@ -10,7 +10,7 @@ import {
   LabSelect,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
-import { dallasPlexCondensed } from "./dallas-fonts";
+import { dallasPlexCondensed, DALLAS_DEFAULT_HEADLINE, DALLAS_DEFAULT_UP_NEXT } from "./dallas-fonts";
 import {
   DallasMeetupWallpaper,
   exportDallasMeetupWallpaperLoop,
@@ -25,6 +25,9 @@ import { runDallasTypeLock } from "./type-lock";
 import "./tokens.css";
 
 const FPS = 30;
+
+const labTextInputClassName =
+  "min-h-11 w-full rounded-[var(--lab-radius-sm)] border border-[var(--lab-border)] bg-[var(--lab-surface)] px-2 font-mono text-xs text-[var(--lab-text-primary)]";
 
 function formatSeconds(value: number) {
   return `${value.toFixed(2)}s`;
@@ -50,6 +53,8 @@ export function DallasMeetupTvWallpaperDemo() {
   const [resetNonce, setResetNonce] = useState(0);
   const [exporting, setExporting] = useState(false);
   const [exportNote, setExportNote] = useState<string>("");
+  const [headlineText, setHeadlineText] = useState(DALLAS_DEFAULT_HEADLINE);
+  const [upNextText, setUpNextText] = useState(DALLAS_DEFAULT_UP_NEXT);
 
   const frameStep = 1 / FPS;
 
@@ -146,6 +151,8 @@ export function DallasMeetupTvWallpaperDemo() {
       const result = await exportDallasMeetupWallpaperLoop({
         loopSeconds,
         whipSeconds,
+        headlineText,
+        upNextText,
       });
       const url = URL.createObjectURL(result.blob);
       const anchor = document.createElement("a");
@@ -164,7 +171,7 @@ export function DallasMeetupTvWallpaperDemo() {
     } finally {
       setExporting(false);
     }
-  }, [loopSeconds, whipSeconds]);
+  }, [headlineText, loopSeconds, upNextText, whipSeconds]);
 
   return (
     <div
@@ -185,6 +192,8 @@ export function DallasMeetupTvWallpaperDemo() {
           loopSeconds={loopSeconds}
           whipSeconds={whipSeconds}
           resetNonce={resetNonce}
+          headlineText={headlineText}
+          upNextText={upNextText}
         />
       </section>
 
@@ -209,6 +218,46 @@ export function DallasMeetupTvWallpaperDemo() {
               ribbons on Grok. Geist is out.
             </p>
           </div>
+
+          <LabControlGroup label="On-screen copy">
+            <div className="flex min-w-0 flex-col gap-1">
+              <label
+                htmlFor="dallas-headline"
+                className="font-mono text-xs text-[var(--lab-text-secondary)]"
+              >
+                Headline
+              </label>
+              <input
+                id="dallas-headline"
+                type="text"
+                value={headlineText}
+                onChange={(event) => setHeadlineText(event.target.value)}
+                className={labTextInputClassName}
+                autoComplete="off"
+              />
+            </div>
+            <div className="flex min-w-0 flex-col gap-1">
+              <label
+                htmlFor="dallas-up-next"
+                className="font-mono text-xs text-[var(--lab-text-secondary)]"
+              >
+                Up next
+              </label>
+              <input
+                id="dallas-up-next"
+                type="text"
+                value={upNextText}
+                onChange={(event) => setUpNextText(event.target.value)}
+                className={labTextInputClassName}
+                autoComplete="off"
+                placeholder="Who is demoing next or what is up next"
+              />
+            </div>
+            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
+              Headline aligns to the left edge of the Cursor cube. Up next uses Plex at light
+              weight below the display line.
+            </p>
+          </LabControlGroup>
 
           <LabControlGroup label="Playback">
             <div className="flex flex-wrap gap-1.5">
@@ -285,7 +334,7 @@ export function DallasMeetupTvWallpaperDemo() {
           <LabControlGroup label="Presentation">
             <div className="flex flex-wrap gap-1.5">
               <LabButton variant="accent" onClick={enterPresentation}>
-                TV / presentation mode
+                Present
               </LabButton>
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
