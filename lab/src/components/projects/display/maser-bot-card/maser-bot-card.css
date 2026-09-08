@@ -77,14 +77,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* Leave room under the square for Back / Front. Overflowing body
-     can sit past the Figma box (y 1204); the swap must stay below it. */
-  width: min(90vw, calc(70dvh - 7.25rem));
+  /* Square plus Back / Front under the Figma type end (y 1204). */
+  width: min(90vw, calc(70dvh - 9rem));
   max-height: none;
   overflow: visible;
   container-type: inline-size;
   container-name: mbc-scene;
-  gap: max(4.75rem, calc(64 / 1299 * 1.2 * 3.75 * 100cqw));
+  gap: var(--flip-gap, 5.5rem);
 }
 
 .maser-bot-card__card-stack {

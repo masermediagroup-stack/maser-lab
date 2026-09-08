@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+} from "react";
 import { PARKED_COPY } from "./copy";
 import { GrokBotMark, type MarkLookPointer } from "./grok-bot-mark";
 import { GrokBotWordmark } from "./grok-bot-wordmark";
@@ -15,6 +21,33 @@ const TRACK_LERP = 0.18;
 const REST_LERP = 0.11;
 const CARD_FOV = 26;
 const BODY_WIDOW = "room moving.";
+/** Figma body box ends at y 1204 on the 1299 artboard. */
+const FIGMA_TYPE_END = 1204;
+const FIGMA_ART = 1299;
+/** Air under the last body line / Figma type end before Back / Front. */
+const FLIP_CLEAR_PX = 64;
+
+function syncFlipGap(
+  scene: HTMLElement | null,
+  stack: HTMLElement | null,
+  bio: HTMLElement | null,
+) {
+  if (!scene || !stack) return;
+  const stackBox = stack.getBoundingClientRect();
+  if (stackBox.height < 1) return;
+  const figmaEnd =
+    stackBox.top + (FIGMA_TYPE_END / FIGMA_ART) * stackBox.height;
+  let typeEnd = figmaEnd;
+  if (bio) {
+    const range = document.createRange();
+    range.selectNodeContents(bio);
+    const rects = range.getClientRects();
+    const last = rects[rects.length - 1];
+    if (last) typeEnd = Math.max(typeEnd, last.bottom);
+  }
+  const gap = Math.max(FLIP_CLEAR_PX, typeEnd + FLIP_CLEAR_PX - stackBox.bottom);
+  scene.style.setProperty("--flip-gap", `${Math.ceil(gap)}px`);
+}
 
 type CardFacePose = {
   yaw: number;
@@ -77,6 +110,8 @@ export function MaserBotCard({
   className,
 }: MaserBotCardProps) {
   const sceneRef = useRef<HTMLDivElement>(null);
+  const stackRef = useRef<HTMLDivElement>(null);
+  const bioRef = useRef<HTMLParagraphElement>(null);
   const faceRef = useRef<HTMLDivElement>(null);
   const faceTiltRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLCanvasElement>(null);
@@ -143,6 +178,23 @@ export function MaserBotCard({
       motion.removeEventListener("change", sync);
     };
   }, []);
+
+  useLayoutEffect(() => {
+    const scene = sceneRef.current;
+    const stack = stackRef.current;
+    const bio = bioRef.current;
+    const apply = () => syncFlipGap(scene, stack, bio);
+    apply();
+    const ro = new ResizeObserver(apply);
+    if (stack) ro.observe(stack);
+    if (bio) ro.observe(bio);
+    void document.fonts?.ready.then(apply);
+    window.addEventListener("resize", apply);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", apply);
+    };
+  }, [face]);
 
   useEffect(() => {
     const canvas = stageRef.current;
@@ -351,7 +403,7 @@ export function MaserBotCard({
         <canvas ref={stageRef} className="maser-bot-card__stage" />
       </div>
       <div ref={sceneRef} className="maser-bot-card__scene">
-        <div className="maser-bot-card__card-stack">
+        <div ref={stackRef} className="maser-bot-card__card-stack">
           <div className="maser-bot-card__shadow" aria-hidden />
           <div className="maser-bot-card__face-layer">
             <div ref={faceTiltRef} className="maser-bot-card__face-tilt">
@@ -384,7 +436,10 @@ export function MaserBotCard({
                     <p className="maser-bot-card__slot maser-bot-card__slot--role">
                       {PARKED_COPY.role}
                     </p>
-                    <p className="maser-bot-card__slot maser-bot-card__slot--bio">
+                    <p
+                      ref={bioRef}
+                      className="maser-bot-card__slot maser-bot-card__slot--bio"
+                    >
                       <CardFaceBody text={PARKED_COPY.body} />
                     </p>
                   </div>
