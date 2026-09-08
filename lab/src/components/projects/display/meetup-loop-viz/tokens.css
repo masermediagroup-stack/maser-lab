@@ -36,8 +36,7 @@
   justify-content: center;
   height: 100%;
   min-height: 100%;
-  padding: clamp(1.25rem, 4vw, 2.75rem) clamp(1rem, 5vw, 3.5rem)
-    clamp(5.25rem, 12vw, 7.25rem);
+  padding: clamp(1.25rem, 4vw, 2.75rem) clamp(1rem, 5vw, 3.5rem);
 }
 
 .meetup-loop-viz__mark {
@@ -236,7 +235,7 @@
 
 @container loop-stage (max-width: 32rem) {
   .meetup-loop-viz__stage {
-    padding: 1rem 1rem 4.25rem;
+    padding: 1rem;
   }
 
   .meetup-loop-viz__mark {
