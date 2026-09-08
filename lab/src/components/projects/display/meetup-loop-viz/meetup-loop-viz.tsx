@@ -26,16 +26,6 @@ function useOsReducedMotion(): boolean {
   return reduced;
 }
 
-function FlowDots() {
-  return (
-    <div className="meetup-loop-viz__dots" aria-hidden="true">
-      {Array.from({ length: DOTS_PER_CONNECTOR }, (_, dot) => (
-        <span key={dot} className="meetup-loop-viz__dot" />
-      ))}
-    </div>
-  );
-}
-
 function GapDots({
   slot,
 }: {
@@ -47,7 +37,9 @@ function GapDots({
       data-gap={slot}
       aria-hidden="true"
     >
-      <FlowDots />
+      {Array.from({ length: DOTS_PER_CONNECTOR }, (_, dot) => (
+        <span key={dot} className="meetup-loop-viz__dot" />
+      ))}
     </div>
   );
 }
