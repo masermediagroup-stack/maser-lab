@@ -141,7 +141,7 @@
 .maser-bot-card__slot--mark {
   left: calc(100 / 1299 * 100%);
   top: calc(142 / 1299 * 100%);
-  width: calc(273 / 1299 * 100%);
+  width: calc(272 / 1299 * 100%);
   height: calc(162 / 1299 * 100%);
   overflow: visible;
   pointer-events: none;

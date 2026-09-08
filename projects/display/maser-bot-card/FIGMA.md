@@ -8,8 +8,8 @@
 | Source | URL | Notes |
 | --- | --- | --- |
 | Figma file | GrokBot-Loop-DemoCard | Source of truth for the 2026-09-08 recut |
-| Figma frame (front) | Frame 9 / node `1:2` | Identity face — typeset this |
-| Figma frame (back) | Frame 10 / node `1:20` | Wordmark face — typeset this |
+| Figma frame (Front v1) | node `1:20` (frame at 0,0) | Mark-forward wordmark — typeset this |
+| Figma frame (Back v1) | node `1:2` (frame at 1501,0) | Identity — typeset this |
 | Wordmark vector | node `1:22` | Vendored SVG, 1100×212 |
 | Other frames | parked | v2/v3, Assets, extra marks — do not typeset |
 | Other | Zoah founding-member **structure** only | Tilt + mouse shine. Refuse skin and landscape. |
@@ -20,8 +20,8 @@
 | --- | --- |
 | Name | GrokBot-Loop-DemoCard |
 | `fileKey` | (not in repo — use the team file of that name) |
-| Front `node-id` | `1:2` |
-| Back `node-id` | `1:20` |
+| Front v1 `node-id` | `1:20` |
+| Back v1 `node-id` | `1:2` |
 | Wordmark `node-id` | `1:22` |
 | Artboard | 1299×1299 |
 
@@ -40,5 +40,5 @@
 | --- | --- | --- |
 | 2026-09-05 | skeleton | Env prep. Track A: vgpu plate. Universal Sans waits. |
 | 2026-09-06 | mark lock | Capsule + bleu `#3b93f0`. Cycle idle → thinking → wide → thinking → idle. |
-| 2026-09-08 | Figma → code | Recut to 1299 square. Typeset copy. Capsule front. Wordmark back. vgpu stage dither. |
-| 2026-09-08 | human confirm | Frame 9 front / Frame 10 back only. Parked other frames. 30s curl/break on identity mark. |
+| 2026-09-08 | Figma → code | Recut to 1299 square. Typeset copy. Capsule Back v1. Wordmark Front v1. vgpu stage dither. |
+| 2026-09-08 | human confirm | Faces flipped: Front v1 `1:20` / Back v1 `1:2`. Parked other frames. 30s curl/break on Back v1 mark. |

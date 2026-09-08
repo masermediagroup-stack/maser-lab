@@ -8,9 +8,9 @@
 
 ## Design reference
 
-- Figma file: **GrokBot-Loop-DemoCard**. Front Frame 9 / `1:2`. Back Frame 10 / `1:20`. Wordmark `1:22`. Artboard 1299×1299. Other frames parked.
+- Figma file: **GrokBot-Loop-DemoCard**. Front v1 `1:20` (mark-forward). Back v1 `1:2` (identity). Wordmark `1:22`. Artboard 1299×1299. v2/v3/Assets parked.
 - Other: steal Zoah **pose + specular feel** only. Refuse Zoah skin, landscape, plate dither, embossed type.
-- Build: CSS 3D pose + flip + sheen on a solid `#000` plate. Live capsule on front. Wordmark on back. vgpu **stage** dither behind the card.
+- Build: CSS 3D pose + flip + sheen on a solid `#000` plate. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** dither behind the card.
 
 ## Brief
 
@@ -21,7 +21,7 @@ Dallas meetup stage: pointer over a single 1299-square card; explicit View front
 Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + sheen. Stage dither stays behind the plate.
 
 ### Current behavior
-1299 square plate, radius 80, fill `#000`. Front typesets name/role/body and the live capsule. Back is the white Grok Bot wordmark. Keyboardable flip. CSS 3D tilt + CSS sheen. vgpu grey dither on a black stage field.
+1299 square plate, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable flip. CSS 3D tilt + CSS sheen. vgpu grey dither on a black stage field.
 
 ### Desired outcome
 Match Figma boxes at `n / 1299`. Keep live tilt/sheen and stage dither. Do not bake dither into the plate.
@@ -53,7 +53,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 | Band | optional diagonal mask | mute via knob |
 | Plate | solid `#000` | Figma lock |
 | Stage bg | vgpu black + grey dither, TL→BR | behind the card |
-| Mark | Bloub engine, capsule + bleu, 30s curl / 30s break on identity face | Catalog expressions; refuse `defaultCycle` and idle→thinking→wide |
+| Mark | Bloub engine, capsule + bleu, 30s curl / 30s break on Back v1 | Catalog expressions; refuse `defaultCycle` and idle→thinking→wide |
 
 ## Acceptance criteria
 
@@ -63,7 +63,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 - [ ] Locked copy typeset in Figma boxes, verbatim
 - [ ] Product does not import demo chrome or `--lab-*` as its look
 - [ ] Reduced motion: no tilt, no sheen chase, bg still, mark planted `neutre`, no curl or pointer chase, face swap without 3D flip
-- [ ] Plate is solid `#000`. Stage dither is vgpu. Capsule bleu `#3b93f0` on **front**. Wordmark on back.
+- [ ] Plate is solid `#000`. Stage dither is vgpu. Capsule bleu `#3b93f0` on **Back v1**. Wordmark on Front v1.
 - [ ] Product type stack names UniversalSansGrokTest Display Trial (no Geist/Inter substitute)
 - [ ] Component exported from `lab/src/components/projects/display/maser-bot-card/index.ts`
 
@@ -79,5 +79,5 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 - 1299 square. Refuse Zoah landscape.
 - Two faces + explicit flip. Refuse hover-only.
 - Plate solid `#000`. vgpu = stage dither only.
-- Mark: Bloub engine; capsule; bleu `#3b93f0`; cycle idle → thinking → wide → thinking → idle. Front face. Refuse `defaultCycle` and Maser blue `#10A4FF`.
+- Mark: Bloub engine; capsule; bleu `#3b93f0`; 30s curl / 30s break on Back v1 only. Catalog: neutre → attentif → curieux → mefiant → thinking → fier → neutre. Refuse `defaultCycle`, idle→thinking→wide, and Maser blue `#10A4FF`.
 - Product never imports demo chrome.

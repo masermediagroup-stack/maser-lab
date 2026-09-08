@@ -4,7 +4,7 @@ Lab experiment for the Dallas meetup stage demo. Not a client. One PR in maser-l
 
 Shell chrome is already on main. This package is the **card product** only.
 
-Status: **Figma static recut (2026-09-08)**. File **GrokBot-Loop-DemoCard**. **Frame 9 (`1:2`) front. Frame 10 (`1:20`) back.** Wordmark vector `1:22`. Other frames parked. Artboard **1299×1299**. Scale from that board. Do not invent a second proportion. Do not eyeball.
+Status: **Figma static recut (2026-09-08), faces flipped.** File **GrokBot-Loop-DemoCard**. **Front v1 = node `1:20` (frame at 0,0) — mark-forward wordmark.** **Back v1 = node `1:2` (frame at 1501,0) — identity.** Wordmark vector `1:22`. v2 / v3 and Assets parked. Artboard **1299×1299**. Scale from that board. Do not invent a second proportion. Do not eyeball.
 
 ## Reader and job
 
@@ -29,8 +29,8 @@ Out: lab shell chrome (already locked on main). Stage script (Copy). Prompt-only
 | State | Behavior |
 | --- | --- |
 | Rest | Card planted. No tilt. Shine idle or off. Bg calm. |
-| Front | Identity face showing (name, role, bio). |
-| Back | Mark-forward face showing (logo + short lockup). |
+| Front | Front v1 (`1:20`): white Grok Bot wordmark. No animated mark. |
+| Back | Back v1 (`1:2`): identity — live capsule + name, role, bio. |
 | Flip | View front/back control toggles faces. Not hover-only. |
 | Pointer enter | Track pointer. Tilt + shine arm. |
 | Pointer move | Tilt follows pointer (X/Y). Shine streak tracks pointer across the face. Bg may respond. |
@@ -59,11 +59,11 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Hold Shape until Figma lands.
 - Steal Zoah tilt+shine structure; refuse Zoah skin.
 - Recut plate to Figma 1299×1299 square, radius 80, fill `#000000`. Scale from the board.
-- Capsule on **front** (Frame 9 / `1:2`). White Grok Bot wordmark vector on **back** (Frame 10 / `1:20`). No capsule on back.
+- Wordmark on **Front v1** (`1:20`). Live capsule + identity type on **Back v1** (`1:2`). No capsule on front. No animated mark on front.
 - Plate stays solid `#000`. Tilt + sheen + light are pointer-driven CSS overlays. Do not bake dither into the plate.
 - Stage bg is vgpu: black field + grey dither, wave/frequency, travel top-left → bottom-right. Quiet. Not rainbow, not grain soup, not on the type.
-- Lock front mark to Bloub engine, capsule, bleu `#3b93f0`. Curl catalog expressions on the **identity face only**: neutre → attentif → curieux → mefiant → thinking → fier → neutre across ~30s, then 30s neutre break (pointer gaze), then curl again. Refuse `defaultCycle`, the old idle→thinking→wide curl, and Maser blue `#10A4FF`.
-- Typeset **only** Frame 9 (`1:2`) and Frame 10 (`1:20`) plus wordmark `1:22`. Every other frame in GrokBot-Loop-DemoCard (v2/v3, Assets, parked ideas) stays parked. Do not pull extra type, marks, or layouts from them.
+- Lock Back v1 mark to Bloub engine, capsule, bleu `#3b93f0`. Curl catalog expressions on **Back v1 only**: neutre → attentif → curieux → mefiant → thinking → fier → neutre across ~30s, then 30s neutre break (pointer gaze), then curl again. Refuse `defaultCycle`, the old idle→thinking→wide curl, and Maser blue `#10A4FF`.
+- Typeset **only** Front v1 (`1:20`) and Back v1 (`1:2`) plus wordmark `1:22`. Every other frame in GrokBot-Loop-DemoCard (v2/v3, Assets, parked ideas) stays parked. Do not pull extra type, marks, or layouts from them.
 - One card as the hero. No collage of windows.
 - Encode every Figma lock into this file the same turn it lands.
 
@@ -112,19 +112,19 @@ Figma face lock (2026-09-08). Old Producer-only role and prior bodies are stale.
 
 ## Figma static lock (2026-09-08)
 
-File: **GrokBot-Loop-DemoCard**. **Front = Frame 9 / `1:2`**. **Back = Frame 10 / `1:20`**. Wordmark `1:22`. Human confirm 2026-09-08: these two frames only. Other frames in the file are parked ideas/assets — do not typeset them onto the card.
+File: **GrokBot-Loop-DemoCard**. **Front v1 = `1:20` (frame at 0,0)**. **Back v1 = `1:2` (frame at 1501,0)**. Wordmark `1:22`. Human confirm 2026-09-08: faces flipped; these two frames only. Other frames in the file are parked ideas/assets — do not typeset them onto the card.
 
-Front (identity, Frame 9 / `1:2`):
-
-- Live capsule (Grokbot-animations engine, `capsule`, bleu `#3b93f0`). Replace any still. Box 273×162 at x 100, y 142. Thinking may briefly leave the capsule (engine). Accept that.
-- Name: mace. 96 / 400. Box x 969, y 138, w 231, h 68. Right-edge of the box at 1200. Right aligned.
-- Role: Chief of Staff/Producer. 64 / 300. Box x 574, y 253, w 626, h 45. Right-edge at 1200. Right aligned.
-- Body: 64 / 300. Left aligned. Box x 97, y 692, w 840, h 512.
-
-Back (mark-forward, Frame 10 / `1:20`):
+Front v1 (mark-forward, `1:20`):
 
 - Same plate. No capsule. No animated mark on this face.
 - White Grok Bot wordmark vector, box x 100, y 988, w 1100, h 212. Bottom-anchored. Exact SVG from node `1:22`. Do not typeset a fake logotype.
+
+Back v1 (identity, `1:2`):
+
+- Live capsule (Grokbot-animations engine, `capsule`, bleu `#3b93f0`). Replace the Figma still (mac logo black eyes, 272×162 at x 100, y 142). Do not ship the still. Thinking may briefly leave the capsule (engine). Accept that.
+- Name: mace. UniversalSansGrokTest Display Trial 400, 96px, leading 1.2, white, right. Box x 969, y 138, w 231, h 68.
+- Role: Chief of Staff/Producer. 300, 64px, leading 1.2, right. Box x 574, y 253, w 626, h 45.
+- Body: 300, 64px, leading 1.2, left. Box x 97, y 692, w 840, h 512. Verbatim — do not rewrite.
 
 Live behavior (after static):
 
@@ -142,7 +142,7 @@ Portrait first. Stage-readable from the back of the room. Scaffold the demo fram
 
 - Park Copy lines verbatim. Do not rewrite.
 - Lock card Name to **mace** (not Maser). Role **Chief of Staff/Producer**.
-- Recut plate to Figma 1299 square. Capsule on front (Frame 9). Wordmark on back (Frame 10).
+- Recut plate to Figma 1299 square. Wordmark on Front v1 (`1:20`). Capsule on Back v1 (`1:2`).
 - Park every other GrokBot-Loop-DemoCard frame. Do not typeset them.
 - Stage dither is vgpu behind the card. Do not bake dither into the plate.
 - Set card orientation to 1299 square. Refuse Zoah landscape.
@@ -153,8 +153,8 @@ Two sides. Not a hover peek.
 
 | Face | Job |
 | --- | --- |
-| Front | Identity: live capsule + name, role, bio (Figma boxes). |
-| Back | Mark-forward: white Grok Bot wordmark vector. No capsule. |
+| Front | Front v1 (`1:20`): white Grok Bot wordmark vector. No capsule. |
+| Back | Back v1 (`1:2`): live capsule + name, role, bio (Figma boxes). |
 
 Toggle with an explicit **View front / View back** control (flip). Do not use hover-only to reveal the other face. Focusable, keyboardable, reduced-motion safe (instant swap or opacity crossfade when motion is off).
 
@@ -170,7 +170,7 @@ Refuse Zoah embossed / iridescent type treatment. Our type is flat and set from 
 
 ## Observable decisions (add)
 
-- Build two faces: identity front, mark-forward back.
+- Build two faces: mark-forward Front v1, identity Back v1.
 - Flip via View front/back control. Refuse hover-only reveal.
 - Stack tilt + sheen + optional band. Refuse embossed/iridescent type.
 
@@ -237,7 +237,7 @@ Context: **Grok Bot meetup** teaching demo — mark reads as Grok, not Maser bra
 - Body: ShapeId **`capsule`** — horizontal stadium as shipped (`skins.ts`). Vertical pill refused unless human reopens.
 - Color: stock bloub **`bleu` `#3b93f0`**. Refuse Maser blue `#10A4FF` on this mark.
 - Eyes: paper stadium holes. `paper` = plate `#000000`.
-- Loop lives on the **identity face only** (Frame 9 / front). No animated mark on Frame 10.
+- Loop lives on **Back v1 only** (`1:2`). No animated mark on Front v1 (`1:20`).
 - **30s curl, then 30s break, then curl again.** Repeat. Not a one-shot. Not `defaultCycle`. Not idle→thinking→wide.
 - Curl beats (catalog IDs, in order, spread across ~30s; time feel on the live preview — do not freeze guessed ms as tokens):
   1. `neutre`

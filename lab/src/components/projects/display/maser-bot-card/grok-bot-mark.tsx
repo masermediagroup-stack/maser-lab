@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * Back v1 identity mark (Figma 1:2). 30s catalog curl, then 30s pointer-owned
+ * neutre break, then curl again. Front v1 has no animated mark.
+ */
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { NOTIF_BLUE, type DotRender } from "./grokbot/decor";
 import { BotEngine, type BotFrame } from "./grokbot/engine";
@@ -113,7 +117,7 @@ function lookFromPointer(
 
 /**
  * SVG Grok bot mark. Bloub engine, capsule + bleu.
- * Identity-face loop: ~30s expression curl, then 30s neutre break with pointer gaze.
+ * Back-v1 identity loop: ~30s expression curl, then 30s neutre break with pointer gaze.
  * Reduced motion: first frame (neutre capsule), still.
  */
 export function GrokBotMark({

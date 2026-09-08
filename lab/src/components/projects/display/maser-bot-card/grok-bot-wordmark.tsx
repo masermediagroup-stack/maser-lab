@@ -1,3 +1,4 @@
+/** Front v1 wordmark (Figma 1:20 / vector 1:22). No animated mark on this face. */
 export function GrokBotWordmark({ className }: { className?: string }) {
   return (
     <svg

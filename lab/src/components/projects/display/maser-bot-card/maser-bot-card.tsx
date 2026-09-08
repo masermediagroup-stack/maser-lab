@@ -248,6 +248,11 @@ export function MaserBotCard({
           <div className="maser-bot-card__body">
             <div className="maser-bot-card__flip">
               <div className="maser-bot-card__side maser-bot-card__side--front">
+                <div className="maser-bot-card__slot maser-bot-card__slot--wordmark">
+                  <GrokBotWordmark className="maser-bot-card__wordmark" />
+                </div>
+              </div>
+              <div className="maser-bot-card__side maser-bot-card__side--back">
                 <div className="maser-bot-card__slot maser-bot-card__slot--mark">
                   <GrokBotMark
                     reduced={reduced}
@@ -265,11 +270,6 @@ export function MaserBotCard({
                 <p className="maser-bot-card__slot maser-bot-card__slot--bio">
                   {PARKED_COPY.body}
                 </p>
-              </div>
-              <div className="maser-bot-card__side maser-bot-card__side--back">
-                <div className="maser-bot-card__slot maser-bot-card__slot--wordmark">
-                  <GrokBotWordmark className="maser-bot-card__wordmark" />
-                </div>
               </div>
             </div>
             <div className="maser-bot-card__sheen" aria-hidden />
