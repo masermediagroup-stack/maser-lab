@@ -38,7 +38,9 @@ import {
   CURSOR_VB_W,
 } from "./official-marks";
 import {
-  drawTrackedTextRandomFade,
+  drawTextRandomFade,
+  DALLAS_SUBHEADING_FADE_PLAY_KEY,
+  DEFAULT_RANDOM_LETTER_FADE,
   headlineTextAnchorX,
 } from "./dallas-text-animation";
 import {
@@ -235,13 +237,15 @@ function renderFrame(
   const headlineY = marksBaseY + grokSize * 0.72;
   ctx.font = `400 ${fontSize}px ${fontFamily}`;
   const tracking = DALLAS_DISPLAY_TRACKING_PX * scale;
-  drawTrackedTextRandomFade(
+  drawTextRandomFade(
     ctx,
     headlineText,
     cursorLeftX,
     headlineY,
     tracking,
     elapsed,
+    loopSeconds,
+    whipSeconds,
     reducedMotion,
   );
 
@@ -250,7 +254,18 @@ function renderFrame(
     const bodySize = DALLAS_BODY_FONT_PX * scale;
     const bodyGap = fontSize * 0.22;
     ctx.font = `${DALLAS_BODY_FONT_WEIGHT} ${bodySize}px ${plexFontFamily}`;
-    ctx.fillText(trimmedUpNext, cursorLeftX, headlineY + fontSize + bodyGap);
+    drawTextRandomFade(
+      ctx,
+      trimmedUpNext,
+      cursorLeftX,
+      headlineY + fontSize + bodyGap,
+      0,
+      elapsed,
+      loopSeconds,
+      whipSeconds,
+      reducedMotion,
+      { ...DEFAULT_RANDOM_LETTER_FADE, playKey: DALLAS_SUBHEADING_FADE_PLAY_KEY },
+    );
   }
 }
 

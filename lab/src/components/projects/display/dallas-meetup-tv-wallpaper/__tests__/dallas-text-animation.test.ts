@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEFAULT_LOOP_SECONDS,
+  DEFAULT_WHIP_SECONDS,
+  SETTLE_SECONDS,
+  restSeconds,
+} from "../globe-motion";
+import {
   DEFAULT_RANDOM_LETTER_FADE,
   buildRandomLetterOrder,
   headlineTextAnchorX,
-  letterOpacityAt,
-  randomLetterFadeCycleMs,
+  letterOpacityAtLoop,
   randomLetterFadePhaseMs,
+  scaleFadeSettingsForWindow,
 } from "../dallas-text-animation";
 
 describe("buildRandomLetterOrder", () => {
@@ -21,7 +27,7 @@ describe("buildRandomLetterOrder", () => {
   });
 });
 
-describe("random letter fade timing", () => {
+describe("loop-synced random letter fade", () => {
   const text = "abc";
   const order = buildRandomLetterOrder(
     text.length,
@@ -29,26 +35,55 @@ describe("random letter fade timing", () => {
     DEFAULT_RANDOM_LETTER_FADE.randomnessAmount,
     DEFAULT_RANDOM_LETTER_FADE.playKey,
   );
+  const loopSeconds = DEFAULT_LOOP_SECONDS;
+  const whipSeconds = DEFAULT_WHIP_SECONDS;
+  const rest = restSeconds(loopSeconds, whipSeconds);
 
   it("matches lab stagger + fade speed for one phase", () => {
     expect(randomLetterFadePhaseMs(3, DEFAULT_RANDOM_LETTER_FADE)).toBe(580);
-    expect(randomLetterFadeCycleMs(3, DEFAULT_RANDOM_LETTER_FADE)).toBe(1160);
   });
 
-  it("starts the in phase at zero opacity", () => {
-    expect(letterOpacityAt(0, text.length, order, 0)).toBe(0);
+  it("starts the rest beat at zero opacity", () => {
+    expect(
+      letterOpacityAtLoop(0, text.length, order, 0, loopSeconds, whipSeconds, false),
+    ).toBe(0);
   });
 
-  it("reaches full opacity after the in phase completes", () => {
-    const phaseMs = randomLetterFadePhaseMs(text.length);
-    expect(letterOpacityAt(0, text.length, order, phaseMs - 1)).toBeGreaterThan(0.9);
+  it("holds full opacity mid-rest without micro-cycling", () => {
+    const midRest = rest * 0.5;
+    expect(
+      letterOpacityAtLoop(0, text.length, order, midRest, loopSeconds, whipSeconds, false),
+    ).toBe(1);
+    expect(
+      letterOpacityAtLoop(0, text.length, order, midRest + 1.1, loopSeconds, whipSeconds, false),
+    ).toBe(1);
   });
 
-  it("cycles into the out phase", () => {
-    const phaseMs = randomLetterFadePhaseMs(text.length);
-    expect(letterOpacityAt(0, text.length, order, phaseMs)).toBe(1);
-    const afterOut = phaseMs * 2 - 1;
-    expect(letterOpacityAt(0, text.length, order, afterOut)).toBeLessThan(0.05);
+  it("fades out during the whip beat", () => {
+    const whipMid = rest + whipSeconds * 0.5;
+    expect(
+      letterOpacityAtLoop(0, text.length, order, whipMid, loopSeconds, whipSeconds, false),
+    ).toBeLessThan(0.5);
+  });
+
+  it("stays hidden during settle", () => {
+    const settleMid = rest + whipSeconds + SETTLE_SECONDS * 0.5;
+    expect(
+      letterOpacityAtLoop(0, text.length, order, settleMid, loopSeconds, whipSeconds, false),
+    ).toBe(0);
+  });
+
+  it("returns full opacity when reduced motion is on", () => {
+    expect(
+      letterOpacityAtLoop(0, text.length, order, 0, loopSeconds, whipSeconds, true),
+    ).toBe(1);
+  });
+});
+
+describe("scaleFadeSettingsForWindow", () => {
+  it("compresses timing to fit a short whip window", () => {
+    const scaled = scaleFadeSettingsForWindow(12, 500, DEFAULT_RANDOM_LETTER_FADE);
+    expect(randomLetterFadePhaseMs(12, scaled)).toBeLessThanOrEqual(500);
   });
 });
 
