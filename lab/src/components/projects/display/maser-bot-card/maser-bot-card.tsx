@@ -143,6 +143,29 @@ export function MaserBotCard({
   }, []);
 
   useEffect(() => {
+    const onWinPointerMove = (event: globalThis.PointerEvent) => {
+      if (!trackingRef.current || reducedRef.current) return;
+      const slab = slabRef.current;
+      if (!slab) return;
+      const rect = slab.getBoundingClientRect();
+      const pad = 8;
+      const inside =
+        event.clientX >= rect.left - pad &&
+        event.clientX <= rect.right + pad &&
+        event.clientY >= rect.top - pad &&
+        event.clientY <= rect.bottom + pad;
+      if (inside) return;
+      trackingRef.current = false;
+      lookPointerRef.current = null;
+      targetYawRef.current = 0;
+      targetPitchRef.current = 0;
+      setCardFaceLight(slab, false, 0.5, 0.5, 0);
+    };
+    window.addEventListener("pointermove", onWinPointerMove);
+    return () => window.removeEventListener("pointermove", onWinPointerMove);
+  }, []);
+
+  useEffect(() => {
     let frame = 0;
     const tick = () => {
       const slab = slabRef.current;
@@ -211,6 +234,21 @@ export function MaserBotCard({
     if (slab) setCardFaceLight(slab, false, 0.5, 0.5, 0);
   }
 
+  function pointerStillOnSlab(event: PointerEvent<HTMLDivElement>) {
+    const slab = slabRef.current;
+    if (!slab) return false;
+    const related = event.relatedTarget;
+    if (related instanceof Node && slab.contains(related)) return true;
+    const rect = slab.getBoundingClientRect();
+    const pad = 8;
+    return (
+      event.clientX >= rect.left - pad &&
+      event.clientX <= rect.right + pad &&
+      event.clientY >= rect.top - pad &&
+      event.clientY <= rect.bottom + pad
+    );
+  }
+
   function onCardEnter() {
     if (reduced) return;
     trackingRef.current = true;
@@ -231,11 +269,16 @@ export function MaserBotCard({
     const ny = Math.min(1, Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1)));
     sheenXRef.current = nx;
     sheenYRef.current = ny;
-    if (shineOn) setCardFaceLight(slab, true, nx, ny, intensityRef.current);
-    if (!finePointer) return;
+    if (shineOnRef.current) setCardFaceLight(slab, true, nx, ny, intensityRef.current);
+    if (!tiltOnRef.current) return;
     const feel = feelRef.current;
     targetYawRef.current = (nx - 0.5) * 2 * YAW_DEG * feel;
     targetPitchRef.current = (0.5 - ny) * 2 * PITCH_DEG * feel;
+  }
+
+  function onCardLeave(event: PointerEvent<HTMLDivElement>) {
+    if (pointerStillOnSlab(event)) return;
+    killCardLight();
   }
 
   function onStageMove(event: PointerEvent<HTMLElement>) {
@@ -287,7 +330,7 @@ export function MaserBotCard({
           className="maser-bot-card__slab"
           onPointerEnter={onCardEnter}
           onPointerMove={onCardMove}
-          onPointerLeave={killCardLight}
+          onPointerLeave={onCardLeave}
           onPointerCancel={killCardLight}
         >
           <div className="maser-bot-card__core" aria-hidden />
