@@ -367,16 +367,16 @@ export function MaserBotCard({
             </div>
             <div className="maser-bot-card__rim" aria-hidden />
             <div className="maser-bot-card__sheen" aria-hidden />
+            <button
+              type="button"
+              className="maser-bot-card__flip-control"
+              onClick={() => setFace(otherFace)}
+              aria-pressed={face === "back"}
+            >
+              {flipLabel}
+            </button>
           </div>
         </div>
-        <button
-          type="button"
-          className="maser-bot-card__flip-control"
-          onClick={() => setFace(otherFace)}
-          aria-pressed={face === "back"}
-        >
-          {flipLabel}
-        </button>
       </div>
     </article>
   );
