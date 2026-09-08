@@ -51,6 +51,7 @@
   transform: translateX(-50%);
   pointer-events: none;
   overflow: visible;
+  z-index: 1;
 }
 
 .meetup-loop-viz__board {
