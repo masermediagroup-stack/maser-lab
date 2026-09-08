@@ -155,24 +155,19 @@
   position: relative;
   width: 100%;
   height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 420ms ease;
-}
-
-.maser-bot-card[data-face="back"] .maser-bot-card__flip {
-  transform: rotateY(180deg);
 }
 
 .maser-bot-card__side {
   position: absolute;
   inset: 0;
   background: var(--mbc-card-bg);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  transition: opacity 180ms ease;
 }
 
 .maser-bot-card__side--back {
-  transform: rotateY(180deg);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .maser-bot-card__slot {
@@ -301,29 +296,22 @@
   text-underline-offset: 0.22em;
 }
 
+.maser-bot-card[data-face="back"] .maser-bot-card__side--front {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.maser-bot-card[data-face="back"] .maser-bot-card__side--back {
+  opacity: 1;
+  visibility: visible;
+}
+
 .maser-bot-card[data-reduced="true"] .maser-bot-card__sheen,
 .maser-bot-card[data-shine="false"] .maser-bot-card__sheen {
   opacity: 0;
 }
 
-.maser-bot-card[data-reduced="true"] .maser-bot-card__flip {
-  transform: none;
-  transition: opacity 180ms ease;
-}
-
 .maser-bot-card[data-reduced="true"] .maser-bot-card__side {
-  transform: none;
-  transition: opacity 180ms ease;
-}
-
-.maser-bot-card[data-reduced="true"] .maser-bot-card__side--back {
-  opacity: 0;
-}
-
-.maser-bot-card[data-reduced="true"][data-face="back"] .maser-bot-card__side--front {
-  opacity: 0;
-}
-
-.maser-bot-card[data-reduced="true"][data-face="back"] .maser-bot-card__side--back {
-  opacity: 1;
+  transition: none;
 }
