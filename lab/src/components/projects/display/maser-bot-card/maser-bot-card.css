@@ -209,6 +209,17 @@
   -webkit-backface-visibility: hidden;
 }
 
+/* Mesh fill + painted type. Overlay keeps the mark, sheen, and hit-test. */
+.maser-bot-card[data-gl="true"][data-reduced="false"][data-maps="ready"]
+  .maser-bot-card__side {
+  background: transparent;
+}
+
+.maser-bot-card[data-gl="true"][data-reduced="false"][data-maps="ready"]
+  .maser-bot-card__slot:not(.maser-bot-card__slot--mark) {
+  opacity: 0;
+}
+
 .maser-bot-card__side--front {
   transform: rotateY(0deg) translateZ(0.5px);
 }

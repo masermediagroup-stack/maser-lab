@@ -6,6 +6,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
   useSyncExternalStore,
   type RefObject,
 } from "react";
@@ -14,14 +15,20 @@ import {
   ExtrudeGeometry,
   Group,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   NoToneMapping,
   Shape,
+  Vector2,
 } from "three";
 import {
   getClampedPixelRatio,
   isWebGLAvailable,
 } from "@/three/utils/capabilities";
+import {
+  createCardFaceTextures,
+  type CardFaceTextures,
+} from "./face-maps";
 import type { MaserBotCardFace } from "./types";
 
 const ART = 1299;
@@ -73,6 +80,56 @@ function shortestDelta(from: number, to: number) {
   return delta;
 }
 
+/** Map lid x/y into 0–1 so the type texture sits on the face, not in world units. */
+function cardUVGenerator(outer: number) {
+  const scale = 1 / outer;
+  return {
+    generateTopUV(
+      _geometry: ExtrudeGeometry,
+      vertices: number[],
+      indexA: number,
+      indexB: number,
+      indexC: number,
+    ) {
+      const uv = (index: number) =>
+        new Vector2(
+          vertices[index * 3]! * scale + 0.5,
+          vertices[index * 3 + 1]! * scale + 0.5,
+        );
+      return [uv(indexA), uv(indexB), uv(indexC)];
+    },
+    generateSideWallUV() {
+      return [
+        new Vector2(0, 0),
+        new Vector2(1, 0),
+        new Vector2(1, 1),
+        new Vector2(0, 1),
+      ];
+    },
+  };
+}
+
+/**
+ * ExtrudeGeometry groups: 0 = both lids, 1 = sides.
+ * Split the lids so front and back can carry different type maps.
+ */
+function regroupCardCaps(geometry: ExtrudeGeometry) {
+  const lid = geometry.groups[0];
+  const sides = geometry.groups[1];
+  if (!lid || !sides || lid.count % 2 !== 0) return;
+  const half = lid.count / 2;
+  geometry.clearGroups();
+  geometry.addGroup(lid.start, half, 2);
+  geometry.addGroup(lid.start + half, half, 1);
+  geometry.addGroup(sides.start, sides.count, 0);
+  const uv = geometry.attributes.uv;
+  if (!uv) return;
+  for (let i = lid.start; i < lid.start + half; i += 1) {
+    uv.setX(i, 1 - uv.getX(i));
+  }
+  uv.needsUpdate = true;
+}
+
 /** Rounded rect in XY. Three.js Y-up. CCW so the extruded front faces +Z. */
 function roundedRectShape(width: number, height: number, radius: number) {
   const hw = width / 2;
@@ -97,17 +154,19 @@ function CardMesh({
   reduced,
   shadowRef,
   faceTiltRef,
+  maps,
 }: {
   poseRef: RefObject<CardObjectPose>;
   face: MaserBotCardFace;
   reduced: boolean;
   shadowRef: RefObject<HTMLElement | null>;
   faceTiltRef: RefObject<HTMLElement | null>;
+  maps: CardFaceTextures | null;
 }) {
   const tiltRef = useRef<Group>(null);
   const flipRef = useRef<Group>(null);
   const meshRef = useRef<Mesh>(null);
-  const material = useMemo(
+  const sideMaterial = useMemo(
     () =>
       new MeshStandardMaterial({
         color: FILL,
@@ -115,6 +174,28 @@ function CardMesh({
         metalness: 0.04,
       }),
     [],
+  );
+  const frontMaterial = useMemo(
+    () =>
+      new MeshBasicMaterial({
+        color: maps ? 0xffffff : FILL,
+        map: maps?.front ?? null,
+        toneMapped: false,
+      }),
+    [maps],
+  );
+  const backMaterial = useMemo(
+    () =>
+      new MeshBasicMaterial({
+        color: maps ? 0xffffff : FILL,
+        map: maps?.back ?? null,
+        toneMapped: false,
+      }),
+    [maps],
+  );
+  const materials = useMemo(
+    () => [sideMaterial, frontMaterial, backMaterial],
+    [sideMaterial, frontMaterial, backMaterial],
   );
   const { viewport } = useThree();
   const outer = Math.min(viewport.width, viewport.height) * CARD_FIT;
@@ -131,17 +212,21 @@ function CardMesh({
       bevelEnabled: false,
       curveSegments: 16,
       steps: 1,
+      UVGenerator: cardUVGenerator(outer),
     });
     geo.translate(0, 0, -halfZ);
+    regroupCardCaps(geo);
     geo.computeVertexNormals();
     return geo;
   }, [outer, radius, depth, halfZ]);
 
   useLayoutEffect(() => {
     return () => {
-      material.dispose();
+      sideMaterial.dispose();
+      frontMaterial.dispose();
+      backMaterial.dispose();
     };
-  }, [material]);
+  }, [sideMaterial, frontMaterial, backMaterial]);
 
   useLayoutEffect(() => {
     return () => {
@@ -258,7 +343,7 @@ function CardMesh({
       <directionalLight position={[-2.8, 0.55, 0.7]} intensity={0.38} />
       <group ref={tiltRef}>
         <group ref={flipRef}>
-          <mesh ref={meshRef} geometry={geometry} material={material} />
+          <mesh ref={meshRef} geometry={geometry} material={materials} />
         </group>
       </group>
     </>
@@ -271,13 +356,14 @@ type CardObjectProps = {
   reduced: boolean;
   shadowRef: RefObject<HTMLElement | null>;
   faceTiltRef: RefObject<HTMLElement | null>;
+  onFaceMapsReady?: (ready: boolean) => void;
 };
 
 /**
  * Physical card body: thin rounded cuboid (ExtrudeGeometry, no bevel).
- * Type lives in a sibling overlay. Pose + one-shot flip are written here
- * so the mesh and overlay stay on the same object. No Three.js GLSL —
- * stage shaders stay vgpu.
+ * Type is painted on the lid maps (flat Display Trial). Pose + one-shot
+ * flip are written here so the mesh and overlay stay on the same object.
+ * No Three.js GLSL — stage shaders stay vgpu.
  */
 export function CardObject({
   poseRef,
@@ -285,6 +371,7 @@ export function CardObject({
   reduced,
   shadowRef,
   faceTiltRef,
+  onFaceMapsReady,
 }: CardObjectProps) {
   const isClient = useSyncExternalStore(
     EMPTY_SUBSCRIBE,
@@ -298,6 +385,36 @@ export function CardObject({
     const max = window.innerWidth < 768 ? 1.5 : 2;
     return getClampedPixelRatio(max);
   }, []);
+  const [maps, setMaps] = useState<CardFaceTextures | null>(null);
+
+  useEffect(() => {
+    if (!isClient || !webgl) {
+      onFaceMapsReady?.(false);
+      return;
+    }
+    let cancelled = false;
+    let held: CardFaceTextures | null = null;
+    void createCardFaceTextures()
+      .then((next) => {
+        if (cancelled) {
+          next.front.dispose();
+          next.back.dispose();
+          return;
+        }
+        held = next;
+        setMaps(next);
+        onFaceMapsReady?.(true);
+      })
+      .catch(() => {
+        if (!cancelled) onFaceMapsReady?.(false);
+      });
+    return () => {
+      cancelled = true;
+      held?.front.dispose();
+      held?.back.dispose();
+      setMaps(null);
+    };
+  }, [isClient, webgl, onFaceMapsReady]);
 
   if (!isClient || !webgl) {
     return null;
@@ -322,6 +439,7 @@ export function CardObject({
           reduced={reduced}
           shadowRef={shadowRef}
           faceTiltRef={faceTiltRef}
+          maps={maps}
         />
       </Canvas>
     </div>

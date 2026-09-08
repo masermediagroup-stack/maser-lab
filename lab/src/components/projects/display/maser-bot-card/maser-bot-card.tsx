@@ -156,6 +156,7 @@ export function MaserBotCard({
 
   const [osReduced, setOsReduced] = useState(false);
   const [gpuPainted, setGpuPainted] = useState(false);
+  const [faceMapsReady, setFaceMapsReady] = useState(false);
   const [uncontrolledFace, setUncontrolledFace] =
     useState<MaserBotCardFace>("front");
   const webgl = useSyncExternalStore(
@@ -432,6 +433,7 @@ export function MaserBotCard({
       data-bg={bgMode}
       data-gpu={gpuPainted ? "painting" : "pending"}
       data-gl={webgl ? "true" : "false"}
+      data-maps={faceMapsReady ? "ready" : "pending"}
       onPointerMove={onStageMove}
       onPointerLeave={onStageLeave}
     >
@@ -454,6 +456,7 @@ export function MaserBotCard({
               reduced={reduced}
               shadowRef={sceneRef}
               faceTiltRef={faceTiltRef}
+              onFaceMapsReady={setFaceMapsReady}
             />
           ) : null}
           <div className="maser-bot-card__face-layer">

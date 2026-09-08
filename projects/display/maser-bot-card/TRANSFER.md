@@ -47,7 +47,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 
 ## Notes
 
-- Live URL: set after this recut’s unique preview. `knumwb5a9` and earlier hosts are stale. Do not hand the branch alias.
+- Live URL: set after this recut’s unique preview. `4nvivik66`, `rk46m1hj1`, `knumwb5a9` and earlier hosts are stale. Do not hand the branch alias.
 - Card face is solid `#000`. Stage is vgpu (TL grey + pointer cloud), not on the card face. Front v1 wordmark. Back v1 capsule + typeset copy.
 - Product must not import lab demo chrome tokens as its look.
 - Mark: capsule + bleu `#3b93f0`. One curl per page load (`neutre` → `attentif` → `curieux` → `mefiant` → `thinking` → `fier` → `neutre`), then pointer gaze until refresh. Do not replay. Refuse `defaultCycle` montage.

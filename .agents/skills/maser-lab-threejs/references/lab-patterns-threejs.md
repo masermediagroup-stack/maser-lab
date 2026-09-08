@@ -32,7 +32,7 @@ Patterns are added when a project ships to `review` or `ready`. Scaffolds exist 
 | Orthographic curtain strips | `layout/page-transitions-lab` | CanvasTexture of destination page → UV-sliced planes fall with stagger; CSS strip fallback without WebGL. See `curtain-fall-scene.tsx`. |
 | Invisible typographic sphere | `scroll/type-world` | White-on-transparent CanvasTexture packed twice around U; MeshBasicMaterial `alphaTest` + FrontSide; sticky 170svh / 100svh scale reveal; pan-y vs horizontal drag. |
 | Shared procedural dither surface | `display/maser-dither-engine` | Custom WebGL2 (not Three.js). Single `stages.ts` program + lighting/color/dither/material/interaction/animation controllers. **Agent contract:** `projects/display/maser-dither-engine/AGENTS.md` + `engine/AGENTS.md`. Materials grid uses CSS thumbs (context budget). |
-| Thin extruded card cuboid | `display/maser-bot-card` | Rounded `ExtrudeGeometry`, `bevelEnabled: false`, CSS type overlay, vgpu stage. Flip is one 180° turn (`LoopOnce`-style clamp). No Three.js GLSL. |
+| Thin extruded card cuboid | `display/maser-bot-card` | Rounded `ExtrudeGeometry`, `bevelEnabled: false`, type painted on lid maps (`MeshBasicMaterial` + `CanvasTexture`), vgpu stage. Flip is one 180° turn (`LoopOnce`-style clamp). No Three.js GLSL. |
 
 ## Planned patterns
 

@@ -10,7 +10,7 @@
 
 - Figma file: **GrokBot-Loop-DemoCard**. Front v1 `1:20` (mark-forward). Back v1 `1:2` (identity). Wordmark `1:22`. Artboard 1299×1299. v2/v3/Assets parked.
 - Other: steal Zoah **pose + specular + cuboid-edge feel** only. Refuse Zoah skin, landscape, dither on the card face, embossed type.
-- Build: One thin cuboid card (Three.js ExtrudeGeometry, no bevel). Type sits on the face. Tilt and quieter sheen live on that face. The edge is the cuboid side, seen on tilt and flip. No outline rim, no bevel, no chrome edge, no second plane around the type. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card. New shaders stay vgpu.
+- Build: One thin cuboid card (Three.js ExtrudeGeometry, no bevel). Type is painted on the face mesh (flat Display Trial). Tilt and quieter sheen live on that face. The edge is the cuboid side, seen on tilt and flip. No outline rim, no bevel, no chrome edge, no second plane around the type. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card. New shaders stay vgpu.
 
 ## Brief
 
@@ -21,7 +21,7 @@ Dallas meetup stage: pointer over a single 1299-square card; explicit Back / Fro
 Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + quieter sheen. Stage stays behind the card.
 
 ### Current behavior
-1299 square card, radius 80, fill `#000`. Thin Three.js cuboid (no bevel): the edge is the side of the cuboid, read on tilt and on the flip. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Identity body sits at Figma x 97, width 840, height 512, top raised to 560 so it stays clear of the swap; `room moving.` stays on one line. Keyboardable Back / Front text below the card, black type, no chip. Clicking Back / Front turns the cuboid once to the other face and settles (reduced: swap, no turn). Type sits on the card face; tilt + quieter sheen on that face. No rim, no bevel. vgpu ground (demo **Background** knob, default `#000`) + TL grey + pointer cloud on the stage field. Background color does not paint the card face, type, or mark.
+1299 square card, radius 80, fill `#000`. Thin Three.js cuboid (no bevel): the edge is the side of the cuboid, read on tilt and on the flip. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Identity body sits at Figma x 97, width 840, height 512, top raised to 560 so it stays clear of the swap; `room moving.` stays on one line. Keyboardable Back / Front text below the card, black type, no chip. Clicking Back / Front turns the cuboid once to the other face and settles (reduced: swap, no turn). Type sits on the card face (painted on the cuboid lids); tilt + quieter sheen on that face. No rim, no bevel. vgpu ground (demo **Background** knob, default `#000`) + TL grey + pointer cloud on the stage field. Background color does not paint the card face, type, or mark.
 
 ### Desired outcome
 Match Figma boxes at `n / 1299`. Keep live tilt/sheen and stage field. Do not bake the stage shader into the card face.
@@ -46,7 +46,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | Thin Three.js cuboid (ExtrudeGeometry, bevel off) + CSS type overlay + vgpu stage | Type sits on the card face. The edge is the cuboid side. Rim, bevel, chrome, and a second plane around the type are refused. New shaders stay vgpu. |
+| Library | Thin Three.js cuboid (ExtrudeGeometry, bevel off) + type painted on lid maps + vgpu stage | Type is on the cuboid face. The edge is the cuboid side. Rim, bevel, chrome, Geist, and a frame around the type are refused. New shaders stay vgpu. |
 | Yaw / pitch | Live ~±16° / ±10° × feel knob | Enough tilt to read the face and the cuboid edge; not a flip toy; not frozen tokens |
 | Return | damped lerp | not a hard snap |
 | Sheen / light | Quiet wash **only while pointer is on the card face**; snap off on leave | no rest sheen, no idle center, no leftover specular, no light that sticks when the card tilts |
