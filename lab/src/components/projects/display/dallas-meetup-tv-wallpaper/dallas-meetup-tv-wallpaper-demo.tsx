@@ -217,7 +217,7 @@ export function DallasMeetupTvWallpaperDemo() {
             </p>
             <p className="lab-type-caption mt-1 text-[var(--lab-text-secondary)]">
               Loop defaults to {DEFAULT_LOOP_SECONDS}s (up to {LOOP_MAX_SECONDS}s). SpaceXAI wordmark + Grok picker morph
-              (shape owns HEX). Kick = SDF blend + mark 360. No nest, no
+              (shape owns HEX). Kick = SDF blend + wordmark swipe fade and edge shine. No nest, no
               ribbons on Grok. Geist is out of the product surface.
             </p>
           </div>
@@ -335,7 +335,9 @@ export function DallasMeetupTvWallpaperDemo() {
 
           <LabControlGroup label="Kick">
             <p className="lab-type-caption text-[var(--lab-text-muted)]">
-              Kick is the SpaceXAI mark 360. Grok stays a clean black disc.
+              Kick is a left-to-right swipe fade on the planted wordmark, with an
+              edge-rim shine riding the sweep. Grok stays a clean black disc,
+              centered on the wordmark optical middle.
               Eyes may still gaze and wink. No Thinking nest. No Working ribbons.
             </p>
           </LabControlGroup>

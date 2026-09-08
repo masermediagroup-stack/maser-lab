@@ -11,8 +11,6 @@ import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
   DALLAS_WALLPAPER_FPS,
-  cursorIdleFloatOffset,
-  cursorWhipRad,
 } from "./globe-motion";
 import { bodyOutline, outlineFitScale, traceBodyPath } from "./grok-bodies";
 import {
@@ -31,7 +29,9 @@ import {
   type EyePose,
 } from "./grok-eyes";
 import {
+  GROK_Y_NUDGE_PX,
   SPACEXAI_ASPECT,
+  drawSpacexaiMark,
   preloadSpacexaiLogo,
   spacexaiLogoImage,
 } from "./spacexai-mark";
@@ -196,30 +196,30 @@ function renderFrame(
   const markGap = MARK_GAP_PX * scale;
   const groupWidth = logoW + grokSize + markGap;
   const logoX = centerX - groupWidth * 0.5 + logoW * 0.5;
-  const logoFloat = cursorIdleFloatOffset(
-    elapsed,
-    loopSeconds,
-    whipSeconds,
-    reducedMotion,
-  );
-  const logoDrawX = logoX + logoFloat.x * scale;
-  const logoDrawY = marksBaseY + logoFloat.y * scale;
   const cursorLeftX = headlineTextAnchorX(logoX, logoW);
   const grokX = centerX + groupWidth * 0.5 - grokSize * 0.5;
+  const grokY = marksBaseY + GROK_Y_NUDGE_PX * scale;
 
-  ctx.save();
-  ctx.translate(logoDrawX, logoDrawY);
-  ctx.rotate(cursorWhipRad(elapsed, loopSeconds, whipSeconds, reducedMotion));
   const logo = spacexaiLogoImage();
   if (logo) {
-    ctx.drawImage(logo, -logoW * 0.5, -logoH * 0.5, logoW, logoH);
+    drawSpacexaiMark(
+      ctx,
+      logo,
+      logoX,
+      marksBaseY,
+      logoW,
+      logoH,
+      elapsed,
+      loopSeconds,
+      whipSeconds,
+      reducedMotion,
+    );
   }
-  ctx.restore();
 
   drawGrokBody(
     ctx,
     grokX,
-    marksBaseY,
+    grokY,
     grokSize,
     elapsed,
     loopSeconds,

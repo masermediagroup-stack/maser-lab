@@ -23,11 +23,11 @@ Trigger frequency: rare / ambient (TV loop).
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Paper `#F2F1ED`. SpaceXAI wordmark (360 whip on kick) + Grok picker morph (SDF blend, 1:1 shape↔HEX from the Ver 02 tree; cold start oval + Black) + white gaze-pair stadiums that look around and wink + one Universal Sans line `Dallas meetup`. Kick = body morph + HEX blend + mark 360. No bands on Grok.
+Paper `#F2F1ED`. SpaceXAI wordmark (left-to-right swipe fade + edge-rim shine on kick) + Grok picker morph (SDF blend, 1:1 shape↔HEX from the Ver 02 tree; cold start oval + Black) + white gaze-pair stadiums that look around and wink + one Universal Sans line `Dallas meetup`. Kick = body morph + HEX blend + wordmark sweep. No bands on Grok.
 
 ### Success signal
 - Skyline gone.
-- SpaceXAI wordmark reads at mark height, spins 360 on kick, lands upright.
+- SpaceXAI wordmark reads at mark height, planted (no float, no spin); on kick it swipe-fades left → right with an edge-rim shine.
 - Grok reads as the kept picker silhouettes (oval rest → square/teal first land unless square drew Red, then hex / circle) with white stadiums that translate as a gaze pair and wink through the blend **without shearing**. Every body fits the cube-height mark box. Not a light organic PNG head.
 - Kick is SDF morph + pair HEX blend + Cursor 360. Eyes may gaze/wink. No Thinking nest. No Working ribbons. No orbits.
 - Same demo route `/demos/dallas-meetup-tv-wallpaper`.

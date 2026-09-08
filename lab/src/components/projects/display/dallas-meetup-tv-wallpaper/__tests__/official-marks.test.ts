@@ -8,6 +8,7 @@ import { SPACEXAI_ASPECT, SPACEXAI_MARK_SRC } from "../spacexai-mark";
 const here = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(here, "../../../../../../public/assets/dallas-meetup-tv-wallpaper");
 const wallpaperSrc = readFileSync(join(here, "../dallas-meetup-tv-wallpaper.tsx"), "utf8");
+const markSrc = readFileSync(join(here, "../spacexai-mark.ts"), "utf8");
 const cubeSvg = readFileSync(join(publicDir, "CUBE_2D_DARK.svg"), "utf8");
 
 describe("spacexai mark (replaces Cursor cube)", () => {
@@ -19,17 +20,25 @@ describe("spacexai mark (replaces Cursor cube)", () => {
     expect(existsSync(join(publicDir, "spacexai-logo.png"))).toBe(true);
   });
 
-  it("draws the wordmark image with the loop whip, not the Cursor path", () => {
-    expect(wallpaperSrc).toContain("SPACEXAI_ASPECT");
+  it("draws the wordmark planted (no float, no spin) with a loop-synced sweep", () => {
     expect(wallpaperSrc).toContain("spacexaiLogoImage");
+    expect(wallpaperSrc).toContain("drawSpacexaiMark");
     expect(wallpaperSrc).toContain("preloadSpacexaiLogo");
-    expect(wallpaperSrc).toContain("drawImage");
-    expect(wallpaperSrc).toContain("cursorWhipRad");
     expect(wallpaperSrc).not.toContain("CURSOR_PATH");
     expect(wallpaperSrc).not.toContain("CURSOR_FILL_RULE");
     expect(wallpaperSrc).not.toMatch(/new Path2D/);
+    expect(wallpaperSrc).not.toMatch(/rotate\(cursorWhipRad/);
+    expect(wallpaperSrc).not.toContain("cursorWhipRad");
   });
 
+  it("sweeps the wordmark left-to-right with an edge-rim shine, never the full fill", () => {
+    expect(markSrc).toContain("spacexaiSwipeState");
+    expect(markSrc).toContain("spacexaiSweepEase");
+    expect(markSrc).toContain("destination-in");
+    expect(markSrc).toContain("destination-out");
+    expect(markSrc).toContain("drawSpacexaiMark");
+    expect(markSrc).toContain("GROK_Y_NUDGE_PX");
+  });
   it("keeps the retired Cursor path intact in official-marks", () => {
     expect(CURSOR_FILL_RULE).toBe("evenodd");
     expect(CURSOR_PATH).toContain("M444.05");

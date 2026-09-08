@@ -10,8 +10,9 @@ USER OVERRIDE. The Cursor cube (`CUBE_2D_DARK.svg`, evenodd hole) is out of the
 composition. The left mark is now the SpaceXAI wordmark
 (`lab/public/assets/dallas-meetup-tv-wallpaper/spacexai-logo.png`, black on
 transparent, 834x318) drawn with `drawImage` at the shared mark height (~280px).
-It keeps the cube's loop behavior: idle float during rest/settle, 360 whip spin
-on kick, planted when reduced motion is on. Headline / up-next anchor to the
+It stays planted: no idle float, no spin. On kick it crossfades left → right
+(slow → fast cubic ease-in) with an edge-rim shine riding the sweep — rim only,
+never the full fill. Headline / up-next anchor to the
 wordmark's rest left edge. `official-marks.ts` keeps the retired Cursor path for
 reference only — it is no longer drawn. "Cube" language below is historical.
 

@@ -124,7 +124,7 @@ describe("no bands on Grok", () => {
     expect(wallpaperSrc).not.toMatch(/fillStrip/);
     expect(wallpaperSrc).not.toMatch(/whipEnergy/);
     expect(wallpaperSrc).not.toMatch(/streamPhase/);
-    expect(wallpaperSrc).toContain("cursorWhipRad");
+    expect(wallpaperSrc).toContain("drawSpacexaiMark");
     expect(wallpaperSrc).toContain("traceBodyPath");
     expect(wallpaperSrc).toContain("FACE_DISC_R");
     expect(wallpaperSrc).toContain("eyesAt");
