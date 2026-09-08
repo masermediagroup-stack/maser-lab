@@ -38,6 +38,10 @@ import {
   CURSOR_VB_W,
 } from "./official-marks";
 import {
+  drawTrackedTextRandomFade,
+  headlineTextAnchorX,
+} from "./dallas-text-animation";
+import {
   DALLAS_BODY_FONT_PX,
   DALLAS_BODY_FONT_WEIGHT,
   DALLAS_DISPLAY_FONT_PX,
@@ -100,20 +104,6 @@ function resolvePlexFontFamily(el: Element | null): string {
     if (token) return token;
   }
   return DALLAS_PLEX_FAMILY;
-}
-
-function drawTrackedText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  tracking: number,
-) {
-  let cursor = x;
-  for (const glyph of text) {
-    ctx.fillText(glyph, cursor, y);
-    cursor += ctx.measureText(glyph).width + tracking;
-  }
 }
 
 function drawOneStadium(
@@ -214,7 +204,7 @@ function renderFrame(
   );
   const cursorDrawX = cursorX + cursorFloat.x * scale;
   const cursorDrawY = marksBaseY + cursorFloat.y * scale;
-  const cursorLeftX = cursorDrawX - cursorW * 0.5;
+  const cursorLeftX = headlineTextAnchorX(cursorX, cursorW);
   const grokX = centerX + groupWidth * 0.5 - grokSize * 0.5;
 
   ctx.save();
@@ -245,7 +235,15 @@ function renderFrame(
   const headlineY = marksBaseY + grokSize * 0.72;
   ctx.font = `400 ${fontSize}px ${fontFamily}`;
   const tracking = DALLAS_DISPLAY_TRACKING_PX * scale;
-  drawTrackedText(ctx, headlineText, cursorLeftX, headlineY, tracking);
+  drawTrackedTextRandomFade(
+    ctx,
+    headlineText,
+    cursorLeftX,
+    headlineY,
+    tracking,
+    elapsed,
+    reducedMotion,
+  );
 
   const trimmedUpNext = upNextText.trim();
   if (trimmedUpNext) {
