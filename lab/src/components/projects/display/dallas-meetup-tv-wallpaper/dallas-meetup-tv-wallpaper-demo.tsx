@@ -16,6 +16,7 @@ import {
   exportDallasMeetupWallpaperLoop,
 } from "./dallas-meetup-tv-wallpaper";
 import {
+  clampLoopSeconds,
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
   DALLAS_WALLPAPER_FPS,
@@ -309,7 +310,7 @@ export function DallasMeetupTvWallpaperDemo() {
               value={String(loopSeconds)}
               options={LOOP_OPTIONS}
               onChange={(v) => {
-                const next = Number(v);
+                const next = clampLoopSeconds(Number(v));
                 setLoopSeconds(next);
                 setTime(0);
                 setScrubTime(0);

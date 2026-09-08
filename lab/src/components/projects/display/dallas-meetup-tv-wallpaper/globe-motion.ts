@@ -1,5 +1,5 @@
 /**
- * EPG timing. Default loop is 16s (up to 30s in demo). Default whip is 0.5s
+ * EPG timing. Default loop is 30s (up to 2 min in demo). Default whip is 0.5s
  * (up to 1.2s). Super-fast means the traveling bit is short — do not shorten
  * the loop to fake speed.
  *
@@ -8,8 +8,8 @@
  * No nest. No ribbons on Grok. Reduced motion freezes Idle (oval + black).
  */
 
-export const DEFAULT_LOOP_SECONDS = 16;
-export const LOOP_MAX_SECONDS = 30;
+export const DEFAULT_LOOP_SECONDS = 30;
+export const LOOP_MAX_SECONDS = 120;
 export const DEFAULT_WHIP_SECONDS = 0.5;
 /** Live preview, scrub step, and MP4/WebM export frame rate. */
 export const DALLAS_WALLPAPER_FPS = 60;
@@ -21,10 +21,11 @@ export const WHIP_MIN_SECONDS = 0.5;
 export const WHIP_MAX_SECONDS = 1.2;
 
 export const LOOP_DURATION_OPTIONS = [
-  { value: "16", label: "16s (default)" },
-  { value: "20", label: "20s" },
-  { value: "24", label: "24s" },
-  { value: "30", label: "30s" },
+  { value: "30", label: "30s (default)" },
+  { value: "45", label: "45s" },
+  { value: "60", label: "60s" },
+  { value: "90", label: "90s" },
+  { value: "120", label: "2 min" },
 ] as const;
 
 /** Stadium lean on the disc. User lock: slight left, not −28°. */
@@ -50,6 +51,11 @@ export const CURSOR_IDLE_FLOAT_AT_REST: CursorIdleFloatOffset = { x: 0, y: 0 };
 export function clampWhipSeconds(seconds: number): number {
   if (!Number.isFinite(seconds)) return DEFAULT_WHIP_SECONDS;
   return Math.min(WHIP_MAX_SECONDS, Math.max(WHIP_MIN_SECONDS, seconds));
+}
+
+export function clampLoopSeconds(seconds: number): number {
+  if (!Number.isFinite(seconds)) return DEFAULT_LOOP_SECONDS;
+  return Math.min(LOOP_MAX_SECONDS, Math.max(DEFAULT_LOOP_SECONDS, seconds));
 }
 
 /**

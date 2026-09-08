@@ -5,10 +5,12 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
+  LOOP_MAX_SECONDS,
   SETTLE_SECONDS,
   WHIP_BAND_IN,
   WHIP_BAND_LEAVE,
   WHIP_MAX_SECONDS,
+  clampLoopSeconds,
   cursorWhipRad,
   kickEase,
   kickWobbleRad,
@@ -30,13 +32,21 @@ const marksSrc = readFileSync(
 );
 
 describe("look-lock motion", () => {
-  it("names a 16s default cycle with rest, whip, and settle filling the loop", () => {
-    expect(DEFAULT_LOOP_SECONDS).toBe(16);
+  it("names a 30s default cycle with rest, whip, and settle filling the loop", () => {
+    expect(DEFAULT_LOOP_SECONDS).toBe(30);
+    expect(LOOP_MAX_SECONDS).toBe(120);
     expect(DEFAULT_WHIP_SECONDS).toBe(0.5);
     expect(WHIP_MAX_SECONDS).toBe(1.2);
-    expect(restSeconds(16, 0.5)).toBeCloseTo(14.5);
-    expect(settleSeconds(16, 0.5)).toBeCloseTo(1);
-    expect(restSeconds(16, 0.5) + DEFAULT_WHIP_SECONDS + SETTLE_SECONDS).toBe(16);
+    expect(restSeconds(30, 0.5)).toBeCloseTo(28.5);
+    expect(settleSeconds(30, 0.5)).toBeCloseTo(1);
+    expect(restSeconds(30, 0.5) + DEFAULT_WHIP_SECONDS + SETTLE_SECONDS).toBe(30);
+  });
+
+  it("clamps loop duration to 30s–120s", () => {
+    expect(clampLoopSeconds(10)).toBe(30);
+    expect(clampLoopSeconds(30)).toBe(30);
+    expect(clampLoopSeconds(120)).toBe(120);
+    expect(clampLoopSeconds(999)).toBe(120);
   });
 
   it("labels rest / whip / settle without shrinking rest", () => {

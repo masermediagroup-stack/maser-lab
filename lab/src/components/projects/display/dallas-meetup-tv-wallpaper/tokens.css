@@ -45,7 +45,7 @@
   --dallas-mark-ink: var(--dallas-ink);
   --dallas-grok-black: #000000;
   --dallas-eye-white: #ffffff;
-  --dallas-loop-seconds: 16s;
+  --dallas-loop-seconds: 30s;
 
   --dallas-grok-gold: #97683d;
   --dallas-grok-red: #ff263c;
