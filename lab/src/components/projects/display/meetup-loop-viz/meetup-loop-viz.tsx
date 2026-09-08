@@ -39,7 +39,7 @@ function FlowDots() {
 function GapDots({
   slot,
 }: {
-  slot: "c1" | "c2" | "c3" | "c4" | "row";
+  slot: "c1" | "c2" | "c3" | "c4" | "v1" | "v2" | "v3";
 }) {
   return (
     <div
@@ -106,7 +106,9 @@ export function MeetupLoopViz({
           <GapDots slot="c2" />
           <GapDots slot="c3" />
           <GapDots slot="c4" />
-          <GapDots slot="row" />
+          <GapDots slot="v1" />
+          <GapDots slot="v2" />
+          <GapDots slot="v3" />
         </div>
       </div>
     </section>

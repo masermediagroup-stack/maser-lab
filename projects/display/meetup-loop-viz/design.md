@@ -168,7 +168,7 @@ Must match card 65 identity. Do not treat any preview as a timing handoff. `rg80
 Human via mace. Do not treat any preview as a timing handoff. Prior alias `rg80sk0em` is not something to time.
 
 - One cluster per gap. The gap is the space between the whole step blocks — not the heading line, not a dedicated 4×4 grid box.
-- Place clusters evenly in that gap on both rows, and one cluster in the gap between the two rows.
+- Place clusters evenly in that gap on both rows, and in the gap between the two rows (one cluster in each column’s vertical gap, not one full-width bar).
 - Centered in the gap. Not on the heading. Not shifted left.
 - No extra full-width center loading bar.
 - Copy stays verbatim. Do not invent a new system.
