@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { PARKED_COPY } from "./copy";
-import { GrokBotMark } from "./grok-bot-mark";
+import { GrokBotMark, type MarkLookPointer } from "./grok-bot-mark";
 import { GrokBotWordmark } from "./grok-bot-wordmark";
 import { startStage, type StageUniforms } from "./start-stage";
 import type { MaserBotCardFace, MaserBotCardProps } from "./types";
@@ -51,6 +51,7 @@ export function MaserBotCard({
   const targetSheenXRef = useRef(0.5);
   const targetSheenYRef = useRef(0.42);
   const trackingRef = useRef(false);
+  const lookPointerRef = useRef<MarkLookPointer | null>(null);
   const reducedRef = useRef(false);
   const tiltOnRef = useRef(true);
   const shineOnRef = useRef(true);
@@ -183,7 +184,13 @@ export function MaserBotCard({
   }
 
   function onPointerMove(event: PointerEvent<HTMLDivElement>) {
-    if (reduced || !finePointer) return;
+    if (reduced) return;
+    lookPointerRef.current = {
+      clientX: event.clientX,
+      clientY: event.clientY,
+      tracking: true,
+    };
+    if (!finePointer) return;
     const plate = plateRef.current;
     if (!plate) return;
     const rect = plate.getBoundingClientRect();
@@ -198,6 +205,7 @@ export function MaserBotCard({
 
   function onPointerLeave() {
     trackingRef.current = false;
+    lookPointerRef.current = null;
     targetYawRef.current = 0;
     targetPitchRef.current = 0;
     targetSheenXRef.current = 0.5;
@@ -243,6 +251,8 @@ export function MaserBotCard({
                 <div className="maser-bot-card__slot maser-bot-card__slot--mark">
                   <GrokBotMark
                     reduced={reduced}
+                    followLook={!reduced && finePointer}
+                    lookPointerRef={lookPointerRef}
                     className="maser-bot-card__mark"
                   />
                 </div>

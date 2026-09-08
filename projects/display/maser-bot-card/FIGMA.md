@@ -8,9 +8,10 @@
 | Source | URL | Notes |
 | --- | --- | --- |
 | Figma file | GrokBot-Loop-DemoCard | Source of truth for the 2026-09-08 recut |
-| Figma frame (front) | node `1:2` | Identity face |
-| Figma frame (back) | node `1:20` | Wordmark face |
+| Figma frame (front) | Frame 9 / node `1:2` | Identity face — typeset this |
+| Figma frame (back) | Frame 10 / node `1:20` | Wordmark face — typeset this |
 | Wordmark vector | node `1:22` | Vendored SVG, 1100×212 |
+| Other frames | parked | v2/v3, Assets, extra marks — do not typeset |
 | Other | Zoah founding-member **structure** only | Tilt + mouse shine. Refuse skin and landscape. |
 
 ## Figma file (team)
@@ -40,3 +41,4 @@
 | 2026-09-05 | skeleton | Env prep. Track A: vgpu plate. Universal Sans waits. |
 | 2026-09-06 | mark lock | Capsule + bleu `#3b93f0`. Cycle idle → thinking → wide → thinking → idle. |
 | 2026-09-08 | Figma → code | Recut to 1299 square. Typeset copy. Capsule front. Wordmark back. vgpu stage dither. |
+| 2026-09-08 | human confirm | Frame 9 front / Frame 10 back only. Parked other frames. 30s curl/break on identity mark. |

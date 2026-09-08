@@ -1,22 +1,48 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
-import { blockAt, makeBlock, offsetOf } from "./grokbot/cycles";
+import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { NOTIF_BLUE, type DotRender } from "./grokbot/decor";
 import { BotEngine, type BotFrame } from "./grokbot/engine";
+import {
+  EXPRESSION_BY_ID,
+  type ExpressionId,
+} from "./grokbot/expressions";
 import { DEMI_VIEWBOX, RAYON } from "./grokbot/repere";
 import { COLOR_BY_ID, SHAPE_BY_ID, mixHex } from "./grokbot/skins";
+import type { StateId } from "./grokbot/states";
 
 const PAPER = "#000000";
 const INK = COLOR_BY_ID.get("bleu")?.hex ?? "#3b93f0";
 const CAPSULE = SHAPE_BY_ID.get("capsule")?.radii ?? null;
-/** Card-front loop. Durations from engine `makeBlock` / measured state table. */
-const CYCLE = (
-  ["idle", "thinking", "wide", "thinking", "idle"] as const
-).map((state) => makeBlock(state));
+const NEUTRE = EXPRESSION_BY_ID.get("neutre") ?? null;
+
+/** Human-locked periods. Beat splits stay internal — time feel on the preview. */
+const CURL_S = 30;
+const BREAK_S = 30;
+const PERIOD_S = CURL_S + BREAK_S;
+
+type CurlBeat =
+  | { kind: "expr"; expr: ExpressionId; state: "idle" }
+  | { kind: "state"; state: StateId };
+
+const CURL_BEATS: CurlBeat[] = [
+  { kind: "expr", expr: "neutre", state: "idle" },
+  { kind: "expr", expr: "attentif", state: "idle" },
+  { kind: "expr", expr: "curieux", state: "idle" },
+  { kind: "expr", expr: "mefiant", state: "idle" },
+  { kind: "state", state: "thinking" },
+  { kind: "expr", expr: "fier", state: "idle" },
+  { kind: "expr", expr: "neutre", state: "idle" },
+];
+
+export type MarkLookPointer = {
+  clientX: number;
+  clientY: number;
+  tracking: boolean;
+};
 
 function makeEngine(): BotEngine {
-  const engine = new BotEngine(RAYON, "idle", CAPSULE);
+  const engine = new BotEngine(RAYON, "idle", CAPSULE, NEUTRE);
   engine.setShape(CAPSULE, 0);
   engine.reset("idle", 0);
   return engine;
@@ -60,56 +86,135 @@ function GrokBotDot({
   return <circle cx={dot.x} cy={dot.y} r={dot.r} fill={fill} opacity={dot.opacity} />;
 }
 
+function applyBeat(engine: BotEngine, beat: CurlBeat, now: number) {
+  if (beat.kind === "state") {
+    engine.setState(beat.state, now);
+    engine.setExpression(NEUTRE, now);
+    return;
+  }
+  engine.setState(beat.state, now);
+  engine.setExpression(EXPRESSION_BY_ID.get(beat.expr) ?? NEUTRE, now);
+}
+
+function lookFromPointer(
+  svg: SVGSVGElement,
+  pointer: MarkLookPointer,
+): { yaw: number; pitch: number } | null {
+  const rect = svg.getBoundingClientRect();
+  if (rect.width < 1 || rect.height < 1) return null;
+  const nx = (pointer.clientX - rect.left) / rect.width;
+  const ny = (pointer.clientY - rect.top) / rect.height;
+  if (!Number.isFinite(nx) || !Number.isFinite(ny)) return null;
+  return {
+    yaw: (nx - 0.5) * 36,
+    pitch: (0.5 - ny) * 28,
+  };
+}
+
 /**
- * SVG Grok bot mark. Bloub engine, capsule + bleu, front-face cycle.
- * Reduced motion: first frame (idle capsule), still.
+ * SVG Grok bot mark. Bloub engine, capsule + bleu.
+ * Identity-face loop: ~30s expression curl, then 30s neutre break with pointer gaze.
+ * Reduced motion: first frame (neutre capsule), still.
  */
 export function GrokBotMark({
   reduced,
   className,
+  lookPointerRef,
+  followLook = false,
 }: {
   reduced: boolean;
   className?: string;
+  lookPointerRef?: RefObject<MarkLookPointer | null>;
+  followLook?: boolean;
 }) {
   const reactId = useId().replace(/:/g, "");
   const maskId = `mbc-bot-mask-${reactId}`;
+  const svgRef = useRef<SVGSVGElement>(null);
   const [engine] = useState(() => makeEngine());
   const [frame, setFrame] = useState<BotFrame>(FIRST_FRAME);
 
   useEffect(() => {
-    if (reduced || !CYCLE.length) return;
-
-    const first = CYCLE[0];
-    if (!first) return;
+    if (reduced) {
+      engine.setShape(CAPSULE, 0);
+      engine.reset("idle", 0);
+      engine.setExpression(NEUTRE, 0);
+      engine.setLook(null, 0);
+      return;
+    }
 
     engine.setShape(CAPSULE, 0);
-    engine.reset(first.state, 0);
+    engine.reset("idle", 0);
+    engine.setExpression(NEUTRE, 0);
+    engine.setLook(null, 0);
+
     let raf = 0;
     let last = 0;
     let clock = 0;
-    let lastIndex = 0;
+    let lastBeatKey = "";
+    let lookArmed = false;
 
     const tick = (ms: number) => {
       raf = window.requestAnimationFrame(tick);
       const dt = last ? Math.min((ms - last) / 1000, 0.064) : 0;
       last = ms;
       clock += dt;
-      const { index } = blockAt(CYCLE, clock);
-      if (index !== lastIndex) {
-        const block = CYCLE[index];
-        if (block) {
-          const at = offsetOf(CYCLE, index);
-          if (index < lastIndex) engine.reset(block.state, at);
-          else engine.setState(block.state, at);
-          lastIndex = index;
+      const cycleT = ((clock % PERIOD_S) + PERIOD_S) % PERIOD_S;
+      const inCurl = cycleT < CURL_S;
+
+      if (inCurl) {
+        const beatIndex = Math.min(
+          CURL_BEATS.length - 1,
+          Math.floor((cycleT / CURL_S) * CURL_BEATS.length),
+        );
+        const beat = CURL_BEATS[beatIndex];
+        const beatKey = beat
+          ? beat.kind === "state"
+            ? `state:${beat.state}`
+            : `expr:${beat.expr}`
+          : "";
+        if (beat && beatKey !== lastBeatKey) {
+          applyBeat(engine, beat, clock);
+          lastBeatKey = beatKey;
+        }
+        if (lookArmed) {
+          engine.setLook(null, clock);
+          lookArmed = false;
+        }
+      } else {
+        if (lastBeatKey !== "break") {
+          engine.setState("idle", clock);
+          engine.setExpression(NEUTRE, clock);
+          lastBeatKey = "break";
+        }
+        const pointer = lookPointerRef?.current ?? null;
+        const svg = svgRef.current;
+        if (followLook && pointer?.tracking && svg) {
+          const look = lookFromPointer(svg, pointer);
+          if (look) {
+            engine.setLook(
+              {
+                yaw: look.yaw,
+                pitch: look.pitch,
+                mix: 1,
+                spin: 0,
+                wander: 0,
+              },
+              clock,
+            );
+            lookArmed = true;
+          }
+        } else if (lookArmed) {
+          engine.setLook(null, clock);
+          lookArmed = false;
         }
       }
+
       setFrame(engine.sample(clock));
     };
 
     raf = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(raf);
-  }, [engine, reduced]);
+  }, [engine, followLook, lookPointerRef, reduced]);
 
   const active = reduced ? FIRST_FRAME : frame;
   const drawn = active.bodyPath ? active : EMPTY_FRAME;
@@ -117,6 +222,7 @@ export function GrokBotMark({
 
   return (
     <svg
+      ref={svgRef}
       className={className}
       viewBox={`${-vb} ${-vb} ${vb * 2} ${vb * 2}`}
       role="img"

@@ -4,7 +4,7 @@ Lab experiment for the Dallas meetup stage demo. Not a client. One PR in maser-l
 
 Shell chrome is already on main. This package is the **card product** only.
 
-Status: **Figma static recut (2026-09-08)**. File **GrokBot-Loop-DemoCard**. Front frame `1:2`. Back frame `1:20`. Wordmark vector `1:22`. Artboard **1299×1299**. Scale from that board. Do not invent a second proportion. Do not eyeball.
+Status: **Figma static recut (2026-09-08)**. File **GrokBot-Loop-DemoCard**. **Frame 9 (`1:2`) front. Frame 10 (`1:20`) back.** Wordmark vector `1:22`. Other frames parked. Artboard **1299×1299**. Scale from that board. Do not invent a second proportion. Do not eyeball.
 
 ## Reader and job
 
@@ -59,10 +59,11 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Hold Shape until Figma lands.
 - Steal Zoah tilt+shine structure; refuse Zoah skin.
 - Recut plate to Figma 1299×1299 square, radius 80, fill `#000000`. Scale from the board.
-- Capsule on **front**. White Grok Bot wordmark vector on **back**. No capsule on back.
+- Capsule on **front** (Frame 9 / `1:2`). White Grok Bot wordmark vector on **back** (Frame 10 / `1:20`). No capsule on back.
 - Plate stays solid `#000`. Tilt + sheen + light are pointer-driven CSS overlays. Do not bake dither into the plate.
 - Stage bg is vgpu: black field + grey dither, wave/frequency, travel top-left → bottom-right. Quiet. Not rainbow, not grain soup, not on the type.
-- Lock front mark to Bloub engine, capsule, bleu `#3b93f0`, cycle idle → thinking → wide → thinking → idle. Refuse `defaultCycle` montage and Maser blue `#10A4FF` on this mark.
+- Lock front mark to Bloub engine, capsule, bleu `#3b93f0`. Curl catalog expressions on the **identity face only**: neutre → attentif → curieux → mefiant → thinking → fier → neutre across ~30s, then 30s neutre break (pointer gaze), then curl again. Refuse `defaultCycle`, the old idle→thinking→wide curl, and Maser blue `#10A4FF`.
+- Typeset **only** Frame 9 (`1:2`) and Frame 10 (`1:20`) plus wordmark `1:22`. Every other frame in GrokBot-Loop-DemoCard (v2/v3, Assets, parked ideas) stays parked. Do not pull extra type, marks, or layouts from them.
 - One card as the hero. No collage of windows.
 - Encode every Figma lock into this file the same turn it lands.
 
@@ -82,6 +83,7 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Rewriting locked body copy
 - Hover-only face reveal (no flip control)
 - Zoah embossed / iridescent type
+- Typesetting parked GrokBot-Loop-DemoCard frames (v2/v3, Assets, extra marks) onto the card
 
 ## Tokens (Figma static — 2026-09-08)
 
@@ -110,18 +112,18 @@ Figma face lock (2026-09-08). Old Producer-only role and prior bodies are stale.
 
 ## Figma static lock (2026-09-08)
 
-File: **GrokBot-Loop-DemoCard**. Front `1:2`. Back `1:20`. Wordmark `1:22`.
+File: **GrokBot-Loop-DemoCard**. **Front = Frame 9 / `1:2`**. **Back = Frame 10 / `1:20`**. Wordmark `1:22`. Human confirm 2026-09-08: these two frames only. Other frames in the file are parked ideas/assets — do not typeset them onto the card.
 
-Front (identity):
+Front (identity, Frame 9 / `1:2`):
 
-- Live capsule (Grokbot-animations engine, `capsule`, bleu `#3b93f0`). Cycle idle→thinking→wide→thinking→idle. Box 273×162 at x 100, y 142. Thinking may briefly leave the capsule (engine). Accept that.
+- Live capsule (Grokbot-animations engine, `capsule`, bleu `#3b93f0`). Replace any still. Box 273×162 at x 100, y 142. Thinking may briefly leave the capsule (engine). Accept that.
 - Name: mace. 96 / 400. Box x 969, y 138, w 231, h 68. Right-edge of the box at 1200. Right aligned.
 - Role: Chief of Staff/Producer. 64 / 300. Box x 574, y 253, w 626, h 45. Right-edge at 1200. Right aligned.
 - Body: 64 / 300. Left aligned. Box x 97, y 692, w 840, h 512.
 
-Back (mark-forward):
+Back (mark-forward, Frame 10 / `1:20`):
 
-- Same plate. No capsule.
+- Same plate. No capsule. No animated mark on this face.
 - White Grok Bot wordmark vector, box x 100, y 988, w 1100, h 212. Bottom-anchored. Exact SVG from node `1:22`. Do not typeset a fake logotype.
 
 Live behavior (after static):
@@ -140,7 +142,8 @@ Portrait first. Stage-readable from the back of the room. Scaffold the demo fram
 
 - Park Copy lines verbatim. Do not rewrite.
 - Lock card Name to **mace** (not Maser). Role **Chief of Staff/Producer**.
-- Recut plate to Figma 1299 square. Capsule on front. Wordmark on back.
+- Recut plate to Figma 1299 square. Capsule on front (Frame 9). Wordmark on back (Frame 10).
+- Park every other GrokBot-Loop-DemoCard frame. Do not typeset them.
 - Stage dither is vgpu behind the card. Do not bake dither into the plate.
 - Set card orientation to 1299 square. Refuse Zoah landscape.
 
@@ -229,14 +232,22 @@ Repo inspect: `/workspace/grokbot-animations-inspect` (org fork of **bloub**, li
 
 Context: **Grok Bot meetup** teaching demo — mark reads as Grok, not Maser brand chrome.
 
-**Locks (human 2026-09-06):**
-- Keep the Bloub engine. Do **not** hand-redraw a static capsule SVG.
+**Locks (human 2026-09-08):**
+- Keep the Bloub engine. Do **not** hand-redraw a static capsule SVG. Do not ship the Figma still.
 - Body: ShapeId **`capsule`** — horizontal stadium as shipped (`skins.ts`). Vertical pill refused unless human reopens.
 - Color: stock bloub **`bleu` `#3b93f0`**. Refuse Maser blue `#10A4FF` on this mark.
 - Eyes: paper stadium holes. `paper` = plate `#000000`.
-- Front-face loop (curl, seamless): **idle → thinking → wide (interested/excited) → thinking → idle**. Repeat.
-  - EP maps “interested/excited” → engine state **`wide`** (baseBody; keeps capsule).
-  - `thinking` is `baseBody: false` — silhouette briefly leaves capsule for the thinking gag, then morphs back. Accept that (engine truth). Do not invent a custom thinking capsule.
-- Refuse full ~31s `defaultCycle` montage on the card. Refuse orbit/burst/egg/hex on this face unless human adds them.
+- Loop lives on the **identity face only** (Frame 9 / front). No animated mark on Frame 10.
+- **30s curl, then 30s break, then curl again.** Repeat. Not a one-shot. Not `defaultCycle`. Not idle→thinking→wide.
+- Curl beats (catalog IDs, in order, spread across ~30s; time feel on the live preview — do not freeze guessed ms as tokens):
+  1. `neutre`
+  2. `attentif`
+  3. `curieux`
+  4. `mefiant`
+  5. `thinking` (body may leave capsule — engine truth, accept it)
+  6. `fier`
+  7. `neutre`
+- **Break (30s):** stay `neutre` / capsule. Eyes follow the pointer. Expression gaze is off during the break so the pointer owns the look. During the curl, the expression owns the gaze — do not fight it with cursor follow.
+- Reduced motion: plant `neutre`, no curl, no pointer chase.
 
-**Spark:** wire now — `shape="capsule"`, `color="bleu"` (`#3b93f0`), cycle above. Fresh URL. Time feel on the live preview; no invented ms.
+**Spark:** wire now — `shape="capsule"`, `color="bleu"` (`#3b93f0`), loop above. Fresh unique URL. Time feel on the live preview.

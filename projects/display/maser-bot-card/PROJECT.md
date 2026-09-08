@@ -8,7 +8,7 @@
 
 ## Design reference
 
-- Figma file: **GrokBot-Loop-DemoCard**. Front `1:2`. Back `1:20`. Wordmark `1:22`. Artboard 1299×1299.
+- Figma file: **GrokBot-Loop-DemoCard**. Front Frame 9 / `1:2`. Back Frame 10 / `1:20`. Wordmark `1:22`. Artboard 1299×1299. Other frames parked.
 - Other: steal Zoah **pose + specular feel** only. Refuse Zoah skin, landscape, plate dither, embossed type.
 - Build: CSS 3D pose + flip + sheen on a solid `#000` plate. Live capsule on front. Wordmark on back. vgpu **stage** dither behind the card.
 
@@ -53,7 +53,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 | Band | optional diagonal mask | mute via knob |
 | Plate | solid `#000` | Figma lock |
 | Stage bg | vgpu black + grey dither, TL→BR | behind the card |
-| Mark | Bloub engine, capsule + bleu, idle→thinking→wide→thinking→idle | Engine `makeBlock` durations; refuse `defaultCycle` |
+| Mark | Bloub engine, capsule + bleu, 30s curl / 30s break on identity face | Catalog expressions; refuse `defaultCycle` and idle→thinking→wide |
 
 ## Acceptance criteria
 
@@ -62,7 +62,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 - [ ] Square 1299 (not landscape, not 3:4)
 - [ ] Locked copy typeset in Figma boxes, verbatim
 - [ ] Product does not import demo chrome or `--lab-*` as its look
-- [ ] Reduced motion: no tilt, no sheen chase, bg still, mark first frame still, face swap without 3D flip
+- [ ] Reduced motion: no tilt, no sheen chase, bg still, mark planted `neutre`, no curl or pointer chase, face swap without 3D flip
 - [ ] Plate is solid `#000`. Stage dither is vgpu. Capsule bleu `#3b93f0` on **front**. Wordmark on back.
 - [ ] Product type stack names UniversalSansGrokTest Display Trial (no Geist/Inter substitute)
 - [ ] Component exported from `lab/src/components/projects/display/maser-bot-card/index.ts`
