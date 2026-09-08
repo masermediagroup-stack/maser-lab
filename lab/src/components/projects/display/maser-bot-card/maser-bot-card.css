@@ -73,6 +73,7 @@
 }
 
 .maser-bot-card__scene {
+  --mbc-fit: 0.88;
   position: relative;
   z-index: 1;
   display: flex;
@@ -93,6 +94,20 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   flex: 0 0 auto;
+  overflow: visible;
+}
+
+.maser-bot-card__object {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.maser-bot-card__object > div {
+  width: 100%;
+  height: 100%;
   overflow: visible;
 }
 
@@ -122,7 +137,7 @@
 
 .maser-bot-card__face-layer {
   position: absolute;
-  inset: 0;
+  inset: calc((1 - var(--mbc-fit, 0.88)) * 50%);
   z-index: 2;
   pointer-events: none;
   overflow: visible;
@@ -171,11 +186,16 @@
   height: 100%;
   transform-origin: 50% 50%;
   transform-style: preserve-3d;
+  transform: rotateY(var(--card-flip, 0deg));
+  transition: none;
+}
+
+.maser-bot-card[data-gl="false"] .maser-bot-card__flip {
   transform: rotateY(0deg);
   transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.maser-bot-card[data-face="back"] .maser-bot-card__flip {
+.maser-bot-card[data-gl="false"][data-face="back"] .maser-bot-card__flip {
   transform: rotateY(180deg);
 }
 
@@ -253,7 +273,8 @@
 
 .maser-bot-card__slot--bio {
   left: calc(97 / 1299 * 100%);
-  top: calc(692 / 1299 * 100%);
+  /* Figma top 692 raised so the body sits clear of the swap. Width/height held. */
+  top: calc(560 / 1299 * 100%);
   width: calc(840 / 1299 * 100%);
   height: calc(512 / 1299 * 100%);
   overflow: visible;
@@ -316,7 +337,7 @@
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-  color: var(--mbc-text);
+  color: #000000;
   font-family: "UniversalSansGrokTest Display Trial",
     "UniversalSansGrokTest Display Trial 400";
   font-size: calc(32 / 1299 * 100cqw);
@@ -337,7 +358,9 @@
   opacity: 0;
 }
 
-.maser-bot-card[data-reduced="true"] .maser-bot-card__flip {
+.maser-bot-card[data-reduced="true"] .maser-bot-card__flip,
+.maser-bot-card[data-reduced="true"][data-face="back"] .maser-bot-card__flip,
+.maser-bot-card[data-gl="false"][data-reduced="true"][data-face="back"] .maser-bot-card__flip {
   transform: none;
   transition: none;
 }
@@ -369,7 +392,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .maser-bot-card .maser-bot-card__flip,
-  .maser-bot-card[data-face="back"] .maser-bot-card__flip {
+  .maser-bot-card[data-face="back"] .maser-bot-card__flip,
+  .maser-bot-card[data-gl="false"][data-face="back"] .maser-bot-card__flip {
     transform: none;
     transition: none;
   }

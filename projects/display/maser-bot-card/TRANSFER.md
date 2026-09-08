@@ -27,6 +27,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 | `face` | `"front" \| "back"` | `"front"` | Controlled face |
 | `onFaceChange` | `(face) => void` | | Flip callback |
 | `bgMode` | `"calm" \| "interactive"` | `"interactive"` | Stage still vs pointer cloud |
+| `groundColor` | `string` | `"#000000"` | Stage ground only (demo **Background** knob). Never on the card fill, type, or mark. |
 | `forceReducedMotion` | `boolean` | `false` | Demo toggle; also honors OS |
 
 ## Public assets

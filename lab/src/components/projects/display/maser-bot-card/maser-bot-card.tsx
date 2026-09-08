@@ -5,9 +5,16 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
   type PointerEvent,
 } from "react";
+import { isWebGLAvailable } from "@/three/utils/capabilities";
+import {
+  CARD_FOV,
+  CardObject,
+  type CardObjectPose,
+} from "./card-object";
 import { PARKED_COPY } from "./copy";
 import { GrokBotMark, type MarkLookPointer } from "./grok-bot-mark";
 import { GrokBotWordmark } from "./grok-bot-wordmark";
@@ -20,14 +27,14 @@ const PITCH_DEG = 10;
 const QUIET_SHEEN = 0.22;
 const TRACK_LERP = 0.18;
 const REST_LERP = 0.11;
-const CARD_FOV = 26;
 const BODY_WIDOW = "room moving.";
-/** Figma body box ends at y 1204 on the 1299 artboard. */
-const FIGMA_TYPE_END = 1204;
+/** Raised body box (top 560, height 512) ends at y 1072 on the 1299 artboard. */
+const FIGMA_TYPE_END = 1072;
 const FIGMA_ART = 1299;
 /** Air under the last body line / Figma type end before Back / Front. */
 const FLIP_CLEAR_PX = 64;
 const DEFAULT_GROUND = "#000000";
+const EMPTY_SUBSCRIBE = () => () => {};
 
 function cssGround(hex: string): string {
   const raw = hex.trim();
@@ -70,12 +77,6 @@ function syncFlipGap(
   scene.style.setProperty("--flip-gap", `${Math.ceil(gap)}px`);
 }
 
-type CardFacePose = {
-  yaw: number;
-  pitch: number;
-  tracking: boolean;
-};
-
 const REST_STAGE: StageUniforms = {
   time: 0,
   pointerX: 0.22,
@@ -88,7 +89,7 @@ const REST_STAGE: StageUniforms = {
   groundB: 0,
 };
 
-const REST_POSE: CardFacePose = {
+const REST_POSE: CardObjectPose = {
   yaw: 0,
   pitch: 0,
   tracking: false,
@@ -141,7 +142,7 @@ export function MaserBotCard({
   const faceTiltRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLCanvasElement>(null);
   const stageUniformsRef = useRef<StageUniforms>(REST_STAGE);
-  const poseRef = useRef<CardFacePose>({ ...REST_POSE });
+  const poseRef = useRef<CardObjectPose>({ ...REST_POSE });
   const lookPointerRef = useRef<MarkLookPointer | null>(null);
   const reducedRef = useRef(false);
   const tiltOnRef = useRef(true);
@@ -157,6 +158,11 @@ export function MaserBotCard({
   const [gpuPainted, setGpuPainted] = useState(false);
   const [uncontrolledFace, setUncontrolledFace] =
     useState<MaserBotCardFace>("front");
+  const webgl = useSyncExternalStore(
+    EMPTY_SUBSCRIBE,
+    isWebGLAvailable,
+    () => false,
+  );
 
   const face = faceProp ?? uncontrolledFace;
   const reduced = forceReducedMotion || osReduced;
@@ -240,6 +246,7 @@ export function MaserBotCard({
   }, []);
 
   useEffect(() => {
+    if (webgl) return;
     let raf = 0;
     let yaw = 0;
     let pitch = 0;
@@ -279,7 +286,7 @@ export function MaserBotCard({
 
     raf = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(raf);
-  }, []);
+  }, [webgl]);
 
   useEffect(() => {
     const onWinPointerMove = (event: globalThis.PointerEvent) => {
@@ -424,6 +431,7 @@ export function MaserBotCard({
       data-face={face}
       data-bg={bgMode}
       data-gpu={gpuPainted ? "painting" : "pending"}
+      data-gl={webgl ? "true" : "false"}
       onPointerMove={onStageMove}
       onPointerLeave={onStageLeave}
     >
@@ -439,6 +447,15 @@ export function MaserBotCard({
       <div ref={sceneRef} className="maser-bot-card__scene">
         <div ref={stackRef} className="maser-bot-card__card-stack">
           <div className="maser-bot-card__shadow" aria-hidden />
+          {webgl ? (
+            <CardObject
+              poseRef={poseRef}
+              face={face}
+              reduced={reduced}
+              shadowRef={sceneRef}
+              faceTiltRef={faceTiltRef}
+            />
+          ) : null}
           <div className="maser-bot-card__face-layer">
             <div ref={faceTiltRef} className="maser-bot-card__face-tilt">
               <div

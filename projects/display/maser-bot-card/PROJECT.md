@@ -9,8 +9,8 @@
 ## Design reference
 
 - Figma file: **GrokBot-Loop-DemoCard**. Front v1 `1:20` (mark-forward). Back v1 `1:2` (identity). Wordmark `1:22`. Artboard 1299×1299. v2/v3/Assets parked.
-- Other: steal Zoah **pose + specular + slab-edge feel** only. Refuse Zoah skin, landscape, dither on the card face, embossed type.
-- Build: One card face. Type sits on that face. Tilt and quieter sheen live on the same face. No outline rim, no bevel, no chrome edge, no second plane around the type. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card.
+- Other: steal Zoah **pose + specular + cuboid-edge feel** only. Refuse Zoah skin, landscape, dither on the card face, embossed type.
+- Build: One thin cuboid card (Three.js ExtrudeGeometry, no bevel). Type sits on the face. Tilt and quieter sheen live on that face. The edge is the cuboid side, seen on tilt and flip. No outline rim, no bevel, no chrome edge, no second plane around the type. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card. New shaders stay vgpu.
 
 ## Brief
 
@@ -21,7 +21,7 @@ Dallas meetup stage: pointer over a single 1299-square card; explicit Back / Fro
 Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + quieter sheen. Stage stays behind the card.
 
 ### Current behavior
-1299 square card face, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable Back / Front text below the card, fully clear of the Figma body (type ends at y 1204). Clicking Back / Front turns the card over as one object (reduced: swap, no turn). Type sits on the card face; tilt + quieter sheen on that face. No rim, no bevel. vgpu ground (default `#000`) + TL grey + pointer cloud on the stage field. Ground color is a demo knob only — it does not paint the card face, type, or mark.
+1299 square card, radius 80, fill `#000`. Thin Three.js cuboid (no bevel): the edge is the side of the cuboid, read on tilt and on the flip. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Identity body sits at Figma x 97, width 840, height 512, top raised to 560 so it stays clear of the swap; `room moving.` stays on one line. Keyboardable Back / Front text below the card, black type, no chip. Clicking Back / Front turns the cuboid once to the other face and settles (reduced: swap, no turn). Type sits on the card face; tilt + quieter sheen on that face. No rim, no bevel. vgpu ground (demo **Background** knob, default `#000`) + TL grey + pointer cloud on the stage field. Background color does not paint the card face, type, or mark.
 
 ### Desired outcome
 Match Figma boxes at `n / 1299`. Keep live tilt/sheen and stage field. Do not bake the stage shader into the card face.
@@ -46,15 +46,15 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | One card face (CSS 3D tilt + quieter sheen) + vgpu stage | Type sits on the card face. Rim, bevel, and a second plane around the type are refused |
-| Yaw / pitch | Live ~±16° / ±10° × feel knob | Enough tilt to read the face; not a flip toy; not frozen tokens |
+| Library | Thin Three.js cuboid (ExtrudeGeometry, bevel off) + CSS type overlay + vgpu stage | Type sits on the card face. The edge is the cuboid side. Rim, bevel, chrome, and a second plane around the type are refused. New shaders stay vgpu. |
+| Yaw / pitch | Live ~±16° / ±10° × feel knob | Enough tilt to read the face and the cuboid edge; not a flip toy; not frozen tokens |
 | Return | damped lerp | not a hard snap |
 | Sheen / light | Quiet wash **only while pointer is on the card face**; snap off on leave | no rest sheen, no idle center, no leftover specular, no light that sticks when the card tilts |
-| Band | none | critique killed parked highlight / band |
+| Band | none | critique killed parked highlight / band. No lanyard. |
 | Card face | solid `#000` | Figma lock; no center bloom |
-| Bezel / rim | none | no chrome edge, no outline, no second plane around the type |
-| Stage bg | vgpu ground (demo knob, default `#000`) + TL grey + quiet pointer cloud | behind the card; not on the card face, type, or mark |
-| Flip | Physical `rotateY` on the card as one object. Reduced: swap, no turn | Back on the wordmark, Front on the identity face. Text is the button |
+| Bezel / rim | none | no chrome edge, no outline, no second plane around the type. Thickness is the cuboid side. |
+| Stage bg | vgpu ground (demo **Background** knob, default `#000`) + TL grey + quiet pointer cloud | behind the card; not on the card face, type, or mark |
+| Flip | One 180° turn on the cuboid, then settle (520ms, product state). Reduced: swap, no turn | Back on the wordmark, Front on the identity face. Text is the button. Swap type is black. No extra spin, no loop, no fade. |
 | Mark | Bloub engine, capsule + bleu, **one curl per page load** then pointer gaze | Catalog once; do not replay; clamp gaze inside capsule |
 
 ## Acceptance criteria
@@ -66,8 +66,8 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 - [ ] Product does not import demo chrome or `--lab-*` as its look
 - [ ] Reduced motion: no tilt, no sheen, bg still (black + TL grey), mark planted `neutre`, no curl or pointer chase, face swap without 3D flip
 - [ ] Card face is solid `#000`. Stage is vgpu (ground + TL grey + pointer cloud). Capsule bleu `#3b93f0` on **Back v1**. Wordmark on Front v1.
-- [ ] Ground color is a demo knob (default `#000000`) and never sits on the card. Changing it does not tint the card fill, type, or mark.
-- [ ] Front / Back turns the card over as one object. Reduced motion swaps without the turn.
+- [ ] Ground / Background color is a demo knob (default `#000000`) and never sits on the card. Changing it does not tint the card fill, type, or mark.
+- [ ] Front / Back turns the cuboid once to the other face and settles. Reduced motion swaps without the turn. Swap type is black.
 - [ ] Product type stack names UniversalSansGrokTest Display Trial (no Geist/Inter substitute; Display file only, not Text Trial)
 - [ ] Component exported from `lab/src/components/projects/display/maser-bot-card/index.ts`
 

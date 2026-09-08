@@ -177,10 +177,10 @@ export function MaserBotCardDemo() {
               onChange={setBgIntensity}
             />
           </LabControlGroup>
-          <LabControlGroup label="Ground">
+          <LabControlGroup label="Background">
             <LabColor
-              id="mbc-ground"
-              label="Ground"
+              id="mbc-background"
+              label="Background"
               value={groundColor}
               onChange={setGroundColor}
             />
