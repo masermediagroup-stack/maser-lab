@@ -78,7 +78,7 @@ export type DallasMeetupWallpaperProps = {
   onFrameTime?: (seconds: number) => void;
   loopSeconds?: number;
   whipSeconds?: number;
-  /** Bump to restart the 8s clock (Replay while already playing). */
+  /** Bump to restart the loop clock (Replay while already playing). */
   resetNonce?: number;
   headlineText?: string;
   upNextText?: string;

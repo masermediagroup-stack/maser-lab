@@ -8,6 +8,7 @@ import {
   SETTLE_SECONDS,
   WHIP_BAND_IN,
   WHIP_BAND_LEAVE,
+  WHIP_MAX_SECONDS,
   cursorWhipRad,
   kickEase,
   kickWobbleRad,
@@ -29,13 +30,13 @@ const marksSrc = readFileSync(
 );
 
 describe("look-lock motion", () => {
-  it("names an 8s cycle with 6.4s rest, 0.6s whip, 1s settle — loop stays 8s", () => {
-    expect(DEFAULT_LOOP_SECONDS).toBe(8);
-    expect(DEFAULT_WHIP_SECONDS).toBe(0.6);
-    expect(SETTLE_SECONDS).toBe(1);
-    expect(restSeconds(8, 0.6)).toBeCloseTo(6.4);
-    expect(settleSeconds(8, 0.6)).toBeCloseTo(1);
-    expect(restSeconds(8, 0.6) + DEFAULT_WHIP_SECONDS + SETTLE_SECONDS).toBe(8);
+  it("names a 16s default cycle with rest, whip, and settle filling the loop", () => {
+    expect(DEFAULT_LOOP_SECONDS).toBe(16);
+    expect(DEFAULT_WHIP_SECONDS).toBe(0.5);
+    expect(WHIP_MAX_SECONDS).toBe(1.2);
+    expect(restSeconds(16, 0.5)).toBeCloseTo(14.5);
+    expect(settleSeconds(16, 0.5)).toBeCloseTo(1);
+    expect(restSeconds(16, 0.5) + DEFAULT_WHIP_SECONDS + SETTLE_SECONDS).toBe(16);
   });
 
   it("labels rest / whip / settle without shrinking rest", () => {
@@ -87,16 +88,16 @@ describe("look-lock motion", () => {
   });
 
   it("wraps at full energy mid-kick then leaves before settle", () => {
-    const rest = restSeconds(8, 0.6);
-    const whip = DEFAULT_WHIP_SECONDS;
+    const whip = 0.6;
+    const rest = restSeconds(8, whip);
     const mid = rest + whip * 0.45;
     const leaving = rest + whip * (WHIP_BAND_LEAVE + 0.14);
     const late = rest + whip * 0.97;
     expect(mid).toBeGreaterThan(rest + whip * WHIP_BAND_IN);
-    expect(whipEnergy(mid, 8, 0.6, false)).toBe(1);
-    expect(whipEnergy(leaving, 8, 0.6, false)).toBeLessThan(1);
-    expect(whipEnergy(leaving, 8, 0.6, false)).toBeGreaterThan(0.02);
-    expect(whipEnergy(late, 8, 0.6, false)).toBeLessThan(0.15);
+    expect(whipEnergy(mid, 8, whip, false)).toBe(1);
+    expect(whipEnergy(leaving, 8, whip, false)).toBeLessThan(1);
+    expect(whipEnergy(leaving, 8, whip, false)).toBeGreaterThan(0.02);
+    expect(whipEnergy(late, 8, whip, false)).toBeLessThan(0.15);
   });
 
   it("does not export a globe yaw — the disc stays planted", async () => {

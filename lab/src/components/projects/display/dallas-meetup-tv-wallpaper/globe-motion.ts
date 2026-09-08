@@ -1,14 +1,16 @@
 /**
- * EPG timing lock. Loop is 8s. Do not shorten it to make the whip feel fast.
- * Super-fast means the 0.6s traveling bit is short.
+ * EPG timing. Default loop is 16s (up to 30s in demo). Default whip is 0.5s
+ * (up to 1.2s). Super-fast means the traveling bit is short — do not shorten
+ * the loop to fake speed.
  *
  * USER OVERRIDE: Idle → one kick → Idle. Body stays planted (no globe yaw).
  * Kick = SDF morph + pair-locked HEX blend + Cursor 360. Eyes may gaze/wink.
  * No nest. No ribbons on Grok. Reduced motion freezes Idle (oval + black).
  */
 
-export const DEFAULT_LOOP_SECONDS = 8;
-export const DEFAULT_WHIP_SECONDS = 0.6;
+export const DEFAULT_LOOP_SECONDS = 16;
+export const LOOP_MAX_SECONDS = 30;
+export const DEFAULT_WHIP_SECONDS = 0.5;
 /** Live preview, scrub step, and MP4/WebM export frame rate. */
 export const DALLAS_WALLPAPER_FPS = 60;
 /** Settle window after the whip. Idle hold. Same product face. */
@@ -16,7 +18,14 @@ export const SETTLE_SECONDS = 1;
 
 export type LoopBeat = "rest" | "whip" | "settle";
 export const WHIP_MIN_SECONDS = 0.5;
-export const WHIP_MAX_SECONDS = 0.7;
+export const WHIP_MAX_SECONDS = 1.2;
+
+export const LOOP_DURATION_OPTIONS = [
+  { value: "16", label: "16s (default)" },
+  { value: "20", label: "20s" },
+  { value: "24", label: "24s" },
+  { value: "30", label: "30s" },
+] as const;
 
 /** Stadium lean on the disc. User lock: slight left, not −28°. */
 export const EYE_TILT_DEG = -12;
@@ -32,7 +41,7 @@ export function clampWhipSeconds(seconds: number): number {
 }
 
 /**
- * Hard cubic ease-in-out for the 0.6s traveling revolution.
+ * Hard cubic ease-in-out for the whip revolution.
  * Steep in and out so the wrap reads, then lands face-forward.
  */
 export function kickEase(t: number): number {
@@ -77,7 +86,7 @@ export function loopBeat(
 
 /**
  * Cursor 360 whip. Never rotate the Grok disc with this.
- * One cube revolution during the 0.6s kick. 0 at rest and settle.
+ * One cube revolution during the whip. 0 at rest and settle.
  */
 export function streamPhase(
   time: number,

@@ -8,6 +8,8 @@
  * outline — so stadium geometry stays readable through the SDF blend.
  */
 
+import { DEFAULT_LOOP_SECONDS } from "./globe-motion";
+
 /** Inscribed face disc (face-radii). Every official SDF and every blend contains it. */
 export const FACE_DISC_R = 0.86;
 
@@ -104,7 +106,7 @@ const WINK_DUR = 0.16;
 const WINK_SHUT = 0.08;
 
 function loopTime(time: number, loopSeconds: number): number {
-  const loop = loopSeconds > 0 ? loopSeconds : 8;
+  const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
   if (!Number.isFinite(time)) return 0;
   return ((time % loop) + loop) % loop;
 }

@@ -19,8 +19,11 @@ import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
   DALLAS_WALLPAPER_FPS,
+  LOOP_DURATION_OPTIONS,
+  LOOP_MAX_SECONDS,
   WHIP_MAX_SECONDS,
   WHIP_MIN_SECONDS,
+  restSeconds,
 } from "./globe-motion";
 import { runDallasTypeLock } from "./type-lock";
 import "./tokens.css";
@@ -34,12 +37,7 @@ function formatSeconds(value: number) {
   return `${value.toFixed(2)}s`;
 }
 
-const LOOP_OPTIONS = [
-  { value: "8", label: "8s (default)" },
-  { value: "10", label: "10s" },
-  { value: "12", label: "12s" },
-  { value: "16", label: "16s" },
-];
+const LOOP_OPTIONS = LOOP_DURATION_OPTIONS.map((option) => ({ ...option }));
 
 export function DallasMeetupTvWallpaperDemo() {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -214,7 +212,7 @@ export function DallasMeetupTvWallpaperDemo() {
           <div>
             <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
-              Loop is 8s. Official Cursor cube (hole) + Grok picker morph
+              Loop defaults to {DEFAULT_LOOP_SECONDS}s (up to {LOOP_MAX_SECONDS}s). Official Cursor cube (hole) + Grok picker morph
               (shape owns HEX). Kick = SDF blend + Cursor 360. No nest, no
               ribbons on Grok. Geist is out.
             </p>
@@ -321,7 +319,8 @@ export function DallasMeetupTvWallpaperDemo() {
               className="w-full"
             />
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Super-fast means the whip is short. Rest stays 6.4s at the 8s loop.
+              Super-fast means the whip is short. Rest stays{" "}
+              {formatSeconds(restSeconds(loopSeconds, whipSeconds))} at the {loopSeconds}s loop.
             </p>
           </LabControlGroup>
 
