@@ -69,7 +69,6 @@
 }
 
 .maser-bot-card__scene {
-  --mbc-fit: 0.88;
   position: relative;
   z-index: 1;
   display: flex;
@@ -78,6 +77,7 @@
   justify-content: center;
   width: min(90vw, 70dvh);
   max-height: 70dvh;
+  overflow: visible;
   container-type: inline-size;
   container-name: mbc-scene;
 }
@@ -87,6 +87,7 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   flex: 0 0 auto;
+  overflow: visible;
 }
 
 .maser-bot-card__shadow {
@@ -113,23 +114,12 @@
   filter: blur(26px);
 }
 
-.maser-bot-card__object {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.maser-bot-card__object > div {
-  width: 100%;
-  height: 100%;
-}
-
 .maser-bot-card__face-layer {
   position: absolute;
-  inset: calc((1 - var(--mbc-fit, 0.88)) * 50%);
+  inset: 0;
   z-index: 2;
   pointer-events: none;
+  overflow: visible;
   perspective: 1150px;
   perspective-origin: 50% 50%;
 }
@@ -137,6 +127,7 @@
 .maser-bot-card__face-tilt {
   width: 100%;
   height: 100%;
+  overflow: visible;
   pointer-events: auto;
   transform-origin: 50% 50%;
   transform: rotateX(var(--card-pitch, 0deg)) rotateY(var(--card-yaw, 0deg));
@@ -161,7 +152,7 @@
   z-index: 1;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   border-radius: var(--mbc-radius);
   background: var(--mbc-card-bg);
   container-type: inline-size;
@@ -177,6 +168,8 @@
 .maser-bot-card__side {
   position: absolute;
   inset: 0;
+  overflow: visible;
+  border-radius: inherit;
   background: var(--mbc-card-bg);
   transition: opacity 180ms ease;
 }
@@ -245,10 +238,20 @@
   top: calc(692 / 1299 * 100%);
   width: calc(840 / 1299 * 100%);
   height: calc(512 / 1299 * 100%);
+  overflow: visible;
   text-align: left;
   font-weight: 300;
   font-size: calc(64 / 1299 * 100cqw);
+  line-height: 1.2;
+  text-wrap: pretty;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
   pointer-events: none;
+}
+
+.maser-bot-card__body-end {
+  white-space: nowrap;
 }
 
 .maser-bot-card__slot--wordmark {
@@ -270,6 +273,7 @@
   inset: 0;
   pointer-events: none;
   z-index: 3;
+  overflow: hidden;
   border-radius: inherit;
   opacity: var(--shine-on, 0);
   background: radial-gradient(

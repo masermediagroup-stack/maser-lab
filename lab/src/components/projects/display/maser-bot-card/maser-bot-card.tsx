@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { CardObject, type CardObjectPose } from "./card-object";
 import { PARKED_COPY } from "./copy";
 import { GrokBotMark, type MarkLookPointer } from "./grok-bot-mark";
 import { GrokBotWordmark } from "./grok-bot-wordmark";
@@ -12,6 +11,16 @@ import "./maser-bot-card.css";
 const YAW_DEG = 16;
 const PITCH_DEG = 10;
 const QUIET_SHEEN = 0.22;
+const TRACK_LERP = 0.18;
+const REST_LERP = 0.11;
+const CARD_FOV = 26;
+const BODY_WIDOW = "room moving.";
+
+type CardFacePose = {
+  yaw: number;
+  pitch: number;
+  tracking: boolean;
+};
 
 const REST_STAGE: StageUniforms = {
   time: 0,
@@ -22,15 +31,15 @@ const REST_STAGE: StageUniforms = {
   reduced: 1,
 };
 
-const REST_POSE: CardObjectPose = {
+const REST_POSE: CardFacePose = {
   yaw: 0,
   pitch: 0,
-  sheenX: 0.5,
-  sheenY: 0.5,
-  shineOn: 0,
-  shineA: 0,
   tracking: false,
 };
+
+function lerp(current: number, target: number, amount: number) {
+  return current + (target - current) * amount;
+}
 
 function setCardFaceLight(
   face: HTMLElement,
@@ -43,6 +52,16 @@ function setCardFaceLight(
   face.style.setProperty("--sheen-y", `${y * 100}%`);
   face.style.setProperty("--shine-a", on ? String(amount) : "0");
   face.style.setProperty("--shine-on", on ? "1" : "0");
+}
+
+function CardFaceBody({ text }: { text: string }) {
+  if (!text.endsWith(BODY_WIDOW)) return text;
+  return (
+    <>
+      {text.slice(0, -BODY_WIDOW.length)}
+      <span className="maser-bot-card__body-end">{BODY_WIDOW}</span>
+    </>
+  );
 }
 
 export function MaserBotCard({
@@ -62,7 +81,7 @@ export function MaserBotCard({
   const faceTiltRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLCanvasElement>(null);
   const stageUniformsRef = useRef<StageUniforms>(REST_STAGE);
-  const poseRef = useRef<CardObjectPose>({ ...REST_POSE });
+  const poseRef = useRef<CardFacePose>({ ...REST_POSE });
   const lookPointerRef = useRef<MarkLookPointer | null>(null);
   const reducedRef = useRef(false);
   const tiltOnRef = useRef(true);
@@ -136,6 +155,48 @@ export function MaserBotCard({
   }, []);
 
   useEffect(() => {
+    let raf = 0;
+    let yaw = 0;
+    let pitch = 0;
+
+    const tick = () => {
+      const pose = poseRef.current;
+      const rest = reducedRef.current || !pose.tracking;
+      const amount = rest ? REST_LERP : TRACK_LERP;
+      const yawTarget = reducedRef.current || !tiltOnRef.current ? 0 : pose.yaw;
+      const pitchTarget =
+        reducedRef.current || !tiltOnRef.current ? 0 : pose.pitch;
+      yaw = lerp(yaw, yawTarget, amount);
+      pitch = lerp(pitch, pitchTarget, amount);
+
+      const faceTilt = faceTiltRef.current;
+      if (faceTilt) {
+        const layer = faceTilt.parentElement;
+        if (layer) {
+          const height = faceTilt.offsetHeight;
+          if (height > 0) {
+            const persp =
+              height / (2 * Math.tan(((CARD_FOV / 2) * Math.PI) / 180));
+            layer.style.perspective = `${persp}px`;
+          }
+        }
+        faceTilt.style.setProperty("--card-pitch", `${pitch}deg`);
+        faceTilt.style.setProperty("--card-yaw", `${yaw}deg`);
+      }
+
+      const scene = sceneRef.current;
+      if (scene) {
+        scene.style.setProperty("--shadow-x", `${yaw * 1.15}px`);
+      }
+
+      raf = window.requestAnimationFrame(tick);
+    };
+
+    raf = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(raf);
+  }, []);
+
+  useEffect(() => {
     const onWinPointerMove = (event: globalThis.PointerEvent) => {
       if (reducedRef.current) return;
       lookPointerRef.current = {
@@ -169,8 +230,6 @@ export function MaserBotCard({
     poseRef.current.tracking = false;
     poseRef.current.yaw = 0;
     poseRef.current.pitch = 0;
-    poseRef.current.shineOn = 0;
-    poseRef.current.shineA = 0;
     const faceEl = faceRef.current;
     if (faceEl) setCardFaceLight(faceEl, false, 0.5, 0.5, 0);
   }
@@ -209,15 +268,9 @@ export function MaserBotCard({
       1,
       Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1)),
     );
-    poseRef.current.sheenX = nx;
-    poseRef.current.sheenY = ny;
     if (shineOnRef.current) {
-      poseRef.current.shineOn = 1;
-      poseRef.current.shineA = intensityRef.current;
       setCardFaceLight(faceEl, true, nx, ny, intensityRef.current);
     } else {
-      poseRef.current.shineOn = 0;
-      poseRef.current.shineA = 0;
       setCardFaceLight(faceEl, false, nx, ny, 0);
     }
     if (!tiltOnRef.current) {
@@ -275,45 +328,6 @@ export function MaserBotCard({
   const otherFace: MaserBotCardFace = face === "front" ? "back" : "front";
   const flipLabel = face === "front" ? "Back" : "Front";
 
-  const cardFace = (
-    <div
-      ref={faceRef}
-      className="maser-bot-card__face"
-      onPointerEnter={onCardEnter}
-      onPointerMove={onCardMove}
-      onPointerLeave={onCardLeave}
-      onPointerCancel={killCardLight}
-    >
-      <div className="maser-bot-card__flip">
-        <div className="maser-bot-card__side maser-bot-card__side--front">
-          <div className="maser-bot-card__slot maser-bot-card__slot--wordmark">
-            <GrokBotWordmark className="maser-bot-card__wordmark" />
-          </div>
-        </div>
-        <div className="maser-bot-card__side maser-bot-card__side--back">
-          <div className="maser-bot-card__slot maser-bot-card__slot--mark">
-            <GrokBotMark
-              reduced={reduced}
-              followLook={!reduced}
-              lookPointerRef={lookPointerRef}
-              className="maser-bot-card__mark"
-            />
-          </div>
-          <p className="maser-bot-card__slot maser-bot-card__slot--name">
-            {PARKED_COPY.name}
-          </p>
-          <p className="maser-bot-card__slot maser-bot-card__slot--role">
-            {PARKED_COPY.role}
-          </p>
-          <p className="maser-bot-card__slot maser-bot-card__slot--bio">
-            {PARKED_COPY.body}
-          </p>
-        </div>
-      </div>
-      <div className="maser-bot-card__sheen" aria-hidden />
-    </div>
-  );
-
   return (
     <article
       className={["maser-bot-card", className].filter(Boolean).join(" ")}
@@ -339,15 +353,44 @@ export function MaserBotCard({
       <div ref={sceneRef} className="maser-bot-card__scene">
         <div className="maser-bot-card__card-stack">
           <div className="maser-bot-card__shadow" aria-hidden />
-          <CardObject
-            poseRef={poseRef}
-            reduced={reduced}
-            shadowRef={sceneRef}
-            faceTiltRef={faceTiltRef}
-          />
           <div className="maser-bot-card__face-layer">
             <div ref={faceTiltRef} className="maser-bot-card__face-tilt">
-              {cardFace}
+              <div
+                ref={faceRef}
+                className="maser-bot-card__face"
+                onPointerEnter={onCardEnter}
+                onPointerMove={onCardMove}
+                onPointerLeave={onCardLeave}
+                onPointerCancel={killCardLight}
+              >
+                <div className="maser-bot-card__flip">
+                  <div className="maser-bot-card__side maser-bot-card__side--front">
+                    <div className="maser-bot-card__slot maser-bot-card__slot--wordmark">
+                      <GrokBotWordmark className="maser-bot-card__wordmark" />
+                    </div>
+                  </div>
+                  <div className="maser-bot-card__side maser-bot-card__side--back">
+                    <div className="maser-bot-card__slot maser-bot-card__slot--mark">
+                      <GrokBotMark
+                        reduced={reduced}
+                        followLook={!reduced}
+                        lookPointerRef={lookPointerRef}
+                        className="maser-bot-card__mark"
+                      />
+                    </div>
+                    <p className="maser-bot-card__slot maser-bot-card__slot--name">
+                      {PARKED_COPY.name}
+                    </p>
+                    <p className="maser-bot-card__slot maser-bot-card__slot--role">
+                      {PARKED_COPY.role}
+                    </p>
+                    <p className="maser-bot-card__slot maser-bot-card__slot--bio">
+                      <CardFaceBody text={PARKED_COPY.body} />
+                    </p>
+                  </div>
+                </div>
+                <div className="maser-bot-card__sheen" aria-hidden />
+              </div>
             </div>
           </div>
         </div>

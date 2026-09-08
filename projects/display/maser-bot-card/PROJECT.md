@@ -10,7 +10,7 @@
 
 - Figma file: **GrokBot-Loop-DemoCard**. Front v1 `1:20` (mark-forward). Back v1 `1:2` (identity). Wordmark `1:22`. Artboard 1299×1299. v2/v3/Assets parked.
 - Other: steal Zoah **pose + specular + slab-edge feel** only. Refuse Zoah skin, landscape, dither on the card face, embossed type.
-- Build: One Three.js card object (extruded rounded rect physical edge). Type sits on a card-face overlay that reads the same pose in the same frame loop so face, bezel, rim, and sheen move together. Quiet pointer sheen on a solid `#000` card face. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card.
+- Build: One card face. Type sits on that face. Tilt and quieter sheen live on the same face. No outline rim, no bevel, no chrome edge, no second plane around the type. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card.
 
 ## Brief
 
@@ -21,13 +21,13 @@ Dallas meetup stage: pointer over a single 1299-square card; explicit Back / Fro
 Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + quieter sheen. Stage stays behind the card.
 
 ### Current behavior
-1299 square card face, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable flip. One Three.js object for tilt + physical edge + quieter sheen. vgpu black + TL grey + pointer cloud on the stage field.
+1299 square card face, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable flip below the card. Type sits on the card face; tilt + quieter sheen on that face. No rim, no bevel. vgpu black + TL grey + pointer cloud on the stage field.
 
 ### Desired outcome
 Match Figma boxes at `n / 1299`. Keep live tilt/sheen and stage field. Do not bake the stage shader into the card face.
 
 ### Success signal
-`/demos/maser-bot-card` matches the Figma static, then tilts with a thin slab edge. Flip is keyboardable. Reduced motion: no tilt, no shine chase, still stage, mark first frame still.
+`/demos/maser-bot-card` matches the Figma static, then tilts as one card face. Flip is keyboardable. Reduced motion: no tilt, no shine chase, still stage, mark first frame still.
 
 ### Non-goals
 Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Full `defaultCycle`. Geist/Inter on the product. Maser blue on the capsule. Rewriting body copy. Dither on the card face. Loading Text Trial faces.
@@ -46,13 +46,13 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | Three.js card object (extruded rounded rect + kinetic-bars edge strokes) + shared-pose face overlay; vgpu stage | Figma card face must stay `#000`; stacked CSS bezels broke tilt/shine; drei Html CSS3D failed hit-test |
-| Yaw / pitch | Live ~±16° / ±10° × feel knob | Enough tilt to read the thin physical edge; not a flip toy; not frozen tokens |
+| Library | One card face (CSS 3D tilt + quieter sheen) + vgpu stage | Type sits on the card face. Rim, bevel, and a second plane around the type are refused |
+| Yaw / pitch | Live ~±16° / ±10° × feel knob | Enough tilt to read the face; not a flip toy; not frozen tokens |
 | Return | damped lerp | not a hard snap |
 | Sheen / light | Quiet wash **only while pointer is on the card face**; snap off on leave | no rest sheen, no idle center, no leftover specular, no light that sticks when the card tilts |
 | Band | none | critique killed parked highlight / band |
 | Card face | solid `#000` | Figma lock; no center bloom |
-| Bezel | Three.js ExtrudeGeometry + edge strokes (one group) | physical object; not stacked CSS planes; Figma radius 80 holds on a thin card |
+| Bezel / rim | none | no chrome edge, no outline, no second plane around the type |
 | Stage bg | vgpu black + TL grey + quiet pointer cloud | behind the card; not Bayer wave; not on the card face |
 | Mark | Bloub engine, capsule + bleu, **one curl per page load** then pointer gaze | Catalog once; do not replay; clamp gaze inside capsule |
 
