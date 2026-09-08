@@ -73,14 +73,13 @@ export function MaserBotCard({
   const bgIntensityRef = useRef(bgIntensity);
 
   const [osReduced, setOsReduced] = useState(false);
-  const [finePointer, setFinePointer] = useState(false);
   const [gpuPainted, setGpuPainted] = useState(false);
   const [uncontrolledFace, setUncontrolledFace] =
     useState<MaserBotCardFace>("front");
 
   const face = faceProp ?? uncontrolledFace;
   const reduced = forceReducedMotion || osReduced;
-  const tiltOn = tiltEnabled && !reduced && finePointer;
+  const tiltOn = tiltEnabled && !reduced;
   const shineOn = shineEnabled && !reduced;
   const bgInteractive = bgMode === "interactive" && !reduced;
 
@@ -116,17 +115,13 @@ export function MaserBotCard({
 
   useEffect(() => {
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const sync = () => {
       setOsReduced(motion.matches);
-      setFinePointer(pointer.matches);
     };
     sync();
     motion.addEventListener("change", sync);
-    pointer.addEventListener("change", sync);
     return () => {
       motion.removeEventListener("change", sync);
-      pointer.removeEventListener("change", sync);
     };
   }, []);
 
@@ -299,7 +294,7 @@ export function MaserBotCard({
           <div className="maser-bot-card__slot maser-bot-card__slot--mark">
             <GrokBotMark
               reduced={reduced}
-              followLook={!reduced && finePointer}
+              followLook={!reduced}
               lookPointerRef={lookPointerRef}
               className="maser-bot-card__mark"
             />
