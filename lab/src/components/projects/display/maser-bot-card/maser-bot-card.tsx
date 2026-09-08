@@ -8,11 +8,11 @@ import { startStage, type StageUniforms } from "./start-stage";
 import type { MaserBotCardFace, MaserBotCardProps } from "./types";
 import "./maser-bot-card.css";
 
-const YAW_DEG = 8;
-const PITCH_DEG = 5;
-const TRACK_LERP = 0.16;
-const REST_LERP = 0.09;
-const QUIET_SHEEN = 0.28;
+const YAW_DEG = 16;
+const PITCH_DEG = 10;
+const TRACK_LERP = 0.18;
+const REST_LERP = 0.11;
+const QUIET_SHEEN = 0.22;
 
 const REST_STAGE: StageUniforms = {
   time: 0,
@@ -59,6 +59,7 @@ export function MaserBotCard({
   className,
 }: MaserBotCardProps) {
   const rootRef = useRef<HTMLElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
   const slabRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLCanvasElement>(null);
   const stageUniformsRef = useRef<StageUniforms>(REST_STAGE);
@@ -161,6 +162,10 @@ export function MaserBotCard({
 
       slab.style.setProperty("--yaw", `${yawRef.current}deg`);
       slab.style.setProperty("--pitch", `${pitchRef.current}deg`);
+      const scene = sceneRef.current;
+      if (scene) {
+        scene.style.setProperty("--shadow-x", `${yawRef.current * 1.15}px`);
+      }
 
       const sheenLive =
         trackingRef.current && shineOnRef.current && !reducedRef.current;
@@ -203,7 +208,7 @@ export function MaserBotCard({
     targetYawRef.current = 0;
     targetPitchRef.current = 0;
     const slab = slabRef.current;
-    if (slab) setCardFaceLight(slab, false, sheenXRef.current, sheenYRef.current, 0);
+    if (slab) setCardFaceLight(slab, false, 0.5, 0.5, 0);
   }
 
   function onCardEnter() {
@@ -275,7 +280,7 @@ export function MaserBotCard({
       >
         <canvas ref={stageRef} className="maser-bot-card__stage" />
       </div>
-      <div className="maser-bot-card__scene">
+      <div ref={sceneRef} className="maser-bot-card__scene">
         <div className="maser-bot-card__shadow" aria-hidden />
         <div
           ref={slabRef}
@@ -285,6 +290,7 @@ export function MaserBotCard({
           onPointerLeave={killCardLight}
           onPointerCancel={killCardLight}
         >
+          <div className="maser-bot-card__core" aria-hidden />
           <div className="maser-bot-card__bezel maser-bot-card__bezel--top" aria-hidden />
           <div className="maser-bot-card__bezel maser-bot-card__bezel--right" aria-hidden />
           <div className="maser-bot-card__bezel maser-bot-card__bezel--bottom" aria-hidden />

@@ -47,7 +47,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 | Decision | Choice | Rationale |
 | --- | --- | --- |
 | Library | CSS 3D pose + CSS sheen; vgpu stage | Figma card face must stay `#000` |
-| Yaw / pitch | ~±8° / ±5° × feel knob | Stage prop; live timing, not tokens |
+| Yaw / pitch | Live ~±16° / ±10° × feel knob | Enough tilt to read the thin slab edge; not a flip toy; not frozen tokens |
 | Return | damped lerp | not a hard snap |
 | Sheen / light | Quiet CSS wash **only while pointer is on the card face**; snap off on leave | no rest sheen, no idle center, no leftover specular |
 | Band | none | critique killed parked highlight / band |

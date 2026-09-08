@@ -22,13 +22,14 @@
   --mbc-card-bg: #000000;
   --mbc-text: #ffffff;
   --mbc-radius: calc(80 / 1299 * 100cqw);
+  --shadow-x: 0px;
   position: relative;
   display: grid;
   place-items: center;
   width: 100%;
   height: 100%;
   isolation: isolate;
-  perspective: 64rem;
+  perspective: 42rem;
   color: var(--mbc-text);
   font-family: "UniversalSansGrokTest Display Trial";
 }
@@ -69,7 +70,7 @@
 }
 
 .maser-bot-card__scene {
-  --mbc-depth: 14px;
+  --mbc-depth: 28px;
   position: relative;
   z-index: 1;
   display: flex;
@@ -84,18 +85,25 @@
 .maser-bot-card__shadow {
   position: absolute;
   z-index: 0;
-  width: 78%;
-  height: 12%;
-  left: 11%;
-  bottom: 2.75rem;
+  width: 84%;
+  height: 22%;
+  left: 8%;
+  bottom: 1.35rem;
   pointer-events: none;
-  background: radial-gradient(
-    ellipse at center,
-    rgb(0 0 0 / 0.72) 0%,
-    rgb(0 0 0 / 0.28) 42%,
-    transparent 72%
-  );
-  filter: blur(18px);
+  transform: translate3d(var(--shadow-x, 0px), 10px, 0);
+  background:
+    radial-gradient(
+      ellipse at 50% 38%,
+      rgb(0 0 0 / 0.92) 0%,
+      rgb(0 0 0 / 0.45) 38%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse at 50% 58%,
+      rgb(52 52 52 / 0.38) 0%,
+      transparent 74%
+    );
+  filter: blur(26px);
 }
 
 .maser-bot-card__slab {
@@ -105,10 +113,10 @@
   --sheen-y: 50%;
   --rim-x: 0.5;
   --rim-y: 0.5;
-  --rim-l: 0.5;
-  --rim-r: 0.5;
-  --rim-t: 0.5;
-  --rim-b: 0.5;
+  --rim-l: 0;
+  --rim-r: 0;
+  --rim-t: 0;
+  --rim-b: 0;
   --shine-a: 0;
   --shine-on: 0;
   position: relative;
@@ -117,44 +125,53 @@
   aspect-ratio: 1 / 1;
   width: 100%;
   max-height: 70dvh;
+  container-type: size;
+  container-name: mbc-slab;
   transform-style: preserve-3d;
   transform: rotateX(var(--pitch, 0deg)) rotateY(var(--yaw, 0deg));
   will-change: transform;
 }
 
+.maser-bot-card__core {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: var(--mbc-radius);
+  background: #080808;
+  transform: translateZ(calc(var(--mbc-depth) / -2));
+}
+
 .maser-bot-card__bezel {
   position: absolute;
   pointer-events: none;
-  background: #101010;
+  background: #0c0c0c;
 }
 
 .maser-bot-card__bezel--left {
   width: var(--mbc-depth);
   height: 100%;
-  left: 0;
+  left: 50%;
   top: 0;
-  transform-origin: left center;
-  transform: rotateY(-90deg);
+  transform: translateX(-50%) rotateY(-90deg) translateZ(50cqi);
   background: linear-gradient(
-    90deg,
-    rgb(255 255 255 / calc(var(--shine-on, 0) * var(--rim-l, 0) * 0.38)) 0%,
-    #1a1a1a 18%,
-    #0a0a0a 100%
+    to right,
+    #050505 0%,
+    #121212 55%,
+    rgb(232 236 245 / calc(0.12 + var(--shine-on, 0) * var(--rim-l, 0) * 0.7)) 100%
   );
 }
 
 .maser-bot-card__bezel--right {
   width: var(--mbc-depth);
   height: 100%;
-  right: 0;
+  left: 50%;
   top: 0;
-  transform-origin: right center;
-  transform: rotateY(90deg);
+  transform: translateX(-50%) rotateY(90deg) translateZ(50cqi);
   background: linear-gradient(
-    270deg,
-    rgb(255 255 255 / calc(var(--shine-on, 0) * var(--rim-r, 0) * 0.38)) 0%,
-    #1a1a1a 18%,
-    #0a0a0a 100%
+    to left,
+    #050505 0%,
+    #121212 55%,
+    rgb(232 236 245 / calc(0.12 + var(--shine-on, 0) * var(--rim-r, 0) * 0.7)) 100%
   );
 }
 
@@ -162,14 +179,13 @@
   width: 100%;
   height: var(--mbc-depth);
   left: 0;
-  top: 0;
-  transform-origin: center top;
-  transform: rotateX(90deg);
+  top: 50%;
+  transform: translateY(-50%) rotateX(90deg) translateZ(50cqb);
   background: linear-gradient(
-    180deg,
-    rgb(255 255 255 / calc(var(--shine-on, 0) * var(--rim-t, 0) * 0.38)) 0%,
-    #1a1a1a 18%,
-    #0a0a0a 100%
+    to bottom,
+    #050505 0%,
+    #121212 55%,
+    rgb(232 236 245 / calc(0.12 + var(--shine-on, 0) * var(--rim-t, 0) * 0.7)) 100%
   );
 }
 
@@ -177,14 +193,13 @@
   width: 100%;
   height: var(--mbc-depth);
   left: 0;
-  bottom: 0;
-  transform-origin: center bottom;
-  transform: rotateX(-90deg);
+  top: 50%;
+  transform: translateY(-50%) rotateX(-90deg) translateZ(50cqb);
   background: linear-gradient(
-    0deg,
-    rgb(255 255 255 / calc(var(--shine-on, 0) * var(--rim-b, 0) * 0.38)) 0%,
-    #1a1a1a 18%,
-    #0a0a0a 100%
+    to top,
+    #050505 0%,
+    #121212 55%,
+    rgb(232 236 245 / calc(0.12 + var(--shine-on, 0) * var(--rim-b, 0) * 0.7)) 100%
   );
 }
 
@@ -312,9 +327,10 @@
   border-radius: inherit;
   opacity: var(--shine-on, 0);
   box-shadow: inset
-    calc((var(--rim-x, 0.5) - 0.5) * -22px)
-    calc((var(--rim-y, 0.5) - 0.5) * -22px)
-    0 1px rgb(255 255 255 / 0.28);
+    calc((var(--rim-x, 0.5) - 0.5) * -36px)
+    calc((var(--rim-y, 0.5) - 0.5) * -36px)
+    0 1px rgb(232 236 245 / 0.62);
+  transition: none;
 }
 
 .maser-bot-card__sheen {
@@ -325,11 +341,12 @@
   border-radius: inherit;
   opacity: var(--shine-on, 0);
   background: radial-gradient(
-    ellipse 38% 30% at var(--sheen-x, 50%) var(--sheen-y, 50%),
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.32)) 0%,
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.1)) 28%,
-    transparent 58%
+    ellipse 118% 78% at var(--sheen-x, 50%) var(--sheen-y, 50%),
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.16)) 0%,
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.055)) 38%,
+    transparent 72%
   );
+  transition: none;
 }
 
 .maser-bot-card__flip-control {
@@ -365,7 +382,8 @@
   transform: none;
 }
 
-.maser-bot-card[data-reduced="true"] .maser-bot-card__bezel {
+.maser-bot-card[data-reduced="true"] .maser-bot-card__bezel,
+.maser-bot-card[data-reduced="true"] .maser-bot-card__core {
   display: none;
 }
 

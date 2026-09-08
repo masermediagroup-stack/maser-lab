@@ -182,10 +182,10 @@ Refuse Zoah embossed / iridescent type treatment. Our type is flat UniversalSans
 
 Steal:
 
-- Pointer X → yaw, Y → pitch. Restrained feel (~±8° yaw / ±5° pitch) — stage prop, not a flip toy. Live-time on the preview; do not freeze these as product tokens until Figma + timing.
+- Pointer X → yaw, Y → pitch. Live feel (~±16° yaw / ±10° pitch) so the thin slab edge reads on tilt — stage prop, not a flip toy. Do not freeze these as product tokens until Figma + timing.
 - Ease back to rest with a damped return (spring/lerp feel).
 - Sheen is a broad specular wash steered by pointer, plus a rim highlight that counter-shifts. Not a single CSS diagonal streak alone.
-- Thickness / rim read on the plate while tilting.
+- Thickness / rim read on the **card face** while tilting.
 
 Refuse (confirmed):
 
@@ -228,7 +228,7 @@ Surfaces (until Figma tokens):
 
 Portrait / square stays. Front copy parked verbatim. Mark animation is locked in the section below — not optional later.
 
-**Superseded 2026-09-08** by the Figma static lock, then critique: plate is solid `#000` CSS. No idle light. Pointer sheen only while on the plate. **vgpu is the stage field** (TL grey + pointer cloud), not the plate and not the old dither wave.
+**Superseded 2026-09-08** by the Figma static lock, then critique: the **card face** is solid `#000` CSS. No idle light. Pointer sheen only while on the card face. **vgpu is the stage field** (TL grey + pointer cloud), not the card face and not the old dither wave.
 
 ## Mark animation (locked 2026-09-06 — Grok meetup capsule)
 
@@ -265,7 +265,7 @@ Say **card face**, not plate.
 - Back v1 mark slot: 272×162 at x 100, y 142. Live capsule, stock bleu, same curl. Size and place to that box. Do not float it.
 - Card face: solid `#000000`. Kill idle center light. No rest sheen, parked highlight, or center bloom.
 - Pointer light: keep tilt + a quieter sheen only while the pointer is on the card. On leave, including a fast swipe off the card, the light dies clean. No stuck glow, no flash, no leftover specular. Reduced motion: no sheen at all.
-- Physical craft (Zoah videos / zoah.com founding-card as **feel** only): thin CSS 3D bezel around the square portrait; rim highlight on the near edge; soft contact shadow. Face stays black. Type stays flat Display Trial. Not landscape. Not purple. Not member chrome. Not Zoah dither on the card face. Do not put the card face on WebGL.
+- Physical craft (Zoah videos / zoah.com founding-card as **feel** only): CSS 3D thin slab bezel around the square portrait (`preserve-3d` side faces). When it tilts, the edge is visible. A thin cool-white rim highlight rides the near edge with the pointer. Soft contact shadow under the card so it sits in the room. Face stays black. Type stays flat Display Trial — not embossed, not metallic. Not landscape. Not purple. Not member chrome. Not Zoah dither on the card face. Do not put the card face on WebGL.
 - Stage behind the card, not on the card face and not on the type: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor shader (vgpu). Not the old dither wave. Pointer moves the card, not a wallpaper.
 - Copy stays verbatim. Flip control stays.
 
