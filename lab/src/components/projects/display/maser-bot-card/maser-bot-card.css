@@ -20,6 +20,7 @@
 .maser-bot-card {
   --mbc-art: 1299;
   --mbc-card-bg: #000000;
+  --mbc-ground: #000000;
   --mbc-text: #ffffff;
   --mbc-radius: calc(80 / 1299 * 100%);
   --shadow-x: 0px;
@@ -41,7 +42,7 @@
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  background: #000000;
+  background-color: var(--mbc-ground, #000000);
 }
 
 .maser-bot-card__stage {
@@ -53,21 +54,22 @@
 }
 
 .maser-bot-card[data-gpu="pending"] .maser-bot-card__bg {
-  background-color: #000000;
+  background-color: var(--mbc-ground, #000000);
   background-image: radial-gradient(
     80% 70% at 0% 0%,
-    #2a2a2a 0%,
-    #000000 62%
+    rgb(42 42 42 / 0.85) 0%,
+    transparent 62%
   );
 }
 
 .maser-bot-card[data-gpu="painting"] .maser-bot-card__bg {
   background-image: none;
+  background-color: var(--mbc-ground, #000000);
 }
 
 .maser-bot-card[data-reduced="true"] .maser-bot-card__bg {
   background-image: none;
-  background-color: #000000;
+  background-color: var(--mbc-ground, #000000);
 }
 
 .maser-bot-card__scene {
@@ -158,7 +160,7 @@
   height: 100%;
   overflow: visible;
   border-radius: var(--mbc-radius);
-  background: var(--mbc-card-bg);
+  transform-style: preserve-3d;
   container-type: inline-size;
   container-name: mbc-face;
 }
@@ -167,21 +169,32 @@
   position: relative;
   width: 100%;
   height: 100%;
+  transform-origin: 50% 50%;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.maser-bot-card[data-face="back"] .maser-bot-card__flip {
+  transform: rotateY(180deg);
 }
 
 .maser-bot-card__side {
   position: absolute;
   inset: 0;
   overflow: visible;
-  border-radius: inherit;
+  border-radius: var(--mbc-radius);
   background: var(--mbc-card-bg);
-  transition: opacity 180ms ease;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.maser-bot-card__side--front {
+  transform: rotateY(0deg) translateZ(0.5px);
 }
 
 .maser-bot-card__side--back {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+  transform: rotateY(180deg);
 }
 
 .maser-bot-card__slot {
@@ -319,22 +332,70 @@
   text-underline-offset: 0.22em;
 }
 
-.maser-bot-card[data-face="back"] .maser-bot-card__side--front {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.maser-bot-card[data-face="back"] .maser-bot-card__side--back {
-  opacity: 1;
-  visibility: visible;
-}
-
 .maser-bot-card[data-reduced="true"] .maser-bot-card__sheen,
 .maser-bot-card[data-shine="false"] .maser-bot-card__sheen {
   opacity: 0;
 }
 
-.maser-bot-card[data-reduced="true"] .maser-bot-card__side {
+.maser-bot-card[data-reduced="true"] .maser-bot-card__flip {
+  transform: none;
   transition: none;
+}
+
+.maser-bot-card[data-reduced="true"] .maser-bot-card__side {
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+  transform: none;
+  transition: none;
+}
+
+.maser-bot-card[data-reduced="true"] .maser-bot-card__side--back {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.maser-bot-card[data-reduced="true"][data-face="back"] .maser-bot-card__side--front {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.maser-bot-card[data-reduced="true"][data-face="back"] .maser-bot-card__side--back {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maser-bot-card .maser-bot-card__flip,
+  .maser-bot-card[data-face="back"] .maser-bot-card__flip {
+    transform: none;
+    transition: none;
+  }
+
+  .maser-bot-card__side {
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    transform: none;
+    transition: none;
+  }
+
+  .maser-bot-card__side--back {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .maser-bot-card[data-face="back"] .maser-bot-card__side--front {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .maser-bot-card[data-face="back"] .maser-bot-card__side--back {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
 }

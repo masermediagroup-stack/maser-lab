@@ -5,6 +5,7 @@ import {
   DemoBackButton,
   DemoControlMenu,
   LabButton,
+  LabColor,
   LabControlGroup,
   LabRange,
   ReducedMotionToggle,
@@ -20,6 +21,7 @@ export function MaserBotCardDemo() {
   const [face, setFace] = useState<MaserBotCardFace>("front");
   const [bgMode, setBgMode] = useState<MaserBotCardBgMode>("interactive");
   const [bgIntensity, setBgIntensity] = useState(0.35);
+  const [groundColor, setGroundColor] = useState("#000000");
   const [reduced, setReduced] = useState(false);
   const [present, setPresent] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
@@ -57,6 +59,7 @@ export function MaserBotCardDemo() {
       onFaceChange={setFace}
       bgMode={bgMode}
       bgIntensity={bgIntensity}
+      groundColor={groundColor}
       forceReducedMotion={reduced}
     />
   );
@@ -172,6 +175,14 @@ export function MaserBotCardDemo() {
               value={bgIntensity}
               display={bgIntensity.toFixed(2)}
               onChange={setBgIntensity}
+            />
+          </LabControlGroup>
+          <LabControlGroup label="Ground">
+            <LabColor
+              id="mbc-ground"
+              label="Ground"
+              value={groundColor}
+              onChange={setGroundColor}
             />
           </LabControlGroup>
         </DemoControlMenu>

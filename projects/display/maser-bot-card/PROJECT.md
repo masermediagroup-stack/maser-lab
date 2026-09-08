@@ -21,7 +21,7 @@ Dallas meetup stage: pointer over a single 1299-square card; explicit Back / Fro
 Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + quieter sheen. Stage stays behind the card.
 
 ### Current behavior
-1299 square card face, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable Back / Front text below the card, fully clear of the Figma body (type ends at y 1204). Type sits on the card face; tilt + quieter sheen on that face. No rim, no bevel. vgpu black + TL grey + pointer cloud on the stage field.
+1299 square card face, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable Back / Front text below the card, fully clear of the Figma body (type ends at y 1204). Clicking Back / Front turns the card over as one object (reduced: swap, no turn). Type sits on the card face; tilt + quieter sheen on that face. No rim, no bevel. vgpu ground (default `#000`) + TL grey + pointer cloud on the stage field. Ground color is a demo knob only — it does not paint the card face, type, or mark.
 
 ### Desired outcome
 Match Figma boxes at `n / 1299`. Keep live tilt/sheen and stage field. Do not bake the stage shader into the card face.
@@ -53,7 +53,8 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 | Band | none | critique killed parked highlight / band |
 | Card face | solid `#000` | Figma lock; no center bloom |
 | Bezel / rim | none | no chrome edge, no outline, no second plane around the type |
-| Stage bg | vgpu black + TL grey + quiet pointer cloud | behind the card; not Bayer wave; not on the card face |
+| Stage bg | vgpu ground (demo knob, default `#000`) + TL grey + quiet pointer cloud | behind the card; not on the card face, type, or mark |
+| Flip | Physical `rotateY` on the card as one object. Reduced: swap, no turn | Back on the wordmark, Front on the identity face. Text is the button |
 | Mark | Bloub engine, capsule + bleu, **one curl per page load** then pointer gaze | Catalog once; do not replay; clamp gaze inside capsule |
 
 ## Acceptance criteria
@@ -64,7 +65,9 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 - [ ] Locked copy typeset in Figma boxes, verbatim
 - [ ] Product does not import demo chrome or `--lab-*` as its look
 - [ ] Reduced motion: no tilt, no sheen, bg still (black + TL grey), mark planted `neutre`, no curl or pointer chase, face swap without 3D flip
-- [ ] Card face is solid `#000`. Stage is vgpu (TL grey + pointer cloud). Capsule bleu `#3b93f0` on **Back v1**. Wordmark on Front v1.
+- [ ] Card face is solid `#000`. Stage is vgpu (ground + TL grey + pointer cloud). Capsule bleu `#3b93f0` on **Back v1**. Wordmark on Front v1.
+- [ ] Ground color is a demo knob (default `#000000`) and never sits on the card. Changing it does not tint the card fill, type, or mark.
+- [ ] Front / Back turns the card over as one object. Reduced motion swaps without the turn.
 - [ ] Product type stack names UniversalSansGrokTest Display Trial (no Geist/Inter substitute; Display file only, not Text Trial)
 - [ ] Component exported from `lab/src/components/projects/display/maser-bot-card/index.ts`
 

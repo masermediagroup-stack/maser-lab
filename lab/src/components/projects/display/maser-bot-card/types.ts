@@ -12,6 +12,8 @@ export type MaserBotCardProps = {
   /** Stage field (vgpu). Card face stays solid #000. */
   bgMode?: MaserBotCardBgMode;
   bgIntensity?: number;
+  /** Stage ground only. Card fill stays #000. Default `#000000`. */
+  groundColor?: string;
   forceReducedMotion?: boolean;
   className?: string;
 };

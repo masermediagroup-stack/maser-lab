@@ -5,6 +5,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type CSSProperties,
   type PointerEvent,
 } from "react";
 import { PARKED_COPY } from "./copy";
@@ -26,6 +27,26 @@ const FIGMA_TYPE_END = 1204;
 const FIGMA_ART = 1299;
 /** Air under the last body line / Figma type end before Back / Front. */
 const FLIP_CLEAR_PX = 64;
+const DEFAULT_GROUND = "#000000";
+
+function cssGround(hex: string): string {
+  const raw = hex.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(raw)) return raw;
+  if (/^#[0-9a-fA-F]{3}$/.test(raw)) {
+    const h = raw.slice(1);
+    return `#${h[0]}${h[0]}${h[1]}${h[1]}${h[2]}${h[2]}`;
+  }
+  return DEFAULT_GROUND;
+}
+
+function hexToRgb01(hex: string): [number, number, number] {
+  const value = cssGround(hex).slice(1);
+  return [
+    Number.parseInt(value.slice(0, 2), 16) / 255,
+    Number.parseInt(value.slice(2, 4), 16) / 255,
+    Number.parseInt(value.slice(4, 6), 16) / 255,
+  ];
+}
 
 function syncFlipGap(
   scene: HTMLElement | null,
@@ -62,6 +83,9 @@ const REST_STAGE: StageUniforms = {
   tracking: 0,
   intensity: 0.35,
   reduced: 1,
+  groundR: 0,
+  groundG: 0,
+  groundB: 0,
 };
 
 const REST_POSE: CardFacePose = {
@@ -106,6 +130,7 @@ export function MaserBotCard({
   onFaceChange,
   bgMode = "interactive",
   bgIntensity = 0.35,
+  groundColor = DEFAULT_GROUND,
   forceReducedMotion = false,
   className,
 }: MaserBotCardProps) {
@@ -125,6 +150,8 @@ export function MaserBotCard({
   const intensityRef = useRef(shineIntensity);
   const bgInteractiveRef = useRef(false);
   const bgIntensityRef = useRef(bgIntensity);
+  const ground = cssGround(groundColor);
+  const [groundR, groundG, groundB] = hexToRgb01(ground);
 
   const [osReduced, setOsReduced] = useState(false);
   const [gpuPainted, setGpuPainted] = useState(false);
@@ -156,6 +183,9 @@ export function MaserBotCard({
       tracking: bgInteractive && !reduced ? stageUniformsRef.current.tracking : 0,
       intensity: bgIntensity,
       reduced: reduced || !bgInteractive ? 1 : 0,
+      groundR,
+      groundG,
+      groundB,
     };
   }, [
     reduced,
@@ -165,6 +195,9 @@ export function MaserBotCard({
     shineIntensity,
     bgInteractive,
     bgIntensity,
+    groundR,
+    groundG,
+    groundB,
   ]);
 
   useEffect(() => {
@@ -352,7 +385,7 @@ export function MaserBotCard({
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     stageUniformsRef.current = {
-      time: stageUniformsRef.current.time,
+      ...stageUniformsRef.current,
       pointerX: Math.min(
         1,
         Math.max(0, (event.clientX - rect.left) / Math.max(rect.width, 1)),
@@ -383,6 +416,7 @@ export function MaserBotCard({
   return (
     <article
       className={["maser-bot-card", className].filter(Boolean).join(" ")}
+      style={{ "--mbc-ground": ground } as CSSProperties}
       aria-label="Maser bot card"
       data-reduced={reduced ? "true" : "false"}
       data-tilt={tiltOn ? "true" : "false"}
@@ -420,6 +454,7 @@ export function MaserBotCard({
                     <div className="maser-bot-card__slot maser-bot-card__slot--wordmark">
                       <GrokBotWordmark className="maser-bot-card__wordmark" />
                     </div>
+                    <div className="maser-bot-card__sheen" aria-hidden />
                   </div>
                   <div className="maser-bot-card__side maser-bot-card__side--back">
                     <div className="maser-bot-card__slot maser-bot-card__slot--mark">
@@ -442,9 +477,9 @@ export function MaserBotCard({
                     >
                       <CardFaceBody text={PARKED_COPY.body} />
                     </p>
+                    <div className="maser-bot-card__sheen" aria-hidden />
                   </div>
                 </div>
-                <div className="maser-bot-card__sheen" aria-hidden />
               </div>
             </div>
           </div>

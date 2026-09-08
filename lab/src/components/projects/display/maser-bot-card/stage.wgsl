@@ -7,11 +7,14 @@ struct Stage {
   reduced: f32,
   pad0: f32,
   pad1: f32,
+  ground_r: f32,
+  ground_g: f32,
+  ground_b: f32,
+  pad2: f32,
 }
 
 @group(0) @binding(0) var<uniform> stage: Stage;
 
-const BLACK = vec3f(0.0, 0.0, 0.0);
 const GREY = vec3f(0.42, 0.42, 0.42);
 
 fn hash21(p: vec2f) -> f32 {
@@ -55,6 +58,7 @@ fn fbm(p: vec2f) -> f32 {
     cloud = fall * (0.16 + 0.22 * n) * clamp(stage.intensity, 0.0, 1.0);
   }
 
-  let col = BLACK + GREY * (grad + cloud);
+  let ground = vec3f(stage.ground_r, stage.ground_g, stage.ground_b);
+  let col = ground + GREY * (grad + cloud);
   return vec4f(col, 1.0);
 }

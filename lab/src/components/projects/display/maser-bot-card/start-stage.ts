@@ -9,6 +9,9 @@ export type StageUniforms = {
   tracking: number;
   intensity: number;
   reduced: number;
+  groundR: number;
+  groundG: number;
+  groundB: number;
 };
 
 export type StartStageOptions = {
@@ -28,6 +31,10 @@ function stageSet(values: StageUniforms) {
       reduced: values.reduced,
       pad0: 0,
       pad1: 0,
+      ground_r: values.groundR,
+      ground_g: values.groundG,
+      ground_b: values.groundB,
+      pad2: 0,
     },
   };
 }
@@ -59,7 +66,12 @@ export function startStage({
     const canvasSurface = surface(gpu, canvas, {
       dpr: [1, 2],
       alphaMode: "opaque",
-      clearColor: [0, 0, 0, 1],
+      clearColor: [
+        uniformsRef.current.groundR,
+        uniformsRef.current.groundG,
+        uniformsRef.current.groundB,
+        1,
+      ],
       label: "maser-bot-card-stage",
     });
 
