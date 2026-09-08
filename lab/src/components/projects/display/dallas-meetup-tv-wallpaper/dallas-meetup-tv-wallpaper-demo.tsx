@@ -18,13 +18,14 @@ import {
 import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
+  DALLAS_WALLPAPER_FPS,
   WHIP_MAX_SECONDS,
   WHIP_MIN_SECONDS,
 } from "./globe-motion";
 import { runDallasTypeLock } from "./type-lock";
 import "./tokens.css";
 
-const FPS = 30;
+const FPS = DALLAS_WALLPAPER_FPS;
 
 const labTextInputClassName =
   "min-h-11 w-full rounded-[var(--lab-radius-sm)] border border-[var(--lab-border)] bg-[var(--lab-surface)] px-2 font-mono text-xs text-[var(--lab-text-primary)]";
@@ -291,7 +292,7 @@ export function DallasMeetupTvWallpaperDemo() {
               className="w-full"
             />
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              Live t: {formatSeconds(time)} / {loopSeconds}s @ 30fps
+              Live t: {formatSeconds(time)} / {loopSeconds}s @ {FPS}fps
             </p>
           </LabControlGroup>
 
@@ -349,7 +350,7 @@ export function DallasMeetupTvWallpaperDemo() {
               </LabButton>
             </div>
             <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
-              1920x1080 @ 30fps, {loopSeconds}s, silent.
+              1920x1080 @ {FPS}fps, {loopSeconds}s, silent.
             </p>
             {exportNote ? (
               <p className="dallas-demo__note text-[10px] text-[var(--lab-text-secondary)]">{exportNote}</p>

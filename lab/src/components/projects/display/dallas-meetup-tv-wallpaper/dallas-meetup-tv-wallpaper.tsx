@@ -10,6 +10,7 @@ import {
 import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
+  DALLAS_WALLPAPER_FPS,
   cursorWhipRad,
 } from "./globe-motion";
 import { bodyOutline, outlineFitScale, traceBodyPath } from "./grok-bodies";
@@ -47,7 +48,7 @@ import {
 
 const BASE_WIDTH = 1920;
 const BASE_HEIGHT = 1080;
-const FPS = 30;
+const FPS = DALLAS_WALLPAPER_FPS;
 
 const CURSOR_H_PX = 280;
 /** Shared mark box. Grok fits inside this — same height as the Cursor cube. */
@@ -439,7 +440,10 @@ export async function exportDallasMeetupWallpaperLoop({
   const chunks: BlobPart[] = [];
 
   await new Promise<void>((resolve, reject) => {
-    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 14_000_000 });
+    const recorder = new MediaRecorder(stream, {
+      mimeType,
+      videoBitsPerSecond: 14_000_000 * (FPS / 30),
+    });
     recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
     recorder.onerror = () => reject(new Error("Recording failed."));
     recorder.onstop = () => resolve();

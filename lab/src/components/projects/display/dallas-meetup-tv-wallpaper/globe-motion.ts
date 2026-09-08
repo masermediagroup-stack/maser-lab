@@ -9,6 +9,8 @@
 
 export const DEFAULT_LOOP_SECONDS = 8;
 export const DEFAULT_WHIP_SECONDS = 0.6;
+/** Live preview, scrub step, and MP4/WebM export frame rate. */
+export const DALLAS_WALLPAPER_FPS = 60;
 /** Settle window after the whip. Idle hold. Same product face. */
 export const SETTLE_SECONDS = 1;
 
