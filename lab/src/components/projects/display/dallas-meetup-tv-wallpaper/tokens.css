@@ -14,10 +14,12 @@
  * They are never drawn as orbits on Grok.
  *
  * Type split:
- *   --dallas-font      Universal Sans trial, exactly once: canvas "Dallas meetup"
- *   --dallas-font-ui   IBM Plex Sans Condensed for body, labels, info
+ *   --dallas-font      Universal Sans trial, exactly once: canvas display lines
+ *   --dallas-font-ui   IBM Plex Sans Condensed for any product-side DOM (not lab dock)
  * Size check: largest Plex ≤ 40% of the display's rendered size (44px @ 1920).
- * Never load xAI's self-hosted woff2 files. Geist is out.
+ * Never load xAI's self-hosted woff2 files. Geist is out of the product surface.
+ * Lab demo chrome uses shared Geist roles from maser-lab-tokens — do not override
+ * `.demo-control-bar` here.
  */
 
 @font-face {
@@ -68,14 +70,9 @@
   --dallas-font: "UniversalSansGrokTest Display Trial", "UniversalSansGrokTest Display Trial 400", ui-sans-serif, system-ui, sans-serif;
   --dallas-font-ui: var(--font-ibm-plex-sans-condensed), "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", sans-serif;
 
-  font-family: var(--dallas-font-ui);
-  --font-sans: var(--dallas-font-ui);
-  --font-mono: var(--dallas-font-ui);
-
   --dallas-display-px: 44px;
   --dallas-plex-max-ratio: 0.4;
   --dallas-plex-max: calc(var(--dallas-display-px) * var(--dallas-plex-max-ratio));
-  font-size: min(0.8125rem, var(--dallas-plex-max));
 
   min-height: 100dvh;
   background: var(--dallas-paper);
@@ -103,37 +100,4 @@
   max-height: 100%;
   display: block;
   background: var(--dallas-paper);
-}
-
-.dallas-demo__note {
-  font-family: var(--dallas-font-ui);
-  font-size: min(10px, var(--dallas-plex-max));
-}
-
-.dallas-demo :where(.font-mono, .font-sans, button, label, p, h1, h2, span, a, li, select, option) {
-  font-family: var(--dallas-font-ui) !important;
-}
-
-.dallas-demo :where(.text-xs) {
-  font-size: min(0.75rem, var(--dallas-plex-max)) !important;
-}
-
-.dallas-demo :where(.text-sm) {
-  font-size: min(0.875rem, var(--dallas-plex-max)) !important;
-}
-
-.dallas-demo :where(.text-base) {
-  font-size: min(1rem, var(--dallas-plex-max)) !important;
-}
-
-.dallas-demo :where(.text-lg) {
-  font-size: min(1.125rem, var(--dallas-plex-max)) !important;
-}
-
-.dallas-demo :where(.text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl) {
-  font-size: var(--dallas-plex-max) !important;
-}
-
-.dallas-demo :where([class*="text-[10px]"]) {
-  font-size: min(10px, var(--dallas-plex-max)) !important;
 }

@@ -101,6 +101,7 @@ export function enforcePlexCap(root: HTMLElement, maxPx: number): number {
   let shrunk = 0;
   const nodes = root.querySelectorAll<HTMLElement>("*:not(canvas)");
   for (const el of nodes) {
+    if (el.closest(".demo-control-bar")) continue;
     if (!hasOwnText(el)) continue;
     const style = getComputedStyle(el);
     const kind = classifyDallasFamily(style.fontFamily);
@@ -138,6 +139,7 @@ export function checkDallasTypeLock(
 
   const nodes = root.querySelectorAll<HTMLElement>("*:not(canvas)");
   for (const el of nodes) {
+    if (el.closest(".demo-control-bar")) continue;
     if (!hasOwnText(el)) continue;
     const style = getComputedStyle(el);
     if (style.display === "none" || style.visibility === "hidden") continue;
@@ -147,7 +149,7 @@ export function checkDallasTypeLock(
     if (kind === "geist-sans" || kind === "geist-mono") {
       violations.push({
         rule: "geist-out",
-        detail: `Geist on DOM (${selector}). Display is Universal Sans trial; chrome is Plex.`,
+        detail: `Geist on product DOM (${selector}). Display is Universal Sans trial; lab dock is excluded.`,
         selector,
       });
       continue;

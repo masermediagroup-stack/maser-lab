@@ -30,8 +30,8 @@ import "./tokens.css";
 
 const FPS = DALLAS_WALLPAPER_FPS;
 
-const labTextInputClassName =
-  "min-h-11 w-full rounded-[var(--lab-radius-sm)] border border-[var(--lab-border)] bg-[var(--lab-surface)] px-2 font-mono text-xs text-[var(--lab-text-primary)]";
+const labTextFieldClassName =
+  "lab-type-label min-h-11 w-full rounded-[6px] border border-[var(--lab-border)] bg-[var(--lab-surface)] px-[12px] text-[var(--lab-text-primary)]";
 
 function formatSeconds(value: number) {
   return `${value.toFixed(2)}s`;
@@ -175,7 +175,8 @@ export function DallasMeetupTvWallpaperDemo() {
   return (
     <div
       ref={rootRef}
-      className={`dallas-demo maser-lab ${dallasPlexCondensed.variable}`}
+      className={`dallas-demo maser-lab max-sm:has-[.lab-dock-open]:overflow-visible ${dallasPlexCondensed.variable}`}
+      data-reduced-motion={reducedMotion ? "true" : undefined}
     >
       <section
         ref={stageRef}
@@ -210,19 +211,21 @@ export function DallasMeetupTvWallpaperDemo() {
           </div>
 
           <div>
-            <h1 className="text-sm font-semibold tracking-tight">Dallas meetup TV wallpaper</h1>
-            <p className="mt-1 text-xs leading-relaxed text-[var(--lab-text-secondary)]">
+            <p className="lab-type-title text-[var(--lab-text-primary)]">
+              Dallas meetup TV wallpaper
+            </p>
+            <p className="lab-type-caption mt-1 text-[var(--lab-text-secondary)]">
               Loop defaults to {DEFAULT_LOOP_SECONDS}s (up to {LOOP_MAX_SECONDS}s). Official Cursor cube (hole) + Grok picker morph
               (shape owns HEX). Kick = SDF blend + Cursor 360. No nest, no
-              ribbons on Grok. Geist is out.
+              ribbons on Grok. Geist is out of the product surface.
             </p>
           </div>
 
           <LabControlGroup label="On-screen copy">
-            <div className="flex min-w-0 flex-col gap-1">
+            <div className="lab-chrome-control flex min-w-0 flex-col gap-1">
               <label
                 htmlFor="dallas-headline"
-                className="font-mono text-xs text-[var(--lab-text-secondary)]"
+                className="lab-type-label text-[var(--lab-text-primary)]"
               >
                 Headline
               </label>
@@ -231,14 +234,14 @@ export function DallasMeetupTvWallpaperDemo() {
                 type="text"
                 value={headlineText}
                 onChange={(event) => setHeadlineText(event.target.value)}
-                className={labTextInputClassName}
+                className={labTextFieldClassName}
                 autoComplete="off"
               />
             </div>
-            <div className="flex min-w-0 flex-col gap-1">
+            <div className="lab-chrome-control flex min-w-0 flex-col gap-1">
               <label
                 htmlFor="dallas-up-next"
-                className="font-mono text-xs text-[var(--lab-text-secondary)]"
+                className="lab-type-label text-[var(--lab-text-primary)]"
               >
                 Up next
               </label>
@@ -247,12 +250,12 @@ export function DallasMeetupTvWallpaperDemo() {
                 type="text"
                 value={upNextText}
                 onChange={(event) => setUpNextText(event.target.value)}
-                className={labTextInputClassName}
+                className={labTextFieldClassName}
                 autoComplete="off"
                 placeholder="Who is demoing next or what is up next"
               />
             </div>
-            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
+            <p className="lab-type-caption text-[var(--lab-text-muted)]">
               Headline aligns to the left edge of the Cursor cube. Up next uses Plex at light
               weight below the display line.
             </p>
@@ -260,16 +263,21 @@ export function DallasMeetupTvWallpaperDemo() {
 
           <LabControlGroup label="Playback">
             <div className="flex flex-wrap gap-1.5">
-              <LabButton onClick={() => setPlaying((value) => !value)}>
+              <LabButton
+                type="button"
+                variant={playing ? "accent" : "ghost"}
+                aria-pressed={playing}
+                onClick={() => setPlaying((value) => !value)}
+              >
                 {playing ? "Pause" : "Play"}
               </LabButton>
-              <LabButton variant="outline" onClick={replay}>
+              <LabButton type="button" variant="outline" onClick={replay}>
                 Replay from t=0
               </LabButton>
-              <LabButton variant="outline" onClick={() => nudgeFrame(-1)}>
+              <LabButton type="button" variant="outline" onClick={() => nudgeFrame(-1)}>
                 -1 frame
               </LabButton>
-              <LabButton variant="outline" onClick={() => nudgeFrame(1)}>
+              <LabButton type="button" variant="outline" onClick={() => nudgeFrame(1)}>
                 +1 frame
               </LabButton>
             </div>
@@ -289,7 +297,7 @@ export function DallasMeetupTvWallpaperDemo() {
               }}
               className="w-full"
             />
-            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
+            <p className="lab-type-caption text-[var(--lab-text-muted)]">
               Live t: {formatSeconds(time)} / {loopSeconds}s @ {FPS}fps
             </p>
           </LabControlGroup>
@@ -318,14 +326,14 @@ export function DallasMeetupTvWallpaperDemo() {
               onChange={setWhipSeconds}
               className="w-full"
             />
-            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
+            <p className="lab-type-caption text-[var(--lab-text-muted)]">
               Super-fast means the whip is short. Rest stays{" "}
               {formatSeconds(restSeconds(loopSeconds, whipSeconds))} at the {loopSeconds}s loop.
             </p>
           </LabControlGroup>
 
           <LabControlGroup label="Kick">
-            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
+            <p className="lab-type-caption text-[var(--lab-text-muted)]">
               Kick is the Cursor cube 360. Grok stays a clean black disc.
               Eyes may still gaze and wink. No Thinking nest. No Working ribbons.
             </p>
@@ -333,26 +341,26 @@ export function DallasMeetupTvWallpaperDemo() {
 
           <LabControlGroup label="Presentation">
             <div className="flex flex-wrap gap-1.5">
-              <LabButton variant="accent" onClick={enterPresentation}>
+              <LabButton type="button" variant="accent" onClick={enterPresentation}>
                 Present
               </LabButton>
             </div>
-            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
+            <p className="lab-type-caption text-[var(--lab-text-muted)]">
               Fullscreen with zero demo chrome. Exit with Esc.
             </p>
           </LabControlGroup>
 
           <LabControlGroup label="Export">
             <div className="flex flex-wrap gap-1.5">
-              <LabButton onClick={exportVideo} disabled={exporting}>
+              <LabButton type="button" onClick={exportVideo} disabled={exporting}>
                 {exporting ? "Exporting…" : "Export MP4"}
               </LabButton>
             </div>
-            <p className="dallas-demo__note text-[10px] text-[var(--lab-text-muted)]">
+            <p className="lab-type-caption text-[var(--lab-text-muted)]">
               1920x1080 @ {FPS}fps, {loopSeconds}s, silent.
             </p>
             {exportNote ? (
-              <p className="dallas-demo__note text-[10px] text-[var(--lab-text-secondary)]">{exportNote}</p>
+              <p className="lab-type-caption text-[var(--lab-text-secondary)]">{exportNote}</p>
             ) : null}
           </LabControlGroup>
         </DemoControlMenu>
