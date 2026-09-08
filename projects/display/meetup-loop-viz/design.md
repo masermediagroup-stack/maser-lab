@@ -110,11 +110,7 @@ Titles stay these six words. Do not rewrite. Separate from the stage script.
 
 ## Mark asset (parked 2026-09-05)
 
-Repo: `https://github.com/masermediagroup-stack/Grokbot-animations` — SVG Grok bot avatar (Bloub lineage).
-
-Replace the droplet / placeholder mark with this asset at **center bottom**. Target: ~30s seamless loop. Few states: idle / thinking / wink at minimum. Keep live `defaultCycle()` playback (not a still, except reduced motion).
-
-Do **not** invent the timeline until the human style list lands. Same asset as Track A card. Keep PRs separate.
+Repo: `https://github.com/masermediagroup-stack/Grokbot-animations` — SVG Grok bot avatar (Bloub lineage). Same engine as card 65. Keep PRs separate. Do not import maser-bot-card.
 
 ## Layout lock (2026-09-08)
 
@@ -150,6 +146,18 @@ Human via mace. Do not time rg80sk0em or hq2tle61d after this push.
 
 - Center the entire 2×3 loop composition in the viewport, horizontally and vertically.
 - Move the animating Grok bot logo to the center bottom of the screen. Live Grokbot-animations mark. Not top-right, not a droplet, not a static still.
+
+## Mark lock (2026-09-08)
+
+Must match card 65 identity. Do not treat any preview as a timing handoff. `rg80sk0em` stays stale.
+
+- Position: center bottom. Not top-right.
+- Shape: capsule. Color stock bleu `#3b93f0`. Paper holes = page black `#000000`. Refuse Maser blue.
+- Grokbot-animations engine. Not a static still. Not `defaultCycle()` (~31s SEQUENCE).
+- **30s curl, then 30s break, then repeat.** Not a one-shot.
+- Curl beats, in order, spread across ~30s (do not freeze guessed millisecond tokens): neutre, attentif, curieux, mefiant, thinking (body may leave capsule, engine truth), fier, neutre.
+- Break (30s): stay on neutre / capsule. Eyes follow the pointer. During the curl, the expression owns the gaze. Do not fight it with cursor follow.
+- Reduced motion: plant neutre, no curl, no pointer chase.
 
 ## Demo name (2026-09-08)
 

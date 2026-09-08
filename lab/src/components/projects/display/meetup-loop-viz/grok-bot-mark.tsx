@@ -1,113 +1,248 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
-import { NOTIF_BLUE } from "./bloub/decor";
-import { BotEngine, type BotFrame } from "./bloub/engine";
-import { defaultCycle } from "./bloub/cycles";
-import { RAYON, DEMI_VIEWBOX } from "./bloub/repere";
-import { COLOR_BY_ID, DEFAULT_SHAPE, SHAPE_BY_ID, mixHex } from "./bloub/skins";
-
 /**
- * Playback uses `defaultCycle()` from Grokbot-animations as-is
- * (`SEQUENCE` measured durations, ~31s loop). Do not invent a shorter
- * idle/thinking/wink edit until the human style list lands.
+ * Same identity loop as card 65 Back v1: 30s catalog curl, then 30s pointer-owned
+ * neutre break, then curl again. Not defaultCycle. Not a still (except reduced motion).
  */
-const CYCLE = defaultCycle().blocks;
-const VB = DEMI_VIEWBOX;
-const R = RAYON;
-/** Page is `--loop-bg: #000`. Catalog `encre` would vanish; `creme` is in the personalizer palette. */
-const INK = COLOR_BY_ID.get("creme")?.hex ?? "#f1efe9";
-const PAPER = "#000000";
-const SHAPE_RADII = SHAPE_BY_ID.get(DEFAULT_SHAPE)?.radii ?? null;
+import { useEffect, useId, useRef, useState } from "react";
+import { NOTIF_BLUE, type DotRender } from "./bloub/decor";
+import { BotEngine, type BotFrame } from "./bloub/engine";
+import {
+  EXPRESSION_BY_ID,
+  type ExpressionId,
+} from "./bloub/expressions";
+import { DEMI_VIEWBOX, RAYON } from "./bloub/repere";
+import { COLOR_BY_ID, SHAPE_BY_ID, mixHex } from "./bloub/skins";
+import type { StateId } from "./bloub/states";
 
-type GrokBotMarkProps = {
-  reduced: boolean;
+const PAPER = "#000000";
+const INK = COLOR_BY_ID.get("bleu")?.hex ?? "#3b93f0";
+const CAPSULE = SHAPE_BY_ID.get("capsule")?.radii ?? null;
+const NEUTRE = EXPRESSION_BY_ID.get("neutre") ?? null;
+
+/** Human-locked periods. Beat splits stay internal — do not freeze guessed ms tokens. */
+const CURL_S = 30;
+const BREAK_S = 30;
+const PERIOD_S = CURL_S + BREAK_S;
+
+type CurlBeat =
+  | { kind: "expr"; expr: ExpressionId; state: "idle" }
+  | { kind: "state"; state: StateId };
+
+const CURL_BEATS: CurlBeat[] = [
+  { kind: "expr", expr: "neutre", state: "idle" },
+  { kind: "expr", expr: "attentif", state: "idle" },
+  { kind: "expr", expr: "curieux", state: "idle" },
+  { kind: "expr", expr: "mefiant", state: "idle" },
+  { kind: "state", state: "thinking" },
+  { kind: "expr", expr: "fier", state: "idle" },
+  { kind: "expr", expr: "neutre", state: "idle" },
+];
+
+type MarkLookPointer = {
+  clientX: number;
+  clientY: number;
+  tracking: boolean;
 };
 
-export function GrokBotMark({ reduced }: GrokBotMarkProps) {
+function makeEngine(): BotEngine {
+  const engine = new BotEngine(RAYON, "idle", CAPSULE, NEUTRE);
+  engine.setShape(CAPSULE, 0);
+  engine.reset("idle", 0);
+  return engine;
+}
+
+function sampleFirstFrame(): BotFrame {
+  return makeEngine().sample(0);
+}
+
+const FIRST_FRAME = sampleFirstFrame();
+const EMPTY_FRAME: BotFrame = {
+  bodyPath: "",
+  bodyAlpha: 1,
+  eyes: [],
+  dots: [],
+  dotsBehind: false,
+  arcs: [],
+  notif: null,
+  notch: null,
+};
+
+function GrokBotDot({
+  dot,
+  paper,
+}: {
+  dot: DotRender;
+  paper: string;
+}) {
+  const fill =
+    dot.color ?? (dot.depth === undefined ? INK : mixHex(paper, INK, dot.depth));
+  if (dot.d) {
+    return (
+      <path
+        d={dot.d}
+        fill={fill}
+        opacity={dot.opacity}
+        transform={`translate(${dot.x} ${dot.y}) rotate(${dot.rot ?? 0}) scale(${RAYON})`}
+      />
+    );
+  }
+  return <circle cx={dot.x} cy={dot.y} r={dot.r} fill={fill} opacity={dot.opacity} />;
+}
+
+function applyBeat(engine: BotEngine, beat: CurlBeat, now: number) {
+  if (beat.kind === "state") {
+    engine.setState(beat.state, now);
+    engine.setExpression(NEUTRE, now);
+    return;
+  }
+  engine.setState(beat.state, now);
+  engine.setExpression(EXPRESSION_BY_ID.get(beat.expr) ?? NEUTRE, now);
+}
+
+function lookFromPointer(
+  svg: SVGSVGElement,
+  pointer: MarkLookPointer,
+): { yaw: number; pitch: number } | null {
+  const rect = svg.getBoundingClientRect();
+  if (rect.width < 1 || rect.height < 1) return null;
+  const nx = (pointer.clientX - rect.left) / rect.width;
+  const ny = (pointer.clientY - rect.top) / rect.height;
+  if (!Number.isFinite(nx) || !Number.isFinite(ny)) return null;
+  return {
+    yaw: (nx - 0.5) * 36,
+    pitch: (0.5 - ny) * 28,
+  };
+}
+
+/**
+ * SVG Grok bot mark. Bloub engine, capsule + stock bleu #3b93f0.
+ * Paper holes are page black. 30s curl then 30s neutre break with pointer gaze.
+ * Reduced motion: plant neutre, no curl, no pointer chase.
+ */
+export function GrokBotMark({ reduced }: { reduced: boolean }) {
   const reactId = useId().replace(/:/g, "");
   const maskId = `loop-bot-mask-${reactId}`;
-  const [engine] = useState(() => new BotEngine(R, "idle", SHAPE_RADII, null));
-  const stillFrame = useMemo(() => {
-    const still = new BotEngine(R, "idle", SHAPE_RADII, null);
-    return still.sample(0);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const pointerRef = useRef<MarkLookPointer>({
+    clientX: 0,
+    clientY: 0,
+    tracking: false,
+  });
+  const [engine] = useState(() => makeEngine());
+  const [frame, setFrame] = useState<BotFrame>(FIRST_FRAME);
+
+  useEffect(() => {
+    const onMove = (event: PointerEvent) => {
+      pointerRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        tracking: true,
+      };
+    };
+    const onLeave = () => {
+      pointerRef.current = { ...pointerRef.current, tracking: false };
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+    };
   }, []);
-  const [liveFrame, setLiveFrame] = useState<BotFrame>(() => engine.sample(0));
 
   useEffect(() => {
     if (reduced) {
+      engine.setShape(CAPSULE, 0);
+      engine.reset("idle", 0);
+      engine.setExpression(NEUTRE, 0);
+      engine.setLook(null, 0);
       return;
     }
 
+    engine.setShape(CAPSULE, 0);
     engine.reset("idle", 0);
+    engine.setExpression(NEUTRE, 0);
+    engine.setLook(null, 0);
+
     let raf = 0;
     let last = 0;
     let clock = 0;
-    let nextAt = CYCLE[0]?.duration ?? Infinity;
-    let blockIndex = 0;
-
-    const apply = (i: number, from = 0) => {
-      const block = CYCLE[i];
-      if (!block) {
-        nextAt = Infinity;
-        return;
-      }
-      const blockStart = clock - from;
-      engine.setState(block.state, clock);
-      blockIndex = i;
-      nextAt = blockStart + block.duration;
-    };
-
-    apply(0, 0);
+    let lastBeatKey = "";
+    let lookArmed = false;
 
     const tick = (ms: number) => {
-      raf = requestAnimationFrame(tick);
+      raf = window.requestAnimationFrame(tick);
       const dt = last ? Math.min((ms - last) / 1000, 0.064) : 0;
       last = ms;
       clock += dt;
-      if (clock >= nextAt && CYCLE.length) {
-        apply((blockIndex + 1) % CYCLE.length);
+      const cycleT = ((clock % PERIOD_S) + PERIOD_S) % PERIOD_S;
+      const inCurl = cycleT < CURL_S;
+
+      if (inCurl) {
+        const beatIndex = Math.min(
+          CURL_BEATS.length - 1,
+          Math.floor((cycleT / CURL_S) * CURL_BEATS.length),
+        );
+        const beat = CURL_BEATS[beatIndex];
+        const beatKey = beat
+          ? beat.kind === "state"
+            ? `state:${beat.state}`
+            : `expr:${beat.expr}`
+          : "";
+        if (beat && beatKey !== lastBeatKey) {
+          applyBeat(engine, beat, clock);
+          lastBeatKey = beatKey;
+        }
+        if (lookArmed) {
+          engine.setLook(null, clock);
+          lookArmed = false;
+        }
+      } else {
+        if (lastBeatKey !== "break") {
+          engine.setState("idle", clock);
+          engine.setExpression(NEUTRE, clock);
+          lastBeatKey = "break";
+        }
+        const pointer = pointerRef.current;
+        const svg = svgRef.current;
+        if (pointer.tracking && svg) {
+          const look = lookFromPointer(svg, pointer);
+          if (look) {
+            engine.setLook(
+              {
+                yaw: look.yaw,
+                pitch: look.pitch,
+                mix: 1,
+                spin: 0,
+                wander: 0,
+              },
+              clock,
+            );
+            lookArmed = true;
+          }
+        } else if (lookArmed) {
+          engine.setLook(null, clock);
+          lookArmed = false;
+        }
       }
-      setLiveFrame(engine.sample(clock));
+
+      setFrame(engine.sample(clock));
     };
 
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    raf = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(raf);
   }, [engine, reduced]);
 
-  const frame = reduced ? stillFrame : liveFrame;
-
-  const dots = frame.dots.map((dot, i) => {
-    const fill =
-      dot.color ?? (dot.depth === undefined ? INK : mixHex(PAPER, INK, dot.depth));
-    const opacity = dot.opacity;
-    if (dot.d) {
-      return (
-        <path
-          key={i}
-          d={dot.d}
-          fill={fill}
-          opacity={opacity}
-          transform={`translate(${dot.x} ${dot.y}) rotate(${dot.rot ?? 0}) scale(${R})`}
-        />
-      );
-    }
-    return (
-      <circle
-        key={i}
-        cx={dot.x}
-        cy={dot.y}
-        r={dot.r}
-        fill={fill}
-        opacity={opacity}
-      />
-    );
-  });
+  const active = reduced ? FIRST_FRAME : frame;
+  const drawn = active.bodyPath ? active : EMPTY_FRAME;
+  const vb = DEMI_VIEWBOX;
 
   return (
     <svg
+      ref={svgRef}
       className="meetup-loop-viz__mark"
-      viewBox={`${-VB} ${-VB} ${VB * 2} ${VB * 2}`}
+      viewBox={`${-vb} ${-vb} ${vb * 2} ${vb * 2}`}
       role="img"
       aria-label="Grok Bot"
     >
@@ -115,13 +250,13 @@ export function GrokBotMark({ reduced }: GrokBotMarkProps) {
         <mask
           id={maskId}
           maskUnits="userSpaceOnUse"
-          x={-VB}
-          y={-VB}
-          width={VB * 2}
-          height={VB * 2}
+          x={-vb}
+          y={-vb}
+          width={vb * 2}
+          height={vb * 2}
         >
-          <path d={frame.bodyPath} fill="#fff" />
-          {frame.eyes.map((eye, i) => (
+          <path d={drawn.bodyPath} fill="#fff" />
+          {drawn.eyes.map((eye, i) => (
             <path
               key={i}
               d={eye.d}
@@ -130,16 +265,16 @@ export function GrokBotMark({ reduced }: GrokBotMarkProps) {
               fill="#000"
             />
           ))}
-          {frame.notch ? (
+          {drawn.notch ? (
             <circle
-              cx={frame.notch.x}
-              cy={frame.notch.y}
-              r={frame.notch.r}
+              cx={drawn.notch.x}
+              cy={drawn.notch.y}
+              r={drawn.notch.r}
               fill="#000"
             />
           ) : null}
         </mask>
-        {frame.arcs.map((arc) => (
+        {drawn.arcs.map((arc) => (
           <linearGradient
             key={arc.id}
             id={`${reactId}-${arc.id}`}
@@ -152,7 +287,11 @@ export function GrokBotMark({ reduced }: GrokBotMarkProps) {
             {arc.grad.stops.map((color, i) => (
               <stop
                 key={i}
-                offset={i / Math.max(1, arc.grad.stops.length - 1)}
+                offset={
+                  arc.grad.stops.length > 1
+                    ? i / (arc.grad.stops.length - 1)
+                    : 0
+                }
                 stopColor={color}
               />
             ))}
@@ -161,7 +300,7 @@ export function GrokBotMark({ reduced }: GrokBotMarkProps) {
       </defs>
 
       <g fill="none" strokeLinecap="round">
-        {frame.arcs.map((arc) => (
+        {drawn.arcs.map((arc) => (
           <path
             key={`b${arc.id}`}
             d={arc.back}
@@ -172,28 +311,36 @@ export function GrokBotMark({ reduced }: GrokBotMarkProps) {
         ))}
       </g>
 
-      {frame.dotsBehind ? <g>{dots}</g> : null}
+      {drawn.dotsBehind
+        ? drawn.dots.map((dot, i) => (
+            <GrokBotDot key={`pb${i}`} dot={dot} paper={PAPER} />
+          ))
+        : null}
 
-      <g opacity={frame.bodyAlpha}>
-        <path d={frame.bodyPath} fill={PAPER} />
+      <g opacity={drawn.bodyAlpha}>
+        <path d={drawn.bodyPath} fill={PAPER} />
         <g mask={`url(#${maskId})`}>
-          <rect x={-VB} y={-VB} width={VB * 2} height={VB * 2} fill={INK} />
+          <rect x={-vb} y={-vb} width={vb * 2} height={vb * 2} fill={INK} />
         </g>
       </g>
 
-      {frame.dotsBehind ? null : <g>{dots}</g>}
+      {!drawn.dotsBehind
+        ? drawn.dots.map((dot, i) => (
+            <GrokBotDot key={`pf${i}`} dot={dot} paper={PAPER} />
+          ))
+        : null}
 
-      {frame.notif ? (
+      {drawn.notif ? (
         <circle
-          cx={frame.notif.x}
-          cy={frame.notif.y}
-          r={frame.notif.r}
+          cx={drawn.notif.x}
+          cy={drawn.notif.y}
+          r={drawn.notif.r}
           fill={NOTIF_BLUE}
         />
       ) : null}
 
       <g fill="none" strokeLinecap="round">
-        {frame.arcs.map((arc) => (
+        {drawn.arcs.map((arc) => (
           <path
             key={`f${arc.id}`}
             d={arc.front}

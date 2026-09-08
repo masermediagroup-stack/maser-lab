@@ -12,7 +12,7 @@
 - Figma: none
 - Other: `design.md` in this folder (canonical brief + locked copy)
 - Duplicate for the demo folder: `lab/src/app/demos/meetup-loop-viz/design.md`
-- Grok Bot mark: SVG avatar vendored from `https://github.com/masermediagroup-stack/Grokbot-animations` (Bloub lineage) into `lab/src/components/projects/display/meetup-loop-viz/bloub/`. Playback is `defaultCycle()` as-is. See `SOURCE.txt`.
+- Grok Bot mark: SVG avatar vendored from `https://github.com/masermediagroup-stack/Grokbot-animations` (Bloub lineage) into `lab/src/components/projects/display/meetup-loop-viz/bloub/`. Capsule + stock bleu, 30s curl then 30s pointer-gaze break — same beats as card 65. Not `defaultCycle`. See `SOURCE.txt`.
 
 ## Brief
 
@@ -72,10 +72,10 @@ Process-diagram spaghetti; glass step cards; inventing Dice Sans metrics; Univer
 ## Open decisions
 
 - Typeface: Dice Sans pending human confirm. Scaffold uses `--loop-font-temp` (system grotesk). Approver required before Status: accepted.
-- Mark choreography: human style list not landed. Engine plays `defaultCycle()` (SEQUENCE) as-is; do not invent a shorter idle/thinking/wink edit.
 
 ## Accepted decisions
 
 - Copy lock 2026-09-05: six titles + lines verbatim (see `design.md` Locked copy).
 - Layout lock 2026-09-08: 2×3 horizontal grid, lighter headings, same-color subheads, EP icons.
 - Placement lock 2026-09-08: 2×3 composition centered in the viewport; live Grok mark at center-bottom.
+- Mark lock 2026-09-08: capsule + stock bleu `#3b93f0`, paper holes `#000000`, 30s curl then 30s pointer-gaze break. Same beats as card 65. Not `defaultCycle`. Reduced motion plants neutre.
