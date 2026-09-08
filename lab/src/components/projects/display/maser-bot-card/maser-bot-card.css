@@ -77,8 +77,16 @@
   align-items: center;
   justify-content: center;
   width: min(90vw, 70dvh);
-  aspect-ratio: 1 / 1;
   max-height: 70dvh;
+  container-type: inline-size;
+  container-name: mbc-scene;
+}
+
+.maser-bot-card__card-stack {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  flex: 0 0 auto;
 }
 
 .maser-bot-card__shadow {
@@ -275,18 +283,13 @@
 
 .maser-bot-card__flip-control {
   appearance: none;
-  position: absolute;
-  z-index: 4;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  display: grid;
-  place-items: end center;
-  height: calc(56 / 1299 * 100%);
-  min-height: 0;
-  min-width: 0;
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+  display: block;
+  width: 100%;
   margin: 0;
-  padding: 0 calc(20 / 1299 * 100cqw) calc(8 / 1299 * 100%);
+  padding: calc(12 / 1299 * 100cqw) 0 0;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -296,6 +299,7 @@
   font-size: calc(32 / 1299 * 100cqw);
   font-weight: 400;
   line-height: 1;
+  text-align: center;
   cursor: pointer;
 }
 

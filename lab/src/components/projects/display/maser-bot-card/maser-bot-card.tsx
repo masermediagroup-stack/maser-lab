@@ -311,14 +311,6 @@ export function MaserBotCard({
         </div>
       </div>
       <div className="maser-bot-card__sheen" aria-hidden />
-      <button
-        type="button"
-        className="maser-bot-card__flip-control"
-        onClick={() => setFace(otherFace)}
-        aria-pressed={face === "back"}
-      >
-        {flipLabel}
-      </button>
     </div>
   );
 
@@ -345,18 +337,28 @@ export function MaserBotCard({
         <canvas ref={stageRef} className="maser-bot-card__stage" />
       </div>
       <div ref={sceneRef} className="maser-bot-card__scene">
-        <div className="maser-bot-card__shadow" aria-hidden />
-        <CardObject
-          poseRef={poseRef}
-          reduced={reduced}
-          shadowRef={sceneRef}
-          faceTiltRef={faceTiltRef}
-        />
-        <div className="maser-bot-card__face-layer">
-          <div ref={faceTiltRef} className="maser-bot-card__face-tilt">
-            {cardFace}
+        <div className="maser-bot-card__card-stack">
+          <div className="maser-bot-card__shadow" aria-hidden />
+          <CardObject
+            poseRef={poseRef}
+            reduced={reduced}
+            shadowRef={sceneRef}
+            faceTiltRef={faceTiltRef}
+          />
+          <div className="maser-bot-card__face-layer">
+            <div ref={faceTiltRef} className="maser-bot-card__face-tilt">
+              {cardFace}
+            </div>
           </div>
         </div>
+        <button
+          type="button"
+          className="maser-bot-card__flip-control"
+          onClick={() => setFace(otherFace)}
+          aria-pressed={face === "back"}
+        >
+          {flipLabel}
+        </button>
       </div>
     </article>
   );

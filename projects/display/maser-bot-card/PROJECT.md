@@ -35,7 +35,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 ## States
 
 - [x] rest
-- [x] front / back / flip (Back / Front text at the bottom of the card + demo Face knobs)
+- [x] front / back / flip (Back / Front text below the card + demo Face knobs)
 - [x] pointer enter / move / leave
 - [x] prefers-reduced-motion (OS + demo toggle)
 - [x] TV / present
