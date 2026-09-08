@@ -11,6 +11,7 @@ import {
   DEFAULT_LOOP_SECONDS,
   DEFAULT_WHIP_SECONDS,
   DALLAS_WALLPAPER_FPS,
+  cursorIdleFloatOffset,
   cursorWhipRad,
 } from "./globe-motion";
 import { bodyOutline, outlineFitScale, traceBodyPath } from "./grok-bodies";
@@ -205,11 +206,19 @@ function renderFrame(
   const markGap = MARK_GAP_PX * scale;
   const groupWidth = cursorW + grokSize + markGap;
   const cursorX = centerX - groupWidth * 0.5 + cursorW * 0.5;
-  const cursorLeftX = cursorX - cursorW * 0.5;
+  const cursorFloat = cursorIdleFloatOffset(
+    elapsed,
+    loopSeconds,
+    whipSeconds,
+    reducedMotion,
+  );
+  const cursorDrawX = cursorX + cursorFloat.x * scale;
+  const cursorDrawY = marksBaseY + cursorFloat.y * scale;
+  const cursorLeftX = cursorDrawX - cursorW * 0.5;
   const grokX = centerX + groupWidth * 0.5 - grokSize * 0.5;
 
   ctx.save();
-  ctx.translate(cursorX, marksBaseY);
+  ctx.translate(cursorDrawX, cursorDrawY);
   ctx.rotate(cursorWhipRad(elapsed, loopSeconds, whipSeconds, reducedMotion));
   const cursorUniformScale = cursorH / CURSOR_VB_H;
   ctx.scale(cursorUniformScale, cursorUniformScale);

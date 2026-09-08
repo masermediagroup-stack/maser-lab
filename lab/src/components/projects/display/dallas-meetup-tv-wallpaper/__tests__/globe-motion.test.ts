@@ -132,6 +132,20 @@ describe("look-lock motion", () => {
     expect(wallpaperSrc).not.toMatch(/fill\(new Path2D\(CURSOR_PATH\),\s*"nonzero"\)/);
     expect(wallpaperSrc).not.toMatch(/drawImage/);
     expect(wallpaperSrc).not.toMatch(/GROK_FACE_SRC/);
+    expect(wallpaperSrc).toContain("cursorIdleFloatOffset");
+  });
+
+  it("drifts the Cursor cube subtly at idle and stills for the whip", async () => {
+    const { cursorIdleFloatOffset, CURSOR_IDLE_FLOAT_X_PX, CURSOR_IDLE_FLOAT_Y_PX } =
+      await import("../globe-motion");
+    const idle = cursorIdleFloatOffset(2, 16, 0.5, false);
+    expect(Math.abs(idle.x)).toBeLessThanOrEqual(CURSOR_IDLE_FLOAT_X_PX + 0.001);
+    expect(Math.abs(idle.y)).toBeLessThanOrEqual(CURSOR_IDLE_FLOAT_Y_PX + 0.001);
+    expect(cursorIdleFloatOffset(2, 16, 0.5, true)).toEqual({ x: 0, y: 0 });
+
+    const loopRest = restSeconds(16, 0.5);
+    const midWhip = cursorIdleFloatOffset(loopRest + 0.25, 16, 0.5, false);
+    expect(midWhip).toEqual({ x: 0, y: 0 });
   });
 
   it("adds no idle bob or kick wobble", () => {

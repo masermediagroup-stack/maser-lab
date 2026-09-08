@@ -35,6 +35,18 @@ export const WHIP_BAND_IN = 0.12;
 /** Last 28% of the kick: bands leave. Do not park into settle/rest. */
 export const WHIP_BAND_LEAVE = 0.72;
 
+/** Cursor idle float at 1920 design px — subtle drift during rest/settle only. */
+export const CURSOR_IDLE_FLOAT_X_PX = 6;
+export const CURSOR_IDLE_FLOAT_Y_PX = 5;
+export const CURSOR_IDLE_FLOAT_PERIOD_X = 7.2;
+export const CURSOR_IDLE_FLOAT_PERIOD_Y = 9.4;
+/** Seconds to ease float out/in around the whip window. */
+export const CURSOR_IDLE_FLOAT_FADE_SECONDS = 0.35;
+
+export type CursorIdleFloatOffset = { x: number; y: number };
+
+export const CURSOR_IDLE_FLOAT_AT_REST: CursorIdleFloatOffset = { x: 0, y: 0 };
+
 export function clampWhipSeconds(seconds: number): number {
   if (!Number.isFinite(seconds)) return DEFAULT_WHIP_SECONDS;
   return Math.min(WHIP_MAX_SECONDS, Math.max(WHIP_MIN_SECONDS, seconds));
@@ -112,6 +124,59 @@ export function cursorWhipRad(
   reducedMotion: boolean,
 ): number {
   return streamPhase(time, loopSeconds, whipSeconds, reducedMotion);
+}
+
+function cursorIdleFloatEnvelope(
+  time: number,
+  loopSeconds: number,
+  whipSeconds: number,
+  reducedMotion: boolean,
+): number {
+  if (reducedMotion) return 0;
+
+  const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
+  const t = ((time % loop) + loop) % loop;
+  const whip = clampWhipSeconds(whipSeconds);
+  const rest = restSeconds(loop, whip);
+  const whipStart = rest;
+  const whipEnd = rest + whip;
+  const fade = CURSOR_IDLE_FLOAT_FADE_SECONDS;
+
+  if (t < whipStart - fade || t >= whipEnd + fade) return 1;
+  if (t >= whipStart && t < whipEnd) return 0;
+
+  if (t >= whipStart - fade && t < whipStart) {
+    const u = (whipStart - t) / fade;
+    return settleEaseOut(u);
+  }
+
+  const u = (t - whipEnd) / fade;
+  return kickEase(Math.min(1, Math.max(0, u)));
+}
+
+/**
+ * Slow eased drift for the Cursor cube during idle beats. Fades out for the whip spin.
+ * Design-space pixels @ 1920 — multiply by canvas scale before drawing.
+ */
+export function cursorIdleFloatOffset(
+  time: number,
+  loopSeconds: number,
+  whipSeconds: number,
+  reducedMotion: boolean,
+): CursorIdleFloatOffset {
+  const envelope = cursorIdleFloatEnvelope(time, loopSeconds, whipSeconds, reducedMotion);
+  if (envelope <= 0) return CURSOR_IDLE_FLOAT_AT_REST;
+
+  const x =
+    Math.sin((time / CURSOR_IDLE_FLOAT_PERIOD_X) * Math.PI * 2) *
+    CURSOR_IDLE_FLOAT_X_PX *
+    envelope;
+  const y =
+    Math.sin((time / CURSOR_IDLE_FLOAT_PERIOD_Y) * Math.PI * 2 + 0.9) *
+    CURSOR_IDLE_FLOAT_Y_PX *
+    envelope;
+
+  return { x, y };
 }
 
 /**
