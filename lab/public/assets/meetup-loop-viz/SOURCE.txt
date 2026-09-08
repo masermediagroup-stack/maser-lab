@@ -1,0 +1,5 @@
+Grok Bot mark: SVG avatar from https://github.com/masermediagroup-stack/Grokbot-animations (Bloub lineage).
+
+Vendored into lab/src/components/projects/display/meetup-loop-viz/bloub/. Playback is defaultCycle() as-is (~31s SEQUENCE). Do not invent a shorter timeline until the human style list lands.
+
+The PNG crop (grok-bot-face.png) was a placeholder droplet and is no longer used on the canvas.
