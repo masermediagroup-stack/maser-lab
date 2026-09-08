@@ -69,6 +69,7 @@
 }
 
 .maser-bot-card__scene {
+  --mbc-depth: 14px;
   position: relative;
   z-index: 1;
   display: flex;
@@ -77,16 +78,41 @@
   justify-content: center;
   gap: 0.75rem;
   width: min(90vw, 70dvh);
+  transform-style: preserve-3d;
 }
 
-.maser-bot-card__plate {
+.maser-bot-card__shadow {
+  position: absolute;
+  z-index: 0;
+  width: 78%;
+  height: 12%;
+  left: 11%;
+  bottom: 2.75rem;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(0 0 0 / 0.72) 0%,
+    rgb(0 0 0 / 0.28) 42%,
+    transparent 72%
+  );
+  filter: blur(18px);
+}
+
+.maser-bot-card__slab {
   --yaw: 0deg;
   --pitch: 0deg;
   --sheen-x: 50%;
   --sheen-y: 50%;
+  --rim-x: 0.5;
+  --rim-y: 0.5;
+  --rim-l: 0.5;
+  --rim-r: 0.5;
+  --rim-t: 0.5;
+  --rim-b: 0.5;
   --shine-a: 0;
   --shine-on: 0;
   position: relative;
+  z-index: 1;
   box-sizing: border-box;
   aspect-ratio: 1 / 1;
   width: 100%;
@@ -96,7 +122,73 @@
   will-change: transform;
 }
 
-.maser-bot-card__body {
+.maser-bot-card__bezel {
+  position: absolute;
+  pointer-events: none;
+  background: #101010;
+}
+
+.maser-bot-card__bezel--left {
+  width: var(--mbc-depth);
+  height: 100%;
+  left: 0;
+  top: 0;
+  transform-origin: left center;
+  transform: rotateY(-90deg);
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / calc(var(--shine-on, 0) * var(--rim-l, 0) * 0.38)) 0%,
+    #1a1a1a 18%,
+    #0a0a0a 100%
+  );
+}
+
+.maser-bot-card__bezel--right {
+  width: var(--mbc-depth);
+  height: 100%;
+  right: 0;
+  top: 0;
+  transform-origin: right center;
+  transform: rotateY(90deg);
+  background: linear-gradient(
+    270deg,
+    rgb(255 255 255 / calc(var(--shine-on, 0) * var(--rim-r, 0) * 0.38)) 0%,
+    #1a1a1a 18%,
+    #0a0a0a 100%
+  );
+}
+
+.maser-bot-card__bezel--top {
+  width: 100%;
+  height: var(--mbc-depth);
+  left: 0;
+  top: 0;
+  transform-origin: center top;
+  transform: rotateX(90deg);
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / calc(var(--shine-on, 0) * var(--rim-t, 0) * 0.38)) 0%,
+    #1a1a1a 18%,
+    #0a0a0a 100%
+  );
+}
+
+.maser-bot-card__bezel--bottom {
+  width: 100%;
+  height: var(--mbc-depth);
+  left: 0;
+  bottom: 0;
+  transform-origin: center bottom;
+  transform: rotateX(-90deg);
+  background: linear-gradient(
+    0deg,
+    rgb(255 255 255 / calc(var(--shine-on, 0) * var(--rim-b, 0) * 0.38)) 0%,
+    #1a1a1a 18%,
+    #0a0a0a 100%
+  );
+}
+
+.maser-bot-card__face {
   position: relative;
   z-index: 1;
   width: 100%;
@@ -104,9 +196,10 @@
   overflow: hidden;
   border-radius: var(--mbc-radius);
   background: var(--mbc-card-bg);
+  transform: translateZ(calc(var(--mbc-depth) / 2));
   transform-style: preserve-3d;
   container-type: inline-size;
-  container-name: mbc-plate;
+  container-name: mbc-face;
 }
 
 .maser-bot-card__flip {
@@ -211,18 +304,31 @@
   height: 100%;
 }
 
-.maser-bot-card__sheen {
+.maser-bot-card__rim {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 2;
   border-radius: inherit;
   opacity: var(--shine-on, 0);
+  box-shadow: inset
+    calc((var(--rim-x, 0.5) - 0.5) * -22px)
+    calc((var(--rim-y, 0.5) - 0.5) * -22px)
+    0 1px rgb(255 255 255 / 0.28);
+}
+
+.maser-bot-card__sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  border-radius: inherit;
+  opacity: var(--shine-on, 0);
   background: radial-gradient(
-    ellipse 42% 36% at var(--sheen-x, 50%) var(--sheen-y, 50%),
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.55)) 0%,
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.16)) 32%,
-    transparent 62%
+    ellipse 38% 30% at var(--sheen-x, 50%) var(--sheen-y, 50%),
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.32)) 0%,
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.1)) 28%,
+    transparent 58%
   );
 }
 
@@ -244,13 +350,23 @@
   outline-offset: 3px;
 }
 
-.maser-bot-card[data-reduced="true"] .maser-bot-card__plate {
+.maser-bot-card[data-reduced="true"] .maser-bot-card__slab {
   transform: none;
 }
 
+.maser-bot-card[data-reduced="true"] .maser-bot-card__rim,
 .maser-bot-card[data-reduced="true"] .maser-bot-card__sheen,
+.maser-bot-card[data-shine="false"] .maser-bot-card__rim,
 .maser-bot-card[data-shine="false"] .maser-bot-card__sheen {
   opacity: 0;
+}
+
+.maser-bot-card[data-reduced="true"] .maser-bot-card__face {
+  transform: none;
+}
+
+.maser-bot-card[data-reduced="true"] .maser-bot-card__bezel {
+  display: none;
 }
 
 .maser-bot-card[data-reduced="true"] .maser-bot-card__flip {
@@ -276,7 +392,7 @@
 }
 
 @media (hover: none), (pointer: coarse) {
-  .maser-bot-card:not([data-reduced="true"]) .maser-bot-card__plate {
+  .maser-bot-card:not([data-reduced="true"]) .maser-bot-card__slab {
     transform: none;
   }
 }

@@ -16,7 +16,7 @@ Job of the artifact: a simple, fun **Maser** bot card. Readable from the back of
 
 Steal Zoah founding-member **structure**: a single card as the hero, pointer-driven 3D tilt, specular shine that tracks the mouse, quiet return to rest.
 
-Refuse Zoah skin: founding-member dither, Zoah type, Zoah colors, member-number chrome, community profile layout. Refuse generic AI glass cards, stock purple gradients, Inter, Geist, and system grotesk on the **product**. Refuse landscape recut. Refuse Maser blue `#10A4FF` on the capsule. Refuse rewriting locked copy. Refuse dither **on the plate**.
+Refuse Zoah skin: founding-member dither, Zoah type, Zoah colors, member-number chrome, community profile layout. Refuse generic AI glass cards, stock purple gradients, Inter, Geist, and system grotesk on the **product**. Refuse landscape recut. Refuse Maser blue `#10A4FF` on the capsule. Refuse rewriting locked copy. Refuse dither **on the card face**.
 
 ## Scope
 
@@ -32,8 +32,8 @@ Out: lab shell chrome (already locked on main). Stage script (Copy). Prompt-only
 | Front | Front v1 (`1:20`): white Grok Bot wordmark. No animated mark. |
 | Back | Back v1 (`1:2`): identity — live capsule + name, role, bio. |
 | Flip | View front/back control toggles faces. Not hover-only. |
-| Pointer enter | Track pointer. Tilt + quieter sheen arm only while the pointer is on the plate. |
-| Pointer move | Tilt follows pointer (X/Y). Quiet sheen tracks the pointer on the plate. Stage cloud follows on the field. |
+| Pointer enter | Track pointer. Tilt + quieter sheen arm only while the pointer is on the card face. |
+| Pointer move | Tilt follows pointer (X/Y). Quiet sheen tracks the pointer on the card face. Stage cloud follows on the field. |
 | Pointer leave | Tilt eases back. Sheen dies clean (including a fast swipe). No stuck glow. |
 | Reduced motion | No tilt. No sheen. Stage still (black + TL grey). Mark planted `neutre`. Honor OS + demo toggle. |
 | TV / present | Fullscreen card, zero chrome (Esc out). Stage mode. |
@@ -48,7 +48,7 @@ Until Figma locks values, Spark may scaffold knobs only:
 - **Tilt** — on/off, max angle feel (leave numbers to live timing)
 - **Shine** — on/off, quiet intensity (pointer-only; no rest sheen)
 - **Face** — front / back (same as the product flip control)
-- **Bg** — calm (black + TL grey, no cursor cloud) / interactive (quiet pointer cloud). vgpu stage only — not the plate.
+- **Bg** — calm (black + TL grey, no cursor cloud) / interactive (quiet pointer cloud). vgpu stage only — not the card face.
 - **Replay / reduced motion** — shared lab row
 
 Look knobs live in the demo. The product card never imports demo chrome.
@@ -57,10 +57,11 @@ Look knobs live in the demo. The product card never imports demo chrome.
 
 - Hold Shape until Figma lands.
 - Steal Zoah tilt+shine structure; refuse Zoah skin.
-- Recut plate to Figma 1299×1299 square, radius 80, fill `#000000`. Scale from the board.
+- Recut card face to Figma 1299×1299 square, radius 80, fill `#000000`. Scale from the board.
 - Wordmark on **Front v1** (`1:20`). Live capsule + identity type on **Back v1** (`1:2`). No capsule on front. No animated mark on front.
-- Plate stays solid `#000`. No idle center light, rest sheen, parked highlight, rim bloom, or band. Tilt + quieter sheen only while the pointer is on the card. Leave (including a fast swipe) kills the light clean.
-- Stage bg is vgpu: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor following the pointer. Not the old Bayer/wave dither. Not on the plate or the type.
+- Card face stays solid `#000`. No idle center light, rest sheen, parked highlight, or center bloom. Tilt + quieter sheen only while the pointer is on the card. Leave (including a fast swipe) kills the light clean.
+- CSS 3D slab: thin bezel around the square portrait (`preserve-3d`, side faces). A rim highlight rides the near edge with the pointer. Soft contact shadow under the card. Type stays flat Display Trial — not embossed, not metallic. Do not put the card face on WebGL.
+- Stage bg is vgpu: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor following the pointer. Not the old Bayer/wave dither. Not on the card face or the type. Pointer moves the card, not a wallpaper.
 - Lock Back v1 mark to Bloub engine, capsule, bleu `#3b93f0`. Curl catalog expressions on **Back v1 only**: neutre → attentif → curieux → mefiant → thinking → fier → neutre across ~30s, then 30s neutre break (pointer gaze), then curl again. Refuse `defaultCycle`, the old idle→thinking→wide curl, and Maser blue `#10A4FF`.
 - Typeset **only** Front v1 (`1:20`) and Back v1 (`1:2`) plus wordmark `1:22`. Every other frame in GrokBot-Loop-DemoCard (v2/v3, Assets, parked ideas) stays parked. Do not pull extra type, marks, or layouts from them.
 - One card as the hero. No collage of windows.
@@ -78,7 +79,7 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Zoah horizontal / landscape card
 - Maser blue `#10A4FF` on the capsule
 - Geist / Inter / system grotesk on the product
-- Dither on the plate
+- Dither on the card face
 - Rewriting locked body copy
 - Hover-only face reveal (no flip control)
 - Zoah embossed / iridescent type
@@ -89,12 +90,12 @@ Look knobs live in the demo. The product card never imports demo chrome.
 
 ## Tokens (Figma static — 2026-09-08)
 
-Scale every box as `n / 1299` of the plate. Artboard 1299×1299.
+Scale every box as `n / 1299` of the card face. Artboard 1299×1299.
 
-- Plate: 1299×1299, corner radius 80, fill `#000000`
+- Card face: 1299×1299, corner radius 80, fill `#000000`
 - Type: `#FFFFFF`
-- Family: **UniversalSansGrokTest Display Trial** (name table). Metrics: name 96/400, role and body 64/300, leading 1.2. Vendor `lab/public/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf`. The dropped file is style 400 only — use that same face for 300 slots. Do not substitute Geist, Inter, or a system grotesk. If the TTF bytes are not in the handoff, keep the named `@font-face` path; do not invent another family.
-- Capsule: bleu `#3b93f0`. Paper holes = plate `#000000`. Refuse `#10A4FF`.
+- Family: **UniversalSansGrokTest Display Trial** (name table id 16). Metrics: name 96/400, role and body 64/300, leading 1.2. Vendor `lab/public/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf` (12252 bytes, style 400 only). Use that same face for 300 slots at Figma size. Do not substitute Geist, Inter, or a system grotesk. Two other files exist (Text Trial 300 and Text Trial 400) — **do not load them**. Figma specifies Display. Do not swap Display for Text.
+- Capsule: bleu `#3b93f0`. Paper holes = card face `#000000`. Refuse `#10A4FF`.
 
 ## Hand-off
 
@@ -118,7 +119,7 @@ File: **GrokBot-Loop-DemoCard**. **Front v1 = `1:20` (frame at 0,0)**. **Back v1
 
 Front v1 (mark-forward, `1:20`):
 
-- Same plate. No capsule. No animated mark on this face.
+- Same card face. No capsule. No animated mark on this face.
 - White Grok Bot wordmark vector, box x 100, y 988, w 1100, h 212. Bottom-anchored. Exact SVG from node `1:22`. Do not typeset a fake logotype.
 
 Back v1 (identity, `1:2`):
@@ -130,9 +131,10 @@ Back v1 (identity, `1:2`):
 
 Live behavior (after static):
 
-1. Tilt + quieter sheen on the card **only while the pointer is on the plate**. Plate stays the Figma square `#000`. No rest sheen, idle center light, parked highlight, or center bloom. Flip control stays (View front / View back), not hover-only. On leave, including a fast swipe off the card, the light dies clean. Reduced motion: planted, no sheen at all.
-2. Stage background **behind** the card, not the plate and not the type: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave.
-3. Plate stays solid `#000000` so type and capsule read as the Figma file.
+1. Tilt + quieter sheen on the **card face** only while the pointer is on the card. Card face stays the Figma square `#000`. No rest sheen, idle center light, parked highlight, or center bloom. Flip control stays (View front / View back), not hover-only. On leave, including a fast swipe off the card, the light dies clean. Reduced motion: planted, no sheen at all.
+2. Stage background **behind** the card, not on the card face and not the type: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave.
+3. Card face stays solid `#000000` so type and capsule read as the Figma file.
+4. Physical object: CSS 3D thin slab bezel + contact shadow. Pointer moves the card. Do not put the card face on WebGL.
 
 ## Orientation (locked 2026-09-05)
 
@@ -144,9 +146,9 @@ Portrait first. Stage-readable from the back of the room. Scaffold the demo fram
 
 - Park Copy lines verbatim. Do not rewrite.
 - Lock card Name to **mace** (not Maser). Role **Chief of Staff/Producer**.
-- Recut plate to Figma 1299 square. Wordmark on Front v1 (`1:20`). Capsule in the 272×162 box on Back v1 (`1:2`). Do not invent spacing.
+- Recut card face to Figma 1299 square. Wordmark on Front v1 (`1:20`). Capsule in the 272×162 box on Back v1 (`1:2`). Do not invent spacing.
 - Park every other GrokBot-Loop-DemoCard frame. Do not typeset them.
-- Stage field is vgpu behind the card (TL grey + pointer cloud). Do not bake it into the plate.
+- Stage field is vgpu behind the card (TL grey + pointer cloud). Do not bake it into the card face.
 - Set card orientation to 1299 square. Refuse Zoah landscape.
 
 ## Card faces (locked 2026-09-05)
@@ -162,13 +164,13 @@ Toggle with an explicit **View front / View back** control (flip). Do not use ho
 
 ## Light (steal from Zoah craft — structure only)
 
-Three layers on the plate:
+Three layers on the card:
 
-1. **Tilt** — pointer-driven 3D with readable thickness / rim.
-2. **Sheen** — moving specular across the plate, tracks the pointer.
-3. **Band (optional)** — diagonal light mask that shifts with tilt. Knob can mute it.
+1. **Tilt** — pointer-driven CSS 3D with a readable thin slab edge.
+2. **Sheen** — quieter specular across the card face, tracks the pointer, only while on the card.
+3. **Bezel / rim** — extruded side faces; a thin rim highlight rides the near edge with the pointer. Soft contact shadow under the card.
 
-Refuse Zoah embossed / iridescent type treatment. Our type is flat and set from Figma, not a metallic fill gimmick.
+Refuse Zoah embossed / iridescent type treatment. Our type is flat UniversalSansGrokTest Display Trial, not a metallic fill. Refuse Zoah purple, member chrome, landscape, and Zoah dither on the card face.
 
 ## Observable decisions (add)
 
@@ -238,7 +240,7 @@ Context: **Grok Bot meetup** teaching demo — mark reads as Grok, not Maser bra
 - Keep the Bloub engine. Do **not** hand-redraw a static capsule SVG. Do not ship the Figma still.
 - Body: ShapeId **`capsule`** — horizontal stadium as shipped (`skins.ts`). Vertical pill refused unless human reopens.
 - Color: stock bloub **`bleu` `#3b93f0`**. Refuse Maser blue `#10A4FF` on this mark.
-- Eyes: paper stadium holes. `paper` = plate `#000000`.
+- Eyes: paper stadium holes. `paper` = card face `#000000`.
 - Loop lives on **Back v1 only** (`1:2`). Slot 272×162 at x 100, y 142. Size and place to that box; do not float. No animated mark on Front v1 (`1:20`).
 - **30s curl, then 30s break, then curl again.** Repeat. Not a one-shot. Not `defaultCycle`. Not idle→thinking→wide.
 - Curl beats (catalog IDs, in order, spread across ~30s; time feel on the live preview — do not freeze guessed ms as tokens):
@@ -256,8 +258,14 @@ Context: **Grok Bot meetup** teaching demo — mark reads as Grok, not Maser bra
 
 ## Critique (2026-09-08)
 
+Say **card face**, not plate.
+
 - Match Front v1 / Back v1 spacing to Figma boxes. Do not invent spacing.
-- Type: UniversalSansGrokTest Display Trial. Vendor the dropped TTF at `lab/public/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf`. 400 only in the file — same face for 300 metrics. If the base64 was not in the message, do not substitute Geist; report missing bytes.
-- Kill idle center light. Pointer sheen only while on the card; leave dies clean.
-- Stage: black + small TL grey + quiet pointer cloud. vgpu. Not Bayer wave.
+- Type: UniversalSansGrokTest Display Trial 400, vendored at `lab/public/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf` (name table: UniversalSansGrokTest Display Trial 400, 12252 bytes). `@font-face` 300 and 400 both load that file. Do not substitute Geist. Do not load Text Trial 300/400. If 300 is missing from Display, keep Display 400 at Figma size.
+- Back v1 mark slot: 272×162 at x 100, y 142. Live capsule, stock bleu, same curl. Size and place to that box. Do not float it.
+- Card face: solid `#000000`. Kill idle center light. No rest sheen, parked highlight, or center bloom.
+- Pointer light: keep tilt + a quieter sheen only while the pointer is on the card. On leave, including a fast swipe off the card, the light dies clean. No stuck glow, no flash, no leftover specular. Reduced motion: no sheen at all.
+- Physical craft (Zoah videos / zoah.com founding-card as **feel** only): thin CSS 3D bezel around the square portrait; rim highlight on the near edge; soft contact shadow. Face stays black. Type stays flat Display Trial. Not landscape. Not purple. Not member chrome. Not Zoah dither on the card face. Do not put the card face on WebGL.
+- Stage behind the card, not on the card face and not on the type: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor shader (vgpu). Not the old dither wave. Pointer moves the card, not a wallpaper.
+- Copy stays verbatim. Flip control stays.
 

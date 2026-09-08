@@ -48,6 +48,6 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 ## Notes
 
 - Live URL: set after this recut’s unique preview (prior aliases including `https://maser-pzzh176dj-masermediagroup.vercel.app/demos/maser-bot-card` are stale).
-- Plate is solid `#000`. Stage dither is vgpu. Front capsule + typeset copy. Back wordmark.
+- Card face is solid `#000`. Stage is vgpu (TL grey + pointer cloud), not on the card face. Front v1 wordmark. Back v1 capsule + typeset copy.
 - Product must not import lab demo chrome tokens as its look.
 - Mark: capsule + bleu `#3b93f0`, cycle idle → thinking → wide → thinking → idle. Refuse `defaultCycle` montage.

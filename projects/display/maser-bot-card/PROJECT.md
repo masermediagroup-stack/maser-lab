@@ -9,8 +9,8 @@
 ## Design reference
 
 - Figma file: **GrokBot-Loop-DemoCard**. Front v1 `1:20` (mark-forward). Back v1 `1:2` (identity). Wordmark `1:22`. Artboard 1299×1299. v2/v3/Assets parked.
-- Other: steal Zoah **pose + specular feel** only. Refuse Zoah skin, landscape, plate dither, embossed type.
-- Build: CSS 3D pose + flip + sheen on a solid `#000` plate. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** dither behind the card.
+- Other: steal Zoah **pose + specular + slab-edge feel** only. Refuse Zoah skin, landscape, dither on the card face, embossed type.
+- Build: CSS 3D slab (bezel + contact shadow) + flip + quieter sheen on a solid `#000` card face. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card.
 
 ## Brief
 
@@ -18,19 +18,19 @@
 Dallas meetup stage: pointer over a single 1299-square card; explicit View front/back. Occasional, live demo frequency.
 
 ### Job
-Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + sheen. Stage dither stays behind the plate.
+Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + quieter sheen. Stage stays behind the card.
 
 ### Current behavior
-1299 square plate, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable flip. CSS 3D tilt + CSS sheen. vgpu grey dither on a black stage field.
+1299 square card face, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable flip. CSS 3D tilt + CSS sheen. vgpu black + TL grey + pointer cloud on the stage field.
 
 ### Desired outcome
-Match Figma boxes at `n / 1299`. Keep live tilt/sheen and stage dither. Do not bake dither into the plate.
+Match Figma boxes at `n / 1299`. Keep live tilt/sheen and stage field. Do not bake the stage shader into the card face.
 
 ### Success signal
-`/demos/maser-bot-card` matches the Figma static, then tilts. Flip is keyboardable. Reduced motion: no tilt, no shine chase, still stage, mark first frame still.
+`/demos/maser-bot-card` matches the Figma static, then tilts with a thin slab edge. Flip is keyboardable. Reduced motion: no tilt, no shine chase, still stage, mark first frame still.
 
 ### Non-goals
-Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Full `defaultCycle`. Geist/Inter on the product. Maser blue on the capsule. Rewriting body copy. Dither on the plate.
+Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Full `defaultCycle`. Geist/Inter on the product. Maser blue on the capsule. Rewriting body copy. Dither on the card face. Loading Text Trial faces.
 
 ## States
 
@@ -46,30 +46,31 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | CSS 3D pose + CSS sheen; vgpu stage | Figma plate must stay `#000` |
+| Library | CSS 3D pose + CSS sheen; vgpu stage | Figma card face must stay `#000` |
 | Yaw / pitch | ~±8° / ±5° × feel knob | Stage prop; live timing, not tokens |
 | Return | damped lerp | not a hard snap |
-| Sheen / light | Quiet CSS wash **only while pointer is on the plate**; snap off on leave | no rest sheen, no idle center, no leftover specular |
+| Sheen / light | Quiet CSS wash **only while pointer is on the card face**; snap off on leave | no rest sheen, no idle center, no leftover specular |
 | Band | none | critique killed parked highlight / band |
-| Plate | solid `#000` | Figma lock; no center bloom |
+| Card face | solid `#000` | Figma lock; no center bloom |
+| Bezel | CSS `preserve-3d` side faces + rim + contact shadow | physical object; not WebGL on the card face |
 | Stage bg | vgpu black + TL grey + quiet pointer cloud | behind the card; not Bayer wave |
 | Mark | Bloub engine, capsule + bleu, 30s curl / 30s break on Back v1 | Catalog expressions; refuse `defaultCycle` and idle→thinking→wide |
 
 ## Acceptance criteria
 
-- [ ] Demo route `/demos/maser-bot-card` renders Figma-scaled 1299 plate
+- [ ] Demo route `/demos/maser-bot-card` renders Figma-scaled 1299 card face
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] Square 1299 (not landscape, not 3:4)
 - [ ] Locked copy typeset in Figma boxes, verbatim
 - [ ] Product does not import demo chrome or `--lab-*` as its look
 - [ ] Reduced motion: no tilt, no sheen, bg still (black + TL grey), mark planted `neutre`, no curl or pointer chase, face swap without 3D flip
-- [ ] Plate is solid `#000`. Stage is vgpu (TL grey + pointer cloud). Capsule bleu `#3b93f0` on **Back v1**. Wordmark on Front v1.
-- [ ] Product type stack names UniversalSansGrokTest Display Trial (no Geist/Inter substitute)
+- [ ] Card face is solid `#000`. Stage is vgpu (TL grey + pointer cloud). Capsule bleu `#3b93f0` on **Back v1**. Wordmark on Front v1.
+- [ ] Product type stack names UniversalSansGrokTest Display Trial (no Geist/Inter substitute; Display file only, not Text Trial)
 - [ ] Component exported from `lab/src/components/projects/display/maser-bot-card/index.ts`
 
 ## Open decisions
 
-- UniversalSansGrokTest Display Trial TTF — expected at `lab/public/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf`. Critique message did not include the base64; do not substitute Geist.
+- UniversalSansGrokTest Display Trial TTF vendored at `lab/public/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf` (400 only). Same face for 300 slots. Do not load Text Trial.
 
 ## Accepted decisions
 
