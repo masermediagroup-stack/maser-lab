@@ -57,7 +57,7 @@ export function MeetupLoopVizDemo() {
         />
       </DemoControlMenu>
 
-      <div className="lab-demo-field">
+      <div className="lab-demo-field [&_.meetup-loop-viz]:h-full">
         <MeetupLoopViz
           focusedStep={focusedStep}
           showGrootSpur={showGrootSpur}

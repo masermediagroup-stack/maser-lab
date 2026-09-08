@@ -17,12 +17,13 @@ Steal: restraint of a product changelog / docs outline. Refuse: SaaS process dia
 ## Composition
 
 - Full-bleed black bg. White text. No chrome clutter on the product (lab dock stays lab chrome).
-- **Grok Bot mark** top-right (Bloub SVG; don’t invent a new mark).
+- **Grok Bot mark** center-bottom of the screen (live Bloub SVG; don’t invent a new mark). Not top-right.
+- The **2×3** loop composition sits in the middle of the viewport, horizontally and vertically. Not left-weighted. Not stuck to a top edge.
 - Horizontal **2×3** grid. Row 1: Drop → Kickoff → Shape. Row 2: Package → Build → Critique. All six stay. Never drop a step to fit 3 columns.
 - Each cell: one small monoline icon sitting with the heading + heading + subhead (copy verbatim). Icon is not a badge.
 - Between steps: dots in reading order (left to right, wrap row 1 into row 2). Dots are the motion, not bouncing cards.
 - Optional **Groot spur**: a quiet side note off the main spine (not a required 7th step). Visible as “when product/IA is unknown.”
-- Narrow: keep 3 columns if readable. Stack to 1 column only if the stage cannot hold 3. Never drop a step. Mark shrinks but stays top-right.
+- Narrow: keep 3 columns if readable. Stack to 1 column only if the stage cannot hold 3. Never drop a step. Mark shrinks but stays center-bottom.
 
 ## The six steps (structure — Copy owns final lines)
 
@@ -111,6 +112,41 @@ Titles stay these six words. Do not rewrite. Separate from the stage script.
 
 Repo: `https://github.com/masermediagroup-stack/Grokbot-animations` — SVG Grok bot avatar (Bloub lineage).
 
-Replace the droplet / placeholder mark top-right with this asset. Target: ~30s seamless loop. Few states: idle / thinking / wink at minimum.
+Replace the droplet / placeholder mark with this asset at **center bottom**. Target: ~30s seamless loop. Few states: idle / thinking / wink at minimum. Keep live `defaultCycle()` playback (not a still, except reduced motion).
 
 Do **not** invent the timeline until the human style list lands. Same asset as Track A card. Keep PRs separate.
+
+## Layout lock (2026-09-08)
+
+Human via mace. Do not time hq2tle61d after this push.
+
+- Horizontal layout. Not a vertical stack.
+- Headings: one type-weight lighter than the current cut.
+- Subheadings: same color as headings (`--loop-text`).
+- Left to right, max 3 heading columns.
+- Six steps stay. Sit as 2 rows × 3 (Drop / Kickoff / Shape, then Package / Build / Critique).
+- One small icon per heading, for that topic. Same white hairline as the dots. No new visual system.
+
+## Icons (locked 2026-09-08 — EP)
+
+One monoline mark per heading. White `#FFFFFF` only. Same optical weight as the flow dots. Square-ish 20px live area, 1.5 stroke, round caps, consistent. No fill, no color, no second family. dr leak stays out unless a mark export is asked.
+
+| Step | Icon | Draw |
+| --- | --- | --- |
+| Drop | tray | Short open tray, arrow pointing down into it. |
+| Kickoff | chevrons | Two right-pointing chevrons, same size. Sequence start. |
+| Shape | frame | Four corner ticks of a frame. No full rectangle. |
+| Package | sheet | Folded corner page. One fold. |
+| Build | layers | Two offset rounded rectangles, stacked. |
+| Critique | eye | Simple stadium eye, no lashes, no pupil bounce. |
+
+## Spark (this cut)
+
+Load this file. Recut PR 66 to the 2×3 horizontal grid + icons + lighter headings + same-color subheads. Copy lines verbatim. Fresh URL. Prior alias hq2tle61d is stale after the push.
+
+## Placement lock (2026-09-08)
+
+Human via mace. Do not time rg80sk0em or hq2tle61d after this push.
+
+- Center the entire 2×3 loop composition in the viewport, horizontally and vertically.
+- Move the animating Grok bot logo to the center bottom of the screen. Live Grokbot-animations mark. Not top-right, not a droplet, not a static still.

@@ -22,7 +22,7 @@ Beginners → intermediate Grok users on a Dallas meetup stage. Speaker walks th
 One glance: how work hands across bots. 2×3 grid, titles one weight lighter, white subheads, dots between steps for the handoff.
 
 ### Brand signal
-Black field, white type, official Grok Bot face top-right. Removing lab chrome still reads as this teaching page.
+Black field, white type, official Grok Bot face at center-bottom. Removing lab chrome still reads as this teaching page.
 
 ### First viewport contents (max)
 - Brand: Grok Bot face mark (official)
@@ -77,3 +77,4 @@ Process-diagram spaghetti; glass step cards; inventing Dice Sans metrics; Univer
 
 - Copy lock 2026-09-05: six titles + lines verbatim (see `design.md` Locked copy).
 - Layout lock 2026-09-08: 2×3 horizontal grid, lighter headings, same-color subheads, EP icons.
+- Placement lock 2026-09-08: 2×3 composition centered in the viewport; live Grok mark at center-bottom.
