@@ -31,12 +31,10 @@ import {
   type EyePose,
 } from "./grok-eyes";
 import {
-  CURSOR_ASPECT,
-  CURSOR_FILL_RULE,
-  CURSOR_PATH,
-  CURSOR_VB_H,
-  CURSOR_VB_W,
-} from "./official-marks";
+  SPACEXAI_ASPECT,
+  preloadSpacexaiLogo,
+  spacexaiLogoImage,
+} from "./spacexai-mark";
 import {
   drawTextRandomFade,
   DALLAS_SUBHEADING_FADE_PLAY_KEY,
@@ -192,31 +190,30 @@ function renderFrame(
 
   const centerX = width * 0.5;
   const marksBaseY = height * 0.5 - PAIR_LIFT_PX * scale;
-  const cursorH = CURSOR_H_PX * scale;
-  const cursorW = cursorH * CURSOR_ASPECT;
+  const logoH = CURSOR_H_PX * scale;
+  const logoW = logoH * SPACEXAI_ASPECT;
   const grokSize = MARK_BOX_PX * scale;
   const markGap = MARK_GAP_PX * scale;
-  const groupWidth = cursorW + grokSize + markGap;
-  const cursorX = centerX - groupWidth * 0.5 + cursorW * 0.5;
-  const cursorFloat = cursorIdleFloatOffset(
+  const groupWidth = logoW + grokSize + markGap;
+  const logoX = centerX - groupWidth * 0.5 + logoW * 0.5;
+  const logoFloat = cursorIdleFloatOffset(
     elapsed,
     loopSeconds,
     whipSeconds,
     reducedMotion,
   );
-  const cursorDrawX = cursorX + cursorFloat.x * scale;
-  const cursorDrawY = marksBaseY + cursorFloat.y * scale;
-  const cursorLeftX = headlineTextAnchorX(cursorX, cursorW);
+  const logoDrawX = logoX + logoFloat.x * scale;
+  const logoDrawY = marksBaseY + logoFloat.y * scale;
+  const cursorLeftX = headlineTextAnchorX(logoX, logoW);
   const grokX = centerX + groupWidth * 0.5 - grokSize * 0.5;
 
   ctx.save();
-  ctx.translate(cursorDrawX, cursorDrawY);
+  ctx.translate(logoDrawX, logoDrawY);
   ctx.rotate(cursorWhipRad(elapsed, loopSeconds, whipSeconds, reducedMotion));
-  const cursorUniformScale = cursorH / CURSOR_VB_H;
-  ctx.scale(cursorUniformScale, cursorUniformScale);
-  ctx.translate(-CURSOR_VB_W * 0.5, -CURSOR_VB_H * 0.5);
-  ctx.fillStyle = DALLAS_MARK_INK;
-  ctx.fill(new Path2D(CURSOR_PATH), CURSOR_FILL_RULE);
+  const logo = spacexaiLogoImage();
+  if (logo) {
+    ctx.drawImage(logo, -logoW * 0.5, -logoH * 0.5, logoW, logoH);
+  }
   ctx.restore();
 
   drawGrokBody(
@@ -308,6 +305,16 @@ export function DallasMeetupWallpaper({
     },
     [headlineText, reducedMotion, loopSeconds, upNextText, whipSeconds],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    void preloadSpacexaiLogo().then(() => {
+      if (!cancelled) drawAtTime(timeSeconds ?? pausedAtRef.current);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [drawAtTime, timeSeconds]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -435,6 +442,8 @@ export async function exportDallasMeetupWallpaperLoop({
     );
     await document.fonts.ready;
   }
+
+  await preloadSpacexaiLogo();
 
   const canvas = document.createElement("canvas");
   canvas.width = width;

@@ -116,7 +116,7 @@ describe("look-lock motion", () => {
     expect("AXIS_TILT_DEG" in motion).toBe(false);
   });
 
-  it("spins the Cursor cube 360 on kick and keeps the Grok disc planted", () => {
+  it("spins the spacexai mark 360 on kick and keeps the Grok disc planted", () => {
     const rest = restSeconds(8, 0.6);
     expect(cursorWhipRad(1, 8, 0.6, false)).toBe(0);
     expect(cursorWhipRad(rest + 0.3, 8, 0.6, false)).toBeCloseTo(Math.PI, 5);
@@ -128,7 +128,8 @@ describe("look-lock motion", () => {
     expect(wallpaperSrc).not.toMatch(/eyeWhipAt/);
     expect(wallpaperSrc).not.toMatch(/drawWorkingOrbits/);
     expect(wallpaperSrc).not.toMatch(/kickRibbonPlan/);
-    expect(wallpaperSrc).toContain("CURSOR_FILL_RULE");
+    expect(wallpaperSrc).toContain("spacexaiLogoImage");
+    expect(wallpaperSrc).toMatch(/ctx\.drawImage\(logo,/);
     expect(wallpaperSrc).toContain("traceBodyPath");
     expect(wallpaperSrc).toContain("FACE_DISC_R");
     expect(wallpaperSrc).toContain("grokCyclePose");
@@ -140,7 +141,7 @@ describe("look-lock motion", () => {
     expect(marksSrc).toContain("evenodd");
     expect(marksSrc).toContain("M444.05");
     expect(wallpaperSrc).not.toMatch(/fill\(new Path2D\(CURSOR_PATH\),\s*"nonzero"\)/);
-    expect(wallpaperSrc).not.toMatch(/drawImage/);
+    expect(wallpaperSrc).not.toMatch(/CURSOR_PATH/);
     expect(wallpaperSrc).not.toMatch(/GROK_FACE_SRC/);
     expect(wallpaperSrc).toContain("cursorIdleFloatOffset");
   });

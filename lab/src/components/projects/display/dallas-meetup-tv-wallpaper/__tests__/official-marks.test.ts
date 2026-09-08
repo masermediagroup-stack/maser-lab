@@ -3,21 +3,39 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { CURSOR_FILL_RULE, CURSOR_PATH } from "../official-marks";
+import { SPACEXAI_ASPECT, SPACEXAI_MARK_SRC } from "../spacexai-mark";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(here, "../../../../../../public/assets/dallas-meetup-tv-wallpaper");
 const wallpaperSrc = readFileSync(join(here, "../dallas-meetup-tv-wallpaper.tsx"), "utf8");
 const cubeSvg = readFileSync(join(publicDir, "CUBE_2D_DARK.svg"), "utf8");
 
-describe("official Cursor mark", () => {
-  it("ships the full Cursor path with the hole subpath and evenodd fill", () => {
+describe("spacexai mark (replaces Cursor cube)", () => {
+  it("ships the wordmark asset with matching aspect", () => {
+    expect(SPACEXAI_ASPECT).toBeCloseTo(834 / 318, 5);
+    expect(SPACEXAI_MARK_SRC).toBe(
+      "/assets/dallas-meetup-tv-wallpaper/spacexai-logo.png",
+    );
+    expect(existsSync(join(publicDir, "spacexai-logo.png"))).toBe(true);
+  });
+
+  it("draws the wordmark image with the loop whip, not the Cursor path", () => {
+    expect(wallpaperSrc).toContain("SPACEXAI_ASPECT");
+    expect(wallpaperSrc).toContain("spacexaiLogoImage");
+    expect(wallpaperSrc).toContain("preloadSpacexaiLogo");
+    expect(wallpaperSrc).toContain("drawImage");
+    expect(wallpaperSrc).toContain("cursorWhipRad");
+    expect(wallpaperSrc).not.toContain("CURSOR_PATH");
+    expect(wallpaperSrc).not.toContain("CURSOR_FILL_RULE");
+    expect(wallpaperSrc).not.toMatch(/new Path2D/);
+  });
+
+  it("keeps the retired Cursor path intact in official-marks", () => {
     expect(CURSOR_FILL_RULE).toBe("evenodd");
     expect(CURSOR_PATH).toContain("M444.05");
     expect(CURSOR_PATH).toContain("M457.43");
     expect(cubeSvg).toContain("evenodd");
     expect(cubeSvg).toContain("M444.05");
-    expect(wallpaperSrc).toContain("CURSOR_FILL_RULE");
-    expect(wallpaperSrc).toContain("cursorWhipRad");
     expect(wallpaperSrc).not.toMatch(/"nonzero"/);
   });
 
@@ -33,7 +51,6 @@ describe("official Cursor mark", () => {
     expect(wallpaperSrc).not.toMatch(/GROK_FACE_PX/);
     expect(wallpaperSrc).toContain("DALLAS_EYE_WHITE");
     expect(wallpaperSrc).toContain("eyesAt");
-    expect(wallpaperSrc).not.toMatch(/drawImage/);
     expect(wallpaperSrc).not.toMatch(/GROK_FACE_SRC|grok-bot-face-tight/);
     expect(wallpaperSrc).not.toMatch(/GROK_HEAD_PATH/);
     expect(wallpaperSrc).not.toMatch(/traceDisc/);

@@ -9,7 +9,7 @@
 
 - Figma: none. USER OVERRIDE encoded in `design.md`.
 - Motion source: Grok Bot lifecycle tour at https://x.ai/news/designing-grok-bot (Idle / Working only on TV). Avatar motion by Benji Taylor.
-- Article frames: Idle gaze *travel* (not TR rest), Working blank for stadium shape. Ver 02 shape→color tree = morph targets. Cursor: `CUBE_2D_DARK.svg`. Thinking / Working band frames are **refuse** — no nest, no ribbons.
+- Left mark: SpaceXAI wordmark (`spacexai-logo.png`). Cursor cube retired 2026-09-08 (see `design.md` mark swap).
 - Look lock: `LOOK.md` (later interrupts win)
 - Design spec: `design.md` (correction log)
 
@@ -23,11 +23,11 @@ Trigger frequency: rare / ambient (TV loop).
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Paper `#F2F1ED`. Official Cursor cube (evenodd hole, ink; 360 whip on kick) + Grok picker morph (SDF blend, 1:1 shape↔HEX from the Ver 02 tree; cold start oval + Black) + white gaze-pair stadiums that look around and wink + one Universal Sans line `Dallas meetup`. Kick = body morph + HEX blend + Cursor 360. No bands on Grok.
+Paper `#F2F1ED`. SpaceXAI wordmark (360 whip on kick) + Grok picker morph (SDF blend, 1:1 shape↔HEX from the Ver 02 tree; cold start oval + Black) + white gaze-pair stadiums that look around and wink + one Universal Sans line `Dallas meetup`. Kick = body morph + HEX blend + mark 360. No bands on Grok.
 
 ### Success signal
 - Skyline gone.
-- Cursor reads as hexagon with cursor-shaped hole (paper through), not a solid blob. Spins 360 on kick, lands upright.
+- SpaceXAI wordmark reads at mark height, spins 360 on kick, lands upright.
 - Grok reads as the kept picker silhouettes (oval rest → square/teal first land unless square drew Red, then hex / circle) with white stadiums that translate as a gaze pair and wink through the blend **without shearing**. Every body fits the cube-height mark box. Not a light organic PNG head.
 - Kick is SDF morph + pair HEX blend + Cursor 360. Eyes may gaze/wink. No Thinking nest. No Working ribbons. No orbits.
 - Same demo route `/demos/dallas-meetup-tv-wallpaper`.

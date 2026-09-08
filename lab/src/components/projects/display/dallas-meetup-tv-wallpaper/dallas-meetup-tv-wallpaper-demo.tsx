@@ -216,8 +216,8 @@ export function DallasMeetupTvWallpaperDemo() {
               Dallas meetup TV wallpaper
             </p>
             <p className="lab-type-caption mt-1 text-[var(--lab-text-secondary)]">
-              Loop defaults to {DEFAULT_LOOP_SECONDS}s (up to {LOOP_MAX_SECONDS}s). Official Cursor cube (hole) + Grok picker morph
-              (shape owns HEX). Kick = SDF blend + Cursor 360. No nest, no
+              Loop defaults to {DEFAULT_LOOP_SECONDS}s (up to {LOOP_MAX_SECONDS}s). SpaceXAI wordmark + Grok picker morph
+              (shape owns HEX). Kick = SDF blend + mark 360. No nest, no
               ribbons on Grok. Geist is out of the product surface.
             </p>
           </div>
@@ -257,7 +257,7 @@ export function DallasMeetupTvWallpaperDemo() {
               />
             </div>
             <p className="lab-type-caption text-[var(--lab-text-muted)]">
-              Headline aligns to the left edge of the Cursor cube. Up next uses Plex at light
+              Headline aligns to the left edge of the SpaceXAI wordmark. Up next uses Plex at light
               weight below the display line.
             </p>
           </LabControlGroup>
@@ -335,7 +335,7 @@ export function DallasMeetupTvWallpaperDemo() {
 
           <LabControlGroup label="Kick">
             <p className="lab-type-caption text-[var(--lab-text-muted)]">
-              Kick is the Cursor cube 360. Grok stays a clean black disc.
+              Kick is the SpaceXAI mark 360. Grok stays a clean black disc.
               Eyes may still gaze and wink. No Thinking nest. No Working ribbons.
             </p>
           </LabControlGroup>

@@ -4,6 +4,17 @@ USER OVERRIDE. Later interrupts win. Named tokens only. Do not invent type, spac
 
 Do not ask anyone to retime the thick-band cut or the light-head cut.
 
+## Mark swap (2026-09-08): SpaceXAI wordmark replaces the Cursor cube
+
+USER OVERRIDE. The Cursor cube (`CUBE_2D_DARK.svg`, evenodd hole) is out of the
+composition. The left mark is now the SpaceXAI wordmark
+(`lab/public/assets/dallas-meetup-tv-wallpaper/spacexai-logo.png`, black on
+transparent, 834x318) drawn with `drawImage` at the shared mark height (~280px).
+It keeps the cube's loop behavior: idle float during rest/settle, 360 whip spin
+on kick, planted when reduced motion is on. Headline / up-next anchor to the
+wordmark's rest left edge. `official-marks.ts` keeps the retired Cursor path for
+reference only — it is no longer drawn. "Cube" language below is historical.
+
 ## Killed, fully
 
 - **Thinking nest.** Orbital hairlines (~8–10 strokes). `drawWorkingOrbits`. Wrap front/back. 3% / 9px densify. Do not ship that cut again.
