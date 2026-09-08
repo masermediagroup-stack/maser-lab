@@ -36,11 +36,15 @@ function FlowDots() {
   );
 }
 
-function GapDots({ slot }: { slot: "c1" | "c2" | "c3" | "c4" }) {
+function GapDots({
+  slot,
+}: {
+  slot: "c1" | "c2" | "c3" | "c4" | "row";
+}) {
   return (
     <div
-      className="meetup-loop-viz__connector"
-      data-slot={slot}
+      className="meetup-loop-viz__gap"
+      data-gap={slot}
       aria-hidden="true"
     >
       <FlowDots />
@@ -100,11 +104,9 @@ export function MeetupLoopViz({
           </ol>
           <GapDots slot="c1" />
           <GapDots slot="c2" />
-          <div className="meetup-loop-viz__wrap" aria-hidden="true">
-            <FlowDots />
-          </div>
           <GapDots slot="c3" />
           <GapDots slot="c4" />
+          <GapDots slot="row" />
         </div>
       </div>
     </section>

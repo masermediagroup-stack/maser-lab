@@ -21,7 +21,7 @@ Steal: restraint of a product changelog / docs outline. Refuse: SaaS process dia
 - The **2×3** loop composition sits in the middle of the viewport, horizontally and vertically. Not left-weighted. Not stuck to a top edge.
 - Horizontal **2×3** grid. Row 1: Drop → Kickoff → Shape. Row 2: Package → Build → Critique. All six stay. Never drop a step to fit 3 columns.
 - Each cell: one small monoline icon sitting with the heading + heading + subhead (copy verbatim). Icon is not a badge.
-- Between steps: dots in the gaps (left to right on each row). Not a centered wrap bar in the middle. Dots are the motion, not bouncing cards.
+- Between steps: one cluster per gap, centered in the space between whole step blocks (both rows and the gap between rows). Not a dedicated grid box. Not a centered wrap bar. Dots are the motion, not bouncing cards.
 - Optional **Groot spur**: a quiet side note off the main spine (not a required 7th step). Visible as “when product/IA is unknown.”
 - Narrow: keep 3 columns if readable. Stack to 1 column only if the stage cannot hold 3. Never drop a step. Mark shrinks but stays center-bottom.
 
@@ -165,12 +165,10 @@ Must match card 65 identity. Do not treat any preview as a timing handoff. `rg80
 
 ## Dots-in-gap lock (2026-09-08)
 
-Human via mace. Do not treat any preview as a timing handoff. `rg80sk0em` stays stale.
+Human via mace. Do not treat any preview as a timing handoff. Prior alias `rg80sk0em` is not something to time.
 
-- Dots sit in the gap between steps.
-- Vertical center of that gap (the line between steps). Not on the heading block. Not at the top of the heading.
-- Horizontally centered in the gap. Not shifted left.
-- Same rule on both rows.
-- No dots sitting on a heading.
-- Reading order is still row 1 then row 2. Do not add a centered wrap/loading bar of dots in the middle of the composition.
+- One cluster per gap. The gap is the space between the whole step blocks — not the heading line, not a dedicated 4×4 grid box.
+- Place clusters evenly in that gap on both rows, and one cluster in the gap between the two rows.
+- Centered in the gap. Not on the heading. Not shifted left.
+- No extra full-width center loading bar.
 - Copy stays verbatim. Do not invent a new system.
