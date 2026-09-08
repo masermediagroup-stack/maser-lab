@@ -209,15 +209,16 @@
   -webkit-backface-visibility: hidden;
 }
 
-/* Mesh fill + painted type. Overlay keeps the mark, sheen, and hit-test. */
-.maser-bot-card[data-gl="true"][data-reduced="false"][data-maps="ready"]
-  .maser-bot-card__side {
+/* Mesh fill + painted type. Overlay keeps the mark, sheen, and hit-test.
+   Do not wait on maps — an opaque overlay hides the cuboid side. */
+.maser-bot-card[data-gl="true"][data-reduced="false"] .maser-bot-card__side {
   background: transparent;
 }
 
 .maser-bot-card[data-gl="true"][data-reduced="false"][data-maps="ready"]
   .maser-bot-card__slot:not(.maser-bot-card__slot--mark) {
   opacity: 0;
+  visibility: hidden;
 }
 
 .maser-bot-card__side--front {

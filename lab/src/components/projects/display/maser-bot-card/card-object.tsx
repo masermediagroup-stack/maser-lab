@@ -16,7 +16,7 @@ import {
   Group,
   Mesh,
   MeshBasicMaterial,
-  MeshStandardMaterial,
+  MeshPhongMaterial,
   NoToneMapping,
   Shape,
   Vector2,
@@ -36,8 +36,8 @@ const RADIUS_N = 80;
 /** Mesh and face overlay share this fraction of the square stack. */
 export const CARD_FIT = 0.88;
 export const CARD_FOV = 26;
-/** Thickness as a fraction of face width — weight, not a slab. */
-const DEPTH_FIT = 0.022;
+/** Thickness as a fraction of face width — weight on tilt/flip, not a slab. */
+const DEPTH_FIT = 0.05;
 const FLIP_MS = 520;
 const TRACK_LERP = 0.18;
 const REST_LERP = 0.11;
@@ -168,10 +168,13 @@ function CardMesh({
   const meshRef = useRef<Mesh>(null);
   const sideMaterial = useMemo(
     () =>
-      new MeshStandardMaterial({
+      // Albedo is locked #000, so PBR diffuse is 0. Phong specular is how
+      // the cuboid side reads on tilt — satin, not chrome or iridescence.
+      new MeshPhongMaterial({
         color: FILL,
-        roughness: 0.62,
-        metalness: 0.04,
+        specular: new Color("#6e6e6e"),
+        shininess: 32,
+        toneMapped: false,
       }),
     [],
   );
@@ -199,7 +202,7 @@ function CardMesh({
   );
   const { viewport } = useThree();
   const outer = Math.min(viewport.width, viewport.height) * CARD_FIT;
-  const depth = Math.max(outer * DEPTH_FIT, 0.028);
+  const depth = Math.max(outer * DEPTH_FIT, 0.045);
   const radius = outer * (RADIUS_N / ART);
   const halfZ = depth / 2;
 
@@ -337,10 +340,11 @@ function CardMesh({
 
   return (
     <>
-      {/* World lights so the cuboid side catches on tilt/flip. Not on the overlay type. */}
-      <ambientLight intensity={0.1} />
-      <directionalLight position={[3.4, 0.2, 1.15]} intensity={0.95} />
-      <directionalLight position={[-2.8, 0.55, 0.7]} intensity={0.38} />
+      {/* World lights so the cuboid side catches on tilt/flip. Not on the lid type. */}
+      <ambientLight intensity={0.16} />
+      <directionalLight position={[3.6, 0.35, 2.1]} intensity={1.55} />
+      <directionalLight position={[-2.6, 1.1, 1.2]} intensity={0.7} />
+      <directionalLight position={[0.2, -2.2, 1.4]} intensity={0.4} />
       <group ref={tiltRef}>
         <group ref={flipRef}>
           <mesh ref={meshRef} geometry={geometry} material={materials} />

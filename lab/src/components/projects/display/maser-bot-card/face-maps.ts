@@ -28,6 +28,7 @@ function makeTexture(canvas: HTMLCanvasElement): CanvasTexture {
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
   texture.anisotropy = 8;
+  texture.flipY = true;
   texture.needsUpdate = true;
   return texture;
 }
