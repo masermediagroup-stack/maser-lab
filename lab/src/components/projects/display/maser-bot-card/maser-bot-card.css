@@ -220,9 +220,9 @@
   opacity: var(--shine-on, 0);
   background: radial-gradient(
     ellipse 42% 36% at var(--sheen-x, 50%) var(--sheen-y, 50%),
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.38)) 0%,
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.1)) 28%,
-    transparent 58%
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.55)) 0%,
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.16)) 32%,
+    transparent 62%
   );
 }
 

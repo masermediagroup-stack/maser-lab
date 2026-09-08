@@ -16,7 +16,7 @@ export function MaserBotCardDemo() {
   const [tiltEnabled, setTiltEnabled] = useState(true);
   const [maxAngleFeel, setMaxAngleFeel] = useState(1);
   const [shineEnabled, setShineEnabled] = useState(true);
-  const [shineIntensity, setShineIntensity] = useState(0.18);
+  const [shineIntensity, setShineIntensity] = useState(0.28);
   const [face, setFace] = useState<MaserBotCardFace>("front");
   const [bgMode, setBgMode] = useState<MaserBotCardBgMode>("interactive");
   const [bgIntensity, setBgIntensity] = useState(0.35);

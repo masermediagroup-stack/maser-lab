@@ -12,7 +12,7 @@ const YAW_DEG = 8;
 const PITCH_DEG = 5;
 const TRACK_LERP = 0.16;
 const REST_LERP = 0.09;
-const QUIET_SHEEN = 0.18;
+const QUIET_SHEEN = 0.28;
 
 const REST_STAGE: StageUniforms = {
   time: 0,
@@ -207,23 +207,24 @@ export function MaserBotCard({
 
   function onPlateMove(event: PointerEvent<HTMLDivElement>) {
     if (reduced) return;
+    trackingRef.current = true;
     lookPointerRef.current = {
       clientX: event.clientX,
       clientY: event.clientY,
       tracking: true,
     };
-    if (!finePointer) return;
     const plate = plateRef.current;
     if (!plate) return;
     const rect = plate.getBoundingClientRect();
     const nx = Math.min(1, Math.max(0, (event.clientX - rect.left) / Math.max(rect.width, 1)));
     const ny = Math.min(1, Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1)));
-    const feel = feelRef.current;
-    targetYawRef.current = (nx - 0.5) * 2 * YAW_DEG * feel;
-    targetPitchRef.current = (0.5 - ny) * 2 * PITCH_DEG * feel;
     sheenXRef.current = nx;
     sheenYRef.current = ny;
     if (shineOn) setPlateSheen(plate, true, nx, ny, intensityRef.current);
+    if (!finePointer) return;
+    const feel = feelRef.current;
+    targetYawRef.current = (nx - 0.5) * 2 * YAW_DEG * feel;
+    targetPitchRef.current = (0.5 - ny) * 2 * PITCH_DEG * feel;
   }
 
   function onStageMove(event: PointerEvent<HTMLElement>) {

@@ -45,7 +45,7 @@ fn fbm(p: vec2f) -> f32 {
   let frozen = stage.reduced > 0.5;
   let t = select(stage.time, 0.0, frozen);
   let tl_dist = length(uv);
-  let grad = exp(-tl_dist * 2.6) * 0.12 * mix(0.55, 1.0, clamp(stage.intensity, 0.0, 1.0));
+  let grad = exp(-tl_dist * 2.6) * 0.18 * mix(0.55, 1.0, clamp(stage.intensity, 0.0, 1.0));
 
   var cloud = 0.0;
   if (stage.tracking > 0.5 && !frozen) {
