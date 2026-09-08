@@ -112,6 +112,11 @@
   pointer-events: none;
 }
 
+.maser-bot-card__object > div {
+  width: 100%;
+  height: 100%;
+}
+
 .maser-bot-card__face-layer {
   position: absolute;
   inset: calc((1 - var(--mbc-fit, 0.88)) * 50%);
@@ -261,9 +266,9 @@
   opacity: var(--shine-on, 0);
   background: radial-gradient(
     ellipse 118% 78% at var(--sheen-x, 50%) var(--sheen-y, 50%),
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.11)) 0%,
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.04)) 38%,
-    transparent 72%
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.26)) 0%,
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.08)) 36%,
+    transparent 70%
   );
   transition: none;
 }

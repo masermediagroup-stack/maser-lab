@@ -13,7 +13,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 ## Dependencies
 
 - `vgpu` (WebGPU **stage** field: black + TL grey + pointer cloud). CSS gradient fallback if `init()` fails. Do not boot a new raw WebGL stack for the stage.
-- Three.js / `@react-three/fiber` / `@react-three/drei` — one card object (extruded rounded rect + Html face). Type stays Html on the card face.
+- Three.js / `@react-three/fiber` — one card object (extruded rounded rect + EdgesGeometry). Type sits on a card-face overlay that reads the same pose. Do not use drei `Html` for this face.
 - Vendored Grokbot engine: `lab/src/components/projects/display/maser-bot-card/grokbot/` from https://github.com/masermediagroup-stack/Grokbot-animations (MIT).
 - Product type: **UniversalSansGrokTest Display Trial** — `@font-face` swap. Do not substitute Geist or Inter. Do not load Text Trial.
 
@@ -39,7 +39,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 
 1. Copy `lab/src/components/projects/display/maser-bot-card/` to portfolio repo
 2. Copy public assets listed above
-3. Install dependencies listed above (`vgpu`, Three.js / R3F / drei, WGSL loader)
+3. Install dependencies listed above (`vgpu`, Three.js / R3F, WGSL loader)
 4. Adjust import paths. Do not wire Geist or Inter onto the product.
 5. Add showcase page; wire props to portfolio router
 6. Preview deploy on Vercel → QA → production deploy

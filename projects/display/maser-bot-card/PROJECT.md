@@ -10,7 +10,7 @@
 
 - Figma file: **GrokBot-Loop-DemoCard**. Front v1 `1:20` (mark-forward). Back v1 `1:2` (identity). Wordmark `1:22`. Artboard 1299×1299. v2/v3/Assets parked.
 - Other: steal Zoah **pose + specular + slab-edge feel** only. Refuse Zoah skin, landscape, dither on the card face, embossed type.
-- Build: One Three.js card object (extruded rounded rect physical edge + Html face) so face, bezel, rim, and sheen share one transform. Quiet pointer sheen on a solid `#000` card face. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card.
+- Build: One Three.js card object (extruded rounded rect physical edge). Type sits on a card-face overlay that reads the same pose in the same frame loop so face, bezel, rim, and sheen move together. Quiet pointer sheen on a solid `#000` card face. Wordmark on Front v1. Live capsule on Back v1. vgpu **stage** (TL grey + pointer cloud) behind the card.
 
 ## Brief
 
@@ -46,7 +46,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | Three.js card object (extruded rounded rect + kinetic-bars edge strokes) + Html face; vgpu stage | Figma card face must stay `#000`; stacked CSS bezels broke tilt/shine |
+| Library | Three.js card object (extruded rounded rect + kinetic-bars edge strokes) + shared-pose face overlay; vgpu stage | Figma card face must stay `#000`; stacked CSS bezels broke tilt/shine; drei Html CSS3D failed hit-test |
 | Yaw / pitch | Live ~±16° / ±10° × feel knob | Enough tilt to read the thin physical edge; not a flip toy; not frozen tokens |
 | Return | damped lerp | not a hard snap |
 | Sheen / light | Quiet wash **only while pointer is on the card face**; snap off on leave | no rest sheen, no idle center, no leftover specular, no light that sticks when the card tilts |

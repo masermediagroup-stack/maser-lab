@@ -60,7 +60,7 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Recut card face to Figma 1299×1299 square, radius 80, fill `#000000`. Scale from the board.
 - Wordmark on **Front v1** (`1:20`). Live capsule + identity type on **Back v1** (`1:2`). No capsule on front. No animated mark on front.
 - Card face stays solid `#000`. No idle center light, rest sheen, parked highlight, or center bloom. Tilt + quieter sheen only while the pointer is on the card. Leave (including a fast swipe) kills the light clean.
-- **One 3D object:** Face, bezel, rim, and sheen share one Three.js transform. Physical edge is one extruded mesh + EdgesGeometry (kinetic-bars pattern), not stacked CSS planes. Type sits on the card face via CSS3D (`drei` Html). Face stays black. Type stays flat Display Trial — not embossed, not metallic.
+- **One 3D object:** Face, bezel, rim, and sheen share one pose. Physical edge is one extruded mesh + EdgesGeometry (kinetic-bars pattern), not stacked CSS planes. Type sits on a card-face overlay driven from the same frame loop as the mesh (drei Html CSS3D failed hit-test). Face stays black. Type stays flat Display Trial — not embossed, not metallic.
 - Stage bg is vgpu: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor following the pointer. Not the old Bayer/wave dither. Not on the card face or the type. Pointer moves the card, not a wallpaper. Do not boot a new raw WebGL stack for the stage.
 - Lock Back v1 mark to Bloub engine, capsule, bleu `#3b93f0`. One catalog curl per page load on **Back v1 only**: neutre → attentif → curieux → mefiant → thinking → fier → neutre, then stop. Eyes follow the pointer after that until refresh. Do not replay the curl. Clamp gaze so the full eye stays inside the capsule, inset from the silhouette. Never clip or leave the face. Reduced motion plants `neutre`. Refuse `defaultCycle`, the old idle→thinking→wide curl, and Maser blue `#10A4FF`.
 - Typeset **only** Front v1 (`1:20`) and Back v1 (`1:2`) plus wordmark `1:22`. Every other frame in GrokBot-Loop-DemoCard (v2/v3, Assets, parked ideas) stays parked. Do not pull extra type, marks, or layouts from them.
@@ -135,7 +135,7 @@ Live behavior (after static):
 1. Tilt + quieter sheen on the **card face** only while the pointer is on the card. Card face stays the Figma square `#000`. No rest sheen, idle center light, parked highlight, or center bloom. Flip control sits **lower**, bottom center, clear of the corner: the text is the button (no outline, no chip). Label is **Back** on the wordmark face and **Front** on the identity face. Not “View back” / “View front”. Not hover-only. On leave, including a fast swipe off the card, the light dies clean. Reduced motion: planted, no sheen at all.
 2. Stage background **behind** the card, not on the card face and not the type: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave.
 3. Card face stays solid `#000000` so type and capsule read as the Figma file.
-4. Physical object: one Three.js card (extruded rounded rect + edge strokes + Html face) so face, bezel, rim, and sheen share one transform. Contact shadow under the card. Pointer moves the whole object. Not stacked CSS bezels.
+4. Physical object: one Three.js card (extruded rounded rect + edge strokes). Type on a card-face overlay that reads the same pose so face, bezel, rim, and sheen move together. Contact shadow under the card. Pointer moves the whole object. Not stacked CSS bezels. Not drei Html.
 
 ## Orientation (locked 2026-09-05)
 
@@ -231,7 +231,7 @@ Portrait / square stays. Front copy parked verbatim. Mark animation is locked in
 
 **Superseded 2026-09-08** by the Figma static lock, then critique: the **card face** is solid `#000` CSS. No idle light. Pointer sheen only while on the card face. **vgpu is the stage field** (TL grey + pointer cloud), not the card face and not the old dither wave.
 
-**Superseded the same day (recut):** stacked CSS bezels broke tilt and shine. Rebuild as **one Three.js object** so face, bezel, rim, and sheen share one transform. Physical edge is an extruded mesh + EdgesGeometry (kinetic-bars), not a second stacked plane. Type stays Html on the card face. Stage stays vgpu. Do not boot a new raw WebGL stack.
+**Superseded the same day (recut):** stacked CSS bezels broke tilt and shine. Rebuild as **one Three.js object** so face, bezel, rim, and sheen share one pose. Physical edge is an extruded mesh + EdgesGeometry (kinetic-bars), not a second stacked plane. Type sits on a card-face overlay (not drei Html). Stage stays vgpu. Do not boot a new raw WebGL stack.
 
 ## Mark animation (locked 2026-09-06 — Grok meetup capsule)
 
