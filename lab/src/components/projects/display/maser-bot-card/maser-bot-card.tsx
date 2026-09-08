@@ -298,7 +298,7 @@ export function MaserBotCard({
   }
 
   const otherFace: MaserBotCardFace = face === "front" ? "back" : "front";
-  const flipLabel = face === "front" ? "View back" : "View front";
+  const flipLabel = face === "front" ? "Back" : "Front";
 
   return (
     <article
@@ -374,7 +374,6 @@ export function MaserBotCard({
           className="maser-bot-card__flip-control"
           onClick={() => setFace(otherFace)}
           aria-pressed={face === "back"}
-          aria-label={flipLabel}
         >
           {flipLabel}
         </button>

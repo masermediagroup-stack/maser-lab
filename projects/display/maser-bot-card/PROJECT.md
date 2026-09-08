@@ -15,7 +15,7 @@
 ## Brief
 
 ### User / trigger
-Dallas meetup stage: pointer over a single 1299-square card; explicit View front/back. Occasional, live demo frequency.
+Dallas meetup stage: pointer over a single 1299-square card; explicit Back / Front text at the bottom of the card. Occasional, live demo frequency.
 
 ### Job
 Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + quieter sheen. Stage stays behind the card.
@@ -35,7 +35,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 ## States
 
 - [x] rest
-- [x] front / back / flip (View front / View back + demo Face knobs)
+- [x] front / back / flip (Back / Front text at the bottom of the card + demo Face knobs)
 - [x] pointer enter / move / leave
 - [x] prefers-reduced-motion (OS + demo toggle)
 - [x] TV / present

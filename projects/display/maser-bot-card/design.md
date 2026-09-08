@@ -31,7 +31,7 @@ Out: lab shell chrome (already locked on main). Stage script (Copy). Prompt-only
 | Rest | Card planted. No tilt. No sheen. No idle center light. |
 | Front | Front v1 (`1:20`): white Grok Bot wordmark. No animated mark. |
 | Back | Back v1 (`1:2`): identity — live capsule + name, role, bio. |
-| Flip | View front/back control toggles faces. Not hover-only. |
+| Flip | Text-only Back / Front at the bottom of the card. Not hover-only. |
 | Pointer enter | Track pointer. Tilt + quieter sheen arm only while the pointer is on the card face. |
 | Pointer move | Tilt follows pointer (X/Y). Quiet sheen tracks the pointer on the card face. Stage cloud follows on the field. |
 | Pointer leave | Tilt eases back. Sheen dies clean (including a fast swipe). No stuck glow. |
@@ -82,6 +82,7 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Dither on the card face
 - Rewriting locked body copy
 - Hover-only face reveal (no flip control)
+- Chip / outline / “View back” / “View front” on the flip control
 - Zoah embossed / iridescent type
 - Typesetting parked GrokBot-Loop-DemoCard frames (v2/v3, Assets, extra marks) onto the card
 - Idle center light / rest sheen / leftover specular after pointer leave
@@ -131,7 +132,7 @@ Back v1 (identity, `1:2`):
 
 Live behavior (after static):
 
-1. Tilt + quieter sheen on the **card face** only while the pointer is on the card. Card face stays the Figma square `#000`. No rest sheen, idle center light, parked highlight, or center bloom. Flip control stays (View front / View back), not hover-only. On leave, including a fast swipe off the card, the light dies clean. Reduced motion: planted, no sheen at all.
+1. Tilt + quieter sheen on the **card face** only while the pointer is on the card. Card face stays the Figma square `#000`. No rest sheen, idle center light, parked highlight, or center bloom. Flip control sits at the bottom of the card: the text is the button (no outline, no chip). Label is **Back** on the wordmark face and **Front** on the identity face. Not “View back” / “View front”. Not hover-only. On leave, including a fast swipe off the card, the light dies clean. Reduced motion: planted, no sheen at all.
 2. Stage background **behind** the card, not on the card face and not the type: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave.
 3. Card face stays solid `#000000` so type and capsule read as the Figma file.
 4. Physical object: CSS 3D thin slab bezel + contact shadow. Pointer moves the card. Do not put the card face on WebGL.
@@ -160,7 +161,7 @@ Two sides. Not a hover peek.
 | Front | Front v1 (`1:20`): white Grok Bot wordmark vector. No capsule. |
 | Back | Back v1 (`1:2`): live capsule + name, role, bio (Figma boxes). |
 
-Toggle with an explicit **View front / View back** control (flip). Do not use hover-only to reveal the other face. Focusable, keyboardable, reduced-motion safe (instant swap or opacity crossfade when motion is off).
+Toggle with an explicit **Back / Front** text control at the bottom of the card (the label *is* the button). Do not use hover-only to reveal the other face. Focusable, keyboardable, reduced-motion safe (instant swap or opacity crossfade when motion is off).
 
 ## Light (steal from Zoah craft — structure only)
 
@@ -175,7 +176,7 @@ Refuse Zoah embossed / iridescent type treatment. Our type is flat UniversalSans
 ## Observable decisions (add)
 
 - Build two faces: mark-forward Front v1, identity Back v1.
-- Flip via View front/back control. Refuse hover-only reveal.
+- Flip via Back / Front text at the bottom of the card. Refuse hover-only reveal. Refuse a chip or outline around the label.
 - Stack tilt + sheen + optional band. Refuse embossed/iridescent type.
 
 ## Zoah craft notes (structure only — 2026-09-05 inspect)
@@ -267,5 +268,5 @@ Say **card face**, not plate.
 - Pointer light: keep tilt + a quieter sheen only while the pointer is on the card. On leave, including a fast swipe off the card, the light dies clean. No stuck glow, no flash, no leftover specular. Reduced motion: no sheen at all.
 - Physical craft (Zoah videos / zoah.com founding-card as **feel** only): CSS 3D thin slab bezel around the square portrait (`preserve-3d` side faces). When it tilts, the edge is visible. A thin cool-white rim highlight rides the near edge with the pointer. Soft contact shadow under the card so it sits in the room. Face stays black. Type stays flat Display Trial — not embossed, not metallic. Not landscape. Not purple. Not member chrome. Not Zoah dither on the card face. Do not put the card face on WebGL.
 - Stage behind the card, not on the card face and not on the type: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor shader (vgpu). Not the old dither wave. Pointer moves the card, not a wallpaper.
-- Copy stays verbatim. Flip control stays.
+- Copy stays verbatim. Flip control sits at the bottom of the card: Back on the wordmark face, Front on the identity face. The text is the button. No outline, no chip.
 
