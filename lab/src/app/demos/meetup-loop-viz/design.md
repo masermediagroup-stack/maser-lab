@@ -1,4 +1,4 @@
-# Meetup loop visualization
+# GrokBot Loop Demo Visual
 
 Lab teaching page for the Dallas meetup live demo. Not a client. Separate PR from the Maser card (`meetup loop visualization`). One PR per track. Rehearse with commit resets.
 
@@ -150,3 +150,19 @@ Human via mace. Do not time rg80sk0em or hq2tle61d after this push.
 
 - Center the entire 2×3 loop composition in the viewport, horizontally and vertically.
 - Move the animating Grok bot logo to the center bottom of the screen. Live Grokbot-animations mark. Not top-right, not a droplet, not a static still.
+
+## Demo name (2026-09-08)
+
+**GrokBot Loop Demo Visual.** Lab chrome, accessible name, and registry title. Slug stays `meetup-loop-viz`. Git PR title stays `meetup loop visualization`.
+
+## Dots-in-gap lock (2026-09-08)
+
+Human via mace. Do not treat any preview as a timing handoff. `rg80sk0em` stays stale.
+
+- Dots sit in the gap between steps.
+- Vertical center of that gap (the line between steps). Not on the heading block. Not at the top of the heading.
+- Horizontally centered in the gap. Not shifted left.
+- Same rule on both rows.
+- No dots sitting on a heading.
+- Dots still wrap row 1 into row 2 in reading order.
+- Copy stays verbatim. Do not invent a new system.

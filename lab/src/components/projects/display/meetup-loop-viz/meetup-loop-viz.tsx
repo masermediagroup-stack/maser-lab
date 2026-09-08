@@ -36,6 +36,18 @@ function FlowDots() {
   );
 }
 
+function GapDots({ slot }: { slot: "c1" | "c2" | "c3" | "c4" }) {
+  return (
+    <div
+      className="meetup-loop-viz__connector"
+      data-slot={slot}
+      aria-hidden="true"
+    >
+      <FlowDots />
+    </div>
+  );
+}
+
 export function MeetupLoopViz({
   focusedStep = "all",
   showGrootSpur = false,
@@ -47,17 +59,15 @@ export function MeetupLoopViz({
   return (
     <section
       className="meetup-loop-viz"
-      aria-label="Meetup loop visualization"
+      aria-label="GrokBot Loop Demo Visual"
       data-reduced-motion={reduced ? "true" : undefined}
     >
       <div className="meetup-loop-viz__stage">
         <GrokBotMark reduced={reduced} />
         <div className="meetup-loop-viz__board">
           <ol className="meetup-loop-viz__spine">
-            {LOOP_STEPS.map((step, index) => {
+            {LOOP_STEPS.map((step) => {
               const dimmed = focusedStep !== "all" && focusedStep !== step.id;
-              const isLast = index === LOOP_STEPS.length - 1;
-              const isRowEnd = index === 2;
               const showSpurHere = showGrootSpur && step.id === "shape";
 
               return (
@@ -84,21 +94,17 @@ export function MeetupLoopViz({
                       </p>
                     ) : null}
                   </div>
-                  {isLast ? null : (
-                    <div
-                      className="meetup-loop-viz__connector"
-                      data-wrap={isRowEnd ? "true" : undefined}
-                    >
-                      <FlowDots />
-                    </div>
-                  )}
                 </li>
               );
             })}
           </ol>
+          <GapDots slot="c1" />
+          <GapDots slot="c2" />
           <div className="meetup-loop-viz__wrap" aria-hidden="true">
             <FlowDots />
           </div>
+          <GapDots slot="c3" />
+          <GapDots slot="c4" />
         </div>
       </div>
     </section>

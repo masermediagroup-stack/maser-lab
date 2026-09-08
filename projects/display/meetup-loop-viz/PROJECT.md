@@ -1,5 +1,6 @@
 # Project: Meetup loop visualization
 
+**Demo name:** GrokBot Loop Demo Visual  
 **Slug:** `meetup-loop-viz`  
 **Category:** display  
 **Status:** building  

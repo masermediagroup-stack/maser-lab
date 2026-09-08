@@ -30,7 +30,7 @@ export function MeetupLoopVizDemo() {
       <DemoControlMenu>
         <DemoBackButton />
         <p className="font-mono text-xs text-[var(--lab-text-secondary)]">
-          Meetup loop visualization
+          GrokBot Loop Demo Visual
         </p>
         <LabSelect
           id="meetup-loop-step-focus"
