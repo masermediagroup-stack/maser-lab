@@ -21,7 +21,7 @@ Dallas meetup stage: pointer over a single 1299-square card; explicit Back / Fro
 Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + quieter sheen. Stage stays behind the card.
 
 ### Current behavior
-1299 square card face, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable flip below the card. Type sits on the card face; tilt + quieter sheen on that face. No rim, no bevel. vgpu black + TL grey + pointer cloud on the stage field.
+1299 square card face, radius 80, fill `#000`. Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Keyboardable Back / Front text below the card, fully clear of the Figma body (type ends at y 1204). Type sits on the card face; tilt + quieter sheen on that face. No rim, no bevel. vgpu black + TL grey + pointer cloud on the stage field.
 
 ### Desired outcome
 Match Figma boxes at `n / 1299`. Keep live tilt/sheen and stage field. Do not bake the stage shader into the card face.
@@ -35,7 +35,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 ## States
 
 - [x] rest
-- [x] front / back / flip (Back / Front text below the card + demo Face knobs)
+- [x] front / back / flip (Back / Front text below the card, clear of the body box + demo Face knobs)
 - [x] pointer enter / move / leave
 - [x] prefers-reduced-motion (OS + demo toggle)
 - [x] TV / present
