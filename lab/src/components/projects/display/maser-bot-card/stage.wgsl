@@ -1,49 +1,60 @@
 struct Stage {
   time: f32,
+  pointer_x: f32,
+  pointer_y: f32,
+  tracking: f32,
   intensity: f32,
-  speed: f32,
   reduced: f32,
+  pad0: f32,
+  pad1: f32,
 }
 
 @group(0) @binding(0) var<uniform> stage: Stage;
 
 const BLACK = vec3f(0.0, 0.0, 0.0);
-const GREY = vec3f(0.38, 0.38, 0.38);
+const GREY = vec3f(0.42, 0.42, 0.42);
 
-fn bayer4(p: vec2u) -> f32 {
-  let x = p.x & 3u;
-  let y = p.y & 3u;
-  let idx = y * 4u + x;
-  var n = 0u;
-  if (idx == 0u) { n = 0u; }
-  else if (idx == 1u) { n = 8u; }
-  else if (idx == 2u) { n = 2u; }
-  else if (idx == 3u) { n = 10u; }
-  else if (idx == 4u) { n = 12u; }
-  else if (idx == 5u) { n = 4u; }
-  else if (idx == 6u) { n = 14u; }
-  else if (idx == 7u) { n = 6u; }
-  else if (idx == 8u) { n = 3u; }
-  else if (idx == 9u) { n = 11u; }
-  else if (idx == 10u) { n = 1u; }
-  else if (idx == 11u) { n = 9u; }
-  else if (idx == 12u) { n = 13u; }
-  else if (idx == 13u) { n = 5u; }
-  else if (idx == 14u) { n = 15u; }
-  else { n = 7u; }
-  return f32(n) / 16.0;
+fn hash21(p: vec2f) -> f32 {
+  return fract(sin(dot(p, vec2f(127.1, 311.7))) * 43758.5453);
+}
+
+fn noise(p: vec2f) -> f32 {
+  let i = floor(p);
+  let f = fract(p);
+  let u = f * f * (3.0 - 2.0 * f);
+  let a = hash21(i);
+  let b = hash21(i + vec2f(1.0, 0.0));
+  let c = hash21(i + vec2f(0.0, 1.0));
+  let d = hash21(i + vec2f(1.0, 1.0));
+  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+fn fbm(p: vec2f) -> f32 {
+  var v = 0.0;
+  var a = 0.5;
+  var q = p;
+  for (var i = 0; i < 4; i++) {
+    v += a * noise(q);
+    q *= 2.03;
+    a *= 0.5;
+  }
+  return v;
 }
 
 @fragment fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
   let frozen = stage.reduced > 0.5;
-  let t = select(stage.time * stage.speed, 0.0, frozen);
-  let travel = vec2f(t, t) * 0.028;
-  let q = uv + travel;
-  let freq = 9.4 * mix(0.72, 1.15, clamp(stage.intensity, 0.0, 1.0));
-  let wave = 0.5 + 0.5 * sin((q.x + q.y) * freq);
-  let level = 0.11 + wave * 0.16 * mix(0.35, 1.0, clamp(stage.intensity, 0.0, 1.0));
-  let cell = vec2u(uv * 420.0);
-  let mark = step(bayer4(cell), level);
-  let col = mix(BLACK, GREY, mark);
+  let t = select(stage.time, 0.0, frozen);
+  let tl_dist = length(uv);
+  let grad = exp(-tl_dist * 2.6) * 0.12 * mix(0.55, 1.0, clamp(stage.intensity, 0.0, 1.0));
+
+  var cloud = 0.0;
+  if (stage.tracking > 0.5 && !frozen) {
+    let p = uv - vec2f(stage.pointer_x, stage.pointer_y);
+    let n = fbm(p * 6.5 + vec2f(t * 0.11, t * 0.08));
+    let fall = smoothstep(0.18, 0.0, length(p));
+    cloud = fall * (0.16 + 0.22 * n) * clamp(stage.intensity, 0.0, 1.0);
+  }
+
+  let col = BLACK + GREY * (grad + cloud);
   return vec4f(col, 1.0);
 }

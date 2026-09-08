@@ -16,12 +16,10 @@ export function MaserBotCardDemo() {
   const [tiltEnabled, setTiltEnabled] = useState(true);
   const [maxAngleFeel, setMaxAngleFeel] = useState(1);
   const [shineEnabled, setShineEnabled] = useState(true);
-  const [shineIntensity, setShineIntensity] = useState(0.42);
-  const [bandEnabled, setBandEnabled] = useState(true);
+  const [shineIntensity, setShineIntensity] = useState(0.18);
   const [face, setFace] = useState<MaserBotCardFace>("front");
   const [bgMode, setBgMode] = useState<MaserBotCardBgMode>("interactive");
   const [bgIntensity, setBgIntensity] = useState(0.35);
-  const [bgSpeed, setBgSpeed] = useState(1);
   const [reduced, setReduced] = useState(false);
   const [present, setPresent] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
@@ -55,12 +53,10 @@ export function MaserBotCardDemo() {
       maxAngleFeel={maxAngleFeel}
       shineEnabled={shineEnabled}
       shineIntensity={shineIntensity}
-      bandEnabled={bandEnabled}
       face={face}
       onFaceChange={setFace}
       bgMode={bgMode}
       bgIntensity={bgIntensity}
-      bgSpeed={bgSpeed}
       forceReducedMotion={reduced}
     />
   );
@@ -144,16 +140,6 @@ export function MaserBotCardDemo() {
               onChange={setShineIntensity}
             />
           </LabControlGroup>
-          <LabControlGroup label="Band">
-            <LabButton
-              type="button"
-              variant={bandEnabled ? "accent" : "ghost"}
-              aria-pressed={bandEnabled}
-              onClick={() => setBandEnabled((value) => !value)}
-            >
-              Band {bandEnabled ? "on" : "off"}
-            </LabButton>
-          </LabControlGroup>
           <LabControlGroup label="Stage bg">
             <div
               className="flex flex-wrap gap-1"
@@ -186,16 +172,6 @@ export function MaserBotCardDemo() {
               value={bgIntensity}
               display={bgIntensity.toFixed(2)}
               onChange={setBgIntensity}
-            />
-            <LabRange
-              id="mbc-bg-speed"
-              label="Speed"
-              min={0.25}
-              max={2}
-              step={0.05}
-              value={bgSpeed}
-              display={`${bgSpeed.toFixed(2)}×`}
-              onChange={setBgSpeed}
             />
           </LabControlGroup>
         </DemoControlMenu>

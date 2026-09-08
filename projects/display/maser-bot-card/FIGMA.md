@@ -41,4 +41,4 @@
 | 2026-09-05 | skeleton | Env prep. Track A: vgpu plate. Universal Sans waits. |
 | 2026-09-06 | mark lock | Capsule + bleu `#3b93f0`. Cycle idle → thinking → wide → thinking → idle. |
 | 2026-09-08 | Figma → code | Recut to 1299 square. Typeset copy. Capsule Back v1. Wordmark Front v1. vgpu stage dither. |
-| 2026-09-08 | human confirm | Faces flipped: Front v1 `1:20` / Back v1 `1:2`. Parked other frames. 30s curl/break on Back v1 mark. |
+| 2026-09-08 | critique | Pointer-only sheen. Stage TL grey + cloud. Named TTF path. 272×162 mark box. |

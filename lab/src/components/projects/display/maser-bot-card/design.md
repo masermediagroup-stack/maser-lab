@@ -28,14 +28,14 @@ Out: lab shell chrome (already locked on main). Stage script (Copy). Prompt-only
 
 | State | Behavior |
 | --- | --- |
-| Rest | Card planted. No tilt. Shine idle or off. Bg calm. |
+| Rest | Card planted. No tilt. No sheen. No idle center light. |
 | Front | Front v1 (`1:20`): white Grok Bot wordmark. No animated mark. |
 | Back | Back v1 (`1:2`): identity — live capsule + name, role, bio. |
 | Flip | View front/back control toggles faces. Not hover-only. |
-| Pointer enter | Track pointer. Tilt + shine arm. |
-| Pointer move | Tilt follows pointer (X/Y). Shine streak tracks pointer across the face. Bg may respond. |
-| Pointer leave | Ease back to rest. Shine settles. |
-| Reduced motion | No tilt. No shine chase. Bg static or a single still frame. Honor OS + demo toggle. |
+| Pointer enter | Track pointer. Tilt + quieter sheen arm only while the pointer is on the plate. |
+| Pointer move | Tilt follows pointer (X/Y). Quiet sheen tracks the pointer on the plate. Stage cloud follows on the field. |
+| Pointer leave | Tilt eases back. Sheen dies clean (including a fast swipe). No stuck glow. |
+| Reduced motion | No tilt. No sheen. Stage still (black + TL grey). Mark planted `neutre`. Honor OS + demo toggle. |
 | TV / present | Fullscreen card, zero chrome (Esc out). Stage mode. |
 | Empty / missing mark | Honest fallback — never a broken layout. Copy owns the line. |
 
@@ -46,10 +46,9 @@ Hover, focus-visible, and press belong to any controls on the card (CTA later). 
 Until Figma locks values, Spark may scaffold knobs only:
 
 - **Tilt** — on/off, max angle feel (leave numbers to live timing)
-- **Shine** — on/off, intensity
-- **Band** — on/off for optional diagonal light mask
+- **Shine** — on/off, quiet intensity (pointer-only; no rest sheen)
 - **Face** — front / back (same as the product flip control)
-- **Bg** — calm (still dither) / interactive (travelling dither). vgpu stage only — not the plate.
+- **Bg** — calm (black + TL grey, no cursor cloud) / interactive (quiet pointer cloud). vgpu stage only — not the plate.
 - **Replay / reduced motion** — shared lab row
 
 Look knobs live in the demo. The product card never imports demo chrome.
@@ -60,8 +59,8 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Steal Zoah tilt+shine structure; refuse Zoah skin.
 - Recut plate to Figma 1299×1299 square, radius 80, fill `#000000`. Scale from the board.
 - Wordmark on **Front v1** (`1:20`). Live capsule + identity type on **Back v1** (`1:2`). No capsule on front. No animated mark on front.
-- Plate stays solid `#000`. Tilt + sheen + light are pointer-driven CSS overlays. Do not bake dither into the plate.
-- Stage bg is vgpu: black field + grey dither, wave/frequency, travel top-left → bottom-right. Quiet. Not rainbow, not grain soup, not on the type.
+- Plate stays solid `#000`. No idle center light, rest sheen, parked highlight, rim bloom, or band. Tilt + quieter sheen only while the pointer is on the card. Leave (including a fast swipe) kills the light clean.
+- Stage bg is vgpu: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor following the pointer. Not the old Bayer/wave dither. Not on the plate or the type.
 - Lock Back v1 mark to Bloub engine, capsule, bleu `#3b93f0`. Curl catalog expressions on **Back v1 only**: neutre → attentif → curieux → mefiant → thinking → fier → neutre across ~30s, then 30s neutre break (pointer gaze), then curl again. Refuse `defaultCycle`, the old idle→thinking→wide curl, and Maser blue `#10A4FF`.
 - Typeset **only** Front v1 (`1:20`) and Back v1 (`1:2`) plus wordmark `1:22`. Every other frame in GrokBot-Loop-DemoCard (v2/v3, Assets, parked ideas) stays parked. Do not pull extra type, marks, or layouts from them.
 - One card as the hero. No collage of windows.
@@ -84,6 +83,9 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Hover-only face reveal (no flip control)
 - Zoah embossed / iridescent type
 - Typesetting parked GrokBot-Loop-DemoCard frames (v2/v3, Assets, extra marks) onto the card
+- Idle center light / rest sheen / leftover specular after pointer leave
+- Old travelling Bayer dither wave on the stage
+- Geist / Inter / system grotesk if the UniversalSans TTF is missing — leave the named `@font-face`; do not substitute
 
 ## Tokens (Figma static — 2026-09-08)
 
@@ -91,7 +93,7 @@ Scale every box as `n / 1299` of the plate. Artboard 1299×1299.
 
 - Plate: 1299×1299, corner radius 80, fill `#000000`
 - Type: `#FFFFFF`
-- Family: **UniversalSansGrokTest Display Trial**. Name 400. Role and body 300. Leading 1.2. `@font-face` swap; do not substitute Geist, Inter, or system grotesk.
+- Family: **UniversalSansGrokTest Display Trial** (name table). Metrics: name 96/400, role and body 64/300, leading 1.2. Vendor `lab/public/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf`. The dropped file is style 400 only — use that same face for 300 slots. Do not substitute Geist, Inter, or a system grotesk. If the TTF bytes are not in the handoff, keep the named `@font-face` path; do not invent another family.
 - Capsule: bleu `#3b93f0`. Paper holes = plate `#000000`. Refuse `#10A4FF`.
 
 ## Hand-off
@@ -121,15 +123,15 @@ Front v1 (mark-forward, `1:20`):
 
 Back v1 (identity, `1:2`):
 
-- Live capsule (Grokbot-animations engine, `capsule`, bleu `#3b93f0`). Replace the Figma still (mac logo black eyes, 272×162 at x 100, y 142). Do not ship the still. Thinking may briefly leave the capsule (engine). Accept that.
+- Live capsule (Grokbot-animations engine, `capsule`, bleu `#3b93f0`). Replace the Figma still (mac logo black eyes, 272×162 at x 100, y 142). Place and size the live mark **in that box**. Do not float it. Do not ship the still. Thinking may briefly leave the capsule (engine) and clips to the slot.
 - Name: mace. UniversalSansGrokTest Display Trial 400, 96px, leading 1.2, white, right. Box x 969, y 138, w 231, h 68.
 - Role: Chief of Staff/Producer. 300, 64px, leading 1.2, right. Box x 574, y 253, w 626, h 45.
 - Body: 300, 64px, leading 1.2, left. Box x 97, y 692, w 840, h 512. Verbatim — do not rewrite.
 
 Live behavior (after static):
 
-1. Tilt + sheen + light on the card (pointer-driven). Plate stays the Figma square `#000`. Flip control stays (View front / View back), not hover-only. Reduced motion: planted, no chase.
-2. Stage background **behind** the card, not the plate: black field + grey dither. Slight motion, wave / frequency, travel top-left to bottom-right. Quiet. Not a rainbow, not grain soup, not on the type. Shader is **vgpu**.
+1. Tilt + quieter sheen on the card **only while the pointer is on the plate**. Plate stays the Figma square `#000`. No rest sheen, idle center light, parked highlight, or center bloom. Flip control stays (View front / View back), not hover-only. On leave, including a fast swipe off the card, the light dies clean. Reduced motion: planted, no sheen at all.
+2. Stage background **behind** the card, not the plate and not the type: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave.
 3. Plate stays solid `#000000` so type and capsule read as the Figma file.
 
 ## Orientation (locked 2026-09-05)
@@ -142,9 +144,9 @@ Portrait first. Stage-readable from the back of the room. Scaffold the demo fram
 
 - Park Copy lines verbatim. Do not rewrite.
 - Lock card Name to **mace** (not Maser). Role **Chief of Staff/Producer**.
-- Recut plate to Figma 1299 square. Wordmark on Front v1 (`1:20`). Capsule on Back v1 (`1:2`).
+- Recut plate to Figma 1299 square. Wordmark on Front v1 (`1:20`). Capsule in the 272×162 box on Back v1 (`1:2`). Do not invent spacing.
 - Park every other GrokBot-Loop-DemoCard frame. Do not typeset them.
-- Stage dither is vgpu behind the card. Do not bake dither into the plate.
+- Stage field is vgpu behind the card (TL grey + pointer cloud). Do not bake it into the plate.
 - Set card orientation to 1299 square. Refuse Zoah landscape.
 
 ## Card faces (locked 2026-09-05)
@@ -224,7 +226,7 @@ Surfaces (until Figma tokens):
 
 Portrait / square stays. Front copy parked verbatim. Mark animation is locked in the section below — not optional later.
 
-**Superseded 2026-09-08** by the Figma static lock: plate is solid `#000` CSS. Tilt/sheen/light stay pointer-driven overlays. **vgpu is the stage dither**, not the plate. Do not bake dither into the plate.
+**Superseded 2026-09-08** by the Figma static lock, then critique: plate is solid `#000` CSS. No idle light. Pointer sheen only while on the plate. **vgpu is the stage field** (TL grey + pointer cloud), not the plate and not the old dither wave.
 
 ## Mark animation (locked 2026-09-06 — Grok meetup capsule)
 
@@ -237,7 +239,7 @@ Context: **Grok Bot meetup** teaching demo — mark reads as Grok, not Maser bra
 - Body: ShapeId **`capsule`** — horizontal stadium as shipped (`skins.ts`). Vertical pill refused unless human reopens.
 - Color: stock bloub **`bleu` `#3b93f0`**. Refuse Maser blue `#10A4FF` on this mark.
 - Eyes: paper stadium holes. `paper` = plate `#000000`.
-- Loop lives on **Back v1 only** (`1:2`). No animated mark on Front v1 (`1:20`).
+- Loop lives on **Back v1 only** (`1:2`). Slot 272×162 at x 100, y 142. Size and place to that box; do not float. No animated mark on Front v1 (`1:20`).
 - **30s curl, then 30s break, then curl again.** Repeat. Not a one-shot. Not `defaultCycle`. Not idle→thinking→wide.
 - Curl beats (catalog IDs, in order, spread across ~30s; time feel on the live preview — do not freeze guessed ms as tokens):
   1. `neutre`
@@ -251,3 +253,11 @@ Context: **Grok Bot meetup** teaching demo — mark reads as Grok, not Maser bra
 - Reduced motion: plant `neutre`, no curl, no pointer chase.
 
 **Spark:** wire now — `shape="capsule"`, `color="bleu"` (`#3b93f0`), loop above. Fresh unique URL. Time feel on the live preview.
+
+## Critique (2026-09-08)
+
+- Match Front v1 / Back v1 spacing to Figma boxes. Do not invent spacing.
+- Type: UniversalSansGrokTest Display Trial. Vendor the dropped TTF at `lab/public/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf`. 400 only in the file — same face for 300 metrics. If the base64 was not in the message, do not substitute Geist; report missing bytes.
+- Kill idle center light. Pointer sheen only while on the card; leave dies clean.
+- Stage: black + small TL grey + quiet pointer cloud. vgpu. Not Bayer wave.
+

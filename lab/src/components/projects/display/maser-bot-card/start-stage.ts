@@ -4,8 +4,10 @@ import stageShader from "./stage.wgsl";
 
 export type StageUniforms = {
   time: number;
+  pointerX: number;
+  pointerY: number;
+  tracking: number;
   intensity: number;
-  speed: number;
   reduced: number;
 };
 
@@ -19,14 +21,18 @@ function stageSet(values: StageUniforms) {
   return {
     stage: {
       time: values.time,
+      pointer_x: values.pointerX,
+      pointer_y: values.pointerY,
+      tracking: values.tracking,
       intensity: values.intensity,
-      speed: values.speed,
       reduced: values.reduced,
+      pad0: 0,
+      pad1: 0,
     },
   };
 }
 
-/** vgpu stage: black field + grey dither. Not the plate. */
+/** vgpu stage: black field + TL grey wash + quiet pointer cloud. Not the plate. */
 export function startStage({
   canvas,
   uniformsRef,
@@ -58,7 +64,7 @@ export function startStage({
     });
 
     const wash: Effect = effect(gpu, stageShader, {
-      label: "maser-bot-card-stage-dither",
+      label: "maser-bot-card-stage-cloud",
       set: stageSet(uniformsRef.current),
     });
 

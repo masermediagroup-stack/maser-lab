@@ -49,10 +49,10 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 | Library | CSS 3D pose + CSS sheen; vgpu stage | Figma plate must stay `#000` |
 | Yaw / pitch | ~±8° / ±5° × feel knob | Stage prop; live timing, not tokens |
 | Return | damped lerp | not a hard snap |
-| Sheen / light | CSS wash + counter rim (+ optional band) | pointer-driven; not a plate shader |
-| Band | optional diagonal mask | mute via knob |
-| Plate | solid `#000` | Figma lock |
-| Stage bg | vgpu black + grey dither, TL→BR | behind the card |
+| Sheen / light | Quiet CSS wash **only while pointer is on the plate**; snap off on leave | no rest sheen, no idle center, no leftover specular |
+| Band | none | critique killed parked highlight / band |
+| Plate | solid `#000` | Figma lock; no center bloom |
+| Stage bg | vgpu black + TL grey + quiet pointer cloud | behind the card; not Bayer wave |
 | Mark | Bloub engine, capsule + bleu, 30s curl / 30s break on Back v1 | Catalog expressions; refuse `defaultCycle` and idle→thinking→wide |
 
 ## Acceptance criteria
@@ -62,14 +62,14 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 - [ ] Square 1299 (not landscape, not 3:4)
 - [ ] Locked copy typeset in Figma boxes, verbatim
 - [ ] Product does not import demo chrome or `--lab-*` as its look
-- [ ] Reduced motion: no tilt, no sheen chase, bg still, mark planted `neutre`, no curl or pointer chase, face swap without 3D flip
-- [ ] Plate is solid `#000`. Stage dither is vgpu. Capsule bleu `#3b93f0` on **Back v1**. Wordmark on Front v1.
+- [ ] Reduced motion: no tilt, no sheen, bg still (black + TL grey), mark planted `neutre`, no curl or pointer chase, face swap without 3D flip
+- [ ] Plate is solid `#000`. Stage is vgpu (TL grey + pointer cloud). Capsule bleu `#3b93f0` on **Back v1**. Wordmark on Front v1.
 - [ ] Product type stack names UniversalSansGrokTest Display Trial (no Geist/Inter substitute)
 - [ ] Component exported from `lab/src/components/projects/display/maser-bot-card/index.ts`
 
 ## Open decisions
 
-- UniversalSansGrokTest Display Trial files — `@font-face` swap until the woff2 lands in `lab/public/maser-bot-card/fonts/`.
+- UniversalSansGrokTest Display Trial TTF — expected at `lab/public/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf`. Critique message did not include the base64; do not substitute Geist.
 
 ## Accepted decisions
 
@@ -78,6 +78,6 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 - Figma body (2026-09-08). Prior short/package Producer bodies are stale. Verbatim — do not rewrite.
 - 1299 square. Refuse Zoah landscape.
 - Two faces + explicit flip. Refuse hover-only.
-- Plate solid `#000`. vgpu = stage dither only.
+- Plate solid `#000`. No idle light. Pointer sheen only. vgpu = stage field (not Bayer wave).
 - Mark: Bloub engine; capsule; bleu `#3b93f0`; 30s curl / 30s break on Back v1 only. Catalog: neutre → attentif → curieux → mefiant → thinking → fier → neutre. Refuse `defaultCycle`, idle→thinking→wide, and Maser blue `#10A4FF`.
 - Product never imports demo chrome.

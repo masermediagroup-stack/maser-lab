@@ -223,12 +223,15 @@ export function GrokBotMark({
   const active = reduced ? FIRST_FRAME : frame;
   const drawn = active.bodyPath ? active : EMPTY_FRAME;
   const vb = DEMI_VIEWBOX;
+  /** Rest capsule bounds (~208×124) match the 272×162 Figma slot aspect. */
+  const slotVb = { x: -104, y: -62, w: 208, h: 124 };
 
   return (
     <svg
       ref={svgRef}
       className={className}
-      viewBox={`${-vb} ${-vb} ${vb * 2} ${vb * 2}`}
+      viewBox={`${slotVb.x} ${slotVb.y} ${slotVb.w} ${slotVb.h}`}
+      preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label="Maser bot mark"
     >

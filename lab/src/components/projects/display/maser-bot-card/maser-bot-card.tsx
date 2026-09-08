@@ -12,11 +12,14 @@ const YAW_DEG = 8;
 const PITCH_DEG = 5;
 const TRACK_LERP = 0.16;
 const REST_LERP = 0.09;
+const QUIET_SHEEN = 0.18;
 
 const REST_STAGE: StageUniforms = {
   time: 0,
+  pointerX: 0.22,
+  pointerY: 0.18,
+  tracking: 0,
   intensity: 0.35,
-  speed: 1,
   reduced: 1,
 };
 
@@ -24,17 +27,28 @@ function lerp(current: number, target: number, amount: number) {
   return current + (target - current) * amount;
 }
 
+function setPlateSheen(
+  plate: HTMLDivElement,
+  on: boolean,
+  x: number,
+  y: number,
+  amount: number,
+) {
+  plate.style.setProperty("--sheen-x", `${x * 100}%`);
+  plate.style.setProperty("--sheen-y", `${y * 100}%`);
+  plate.style.setProperty("--shine-a", on ? String(amount) : "0");
+  plate.style.setProperty("--shine-on", on ? "1" : "0");
+}
+
 export function MaserBotCard({
   tiltEnabled = true,
   maxAngleFeel = 1,
   shineEnabled = true,
-  shineIntensity = 0.42,
-  bandEnabled = true,
+  shineIntensity = QUIET_SHEEN,
   face: faceProp,
   onFaceChange,
   bgMode = "interactive",
   bgIntensity = 0.35,
-  bgSpeed = 1,
   forceReducedMotion = false,
   className,
 }: MaserBotCardProps) {
@@ -47,10 +61,9 @@ export function MaserBotCard({
   const targetYawRef = useRef(0);
   const targetPitchRef = useRef(0);
   const sheenXRef = useRef(0.5);
-  const sheenYRef = useRef(0.42);
-  const targetSheenXRef = useRef(0.5);
-  const targetSheenYRef = useRef(0.42);
+  const sheenYRef = useRef(0.5);
   const trackingRef = useRef(false);
+  const stagePointerRef = useRef({ x: 0.22, y: 0.18, tracking: false });
   const lookPointerRef = useRef<MarkLookPointer | null>(null);
   const reducedRef = useRef(false);
   const tiltOnRef = useRef(true);
@@ -59,8 +72,6 @@ export function MaserBotCard({
   const intensityRef = useRef(shineIntensity);
   const bgInteractiveRef = useRef(false);
   const bgIntensityRef = useRef(bgIntensity);
-  const bgSpeedRef = useRef(bgSpeed);
-  const bandOnRef = useRef(bandEnabled);
 
   const [osReduced, setOsReduced] = useState(false);
   const [finePointer, setFinePointer] = useState(false);
@@ -82,8 +93,12 @@ export function MaserBotCard({
     intensityRef.current = shineIntensity;
     bgInteractiveRef.current = bgInteractive;
     bgIntensityRef.current = bgIntensity;
-    bgSpeedRef.current = bgSpeed;
-    bandOnRef.current = bandEnabled;
+    if (reduced) {
+      trackingRef.current = false;
+      stagePointerRef.current.tracking = false;
+      const plate = plateRef.current;
+      if (plate) setPlateSheen(plate, false, 0.5, 0.5, 0);
+    }
   }, [
     reduced,
     tiltOn,
@@ -92,8 +107,6 @@ export function MaserBotCard({
     shineIntensity,
     bgInteractive,
     bgIntensity,
-    bgSpeed,
-    bandEnabled,
   ]);
 
   useEffect(() => {
@@ -136,34 +149,34 @@ export function MaserBotCard({
       const yawTarget = reducedRef.current || !tiltOnRef.current ? 0 : targetYawRef.current;
       const pitchTarget =
         reducedRef.current || !tiltOnRef.current ? 0 : targetPitchRef.current;
-      const sheenXTarget = shineOnRef.current ? targetSheenXRef.current : 0.5;
-      const sheenYTarget = shineOnRef.current ? targetSheenYRef.current : 0.42;
 
       yawRef.current = lerp(yawRef.current, yawTarget, amount);
       pitchRef.current = lerp(pitchRef.current, pitchTarget, amount);
-      sheenXRef.current = lerp(sheenXRef.current, sheenXTarget, amount);
-      sheenYRef.current = lerp(sheenYRef.current, sheenYTarget, amount);
 
       plate.style.setProperty("--yaw", `${yawRef.current}deg`);
       plate.style.setProperty("--pitch", `${pitchRef.current}deg`);
-      plate.style.setProperty("--sheen-x", `${sheenXRef.current * 100}%`);
-      plate.style.setProperty("--sheen-y", `${sheenYRef.current * 100}%`);
-      plate.style.setProperty("--rim-x", String(1 - sheenXRef.current));
-      plate.style.setProperty("--rim-y", String(1 - sheenYRef.current));
-      plate.style.setProperty(
-        "--shine-a",
-        shineOnRef.current ? String(intensityRef.current) : "0",
-      );
-      plate.style.setProperty("--shine-on", shineOnRef.current ? "1" : "0");
-      plate.style.setProperty(
-        "--band-on",
-        bandOnRef.current && shineOnRef.current ? "1" : "0",
-      );
 
+      const sheenLive =
+        trackingRef.current && shineOnRef.current && !reducedRef.current;
+      if (sheenLive) {
+        setPlateSheen(
+          plate,
+          true,
+          sheenXRef.current,
+          sheenYRef.current,
+          intensityRef.current,
+        );
+      } else {
+        setPlateSheen(plate, false, sheenXRef.current, sheenYRef.current, 0);
+      }
+
+      const stagePtr = stagePointerRef.current;
       stageUniformsRef.current = {
         time: stageUniformsRef.current.time,
-        intensity: bgInteractiveRef.current ? bgIntensityRef.current : 0.18,
-        speed: bgInteractiveRef.current ? bgSpeedRef.current : 0,
+        pointerX: stagePtr.x,
+        pointerY: stagePtr.y,
+        tracking: stagePtr.tracking && bgInteractiveRef.current ? 1 : 0,
+        intensity: bgIntensityRef.current,
         reduced: reducedRef.current || !bgInteractiveRef.current ? 1 : 0,
       };
 
@@ -178,12 +191,21 @@ export function MaserBotCard({
     onFaceChange?.(next);
   }
 
-  function onPointerEnter() {
+  function killPlateLight() {
+    trackingRef.current = false;
+    lookPointerRef.current = null;
+    targetYawRef.current = 0;
+    targetPitchRef.current = 0;
+    const plate = plateRef.current;
+    if (plate) setPlateSheen(plate, false, sheenXRef.current, sheenYRef.current, 0);
+  }
+
+  function onPlateEnter() {
     if (reduced) return;
     trackingRef.current = true;
   }
 
-  function onPointerMove(event: PointerEvent<HTMLDivElement>) {
+  function onPlateMove(event: PointerEvent<HTMLDivElement>) {
     if (reduced) return;
     lookPointerRef.current = {
       clientX: event.clientX,
@@ -199,17 +221,25 @@ export function MaserBotCard({
     const feel = feelRef.current;
     targetYawRef.current = (nx - 0.5) * 2 * YAW_DEG * feel;
     targetPitchRef.current = (0.5 - ny) * 2 * PITCH_DEG * feel;
-    targetSheenXRef.current = nx;
-    targetSheenYRef.current = ny;
+    sheenXRef.current = nx;
+    sheenYRef.current = ny;
+    if (shineOn) setPlateSheen(plate, true, nx, ny, intensityRef.current);
   }
 
-  function onPointerLeave() {
-    trackingRef.current = false;
-    lookPointerRef.current = null;
-    targetYawRef.current = 0;
-    targetPitchRef.current = 0;
-    targetSheenXRef.current = 0.5;
-    targetSheenYRef.current = 0.42;
+  function onStageMove(event: PointerEvent<HTMLElement>) {
+    if (reduced || !bgInteractive) return;
+    const canvas = stageRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    stagePointerRef.current = {
+      x: Math.min(1, Math.max(0, (event.clientX - rect.left) / Math.max(rect.width, 1))),
+      y: Math.min(1, Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1))),
+      tracking: true,
+    };
+  }
+
+  function onStageLeave() {
+    stagePointerRef.current.tracking = false;
   }
 
   const otherFace: MaserBotCardFace = face === "front" ? "back" : "front";
@@ -223,10 +253,11 @@ export function MaserBotCard({
       data-reduced={reduced ? "true" : "false"}
       data-tilt={tiltOn ? "true" : "false"}
       data-shine={shineOn ? "true" : "false"}
-      data-band={bandEnabled ? "true" : "false"}
       data-face={face}
       data-bg={bgMode}
       data-gpu={gpuPainted ? "painting" : "pending"}
+      onPointerMove={onStageMove}
+      onPointerLeave={onStageLeave}
     >
       <div
         className="maser-bot-card__bg"
@@ -241,9 +272,10 @@ export function MaserBotCard({
         <div
           ref={plateRef}
           className="maser-bot-card__plate"
-          onPointerEnter={onPointerEnter}
-          onPointerMove={onPointerMove}
-          onPointerLeave={onPointerLeave}
+          onPointerEnter={onPlateEnter}
+          onPointerMove={onPlateMove}
+          onPointerLeave={killPlateLight}
+          onPointerCancel={killPlateLight}
         >
           <div className="maser-bot-card__body">
             <div className="maser-bot-card__flip">
@@ -273,8 +305,6 @@ export function MaserBotCard({
               </div>
             </div>
             <div className="maser-bot-card__sheen" aria-hidden />
-            <div className="maser-bot-card__rim" aria-hidden />
-            <div className="maser-bot-card__band" aria-hidden />
           </div>
         </div>
         <button

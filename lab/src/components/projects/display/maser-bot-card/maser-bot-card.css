@@ -1,20 +1,17 @@
 @font-face {
   font-family: "UniversalSansGrokTest Display Trial";
-  src:
-    local("UniversalSansGrokTest Display Trial"),
-    url("/maser-bot-card/fonts/UniversalSansGrokTest-DisplayTrial-400.woff2")
-      format("woff2");
+  src: url("/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf")
+    format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
+/* File is 400 only. Same face for 300 slots — do not swap families. */
 @font-face {
   font-family: "UniversalSansGrokTest Display Trial";
-  src:
-    local("UniversalSansGrokTest Display Trial"),
-    url("/maser-bot-card/fonts/UniversalSansGrokTest-DisplayTrial-300.woff2")
-      format("woff2");
+  src: url("/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf")
+    format("truetype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -55,10 +52,10 @@
 
 .maser-bot-card[data-gpu="pending"] .maser-bot-card__bg {
   background-color: #000000;
-  background-image: repeating-linear-gradient(
-    135deg,
-    #000000 0 3px,
-    #2a2a2a 3px 4px
+  background-image: radial-gradient(
+    80% 70% at 0% 0%,
+    #2a2a2a 0%,
+    #000000 62%
   );
 }
 
@@ -83,6 +80,12 @@
 }
 
 .maser-bot-card__plate {
+  --yaw: 0deg;
+  --pitch: 0deg;
+  --sheen-x: 50%;
+  --sheen-y: 50%;
+  --shine-a: 0;
+  --shine-on: 0;
   position: relative;
   box-sizing: border-box;
   aspect-ratio: 1 / 1;
@@ -143,7 +146,7 @@
   top: calc(142 / 1299 * 100%);
   width: calc(272 / 1299 * 100%);
   height: calc(162 / 1299 * 100%);
-  overflow: visible;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -208,50 +211,19 @@
   height: 100%;
 }
 
-.maser-bot-card__sheen,
-.maser-bot-card__rim,
-.maser-bot-card__band {
+.maser-bot-card__sheen {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 2;
   border-radius: inherit;
-}
-
-.maser-bot-card__sheen {
   opacity: var(--shine-on, 0);
-  background:
-    radial-gradient(
-      ellipse 85% 70% at var(--sheen-x, 50%) var(--sheen-y, 42%),
-      rgb(255 255 255 / var(--shine-a, 0)) 0%,
-      rgb(255 255 255 / calc(var(--shine-a, 0) * 0.28)) 34%,
-      transparent 72%
-    );
-}
-
-.maser-bot-card__rim {
-  opacity: var(--shine-on, 0);
-  box-shadow:
-    inset calc((var(--rim-x, 0.5) - 0.5) * 18px)
-      calc((var(--rim-y, 0.5) - 0.5) * 14px)
-      22px rgb(255 255 255 / calc(var(--shine-a, 0) * 0.55)),
-    inset calc((0.5 - var(--rim-x, 0.5)) * 10px)
-      calc((0.5 - var(--rim-y, 0.5)) * 8px)
-      16px rgb(255 255 255 / calc(var(--shine-a, 0) * 0.12));
-}
-
-.maser-bot-card__band {
-  opacity: var(--band-on, 0);
-  background: linear-gradient(
-    calc(128deg + (var(--yaw, 0deg) * 0.35) + (var(--pitch, 0deg) * -0.2)),
-    transparent 42%,
-    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.22)) 50%,
+  background: radial-gradient(
+    ellipse 42% 36% at var(--sheen-x, 50%) var(--sheen-y, 50%),
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.38)) 0%,
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.1)) 28%,
     transparent 58%
   );
-}
-
-.maser-bot-card[data-band="false"] .maser-bot-card__band {
-  opacity: 0;
 }
 
 .maser-bot-card__flip-control {
@@ -277,10 +249,7 @@
 }
 
 .maser-bot-card[data-reduced="true"] .maser-bot-card__sheen,
-.maser-bot-card[data-reduced="true"] .maser-bot-card__rim,
-.maser-bot-card[data-reduced="true"] .maser-bot-card__band,
-.maser-bot-card[data-shine="false"] .maser-bot-card__sheen,
-.maser-bot-card[data-shine="false"] .maser-bot-card__rim {
+.maser-bot-card[data-shine="false"] .maser-bot-card__sheen {
   opacity: 0;
 }
 

@@ -7,13 +7,11 @@ export type MaserBotCardProps = {
   maxAngleFeel?: number;
   shineEnabled?: boolean;
   shineIntensity?: number;
-  bandEnabled?: boolean;
   face?: MaserBotCardFace;
   onFaceChange?: (face: MaserBotCardFace) => void;
-  /** Stage dither (vgpu). Plate stays solid #000. */
+  /** Stage field (vgpu). Plate stays solid #000. */
   bgMode?: MaserBotCardBgMode;
   bgIntensity?: number;
-  bgSpeed?: number;
   forceReducedMotion?: boolean;
   className?: string;
 };
