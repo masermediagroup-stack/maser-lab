@@ -14,6 +14,7 @@ import { PixelInfoCardDemo } from "./display/pixel-info-card/pixel-info-card-dem
 import { TypeWorldDemo } from "./scroll/type-world/type-world-demo";
 import { LiquidMetalMeatballsDemo } from "./scroll/liquid-metal-meatballs/liquid-metal-meatballs-demo";
 import { CtaLogoGradientDemo } from "./marketing/cta-logo-gradient/cta-logo-gradient-demo";
+import { MaserBotCardDemo } from "./display/maser-bot-card/maser-bot-card-demo";
 
 export const demoRegistry: Record<string, ComponentType> = {
   "liquid-monochrome": LiquidMonochromeDemo,
@@ -31,6 +32,7 @@ export const demoRegistry: Record<string, ComponentType> = {
   "type-world": TypeWorldDemo,
   "liquid-metal-meatballs": LiquidMetalMeatballsDemo,
   "cta-logo-gradient": CtaLogoGradientDemo,
+  "maser-bot-card": MaserBotCardDemo,
 };
 
 export function registerDemo(slug: string, component: ComponentType) {

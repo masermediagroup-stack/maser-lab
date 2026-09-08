@@ -1,0 +1,437 @@
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src: url("/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* File is 400 only. Same face for 300 slots — do not swap families. */
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src: url("/maser-bot-card/UniversalSansGrokTest-Display-Trial.ttf")
+    format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+.maser-bot-card {
+  --mbc-art: 1299;
+  --mbc-card-bg: #000000;
+  --mbc-ground: #000000;
+  --mbc-text: #ffffff;
+  --mbc-radius: calc(80 / 1299 * 100%);
+  --shadow-x: 0px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  isolation: isolate;
+  color: var(--mbc-text);
+  font-family: "UniversalSansGrokTest Display Trial",
+    "UniversalSansGrokTest Display Trial 400";
+  font-synthesis: none;
+}
+
+.maser-bot-card__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: var(--mbc-ground, #000000);
+}
+
+.maser-bot-card__stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.maser-bot-card[data-gpu="pending"] .maser-bot-card__bg {
+  background-color: var(--mbc-ground, #000000);
+  background-image: radial-gradient(
+    80% 70% at 0% 0%,
+    rgb(42 42 42 / 0.85) 0%,
+    transparent 62%
+  );
+}
+
+.maser-bot-card[data-gpu="painting"] .maser-bot-card__bg {
+  background-image: none;
+  background-color: var(--mbc-ground, #000000);
+}
+
+.maser-bot-card[data-reduced="true"] .maser-bot-card__bg {
+  background-image: none;
+  background-color: var(--mbc-ground, #000000);
+}
+
+.maser-bot-card__scene {
+  --mbc-fit: 0.88;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Square plus Back / Front under the Figma type end (y 1204). */
+  width: min(90vw, calc(70dvh - 9rem));
+  max-height: none;
+  overflow: visible;
+  container-type: inline-size;
+  container-name: mbc-scene;
+  gap: var(--flip-gap, 5.5rem);
+}
+
+.maser-bot-card__card-stack {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.maser-bot-card__object {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.maser-bot-card__object > div {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.maser-bot-card__shadow {
+  position: absolute;
+  z-index: 0;
+  width: 84%;
+  height: 22%;
+  left: 8%;
+  bottom: 1.35rem;
+  pointer-events: none;
+  transform: translate3d(var(--shadow-x, 0px), 10px, 0);
+  background:
+    radial-gradient(
+      ellipse at 50% 38%,
+      rgb(0 0 0 / 0.92) 0%,
+      rgb(0 0 0 / 0.45) 38%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse at 50% 58%,
+      rgb(52 52 52 / 0.38) 0%,
+      transparent 74%
+    );
+  filter: blur(26px);
+}
+
+.maser-bot-card__face-layer {
+  position: absolute;
+  inset: calc((1 - var(--mbc-fit, 0.88)) * 50%);
+  z-index: 2;
+  pointer-events: none;
+  overflow: visible;
+  perspective: 1150px;
+  perspective-origin: 50% 50%;
+}
+
+.maser-bot-card__face-tilt {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: auto;
+  transform-origin: 50% 50%;
+  transform: rotateX(var(--card-pitch, 0deg)) rotateY(var(--card-yaw, 0deg));
+  transform-style: preserve-3d;
+}
+
+.maser-bot-card__object-fallback {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+  container-name: mbc-slab;
+}
+
+.maser-bot-card__face {
+  --sheen-x: 50%;
+  --sheen-y: 50%;
+  --shine-a: 0;
+  --shine-on: 0;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  border-radius: var(--mbc-radius);
+  transform-style: preserve-3d;
+  container-type: inline-size;
+  container-name: mbc-face;
+}
+
+.maser-bot-card__flip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+  transform-style: preserve-3d;
+  transform: rotateY(var(--card-flip, 0deg));
+  transition: none;
+}
+
+.maser-bot-card[data-gl="false"] .maser-bot-card__flip {
+  transform: rotateY(0deg);
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.maser-bot-card[data-gl="false"][data-face="back"] .maser-bot-card__flip {
+  transform: rotateY(180deg);
+}
+
+.maser-bot-card__side {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  border-radius: var(--mbc-radius);
+  background: var(--mbc-card-bg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Mesh fill + painted type. Overlay keeps the mark, sheen, and hit-test.
+   Do not wait on maps — an opaque overlay hides the cuboid side. */
+.maser-bot-card[data-gl="true"][data-reduced="false"] .maser-bot-card__side {
+  background: transparent;
+}
+
+.maser-bot-card[data-gl="true"][data-reduced="false"][data-maps="ready"]
+  .maser-bot-card__slot:not(.maser-bot-card__slot--mark) {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.maser-bot-card__side--front {
+  transform: rotateY(0deg) translateZ(0.5px);
+}
+
+.maser-bot-card__side--back {
+  transform: rotateY(180deg);
+}
+
+.maser-bot-card__slot {
+  position: absolute;
+  z-index: 1;
+  color: var(--mbc-text);
+  font-family: "UniversalSansGrokTest Display Trial",
+    "UniversalSansGrokTest Display Trial 400";
+  line-height: 1.2;
+}
+
+.maser-bot-card__slot--mark {
+  left: calc(100 / 1299 * 100%);
+  top: calc(142 / 1299 * 100%);
+  width: calc(272 / 1299 * 100%);
+  height: calc(162 / 1299 * 100%);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.maser-bot-card__mark {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.maser-bot-card__slot--name {
+  left: calc(969 / 1299 * 100%);
+  top: calc(138 / 1299 * 100%);
+  width: calc(231 / 1299 * 100%);
+  height: calc(68 / 1299 * 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  text-align: right;
+  font-weight: 400;
+  font-size: calc(96 / 1299 * 100cqw);
+  pointer-events: none;
+}
+
+.maser-bot-card__slot--role {
+  left: calc(574 / 1299 * 100%);
+  top: calc(253 / 1299 * 100%);
+  width: calc(626 / 1299 * 100%);
+  height: calc(45 / 1299 * 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  text-align: right;
+  font-weight: 300;
+  font-size: calc(64 / 1299 * 100cqw);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.maser-bot-card__slot--bio {
+  left: calc(97 / 1299 * 100%);
+  /* Figma top 692 raised so the body sits clear of the swap. Width/height held. */
+  top: calc(560 / 1299 * 100%);
+  width: calc(840 / 1299 * 100%);
+  height: calc(512 / 1299 * 100%);
+  overflow: visible;
+  text-align: left;
+  font-weight: 300;
+  font-size: calc(64 / 1299 * 100cqw);
+  line-height: 1.2;
+  text-wrap: pretty;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  pointer-events: none;
+}
+
+.maser-bot-card__body-end {
+  white-space: nowrap;
+}
+
+.maser-bot-card__slot--wordmark {
+  left: calc(100 / 1299 * 100%);
+  top: calc(988 / 1299 * 100%);
+  width: calc(1100 / 1299 * 100%);
+  height: calc(212 / 1299 * 100%);
+  pointer-events: none;
+}
+
+.maser-bot-card__wordmark {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.maser-bot-card__sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+  border-radius: inherit;
+  opacity: var(--shine-on, 0);
+  background: radial-gradient(
+    ellipse 118% 78% at var(--sheen-x, 50%) var(--sheen-y, 50%),
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.26)) 0%,
+    rgb(255 255 255 / calc(var(--shine-a, 0) * 0.08)) 36%,
+    transparent 70%
+  );
+  transition: none;
+}
+
+.maser-bot-card__flip-control {
+  appearance: none;
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #000000;
+  font-family: "UniversalSansGrokTest Display Trial",
+    "UniversalSansGrokTest Display Trial 400";
+  font-size: calc(32 / 1299 * 100cqw);
+  font-weight: 400;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+}
+
+.maser-bot-card__flip-control:focus-visible {
+  outline: none;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.maser-bot-card[data-reduced="true"] .maser-bot-card__sheen,
+.maser-bot-card[data-shine="false"] .maser-bot-card__sheen {
+  opacity: 0;
+}
+
+.maser-bot-card[data-reduced="true"] .maser-bot-card__flip,
+.maser-bot-card[data-reduced="true"][data-face="back"] .maser-bot-card__flip,
+.maser-bot-card[data-gl="false"][data-reduced="true"][data-face="back"] .maser-bot-card__flip {
+  transform: none;
+  transition: none;
+}
+
+.maser-bot-card[data-reduced="true"] .maser-bot-card__side {
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+  transform: none;
+  transition: none;
+}
+
+.maser-bot-card[data-reduced="true"] .maser-bot-card__side--back {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.maser-bot-card[data-reduced="true"][data-face="back"] .maser-bot-card__side--front {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.maser-bot-card[data-reduced="true"][data-face="back"] .maser-bot-card__side--back {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maser-bot-card .maser-bot-card__flip,
+  .maser-bot-card[data-face="back"] .maser-bot-card__flip,
+  .maser-bot-card[data-gl="false"][data-face="back"] .maser-bot-card__flip {
+    transform: none;
+    transition: none;
+  }
+
+  .maser-bot-card__side {
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    transform: none;
+    transition: none;
+  }
+
+  .maser-bot-card__side--back {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .maser-bot-card[data-face="back"] .maser-bot-card__side--front {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .maser-bot-card[data-face="back"] .maser-bot-card__side--back {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
