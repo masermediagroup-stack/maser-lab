@@ -55,8 +55,8 @@ export function StepIcon({ step }: StepIconProps) {
       ) : null}
       {step === "critique" ? (
         <>
-          <rect x="2.5" y="5.5" width="15" height="9" rx="4.5" />
-          <circle cx="10" cy="10" r="1.35" />
+          <path d="M2.6 10C5.4 5.35 14.6 5.35 17.4 10C14.6 14.65 5.4 14.65 2.6 10Z" />
+          <rect x="8.7" y="7.7" width="2.6" height="4.6" rx="1.3" />
         </>
       ) : null}
     </svg>
