@@ -69,6 +69,7 @@
 }
 
 .maser-bot-card__scene {
+  --mbc-fit: 0.88;
   position: relative;
   z-index: 1;
   display: flex;
@@ -104,33 +105,36 @@
   filter: blur(26px);
 }
 
-.maser-bot-card__object,
+.maser-bot-card__object {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.maser-bot-card__face-layer {
+  position: absolute;
+  inset: calc((1 - var(--mbc-fit, 0.88)) * 50%);
+  z-index: 2;
+  pointer-events: none;
+  perspective: 1150px;
+  perspective-origin: 50% 50%;
+}
+
+.maser-bot-card__face-tilt {
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  transform-origin: 50% 50%;
+  transform: rotateX(var(--card-pitch, 0deg)) rotateY(var(--card-yaw, 0deg));
+  transform-style: preserve-3d;
+}
+
 .maser-bot-card__object-fallback {
   position: relative;
   z-index: 1;
   width: 100%;
   height: 100%;
-}
-
-.maser-bot-card__object [data-three-canvas] {
-  position: absolute;
-  inset: 0;
-}
-
-.maser-bot-card__html {
-  pointer-events: none !important;
-  overflow: visible !important;
-}
-
-.maser-bot-card__face-host {
-  position: relative;
-  overflow: hidden;
-  border-radius: calc(80 / 1299 * 100%);
-  background: var(--mbc-card-bg);
-  pointer-events: auto;
-}
-
-.maser-bot-card__object-fallback {
   container-type: size;
   container-name: mbc-slab;
 }

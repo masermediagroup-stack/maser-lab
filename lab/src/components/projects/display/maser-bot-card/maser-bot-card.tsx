@@ -59,6 +59,7 @@ export function MaserBotCard({
 }: MaserBotCardProps) {
   const sceneRef = useRef<HTMLDivElement>(null);
   const faceRef = useRef<HTMLDivElement>(null);
+  const faceTiltRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLCanvasElement>(null);
   const stageUniformsRef = useRef<StageUniforms>(REST_STAGE);
   const poseRef = useRef<CardObjectPose>({ ...REST_POSE });
@@ -350,9 +351,17 @@ export function MaserBotCard({
       </div>
       <div ref={sceneRef} className="maser-bot-card__scene">
         <div className="maser-bot-card__shadow" aria-hidden />
-        <CardObject poseRef={poseRef} reduced={reduced} shadowRef={sceneRef}>
-          {cardFace}
-        </CardObject>
+        <CardObject
+          poseRef={poseRef}
+          reduced={reduced}
+          shadowRef={sceneRef}
+          faceTiltRef={faceTiltRef}
+        />
+        <div className="maser-bot-card__face-layer">
+          <div ref={faceTiltRef} className="maser-bot-card__face-tilt">
+            {cardFace}
+          </div>
+        </div>
       </div>
     </article>
   );

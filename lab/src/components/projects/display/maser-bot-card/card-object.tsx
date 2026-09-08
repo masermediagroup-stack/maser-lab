@@ -1,13 +1,11 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
 import {
   useLayoutEffect,
   useMemo,
   useRef,
   useSyncExternalStore,
-  type ReactNode,
   type RefObject,
 } from "react";
 import {
@@ -24,11 +22,11 @@ import {
 import { getClampedPixelRatio, isWebGLAvailable } from "@/three/utils/capabilities";
 import { createCardBodyMaterial } from "./card-object-material";
 
-/** Figma artboard. Html host is this many CSS pixels, then scaled to the mesh. */
-export const CARD_FACE_PX = 1299;
 const ART = 1299;
 const RADIUS_N = 80;
-const FIT = 0.88;
+/** Mesh and face overlay share this fraction of the square scene. */
+export const CARD_FIT = 0.88;
+const CARD_FOV = 26;
 
 export type CardObjectPose = {
   yaw: number;
@@ -48,7 +46,7 @@ const CARD_GL = {
 };
 
 const CARD_CAMERA = {
-  fov: 26,
+  fov: CARD_FOV,
   near: 0.1,
   far: 40,
   position: [0, 0, 4.6] as [number, number, number],
@@ -85,12 +83,12 @@ function CardMesh({
   poseRef,
   reduced,
   shadowRef,
-  children,
+  faceTiltRef,
 }: {
   poseRef: RefObject<CardObjectPose>;
   reduced: boolean;
   shadowRef: RefObject<HTMLElement | null>;
-  children: ReactNode;
+  faceTiltRef: RefObject<HTMLElement | null>;
 }) {
   const groupRef = useRef<Group>(null);
   const meshRef = useRef<Mesh>(null);
@@ -107,7 +105,7 @@ function CardMesh({
     [],
   );
   const { viewport } = useThree();
-  const outer = Math.min(viewport.width, viewport.height) * FIT;
+  const outer = Math.min(viewport.width, viewport.height) * CARD_FIT;
   const bevel = Math.max(outer * 0.012, 0.016);
   const depth = Math.max(outer * 0.036, 0.048);
   const inner = Math.max(outer - 2 * bevel, 0.05);
@@ -169,6 +167,21 @@ function CardMesh({
     pitchRef.current = lerp(pitchRef.current, pitchTarget, amount);
     group.rotation.x = (pitchRef.current * Math.PI) / 180;
     group.rotation.y = (yawRef.current * Math.PI) / 180;
+
+    const faceTilt = faceTiltRef.current;
+    if (faceTilt) {
+      const layer = faceTilt.parentElement;
+      if (layer) {
+        const height = faceTilt.offsetHeight;
+        if (height > 0) {
+          const persp = height / (2 * Math.tan(((CARD_FOV / 2) * Math.PI) / 180));
+          layer.style.perspective = `${persp}px`;
+        }
+      }
+      faceTilt.style.setProperty("--card-pitch", `${pitchRef.current}deg`);
+      faceTilt.style.setProperty("--card-yaw", `${yawRef.current}deg`);
+    }
+
     const shadow = shadowRef.current;
     if (shadow) {
       shadow.style.setProperty("--shadow-x", `${yawRef.current * 1.15}px`);
@@ -190,32 +203,10 @@ function CardMesh({
 
   if (!geometry || !edges || outer < 0.05) return null;
 
-  /**
-   * drei Html transform: 1 CSS px = (distanceFactor / 400) world units.
-   * Map the 1299px host onto the inner (pre-bevel) face so the bevel rim shows.
-   */
-  const distanceFactor = (inner * 400) / CARD_FACE_PX;
-
   return (
     <group ref={groupRef}>
       <mesh ref={meshRef} geometry={geometry} material={material} />
       <lineSegments ref={edgeRef} geometry={edges} material={edgeMaterial} />
-      <Html
-        transform
-        occlude={false}
-        position={[0, 0, halfZ + 0.002]}
-        distanceFactor={distanceFactor}
-        pointerEvents="auto"
-        zIndexRange={[40, 10]}
-        wrapperClass="maser-bot-card__html"
-      >
-        <div
-          className="maser-bot-card__face-host"
-          style={{ width: CARD_FACE_PX, height: CARD_FACE_PX }}
-        >
-          {children}
-        </div>
-      </Html>
     </group>
   );
 }
@@ -224,16 +215,20 @@ type CardObjectProps = {
   poseRef: RefObject<CardObjectPose>;
   reduced: boolean;
   shadowRef: RefObject<HTMLElement | null>;
-  children: ReactNode;
+  faceTiltRef: RefObject<HTMLElement | null>;
 };
 
 /**
- * One Three.js object: extruded rounded card + edge strokes + Html face.
- * Face, bezel, rim, and sheen share this group's transform.
- * Physical edge is one mesh + EdgesGeometry (kinetic-bars pattern), not stacked CSS planes.
- * ExtrudeGeometry (not RoundedBoxGeometry) so Figma radius 80 holds on a thin card.
+ * Physical card body: extruded rounded rect + edge strokes.
+ * Face type lives in a sibling overlay. Both read the same pose in this frame loop
+ * so face, bezel, rim, and sheen move together — not stacked CSS bezels.
  */
-export function CardObject({ poseRef, reduced, shadowRef, children }: CardObjectProps) {
+export function CardObject({
+  poseRef,
+  reduced,
+  shadowRef,
+  faceTiltRef,
+}: CardObjectProps) {
   const isClient = useSyncExternalStore(EMPTY_SUBSCRIBE, () => true, () => false);
   const webgl = isClient && isWebGLAvailable();
 
@@ -244,24 +239,27 @@ export function CardObject({ poseRef, reduced, shadowRef, children }: CardObject
   }, []);
 
   if (!isClient || !webgl) {
-    return <div className="maser-bot-card__object-fallback">{children}</div>;
+    return null;
   }
 
   return (
-    <div className="maser-bot-card__object" data-three-canvas="">
+    <div className="maser-bot-card__object" data-three-canvas="" aria-hidden>
       <Canvas
         gl={CARD_GL}
         dpr={dpr}
         camera={CARD_CAMERA}
-        style={{ pointerEvents: "none" }}
+        style={{ pointerEvents: "none", overflow: "visible" }}
         onCreated={({ gl }) => {
           gl.setClearColor(0x000000, 0);
           gl.domElement.style.pointerEvents = "none";
         }}
       >
-        <CardMesh poseRef={poseRef} reduced={reduced} shadowRef={shadowRef}>
-          {children}
-        </CardMesh>
+        <CardMesh
+          poseRef={poseRef}
+          reduced={reduced}
+          shadowRef={shadowRef}
+          faceTiltRef={faceTiltRef}
+        />
       </Canvas>
     </div>
   );
