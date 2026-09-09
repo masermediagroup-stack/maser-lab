@@ -13,7 +13,7 @@
 ## Brief
 
 ### User / trigger
-The wallpaper runs continuously on a room TV during the Cursor + Grok Bot Dallas meetup.
+The wallpaper runs on a room **wall TV** (1920×1080) during the Cursor + Grok Bot Dallas meetup, and is previewed on **laptop / desktop**. Not a mobile surface.
 Trigger frequency: rare / ambient (TV loop).
 
 ### Job
@@ -33,6 +33,8 @@ Dark moving-gradient background. Center **3-logo carousel** (Grok Bot → SpaceX
 - No kick/whip/Grok SDF morph cycle (retired 2026-09-09).
 - No paper `#F2F1ED` ground (retired).
 - Geist out. Do not invent layout beyond Figma frame.
+- No mobile / 320 layout. Wall TV + laptop/desktop only.
+- Do not scale logos or canvas type off Figma native px.
 
 ## Type
 

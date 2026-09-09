@@ -9,8 +9,8 @@ USER OVERRIDE. Supersedes paper-ground canvas-only spec, kick/whip model, Grok S
 | Layer | Spec |
 | --- | --- |
 | Background | WebGPU **2D moving gradient** (Figma `11:2` stops + warp/intensity). Looped time = `elapsed mod loopSeconds` via periodic orbit. Animated Canvas2D fallback when WebGPU unavailable. |
-| Center | **3-logo opacity carousel** — Grok Bot → SpaceX → Cursor — same center slot. Sequential fade-out then fade-in (never overlap) over `loopSeconds` (default **120s**). |
-| Text | Bottom-left **x=72, y=931** @ 1080. Headline **48px / 400**, subline **36px / 300**, **white** Universal Sans on both lines. Lab demo edits `headlineText` / `upNextText`. Static text (no letter fade). |
+| Center | **3-logo opacity carousel** at Figma native sizes (Grok 814×153, SpaceX 900.886×110, Cursor 645×153) — no per-asset scale. Sequential fade-out then fade-in. Wall / laptop / desktop only. |
+| Text | Bottom-left **x=72, y=931**. Headline **48px / 400**, subline **36px / 300** — Figma-native, not scaled. |
 | Loop | Default **120s** (2 min). Demo loop control unchanged. No whip/kick/settle beats. |
 
 Figma: `projects/display/dallas-meetup-tv-wallpaper/FIGMA.md`. Assets under `lab/public/assets/dallas-meetup-tv-wallpaper/`.

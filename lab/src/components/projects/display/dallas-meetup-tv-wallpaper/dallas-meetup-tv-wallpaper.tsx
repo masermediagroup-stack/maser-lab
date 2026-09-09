@@ -67,7 +67,7 @@ function resolveDallasFontFamily(el: Element | null): string {
 export function renderForegroundFrame(
   ctx: CanvasRenderingContext2D,
   width: number,
-  height: number,
+  _height: number,
   elapsed: number,
   reducedMotion: boolean,
   loopSeconds: number,
@@ -75,40 +75,31 @@ export function renderForegroundFrame(
   headlineText: string,
   upNextText: string,
 ) {
-  const scale = width / BASE_WIDTH;
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, width, height);
+  const dpr = width / BASE_WIDTH;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
 
   const images = logoCarouselImages();
   if (images) {
-    drawLogoCarousel(
-      ctx,
-      width,
-      height,
-      elapsed,
-      loopSeconds,
-      reducedMotion,
-      images,
-    );
+    drawLogoCarousel(ctx, elapsed, loopSeconds, reducedMotion, images);
   }
 
   ctx.fillStyle = DALLAS_TEXT_ON_DARK;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
 
-  const headlineSize = DALLAS_DISPLAY_FONT_PX * scale;
-  const sublineSize = DALLAS_SUBLINE_FONT_PX * scale;
-  const textX = TEXT_LEFT_PX * scale;
-  const textY = TEXT_TOP_PX * scale;
-
-  ctx.font = `400 ${headlineSize}px ${fontFamily}`;
-  ctx.fillText(headlineText, textX, textY);
+  ctx.font = `400 ${DALLAS_DISPLAY_FONT_PX}px ${fontFamily}`;
+  ctx.fillText(headlineText, TEXT_LEFT_PX, TEXT_TOP_PX);
 
   const trimmedUpNext = upNextText.trim();
   if (trimmedUpNext) {
-    const lineGap = headlineSize * 0.12;
-    ctx.font = `300 ${sublineSize}px ${fontFamily}`;
-    ctx.fillText(trimmedUpNext, textX, textY + headlineSize + lineGap);
+    const lineGap = DALLAS_DISPLAY_FONT_PX * 0.12;
+    ctx.font = `300 ${DALLAS_SUBLINE_FONT_PX}px ${fontFamily}`;
+    ctx.fillText(
+      trimmedUpNext,
+      TEXT_LEFT_PX,
+      TEXT_TOP_PX + DALLAS_DISPLAY_FONT_PX + lineGap,
+    );
   }
 }
 
@@ -139,19 +130,18 @@ export function DallasMeetupWallpaper({
     const fgCanvas = fgCanvasRef.current;
     if (!stack || !bgCanvas || !fgCanvas) return;
 
-    const rect = stack.getBoundingClientRect();
     const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
     const clampedDpr = Math.min(2, Math.max(1, dpr));
-    const width = Math.max(1, Math.round(rect.width * clampedDpr));
-    const height = Math.max(1, Math.round(rect.height * clampedDpr));
+    const width = Math.round(BASE_WIDTH * clampedDpr);
+    const height = Math.round(BASE_HEIGHT * clampedDpr);
 
     bgCanvas.width = width;
     bgCanvas.height = height;
     fgCanvas.width = width;
     fgCanvas.height = height;
 
-    gradientRef.current?.resize(rect.width, rect.height, clampedDpr);
-    publishDallasDisplayPx(stack, rect.width);
+    gradientRef.current?.resize(BASE_WIDTH, BASE_HEIGHT, clampedDpr);
+    publishDallasDisplayPx(stack, BASE_WIDTH);
   }, []);
 
   const drawAtTime = useCallback(

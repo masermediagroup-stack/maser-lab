@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { logoOpacities, LOGO_FADE_FRACTION } from "../logo-carousel";
+import {
+  CURSOR_LOCKUP_H,
+  CURSOR_LOCKUP_W,
+  FIGMA_FRAME_H,
+  FIGMA_FRAME_W,
+  GROK_LOCKUP_H,
+  GROK_LOCKUP_W,
+  LOGO_FADE_FRACTION,
+  SPACEX_LOCKUP_H,
+  SPACEX_LOCKUP_W,
+  logoOpacities,
+} from "../logo-carousel";
 
 describe("logo carousel opacities", () => {
   it("shows only Grok under reduced motion", () => {
@@ -49,5 +60,18 @@ describe("logo carousel opacities", () => {
     expect(sWrap).toBe(0);
     expect(gWrap + cWrap).toBeGreaterThan(0);
     expect((gWrap > 0.001 ? 1 : 0) + (cWrap > 0.001 ? 1 : 0)).toBe(1);
+  });
+});
+
+describe("logo Figma native sizes", () => {
+  it("keeps lockup dimensions from the 1920×1080 frame", () => {
+    expect(FIGMA_FRAME_W).toBe(1920);
+    expect(FIGMA_FRAME_H).toBe(1080);
+    expect(GROK_LOCKUP_W).toBe(814);
+    expect(GROK_LOCKUP_H).toBe(153);
+    expect(SPACEX_LOCKUP_W).toBeCloseTo(900.886);
+    expect(SPACEX_LOCKUP_H).toBe(110);
+    expect(CURSOR_LOCKUP_W).toBe(645);
+    expect(CURSOR_LOCKUP_H).toBe(153);
   });
 });

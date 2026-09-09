@@ -14,16 +14,9 @@ export const SPACEX_LOCKUP_H = 110;
 export const CURSOR_LOCKUP_W = 645;
 export const CURSOR_LOCKUP_H = 153;
 
-/** Shared slot matches Figma Grok lockup (814×153 @ 1920). Contain, do not upscale. */
-export const LOGO_MAX_W_PX = 814;
-export const LOGO_MAX_H_PX = 153;
-
-/**
- * Optical center of the SpaceXAI lockup in design px.
- * Letter mass sits left of the geometric bbox center (~450) because the AI
- * tail occupies the right third. Weighted center of SPACEX letters + sparse AI.
- */
-export const SPACEX_OPTICAL_CENTER_X = 360;
+/** Figma frame — logos draw at native px in this space. */
+export const FIGMA_FRAME_W = 1920;
+export const FIGMA_FRAME_H = 1080;
 
 /** Fraction of each logo segment used for fade-out, then the same for fade-in. */
 export const LOGO_FADE_FRACTION = 0.08;
@@ -124,36 +117,21 @@ export function logoOpacities(
 
 type LogoSpec = {
   image: HTMLImageElement;
-  designW: number;
-  designH: number;
-  opticalCenterX: number;
+  w: number;
+  h: number;
   opacity: number;
 };
 
-function fitLogoRect(
-  designW: number,
-  designH: number,
-  maxW: number,
-  maxH: number,
-): { w: number; h: number } {
-  const scale = Math.min(maxW / designW, maxH / designH);
-  return { w: designW * scale, h: designH * scale };
-}
-
+/** Draw logos at Figma native sizes, geometrically centered on the 1920×1080 frame. */
 export function drawLogoCarousel(
   ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
   elapsed: number,
   loopSeconds: number,
   reducedMotion: boolean,
   images: LogoCarouselImages,
 ) {
-  const scale = width / 1920;
-  const maxW = LOGO_MAX_W_PX * scale;
-  const maxH = LOGO_MAX_H_PX * scale;
-  const centerX = width * 0.5;
-  const centerY = height * 0.5;
+  const centerX = FIGMA_FRAME_W * 0.5;
+  const centerY = FIGMA_FRAME_H * 0.5;
   const [grokOp, spacexOp, cursorOp] = logoOpacities(
     elapsed,
     loopSeconds,
@@ -161,38 +139,18 @@ export function drawLogoCarousel(
   );
 
   const specs: LogoSpec[] = [
-    {
-      image: images.grok,
-      designW: GROK_LOCKUP_W,
-      designH: GROK_LOCKUP_H,
-      opticalCenterX: GROK_LOCKUP_W * 0.5,
-      opacity: grokOp,
-    },
-    {
-      image: images.spacex,
-      designW: SPACEX_LOCKUP_W,
-      designH: SPACEX_LOCKUP_H,
-      opticalCenterX: SPACEX_OPTICAL_CENTER_X,
-      opacity: spacexOp,
-    },
-    {
-      image: images.cursor,
-      designW: CURSOR_LOCKUP_W,
-      designH: CURSOR_LOCKUP_H,
-      opticalCenterX: CURSOR_LOCKUP_W * 0.5,
-      opacity: cursorOp,
-    },
+    { image: images.grok, w: GROK_LOCKUP_W, h: GROK_LOCKUP_H, opacity: grokOp },
+    { image: images.spacex, w: SPACEX_LOCKUP_W, h: SPACEX_LOCKUP_H, opacity: spacexOp },
+    { image: images.cursor, w: CURSOR_LOCKUP_W, h: CURSOR_LOCKUP_H, opacity: cursorOp },
   ];
 
   for (const spec of specs) {
     if (spec.opacity <= 0.001) continue;
-    const { w, h } = fitLogoRect(spec.designW, spec.designH, maxW, maxH);
-    const fittedScale = w / spec.designW;
-    const x = centerX - spec.opticalCenterX * fittedScale;
-    const y = centerY - h * 0.5;
+    const x = centerX - spec.w * 0.5;
+    const y = centerY - spec.h * 0.5;
     ctx.save();
     ctx.globalAlpha = spec.opacity;
-    ctx.drawImage(spec.image, x, y, w, h);
+    ctx.drawImage(spec.image, x, y, spec.w, spec.h);
     ctx.restore();
   }
 }

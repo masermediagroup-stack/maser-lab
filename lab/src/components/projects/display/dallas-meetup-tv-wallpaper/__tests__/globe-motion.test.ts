@@ -46,5 +46,7 @@ describe("idle wallpaper render contract", () => {
     expect(wallpaperSrc).toContain("TEXT_TOP_PX");
     expect(wallpaperSrc).toContain("DALLAS_DISPLAY_FONT_PX");
     expect(wallpaperSrc).toContain("DALLAS_SUBLINE_FONT_PX");
+    expect(wallpaperSrc).not.toContain("DALLAS_DISPLAY_FONT_PX * scale");
+    expect(wallpaperSrc).not.toContain("DALLAS_SUBLINE_FONT_PX * scale");
   });
 });
