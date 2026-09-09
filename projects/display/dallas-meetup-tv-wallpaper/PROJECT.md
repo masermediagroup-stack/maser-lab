@@ -7,11 +7,8 @@
 
 ## Design reference
 
-- Figma: none. USER OVERRIDE encoded in `design.md`.
-- Motion source: Grok Bot lifecycle tour at https://x.ai/news/designing-grok-bot (Idle / Working only on TV). Avatar motion by Benji Taylor.
-- Left mark: SpaceXAI wordmark (`spacexai-logo.png`). Cursor cube retired 2026-09-08 (see `design.md` mark swap).
-- Look lock: `LOOK.md` (later interrupts win)
-- Design spec: `design.md` (correction log)
+- Figma: [GrokBot-Dallas](https://www.figma.com/design/pZRH3cYPdDl1cDbmzzgZ5M/GrokBot-Dallas) — frame `GrokBot-TV-Idle-Wallpaper` (`11:2`). See `FIGMA.md`.
+- Design spec: `design.md` (USER OVERRIDE 2026-09-09 idle wallpaper)
 
 ## Brief
 
@@ -23,46 +20,38 @@ Trigger frequency: rare / ambient (TV loop).
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Paper `#F2F1ED`. SpaceXAI wordmark (left-to-right swipe fade + edge-rim shine on kick) + Grok picker morph (SDF blend, 1:1 shape↔HEX from the Ver 02 tree; cold start oval + Black) + white gaze-pair stadiums that look around and wink + one Universal Sans line `Dallas meetup`. Kick = body morph + HEX blend + wordmark sweep. No bands on Grok.
+Dark moving-gradient background. Center **3-logo carousel** (Grok Bot → SpaceX → Cursor) crossfading over a **120s** loop. Bottom-left white Universal Sans headline + subline (lab-editable). Reduced motion: static gradient + first logo + static text.
 
 ### Success signal
-- Skyline gone.
-- SpaceXAI wordmark reads at mark height, planted (no float, no spin); on kick it swipe-fades left → right with an edge-rim shine.
-- Grok reads as the kept picker silhouettes (oval rest → square/teal first land unless square drew Red, then hex / circle) with white stadiums that translate as a gaze pair and wink through the blend **without shearing**. Every body fits the cube-height mark box. Not a light organic PNG head.
-- Kick is SDF morph + pair HEX blend + Cursor 360. Eyes may gaze/wink. No Thinking nest. No Working ribbons. No orbits.
-- Same demo route `/demos/dallas-meetup-tv-wallpaper`.
-- Reduced motion freezes Idle (oval + Black, no ribbons, no cube spin, no morph).
+- Moving gradient shader loops seamlessly at `loopSeconds` (default 120s).
+- Three logos fade in/out at center without whip/spin/morph.
+- Text anchored bottom-left per Figma `11:97`.
+- Same demo route `/demos/dallas-meetup-tv-wallpaper` with headline/up-next inputs preserved.
+- Reduced motion freezes first frame.
 
 ### Non-goals
-- No skyline / Noun Project horizon / dither under the globe.
-- No light organic PNG Grok. No smashed still pills.
-- No independent HEX wraps (color without its paired silhouette). No Green body fill. No Cool Gray body fill.
-- No eye-whip. No Grok body yaw. No 360 body spin. Morph in place only.
-- No Thinking nest / Working ribbons / orbits on Grok.
-- No Pill / Cloud / Teardrop / Triangle cycle landings. No oversized Grok vs cube (do not scale the cube up).
-- Red `#FF263C` may fill one remaining body this seed; never resurrect the Pill silhouette.
-- Do not invent type, spacing, or layout. Geist out. No new shader.
+- No kick/whip/Grok SDF morph cycle (retired 2026-09-09).
+- No paper `#F2F1ED` ground (retired).
+- Geist out. Do not invent layout beyond Figma frame.
 
 ## Type
 
-**Settled. Do not re-open.**
+**Settled for idle wallpaper (2026-09-09).**
 
 | Surface | Face | Token |
 | --- | --- | --- |
-| Display line — `Dallas meetup` on the wallpaper | Universal Sans trial / 400, exactly once | `--dallas-font` |
-| Body, labels, info, demo-rail notes | IBM Plex Sans Condensed | `--dallas-font-ui` |
+| Canvas headline | Universal Sans trial / 400, 48px @ 1920 | `--dallas-font` |
+| Canvas subline | Universal Sans trial / 300, 36px @ 1920 | `--dallas-font` |
+| Demo chrome labels | IBM Plex Sans Condensed | `--dallas-font-ui` |
 
-Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
+Both canvas lines use Universal Sans (different weights). Plex only on lab demo chrome.
 
-## Paper / ink / field
+## Surface tokens
 
-| Token | Hex | Use |
+| Token | Value | Use |
 | --- | --- | --- |
-| `--dallas-paper` | `#F2F1ED` | Wallpaper background |
-| `--dallas-ink` | `#111111` | Type, cube fill |
-| `--dallas-grok-black` | `#000000` | Cold-start oval rest only |
-| `--dallas-eye-white` | `#FFFFFF` | Grok stadium eyes |
-| Ver 02 kept pairs (4) | blue / orange-red / teal / violet | Body fills. One of the four draws Red `#FF263C` this seed. Green, Gray, Magenta, Orange, Gold never a fill. Never orbits. |
+| `--dallas-stage` | `#060606` | Stage chrome / fallback ground |
+| `--dallas-text-on-dark` | `#FFFFFF` | Canvas headline + subline |
 
 ## States
 
@@ -73,41 +62,23 @@ Largest Plex ≤ **40%** of display. Display is **44px** @ 1920. Tracking ~2.4.
 - [x] frame-step and scrub
 - [x] presentation fullscreen
 - [x] export capture
-- [x] whip duration 0.5–0.7s
+- [x] loop duration 30–120s (default 120s)
 
 ## Motion decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Library | Canvas 2D + rAF | Deterministic timeline and export. No new shader. |
-| Duration | 8s: 6.4 Idle / 0.6 Working / ~1 settle | Do not shorten. Super-fast = short whip |
-| Body | SDF subset morph, 1:1 shape↔HEX. Shared mark box = cube height. Cold start oval + Black. Seeded Red on one of four. | USER OVERRIDE. No Pill/Cloud/Teardrop/Triangle. No Green/Gray/Magenta/Orange/Gold body |
-| Stream | None. Kick is morph + HEX blend + Cursor 360 | USER LOCK. Kill Thinking nest and Working ribbons |
-| Eyes | White stadiums, vertical + slight left (−12°), translate as a pair, wink. Survive morph unsheared (face disc) | Not −28°. Not stuck BL/TR. No independent spin. No silhouette clip |
-| Cube | Official path, evenodd hole, ink; 360 on kick | Hole is the cursor. Paper through |
-| Horizon | Gone | USER LOCK |
+| Background | WebGPU moving gradient + Canvas2D fallback | Figma `11:2` shader fill |
+| Logo motion | 3-way opacity crossfade | User: fade every 2 min |
+| Duration | Default 120s loop | Existing demo control |
+| Text | Static white, bottom-left | Figma layout |
 
 ## Acceptance criteria
 
-- [x] Demo route `/demos/dallas-meetup-tv-wallpaper` renders locked composition
-- [x] `npm run lint` and `npm run build` pass in `lab/` (this PR: slug ESLint `--max-warnings=0`; repo lint has pre-existing `ui/` warnings)
-- [x] Idle (clean morph face, cube upright, eyes wink) → one kick (SDF morph + HEX blend + Cursor 360) → Idle on next pair; reduced motion freezes Idle
-- [x] Official cube evenodd hole; Grok SDF picker + white stadiums; no skyline; no eye-whip; no Grok body turn; no orbits on Grok
-- [x] Wallpaper never draws Thinking nest, Working ribbons, or colored bands around Grok; cube clean of lines
-- [x] Eyes are a parallel pair at −8° to −15° (product −12°), translate together (center / up / side / return), wink; never stuck BL or TR; never independent spin; never sheared/smashed mid-morph; never a light PNG head
-- [x] Cycle is oval → square → hex → circle; no Pill, Cloud, Teardrop, or Triangle landings; Grok fits the cube-height mark box
-- [x] At seed, one of the four remaining bodies draws Red `#FF263C` (Pill silhouette stays dropped); other three keep tree pairing; Green skipped
-- [x] Universal Sans trial once on the canvas line; Plex ≤ 40% of display; Geist out
-- [x] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`
-
-## Loaded skills (this pass)
-
-- `maser-lab-web` Implement (existing slug)
-- `maser-lab-web/references/skill-routing.md`
-- `maser-lab-web/references/motion-judgment.md`
-- `maser-lab-web/references/decision-template.md`
-- `maser-lab-demo-chrome`
-- `maser-lab-token-system`
-- `ui-animation` (easing character for cube whip + wink)
-- `projects/display/dallas-meetup-tv-wallpaper/design.md` (correction log; four-body subset + seeded Red)
-- `LOOK.md` as look lock
+- [ ] Demo route `/demos/dallas-meetup-tv-wallpaper` renders idle wallpaper composition
+- [ ] `npm run lint` and `npm run build` pass in `lab/`
+- [ ] Shader + logo carousel loop at 120s without visible seam at t=0 vs t=120
+- [ ] Headline/up-next editable in lab demo
+- [ ] Reduced motion: static gradient, Grok logo, static text
+- [ ] Universal Sans 400 + 300 on canvas; Geist out of product surface
+- [ ] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`

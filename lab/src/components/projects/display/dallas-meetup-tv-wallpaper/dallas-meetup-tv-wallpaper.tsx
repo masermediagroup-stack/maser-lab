@@ -4,49 +4,25 @@ import { useCallback, useEffect, useRef } from "react";
 import {
   DALLAS_DEFAULT_HEADLINE,
   DALLAS_DEFAULT_UP_NEXT,
-  DALLAS_PLEX_FAMILY,
   DALLAS_SANS_FAMILY,
 } from "./dallas-fonts";
 import {
   DEFAULT_LOOP_SECONDS,
-  DEFAULT_WHIP_SECONDS,
   DALLAS_WALLPAPER_FPS,
 } from "./globe-motion";
-import { bodyOutline, outlineFitScale, traceBodyPath } from "./grok-bodies";
 import {
-  DALLAS_EYE_WHITE,
-  DALLAS_MARK_INK,
-  DALLAS_PAPER,
-  grokCyclePose,
-  pickRedBody,
-  type GrokShapeId,
-} from "./grok-cycle";
+  drawLogoCarousel,
+  logoCarouselImages,
+  preloadLogoCarousel,
+} from "./logo-carousel";
 import {
-  EYE_H_FACE,
-  EYE_W_FACE,
-  FACE_DISC_R,
-  eyesAt,
-  type EyePose,
-} from "./grok-eyes";
+  drawFallbackGradient,
+  loopShaderTimeMs,
+  MovingGradientBackground,
+} from "./moving-gradient-background";
 import {
-  GROK_Y_NUDGE_PX,
-  SPACEXAI_ASPECT,
-  drawSpacexaiMark,
-  preloadSpacexaiLogo,
-  spacexaiLogoImage,
-} from "./spacexai-mark";
-import {
-  drawTextRandomFade,
-  DALLAS_SUBHEADING_FADE_PLAY_KEY,
-  DEFAULT_RANDOM_LETTER_FADE,
-  headlineTextAnchorX,
-} from "./dallas-text-animation";
-import {
-  DALLAS_BODY_FONT_PX,
-  DALLAS_BODY_FONT_WEIGHT,
   DALLAS_DISPLAY_FONT_PX,
-  DALLAS_DISPLAY_TRACKING_PX,
-  displayRenderedPx,
+  DALLAS_SUBLINE_FONT_PX,
   publishDallasDisplayPx,
   runDallasTypeLock,
 } from "./type-lock";
@@ -55,11 +31,9 @@ const BASE_WIDTH = 1920;
 const BASE_HEIGHT = 1080;
 const FPS = DALLAS_WALLPAPER_FPS;
 
-const CURSOR_H_PX = 280;
-/** Shared mark box. Grok fits inside this — same height as the Cursor cube. */
-const MARK_BOX_PX = CURSOR_H_PX;
-const MARK_GAP_PX = 120;
-const PAIR_LIFT_PX = 70;
+const TEXT_LEFT_PX = 72;
+const TEXT_TOP_PX = 931;
+const DALLAS_TEXT_ON_DARK = "#ffffff";
 
 type ExportResult = {
   blob: Blob;
@@ -68,22 +42,14 @@ type ExportResult = {
   codec: string;
 };
 
-const DEFAULT_SANS = DALLAS_SANS_FAMILY;
-
-/**
- * One of the four remaining morph bodies draws Red `#FF263C` this boot.
- * Picked once at seed. Does not bring the Pill shape back.
- */
-const SEEDED_RED_BODY: GrokShapeId = pickRedBody();
-
 export type DallasMeetupWallpaperProps = {
   reducedMotion?: boolean;
   playing?: boolean;
   timeSeconds?: number;
   onFrameTime?: (seconds: number) => void;
   loopSeconds?: number;
+  /** Legacy prop — ignored by idle wallpaper (no whip beat). */
   whipSeconds?: number;
-  /** Bump to restart the loop clock (Replay while already playing). */
   resetNonce?: number;
   headlineText?: string;
   upNextText?: string;
@@ -95,174 +61,54 @@ function resolveDallasFontFamily(el: Element | null): string {
     const token = getComputedStyle(el).getPropertyValue("--dallas-font").trim();
     if (token) return token;
   }
-  return DEFAULT_SANS;
+  return DALLAS_SANS_FAMILY;
 }
 
-function resolvePlexFontFamily(el: Element | null): string {
-  if (el instanceof HTMLElement && el.isConnected) {
-    const token = getComputedStyle(el).getPropertyValue("--dallas-font-ui").trim();
-    if (token) return token;
-  }
-  return DALLAS_PLEX_FAMILY;
-}
-
-function drawOneStadium(
-  ctx: CanvasRenderingContext2D,
-  faceD: number,
-  pose: EyePose,
-) {
-  const R = faceD * 0.5;
-  const ew = faceD * EYE_W_FACE;
-  const eh = faceD * EYE_H_FACE;
-  ctx.save();
-  ctx.translate(pose.cx * R, pose.cy * R);
-  ctx.rotate(pose.tilt);
-  ctx.scale(1, pose.scaleY);
-  ctx.fillStyle = DALLAS_EYE_WHITE;
-  const r = Math.min(ew, eh) * 0.5;
-  ctx.beginPath();
-  ctx.roundRect(-ew * 0.5, -eh * 0.5, ew, eh, r);
-  ctx.fill();
-  ctx.restore();
-}
-
-function drawGrokBody(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  faceD: number,
-  elapsed: number,
-  loopSeconds: number,
-  whipSeconds: number,
-  reducedMotion: boolean,
-) {
-  const pose = grokCyclePose(
-    elapsed,
-    loopSeconds,
-    whipSeconds,
-    reducedMotion,
-    SEEDED_RED_BODY,
-  );
-  const radii = bodyOutline(pose.fromShape, pose.toShape, pose.morphT);
-  const fit = outlineFitScale(radii);
-  const R = faceD * 0.5 * fit;
-  const pair = eyesAt(elapsed, loopSeconds, whipSeconds, reducedMotion);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-
-  ctx.fillStyle = pose.fill;
-  traceBodyPath(ctx, radii, R);
-  ctx.fill();
-
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(0, 0, R * FACE_DISC_R, 0, Math.PI * 2);
-  ctx.clip();
-  const fittedD = faceD * fit;
-  drawOneStadium(ctx, fittedD, pair.left);
-  drawOneStadium(ctx, fittedD, pair.right);
-  ctx.restore();
-
-  ctx.restore();
-}
-
-function renderFrame(
+export function renderForegroundFrame(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
   elapsed: number,
   reducedMotion: boolean,
   loopSeconds: number,
-  whipSeconds: number,
   fontFamily: string,
-  plexFontFamily: string,
   headlineText: string,
   upNextText: string,
 ) {
   const scale = width / BASE_WIDTH;
-
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  ctx.fillStyle = DALLAS_PAPER;
-  ctx.fillRect(0, 0, width, height);
+  ctx.clearRect(0, 0, width, height);
 
-  const centerX = width * 0.5;
-  const marksBaseY = height * 0.5 - PAIR_LIFT_PX * scale;
-  const logoH = CURSOR_H_PX * scale;
-  const logoW = logoH * SPACEXAI_ASPECT;
-  const grokSize = MARK_BOX_PX * scale;
-  const markGap = MARK_GAP_PX * scale;
-  const groupWidth = logoW + grokSize + markGap;
-  const logoX = centerX - groupWidth * 0.5 + logoW * 0.5;
-  const cursorLeftX = headlineTextAnchorX(logoX, logoW);
-  const grokX = centerX + groupWidth * 0.5 - grokSize * 0.5;
-  const grokY = marksBaseY + GROK_Y_NUDGE_PX * scale;
-
-  const logo = spacexaiLogoImage();
-  if (logo) {
-    drawSpacexaiMark(
+  const images = logoCarouselImages();
+  if (images) {
+    drawLogoCarousel(
       ctx,
-      logo,
-      logoX,
-      marksBaseY,
-      logoW,
-      logoH,
+      width,
+      height,
       elapsed,
       loopSeconds,
-      whipSeconds,
       reducedMotion,
+      images,
     );
   }
 
-  drawGrokBody(
-    ctx,
-    grokX,
-    grokY,
-    grokSize,
-    elapsed,
-    loopSeconds,
-    whipSeconds,
-    reducedMotion,
-  );
-
-  ctx.fillStyle = DALLAS_MARK_INK;
+  ctx.fillStyle = DALLAS_TEXT_ON_DARK;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  const fontSize = DALLAS_DISPLAY_FONT_PX * scale;
-  const headlineY = marksBaseY + grokSize * 0.72;
-  ctx.font = `400 ${fontSize}px ${fontFamily}`;
-  const tracking = DALLAS_DISPLAY_TRACKING_PX * scale;
-  drawTextRandomFade(
-    ctx,
-    headlineText,
-    cursorLeftX,
-    headlineY,
-    tracking,
-    elapsed,
-    loopSeconds,
-    whipSeconds,
-    reducedMotion,
-  );
+
+  const headlineSize = DALLAS_DISPLAY_FONT_PX * scale;
+  const sublineSize = DALLAS_SUBLINE_FONT_PX * scale;
+  const textX = TEXT_LEFT_PX * scale;
+  const textY = TEXT_TOP_PX * scale;
+
+  ctx.font = `400 ${headlineSize}px ${fontFamily}`;
+  ctx.fillText(headlineText, textX, textY);
 
   const trimmedUpNext = upNextText.trim();
   if (trimmedUpNext) {
-    const bodySize = DALLAS_BODY_FONT_PX * scale;
-    const bodyGap = fontSize * 0.22;
-    ctx.font = `${DALLAS_BODY_FONT_WEIGHT} ${bodySize}px ${plexFontFamily}`;
-    drawTextRandomFade(
-      ctx,
-      trimmedUpNext,
-      cursorLeftX,
-      headlineY + fontSize + bodyGap,
-      0,
-      elapsed,
-      loopSeconds,
-      whipSeconds,
-      reducedMotion,
-      { ...DEFAULT_RANDOM_LETTER_FADE, playKey: DALLAS_SUBHEADING_FADE_PLAY_KEY },
-    );
+    const lineGap = headlineSize * 0.12;
+    ctx.font = `300 ${sublineSize}px ${fontFamily}`;
+    ctx.fillText(trimmedUpNext, textX, textY + headlineSize + lineGap);
   }
 }
 
@@ -272,140 +118,174 @@ export function DallasMeetupWallpaper({
   timeSeconds,
   onFrameTime,
   loopSeconds = DEFAULT_LOOP_SECONDS,
-  whipSeconds = DEFAULT_WHIP_SECONDS,
   resetNonce = 0,
   headlineText = DALLAS_DEFAULT_HEADLINE,
   upNextText = DALLAS_DEFAULT_UP_NEXT,
   className,
 }: DallasMeetupWallpaperProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const stackRef = useRef<HTMLDivElement | null>(null);
+  const bgCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const fgCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const gradientRef = useRef<MovingGradientBackground | null>(null);
+  const useWebGpuRef = useRef(false);
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const pausedAtRef = useRef(0);
 
+  const resizeCanvases = useCallback(() => {
+    const stack = stackRef.current;
+    const bgCanvas = bgCanvasRef.current;
+    const fgCanvas = fgCanvasRef.current;
+    if (!stack || !bgCanvas || !fgCanvas) return;
+
+    const rect = stack.getBoundingClientRect();
+    const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+    const clampedDpr = Math.min(2, Math.max(1, dpr));
+    const width = Math.max(1, Math.round(rect.width * clampedDpr));
+    const height = Math.max(1, Math.round(rect.height * clampedDpr));
+
+    bgCanvas.width = width;
+    bgCanvas.height = height;
+    fgCanvas.width = width;
+    fgCanvas.height = height;
+
+    gradientRef.current?.resize(rect.width, rect.height, clampedDpr);
+    publishDallasDisplayPx(stack, rect.width);
+  }, []);
+
   const drawAtTime = useCallback(
     (time: number) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      renderFrame(
-        ctx,
-        canvas.width,
-        canvas.height,
+      const bgCanvas = bgCanvasRef.current;
+      const fgCanvas = fgCanvasRef.current;
+      if (!bgCanvas || !fgCanvas) return;
+
+      const width = fgCanvas.width;
+      const height = fgCanvas.height;
+      if (width <= 0 || height <= 0) return;
+
+      const shaderTimeMs = loopShaderTimeMs(time, loopSeconds);
+      const gradient = gradientRef.current;
+
+      if (useWebGpuRef.current && gradient?.isReady) {
+        gradient.render(reducedMotion ? 0 : shaderTimeMs);
+      } else {
+        const bgCtx = bgCanvas.getContext("2d");
+        if (bgCtx) drawFallbackGradient(bgCtx, width, height);
+      }
+
+      const fgCtx = fgCanvas.getContext("2d");
+      if (!fgCtx) return;
+      renderForegroundFrame(
+        fgCtx,
+        width,
+        height,
         time,
         reducedMotion,
         loopSeconds,
-        whipSeconds,
-        resolveDallasFontFamily(canvas),
-        resolvePlexFontFamily(canvas),
+        resolveDallasFontFamily(fgCanvas),
         headlineText,
         upNextText,
       );
     },
-    [headlineText, reducedMotion, loopSeconds, upNextText, whipSeconds],
+    [headlineText, loopSeconds, reducedMotion, upNextText],
   );
 
   useEffect(() => {
     let cancelled = false;
-    void preloadSpacexaiLogo().then(() => {
+    const gradient = new MovingGradientBackground();
+    gradientRef.current = gradient;
+
+    void (async () => {
+      await preloadLogoCarousel();
+      const bgCanvas = bgCanvasRef.current;
+      if (bgCanvas) {
+        const ok = await gradient.init(bgCanvas);
+        useWebGpuRef.current = ok;
+      }
+      resizeCanvases();
       if (!cancelled) drawAtTime(timeSeconds ?? pausedAtRef.current);
-    });
+    })();
+
     return () => {
       cancelled = true;
+      gradient.destroy();
+      gradientRef.current = null;
     };
-  }, [drawAtTime, timeSeconds]);
+  }, [drawAtTime, resizeCanvases, timeSeconds]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const resize = () => {
-      const parent = canvas.parentElement;
-      if (!parent) return;
-      const bounds = parent.getBoundingClientRect();
-      const ratio = BASE_WIDTH / BASE_HEIGHT;
-      const fitW = bounds.width;
-      const fitH = bounds.height;
-      let drawW = fitW;
-      let drawH = fitW / ratio;
-      if (drawH > fitH) {
-        drawH = fitH;
-        drawW = fitH * ratio;
-      }
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.max(1, Math.round(drawW * dpr));
-      canvas.height = Math.max(1, Math.round(drawH * dpr));
-      canvas.style.width = `${drawW}px`;
-      canvas.style.height = `${drawH}px`;
-      const host =
-        canvas.closest<HTMLElement>(".dallas-demo") ?? canvas.parentElement ?? canvas;
-      const displayPx = displayRenderedPx(drawW);
-      publishDallasDisplayPx(host, displayPx);
-      if (host.classList.contains("dallas-demo")) {
-        runDallasTypeLock(host);
-      }
+    resizeCanvases();
+    const stack = stackRef.current;
+    if (!stack || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => {
+      resizeCanvases();
       drawAtTime(timeSeconds ?? pausedAtRef.current);
-    };
+    });
+    observer.observe(stack);
+    return () => observer.disconnect();
+  }, [drawAtTime, resizeCanvases, timeSeconds]);
 
-    resize();
-    const observer = new ResizeObserver(resize);
-    observer.observe(canvas.parentElement ?? canvas);
-    window.addEventListener("resize", resize);
-    const redrawOnFonts = () => drawAtTime(timeSeconds ?? pausedAtRef.current);
-    if (document.fonts.status !== "loaded") {
-      void document.fonts.ready.then(redrawOnFonts);
+  useEffect(() => {
+    if (document.fonts) {
+      void document.fonts.load(`400 ${DALLAS_DISPLAY_FONT_PX}px ${DALLAS_SANS_FAMILY}`);
+      void document.fonts.load(`300 ${DALLAS_SUBLINE_FONT_PX}px ${DALLAS_SANS_FAMILY}`);
     }
-    document.fonts.addEventListener("loadingdone", redrawOnFonts);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", resize);
-      document.fonts.removeEventListener("loadingdone", redrawOnFonts);
-    };
+  }, []);
+
+  useEffect(() => {
+    const root = stackRef.current?.closest(".dallas-demo");
+    if (root) runDallasTypeLock(root);
+  });
+
+  useEffect(() => {
+    drawAtTime(timeSeconds ?? pausedAtRef.current);
   }, [drawAtTime, timeSeconds]);
 
   useEffect(() => {
-    pausedAtRef.current = 0;
-    startRef.current = null;
-  }, [resetNonce]);
+    if (timeSeconds !== undefined) {
+      pausedAtRef.current = timeSeconds;
+    }
+  }, [timeSeconds]);
 
   useEffect(() => {
-    if (typeof timeSeconds === "number") {
-      pausedAtRef.current = Math.max(0, timeSeconds);
-      drawAtTime(pausedAtRef.current);
-      return;
-    }
-
-    if (!playing) {
-      drawAtTime(pausedAtRef.current);
-      return;
-    }
-
-    const step = (now: number) => {
-      if (startRef.current === null) {
-        startRef.current = now - pausedAtRef.current * 1000;
+    if (!playing || reducedMotion || timeSeconds !== undefined) {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
       }
-      const elapsed = (now - startRef.current) / 1000;
-      const time = reducedMotion ? 0 : elapsed;
-      pausedAtRef.current = time;
-      drawAtTime(time);
-      onFrameTime?.(time);
-      rafRef.current = window.requestAnimationFrame(step);
+      startRef.current = null;
+      return;
+    }
+
+    const tick = (now: number) => {
+      if (startRef.current === null) startRef.current = now;
+      const elapsed = ((now - startRef.current) / 1000) % loopSeconds;
+      pausedAtRef.current = elapsed;
+      drawAtTime(elapsed);
+      onFrameTime?.(elapsed);
+      rafRef.current = requestAnimationFrame(tick);
     };
 
-    rafRef.current = window.requestAnimationFrame(step);
+    startRef.current = null;
+    rafRef.current = requestAnimationFrame(tick);
+
     return () => {
-      if (rafRef.current !== null) window.cancelAnimationFrame(rafRef.current);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
       startRef.current = null;
     };
-  }, [drawAtTime, onFrameTime, playing, reducedMotion, timeSeconds, loopSeconds, resetNonce]);
+  }, [drawAtTime, loopSeconds, onFrameTime, playing, reducedMotion, resetNonce, timeSeconds]);
 
   return (
-    <div className={className}>
+    <div ref={stackRef} className={`dallas-wallpaper-stack ${className ?? ""}`.trim()}>
       <canvas
-        ref={canvasRef}
-        className="dallas-wallpaper-canvas"
+        ref={bgCanvasRef}
+        className="dallas-wallpaper-stack__bg"
+        aria-hidden
+      />
+      <canvas
+        ref={fgCanvasRef}
+        className="dallas-wallpaper-stack__fg"
         data-dallas-display="universal-sans"
         aria-label="Dallas meetup wallpaper"
       />
@@ -417,7 +297,6 @@ export async function exportDallasMeetupWallpaperLoop({
   width = BASE_WIDTH,
   height = BASE_HEIGHT,
   loopSeconds = DEFAULT_LOOP_SECONDS,
-  whipSeconds = DEFAULT_WHIP_SECONDS,
   headlineText = DALLAS_DEFAULT_HEADLINE,
   upNextText = DALLAS_DEFAULT_UP_NEXT,
 }: {
@@ -436,20 +315,37 @@ export async function exportDallasMeetupWallpaperLoop({
   }
 
   if (document.fonts) {
-    await document.fonts.load(`400 ${DALLAS_DISPLAY_FONT_PX}px ${DEFAULT_SANS}`);
-    await document.fonts.load(
-      `${DALLAS_BODY_FONT_WEIGHT} ${DALLAS_BODY_FONT_PX}px ${DALLAS_PLEX_FAMILY}`,
-    );
+    await document.fonts.load(`400 ${DALLAS_DISPLAY_FONT_PX}px ${DALLAS_SANS_FAMILY}`);
+    await document.fonts.load(`300 ${DALLAS_SUBLINE_FONT_PX}px ${DALLAS_SANS_FAMILY}`);
     await document.fonts.ready;
   }
 
-  await preloadSpacexaiLogo();
+  await preloadLogoCarousel();
 
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Could not create a 2D canvas context.");
+  const bgCanvas = document.createElement("canvas");
+  bgCanvas.width = width;
+  bgCanvas.height = height;
+  const fgCanvas = document.createElement("canvas");
+  fgCanvas.width = width;
+  fgCanvas.height = height;
+  const outCanvas = document.createElement("canvas");
+  outCanvas.width = width;
+  outCanvas.height = height;
+
+  const outCtx = outCanvas.getContext("2d");
+  if (!outCtx) throw new Error("Could not create a 2D canvas context.");
+
+  const gradient = new MovingGradientBackground();
+  const webgpuOk = await gradient.init(bgCanvas);
+  if (!webgpuOk) {
+    const bgCtx = bgCanvas.getContext("2d");
+    if (!bgCtx) throw new Error("Could not create fallback background context.");
+    drawFallbackGradient(bgCtx, width, height);
+  } else {
+    gradient.resize(width, height, 1);
+  }
+
+  const fontFamily = resolveDallasFontFamily(document.querySelector(".dallas-demo"));
 
   const totalFrames = loopSeconds * FPS;
   const mp4Mime = "video/mp4;codecs=avc1.42E01E";
@@ -464,7 +360,7 @@ export async function exportDallasMeetupWallpaperLoop({
 
   const extension: "mp4" | "webm" = mimeType.startsWith("video/mp4") ? "mp4" : "webm";
 
-  const stream = canvas.captureStream(0);
+  const stream = outCanvas.captureStream(0);
   const [videoTrack] = stream.getVideoTracks();
   if (!videoTrack) throw new Error("Could not capture canvas stream track.");
   const controlledTrack = videoTrack as CanvasCaptureMediaStreamTrack;
@@ -475,34 +371,61 @@ export async function exportDallasMeetupWallpaperLoop({
       mimeType,
       videoBitsPerSecond: 14_000_000 * (FPS / 30),
     });
-    recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunks.push(e.data);
+    };
     recorder.onerror = () => reject(new Error("Recording failed."));
     recorder.onstop = () => resolve();
     recorder.start();
 
     let frame = 0;
     const tick = () => {
-      if (frame >= totalFrames) { recorder.stop(); return; }
-      renderFrame(
-        ctx,
-        width,
-        height,
-        frame / FPS,
-        false,
-        loopSeconds,
-        whipSeconds,
-        resolveDallasFontFamily(document.querySelector(".dallas-demo")),
-        resolvePlexFontFamily(document.querySelector(".dallas-demo")),
-        headlineText,
-        upNextText,
-      );
+      if (frame >= totalFrames) {
+        recorder.stop();
+        gradient.destroy();
+        return;
+      }
+      const elapsed = frame / FPS;
+      const shaderTimeMs = loopShaderTimeMs(elapsed, loopSeconds);
+
+      if (webgpuOk) {
+        gradient.render(shaderTimeMs);
+      } else {
+        const bgCtx = bgCanvas.getContext("2d");
+        if (bgCtx) drawFallbackGradient(bgCtx, width, height);
+      }
+
+      const fgCtx = fgCanvas.getContext("2d");
+      if (fgCtx) {
+        renderForegroundFrame(
+          fgCtx,
+          width,
+          height,
+          elapsed,
+          false,
+          loopSeconds,
+          fontFamily,
+          headlineText,
+          upNextText,
+        );
+      }
+
+      outCtx.clearRect(0, 0, width, height);
+      outCtx.drawImage(bgCanvas, 0, 0);
+      outCtx.drawImage(fgCanvas, 0, 0);
       controlledTrack.requestFrame();
       frame += 1;
-      window.setTimeout(tick, 1000 / FPS);
+      requestAnimationFrame(tick);
     };
     tick();
   });
 
-  videoTrack.stop();
-  return { blob: new Blob(chunks, { type: mimeType }), mimeType, extension, codec: mimeType };
+  return {
+    blob: new Blob(chunks, { type: mimeType }),
+    mimeType,
+    extension,
+    codec: mimeType.includes("mp4") ? "h264" : "vp9",
+  };
 }
+
+export { runDallasTypeLock, publishDallasDisplayPx };

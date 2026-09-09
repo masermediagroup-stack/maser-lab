@@ -50,7 +50,10 @@ export function spacexaiSwipeState(
   whipSeconds: number,
   reducedMotion: boolean,
 ): SpacexaiSwipeState {
-  const p = kickProgress(elapsed, loopSeconds, whipSeconds, reducedMotion);
+  if (reducedMotion) {
+    return { active: false, eased: 0, edgeFrac: -0.1, alphaIn: 1, alphaOut: 1 };
+  }
+  const p = kickProgress(elapsed, loopSeconds, whipSeconds);
   if (!(p > 0)) {
     return { active: false, eased: 0, edgeFrac: -0.1, alphaIn: 1, alphaOut: 1 };
   }

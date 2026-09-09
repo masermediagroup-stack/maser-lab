@@ -1,10 +1,23 @@
 # Dallas Meetup TV Wallpaper — Design Directives
 
-USER OVERRIDE. Later interrupts win. Named tokens only. Do not invent type, spacing, or layout. Display is Universal Sans. Body/labels IBM Plex Sans Condensed. Geist is out. No new shader — canvas 2D only.
+USER OVERRIDE. Later interrupts win. Named tokens only. Do not invent type, spacing, or layout. Geist is out.
 
-Do not ask anyone to retime the thick-band cut or the light-head cut.
+## Idle wallpaper redesign (2026-09-09): Figma `GrokBot-TV-Idle-Wallpaper`
 
-## Mark swap (2026-09-08): SpaceXAI wordmark replaces the Cursor cube
+USER OVERRIDE. Supersedes paper-ground canvas-only spec, kick/whip model, Grok SDF morph, mark-swap swipe, and text-under-mark layout.
+
+| Layer | Spec |
+| --- | --- |
+| Background | WebGPU **Moving gradient** shader (Figma `11:2`). Metallic material, gray gradient stops. Looped time = `elapsed mod loopSeconds`. Canvas2D static gradient fallback when WebGPU unavailable. |
+| Center | **3-logo opacity carousel** — Grok Bot → SpaceX → Cursor — same center slot. Crossfade over `loopSeconds` (default **120s**). Simple fade in/out only (no chromatic-metal logo shader). |
+| Text | Bottom-left **x=72, y=931** @ 1080. Headline **48px / 400**, subline **36px / 300**, **white** Universal Sans on both lines. Lab demo edits `headlineText` / `upNextText`. Static text (no letter fade). |
+| Loop | Default **120s** (2 min). Demo loop control unchanged. No whip/kick/settle beats. |
+
+Figma: `projects/display/dallas-meetup-tv-wallpaper/FIGMA.md`. Assets under `lab/public/assets/dallas-meetup-tv-wallpaper/`.
+
+Historical sections below (kick morph, mark swap, paper ground) are **retired** — kept for audit trail only.
+
+## Mark swap (2026-09-08): SpaceXAI wordmark replaces the Cursor cube — RETIRED
 
 USER OVERRIDE. The Cursor cube (`CUBE_2D_DARK.svg`, evenodd hole) is out of the
 composition. The left mark is now the SpaceXAI wordmark

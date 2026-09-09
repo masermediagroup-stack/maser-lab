@@ -1,19 +1,16 @@
 /**
- * EPG timing. Default loop is 30s (up to 2 min in demo). Default whip is 0.5s
- * (up to 1.2s). Super-fast means the traveling bit is short — do not shorten
- * the loop to fake speed.
- *
- * USER OVERRIDE: Idle → one kick → Idle. Body stays planted (no globe yaw).
- * Kick = SDF morph + pair-locked HEX blend + Cursor 360. Eyes may gaze/wink.
- * No nest. No ribbons on Grok. Reduced motion freezes Idle (oval + black).
+ * Idle wallpaper loop timing. Default loop is 120s (2 min).
+ * Whip/rest/settle helpers retained for legacy tests only — idle wallpaper
+ * does not use kick beats.
  */
 
-export const DEFAULT_LOOP_SECONDS = 30;
+export const DEFAULT_LOOP_SECONDS = 120;
+export const LOOP_MIN_SECONDS = 30;
 export const LOOP_MAX_SECONDS = 120;
 export const DEFAULT_WHIP_SECONDS = 0.5;
 /** Live preview, scrub step, and MP4/WebM export frame rate. */
 export const DALLAS_WALLPAPER_FPS = 60;
-/** Settle window after the whip. Idle hold. Same product face. */
+/** Legacy settle window — unused by idle wallpaper render. */
 export const SETTLE_SECONDS = 1;
 
 export type LoopBeat = "rest" | "whip" | "settle";
@@ -21,31 +18,23 @@ export const WHIP_MIN_SECONDS = 0.5;
 export const WHIP_MAX_SECONDS = 1.2;
 
 export const LOOP_DURATION_OPTIONS = [
-  { value: "30", label: "30s (default)" },
-  { value: "45", label: "45s" },
-  { value: "60", label: "60s" },
+  { value: "120", label: "2 min (default)" },
   { value: "90", label: "90s" },
-  { value: "120", label: "2 min" },
+  { value: "60", label: "60s" },
+  { value: "45", label: "45s" },
+  { value: "30", label: "30s" },
 ] as const;
 
-/** Stadium lean on the disc. User lock: slight left, not −28°. */
 export const EYE_TILT_DEG = -12;
-
-/** First 12% of the kick: bands fade in. */
 export const WHIP_BAND_IN = 0.12;
-/** Last 28% of the kick: bands leave. Do not park into settle/rest. */
 export const WHIP_BAND_LEAVE = 0.72;
-
-/** Cursor idle float at 1920 design px — subtle drift during rest/settle only. */
 export const CURSOR_IDLE_FLOAT_X_PX = 6;
 export const CURSOR_IDLE_FLOAT_Y_PX = 5;
 export const CURSOR_IDLE_FLOAT_PERIOD_X = 7.2;
 export const CURSOR_IDLE_FLOAT_PERIOD_Y = 9.4;
-/** Seconds to ease float out/in around the whip window. */
 export const CURSOR_IDLE_FLOAT_FADE_SECONDS = 0.35;
 
 export type CursorIdleFloatOffset = { x: number; y: number };
-
 export const CURSOR_IDLE_FLOAT_AT_REST: CursorIdleFloatOffset = { x: 0, y: 0 };
 
 export function clampWhipSeconds(seconds: number): number {
@@ -55,13 +44,12 @@ export function clampWhipSeconds(seconds: number): number {
 
 export function clampLoopSeconds(seconds: number): number {
   if (!Number.isFinite(seconds)) return DEFAULT_LOOP_SECONDS;
-  return Math.min(LOOP_MAX_SECONDS, Math.max(DEFAULT_LOOP_SECONDS, seconds));
+  return Math.min(
+    LOOP_MAX_SECONDS,
+    Math.max(LOOP_MIN_SECONDS, seconds),
+  );
 }
 
-/**
- * Hard cubic ease-in-out for the whip revolution.
- * Steep in and out so the wrap reads, then lands face-forward.
- */
 export function kickEase(t: number): number {
   if (t <= 0) return 0;
   if (t >= 1) return 1;
@@ -70,7 +58,6 @@ export function kickEase(t: number): number {
 
 export const whipEase = kickEase;
 
-/** Ease-out kept for tests. */
 export function settleEaseOut(t: number): number {
   const u = Math.min(1, Math.max(0, t));
   return 1 - (1 - u) ** 3;
@@ -78,157 +65,71 @@ export function settleEaseOut(t: number): number {
 
 export function restSeconds(loopSeconds: number, whipSeconds: number): number {
   const whip = clampWhipSeconds(whipSeconds);
-  return Math.max(0, loopSeconds - whip - SETTLE_SECONDS);
+  const loop = clampLoopSeconds(loopSeconds);
+  return Math.max(0, loop - whip - SETTLE_SECONDS);
 }
 
-export function settleSeconds(loopSeconds: number, whipSeconds: number): number {
-  const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
-  return Math.max(0, loop - restSeconds(loop, whipSeconds) - clampWhipSeconds(whipSeconds));
-}
-
-export function loopBeat(
-  time: number,
+export function loopBeatAt(
+  elapsed: number,
   loopSeconds: number,
   whipSeconds: number,
-  reducedMotion: boolean,
 ): LoopBeat {
-  if (reducedMotion) return "rest";
-  const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
-  const t = ((time % loop) + loop) % loop;
+  const loop = clampLoopSeconds(loopSeconds);
   const whip = clampWhipSeconds(whipSeconds);
+  const t = ((elapsed % loop) + loop) % loop;
   const rest = restSeconds(loop, whip);
   if (t < rest) return "rest";
   if (t < rest + whip) return "whip";
   return "settle";
 }
 
-/**
- * Cursor 360 whip. Never rotate the Grok disc with this.
- * One cube revolution during the whip. 0 at rest and settle.
- */
-export function streamPhase(
-  time: number,
+export function kickProgress(
+  elapsed: number,
   loopSeconds: number,
   whipSeconds: number,
-  reducedMotion: boolean,
 ): number {
-  if (reducedMotion) return 0;
-  const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
-  const t = ((time % loop) + loop) % loop;
+  const loop = clampLoopSeconds(loopSeconds);
   const whip = clampWhipSeconds(whipSeconds);
+  const t = ((elapsed % loop) + loop) % loop;
   const rest = restSeconds(loop, whip);
-  if (t < rest) return 0;
-  if (t >= rest + whip) return 0;
-  return kickEase((t - rest) / whip) * Math.PI * 2;
-}
-
-/** Cursor cube 360° during the kick. Lands upright. No Grok bands. Body morph is separate. */
-export function cursorWhipRad(
-  time: number,
-  loopSeconds: number,
-  whipSeconds: number,
-  reducedMotion: boolean,
-): number {
-  return streamPhase(time, loopSeconds, whipSeconds, reducedMotion);
-}
-
-function cursorIdleFloatEnvelope(
-  time: number,
-  loopSeconds: number,
-  whipSeconds: number,
-  reducedMotion: boolean,
-): number {
-  if (reducedMotion) return 0;
-
-  const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
-  const t = ((time % loop) + loop) % loop;
-  const whip = clampWhipSeconds(whipSeconds);
-  const rest = restSeconds(loop, whip);
-  const whipStart = rest;
-  const whipEnd = rest + whip;
-  const fade = CURSOR_IDLE_FLOAT_FADE_SECONDS;
-
-  if (t < whipStart - fade || t >= whipEnd + fade) return 1;
-  if (t >= whipStart && t < whipEnd) return 0;
-
-  if (t >= whipStart - fade && t < whipStart) {
-    const u = (whipStart - t) / fade;
-    return settleEaseOut(u);
-  }
-
-  const u = (t - whipEnd) / fade;
-  return kickEase(Math.min(1, Math.max(0, u)));
-}
-
-/**
- * Slow eased drift for the Cursor cube during idle beats. Fades out for the whip spin.
- * Design-space pixels @ 1920 — multiply by canvas scale before drawing.
- */
-export function cursorIdleFloatOffset(
-  time: number,
-  loopSeconds: number,
-  whipSeconds: number,
-  reducedMotion: boolean,
-): CursorIdleFloatOffset {
-  const envelope = cursorIdleFloatEnvelope(time, loopSeconds, whipSeconds, reducedMotion);
-  if (envelope <= 0) return CURSOR_IDLE_FLOAT_AT_REST;
-
-  const x =
-    Math.sin((time / CURSOR_IDLE_FLOAT_PERIOD_X) * Math.PI * 2) *
-    CURSOR_IDLE_FLOAT_X_PX *
-    envelope;
-  const y =
-    Math.sin((time / CURSOR_IDLE_FLOAT_PERIOD_Y) * Math.PI * 2 + 0.9) *
-    CURSOR_IDLE_FLOAT_Y_PX *
-    envelope;
-
-  return { x, y };
-}
-
-/**
- * Kick-band envelope. 0 at rest, settle, and reduced motion.
- * During the whip: fade in, wrap, then leave before the beat ends.
- */
-export function kickBandEnergy(progress: number): number {
-  if (progress <= 0 || progress >= 1) return 0;
-  if (progress < WHIP_BAND_IN) return progress / WHIP_BAND_IN;
-  if (progress >= WHIP_BAND_LEAVE) {
-    return 1 - (progress - WHIP_BAND_LEAVE) / (1 - WHIP_BAND_LEAVE);
-  }
-  return 1;
+  if (t < rest || t >= rest + whip) return 0;
+  return (t - rest) / Math.max(whip, 0.001);
 }
 
 export function whipEnergy(
-  time: number,
+  elapsed: number,
   loopSeconds: number,
   whipSeconds: number,
-  reducedMotion: boolean,
 ): number {
-  if (reducedMotion) return 0;
-  const beat = loopBeat(time, loopSeconds, whipSeconds, reducedMotion);
-  if (beat !== "whip") return 0;
-  return kickBandEnergy(kickProgress(time, loopSeconds, whipSeconds, reducedMotion));
+  const p = kickProgress(elapsed, loopSeconds, whipSeconds);
+  return p <= 0 ? 0 : kickEase(p);
 }
 
-/** 0–1 during the kick, else 0. */
-export function kickProgress(
-  time: number,
+export function cursorWhipRad(
+  elapsed: number,
   loopSeconds: number,
   whipSeconds: number,
-  reducedMotion: boolean,
 ): number {
-  if (reducedMotion) return 0;
-  const loop = loopSeconds > 0 ? loopSeconds : DEFAULT_LOOP_SECONDS;
-  const t = ((time % loop) + loop) % loop;
-  const whip = clampWhipSeconds(whipSeconds);
-  const rest = restSeconds(loop, whip);
-  if (t < rest || t >= rest + whip) return 0;
-  return (t - rest) / whip;
+  const p = kickProgress(elapsed, loopSeconds, whipSeconds);
+  if (p <= 0) return 0;
+  return kickEase(p) * Math.PI * 2;
 }
 
-/** Rest has no second motion. Whip does not bob the ball. Always 0. */
-export function kickWobbleRad(energy = 0, progress = 0): number {
-  void energy;
-  void progress;
-  return 0;
+export function cursorIdleFloatOffset(
+  elapsed: number,
+  loopSeconds: number,
+  whipSeconds: number,
+): CursorIdleFloatOffset {
+  const beat = loopBeatAt(elapsed, loopSeconds, whipSeconds);
+  if (beat === "whip") return CURSOR_IDLE_FLOAT_AT_REST;
+
+  const loop = clampLoopSeconds(loopSeconds);
+  const t = ((elapsed % loop) + loop) % loop;
+  const x =
+    Math.sin((t / CURSOR_IDLE_FLOAT_PERIOD_X) * Math.PI * 2) *
+    CURSOR_IDLE_FLOAT_X_PX;
+  const y =
+    Math.cos((t / CURSOR_IDLE_FLOAT_PERIOD_Y) * Math.PI * 2) *
+    CURSOR_IDLE_FLOAT_Y_PX;
+  return { x, y };
 }

@@ -1,26 +1,16 @@
 /**
- * Mechanical type lock for the Dallas meetup TV wallpaper.
+ * Mechanical type lock for the Dallas meetup TV wallpaper (idle redesign).
  *
- * 1. Universal Sans trial appears exactly once — the canvas display line
- *    "Dallas meetup". If a DOM element wants the display face,
- *    it does not get it.
- * 2. Geist is out. Geist on the DOM is a fail (`geist-out`).
- * 3. Nothing in IBM Plex Sans Condensed sits close to the display in size.
- *    Largest Plex rendered size ≤ DALLAS_PLEX_MAX_RATIO of the display's
- *    rendered size. Fix: shrink or remove the label. Never enlarge the display.
- * 4. No third voice. Geist Mono is unused unless a node earns
- *    `data-dallas-mono="structural"` (none on this demo).
- *
- * Display size is 44px on the 1920 design frame (LOOK.md). 40% is the
- * working threshold for EPG's decisive jump.
+ * Canvas uses Universal Sans only (400 headline, 300 subline).
+ * Demo chrome uses Plex via --dallas-font-ui.
  */
 
-export const DALLAS_DISPLAY_FONT_PX = 44;
-export const DALLAS_DISPLAY_TRACKING_PX = 2.4;
+export const DALLAS_DISPLAY_FONT_PX = 48;
+export const DALLAS_SUBLINE_FONT_PX = 36;
+export const DALLAS_DISPLAY_TRACKING_PX = 0;
 export const DALLAS_TYPE_DESIGN_WIDTH_PX = 1920;
 export const DALLAS_PLEX_MAX_RATIO = 0.4;
-/** Plex on canvas — ≤ 40% of display (44px @ 1920). */
-export const DALLAS_BODY_FONT_PX = DALLAS_DISPLAY_FONT_PX * DALLAS_PLEX_MAX_RATIO;
+export const DALLAS_BODY_FONT_PX = DALLAS_SUBLINE_FONT_PX;
 export const DALLAS_BODY_FONT_WEIGHT = 300;
 export const DALLAS_PLEX_SIZE_EPSILON_PX = 0.51;
 
@@ -59,146 +49,76 @@ function familyTokens(family: string): string[] {
     .filter(Boolean);
 }
 
-export function classifyDallasFamily(family: string): DallasFamilyKind {
+function classifyFamily(family: string): DallasFamilyKind {
   const tokens = familyTokens(family);
-  if (tokens.some((token) => token.includes("universalsans") || token.includes("universal sans"))) {
-    return "universal-sans";
-  }
-  if (tokens.some((token) => token.includes("geist") && token.includes("mono"))) {
-    return "geist-mono";
-  }
-  if (tokens.some((token) => token === "geist" || token.includes("geist"))) {
-    return "geist-sans";
-  }
-  if (tokens.some((token) => token.includes("plex"))) {
-    return "plex";
-  }
+  if (tokens.some((t) => t.includes("geist mono"))) return "geist-mono";
+  if (tokens.some((t) => t.includes("geist"))) return "geist-sans";
+  if (tokens.some((t) => t.includes("universal"))) return "universal-sans";
+  if (tokens.some((t) => t.includes("plex"))) return "plex";
   return "other";
 }
 
-function elementSelector(el: Element): string {
-  const id = el.id ? `#${el.id}` : "";
-  const cls = typeof el.className === "string" && el.className.trim()
-    ? `.${el.className.trim().split(/\s+/).slice(0, 3).join(".")}`
-    : "";
-  return `${el.tagName.toLowerCase()}${id}${cls}`;
+function parsePx(value: string): number | null {
+  const match = value.trim().match(/^([\d.]+)px$/);
+  if (!match) return null;
+  const n = Number(match[1]);
+  return Number.isFinite(n) ? n : null;
 }
 
-function hasOwnText(el: Element): boolean {
-  return Array.from(el.childNodes).some(
-    (node) => node.nodeType === Node.TEXT_NODE && Boolean(node.textContent?.trim()),
-  );
+export function publishDallasDisplayPx(root: ParentNode, canvasCssWidthPx: number) {
+  const el = root instanceof HTMLElement ? root : null;
+  if (!el) return;
+  el.style.setProperty("--dallas-display-px", `${displayRenderedPx(canvasCssWidthPx)}px`);
 }
 
-export function publishDallasDisplayPx(host: HTMLElement, displayPx: number): void {
-  host.style.setProperty("--dallas-display-px", `${displayPx}px`);
-  host.style.setProperty("--dallas-plex-max-ratio", String(DALLAS_PLEX_MAX_RATIO));
-  host.dataset.dallasDisplayPx = displayPx.toFixed(2);
-  host.dataset.dallasPlexMaxPx = plexMaxPx(displayPx).toFixed(2);
-}
-
-export function enforcePlexCap(root: HTMLElement, maxPx: number): number {
-  let shrunk = 0;
-  const nodes = root.querySelectorAll<HTMLElement>("*:not(canvas)");
-  for (const el of nodes) {
-    if (el.closest(".demo-control-bar")) continue;
-    if (!hasOwnText(el)) continue;
-    const style = getComputedStyle(el);
-    const kind = classifyDallasFamily(style.fontFamily);
-    if (kind === "geist-sans" || kind === "geist-mono" || kind === "universal-sans") continue;
-    const size = Number.parseFloat(style.fontSize);
-    if (!Number.isFinite(size) || size <= maxPx + DALLAS_PLEX_SIZE_EPSILON_PX) {
-      continue;
-    }
-    el.style.setProperty("font-size", `${maxPx}px`, "important");
-    shrunk += 1;
-  }
-  return shrunk;
-}
-
-export function checkDallasTypeLock(
-  root: HTMLElement,
-  displayPx: number,
-): DallasTypeLockResult {
-  const maxPx = plexMaxPx(displayPx);
+export function runDallasTypeLock(root: ParentNode): DallasTypeLockResult {
   const violations: DallasTypeLockViolation[] = [];
+  const canvas = root.querySelector(".dallas-wallpaper-stack__fg, .dallas-wallpaper-canvas");
+  const canvasEl = canvas instanceof HTMLCanvasElement ? canvas : null;
+  const canvasCssWidth = canvasEl?.clientWidth ?? DALLAS_TYPE_DESIGN_WIDTH_PX;
+  const displayPx = displayRenderedPx(canvasCssWidth);
+  const maxPlex = plexMaxPx(displayPx);
 
-  const canvas = root.querySelector("canvas.dallas-wallpaper-canvas");
-  if (!canvas) {
+  const displayMarker = root.querySelector('[data-dallas-display="universal-sans"]');
+  if (!displayMarker) {
     violations.push({
       rule: "display-once",
-      detail: "Missing wallpaper canvas — Universal Sans display has nowhere to appear once.",
-    });
-  } else if (canvas.getAttribute("data-dallas-display") !== "universal-sans") {
-    violations.push({
-      rule: "display-once",
-      detail: "Wallpaper canvas is not marked as the single Universal Sans display.",
-      selector: "canvas.dallas-wallpaper-canvas",
+      detail: "Missing canvas Universal Sans marker.",
     });
   }
 
-  const nodes = root.querySelectorAll<HTMLElement>("*:not(canvas)");
-  for (const el of nodes) {
-    if (el.closest(".demo-control-bar")) continue;
-    if (!hasOwnText(el)) continue;
-    const style = getComputedStyle(el);
-    if (style.display === "none" || style.visibility === "hidden") continue;
-    const kind = classifyDallasFamily(style.fontFamily);
-    const selector = elementSelector(el);
+  const textNodes = root.querySelectorAll<HTMLElement>(
+    "p, span, label, button, input, textarea, h1, h2, h3, h4, h5, h6",
+  );
 
-    if (kind === "geist-sans" || kind === "geist-mono") {
-      violations.push({
-        rule: "geist-out",
-        detail: `Geist on product DOM (${selector}). Display is Universal Sans trial; lab dock is excluded.`,
-        selector,
-      });
-      continue;
-    }
-
-    if (kind === "universal-sans") {
-      violations.push({
-        rule: "third-voice",
-        detail: `Universal Sans on ${selector}. Only the canvas display line may use the trial face.`,
-        selector,
-      });
-      continue;
-    }
-
-    const size = Number.parseFloat(style.fontSize);
-    if (!Number.isFinite(size)) continue;
-    if (size > maxPx + DALLAS_PLEX_SIZE_EPSILON_PX) {
-      violations.push({
-        rule: "plex-size",
-        detail: `Plex (or UI) on ${selector} is ${size.toFixed(2)}px; max is ${maxPx.toFixed(2)}px (40% of display ${displayPx.toFixed(2)}px). Shrink or remove the label; do not enlarge the display.`,
-        selector,
-        sizePx: size,
-        maxPx,
-      });
+  for (const node of textNodes) {
+    if (node.closest(".demo-control-bar, .lab-control-bar, [data-lab-chrome]")) {
+      const style = getComputedStyle(node);
+      const kind = classifyFamily(style.fontFamily);
+      if (kind === "geist-sans" || kind === "geist-mono") {
+        violations.push({
+          rule: "geist-out",
+          detail: "Geist on demo chrome is allowed only via lab tokens; check product surface.",
+          selector: node.tagName.toLowerCase(),
+        });
+      }
+      const size = parsePx(style.fontSize);
+      if (size !== null && kind === "plex" && size > maxPlex + DALLAS_PLEX_SIZE_EPSILON_PX) {
+        violations.push({
+          rule: "plex-size",
+          detail: "Plex label exceeds 40% of display size.",
+          selector: node.tagName.toLowerCase(),
+          sizePx: size,
+          maxPx: maxPlex,
+        });
+      }
     }
   }
 
   return {
     ok: violations.length === 0,
     displayPx,
-    plexMaxPx: maxPx,
+    plexMaxPx: maxPlex,
     violations,
   };
-}
-
-export function runDallasTypeLock(root: HTMLElement): DallasTypeLockResult {
-  const canvas = root.querySelector<HTMLCanvasElement>("canvas.dallas-wallpaper-canvas");
-  const cssWidth = canvas?.clientWidth ?? 0;
-  const displayPx = displayRenderedPx(cssWidth);
-  publishDallasDisplayPx(root, displayPx);
-
-  let result = checkDallasTypeLock(root, displayPx);
-  if (!result.ok && result.violations.some((item) => item.rule === "plex-size")) {
-    enforcePlexCap(root, result.plexMaxPx);
-    result = checkDallasTypeLock(root, displayPx);
-  }
-
-  root.dataset.dallasTypeLock = result.ok ? "pass" : "fail";
-  root.dataset.dallasDisplayPx = displayPx.toFixed(2);
-  root.dataset.dallasPlexMaxPx = result.plexMaxPx.toFixed(2);
-  return result;
 }

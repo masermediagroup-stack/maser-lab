@@ -18,13 +18,9 @@ import {
 import {
   clampLoopSeconds,
   DEFAULT_LOOP_SECONDS,
-  DEFAULT_WHIP_SECONDS,
   DALLAS_WALLPAPER_FPS,
   LOOP_DURATION_OPTIONS,
   LOOP_MAX_SECONDS,
-  WHIP_MAX_SECONDS,
-  WHIP_MIN_SECONDS,
-  restSeconds,
 } from "./globe-motion";
 import { runDallasTypeLock } from "./type-lock";
 import "./tokens.css";
@@ -49,7 +45,6 @@ export function DallasMeetupTvWallpaperDemo() {
   const [scrubTime, setScrubTime] = useState(0);
   const [isPresentation, setIsPresentation] = useState(false);
   const [loopSeconds, setLoopSeconds] = useState(DEFAULT_LOOP_SECONDS);
-  const [whipSeconds, setWhipSeconds] = useState(DEFAULT_WHIP_SECONDS);
   const [resetNonce, setResetNonce] = useState(0);
   const [exporting, setExporting] = useState(false);
   const [exportNote, setExportNote] = useState<string>("");
@@ -150,7 +145,6 @@ export function DallasMeetupTvWallpaperDemo() {
     try {
       const result = await exportDallasMeetupWallpaperLoop({
         loopSeconds,
-        whipSeconds,
         headlineText,
         upNextText,
       });
@@ -171,7 +165,7 @@ export function DallasMeetupTvWallpaperDemo() {
     } finally {
       setExporting(false);
     }
-  }, [headlineText, loopSeconds, upNextText, whipSeconds]);
+  }, [headlineText, loopSeconds, upNextText]);
 
   return (
     <div
@@ -191,7 +185,6 @@ export function DallasMeetupTvWallpaperDemo() {
           timeSeconds={controlledTime}
           onFrameTime={handleFrameTime}
           loopSeconds={loopSeconds}
-          whipSeconds={whipSeconds}
           resetNonce={resetNonce}
           headlineText={headlineText}
           upNextText={upNextText}
@@ -216,9 +209,9 @@ export function DallasMeetupTvWallpaperDemo() {
               Dallas meetup TV wallpaper
             </p>
             <p className="lab-type-caption mt-1 text-[var(--lab-text-secondary)]">
-              Loop defaults to {DEFAULT_LOOP_SECONDS}s (up to {LOOP_MAX_SECONDS}s). SpaceXAI wordmark + Grok picker morph
-              (shape owns HEX). Kick = SDF blend + wordmark swipe fade and edge shine. No nest, no
-              ribbons on Grok. Geist is out of the product surface.
+              Idle wallpaper: moving-gradient background, three center logos crossfading over{" "}
+              {DEFAULT_LOOP_SECONDS}s (default), bottom-left Universal Sans copy. Geist is out of
+              the product surface.
             </p>
           </div>
 
@@ -257,8 +250,7 @@ export function DallasMeetupTvWallpaperDemo() {
               />
             </div>
             <p className="lab-type-caption text-[var(--lab-text-muted)]">
-              Headline aligns to the left edge of the SpaceXAI wordmark. Up next uses Plex at light
-              weight below the display line.
+              Headline and up next render bottom-left on the wallpaper in white Universal Sans.
             </p>
           </LabControlGroup>
 
@@ -303,7 +295,7 @@ export function DallasMeetupTvWallpaperDemo() {
             </p>
           </LabControlGroup>
 
-          <LabControlGroup label="Whip">
+          <LabControlGroup label="Loop">
             <LabSelect
               id="dallas-loop-duration"
               label="Loop duration"
@@ -316,29 +308,9 @@ export function DallasMeetupTvWallpaperDemo() {
                 setScrubTime(0);
               }}
             />
-            <LabRange
-              id="dallas-whip"
-              label="Whip duration"
-              min={WHIP_MIN_SECONDS}
-              max={WHIP_MAX_SECONDS}
-              step={0.01}
-              value={whipSeconds}
-              display={formatSeconds(whipSeconds)}
-              onChange={setWhipSeconds}
-              className="w-full"
-            />
             <p className="lab-type-caption text-[var(--lab-text-muted)]">
-              Super-fast means the whip is short. Rest stays{" "}
-              {formatSeconds(restSeconds(loopSeconds, whipSeconds))} at the {loopSeconds}s loop.
-            </p>
-          </LabControlGroup>
-
-          <LabControlGroup label="Kick">
-            <p className="lab-type-caption text-[var(--lab-text-muted)]">
-              Kick is a left-to-right swipe fade on the planted wordmark, with an
-              edge-rim shine riding the sweep. Grok stays a clean black disc,
-              centered on the wordmark optical middle.
-              Eyes may still gaze and wink. No Thinking nest. No Working ribbons.
+              Default {DEFAULT_LOOP_SECONDS}s. Logo carousel and shader share this loop (up to{" "}
+              {LOOP_MAX_SECONDS}s).
             </p>
           </LabControlGroup>
 
