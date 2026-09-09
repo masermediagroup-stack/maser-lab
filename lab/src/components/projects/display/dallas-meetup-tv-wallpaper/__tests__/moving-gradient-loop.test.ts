@@ -8,4 +8,9 @@ describe("moving gradient loop time", () => {
     expect(loopShaderTimeMs(60, 120)).toBe(60000);
     expect(loopShaderTimeMs(119.5, 120)).toBeCloseTo(119500, 0);
   });
+
+  it("is periodic so frame 0 matches the loop seam", () => {
+    expect(loopShaderTimeMs(240, 120)).toBe(0);
+    expect(loopShaderTimeMs(-1, 120)).toBeCloseTo(119000, 0);
+  });
 });

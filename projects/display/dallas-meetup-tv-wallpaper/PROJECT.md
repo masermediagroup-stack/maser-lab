@@ -20,7 +20,7 @@ Trigger frequency: rare / ambient (TV loop).
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Dark moving-gradient background. Center **3-logo carousel** (Grok Bot → SpaceX → Cursor) crossfading over a **120s** loop. Bottom-left white Universal Sans headline + subline (lab-editable). Reduced motion: static gradient + first logo + static text.
+Dark moving-gradient background. Center **3-logo carousel** (Grok Bot → SpaceX → Cursor) fading one-at-a-time over a **120s** loop. Bottom-left white Universal Sans headline + subline (lab-editable). Reduced motion: static gradient + first logo + static text.
 
 ### Success signal
 - Moving gradient shader loops seamlessly at `loopSeconds` (default 120s).
@@ -69,7 +69,7 @@ Both canvas lines use Universal Sans (different weights). Plex only on lab demo 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
 | Background | WebGPU moving gradient + Canvas2D fallback | Figma `11:2` shader fill |
-| Logo motion | 3-way opacity crossfade | User: fade every 2 min |
+| Logo motion | Sequential fade-out / fade-in (no overlap) | User: logos must never intersect |
 | Duration | Default 120s loop | Existing demo control |
 | Text | Static white, bottom-left | Figma layout |
 

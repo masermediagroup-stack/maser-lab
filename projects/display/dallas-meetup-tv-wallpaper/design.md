@@ -8,8 +8,8 @@ USER OVERRIDE. Supersedes paper-ground canvas-only spec, kick/whip model, Grok S
 
 | Layer | Spec |
 | --- | --- |
-| Background | WebGPU **Moving gradient** shader (Figma `11:2`). Metallic material, gray gradient stops. Looped time = `elapsed mod loopSeconds`. Canvas2D static gradient fallback when WebGPU unavailable. |
-| Center | **3-logo opacity carousel** — Grok Bot → SpaceX → Cursor — same center slot. Crossfade over `loopSeconds` (default **120s**). Simple fade in/out only (no chromatic-metal logo shader). |
+| Background | WebGPU **2D moving gradient** (Figma `11:2` stops + warp/intensity). Looped time = `elapsed mod loopSeconds` via periodic orbit. Animated Canvas2D fallback when WebGPU unavailable. |
+| Center | **3-logo opacity carousel** — Grok Bot → SpaceX → Cursor — same center slot. Sequential fade-out then fade-in (never overlap) over `loopSeconds` (default **120s**). |
 | Text | Bottom-left **x=72, y=931** @ 1080. Headline **48px / 400**, subline **36px / 300**, **white** Universal Sans on both lines. Lab demo edits `headlineText` / `upNextText`. Static text (no letter fade). |
 | Loop | Default **120s** (2 min). Demo loop control unchanged. No whip/kick/settle beats. |
 

@@ -131,6 +131,7 @@ export function DallasMeetupWallpaper({
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const pausedAtRef = useRef(0);
+  const drawAtTimeRef = useRef<(time: number) => void>(() => {});
 
   const resizeCanvases = useCallback(() => {
     const stack = stackRef.current;
@@ -163,14 +164,16 @@ export function DallasMeetupWallpaper({
       const height = fgCanvas.height;
       if (width <= 0 || height <= 0) return;
 
-      const shaderTimeMs = loopShaderTimeMs(time, loopSeconds);
+      const shaderTimeMs = reducedMotion ? 0 : loopShaderTimeMs(time, loopSeconds);
       const gradient = gradientRef.current;
 
       if (useWebGpuRef.current && gradient?.isReady) {
-        gradient.render(reducedMotion ? 0 : shaderTimeMs);
+        gradient.render(shaderTimeMs, loopSeconds);
       } else {
         const bgCtx = bgCanvas.getContext("2d");
-        if (bgCtx) drawFallbackGradient(bgCtx, width, height);
+        if (bgCtx) {
+          drawFallbackGradient(bgCtx, width, height, shaderTimeMs, loopSeconds);
+        }
       }
 
       const fgCtx = fgCanvas.getContext("2d");
@@ -191,27 +194,41 @@ export function DallasMeetupWallpaper({
   );
 
   useEffect(() => {
+    drawAtTimeRef.current = drawAtTime;
+  }, [drawAtTime]);
+
+  useEffect(() => {
     let cancelled = false;
     const gradient = new MovingGradientBackground();
     gradientRef.current = gradient;
 
     void (async () => {
       await preloadLogoCarousel();
+      if (cancelled) return;
       const bgCanvas = bgCanvasRef.current;
       if (bgCanvas) {
         const ok = await gradient.init(bgCanvas);
+        if (cancelled) {
+          gradient.destroy();
+          return;
+        }
         useWebGpuRef.current = ok;
       }
       resizeCanvases();
-      if (!cancelled) drawAtTime(timeSeconds ?? pausedAtRef.current);
+      if (!cancelled) {
+        drawAtTimeRef.current(pausedAtRef.current);
+      }
     })();
 
     return () => {
       cancelled = true;
+      useWebGpuRef.current = false;
       gradient.destroy();
-      gradientRef.current = null;
+      if (gradientRef.current === gradient) {
+        gradientRef.current = null;
+      }
     };
-  }, [drawAtTime, resizeCanvases, timeSeconds]);
+  }, [resizeCanvases]);
 
   useEffect(() => {
     resizeCanvases();
@@ -337,12 +354,11 @@ export async function exportDallasMeetupWallpaperLoop({
 
   const gradient = new MovingGradientBackground();
   const webgpuOk = await gradient.init(bgCanvas);
-  if (!webgpuOk) {
+  if (webgpuOk) {
+    gradient.resize(width, height, 1);
+  } else {
     const bgCtx = bgCanvas.getContext("2d");
     if (!bgCtx) throw new Error("Could not create fallback background context.");
-    drawFallbackGradient(bgCtx, width, height);
-  } else {
-    gradient.resize(width, height, 1);
   }
 
   const fontFamily = resolveDallasFontFamily(document.querySelector(".dallas-demo"));
@@ -389,10 +405,12 @@ export async function exportDallasMeetupWallpaperLoop({
       const shaderTimeMs = loopShaderTimeMs(elapsed, loopSeconds);
 
       if (webgpuOk) {
-        gradient.render(shaderTimeMs);
+        gradient.render(shaderTimeMs, loopSeconds);
       } else {
         const bgCtx = bgCanvas.getContext("2d");
-        if (bgCtx) drawFallbackGradient(bgCtx, width, height);
+        if (bgCtx) {
+          drawFallbackGradient(bgCtx, width, height, shaderTimeMs, loopSeconds);
+        }
       }
 
       const fgCtx = fgCanvas.getContext("2d");
