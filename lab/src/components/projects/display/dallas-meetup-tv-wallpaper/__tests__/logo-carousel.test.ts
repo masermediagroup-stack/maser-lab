@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   CURSOR_LOCKUP_H,
@@ -9,8 +12,15 @@ import {
   LOGO_FADE_FRACTION,
   SPACEX_LOCKUP_H,
   SPACEX_LOCKUP_W,
+  drawLogoCarousel,
+  logoCenteredRect,
   logoOpacities,
 } from "../logo-carousel";
+
+const carouselSrc = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "../logo-carousel.ts"),
+  "utf8",
+);
 
 describe("logo carousel opacities", () => {
   it("shows only Grok under reduced motion", () => {
@@ -73,5 +83,71 @@ describe("logo Figma native sizes", () => {
     expect(SPACEX_LOCKUP_H).toBe(110);
     expect(CURSOR_LOCKUP_W).toBe(645);
     expect(CURSOR_LOCKUP_H).toBe(153);
+  });
+
+  it("centers each lockup geometrically with no optical offset", () => {
+    expect(logoCenteredRect(GROK_LOCKUP_W, GROK_LOCKUP_H)).toEqual({
+      x: 960 - GROK_LOCKUP_W / 2,
+      y: 540 - GROK_LOCKUP_H / 2,
+      w: 814,
+      h: 153,
+    });
+    expect(logoCenteredRect(SPACEX_LOCKUP_W, SPACEX_LOCKUP_H).x).toBeCloseTo(
+      960 - SPACEX_LOCKUP_W / 2,
+    );
+    expect(logoCenteredRect(SPACEX_LOCKUP_W, SPACEX_LOCKUP_H).y).toBeCloseTo(
+      540 - SPACEX_LOCKUP_H / 2,
+    );
+    expect(logoCenteredRect(CURSOR_LOCKUP_W, CURSOR_LOCKUP_H)).toEqual({
+      x: 960 - CURSOR_LOCKUP_W / 2,
+      y: 540 - CURSOR_LOCKUP_H / 2,
+      w: 645,
+      h: 153,
+    });
+  });
+
+  it("draws the visible logo at native W×H", () => {
+    const calls: number[][] = [];
+    const ctx = {
+      save() {},
+      restore() {},
+      drawImage(_img: unknown, x: number, y: number, w: number, h: number) {
+        calls.push([x, y, w, h]);
+      },
+      globalAlpha: 1,
+    } as unknown as CanvasRenderingContext2D;
+    const img = {} as HTMLImageElement;
+
+    drawLogoCarousel(ctx, 1920, 1080, 0, 120, false, {
+      grok: img,
+      spacex: img,
+      cursor: img,
+    });
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.[2]).toBe(814);
+    expect(calls[0]?.[3]).toBe(153);
+    expect(calls[0]?.[0]).toBeCloseTo(960 - 814 / 2);
+    expect(calls[0]?.[1]).toBeCloseTo(540 - 153 / 2);
+
+    calls.length = 0;
+    const seg = 120 / 3;
+    drawLogoCarousel(ctx, 800, 450, seg * 1.5, 120, false, {
+      grok: img,
+      spacex: img,
+      cursor: img,
+    });
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.[2]).toBeCloseTo(900.886);
+    expect(calls[0]?.[3]).toBe(110);
+    expect(calls[0]?.[0]).toBeCloseTo(960 - 900.886 / 2);
+  });
+
+  it("does not contain-fit or optically shift logos", () => {
+    expect(carouselSrc).not.toContain("fitLogoRect");
+    expect(carouselSrc).not.toContain("LOGO_MAX_W_PX");
+    expect(carouselSrc).not.toContain("LOGO_MAX_H_PX");
+    expect(carouselSrc).not.toContain("SPACEX_OPTICAL_CENTER_X");
+    expect(carouselSrc).not.toMatch(/width\s*\/\s*1920/);
   });
 });

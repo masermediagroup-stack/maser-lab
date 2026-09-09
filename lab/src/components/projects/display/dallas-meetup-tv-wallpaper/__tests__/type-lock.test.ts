@@ -16,6 +16,12 @@ describe("dallas type lock math", () => {
     expect(displayRenderedPx(1920)).toBe(48);
   });
 
+  it("does not change canvas type when CSS width shrinks — plex cap only", () => {
+    expect(DALLAS_DISPLAY_FONT_PX).toBe(48);
+    expect(DALLAS_SUBLINE_FONT_PX).toBe(36);
+    expect(displayRenderedPx(960)).toBe(24);
+  });
+
   it("caps demo Plex at 40% of display", () => {
     expect(plexMaxPx(48)).toBeCloseTo(19.2);
     expect(plexMaxPx(displayRenderedPx(960))).toBeCloseTo(9.6);

@@ -7,16 +7,15 @@ export const SPACEX_LOCKUP_SRC =
 export const CURSOR_LOCKUP_SRC =
   "/assets/dallas-meetup-tv-wallpaper/cursor-lockup-horizontal.svg";
 
+/** Figma `GrokBot-TV-Idle-Wallpaper` (11:2) native sizes — draw 1:1, no per-asset scale. */
+export const FIGMA_FRAME_W = 1920;
+export const FIGMA_FRAME_H = 1080;
 export const GROK_LOCKUP_W = 814;
 export const GROK_LOCKUP_H = 153;
 export const SPACEX_LOCKUP_W = 900.886;
 export const SPACEX_LOCKUP_H = 110;
 export const CURSOR_LOCKUP_W = 645;
 export const CURSOR_LOCKUP_H = 153;
-
-/** Figma frame — logos draw at native px in this space. */
-export const FIGMA_FRAME_W = 1920;
-export const FIGMA_FRAME_H = 1080;
 
 /** Fraction of each logo segment used for fade-out, then the same for fade-in. */
 export const LOGO_FADE_FRACTION = 0.08;
@@ -115,6 +114,19 @@ export function logoOpacities(
   return opacities;
 }
 
+/** Geometric center of a native-size lockup on the 1920×1080 Figma frame. */
+export function logoCenteredRect(
+  w: number,
+  h: number,
+): { x: number; y: number; w: number; h: number } {
+  return {
+    x: FIGMA_FRAME_W * 0.5 - w / 2,
+    y: FIGMA_FRAME_H * 0.5 - h / 2,
+    w,
+    h,
+  };
+}
+
 type LogoSpec = {
   image: HTMLImageElement;
   w: number;
@@ -122,16 +134,20 @@ type LogoSpec = {
   opacity: number;
 };
 
-/** Draw logos at Figma native sizes, geometrically centered on the 1920×1080 frame. */
+/**
+ * Draw logos at Figma-native W×H, geometrically centered on 1920×1080.
+ * Caller must put the context in Figma space (`setTransform(dpr, 0, 0, dpr, 0, 0)`).
+ * `width` / `height` are ignored for placement (frame is always 1920×1080).
+ */
 export function drawLogoCarousel(
   ctx: CanvasRenderingContext2D,
+  _width: number,
+  _height: number,
   elapsed: number,
   loopSeconds: number,
   reducedMotion: boolean,
   images: LogoCarouselImages,
 ) {
-  const centerX = FIGMA_FRAME_W * 0.5;
-  const centerY = FIGMA_FRAME_H * 0.5;
   const [grokOp, spacexOp, cursorOp] = logoOpacities(
     elapsed,
     loopSeconds,
@@ -140,17 +156,26 @@ export function drawLogoCarousel(
 
   const specs: LogoSpec[] = [
     { image: images.grok, w: GROK_LOCKUP_W, h: GROK_LOCKUP_H, opacity: grokOp },
-    { image: images.spacex, w: SPACEX_LOCKUP_W, h: SPACEX_LOCKUP_H, opacity: spacexOp },
-    { image: images.cursor, w: CURSOR_LOCKUP_W, h: CURSOR_LOCKUP_H, opacity: cursorOp },
+    {
+      image: images.spacex,
+      w: SPACEX_LOCKUP_W,
+      h: SPACEX_LOCKUP_H,
+      opacity: spacexOp,
+    },
+    {
+      image: images.cursor,
+      w: CURSOR_LOCKUP_W,
+      h: CURSOR_LOCKUP_H,
+      opacity: cursorOp,
+    },
   ];
 
   for (const spec of specs) {
     if (spec.opacity <= 0.001) continue;
-    const x = centerX - spec.w * 0.5;
-    const y = centerY - spec.h * 0.5;
+    const { x, y, w, h } = logoCenteredRect(spec.w, spec.h);
     ctx.save();
     ctx.globalAlpha = spec.opacity;
-    ctx.drawImage(spec.image, x, y, spec.w, spec.h);
+    ctx.drawImage(spec.image, x, y, w, h);
     ctx.restore();
   }
 }

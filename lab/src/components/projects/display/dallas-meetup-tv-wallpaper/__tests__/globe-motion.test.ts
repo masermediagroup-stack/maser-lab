@@ -49,4 +49,11 @@ describe("idle wallpaper render contract", () => {
     expect(wallpaperSrc).not.toContain("DALLAS_DISPLAY_FONT_PX * scale");
     expect(wallpaperSrc).not.toContain("DALLAS_SUBLINE_FONT_PX * scale");
   });
+
+  it("draws the 1920×1080 frame via dpr transform, not per-asset scale", () => {
+    expect(wallpaperSrc).toContain("setTransform(dpr, 0, 0, dpr, 0, 0)");
+    expect(wallpaperSrc).toContain("Math.round(BASE_WIDTH * clampedDpr)");
+    expect(wallpaperSrc).toContain("gradient.resize(BASE_WIDTH, BASE_HEIGHT");
+    expect(wallpaperSrc).toContain("fillText(headlineText, TEXT_LEFT_PX, TEXT_TOP_PX)");
+  });
 });

@@ -1,8 +1,9 @@
 /**
  * Mechanical type lock for the Dallas meetup TV wallpaper (idle redesign).
  *
- * Canvas uses Universal Sans only (400 headline, 300 subline).
- * Demo chrome uses Plex via --dallas-font-ui.
+ * Canvas product type is Figma-native 48/36 on the 1920×1080 frame
+ * (no per-asset scale). Demo chrome uses Plex via --dallas-font-ui.
+ * `displayRenderedPx` maps CSS width for the Plex 40% cap only.
  */
 
 export const DALLAS_DISPLAY_FONT_PX = 48;

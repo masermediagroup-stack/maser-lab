@@ -81,7 +81,15 @@ export function renderForegroundFrame(
 
   const images = logoCarouselImages();
   if (images) {
-    drawLogoCarousel(ctx, elapsed, loopSeconds, reducedMotion, images);
+    drawLogoCarousel(
+      ctx,
+      BASE_WIDTH,
+      BASE_HEIGHT,
+      elapsed,
+      loopSeconds,
+      reducedMotion,
+      images,
+    );
   }
 
   ctx.fillStyle = DALLAS_TEXT_ON_DARK;
@@ -130,6 +138,7 @@ export function DallasMeetupWallpaper({
     const fgCanvas = fgCanvasRef.current;
     if (!stack || !bgCanvas || !fgCanvas) return;
 
+    const rect = stack.getBoundingClientRect();
     const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
     const clampedDpr = Math.min(2, Math.max(1, dpr));
     const width = Math.round(BASE_WIDTH * clampedDpr);
@@ -141,7 +150,7 @@ export function DallasMeetupWallpaper({
     fgCanvas.height = height;
 
     gradientRef.current?.resize(BASE_WIDTH, BASE_HEIGHT, clampedDpr);
-    publishDallasDisplayPx(stack, BASE_WIDTH);
+    publishDallasDisplayPx(stack, rect.width);
   }, []);
 
   const drawAtTime = useCallback(
@@ -156,13 +165,21 @@ export function DallasMeetupWallpaper({
 
       const shaderTimeMs = reducedMotion ? 0 : loopShaderTimeMs(time, loopSeconds);
       const gradient = gradientRef.current;
+      const dpr = width / BASE_WIDTH;
 
       if (useWebGpuRef.current && gradient?.isReady) {
         gradient.render(shaderTimeMs, loopSeconds);
       } else {
         const bgCtx = bgCanvas.getContext("2d");
         if (bgCtx) {
-          drawFallbackGradient(bgCtx, width, height, shaderTimeMs, loopSeconds);
+          bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          drawFallbackGradient(
+            bgCtx,
+            BASE_WIDTH,
+            BASE_HEIGHT,
+            shaderTimeMs,
+            loopSeconds,
+          );
         }
       }
 
@@ -345,7 +362,7 @@ export async function exportDallasMeetupWallpaperLoop({
   const gradient = new MovingGradientBackground();
   const webgpuOk = await gradient.init(bgCanvas);
   if (webgpuOk) {
-    gradient.resize(width, height, 1);
+    gradient.resize(BASE_WIDTH, BASE_HEIGHT, width / BASE_WIDTH);
   } else {
     const bgCtx = bgCanvas.getContext("2d");
     if (!bgCtx) throw new Error("Could not create fallback background context.");
@@ -399,7 +416,15 @@ export async function exportDallasMeetupWallpaperLoop({
       } else {
         const bgCtx = bgCanvas.getContext("2d");
         if (bgCtx) {
-          drawFallbackGradient(bgCtx, width, height, shaderTimeMs, loopSeconds);
+          const dpr = width / BASE_WIDTH;
+          bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          drawFallbackGradient(
+            bgCtx,
+            BASE_WIDTH,
+            BASE_HEIGHT,
+            shaderTimeMs,
+            loopSeconds,
+          );
         }
       }
 
