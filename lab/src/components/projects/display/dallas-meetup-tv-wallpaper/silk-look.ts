@@ -22,6 +22,8 @@ export type SilkLook = {
   rotate: number;
   /** UV drift (units per second at speed 1). */
   drift: number;
+  /** Film-grain mix on top of the silk (0 = none). */
+  grain: number;
 };
 
 export type SilkLookRef = { current: SilkLook };
@@ -35,6 +37,7 @@ export const DEFAULT_SILK_LOOK: SilkLook = {
   ridge: 0.42,
   rotate: 0.045,
   drift: 0.09,
+  grain: 0.22,
 };
 
 export const SILK_LOOK_RANGES = {
@@ -46,6 +49,7 @@ export const SILK_LOOK_RANGES = {
   ridge: { min: 0.1, max: 0.85, step: 0.01 },
   rotate: { min: 0, max: 0.18, step: 0.005 },
   drift: { min: 0, max: 0.28, step: 0.005 },
+  grain: { min: 0, max: 1, step: 0.01 },
 } as const;
 
 export function clampSilkLook(look: SilkLook): SilkLook {
@@ -64,5 +68,6 @@ export function clampSilkLook(look: SilkLook): SilkLook {
       SILK_LOOK_RANGES.rotate.max,
     ),
     drift: c(look.drift, SILK_LOOK_RANGES.drift.min, SILK_LOOK_RANGES.drift.max),
+    grain: c(look.grain, SILK_LOOK_RANGES.grain.min, SILK_LOOK_RANGES.grain.max),
   };
 }

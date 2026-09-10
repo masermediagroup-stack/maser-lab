@@ -324,6 +324,16 @@ export function DallasMeetupTvWallpaperDemo() {
               display={silkLook.drift.toFixed(3)}
               onChange={(drift) => patchSilk({ drift })}
             />
+            <LabRange
+              id="dallas-silk-grain"
+              label="Grain"
+              min={SILK_LOOK_RANGES.grain.min}
+              max={SILK_LOOK_RANGES.grain.max}
+              step={SILK_LOOK_RANGES.grain.step}
+              value={silkLook.grain}
+              display={silkLook.grain.toFixed(2)}
+              onChange={(grain) => patchSilk({ grain })}
+            />
             <div className="flex flex-wrap gap-1.5">
               <LabButton
                 type="button"

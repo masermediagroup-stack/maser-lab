@@ -14,6 +14,7 @@ describe("silk look", () => {
     expect(DEFAULT_SILK_LOOK.ridge).toBe(0.42);
     expect(DEFAULT_SILK_LOOK.rotate).toBe(0.045);
     expect(DEFAULT_SILK_LOOK.drift).toBe(0.09);
+    expect(DEFAULT_SILK_LOOK.grain).toBe(0.22);
     expect(DEFAULT_SILK_LOOK.scale).toBe(1);
   });
 
@@ -27,6 +28,7 @@ describe("silk look", () => {
       ridge: 9,
       rotate: -1,
       drift: 4,
+      grain: 9,
     });
     expect(clamped.speed).toBe(SILK_LOOK_RANGES.speed.max);
     expect(clamped.scale).toBe(SILK_LOOK_RANGES.scale.min);
@@ -36,5 +38,6 @@ describe("silk look", () => {
     expect(clamped.ridge).toBe(SILK_LOOK_RANGES.ridge.max);
     expect(clamped.rotate).toBe(SILK_LOOK_RANGES.rotate.min);
     expect(clamped.drift).toBe(SILK_LOOK_RANGES.drift.max);
+    expect(clamped.grain).toBe(SILK_LOOK_RANGES.grain.max);
   });
 });

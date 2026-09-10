@@ -37,6 +37,7 @@ uniform float uWhite;
 uniform float uRidge;
 uniform float uRotate;
 uniform float uDrift;
+uniform float uGrain;
 out vec4 fragColor;
 
 const float ASPECT = 1920.0 / 1080.0;
@@ -104,6 +105,12 @@ float remap(float a, float b, float c, float d, float x) {
   return mix(c, d, clamp((x - a) / (b - a), 0.0, 1.0));
 }
 
+float hash12(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+
 void main() {
   float t = uTime - 48.0 * floor(uTime / 48.0);
   float ang = t * uRotate;
@@ -125,6 +132,8 @@ void main() {
   g = mix(g, FLOOR * 0.5, crease * 0.88);
   float ridge = smoothstep(0.58, 0.94, n) * (1.0 - crease);
   g = mix(g, uWhite, ridge * uRidge);
+  float grain = hash12(gl_FragCoord.xy + vec2(t * 61.0, t * 37.0));
+  g += (grain - 0.5) * uGrain * 0.18;
   g = clamp(g, FLOOR * 0.45, 0.92);
 
   fragColor = vec4(vec3(g), 1.0);
@@ -190,6 +199,7 @@ export function startSilkWebgl(
   const uRidge = gl.getUniformLocation(program, "uRidge");
   const uRotate = gl.getUniformLocation(program, "uRotate");
   const uDrift = gl.getUniformLocation(program, "uDrift");
+  const uGrain = gl.getUniformLocation(program, "uGrain");
   const vao = gl.createVertexArray();
   if (!vao) {
     gl.deleteProgram(program);
@@ -230,6 +240,7 @@ export function startSilkWebgl(
     gl.uniform1f(uRidge, look.ridge);
     gl.uniform1f(uRotate, look.rotate);
     gl.uniform1f(uDrift, look.drift);
+    gl.uniform1f(uGrain, look.grain);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     raf = requestAnimationFrame(tick);
   };
@@ -345,6 +356,8 @@ export function startSilkCpu(
         g = g + (floor * 0.5 - g) * crease * 0.88;
         const ridge = Math.min(1, Math.max(0, (n - 0.58) / 0.36)) * (1 - crease);
         g = g + (look.white - g) * ridge * look.ridge;
+        const grain = hash21(x + t * 61, y + t * 37) - 0.5;
+        g += grain * look.grain * 0.18;
         g = Math.min(0.92, Math.max(floor * 0.45, g));
         const byte = Math.round(g * 255);
         const i = (y * w + x) * 4;

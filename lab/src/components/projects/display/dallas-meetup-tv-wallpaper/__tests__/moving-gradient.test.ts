@@ -80,6 +80,9 @@ describe("WebGL2 silk moving gradient", () => {
   it("exposes live silk knobs in demo settings without remounting GL", () => {
     expect(demoSrc).toContain('label="Silk ground"');
     expect(demoSrc).toContain("dallas-silk-speed");
+    expect(demoSrc).toContain("dallas-silk-grain");
+    expect(webglSrc).toContain("uGrain");
+    expect(webglSrc).toContain("hash12");
     expect(demoSrc).toContain("silkLook={silkLook}");
     expect(demoSrc).toContain("Reset silk");
     expect(wallpaperSrc).toContain(
