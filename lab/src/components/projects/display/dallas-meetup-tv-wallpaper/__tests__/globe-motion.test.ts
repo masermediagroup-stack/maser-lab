@@ -36,8 +36,8 @@ describe("globe-motion (idle wallpaper)", () => {
 });
 
 describe("idle wallpaper render contract", () => {
-  it("uses vgpu code ground under a DOM lockup", () => {
-    expect(wallpaperSrc).toContain("startCodeGround");
+  it("uses vgpu silk moving gradient under a DOM lockup", () => {
+    expect(wallpaperSrc).toContain("startMovingGradient");
     expect(wallpaperSrc).toContain("dallas-wallpaper-stack");
     expect(wallpaperSrc).toContain("dallas-wallpaper-stack__lockup");
     expect(wallpaperSrc).toContain("drawLogoCarousel");

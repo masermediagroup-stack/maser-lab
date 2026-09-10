@@ -8,7 +8,7 @@
 ## Design reference
 
 - Figma: [GrokBot-Dallas](https://www.figma.com/design/pZRH3cYPdDl1cDbmzzgZ5M/GrokBot-Dallas) — frame `GrokBot-TV-Idle-Wallpaper` (`11:2`). See `FIGMA.md`.
-- Design spec: `design.md` (USER OVERRIDE 2026-09-09 idle wallpaper)
+- Design spec: `design.md` (USER OVERRIDE 2026-09-10 silk moving gradient)
 
 ## Brief
 
@@ -20,15 +20,15 @@ Trigger frequency: rare / ambient (TV loop).
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-vgpu **black-and-white circular neo-code** ground at true **1920×1080** — dense repeating circle modules, not a gradient. Center **3-logo carousel** (Grok Bot → SpaceX → Cursor) as crisp SVG, fading one-at-a-time over a **120s** loop. Bottom-left white Universal Sans headline + subline (lab-editable). Reduced motion: still frame of that field + first logo + static text.
+vgpu **silk/fold moving gradient** (dark black + grey, sparse white hint) at true **1920×1080**. Center **3-logo carousel** (Grok Bot → SpaceX → Cursor) as crisp SVG, fading one-at-a-time over a **120s** loop. Bottom-left white Universal Sans headline + subline (lab-editable). Reduced motion: still silk field + first logo + static text.
 
 ### Success signal
-- Ground is visibly a live B/W dense circle-neo code field (not a gradient, not CSS, not a baked still).
-- vgpu field fills the 1920×1080 stage behind the lockup (dpr 1.5–2). Quiet drift/pulse.
+- vgpu silk moving gradient fills the 1920×1080 stage behind the lockup (dpr 1.5–2); folds visibly drift while playing.
 - Three logos fade in/out at center without whip/spin/morph; SVG marks stay sharp (no CSS stretch).
 - Text anchored bottom-left per Figma `11:97` as HTML Universal Sans (no scale below 1).
 - Same demo route `/demos/dallas-meetup-tv-wallpaper` with headline/up-next inputs preserved.
-- Reduced motion freezes the code field plus Grok logo + static text.
+- Reduced motion / pause freezes the silk field plus Grok logo + static text.
+- No Unicorn SDK, no watermark layer.
 
 ### Non-goals
 - No kick/whip/Grok SDF morph cycle (retired 2026-09-09).
@@ -36,8 +36,8 @@ vgpu **black-and-white circular neo-code** ground at true **1920×1080** — den
 - Geist out. Do not invent layout beyond Figma frame.
 - No mobile / 320 layout. Wall TV + laptop/desktop only.
 - Do not scale logos or type off Figma native px.
-- No Unicorn Studio embed (watermark / no Legend).
-- Do not invent extra neo glyph shapes or an accent-blue palette.
+- No Unicorn Studio embed (watermark / no Legend). Look-only reference `eFskEoMG10ENKSC2rBFp`.
+- No circle-glyph / neo code field. No accent-blue palette. No mouse-follow.
 
 ## Type
 
@@ -73,7 +73,7 @@ Both canvas lines use Universal Sans (different weights). Plex only on lab demo 
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Background | vgpu B/W circular neo-code modules | Timed gradient cut is dead; dense circle glyphs under lockup |
+| Background | vgpu silk moving gradient | Unicorn is look-only; remake without watermark |
 | Logo motion | Sequential fade-out / fade-in (no overlap) | User: logos must never intersect |
 | Duration | Default 120s loop | Existing demo control |
 | Text | Static white, bottom-left | Figma layout |
@@ -84,8 +84,8 @@ Both canvas lines use Universal Sans (different weights). Plex only on lab demo 
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] Logo carousel loops at 120s without visible seam at t=0 vs t=120
 - [ ] Headline/up-next editable in lab demo
-- [ ] Reduced motion: still vgpu field, Grok logo, static text
+- [ ] Reduced motion / pause: still vgpu silk field, Grok logo, static text
 - [ ] Universal Sans 400 + 300; Geist out of product surface
 - [ ] Stage CSS is 1920×1080 (no stretch); marks are SVG at native px
-- [ ] Ground is vgpu B/W dense circle-neo modules — no Unicorn SDK, no gradient/vignette
+- [ ] Ground is vgpu silk moving gradient — visible motion when playing; no Unicorn SDK; WebGPU fail is static silk wash
 - [ ] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`

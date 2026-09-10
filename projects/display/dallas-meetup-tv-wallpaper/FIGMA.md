@@ -6,7 +6,7 @@
 
 | Node | Name | Use |
 | --- | --- | --- |
-| `11:2` | GrokBot-TV-Idle-Wallpaper | Layout + lockup sizes. Live ground is vgpu B/W circle glyphs, not Unicorn and not the Figma moving-gradient fill. |
+| `11:2` | GrokBot-TV-Idle-Wallpaper | Layout + lockup sizes. Live ground is a vgpu silk moving gradient remade from Unicorn look-only `eFskEoMG10ENKSC2rBFp` — not the SDK, not the watermark, not circle glyphs. |
 | `11:84` | grokbot | Center logo — Grok Bot lockup |
 | `11:100` | spacexai wordmark | Center logo — SpaceX (hidden in still) |
 | `11:140` | LOCKUP_HORIZONTAL_2D_DARK | Center logo — Cursor lockup (hidden in still) |

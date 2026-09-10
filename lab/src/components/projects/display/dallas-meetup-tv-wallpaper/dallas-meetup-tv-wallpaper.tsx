@@ -26,7 +26,7 @@ import {
   logoOpacities,
   preloadLogoCarousel,
 } from "./logo-carousel";
-import { startCodeGround } from "./start-code-ground";
+import { startMovingGradient } from "./start-moving-gradient";
 import {
   DALLAS_DISPLAY_FONT_PX,
   DALLAS_SUBLINE_FONT_PX,
@@ -101,7 +101,7 @@ function snapshotGroundCanvas(root: ParentNode | null): HTMLCanvasElement | null
   return canvas instanceof HTMLCanvasElement ? canvas : null;
 }
 
-/** Export-only: composite vgpu ground snapshot + logos + type at identity 1920×1080. */
+/** Export-only: composite silk-gradient canvas + logos + type at identity 1920×1080. */
 export function renderForegroundFrame(
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -171,8 +171,8 @@ export function DallasMeetupWallpaper({
   const pausedAtRef = useRef(0);
 
   useEffect(() => {
-    pausedRef.current = reducedMotion;
-  }, [reducedMotion]);
+    pausedRef.current = reducedMotion || !playing;
+  }, [playing, reducedMotion]);
 
   const paintMarks = useCallback(
     (time: number) => {
@@ -204,7 +204,7 @@ export function DallasMeetupWallpaper({
   useEffect(() => {
     const canvas = groundCanvasRef.current;
     if (!canvas) return;
-    return startCodeGround(canvas, pausedRef);
+    return startMovingGradient(canvas, pausedRef);
   }, []);
 
   useEffect(() => {
