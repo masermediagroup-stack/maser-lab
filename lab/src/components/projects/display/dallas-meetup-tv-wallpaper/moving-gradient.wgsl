@@ -9,21 +9,21 @@ struct Params {
 
 const ASPECT = 1920.0 / 1080.0;
 const FLOOR = 0.039216; /* #0a0a0a */
-const GREY = 0.56;
-const WHITE_HINT = 0.9;
+const GREY = 0.48;
+const WHITE_HINT = 0.82;
 
 fn fbm(p: vec2f) -> f32 {
-  return fbmSimplex2d(p, 4, 2.17, 0.5);
+  return fbmSimplex2d(p, 3, 2.02, 0.52);
 }
 
 fn warp(p: vec2f, t: f32) -> vec2f {
   let q = vec2f(
-    fbm(p + vec2f(0.0, t * 0.32)),
-    fbm(p + vec2f(37.2, 11.7) - vec2f(t * 0.26, 0.0)),
+    fbm(p + vec2f(0.0, t * 0.18)),
+    fbm(p + vec2f(37.2, 11.7) - vec2f(t * 0.14, 0.0)),
   );
   return vec2f(
-    fbm(p + 4.0 * q + vec2f(1.7, 9.2) + vec2f(t * 0.18, t * 0.12)),
-    fbm(p + 4.0 * q + vec2f(19.4, -42.1) - vec2f(0.0, t * 0.2)),
+    fbm(p + 2.15 * q + vec2f(1.7, 9.2) + vec2f(t * 0.1, t * 0.07)),
+    fbm(p + 2.15 * q + vec2f(19.4, -42.1) - vec2f(0.0, t * 0.11)),
   );
 }
 
@@ -38,12 +38,12 @@ fn warp(p: vec2f, t: f32) -> vec2f {
     centered.x * cs - centered.y * sn,
     centered.x * sn + centered.y * cs,
   );
-  let p = rotated * vec2f(1.28, 1.0) * 1.55 + vec2f(t * 0.16, t * -0.11);
+  let p = rotated * vec2f(0.58, 0.46) + vec2f(t * 0.09, t * -0.06);
 
   let r = warp(p, t);
-  let field = fbm(p + 4.0 * r);
-  let n = saturate(remap(-0.62, 0.62, 0.0, 1.0, field));
-  let crease = pow(smoothstep(0.12, 0.72, length(r)), 1.4);
+  let field = fbm(p + 2.15 * r);
+  let n = saturate(remap(-0.55, 0.55, 0.0, 1.0, field));
+  let crease = pow(smoothstep(0.08, 0.62, length(r)), 1.15);
 
   var g = mix(FLOOR, GREY, n);
   g = mix(g, FLOOR * 0.5, crease * 0.88);

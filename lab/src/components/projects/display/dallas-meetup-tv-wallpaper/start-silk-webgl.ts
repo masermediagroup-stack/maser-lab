@@ -34,8 +34,8 @@ out vec4 fragColor;
 
 const float ASPECT = 1920.0 / 1080.0;
 const float FLOOR = 0.039216;
-const float GREY = 0.56;
-const float WHITE_HINT = 0.9;
+const float GREY = 0.48;
+const float WHITE_HINT = 0.82;
 
 vec3 permute(vec3 x) {
   return mod(((x * 34.0) + 1.0) * x, 289.0);
@@ -74,24 +74,24 @@ float snoise(vec2 v) {
 
 float fbm(vec2 p) {
   float sum = 0.0;
-  float amp = 0.5;
+  float amp = 0.52;
   float freq = 1.0;
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 3; i++) {
     sum += amp * snoise(p * freq);
-    freq *= 2.17;
-    amp *= 0.5;
+    freq *= 2.02;
+    amp *= 0.52;
   }
   return sum;
 }
 
 vec2 warp(vec2 p, float t) {
   vec2 q = vec2(
-    fbm(p + vec2(0.0, t * 0.32)),
-    fbm(p + vec2(37.2, 11.7) - vec2(t * 0.26, 0.0))
+    fbm(p + vec2(0.0, t * 0.18)),
+    fbm(p + vec2(37.2, 11.7) - vec2(t * 0.14, 0.0))
   );
   return vec2(
-    fbm(p + 4.0 * q + vec2(1.7, 9.2) + vec2(t * 0.18, t * 0.12)),
-    fbm(p + 4.0 * q + vec2(19.4, -42.1) - vec2(0.0, t * 0.2))
+    fbm(p + 2.15 * q + vec2(1.7, 9.2) + vec2(t * 0.1, t * 0.07)),
+    fbm(p + 2.15 * q + vec2(19.4, -42.1) - vec2(0.0, t * 0.11))
   );
 }
 
@@ -109,12 +109,12 @@ void main() {
     centered.x * cs - centered.y * sn,
     centered.x * sn + centered.y * cs
   );
-  vec2 p = rotated * vec2(1.28, 1.0) * 1.55 + vec2(t * 0.16, t * -0.11);
+  vec2 p = rotated * vec2(0.58, 0.46) + vec2(t * 0.09, t * -0.06);
 
   vec2 r = warp(p, t);
-  float field = fbm(p + 4.0 * r);
-  float n = clamp(remap(-0.62, 0.62, 0.0, 1.0, field), 0.0, 1.0);
-  float crease = pow(smoothstep(0.12, 0.72, length(r)), 1.4);
+  float field = fbm(p + 2.15 * r);
+  float n = clamp(remap(-0.55, 0.55, 0.0, 1.0, field), 0.0, 1.0);
+  float crease = pow(smoothstep(0.08, 0.62, length(r)), 1.15);
 
   float g = mix(FLOOR, GREY, n);
   g = mix(g, FLOOR * 0.5, crease * 0.88);
@@ -136,13 +136,6 @@ function compileShader(gl: WebGL2RenderingContext, type: number, src: string) {
     return null;
   }
   return shader;
-}
-
-function isSoftwareGl(gl: WebGL2RenderingContext): boolean {
-  const info = gl.getExtension("WEBGL_debug_renderer_info");
-  if (!info) return false;
-  const renderer = String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL) ?? "");
-  return /llvmpipe|swiftshader|softpipe|microsoft basic render/i.test(renderer);
 }
 
 /**
@@ -190,10 +183,8 @@ export function startSilkWebgl(
     return null;
   }
 
-  const software = isSoftwareGl(gl);
-  const scale = software ? 0.5 : 1;
-  canvas.width = Math.round(GRADIENT_STAGE_W * scale);
-  canvas.height = Math.round(GRADIENT_STAGE_H * scale);
+  canvas.width = GRADIENT_STAGE_W;
+  canvas.height = GRADIENT_STAGE_H;
   canvas.style.width = `${GRADIENT_STAGE_W}px`;
   canvas.style.height = `${GRADIENT_STAGE_H}px`;
   canvas.dataset.dallasGround = "webgl2";
