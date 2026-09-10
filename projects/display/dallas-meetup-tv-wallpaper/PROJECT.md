@@ -20,21 +20,23 @@ Trigger frequency: rare / ambient (TV loop).
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Unicorn Studio ground (`tpUiHuNcrr2hbUdSbHSq`) at true **1920×1080**. Center **3-logo carousel** (Grok Bot → SpaceX → Cursor) as crisp SVG, fading one-at-a-time over a **120s** loop. Bottom-left white Universal Sans headline + subline (lab-editable). Reduced motion: Unicorn still frame + first logo + static text.
+vgpu **black-and-white circle-glyph** ground at true **1920×1080**. Center **3-logo carousel** (Grok Bot → SpaceX → Cursor) as crisp SVG, fading one-at-a-time over a **120s** loop. Bottom-left white Universal Sans headline + subline (lab-editable). Reduced motion: still code field + first logo + static text.
 
 ### Success signal
-- Unicorn ground fills the 1920×1080 stage behind the lockup (dpi 2, 60fps, production).
+- vgpu B/W circle-glyph ground fills the 1920×1080 stage behind the lockup (dpr 1.5–2).
 - Three logos fade in/out at center without whip/spin/morph; SVG marks stay sharp (no CSS stretch).
 - Text anchored bottom-left per Figma `11:97` as HTML Universal Sans (no scale below 1).
 - Same demo route `/demos/dallas-meetup-tv-wallpaper` with headline/up-next inputs preserved.
-- Reduced motion freezes Unicorn to a still frame plus Grok logo + static text.
+- Reduced motion freezes the code field plus Grok logo + static text.
 
 ### Non-goals
 - No kick/whip/Grok SDF morph cycle (retired 2026-09-09).
 - No paper `#F2F1ED` ground (retired).
 - Geist out. Do not invent layout beyond Figma frame.
 - No mobile / 320 layout. Wall TV + laptop/desktop only.
-- Do not scale logos or canvas type off Figma native px.
+- Do not scale logos or type off Figma native px.
+- No Unicorn Studio embed (watermark / no Legend).
+- Do not invent extra neo glyph shapes or an accent-blue palette.
 
 ## Type
 
@@ -70,7 +72,7 @@ Both canvas lines use Universal Sans (different weights). Plex only on lab demo 
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Background | Unicorn Studio `tpUiHuNcrr2hbUdSbHSq` | Quality + code ground lock |
+| Background | vgpu B/W circle glyphs | Unicorn embed killed; code texture under lockup |
 | Logo motion | Sequential fade-out / fade-in (no overlap) | User: logos must never intersect |
 | Duration | Default 120s loop | Existing demo control |
 | Text | Static white, bottom-left | Figma layout |
@@ -81,7 +83,8 @@ Both canvas lines use Universal Sans (different weights). Plex only on lab demo 
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] Logo carousel loops at 120s without visible seam at t=0 vs t=120
 - [ ] Headline/up-next editable in lab demo
-- [ ] Reduced motion: Unicorn still frame, Grok logo, static text
+- [ ] Reduced motion: still vgpu field, Grok logo, static text
 - [ ] Universal Sans 400 + 300; Geist out of product surface
 - [ ] Stage CSS is 1920×1080 (no stretch); marks are SVG at native px
+- [ ] Ground is vgpu B/W circle glyphs — no Unicorn SDK
 - [ ] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`

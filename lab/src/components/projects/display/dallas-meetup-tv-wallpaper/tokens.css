@@ -1,7 +1,7 @@
 /*
  * Dallas Meetup TV Wallpaper — product tokens (idle wallpaper 2026-09-09).
  *
- * True 1920×1080 stage. Unicorn Studio ground. DOM SVG marks + HTML Universal Sans.
+ * True 1920×1080 stage. vgpu B/W circle-glyph ground. DOM SVG marks + HTML Universal Sans.
  * Lab demo chrome uses shared Geist roles from maser-lab-tokens — do not override
  * `.demo-control-bar` here.
  */
@@ -83,15 +83,17 @@
   background: var(--dallas-stage);
 }
 
-.dallas-wallpaper-unicorn,
-.dallas-wallpaper-stack__ground > div {
+.dallas-wallpaper-ground-canvas {
   position: absolute;
   inset: 0;
-  width: 1920px !important;
-  height: 1080px !important;
+  z-index: 0;
+  width: 1920px;
+  height: 1080px;
+  display: block;
   max-width: none;
   max-height: none;
   filter: none;
+  transform: none;
 }
 
 .dallas-wallpaper-stack__lockup {

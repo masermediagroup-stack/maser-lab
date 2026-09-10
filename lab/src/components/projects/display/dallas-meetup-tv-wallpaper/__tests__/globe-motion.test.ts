@@ -36,11 +36,13 @@ describe("globe-motion (idle wallpaper)", () => {
 });
 
 describe("idle wallpaper render contract", () => {
-  it("uses Unicorn ground under a DOM lockup", () => {
-    expect(wallpaperSrc).toContain("UnicornGround");
+  it("uses vgpu code ground under a DOM lockup", () => {
+    expect(wallpaperSrc).toContain("startCodeGround");
     expect(wallpaperSrc).toContain("dallas-wallpaper-stack");
     expect(wallpaperSrc).toContain("dallas-wallpaper-stack__lockup");
     expect(wallpaperSrc).toContain("drawLogoCarousel");
+    expect(wallpaperSrc).not.toContain("UnicornGround");
+    expect(wallpaperSrc).not.toContain("unicornstudio");
     expect(wallpaperSrc).not.toContain("MovingGradientBackground");
     expect(wallpaperSrc).not.toContain("drawFallbackGradient");
     expect(wallpaperSrc).not.toContain("drawSpacexaiMark");

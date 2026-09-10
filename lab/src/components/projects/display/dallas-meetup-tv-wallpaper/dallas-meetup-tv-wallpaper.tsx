@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef } from "react";
 import {
   DALLAS_DEFAULT_HEADLINE,
@@ -27,6 +26,7 @@ import {
   logoOpacities,
   preloadLogoCarousel,
 } from "./logo-carousel";
+import { startCodeGround } from "./start-code-ground";
 import {
   DALLAS_DISPLAY_FONT_PX,
   DALLAS_SUBLINE_FONT_PX,
@@ -47,11 +47,6 @@ const TYPE_LINE_GAP = DALLAS_DISPLAY_FONT_PX * 0.12;
 const grokRect = logoCenteredRect(GROK_LOCKUP_W, GROK_LOCKUP_H);
 const spacexRect = logoCenteredRect(SPACEX_LOCKUP_W, SPACEX_LOCKUP_H);
 const cursorRect = logoCenteredRect(CURSOR_LOCKUP_W, CURSOR_LOCKUP_H);
-
-const UnicornGround = dynamic(
-  () => import("./unicorn-ground").then((mod) => mod.UnicornGround),
-  { ssr: false },
-);
 
 type ExportResult = {
   blob: Blob;
@@ -100,9 +95,9 @@ function applyMarkOpacities(
   if (cursor) cursor.style.opacity = String(cursorOp);
 }
 
-function snapshotUnicornCanvas(root: ParentNode | null): HTMLCanvasElement | null {
+function snapshotGroundCanvas(root: ParentNode | null): HTMLCanvasElement | null {
   if (!root) return null;
-  const canvas = root.querySelector(".dallas-wallpaper-stack__ground canvas");
+  const canvas = root.querySelector(".dallas-wallpaper-ground-canvas");
   return canvas instanceof HTMLCanvasElement ? canvas : null;
 }
 
@@ -166,12 +161,16 @@ export function DallasMeetupWallpaper({
   className,
 }: DallasMeetupWallpaperProps) {
   const stackRef = useRef<HTMLDivElement | null>(null);
+  const groundCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const pausedRef = useRef(reducedMotion);
   const grokRef = useRef<HTMLImageElement | null>(null);
   const spacexRef = useRef<HTMLImageElement | null>(null);
   const cursorRef = useRef<HTMLImageElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const pausedAtRef = useRef(0);
+
+  pausedRef.current = reducedMotion;
 
   const paintMarks = useCallback(
     (time: number) => {
@@ -198,6 +197,12 @@ export function DallasMeetupWallpaper({
       void document.fonts.load(`400 ${DALLAS_DISPLAY_FONT_PX}px ${DALLAS_SANS_FAMILY}`);
       void document.fonts.load(`300 ${DALLAS_SUBLINE_FONT_PX}px ${DALLAS_SANS_FAMILY}`);
     }
+  }, []);
+
+  useEffect(() => {
+    const canvas = groundCanvasRef.current;
+    if (!canvas) return;
+    return startCodeGround(canvas, pausedRef);
   }, []);
 
   useEffect(() => {
@@ -252,7 +257,12 @@ export function DallasMeetupWallpaper({
       aria-label="Dallas meetup wallpaper"
     >
       <div className="dallas-wallpaper-stack__ground" aria-hidden>
-        <UnicornGround paused={reducedMotion} />
+        <canvas
+          ref={groundCanvasRef}
+          className="dallas-wallpaper-ground-canvas"
+          width={BASE_WIDTH}
+          height={BASE_HEIGHT}
+        />
       </div>
       <div className="dallas-wallpaper-stack__lockup">
         {/* Native <img> keeps SVG 1:1 at display size; next/image can resample. */}
@@ -355,7 +365,7 @@ export async function exportDallasMeetupWallpaperLoop({
   if (!outCtx) throw new Error("Could not create a 2D canvas context.");
 
   const fontFamily = resolveDallasFontFamily(document.querySelector(".dallas-demo"));
-  const unicorn = snapshotUnicornCanvas(document.querySelector(".dallas-wallpaper-stack"));
+  const ground = snapshotGroundCanvas(document.querySelector(".dallas-wallpaper-stack"));
 
   const totalFrames = loopSeconds * FPS;
   const mp4Mime = "video/mp4;codecs=avc1.42E01E";
@@ -399,11 +409,11 @@ export async function exportDallasMeetupWallpaperLoop({
       outCtx.setTransform(1, 0, 0, 1, 0, 0);
       outCtx.fillStyle = STAGE_FALLBACK;
       outCtx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
-      const liveUnicorn =
-        snapshotUnicornCanvas(document.querySelector(".dallas-wallpaper-stack")) ??
-        unicorn;
-      if (liveUnicorn) {
-        outCtx.drawImage(liveUnicorn, 0, 0, BASE_WIDTH, BASE_HEIGHT);
+      const liveGround =
+        snapshotGroundCanvas(document.querySelector(".dallas-wallpaper-stack")) ??
+        ground;
+      if (liveGround) {
+        outCtx.drawImage(liveGround, 0, 0, BASE_WIDTH, BASE_HEIGHT);
       }
 
       renderForegroundFrame(

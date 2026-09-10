@@ -20,16 +20,14 @@ Human video still landing — hold finer art direction until it drops. Do not in
 - Marks sit **on top of** the ground. The ground never samples through them.
 
 ### Ground
-- Unicorn Studio **projectId** `tpUiHuNcrr2hbUdSbHSq`.
-- Remix: https://unicorn.studio/remix/1LkMxxXd5DbU0DwtQKjA
-- SDK: unicornstudio.js **2.2.13** / unicornstudio-react (wrapper 2.2.10 + `sdkUrl` pin).
-- Full-bleed behind the lockup. Container is the full 1920×1080 stage.
-- dpi ~1.5–2 (ship **2**). fps **60**. `production: true` on the live demo.
-- Prefer the published Unicorn embed. A vgpu rebuild is ONLY if the embed cannot sit under the lockup cleanly — then match this scene’s density and code texture, do not invent a new look.
-- Reduced motion: still frame from the scene, no continuous field motion.
-- Kill the prior basic background shader as the hero field.
+- **Unicorn embed is dead** (watermark). No Legend spend. Do not re-embed Unicorn.
+- Rebuild as a **vgpu** fullscreen shader: **black and white only**. No accent blue.
+- Neo glyph = **circle** only. Do not invent other glyph options.
+- Dense, deep code texture under the lockup — reads as building with code, not a flat wash, not the old basic field.
+- Quiet field motion. Reduced motion = still frame.
+- Full-bleed behind the lockup on the true 1920×1080 stage. dpr clamp **1.5–2**. Opaque surface.
 - Ground must not compete with the Grok and Cursor faces. Skyline stays off.
-- Embed fail: solid `#060606`, not the old shader.
+- WebGPU fail: static B/W circle field on `#060606`, not Unicorn, not the old gradient.
 
 ### Loop (keep)
 Sequential 3-logo fade Grok → SpaceX → Cursor over `loopSeconds` (default **120s**). Fade-out then fade-in; at most one logo visible. Idle carousel only.
@@ -42,12 +40,12 @@ Dallas skyline. Globe yaw / 360 **body** spin / any Grok body turn. Eye-whip. In
 **Broken eyes during morph / sheared stadiums.** **Green body fill.** **Cool Gray body fill.**
 **Pill / Cloud / Teardrop cycle landings.** **Rounded triangle / Magenta cycle landings.** **Oversized Grok vs cube.**
 **Thinking nest.** **Working ribbons.** **Thick mid.** **Sparse 2–4 bands.** **Any colored orbits / arcs / bands around Grok.**
-**Paper `#F2F1ED` ground.** **Kick / whip / Grok SDF morph as the live model.** **Moving-gradient / basic WebGPU shader as the hero field.**
-**Retiming prior unique hosts** (`988sxfcwn`, `7m70m0875`, `36jk9847c`, branch alias). Fresh unique host when it lands. Do not hand the branch alias.
+**Paper `#F2F1ED` ground.** **Kick / whip / Grok SDF morph as the live model.** **Moving-gradient / basic WebGPU shader as the hero field.** **Unicorn Studio embed** (watermark / no Legend).
+**Retiming prior unique hosts** (`bcbmzn4wu`, `36jk9847c`, `988sxfcwn`, `7m70m0875`, every Unicorn host, branch alias). Fresh unique host when it lands. Do not hand the branch alias.
 
 ## Tokens (idle)
 
-- `--dallas-stage`: `#060606` — stage chrome / Unicorn-fail fallback
+- `--dallas-stage`: `#060606` — stage chrome / ground floor
 - `--dallas-text-on-dark`: `#FFFFFF` — type
 - Display: Universal Sans trial 400 @ 48px and 300 @ 36px, once, tracking 0
 - Body/labels: IBM Plex Sans Condensed. Geist out. Never fetch xAI webfonts.

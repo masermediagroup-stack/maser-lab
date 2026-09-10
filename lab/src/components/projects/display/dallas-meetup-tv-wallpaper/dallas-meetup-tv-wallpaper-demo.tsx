@@ -209,9 +209,9 @@ export function DallasMeetupTvWallpaperDemo() {
               Dallas meetup TV wallpaper
             </p>
             <p className="lab-type-caption mt-1 text-[var(--lab-text-secondary)]">
-              Idle wallpaper: Unicorn Studio ground, three center logos fading one-at-a-time over{" "}
-              {DEFAULT_LOOP_SECONDS}s (default), bottom-left Universal Sans copy at true 1920×1080.
-              Geist is out of the product surface.
+              Idle wallpaper: black-and-white vgpu circle-glyph ground, three center logos fading
+              one-at-a-time over {DEFAULT_LOOP_SECONDS}s (default), bottom-left Universal Sans copy
+              at true 1920×1080. Geist is out of the product surface.
             </p>
           </div>
 
@@ -310,7 +310,7 @@ export function DallasMeetupTvWallpaperDemo() {
             />
             <p className="lab-type-caption text-[var(--lab-text-muted)]">
               Default {DEFAULT_LOOP_SECONDS}s. Logo carousel shares this loop (up to{" "}
-              {LOOP_MAX_SECONDS}s). Unicorn ground runs at 60fps unless reduced motion.
+              {LOOP_MAX_SECONDS}s). Code ground runs quietly unless reduced motion.
             </p>
           </LabControlGroup>
 
