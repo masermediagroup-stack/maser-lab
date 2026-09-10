@@ -101,7 +101,7 @@ function snapshotGroundCanvas(root: ParentNode | null): HTMLCanvasElement | null
   return canvas instanceof HTMLCanvasElement ? canvas : null;
 }
 
-/** Export-only: composite Unicorn snapshot + logos + type at identity 1920×1080. */
+/** Export-only: composite vgpu ground snapshot + logos + type at identity 1920×1080. */
 export function renderForegroundFrame(
   ctx: CanvasRenderingContext2D,
   width: number,

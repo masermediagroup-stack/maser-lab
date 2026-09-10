@@ -3,9 +3,11 @@
 USER OVERRIDE. Later interrupts win. Encode corrections in `design.md`.
 Requested look lock path `/workspace/dallas-meetup-tv/globe-look/LOOK.md` is not in this checkout; this file is the lab copy.
 
-Human video still landing — hold finer art direction until it drops. Do not invent a new look.
+Timed gradient cut is parked. Circle-neo vgpu field is the lock. Do not invent a new look.
 
-## Quality + code ground (locked 2026-09-09)
+## Quality + code ground (locked 2026-09-10)
+
+Human timed `l9j8bqkli` — that cut still read as a **static gradient**. Dead. Do not ship a vignette, a soft ramp, a baked still, or CSS as the hero ground.
 
 ### Stage
 - Canvas / composition stays **1920×1080**. Do not stretch the composition to fill a different aspect.
@@ -17,17 +19,17 @@ Human video still landing — hold finer art direction until it drops. Do not in
 - No downscale then upscale. No CSS blur. No soft shadow that eats edges.
 - Type: Universal Sans, crisp. Hinting and measure stay. No transform that scales the type below 1.
 - Headline **48px / 400**, subline **36px / 300**, x=72, y=931, white.
-- Marks sit **on top of** the ground. The ground never samples through them.
+- Marks sit **on top of** the ground as DOM. The ground never samples through them. Do **not** fake that with a center vignette — that ramp was the bug.
 
 ### Ground
-- **Unicorn embed is dead** (watermark). No Legend spend. Do not re-embed Unicorn.
-- Rebuild as a **vgpu** fullscreen shader: **black and white only**. No accent blue.
-- Neo glyph = **circle** only. Do not invent other glyph options.
-- Dense, deep code texture under the lockup — reads as building with code, not a flat wash, not the old basic field.
-- Quiet field motion. Reduced motion = still frame.
-- Full-bleed behind the lockup on the true 1920×1080 stage. dpr clamp **1.5–2**. Opaque surface.
-- Ground must not compete with the Grok and Cursor faces. Skyline stays off.
-- WebGPU fail: static B/W circle field on `#060606`, not Unicorn, not the old gradient.
+- **Unicorn embed is dead** (watermark). No Legend spend. Do not re-embed Unicorn. No `unicornstudio-react`, no `tpUiHuNcrr2hbUdSbHSq`.
+- **vgpu** fullscreen shader only. **Black and white** (paper/ink). No accent blue. No color wash.
+- Neo glyph = **circle** option: repeating circular code glyphs / modules. Dense, deep code texture under the lockup. Not flat noise. Not a gradient.
+- Full-bleed behind the lockup. Quiet live drift/pulse. Reduced motion = still frame from that field.
+- dpr clamp **1.5–2**. Opaque surface.
+- Skyline stays off.
+- WebGPU fail: static B/W circular-module field on `#060606`, not Unicorn, not CSS, not a ramp.
+- Stale hosts after this push: `l9j8bqkli`, `bcbmzn4wu`, any Unicorn hosts, prior branch aliases. Fresh unique Vercel host. Do not hand the branch alias.
 
 ### Loop (keep)
 Sequential 3-logo fade Grok → SpaceX → Cursor over `loopSeconds` (default **120s**). Fade-out then fade-in; at most one logo visible. Idle carousel only.
@@ -41,7 +43,8 @@ Dallas skyline. Globe yaw / 360 **body** spin / any Grok body turn. Eye-whip. In
 **Pill / Cloud / Teardrop cycle landings.** **Rounded triangle / Magenta cycle landings.** **Oversized Grok vs cube.**
 **Thinking nest.** **Working ribbons.** **Thick mid.** **Sparse 2–4 bands.** **Any colored orbits / arcs / bands around Grok.**
 **Paper `#F2F1ED` ground.** **Kick / whip / Grok SDF morph as the live model.** **Moving-gradient / basic WebGPU shader as the hero field.** **Unicorn Studio embed** (watermark / no Legend).
-**Retiming prior unique hosts** (`bcbmzn4wu`, `36jk9847c`, `988sxfcwn`, `7m70m0875`, every Unicorn host, branch alias). Fresh unique host when it lands. Do not hand the branch alias.
+**Retiming prior unique hosts** (`l9j8bqkli`, `bcbmzn4wu`, `36jk9847c`, `988sxfcwn`, `7m70m0875`, every Unicorn host, branch alias). Fresh unique host when it lands. Do not hand the branch alias.
+**Center vignette / lockup-zone dim / PEAK clamp that reads as a static gradient.** The 2026-09-10 timed cut. Dead.
 
 ## Tokens (idle)
 

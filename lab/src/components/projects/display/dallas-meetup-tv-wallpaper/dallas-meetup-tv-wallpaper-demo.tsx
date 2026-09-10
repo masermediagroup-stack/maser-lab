@@ -209,9 +209,9 @@ export function DallasMeetupTvWallpaperDemo() {
               Dallas meetup TV wallpaper
             </p>
             <p className="lab-type-caption mt-1 text-[var(--lab-text-secondary)]">
-              Idle wallpaper: black-and-white vgpu circle-glyph ground, three center logos fading
-              one-at-a-time over {DEFAULT_LOOP_SECONDS}s (default), bottom-left Universal Sans copy
-              at true 1920×1080. Geist is out of the product surface.
+              Idle wallpaper: live black-and-white vgpu circular neo-code field, three center logos
+              fading one-at-a-time over {DEFAULT_LOOP_SECONDS}s (default), bottom-left Universal Sans
+              copy at true 1920×1080. Geist is out of the product surface.
             </p>
           </div>
 

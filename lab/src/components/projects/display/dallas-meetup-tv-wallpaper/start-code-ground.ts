@@ -6,12 +6,118 @@ export const CODE_GROUND_STAGE_W = 1920;
 export const CODE_GROUND_STAGE_H = 1080;
 export const CODE_GROUND_DPR: readonly [number, number] = [1.5, 2];
 export const CODE_GROUND_FALLBACK = "#060606";
-/** Quiet field — wall TV dwell, not a splash. */
-export const CODE_GROUND_MOTION = 0.22;
+/** Quiet TV dwell — shader owns px/s drift. */
+export const CODE_GROUND_MOTION = 1;
 
 const FLOOR = 6 / 255;
+const TAU = Math.PI * 2;
 
 export type CodeGroundPausedRef = { current: boolean };
+
+function hash2(x: number, y: number): [number, number] {
+  const n = Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453);
+  const m = Math.abs(Math.sin(x * 39.346 + y * 11.135) * 23421.631);
+  return [n - Math.floor(n), m - Math.floor(m)];
+}
+
+function circleGlyph(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  cell: number,
+  kind: number,
+  bitX: number,
+  bitY: number,
+  ink: number,
+) {
+  const r = cell * 0.42;
+  const luma = Math.round((FLOOR + (0.94 - FLOOR) * ink) * 255);
+  ctx.strokeStyle = `rgb(${luma}, ${luma}, ${luma})`;
+  ctx.fillStyle = `rgb(${luma}, ${luma}, ${luma})`;
+  ctx.lineWidth = Math.max(1.5, cell * 0.12);
+  ctx.beginPath();
+  if (kind < 1) {
+    ctx.arc(cx, cy, r * (0.72 + bitY * 0.2), 0, TAU);
+    ctx.fill();
+    return;
+  }
+  ctx.arc(cx, cy, r, 0, TAU);
+  ctx.stroke();
+  if (kind < 2) return;
+  if (kind < 3) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.58, 0, TAU);
+    ctx.stroke();
+    return;
+  }
+  if (kind < 4) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.28, 0, TAU);
+    ctx.fill();
+    return;
+  }
+  if (kind < 5) {
+    const spokes = 3 + Math.floor(bitX * 5);
+    for (let i = 0; i < spokes; i += 1) {
+      const a = (i / spokes) * TAU + bitY;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * r * 0.3, cy + Math.sin(a) * r * 0.3);
+      ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+      ctx.stroke();
+    }
+    return;
+  }
+  if (kind < 6) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.55, 0, TAU);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, TAU);
+    ctx.stroke();
+    return;
+  }
+  if (kind < 7) {
+    const nDots = 6 + Math.floor(bitY * 5);
+    for (let i = 0; i < nDots; i += 1) {
+      const a = (i / nDots) * TAU;
+      ctx.beginPath();
+      ctx.arc(cx + Math.cos(a) * r * 0.74, cy + Math.sin(a) * r * 0.74, cell * 0.05, 0, TAU);
+      ctx.fill();
+    }
+    return;
+  }
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.58, 0, TAU);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.28, 0, TAU);
+  ctx.fill();
+}
+
+function paintLattice(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  cell: number,
+  density: number,
+  gutterEvery: number,
+  salt: number,
+) {
+  for (let x = cell * 0.5; x < w; x += cell) {
+    const col = Math.floor(x / cell);
+    if (gutterEvery > 0 && col % gutterEvery === gutterEvery - 1) continue;
+    const colGain = hash2(col, 19)[0] > 0.38 ? 1 : 0.82;
+    for (let y = cell * 0.5; y < h; y += cell) {
+      const row = Math.floor(y / cell);
+      if (row % 11 > 9) continue;
+      const [liveX, liveY] = hash2(col + salt, row - salt * 0.31);
+      if (liveX < 1 - density) continue;
+      const kind = Math.floor(liveY * 8);
+      const [bitX, bitY] = hash2(col + 11, row + salt);
+      circleGlyph(ctx, x, y, cell, kind, bitX, bitY, (0.72 + liveX * 0.28) * colGain);
+    }
+  }
+}
 
 function paintFallback(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d");
@@ -23,36 +129,12 @@ function paintFallback(canvas: HTMLCanvasElement) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = CODE_GROUND_FALLBACK;
   ctx.fillRect(0, 0, w, h);
-
-  const cell = 10.5;
-  for (let x = cell * 0.5; x < w; x += cell) {
-    const col = Math.floor(x / cell);
-    if (col % 8 === 7) continue;
-    for (let y = cell * 0.5; y < h; y += cell) {
-      const row = Math.floor(y / cell);
-      const n = Math.abs(Math.sin(col * 12.9898 + row * 78.233) * 43758.5453);
-      const live = n - Math.floor(n);
-      if (live < 0.42) continue;
-      const cx = (uvQuiet(x, y) * (0.28 + live * 0.72) + FLOOR) * 255;
-      const radius = (0.16 + live * 0.2) * cell;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgb(${cx}, ${cx}, ${cx})`;
-      ctx.fill();
-    }
-  }
-}
-
-function uvQuiet(x: number, y: number): number {
-  const nx = (x / CODE_GROUND_STAGE_W - 0.5);
-  const ny = (y / CODE_GROUND_STAGE_H - 0.5) * (1920 / 1080);
-  const d = Math.hypot(nx, ny);
-  const t = Math.min(1, Math.max(0, (d - 0.1) / 0.42));
-  return 0.38 + t * 0.62;
+  paintLattice(ctx, w, h, 18, 0.9, 8, 11);
+  paintLattice(ctx, w, h, 36, 0.38, 0, 41);
 }
 
 /**
- * Full-bleed B/W circle-glyph field. Returns a disposer.
+ * Full-bleed B/W circular neo-code field. Returns a disposer.
  * `pausedRef.current` freezes the field (reduced motion = still frame).
  */
 export function startCodeGround(
