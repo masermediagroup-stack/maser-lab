@@ -18,14 +18,15 @@ Requested look lock path `/workspace/dallas-meetup-tv/globe-look/LOOK.md` is not
 - Marks sit **on top of** the ground as DOM. The ground never samples through them. Do **not** fake that with a center vignette.
 
 ### Ground
-- Original **vgpu** silk/fold **moving gradient**. Dark black + charcoal/grey, sparse **white hint** on the brightest ridges. No chroma.
+- **WebGL2** silk/fold **moving gradient** on every load (including Vercel). Dark black + charcoal/grey, sparse **white hint** on the brightest ridges. No chroma.
 - Look-only reference: Unicorn embed `eFskEoMG10ENKSC2rBFp`. Remake from scratch. **Do not embed Unicorn. Do not copy the watermark.** No `unicornstudio-react`.
 - Large soft masses + dark crease folds. Visible autonomous drift (folds travel in a few seconds). No mouse-follow. No glyphs. No code lattice.
-- Reduced motion / pause = still frame.
+- Reduced motion / pause = still frame of the live shader (not a CSS black fill).
 - Full-bleed behind the lockup on the true 1920×1080 stage. GPU buffer pinned to **1920×1080** (dpr 1) so the canvas cannot overflow the frame. Opaque surface.
 - Demo preview letterboxes the whole 1920×1080 board with one uniform scale. Do not independently scale or stretch logos or type.
 - Ground must not compete with the Grok and Cursor faces. Skyline stays off.
-- WebGPU fail: live **WebGL2 silk shader** of the same field (CPU shader last). Never a static wash, Unicorn SDK, circle glyphs, or the old 4-blob wash.
+- Do **not** call vgpu `init()` on this canvas. A successful WebGPU context owns the canvas and can leave a static black field; WebGL2 then cannot start.
+- If WebGL2 cannot compile: live **CPU shader** of the same field. Never a static wash, Unicorn SDK, circle glyphs, or the old 4-blob wash.
 
 ### Loop (keep)
 Sequential 3-logo fade Grok → SpaceX → Cursor over `loopSeconds` (default **120s**). Fade-out then fade-in; at most one logo visible. Idle carousel only.

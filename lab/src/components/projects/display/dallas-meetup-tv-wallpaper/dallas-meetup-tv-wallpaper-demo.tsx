@@ -226,7 +226,7 @@ export function DallasMeetupTvWallpaperDemo() {
               Dallas meetup TV wallpaper
             </p>
             <p className="lab-type-caption mt-1 text-[var(--lab-text-secondary)]">
-              Idle wallpaper: live silk shader ground (WebGPU, WebGL2 fallback), three center SVG
+              Idle wallpaper: live WebGL2 silk shader ground, three center SVG
               logos fading one-at-a-time over {DEFAULT_LOOP_SECONDS}s (default), bottom-left
               Universal Sans TTF at true 1920×1080. Letterboxed; logos and type are never stretched.
             </p>

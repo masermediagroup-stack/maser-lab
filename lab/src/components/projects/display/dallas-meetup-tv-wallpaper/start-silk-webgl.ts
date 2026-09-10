@@ -154,7 +154,7 @@ export function startSilkWebgl(
     preserveDrawingBuffer: true,
     powerPreference: "high-performance",
   });
-  if (!gl) return null;
+  if (!gl || gl.isContextLost()) return null;
 
   const vert = compileShader(gl, gl.VERTEX_SHADER, SILK_VERT_GLSL);
   const frag = compileShader(gl, gl.FRAGMENT_SHADER, SILK_FRAG_GLSL);
@@ -220,8 +220,6 @@ export function startSilkWebgl(
     cancelAnimationFrame(raf);
     gl.deleteVertexArray(vao);
     gl.deleteProgram(program);
-    const lose = gl.getExtension("WEBGL_lose_context");
-    lose?.loseContext();
   };
 }
 
