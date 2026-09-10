@@ -1,4 +1,5 @@
 import { pinGradientCanvas, type GradientPausedRef } from "./moving-gradient-config";
+import { DEFAULT_SILK_LOOK, type SilkLookRef } from "./silk-look";
 import { startSilkCpu, startSilkWebgl } from "./start-silk-webgl";
 
 export {
@@ -20,7 +21,11 @@ export type { GradientPausedRef } from "./moving-gradient-config";
 export function startMovingGradient(
   canvas: HTMLCanvasElement,
   pausedRef: GradientPausedRef,
+  lookRef: SilkLookRef = { current: DEFAULT_SILK_LOOK },
 ): () => void {
   pinGradientCanvas(canvas);
-  return startSilkWebgl(canvas, pausedRef) ?? startSilkCpu(canvas, pausedRef);
+  return (
+    startSilkWebgl(canvas, pausedRef, lookRef) ??
+    startSilkCpu(canvas, pausedRef, lookRef)
+  );
 }

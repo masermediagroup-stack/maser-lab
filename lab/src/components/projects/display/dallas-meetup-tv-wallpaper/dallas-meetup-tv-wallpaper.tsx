@@ -26,6 +26,7 @@ import {
   logoOpacities,
   preloadLogoCarousel,
 } from "./logo-carousel";
+import { clampSilkLook, DEFAULT_SILK_LOOK, type SilkLook } from "./silk-look";
 import { startMovingGradient } from "./start-moving-gradient";
 import {
   DALLAS_DISPLAY_FONT_PX,
@@ -66,6 +67,8 @@ export type DallasMeetupWallpaperProps = {
   resetNonce?: number;
   headlineText?: string;
   upNextText?: string;
+  /** Live silk uniforms. Mutating fields must not remount the GL canvas. */
+  silkLook?: SilkLook;
   className?: string;
 };
 
@@ -158,11 +161,15 @@ export function DallasMeetupWallpaper({
   resetNonce = 0,
   headlineText = DALLAS_DEFAULT_HEADLINE,
   upNextText = DALLAS_DEFAULT_UP_NEXT,
+  silkLook,
   className,
 }: DallasMeetupWallpaperProps) {
   const stackRef = useRef<HTMLDivElement | null>(null);
   const groundCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const pausedRef = useRef(reducedMotion);
+  const lookRef = useRef<SilkLook>(
+    clampSilkLook(silkLook ?? DEFAULT_SILK_LOOK),
+  );
   const grokRef = useRef<HTMLImageElement | null>(null);
   const spacexRef = useRef<HTMLImageElement | null>(null);
   const cursorRef = useRef<HTMLImageElement | null>(null);
@@ -173,6 +180,10 @@ export function DallasMeetupWallpaper({
   useEffect(() => {
     pausedRef.current = reducedMotion || !playing;
   }, [playing, reducedMotion]);
+
+  useEffect(() => {
+    lookRef.current = clampSilkLook(silkLook ?? DEFAULT_SILK_LOOK);
+  }, [silkLook]);
 
   const paintMarks = useCallback(
     (time: number) => {
@@ -204,7 +215,7 @@ export function DallasMeetupWallpaper({
   useEffect(() => {
     const canvas = groundCanvasRef.current;
     if (!canvas) return;
-    return startMovingGradient(canvas, pausedRef);
+    return startMovingGradient(canvas, pausedRef, lookRef);
   }, []);
 
   useEffect(() => {

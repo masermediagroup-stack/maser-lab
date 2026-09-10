@@ -11,7 +11,7 @@ Quality + silk ground lock: `LOOK.md`. Look-only Unicorn reference `eFskEoMG10EN
 | Layer | Spec |
 | --- | --- |
 | Stage | **True 1920×1080.** Do not stretch the composition to fill a different aspect. Letterbox; never scale type below 1. |
-| Background | **WebGL2** silk/fold moving gradient. Dark black + grey, sparse white hint. Visible autonomous drift. Buffer pinned 1920×1080. Reduced motion / pause: still frame of the live shader. Never vgpu `init()` on this canvas (WebGPU can own it and leave it black). If GL cannot compile: live CPU shader. |
+| Background | **WebGL2** silk/fold moving gradient. Dark black + grey, sparse white hint. Visible autonomous drift. Buffer pinned 1920×1080. Reduced motion / pause: still frame of the live shader. Never vgpu `init()` on this canvas (WebGPU can own it and leave it black). If GL cannot compile: live CPU shader. Lab demo **Silk ground** sliders write live uniforms; do not remount GL. |
 | Center | **3-logo opacity carousel** as DOM SVG at Figma native sizes (Grok 814×153, SpaceX 900.886×110, Cursor 645×153) — vector at display size. Sequential fade-out then fade-in. Marks sit on top of the ground. Wall / laptop / desktop only. |
 | Text | Bottom-left **x=72, y=931**. Headline **48px / 400**, subline **36px / 300** — HTML Universal Sans, no transform scale. |
 | Loop | Default **120s** (2 min). Demo loop control unchanged. No whip/kick/settle beats. |

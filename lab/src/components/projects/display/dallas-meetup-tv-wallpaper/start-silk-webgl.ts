@@ -1,11 +1,11 @@
 import {
   GRADIENT_FALLBACK,
   GRADIENT_FLOOR,
-  GRADIENT_MOTION,
   GRADIENT_STAGE_H,
   GRADIENT_STAGE_W,
   type GradientPausedRef,
 } from "./moving-gradient-config";
+import { DEFAULT_SILK_LOOK, type SilkLookRef } from "./silk-look";
 
 export const SILK_VERT_GLSL = `#version 300 es
 const vec2 POS[3] = vec2[3](
@@ -30,12 +30,17 @@ precision highp float;
 
 in vec2 vUv;
 uniform float uTime;
+uniform vec2 uScale;
+uniform float uWarp;
+uniform float uGrey;
+uniform float uWhite;
+uniform float uRidge;
+uniform float uRotate;
+uniform float uDrift;
 out vec4 fragColor;
 
 const float ASPECT = 1920.0 / 1080.0;
 const float FLOOR = 0.039216;
-const float GREY = 0.48;
-const float WHITE_HINT = 0.82;
 
 vec3 permute(vec3 x) {
   return mod(((x * 34.0) + 1.0) * x, 289.0);
@@ -84,14 +89,14 @@ float fbm(vec2 p) {
   return sum;
 }
 
-vec2 warp(vec2 p, float t) {
+vec2 warp(vec2 p, float t, float amount) {
   vec2 q = vec2(
     fbm(p + vec2(0.0, t * 0.18)),
     fbm(p + vec2(37.2, 11.7) - vec2(t * 0.14, 0.0))
   );
   return vec2(
-    fbm(p + 2.15 * q + vec2(1.7, 9.2) + vec2(t * 0.1, t * 0.07)),
-    fbm(p + 2.15 * q + vec2(19.4, -42.1) - vec2(0.0, t * 0.11))
+    fbm(p + amount * q + vec2(1.7, 9.2) + vec2(t * 0.1, t * 0.07)),
+    fbm(p + amount * q + vec2(19.4, -42.1) - vec2(0.0, t * 0.11))
   );
 }
 
@@ -101,7 +106,7 @@ float remap(float a, float b, float c, float d, float x) {
 
 void main() {
   float t = uTime - 48.0 * floor(uTime / 48.0);
-  float ang = t * 0.045;
+  float ang = t * uRotate;
   float cs = cos(ang);
   float sn = sin(ang);
   vec2 centered = (vUv - vec2(0.5)) * vec2(ASPECT, 1.0);
@@ -109,17 +114,17 @@ void main() {
     centered.x * cs - centered.y * sn,
     centered.x * sn + centered.y * cs
   );
-  vec2 p = rotated * vec2(0.58, 0.46) + vec2(t * 0.09, t * -0.06);
+  vec2 p = rotated * uScale + vec2(t * uDrift, t * -uDrift * (0.06 / 0.09));
 
-  vec2 r = warp(p, t);
-  float field = fbm(p + 2.15 * r);
+  vec2 r = warp(p, t, uWarp);
+  float field = fbm(p + uWarp * r);
   float n = clamp(remap(-0.55, 0.55, 0.0, 1.0, field), 0.0, 1.0);
   float crease = pow(smoothstep(0.08, 0.62, length(r)), 1.15);
 
-  float g = mix(FLOOR, GREY, n);
+  float g = mix(FLOOR, uGrey, n);
   g = mix(g, FLOOR * 0.5, crease * 0.88);
   float ridge = smoothstep(0.58, 0.94, n) * (1.0 - crease);
-  g = mix(g, WHITE_HINT, ridge * 0.42);
+  g = mix(g, uWhite, ridge * uRidge);
   g = clamp(g, FLOOR * 0.45, 0.92);
 
   fragColor = vec4(vec3(g), 1.0);
@@ -144,6 +149,7 @@ function compileShader(gl: WebGL2RenderingContext, type: number, src: string) {
 export function startSilkWebgl(
   canvas: HTMLCanvasElement,
   pausedRef: GradientPausedRef,
+  lookRef: SilkLookRef = { current: DEFAULT_SILK_LOOK },
 ): (() => void) | null {
   const gl = canvas.getContext("webgl2", {
     alpha: false,
@@ -177,6 +183,13 @@ export function startSilkWebgl(
   }
 
   const uTime = gl.getUniformLocation(program, "uTime");
+  const uScale = gl.getUniformLocation(program, "uScale");
+  const uWarp = gl.getUniformLocation(program, "uWarp");
+  const uGrey = gl.getUniformLocation(program, "uGrey");
+  const uWhite = gl.getUniformLocation(program, "uWhite");
+  const uRidge = gl.getUniformLocation(program, "uRidge");
+  const uRotate = gl.getUniformLocation(program, "uRotate");
+  const uDrift = gl.getUniformLocation(program, "uDrift");
   const vao = gl.createVertexArray();
   if (!vao) {
     gl.deleteProgram(program);
@@ -204,11 +217,19 @@ export function startSilkWebgl(
     if (!alive) return;
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (!pausedRef.current) hold += dt * GRADIENT_MOTION;
+    const look = lookRef.current;
+    if (!pausedRef.current) hold += dt * look.speed;
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.useProgram(program);
     gl.bindVertexArray(vao);
     gl.uniform1f(uTime, hold);
+    gl.uniform2f(uScale, 0.58 * look.scale, 0.46 * look.scale);
+    gl.uniform1f(uWarp, look.warp);
+    gl.uniform1f(uGrey, look.grey);
+    gl.uniform1f(uWhite, look.white);
+    gl.uniform1f(uRidge, look.ridge);
+    gl.uniform1f(uRotate, look.rotate);
+    gl.uniform1f(uDrift, look.drift);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     raf = requestAnimationFrame(tick);
   };
@@ -261,6 +282,7 @@ function fbmCpu(x: number, y: number): number {
 export function startSilkCpu(
   canvas: HTMLCanvasElement,
   pausedRef: GradientPausedRef,
+  lookRef: SilkLookRef = { current: DEFAULT_SILK_LOOK },
 ): () => void {
   const w = 160;
   const h = 90;
@@ -290,11 +312,13 @@ export function startSilkCpu(
     if (!alive) return;
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (!pausedRef.current) hold += dt * GRADIENT_MOTION;
+    const look = lookRef.current;
+    if (!pausedRef.current) hold += dt * look.speed;
     const t = hold - 48 * Math.floor(hold / 48);
-    const ang = t * 0.045;
+    const ang = t * look.rotate;
     const cs = Math.cos(ang);
     const sn = Math.sin(ang);
+    const warpAmt = look.warp * (4 / 2.15);
 
     for (let y = 0; y < h; y += 1) {
       const v = (y + 0.5) / h;
@@ -304,23 +328,23 @@ export function startSilkCpu(
         const cy = v - 0.5;
         const rx = cx * cs - cy * sn;
         const ry = cx * sn + cy * cs;
-        const px = rx * 1.28 * 1.55 + t * 0.16;
-        const py = ry * 1.55 + t * -0.11;
+        const px = rx * 1.28 * 1.55 * look.scale + t * look.drift;
+        const py = ry * 1.55 * look.scale + t * -look.drift * (0.06 / 0.09);
         const qx = fbmCpu(px, py + t * 0.32);
         const qy = fbmCpu(px + 37.2 - t * 0.26, py + 11.7);
-        const r0 = fbmCpu(px + 4 * qx + 1.7 + t * 0.18, py + 4 * qy + 9.2 + t * 0.12);
-        const r1 = fbmCpu(px + 4 * qx + 19.4, py + 4 * qy - 42.1 - t * 0.2);
-        const field = fbmCpu(px + 4 * r0, py + 4 * r1);
+        const r0 = fbmCpu(px + warpAmt * qx + 1.7 + t * 0.18, py + warpAmt * qy + 9.2 + t * 0.12);
+        const r1 = fbmCpu(px + warpAmt * qx + 19.4, py + warpAmt * qy - 42.1 - t * 0.2);
+        const field = fbmCpu(px + warpAmt * r0, py + warpAmt * r1);
         let n = (field + 0.62) / 1.24;
         n = Math.min(1, Math.max(0, n));
         const crease = Math.pow(
           Math.min(1, Math.max(0, (Math.hypot(r0, r1) - 0.12) / 0.6)),
           1.4,
         );
-        let g = floor + (0.56 - floor) * n;
+        let g = floor + (look.grey - floor) * n;
         g = g + (floor * 0.5 - g) * crease * 0.88;
         const ridge = Math.min(1, Math.max(0, (n - 0.58) / 0.36)) * (1 - crease);
-        g = g + (0.9 - g) * ridge * 0.42;
+        g = g + (look.white - g) * ridge * look.ridge;
         g = Math.min(0.92, Math.max(floor * 0.45, g));
         const byte = Math.round(g * 255);
         const i = (y * w + x) * 4;

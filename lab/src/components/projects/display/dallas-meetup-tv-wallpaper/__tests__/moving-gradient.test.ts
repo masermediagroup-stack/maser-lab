@@ -11,6 +11,10 @@ const wallpaperSrc = readFileSync(
   join(here, "../dallas-meetup-tv-wallpaper.tsx"),
   "utf8",
 );
+const demoSrc = readFileSync(
+  join(here, "../dallas-meetup-tv-wallpaper-demo.tsx"),
+  "utf8",
+);
 const tokensSrc = readFileSync(join(here, "../tokens.css"), "utf8");
 
 describe("WebGL2 silk moving gradient", () => {
@@ -18,8 +22,12 @@ describe("WebGL2 silk moving gradient", () => {
     expect(webglSrc).toContain("vec2 warp(");
     expect(webglSrc).toContain("float fbm(");
     expect(webglSrc).toContain("uTime");
+    expect(webglSrc).toContain("uScale");
+    expect(webglSrc).toContain("uWarp");
+    expect(webglSrc).toContain("uGrey");
+    expect(webglSrc).toContain("uWhite");
+    expect(webglSrc).toContain("uRidge");
     expect(webglSrc).toContain("snoise");
-    expect(webglSrc).toContain("WHITE_HINT");
     expect(webglSrc).not.toMatch(/blue|0\.062745|0\.643137|#1084FE/i);
     expect(webglSrc).not.toContain("circleGlyph");
     expect(webglSrc).not.toMatch(/Unicorn/i);
@@ -27,8 +35,10 @@ describe("WebGL2 silk moving gradient", () => {
     expect(startSrc).not.toContain("await init");
     expect(startSrc).toContain("startSilkWebgl");
     expect(startSrc).toContain("startSilkCpu");
-    expect(startSrc).toContain("GRADIENT_MOTION");
+    expect(startSrc).toContain("lookRef");
     expect(wallpaperSrc).toContain("startMovingGradient");
+    expect(wallpaperSrc).toContain("lookRef");
+    expect(wallpaperSrc).toMatch(/useEffect\(\(\) => \{[\s\S]*startMovingGradient[\s\S]*\}, \[\]\)/);
     expect(wallpaperSrc).not.toContain("unicornstudio");
     expect(wallpaperSrc).not.toContain("UnicornGround");
     expect(wallpaperSrc).not.toContain("startCodeGround");
@@ -50,7 +60,9 @@ describe("WebGL2 silk moving gradient", () => {
 
   it("starts WebGL2 immediately and never uses a static wash", () => {
     expect(startSrc).toContain("pausedRef.current");
-    expect(startSrc).toMatch(/startSilkWebgl\(canvas, pausedRef\) \?\? startSilkCpu/);
+    expect(startSrc).toMatch(
+      /startSilkWebgl\(canvas, pausedRef, lookRef\) \?\?[\s\S]*startSilkCpu\(canvas, pausedRef, lookRef\)/,
+    );
     expect(startSrc).not.toContain("createRadialGradient");
     expect(startSrc).not.toContain("paintFallback");
     expect(startSrc).not.toContain("init(");
@@ -63,5 +75,15 @@ describe("WebGL2 silk moving gradient", () => {
     expect(webglSrc).not.toMatch(/hexagon|squareGlyph|triangleGlyph|diamond|circleGlyph/i);
     expect(webglSrc).not.toMatch(/watermark|pointer|uMouse/i);
     expect(startSrc).not.toMatch(/Unicorn/i);
+  });
+
+  it("exposes live silk knobs in demo settings without remounting GL", () => {
+    expect(demoSrc).toContain('label="Silk ground"');
+    expect(demoSrc).toContain("dallas-silk-speed");
+    expect(demoSrc).toContain("silkLook={silkLook}");
+    expect(demoSrc).toContain("Reset silk");
+    expect(wallpaperSrc).toContain(
+      "return startMovingGradient(canvas, pausedRef, lookRef);\n  }, []);",
+    );
   });
 });

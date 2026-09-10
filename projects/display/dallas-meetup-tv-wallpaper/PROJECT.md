@@ -68,6 +68,7 @@ Both canvas lines use Universal Sans (different weights). Plex only on lab demo 
 - [x] presentation fullscreen
 - [x] export capture
 - [x] loop duration 30–120s (default 120s)
+- [x] silk ground knobs in demo settings (live uniforms, no GL remount)
 
 ## Motion decisions
 

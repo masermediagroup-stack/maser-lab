@@ -22,6 +22,11 @@ import {
   LOOP_DURATION_OPTIONS,
   LOOP_MAX_SECONDS,
 } from "./globe-motion";
+import {
+  DEFAULT_SILK_LOOK,
+  SILK_LOOK_RANGES,
+  type SilkLook,
+} from "./silk-look";
 import { containScale } from "./fit-stage";
 import { runDallasTypeLock } from "./type-lock";
 import "./tokens.css";
@@ -51,6 +56,11 @@ export function DallasMeetupTvWallpaperDemo() {
   const [exportNote, setExportNote] = useState<string>("");
   const [headlineText, setHeadlineText] = useState(DALLAS_DEFAULT_HEADLINE);
   const [upNextText, setUpNextText] = useState(DALLAS_DEFAULT_UP_NEXT);
+  const [silkLook, setSilkLook] = useState<SilkLook>(DEFAULT_SILK_LOOK);
+
+  const patchSilk = (partial: Partial<SilkLook>) => {
+    setSilkLook((prev) => ({ ...prev, ...partial }));
+  };
 
   const frameStep = 1 / FPS;
 
@@ -204,6 +214,7 @@ export function DallasMeetupTvWallpaperDemo() {
             resetNonce={resetNonce}
             headlineText={headlineText}
             upNextText={upNextText}
+            silkLook={silkLook}
           />
         </div>
       </section>
@@ -231,6 +242,102 @@ export function DallasMeetupTvWallpaperDemo() {
               Universal Sans TTF at true 1920×1080. Letterboxed; logos and type are never stretched.
             </p>
           </div>
+
+          <LabControlGroup label="Silk ground">
+            <LabRange
+              id="dallas-silk-speed"
+              label="Speed"
+              min={SILK_LOOK_RANGES.speed.min}
+              max={SILK_LOOK_RANGES.speed.max}
+              step={SILK_LOOK_RANGES.speed.step}
+              value={silkLook.speed}
+              display={`${silkLook.speed.toFixed(2)}×`}
+              onChange={(speed) => patchSilk({ speed })}
+            />
+            <LabRange
+              id="dallas-silk-scale"
+              label="Fold scale"
+              min={SILK_LOOK_RANGES.scale.min}
+              max={SILK_LOOK_RANGES.scale.max}
+              step={SILK_LOOK_RANGES.scale.step}
+              value={silkLook.scale}
+              display={`${silkLook.scale.toFixed(2)}×`}
+              onChange={(scale) => patchSilk({ scale })}
+            />
+            <LabRange
+              id="dallas-silk-warp"
+              label="Warp"
+              min={SILK_LOOK_RANGES.warp.min}
+              max={SILK_LOOK_RANGES.warp.max}
+              step={SILK_LOOK_RANGES.warp.step}
+              value={silkLook.warp}
+              display={silkLook.warp.toFixed(2)}
+              onChange={(warp) => patchSilk({ warp })}
+            />
+            <LabRange
+              id="dallas-silk-grey"
+              label="Grey"
+              min={SILK_LOOK_RANGES.grey.min}
+              max={SILK_LOOK_RANGES.grey.max}
+              step={SILK_LOOK_RANGES.grey.step}
+              value={silkLook.grey}
+              display={silkLook.grey.toFixed(2)}
+              onChange={(grey) => patchSilk({ grey })}
+            />
+            <LabRange
+              id="dallas-silk-white"
+              label="White ridge"
+              min={SILK_LOOK_RANGES.white.min}
+              max={SILK_LOOK_RANGES.white.max}
+              step={SILK_LOOK_RANGES.white.step}
+              value={silkLook.white}
+              display={silkLook.white.toFixed(2)}
+              onChange={(white) => patchSilk({ white })}
+            />
+            <LabRange
+              id="dallas-silk-ridge"
+              label="Ridge mix"
+              min={SILK_LOOK_RANGES.ridge.min}
+              max={SILK_LOOK_RANGES.ridge.max}
+              step={SILK_LOOK_RANGES.ridge.step}
+              value={silkLook.ridge}
+              display={silkLook.ridge.toFixed(2)}
+              onChange={(ridge) => patchSilk({ ridge })}
+            />
+            <LabRange
+              id="dallas-silk-rotate"
+              label="Rotate"
+              min={SILK_LOOK_RANGES.rotate.min}
+              max={SILK_LOOK_RANGES.rotate.max}
+              step={SILK_LOOK_RANGES.rotate.step}
+              value={silkLook.rotate}
+              display={silkLook.rotate.toFixed(3)}
+              onChange={(rotate) => patchSilk({ rotate })}
+            />
+            <LabRange
+              id="dallas-silk-drift"
+              label="Drift"
+              min={SILK_LOOK_RANGES.drift.min}
+              max={SILK_LOOK_RANGES.drift.max}
+              step={SILK_LOOK_RANGES.drift.step}
+              value={silkLook.drift}
+              display={silkLook.drift.toFixed(3)}
+              onChange={(drift) => patchSilk({ drift })}
+            />
+            <div className="flex flex-wrap gap-1.5">
+              <LabButton
+                type="button"
+                variant="outline"
+                onClick={() => setSilkLook(DEFAULT_SILK_LOOK)}
+              >
+                Reset silk
+              </LabButton>
+            </div>
+            <p className="lab-type-caption text-[var(--lab-text-muted)]">
+              Live uniforms on the WebGL2 field. Opening this dock or moving a
+              slider does not remount the canvas.
+            </p>
+          </LabControlGroup>
 
           <LabControlGroup label="On-screen copy">
             <div className="lab-chrome-control flex min-w-0 flex-col gap-1">
