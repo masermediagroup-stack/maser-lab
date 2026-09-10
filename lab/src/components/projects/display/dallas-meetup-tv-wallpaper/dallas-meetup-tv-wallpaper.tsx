@@ -255,6 +255,8 @@ export function DallasMeetupWallpaper({
         <UnicornGround paused={reducedMotion} />
       </div>
       <div className="dallas-wallpaper-stack__lockup">
+        {/* Native <img> keeps SVG 1:1 at display size; next/image can resample. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={grokRef}
           className="dallas-wallpaper-mark dallas-wallpaper-mark--grok"
@@ -270,6 +272,7 @@ export function DallasMeetupWallpaper({
             height: grokRect.h,
           }}
         />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={spacexRef}
           className="dallas-wallpaper-mark dallas-wallpaper-mark--spacex"
@@ -285,6 +288,7 @@ export function DallasMeetupWallpaper({
             height: spacexRect.h,
           }}
         />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={cursorRef}
           className="dallas-wallpaper-mark dallas-wallpaper-mark--cursor"
