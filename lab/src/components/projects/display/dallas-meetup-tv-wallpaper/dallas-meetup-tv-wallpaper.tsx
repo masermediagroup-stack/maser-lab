@@ -170,7 +170,9 @@ export function DallasMeetupWallpaper({
   const startRef = useRef<number | null>(null);
   const pausedAtRef = useRef(0);
 
-  pausedRef.current = reducedMotion;
+  useEffect(() => {
+    pausedRef.current = reducedMotion;
+  }, [reducedMotion]);
 
   const paintMarks = useCallback(
     (time: number) => {
