@@ -267,7 +267,7 @@ export function DallasMeetupWallpaper({
         />
       </div>
       <div className="dallas-wallpaper-stack__lockup">
-        {/* Native <img> keeps SVG 1:1 at display size; next/image can resample. */}
+        {/* Native <img> keeps SVG 1:1 at Figma px. Do not route lockups through Image. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={grokRef}

@@ -1,79 +1,54 @@
 import type { FrameLoopHandle, Gpu } from "vgpu";
 import { clock, effect, frameLoop, init, surface } from "vgpu";
+import {
+  GRADIENT_DPR,
+  GRADIENT_FLOOR,
+  GRADIENT_MOTION,
+  GRADIENT_STAGE_H,
+  GRADIENT_STAGE_W,
+  pinGradientCanvas,
+  type GradientPausedRef,
+} from "./moving-gradient-config";
 import movingGradientShader from "./moving-gradient.wgsl";
+import { startSilkCpu, startSilkWebgl } from "./start-silk-webgl";
 
-export const GRADIENT_STAGE_W = 1920;
-export const GRADIENT_STAGE_H = 1080;
-export const GRADIENT_DPR: readonly [number, number] = [1.5, 2];
-export const GRADIENT_FALLBACK = "#060606";
-/** Ambient TV drift — folds travel in a few seconds, not a splash. */
-export const GRADIENT_MOTION = 1.15;
+export {
+  GRADIENT_DPR,
+  GRADIENT_FALLBACK,
+  GRADIENT_MOTION,
+  GRADIENT_STAGE_H,
+  GRADIENT_STAGE_W,
+  pinGradientCanvas,
+} from "./moving-gradient-config";
+export type { GradientPausedRef } from "./moving-gradient-config";
 
-const FLOOR = 10 / 255;
-
-export type GradientPausedRef = { current: boolean };
-
-function paintFallback(canvas: HTMLCanvasElement) {
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-  const w = GRADIENT_STAGE_W;
-  const h = GRADIENT_STAGE_H;
-  canvas.width = w;
-  canvas.height = h;
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.fillStyle = GRADIENT_FALLBACK;
-  ctx.fillRect(0, 0, w, h);
-
-  const blob = (
-    x: number,
-    y: number,
-    radius: number,
-    tone: number,
-    alpha: number,
-  ) => {
-    const wash = ctx.createRadialGradient(x, y, 0, x, y, radius);
-    wash.addColorStop(0, `rgba(${tone}, ${tone}, ${tone}, ${alpha})`);
-    wash.addColorStop(1, "rgba(6, 6, 6, 0)");
-    ctx.fillStyle = wash;
-    ctx.fillRect(0, 0, w, h);
-  };
-
-  blob(w * 0.28, h * 0.3, w * 0.58, 118, 0.88);
-  blob(w * 0.74, h * 0.62, w * 0.64, 96, 0.82);
-  blob(w * 0.5, h * 0.82, w * 0.42, 168, 0.34);
-  blob(w * 0.18, h * 0.72, w * 0.34, 72, 0.7);
-
-  ctx.strokeStyle = "rgba(8, 8, 8, 0.72)";
-  ctx.lineCap = "round";
-  ctx.lineWidth = 120;
-  ctx.beginPath();
-  ctx.moveTo(w * -0.05, h * 0.18);
-  ctx.quadraticCurveTo(w * 0.38, h * 0.42, w * 0.72, h * 0.08);
-  ctx.stroke();
-  ctx.lineWidth = 88;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.12, h * 1.05);
-  ctx.quadraticCurveTo(w * 0.58, h * 0.62, w * 1.08, h * 0.78);
-  ctx.stroke();
+function startMovingFallback(
+  canvas: HTMLCanvasElement,
+  pausedRef: GradientPausedRef,
+): () => void {
+  return startSilkWebgl(canvas, pausedRef) ?? startSilkCpu(canvas, pausedRef);
 }
 
 /**
  * Full-bleed silk/fold moving gradient. Returns a disposer.
+ * Prefers vgpu WebGPU, then a WebGL2 shader of the same field, then a CPU shader.
  * `pausedRef.current` freezes the field (reduced motion / pause = still frame).
  */
 export function startMovingGradient(
   canvas: HTMLCanvasElement,
   pausedRef: GradientPausedRef,
 ): () => void {
+  pinGradientCanvas(canvas);
   let disposed = false;
   let loop: FrameLoopHandle | undefined;
   let gpu: Gpu | undefined;
+  let stopFallback: (() => void) | undefined;
 
   void (async () => {
     try {
       gpu = await init();
     } catch {
-      if (!disposed) paintFallback(canvas);
+      if (!disposed) stopFallback = startMovingFallback(canvas, pausedRef);
       return;
     }
     if (disposed) {
@@ -82,9 +57,11 @@ export function startMovingGradient(
     }
 
     const canvasSurface = surface(gpu, canvas, {
+      autoResize: false,
+      size: [GRADIENT_STAGE_W, GRADIENT_STAGE_H],
       dpr: GRADIENT_DPR,
       alphaMode: "opaque",
-      clearColor: [FLOOR, FLOOR, FLOOR, 1],
+      clearColor: [GRADIENT_FLOOR, GRADIENT_FLOOR, GRADIENT_FLOOR, 1],
       label: "dallas-moving-gradient",
     });
 
@@ -97,7 +74,8 @@ export function startMovingGradient(
       await field.compile(canvasSurface);
     } catch {
       gpu.dispose();
-      if (!disposed) paintFallback(canvas);
+      gpu = undefined;
+      if (!disposed) stopFallback = startMovingFallback(canvas, pausedRef);
       return;
     }
     if (disposed) {
@@ -105,6 +83,7 @@ export function startMovingGradient(
       return;
     }
 
+    canvas.dataset.dallasGround = "webgpu";
     const time = clock(gpu);
     let hold = 0;
     loop = frameLoop(gpu, (frame) => {
@@ -119,5 +98,6 @@ export function startMovingGradient(
     disposed = true;
     loop?.stop();
     gpu?.dispose();
+    stopFallback?.();
   };
 }

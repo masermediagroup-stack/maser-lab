@@ -11,9 +11,9 @@ Requested look lock path `/workspace/dallas-meetup-tv/globe-look/LOOK.md` is not
 - Viewing: wall TV + laptop/desktop only. Not mobile.
 
 ### Marks + type
-- Cursor cube and Grok mark: **vector/SVG path or 1:1 raster at display size**.
+- Cursor cube and Grok mark: **pure SVG** (`preserveAspectRatio="xMidYMid meet"`) at Figma native px. No PNG lockups. No CSS stretch.
 - No downscale then upscale. No CSS blur. No soft shadow that eats edges.
-- Type: Universal Sans, crisp. Hinting and measure stay. No transform that scales the type below 1.
+- Type: Universal Sans **TTF** (`font-display: block`). Headline 48/400, subline 36/300 in the 1920×1080 frame. No independent type scale. Letterbox may uniformly scale the whole board to fit a laptop viewport.
 - Headline **48px / 400**, subline **36px / 300**, x=72, y=931, white.
 - Marks sit **on top of** the ground as DOM. The ground never samples through them. Do **not** fake that with a center vignette.
 
@@ -22,9 +22,10 @@ Requested look lock path `/workspace/dallas-meetup-tv/globe-look/LOOK.md` is not
 - Look-only reference: Unicorn embed `eFskEoMG10ENKSC2rBFp`. Remake from scratch. **Do not embed Unicorn. Do not copy the watermark.** No `unicornstudio-react`.
 - Large soft masses + dark crease folds. Visible autonomous drift (folds travel in a few seconds). No mouse-follow. No glyphs. No code lattice.
 - Reduced motion / pause = still frame.
-- Full-bleed behind the lockup on the true 1920×1080 stage. dpr clamp **1.5–2**. Opaque surface.
+- Full-bleed behind the lockup on the true 1920×1080 stage. GPU buffer pinned to **1920×1080** (dpr 1) so the canvas cannot overflow the frame. Opaque surface.
+- Demo preview letterboxes the whole 1920×1080 board with one uniform scale. Do not independently scale or stretch logos or type.
 - Ground must not compete with the Grok and Cursor faces. Skyline stays off.
-- WebGPU fail: static Canvas2D silk wash on `#060606`, not Unicorn, not circle glyphs, not the old 4-blob wash.
+- WebGPU fail: live **WebGL2 silk shader** of the same field (CPU shader last). Never a static wash, Unicorn SDK, circle glyphs, or the old 4-blob wash.
 
 ### Loop (keep)
 Sequential 3-logo fade Grok → SpaceX → Cursor over `loopSeconds` (default **120s**). Fade-out then fade-in; at most one logo visible. Idle carousel only.

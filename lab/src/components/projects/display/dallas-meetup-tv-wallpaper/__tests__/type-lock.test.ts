@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   DALLAS_DISPLAY_FONT_PX,
@@ -25,6 +28,17 @@ describe("dallas type lock math", () => {
   it("caps demo Plex at 40% of display", () => {
     expect(plexMaxPx(48)).toBeCloseTo(19.2);
     expect(plexMaxPx(displayRenderedPx(960))).toBeCloseTo(9.6);
+  });
+
+  it("loads Universal Sans from local TTF files", () => {
+    const tokens = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../tokens.css"),
+      "utf8",
+    );
+    expect(tokens).toContain("UniversalSansGrokTest-Display-400-Trial.ttf");
+    expect(tokens).toContain("UniversalSansGrokTest-Display-300-Trial.ttf");
+    expect(tokens).toContain('format("truetype")');
+    expect(tokens).not.toMatch(/woff2|format\("woff/i);
   });
 
   it("never offers a grow-display helper", () => {

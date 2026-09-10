@@ -22,6 +22,7 @@ import {
   LOOP_DURATION_OPTIONS,
   LOOP_MAX_SECONDS,
 } from "./globe-motion";
+import { containScale } from "./fit-stage";
 import { runDallasTypeLock } from "./type-lock";
 import "./tokens.css";
 
@@ -66,6 +67,21 @@ export function DallasMeetupTvWallpaperDemo() {
     sync();
     return () => document.removeEventListener("fullscreenchange", sync);
   }, []);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const fit = () => {
+      stage.style.setProperty(
+        "--dallas-fit-scale",
+        String(containScale(stage.clientWidth, stage.clientHeight)),
+      );
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, [isPresentation]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -178,17 +194,18 @@ export function DallasMeetupTvWallpaperDemo() {
         className="lab-demo-field dallas-demo__stage"
         aria-label="Dallas meetup TV wallpaper"
       >
-        <DallasMeetupWallpaper
-          className="dallas-demo__wallpaper"
-          reducedMotion={reducedMotion}
-          playing={playing}
-          timeSeconds={controlledTime}
-          onFrameTime={handleFrameTime}
-          loopSeconds={loopSeconds}
-          resetNonce={resetNonce}
-          headlineText={headlineText}
-          upNextText={upNextText}
-        />
+        <div className="dallas-demo__fit">
+          <DallasMeetupWallpaper
+            reducedMotion={reducedMotion}
+            playing={playing}
+            timeSeconds={controlledTime}
+            onFrameTime={handleFrameTime}
+            loopSeconds={loopSeconds}
+            resetNonce={resetNonce}
+            headlineText={headlineText}
+            upNextText={upNextText}
+          />
+        </div>
       </section>
 
       {!isPresentation ? (
@@ -209,9 +226,9 @@ export function DallasMeetupTvWallpaperDemo() {
               Dallas meetup TV wallpaper
             </p>
             <p className="lab-type-caption mt-1 text-[var(--lab-text-secondary)]">
-              Idle wallpaper: dark silk vgpu moving-gradient ground, three center logos fading
-              one-at-a-time over {DEFAULT_LOOP_SECONDS}s (default), bottom-left Universal Sans copy
-              at true 1920×1080. Geist is out of the product surface.
+              Idle wallpaper: live silk shader ground (WebGPU, WebGL2 fallback), three center SVG
+              logos fading one-at-a-time over {DEFAULT_LOOP_SECONDS}s (default), bottom-left
+              Universal Sans TTF at true 1920×1080. Letterboxed; logos and type are never stretched.
             </p>
           </div>
 
@@ -310,7 +327,7 @@ export function DallasMeetupTvWallpaperDemo() {
             />
             <p className="lab-type-caption text-[var(--lab-text-muted)]">
               Default {DEFAULT_LOOP_SECONDS}s. Logo carousel shares this loop (up to{" "}
-              {LOOP_MAX_SECONDS}s). Code ground runs quietly unless reduced motion.
+              {LOOP_MAX_SECONDS}s). Silk shader drifts unless reduced motion.
             </p>
           </LabControlGroup>
 

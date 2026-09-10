@@ -23,9 +23,9 @@ Hold a calm branded presence for long dwell viewing without reading like an ad.
 vgpu **silk/fold moving gradient** (dark black + grey, sparse white hint) at true **1920×1080**. Center **3-logo carousel** (Grok Bot → SpaceX → Cursor) as crisp SVG, fading one-at-a-time over a **120s** loop. Bottom-left white Universal Sans headline + subline (lab-editable). Reduced motion: still silk field + first logo + static text.
 
 ### Success signal
-- vgpu silk moving gradient fills the 1920×1080 stage behind the lockup (dpr 1.5–2); folds visibly drift while playing.
-- Three logos fade in/out at center without whip/spin/morph; SVG marks stay sharp (no CSS stretch).
-- Text anchored bottom-left per Figma `11:97` as HTML Universal Sans (no scale below 1).
+- Silk moving-gradient shader fills the 1920×1080 stage behind the lockup (WebGPU primary, WebGL2 fallback); folds visibly drift while playing.
+- Three logos fade in/out at center without whip/spin/morph; pure SVG marks at native px (no stretch).
+- Text anchored bottom-left per Figma `11:97` as HTML Universal Sans TTF in the 1920×1080 frame.
 - Same demo route `/demos/dallas-meetup-tv-wallpaper` with headline/up-next inputs preserved.
 - Reduced motion / pause freezes the silk field plus Grok logo + static text.
 - No Unicorn SDK, no watermark layer.
@@ -86,6 +86,6 @@ Both canvas lines use Universal Sans (different weights). Plex only on lab demo 
 - [ ] Headline/up-next editable in lab demo
 - [ ] Reduced motion / pause: still vgpu silk field, Grok logo, static text
 - [ ] Universal Sans 400 + 300; Geist out of product surface
-- [ ] Stage CSS is 1920×1080 (no stretch); marks are SVG at native px
-- [ ] Ground is vgpu silk moving gradient — visible motion when playing; no Unicorn SDK; WebGPU fail is static silk wash
+- [ ] Stage CSS is 1920×1080 (no stretch); marks are SVG at native px; type is Universal Sans TTF
+- [ ] Ground is a live silk shader — visible motion when playing; no Unicorn SDK; WebGPU fail still moves via WebGL2
 - [ ] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`

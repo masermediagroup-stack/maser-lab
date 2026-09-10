@@ -19,6 +19,18 @@ describe("idle wallpaper logo assets", () => {
     expect(existsSync(join(publicDir, "cursor-lockup-horizontal.svg"))).toBe(true);
   });
 
+  it("keeps SVG aspect so lockups never stretch", () => {
+    for (const name of [
+      "grok-bot-lockup.svg",
+      "spacexai-wordmark-light.svg",
+      "cursor-lockup-horizontal.svg",
+    ]) {
+      const svg = readFileSync(join(publicDir, name), "utf8");
+      expect(svg).toContain('preserveAspectRatio="xMidYMid meet"');
+      expect(svg).not.toContain('preserveAspectRatio="none"');
+    }
+  });
+
   it("wires carousel sources in code", () => {
     expect(GROK_LOCKUP_SRC).toContain("grok-bot-lockup.svg");
     expect(SPACEX_LOCKUP_SRC).toContain("spacexai-wordmark-light.svg");
@@ -26,5 +38,7 @@ describe("idle wallpaper logo assets", () => {
     expect(wallpaperSrc).toContain("preloadLogoCarousel");
     expect(wallpaperSrc).toContain("GROK_LOCKUP_SRC");
     expect(wallpaperSrc).toContain("CURSOR_LOCKUP_SRC");
+    expect(wallpaperSrc).toContain("<img");
+    expect(wallpaperSrc).not.toMatch(/from ["']next\/image["']/);
   });
 });
