@@ -7,7 +7,7 @@ export const GRADIENT_STAGE_H = 1080;
 export const GRADIENT_DPR: readonly [number, number] = [1.5, 2];
 export const GRADIENT_FALLBACK = "#060606";
 /** Ambient TV drift — folds travel in a few seconds, not a splash. */
-export const GRADIENT_MOTION = 0.55;
+export const GRADIENT_MOTION = 1.15;
 
 const FLOOR = 10 / 255;
 
@@ -38,10 +38,10 @@ function paintFallback(canvas: HTMLCanvasElement) {
     ctx.fillRect(0, 0, w, h);
   };
 
-  blob(w * 0.28, h * 0.3, w * 0.58, 92, 0.82);
-  blob(w * 0.74, h * 0.62, w * 0.64, 72, 0.78);
-  blob(w * 0.5, h * 0.82, w * 0.42, 118, 0.28);
-  blob(w * 0.18, h * 0.72, w * 0.34, 54, 0.7);
+  blob(w * 0.28, h * 0.3, w * 0.58, 118, 0.88);
+  blob(w * 0.74, h * 0.62, w * 0.64, 96, 0.82);
+  blob(w * 0.5, h * 0.82, w * 0.42, 168, 0.34);
+  blob(w * 0.18, h * 0.72, w * 0.34, 72, 0.7);
 
   ctx.strokeStyle = "rgba(8, 8, 8, 0.72)";
   ctx.lineCap = "round";
