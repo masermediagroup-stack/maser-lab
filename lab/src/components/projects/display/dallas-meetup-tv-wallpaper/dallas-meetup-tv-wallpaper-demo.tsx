@@ -330,8 +330,8 @@ export function DallasMeetupTvWallpaperDemo() {
               min={SILK_LOOK_RANGES.grain.min}
               max={SILK_LOOK_RANGES.grain.max}
               step={SILK_LOOK_RANGES.grain.step}
-              value={silkLook.grain}
-              display={silkLook.grain.toFixed(2)}
+              value={silkLook.grain ?? DEFAULT_SILK_LOOK.grain}
+              display={(silkLook.grain ?? DEFAULT_SILK_LOOK.grain).toFixed(2)}
               onChange={(grain) => patchSilk({ grain })}
             />
             <div className="flex flex-wrap gap-1.5">

@@ -240,7 +240,7 @@ export function startSilkWebgl(
     gl.uniform1f(uRidge, look.ridge);
     gl.uniform1f(uRotate, look.rotate);
     gl.uniform1f(uDrift, look.drift);
-    gl.uniform1f(uGrain, look.grain);
+    gl.uniform1f(uGrain, look.grain ?? DEFAULT_SILK_LOOK.grain);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     raf = requestAnimationFrame(tick);
   };
@@ -357,7 +357,7 @@ export function startSilkCpu(
         const ridge = Math.min(1, Math.max(0, (n - 0.58) / 0.36)) * (1 - crease);
         g = g + (look.white - g) * ridge * look.ridge;
         const grain = hash21(x + t * 61, y + t * 37) - 0.5;
-        g += grain * look.grain * 0.18;
+        g += grain * (look.grain ?? DEFAULT_SILK_LOOK.grain) * 0.18;
         g = Math.min(0.92, Math.max(floor * 0.45, g));
         const byte = Math.round(g * 255);
         const i = (y * w + x) * 4;

@@ -68,6 +68,10 @@ export function clampSilkLook(look: SilkLook): SilkLook {
       SILK_LOOK_RANGES.rotate.max,
     ),
     drift: c(look.drift, SILK_LOOK_RANGES.drift.min, SILK_LOOK_RANGES.drift.max),
-    grain: c(look.grain, SILK_LOOK_RANGES.grain.min, SILK_LOOK_RANGES.grain.max),
+    grain: c(
+      look.grain ?? DEFAULT_SILK_LOOK.grain,
+      SILK_LOOK_RANGES.grain.min,
+      SILK_LOOK_RANGES.grain.max,
+    ),
   };
 }
