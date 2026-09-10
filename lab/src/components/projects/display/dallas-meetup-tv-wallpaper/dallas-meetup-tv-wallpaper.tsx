@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef } from "react";
 import {
   DALLAS_DEFAULT_HEADLINE,
@@ -11,15 +12,21 @@ import {
   DALLAS_WALLPAPER_FPS,
 } from "./globe-motion";
 import {
+  CURSOR_LOCKUP_H,
+  CURSOR_LOCKUP_SRC,
+  CURSOR_LOCKUP_W,
+  GROK_LOCKUP_H,
+  GROK_LOCKUP_SRC,
+  GROK_LOCKUP_W,
+  SPACEX_LOCKUP_H,
+  SPACEX_LOCKUP_SRC,
+  SPACEX_LOCKUP_W,
   drawLogoCarousel,
   logoCarouselImages,
+  logoCenteredRect,
+  logoOpacities,
   preloadLogoCarousel,
 } from "./logo-carousel";
-import {
-  drawFallbackGradient,
-  loopShaderTimeMs,
-  MovingGradientBackground,
-} from "./moving-gradient-background";
 import {
   DALLAS_DISPLAY_FONT_PX,
   DALLAS_SUBLINE_FONT_PX,
@@ -30,10 +37,21 @@ import {
 const BASE_WIDTH = 1920;
 const BASE_HEIGHT = 1080;
 const FPS = DALLAS_WALLPAPER_FPS;
+const STAGE_FALLBACK = "#060606";
 
 const TEXT_LEFT_PX = 72;
 const TEXT_TOP_PX = 931;
 const DALLAS_TEXT_ON_DARK = "#ffffff";
+const TYPE_LINE_GAP = DALLAS_DISPLAY_FONT_PX * 0.12;
+
+const grokRect = logoCenteredRect(GROK_LOCKUP_W, GROK_LOCKUP_H);
+const spacexRect = logoCenteredRect(SPACEX_LOCKUP_W, SPACEX_LOCKUP_H);
+const cursorRect = logoCenteredRect(CURSOR_LOCKUP_W, CURSOR_LOCKUP_H);
+
+const UnicornGround = dynamic(
+  () => import("./unicorn-ground").then((mod) => mod.UnicornGround),
+  { ssr: false },
+);
 
 type ExportResult = {
   blob: Blob;
@@ -64,10 +82,35 @@ function resolveDallasFontFamily(el: Element | null): string {
   return DALLAS_SANS_FAMILY;
 }
 
+function applyMarkOpacities(
+  grok: HTMLElement | null,
+  spacex: HTMLElement | null,
+  cursor: HTMLElement | null,
+  elapsed: number,
+  loopSeconds: number,
+  reducedMotion: boolean,
+) {
+  const [grokOp, spacexOp, cursorOp] = logoOpacities(
+    elapsed,
+    loopSeconds,
+    reducedMotion,
+  );
+  if (grok) grok.style.opacity = String(grokOp);
+  if (spacex) spacex.style.opacity = String(spacexOp);
+  if (cursor) cursor.style.opacity = String(cursorOp);
+}
+
+function snapshotUnicornCanvas(root: ParentNode | null): HTMLCanvasElement | null {
+  if (!root) return null;
+  const canvas = root.querySelector(".dallas-wallpaper-stack__ground canvas");
+  return canvas instanceof HTMLCanvasElement ? canvas : null;
+}
+
+/** Export-only: composite Unicorn snapshot + logos + type at identity 1920×1080. */
 export function renderForegroundFrame(
   ctx: CanvasRenderingContext2D,
   width: number,
-  _height: number,
+  height: number,
   elapsed: number,
   reducedMotion: boolean,
   loopSeconds: number,
@@ -75,9 +118,10 @@ export function renderForegroundFrame(
   headlineText: string,
   upNextText: string,
 ) {
-  const dpr = width / BASE_WIDTH;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (width !== BASE_WIDTH || height !== BASE_HEIGHT) {
+    ctx.clearRect(0, 0, width, height);
+  }
 
   const images = logoCarouselImages();
   if (images) {
@@ -101,12 +145,11 @@ export function renderForegroundFrame(
 
   const trimmedUpNext = upNextText.trim();
   if (trimmedUpNext) {
-    const lineGap = DALLAS_DISPLAY_FONT_PX * 0.12;
     ctx.font = `300 ${DALLAS_SUBLINE_FONT_PX}px ${fontFamily}`;
     ctx.fillText(
       trimmedUpNext,
       TEXT_LEFT_PX,
-      TEXT_TOP_PX + DALLAS_DISPLAY_FONT_PX + lineGap,
+      TEXT_TOP_PX + DALLAS_DISPLAY_FONT_PX + TYPE_LINE_GAP,
     );
   }
 }
@@ -123,131 +166,32 @@ export function DallasMeetupWallpaper({
   className,
 }: DallasMeetupWallpaperProps) {
   const stackRef = useRef<HTMLDivElement | null>(null);
-  const bgCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const fgCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const gradientRef = useRef<MovingGradientBackground | null>(null);
-  const useWebGpuRef = useRef(false);
+  const grokRef = useRef<HTMLImageElement | null>(null);
+  const spacexRef = useRef<HTMLImageElement | null>(null);
+  const cursorRef = useRef<HTMLImageElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const pausedAtRef = useRef(0);
-  const drawAtTimeRef = useRef<(time: number) => void>(() => {});
 
-  const resizeCanvases = useCallback(() => {
-    const stack = stackRef.current;
-    const bgCanvas = bgCanvasRef.current;
-    const fgCanvas = fgCanvasRef.current;
-    if (!stack || !bgCanvas || !fgCanvas) return;
-
-    const rect = stack.getBoundingClientRect();
-    const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-    const clampedDpr = Math.min(2, Math.max(1, dpr));
-    const width = Math.round(BASE_WIDTH * clampedDpr);
-    const height = Math.round(BASE_HEIGHT * clampedDpr);
-
-    bgCanvas.width = width;
-    bgCanvas.height = height;
-    fgCanvas.width = width;
-    fgCanvas.height = height;
-
-    gradientRef.current?.resize(BASE_WIDTH, BASE_HEIGHT, clampedDpr);
-    publishDallasDisplayPx(stack, rect.width);
-  }, []);
-
-  const drawAtTime = useCallback(
+  const paintMarks = useCallback(
     (time: number) => {
-      const bgCanvas = bgCanvasRef.current;
-      const fgCanvas = fgCanvasRef.current;
-      if (!bgCanvas || !fgCanvas) return;
-
-      const width = fgCanvas.width;
-      const height = fgCanvas.height;
-      if (width <= 0 || height <= 0) return;
-
-      const shaderTimeMs = reducedMotion ? 0 : loopShaderTimeMs(time, loopSeconds);
-      const gradient = gradientRef.current;
-      const dpr = width / BASE_WIDTH;
-
-      if (useWebGpuRef.current && gradient?.isReady) {
-        gradient.render(shaderTimeMs, loopSeconds);
-      } else {
-        const bgCtx = bgCanvas.getContext("2d");
-        if (bgCtx) {
-          bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          drawFallbackGradient(
-            bgCtx,
-            BASE_WIDTH,
-            BASE_HEIGHT,
-            shaderTimeMs,
-            loopSeconds,
-          );
-        }
-      }
-
-      const fgCtx = fgCanvas.getContext("2d");
-      if (!fgCtx) return;
-      renderForegroundFrame(
-        fgCtx,
-        width,
-        height,
+      applyMarkOpacities(
+        grokRef.current,
+        spacexRef.current,
+        cursorRef.current,
         time,
-        reducedMotion,
         loopSeconds,
-        resolveDallasFontFamily(fgCanvas),
-        headlineText,
-        upNextText,
+        reducedMotion,
       );
     },
-    [headlineText, loopSeconds, reducedMotion, upNextText],
+    [loopSeconds, reducedMotion],
   );
 
   useEffect(() => {
-    drawAtTimeRef.current = drawAtTime;
-  }, [drawAtTime]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const gradient = new MovingGradientBackground();
-    gradientRef.current = gradient;
-
-    void (async () => {
-      await preloadLogoCarousel();
-      if (cancelled) return;
-      const bgCanvas = bgCanvasRef.current;
-      if (bgCanvas) {
-        const ok = await gradient.init(bgCanvas);
-        if (cancelled) {
-          gradient.destroy();
-          return;
-        }
-        useWebGpuRef.current = ok;
-      }
-      resizeCanvases();
-      if (!cancelled) {
-        drawAtTimeRef.current(pausedAtRef.current);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      useWebGpuRef.current = false;
-      gradient.destroy();
-      if (gradientRef.current === gradient) {
-        gradientRef.current = null;
-      }
-    };
-  }, [resizeCanvases]);
-
-  useEffect(() => {
-    resizeCanvases();
     const stack = stackRef.current;
-    if (!stack || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(() => {
-      resizeCanvases();
-      drawAtTime(timeSeconds ?? pausedAtRef.current);
-    });
-    observer.observe(stack);
-    return () => observer.disconnect();
-  }, [drawAtTime, resizeCanvases, timeSeconds]);
+    if (!stack) return;
+    publishDallasDisplayPx(stack, BASE_WIDTH);
+  }, []);
 
   useEffect(() => {
     if (document.fonts) {
@@ -262,8 +206,8 @@ export function DallasMeetupWallpaper({
   });
 
   useEffect(() => {
-    drawAtTime(timeSeconds ?? pausedAtRef.current);
-  }, [drawAtTime, timeSeconds]);
+    paintMarks(timeSeconds ?? pausedAtRef.current);
+  }, [paintMarks, timeSeconds]);
 
   useEffect(() => {
     if (timeSeconds !== undefined) {
@@ -278,6 +222,7 @@ export function DallasMeetupWallpaper({
         rafRef.current = null;
       }
       startRef.current = null;
+      paintMarks(timeSeconds ?? pausedAtRef.current);
       return;
     }
 
@@ -285,7 +230,7 @@ export function DallasMeetupWallpaper({
       if (startRef.current === null) startRef.current = now;
       const elapsed = ((now - startRef.current) / 1000) % loopSeconds;
       pausedAtRef.current = elapsed;
-      drawAtTime(elapsed);
+      paintMarks(elapsed);
       onFrameTime?.(elapsed);
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -298,21 +243,73 @@ export function DallasMeetupWallpaper({
       rafRef.current = null;
       startRef.current = null;
     };
-  }, [drawAtTime, loopSeconds, onFrameTime, playing, reducedMotion, resetNonce, timeSeconds]);
+  }, [loopSeconds, onFrameTime, paintMarks, playing, reducedMotion, resetNonce, timeSeconds]);
 
   return (
-    <div ref={stackRef} className={`dallas-wallpaper-stack ${className ?? ""}`.trim()}>
-      <canvas
-        ref={bgCanvasRef}
-        className="dallas-wallpaper-stack__bg"
-        aria-hidden
-      />
-      <canvas
-        ref={fgCanvasRef}
-        className="dallas-wallpaper-stack__fg"
-        data-dallas-display="universal-sans"
-        aria-label="Dallas meetup wallpaper"
-      />
+    <div
+      ref={stackRef}
+      className={`dallas-wallpaper-stack ${className ?? ""}`.trim()}
+      aria-label="Dallas meetup wallpaper"
+    >
+      <div className="dallas-wallpaper-stack__ground" aria-hidden>
+        <UnicornGround paused={reducedMotion} />
+      </div>
+      <div className="dallas-wallpaper-stack__lockup">
+        <img
+          ref={grokRef}
+          className="dallas-wallpaper-mark dallas-wallpaper-mark--grok"
+          src={GROK_LOCKUP_SRC}
+          width={GROK_LOCKUP_W}
+          height={GROK_LOCKUP_H}
+          alt=""
+          draggable={false}
+          style={{
+            left: grokRect.x,
+            top: grokRect.y,
+            width: grokRect.w,
+            height: grokRect.h,
+          }}
+        />
+        <img
+          ref={spacexRef}
+          className="dallas-wallpaper-mark dallas-wallpaper-mark--spacex"
+          src={SPACEX_LOCKUP_SRC}
+          width={SPACEX_LOCKUP_W}
+          height={SPACEX_LOCKUP_H}
+          alt=""
+          draggable={false}
+          style={{
+            left: spacexRect.x,
+            top: spacexRect.y,
+            width: spacexRect.w,
+            height: spacexRect.h,
+          }}
+        />
+        <img
+          ref={cursorRef}
+          className="dallas-wallpaper-mark dallas-wallpaper-mark--cursor"
+          src={CURSOR_LOCKUP_SRC}
+          width={CURSOR_LOCKUP_W}
+          height={CURSOR_LOCKUP_H}
+          alt=""
+          draggable={false}
+          style={{
+            left: cursorRect.x,
+            top: cursorRect.y,
+            width: cursorRect.w,
+            height: cursorRect.h,
+          }}
+        />
+        <div
+          className="dallas-wallpaper-type"
+          data-dallas-display="universal-sans"
+        >
+          <p className="dallas-wallpaper-type__headline">{headlineText}</p>
+          {upNextText.trim() ? (
+            <p className="dallas-wallpaper-type__subline">{upNextText}</p>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
@@ -346,29 +343,15 @@ export async function exportDallasMeetupWallpaperLoop({
 
   await preloadLogoCarousel();
 
-  const bgCanvas = document.createElement("canvas");
-  bgCanvas.width = width;
-  bgCanvas.height = height;
-  const fgCanvas = document.createElement("canvas");
-  fgCanvas.width = width;
-  fgCanvas.height = height;
   const outCanvas = document.createElement("canvas");
-  outCanvas.width = width;
-  outCanvas.height = height;
+  outCanvas.width = BASE_WIDTH;
+  outCanvas.height = BASE_HEIGHT;
 
   const outCtx = outCanvas.getContext("2d");
   if (!outCtx) throw new Error("Could not create a 2D canvas context.");
 
-  const gradient = new MovingGradientBackground();
-  const webgpuOk = await gradient.init(bgCanvas);
-  if (webgpuOk) {
-    gradient.resize(BASE_WIDTH, BASE_HEIGHT, width / BASE_WIDTH);
-  } else {
-    const bgCtx = bgCanvas.getContext("2d");
-    if (!bgCtx) throw new Error("Could not create fallback background context.");
-  }
-
   const fontFamily = resolveDallasFontFamily(document.querySelector(".dallas-demo"));
+  const unicorn = snapshotUnicornCanvas(document.querySelector(".dallas-wallpaper-stack"));
 
   const totalFrames = loopSeconds * FPS;
   const mp4Mime = "video/mp4;codecs=avc1.42E01E";
@@ -405,47 +388,31 @@ export async function exportDallasMeetupWallpaperLoop({
     const tick = () => {
       if (frame >= totalFrames) {
         recorder.stop();
-        gradient.destroy();
         return;
       }
       const elapsed = frame / FPS;
-      const shaderTimeMs = loopShaderTimeMs(elapsed, loopSeconds);
 
-      if (webgpuOk) {
-        gradient.render(shaderTimeMs, loopSeconds);
-      } else {
-        const bgCtx = bgCanvas.getContext("2d");
-        if (bgCtx) {
-          const dpr = width / BASE_WIDTH;
-          bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          drawFallbackGradient(
-            bgCtx,
-            BASE_WIDTH,
-            BASE_HEIGHT,
-            shaderTimeMs,
-            loopSeconds,
-          );
-        }
+      outCtx.setTransform(1, 0, 0, 1, 0, 0);
+      outCtx.fillStyle = STAGE_FALLBACK;
+      outCtx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+      const liveUnicorn =
+        snapshotUnicornCanvas(document.querySelector(".dallas-wallpaper-stack")) ??
+        unicorn;
+      if (liveUnicorn) {
+        outCtx.drawImage(liveUnicorn, 0, 0, BASE_WIDTH, BASE_HEIGHT);
       }
 
-      const fgCtx = fgCanvas.getContext("2d");
-      if (fgCtx) {
-        renderForegroundFrame(
-          fgCtx,
-          width,
-          height,
-          elapsed,
-          false,
-          loopSeconds,
-          fontFamily,
-          headlineText,
-          upNextText,
-        );
-      }
-
-      outCtx.clearRect(0, 0, width, height);
-      outCtx.drawImage(bgCanvas, 0, 0);
-      outCtx.drawImage(fgCanvas, 0, 0);
+      renderForegroundFrame(
+        outCtx,
+        width,
+        height,
+        elapsed,
+        false,
+        loopSeconds,
+        fontFamily,
+        headlineText,
+        upNextText,
+      );
       controlledTrack.requestFrame();
       frame += 1;
       requestAnimationFrame(tick);

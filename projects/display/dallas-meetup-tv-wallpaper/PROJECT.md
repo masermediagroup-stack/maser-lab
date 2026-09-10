@@ -20,14 +20,14 @@ Trigger frequency: rare / ambient (TV loop).
 Hold a calm branded presence for long dwell viewing without reading like an ad.
 
 ### Desired outcome
-Dark moving-gradient background. Center **3-logo carousel** (Grok Bot → SpaceX → Cursor) fading one-at-a-time over a **120s** loop. Bottom-left white Universal Sans headline + subline (lab-editable). Reduced motion: static gradient + first logo + static text.
+Unicorn Studio ground (`tpUiHuNcrr2hbUdSbHSq`) at true **1920×1080**. Center **3-logo carousel** (Grok Bot → SpaceX → Cursor) as crisp SVG, fading one-at-a-time over a **120s** loop. Bottom-left white Universal Sans headline + subline (lab-editable). Reduced motion: Unicorn still frame + first logo + static text.
 
 ### Success signal
-- Moving gradient shader loops seamlessly at `loopSeconds` (default 120s).
-- Three logos fade in/out at center without whip/spin/morph.
-- Text anchored bottom-left per Figma `11:97`.
+- Unicorn ground fills the 1920×1080 stage behind the lockup (dpi 2, 60fps, production).
+- Three logos fade in/out at center without whip/spin/morph; SVG marks stay sharp (no CSS stretch).
+- Text anchored bottom-left per Figma `11:97` as HTML Universal Sans (no scale below 1).
 - Same demo route `/demos/dallas-meetup-tv-wallpaper` with headline/up-next inputs preserved.
-- Reduced motion freezes first frame.
+- Reduced motion freezes Unicorn to a still frame plus Grok logo + static text.
 
 ### Non-goals
 - No kick/whip/Grok SDF morph cycle (retired 2026-09-09).
@@ -42,8 +42,8 @@ Dark moving-gradient background. Center **3-logo carousel** (Grok Bot → SpaceX
 
 | Surface | Face | Token |
 | --- | --- | --- |
-| Canvas headline | Universal Sans trial / 400, 48px @ 1920 | `--dallas-font` |
-| Canvas subline | Universal Sans trial / 300, 36px @ 1920 | `--dallas-font` |
+| Headline | Universal Sans trial / 400, 48px @ 1920 | `--dallas-font` |
+| Subline | Universal Sans trial / 300, 36px @ 1920 | `--dallas-font` |
 | Demo chrome labels | IBM Plex Sans Condensed | `--dallas-font-ui` |
 
 Both canvas lines use Universal Sans (different weights). Plex only on lab demo chrome.
@@ -53,7 +53,7 @@ Both canvas lines use Universal Sans (different weights). Plex only on lab demo 
 | Token | Value | Use |
 | --- | --- | --- |
 | `--dallas-stage` | `#060606` | Stage chrome / fallback ground |
-| `--dallas-text-on-dark` | `#FFFFFF` | Canvas headline + subline |
+| `--dallas-text-on-dark` | `#FFFFFF` | Headline + subline |
 
 ## States
 
@@ -70,7 +70,7 @@ Both canvas lines use Universal Sans (different weights). Plex only on lab demo 
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Background | WebGPU moving gradient + Canvas2D fallback | Figma `11:2` shader fill |
+| Background | Unicorn Studio `tpUiHuNcrr2hbUdSbHSq` | Quality + code ground lock |
 | Logo motion | Sequential fade-out / fade-in (no overlap) | User: logos must never intersect |
 | Duration | Default 120s loop | Existing demo control |
 | Text | Static white, bottom-left | Figma layout |
@@ -79,8 +79,9 @@ Both canvas lines use Universal Sans (different weights). Plex only on lab demo 
 
 - [ ] Demo route `/demos/dallas-meetup-tv-wallpaper` renders idle wallpaper composition
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
-- [ ] Shader + logo carousel loop at 120s without visible seam at t=0 vs t=120
+- [ ] Logo carousel loops at 120s without visible seam at t=0 vs t=120
 - [ ] Headline/up-next editable in lab demo
-- [ ] Reduced motion: static gradient, Grok logo, static text
-- [ ] Universal Sans 400 + 300 on canvas; Geist out of product surface
+- [ ] Reduced motion: Unicorn still frame, Grok logo, static text
+- [ ] Universal Sans 400 + 300; Geist out of product surface
+- [ ] Stage CSS is 1920×1080 (no stretch); marks are SVG at native px
 - [ ] Product exports from `lab/src/components/projects/display/dallas-meetup-tv-wallpaper/index.ts`

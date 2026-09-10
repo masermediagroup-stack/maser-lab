@@ -2,15 +2,18 @@
 
 USER OVERRIDE. Later interrupts win. Named tokens only. Do not invent type, spacing, or layout. Geist is out.
 
-## Idle wallpaper redesign (2026-09-09): Figma `GrokBot-TV-Idle-Wallpaper`
+## Idle wallpaper redesign (2026-09-09): Figma `GrokBot-TV-Idle-Wallpaper` + Unicorn ground
 
-USER OVERRIDE. Supersedes paper-ground canvas-only spec, kick/whip model, Grok SDF morph, mark-swap swipe, and text-under-mark layout.
+USER OVERRIDE. Supersedes paper-ground canvas-only spec, kick/whip model, Grok SDF morph, mark-swap swipe, text-under-mark layout, and the WebGPU/Canvas2D moving-gradient hero field.
+
+Quality + code ground lock: `LOOK.md` (2026-09-09). Human video still landing — do not invent new art direction.
 
 | Layer | Spec |
 | --- | --- |
-| Background | WebGPU **2D moving gradient** (Figma `11:2` stops + warp/intensity). Looped time = `elapsed mod loopSeconds` via periodic orbit. Animated Canvas2D fallback when WebGPU unavailable. |
-| Center | **3-logo opacity carousel** at Figma native sizes (Grok 814×153, SpaceX 900.886×110, Cursor 645×153) — no per-asset scale. Sequential fade-out then fade-in. Wall / laptop / desktop only. |
-| Text | Bottom-left **x=72, y=931**. Headline **48px / 400**, subline **36px / 300** — Figma-native, not scaled. |
+| Stage | **True 1920×1080.** Do not stretch the composition to fill a different aspect. Letterbox; never scale type below 1. |
+| Background | Unicorn Studio **projectId `tpUiHuNcrr2hbUdSbHSq`** (remix `1LkMxxXd5DbU0DwtQKjA`). SDK unicornstudio.js **2.2.13**, dpi **2**, fps **60**, `production: true`. Full-bleed under the lockup. Reduced motion: still frame. Fail = `#060606`. |
+| Center | **3-logo opacity carousel** as DOM SVG at Figma native sizes (Grok 814×153, SpaceX 900.886×110, Cursor 645×153) — vector at display size. Sequential fade-out then fade-in. Marks sit on top of the ground. Wall / laptop / desktop only. |
+| Text | Bottom-left **x=72, y=931**. Headline **48px / 400**, subline **36px / 300** — HTML Universal Sans, no transform scale. |
 | Loop | Default **120s** (2 min). Demo loop control unchanged. No whip/kick/settle beats. |
 
 Figma: `projects/display/dallas-meetup-tv-wallpaper/FIGMA.md`. Assets under `lab/public/assets/dallas-meetup-tv-wallpaper/`.
@@ -54,7 +57,8 @@ reference only — it is no longer drawn. "Cube" language below is historical.
 - **Pill / Cloud / Teardrop cycle landings.** Named tokens. Never a body. Never a walk stop. Red `#FF263C` does **not** bring the Pill silhouette back.
 - **Rounded triangle / Magenta `#FF309B` as a cycle landing.** Dropped. Never a body. Never a walk stop.
 - **Oversized Grok vs Cursor.** Any silhouette taller than the cube. Pair deformed. Do not scale the cube up to match. Fit Grok inside the shared mark box.
-- **Retiming prior unique hosts** (`988sxfcwn`, `7m70m0875`, branch alias). New unique public URL per lock.
+- **Retiming prior unique hosts** (`988sxfcwn`, `7m70m0875`, `36jk9847c`, branch alias). Fresh unique public URL per lock. Do not hand the branch alias.
+- **Moving-gradient / basic WebGPU shader as the hero field.** Ground is the Unicorn embed.
 
 ## Refs (this override)
 

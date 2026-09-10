@@ -1,6 +1,38 @@
 # LOOK LOCK — Dallas meetup TV wallpaper
 
-USER OVERRIDE. Later interrupts win. Encode corrections in `design.md`. Morph is back. Bands/orbits stay killed.
+USER OVERRIDE. Later interrupts win. Encode corrections in `design.md`.
+Requested look lock path `/workspace/dallas-meetup-tv/globe-look/LOOK.md` is not in this checkout; this file is the lab copy.
+
+Human video still landing — hold finer art direction until it drops. Do not invent a new look.
+
+## Quality + code ground (locked 2026-09-09)
+
+### Stage
+- Canvas / composition stays **1920×1080**. Do not stretch the composition to fill a different aspect.
+- Letterbox on laptop/desktop. Never CSS-scale type below 1.
+- Viewing: wall TV + laptop/desktop only. Not mobile.
+
+### Marks + type
+- Cursor cube and Grok mark: **vector/SVG path or 1:1 raster at display size**.
+- No downscale then upscale. No CSS blur. No soft shadow that eats edges.
+- Type: Universal Sans, crisp. Hinting and measure stay. No transform that scales the type below 1.
+- Headline **48px / 400**, subline **36px / 300**, x=72, y=931, white.
+- Marks sit **on top of** the ground. The ground never samples through them.
+
+### Ground
+- Unicorn Studio **projectId** `tpUiHuNcrr2hbUdSbHSq`.
+- Remix: https://unicorn.studio/remix/1LkMxxXd5DbU0DwtQKjA
+- SDK: unicornstudio.js **2.2.13** / unicornstudio-react (wrapper 2.2.10 + `sdkUrl` pin).
+- Full-bleed behind the lockup. Container is the full 1920×1080 stage.
+- dpi ~1.5–2 (ship **2**). fps **60**. `production: true` on the live demo.
+- Prefer the published Unicorn embed. A vgpu rebuild is ONLY if the embed cannot sit under the lockup cleanly — then match this scene’s density and code texture, do not invent a new look.
+- Reduced motion: still frame from the scene, no continuous field motion.
+- Kill the prior basic background shader as the hero field.
+- Ground must not compete with the Grok and Cursor faces. Skyline stays off.
+- Embed fail: solid `#060606`, not the old shader.
+
+### Loop (keep)
+Sequential 3-logo fade Grok → SpaceX → Cursor over `loopSeconds` (default **120s**). Fade-out then fade-in; at most one logo visible. Idle carousel only.
 
 ## Killed, fully
 
@@ -10,27 +42,12 @@ Dallas skyline. Globe yaw / 360 **body** spin / any Grok body turn. Eye-whip. In
 **Broken eyes during morph / sheared stadiums.** **Green body fill.** **Cool Gray body fill.**
 **Pill / Cloud / Teardrop cycle landings.** **Rounded triangle / Magenta cycle landings.** **Oversized Grok vs cube.**
 **Thinking nest.** **Working ribbons.** **Thick mid.** **Sparse 2–4 bands.** **Any colored orbits / arcs / bands around Grok.**
+**Paper `#F2F1ED` ground.** **Kick / whip / Grok SDF morph as the live model.** **Moving-gradient / basic WebGPU shader as the hero field.**
+**Retiming prior unique hosts** (`988sxfcwn`, `7m70m0875`, `36jk9847c`, branch alias). Fresh unique host when it lands. Do not hand the branch alias.
 
-## Tokens
+## Tokens (idle)
 
-- `--dallas-paper`: `#F2F1ED`
-- `--dallas-ink`: `#111111` — type, cube fill
-- `--dallas-grok-black`: `#000000` — cold-start oval rest only
-- `--dallas-eye-white`: `#FFFFFF` — Grok stadium **eyes**
-- Display: Universal Sans trial / 400, once, 44px @ 1920, tracking ~2.4
+- `--dallas-stage`: `#060606` — stage chrome / Unicorn-fail fallback
+- `--dallas-text-on-dark`: `#FFFFFF` — type
+- Display: Universal Sans trial 400 @ 48px and 300 @ 36px, once, tracking 0
 - Body/labels: IBM Plex Sans Condensed. Geist out. Never fetch xAI webfonts.
-
-## Marks
-
-Cursor: official SVG path, evenodd, hole is the cursor, paper through. ~280px. Kick = quick 360° ease-in-out whip, lands upright. No ribbons on it. Reduced motion: planted.
-Grok: SDF picker, Ver 02 **subset** (circle, oval, square, hex). Cold start = irregular oval + Black. First kick lands rounded square + Teal (unless square drew Red). No Pill, Cloud, Teardrop, or Triangle. White stadiums as a **parallel gaze pair** — vertical long axis, slight left (~−12°). Translate together (center / up / side), wink. Rest is camera, not stuck BL or TR. Eyes live in face-space on **every** body and survive the blend unsheared (clip to face disc, not silhouette). Every body fits the **shared mark box** (cube height). At seed, one of the four remaining bodies draws Red `#FF263C` (overrides that body's tree pair; Pill silhouette stays dropped). No independent spin. **No orbits.**
-
-## Surface
-
-Canvas 1920×1080. Paper → cube + Grok (shared 280px mark box, gap 120px, lift 70px, same midline) + `Dallas meetup`. Grok face-forward, planted. Fit Grok inside the box; do not scale the cube up.
-
-## Motion
-
-Idle: upright cube, current morph face, upright slight-left stadiums that gaze as a pair, no lines.
-Kick: SDF morph current→next + pair HEX blend + Cursor 360. Eyes may still gaze/wink. **No nest. No ribbons. No bands on Grok.**
-Reduced motion freezes Idle (oval + Black).

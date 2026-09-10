@@ -15,6 +15,10 @@ const wallpaperSrc = readFileSync(
   join(dirname(fileURLToPath(import.meta.url)), "../dallas-meetup-tv-wallpaper.tsx"),
   "utf8",
 );
+const tokensSrc = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "../tokens.css"),
+  "utf8",
+);
 
 describe("globe-motion (idle wallpaper)", () => {
   it("defaults to 120s loop", () => {
@@ -32,28 +36,38 @@ describe("globe-motion (idle wallpaper)", () => {
 });
 
 describe("idle wallpaper render contract", () => {
-  it("uses logo carousel and moving gradient stack", () => {
-    expect(wallpaperSrc).toContain("drawLogoCarousel");
-    expect(wallpaperSrc).toContain("MovingGradientBackground");
+  it("uses Unicorn ground under a DOM lockup", () => {
+    expect(wallpaperSrc).toContain("UnicornGround");
     expect(wallpaperSrc).toContain("dallas-wallpaper-stack");
+    expect(wallpaperSrc).toContain("dallas-wallpaper-stack__lockup");
+    expect(wallpaperSrc).toContain("drawLogoCarousel");
+    expect(wallpaperSrc).not.toContain("MovingGradientBackground");
+    expect(wallpaperSrc).not.toContain("drawFallbackGradient");
     expect(wallpaperSrc).not.toContain("drawSpacexaiMark");
     expect(wallpaperSrc).not.toContain("drawGrokBody");
     expect(wallpaperSrc).not.toContain("drawTextRandomFade");
   });
 
-  it("anchors copy bottom-left in Universal Sans", () => {
+  it("anchors copy bottom-left in Universal Sans at native px", () => {
     expect(wallpaperSrc).toContain("TEXT_LEFT_PX");
     expect(wallpaperSrc).toContain("TEXT_TOP_PX");
     expect(wallpaperSrc).toContain("DALLAS_DISPLAY_FONT_PX");
     expect(wallpaperSrc).toContain("DALLAS_SUBLINE_FONT_PX");
     expect(wallpaperSrc).not.toContain("DALLAS_DISPLAY_FONT_PX * scale");
     expect(wallpaperSrc).not.toContain("DALLAS_SUBLINE_FONT_PX * scale");
+    expect(tokensSrc).toContain("font-size: 48px");
+    expect(tokensSrc).toContain("font-size: 36px");
+    expect(tokensSrc).toContain("left: 72px");
+    expect(tokensSrc).toContain("top: 931px");
   });
 
-  it("draws the 1920×1080 frame via dpr transform, not per-asset scale", () => {
-    expect(wallpaperSrc).toContain("setTransform(dpr, 0, 0, dpr, 0, 0)");
-    expect(wallpaperSrc).toContain("Math.round(BASE_WIDTH * clampedDpr)");
-    expect(wallpaperSrc).toContain("gradient.resize(BASE_WIDTH, BASE_HEIGHT");
+  it("keeps a true 1920×1080 CSS stage with no stretch", () => {
+    expect(tokensSrc).toContain("width: 1920px");
+    expect(tokensSrc).toContain("height: 1080px");
+    expect(tokensSrc).not.toContain("aspect-ratio: 16 / 9");
+    expect(tokensSrc).not.toMatch(/\.dallas-wallpaper-stack \{[^}]*width: 100%/);
+    expect(wallpaperSrc).not.toContain("setTransform(dpr, 0, 0, dpr, 0, 0)");
+    expect(wallpaperSrc).not.toContain("Math.round(BASE_WIDTH * clampedDpr)");
     expect(wallpaperSrc).toContain("fillText(headlineText, TEXT_LEFT_PX, TEXT_TOP_PX)");
   });
 });

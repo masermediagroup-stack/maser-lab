@@ -1,7 +1,7 @@
 /*
  * Dallas Meetup TV Wallpaper — product tokens (idle wallpaper 2026-09-09).
  *
- * Dark moving-gradient stage. Canvas text is white Universal Sans (400 + 300).
+ * True 1920×1080 stage. Unicorn Studio ground. DOM SVG marks + HTML Universal Sans.
  * Lab demo chrome uses shared Geist roles from maser-lab-tokens — do not override
  * `.demo-control-bar` here.
  */
@@ -11,7 +11,7 @@
   src: url("/fonts/UniversalSansGrokTest-Display-400-Trial.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -19,7 +19,7 @@
   src: url("/fonts/UniversalSansGrokTest-Display-300-Trial.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -27,7 +27,7 @@
   src: url("/fonts/UniversalSansGrokTest-Display-400-Trial.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 .dallas-demo,
@@ -48,45 +48,118 @@
 }
 
 .dallas-demo__stage {
-  background: var(--dallas-stage);
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .dallas-demo__wallpaper {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
+  width: 1920px;
+  height: 1080px;
+  flex: 0 0 auto;
+  display: block;
   background: var(--dallas-stage);
 }
 
 .dallas-wallpaper-stack {
   position: relative;
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  max-height: 100%;
-  aspect-ratio: 16 / 9;
+  width: 1920px;
+  height: 1080px;
+  isolation: isolate;
+  overflow: hidden;
+  contain: strict;
 }
 
-.dallas-wallpaper-stack__bg,
-.dallas-wallpaper-stack__fg {
+.dallas-wallpaper-stack__ground {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.dallas-wallpaper-stack__fg {
+  z-index: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
   pointer-events: none;
+  background: var(--dallas-stage);
 }
 
-.dallas-wallpaper-canvas {
-  max-width: 100%;
-  max-height: 100%;
+.dallas-wallpaper-unicorn,
+.dallas-wallpaper-stack__ground > div {
+  position: absolute;
+  inset: 0;
+  width: 1920px !important;
+  height: 1080px !important;
+  max-width: none;
+  max-height: none;
+  filter: none;
+}
+
+.dallas-wallpaper-stack__lockup {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+  isolation: isolate;
+  mix-blend-mode: normal;
+}
+
+.dallas-wallpaper-mark {
+  position: absolute;
   display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  max-width: none;
+  max-height: none;
+  object-fit: none;
+  object-position: 0 0;
+  opacity: 0;
+  filter: none;
+  box-shadow: none;
+  text-shadow: none;
+  transform: none;
+  mix-blend-mode: normal;
+  image-rendering: auto;
+}
+
+.dallas-wallpaper-type {
+  position: absolute;
+  left: 72px;
+  top: 931px;
+  margin: 0;
+  padding: 0;
+  width: 1776px;
+  transform: none;
+  filter: none;
+  text-shadow: none;
+  mix-blend-mode: normal;
+}
+
+.dallas-wallpaper-type__headline,
+.dallas-wallpaper-type__subline {
+  margin: 0;
+  padding: 0;
+  color: var(--dallas-text-on-dark);
+  font-family: var(--dallas-font);
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 1;
+  white-space: nowrap;
+  transform: none;
+  filter: none;
+  text-shadow: none;
+  text-rendering: auto;
+}
+
+.dallas-wallpaper-type__headline {
+  font-size: 48px;
+  font-weight: 400;
+}
+
+.dallas-wallpaper-type__subline {
+  margin-top: 5.76px;
+  font-size: 36px;
+  font-weight: 300;
 }

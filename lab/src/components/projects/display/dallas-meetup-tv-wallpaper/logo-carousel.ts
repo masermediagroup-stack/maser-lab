@@ -136,8 +136,9 @@ type LogoSpec = {
 
 /**
  * Draw logos at Figma-native W×H, geometrically centered on 1920×1080.
- * Caller must put the context in Figma space (`setTransform(dpr, 0, 0, dpr, 0, 0)`).
+ * Caller must be in identity 1920×1080 space (no dpr scale, no CSS stretch).
  * `width` / `height` are ignored for placement (frame is always 1920×1080).
+ * Live preview uses DOM SVG; this draw path is export-only.
  */
 export function drawLogoCarousel(
   ctx: CanvasRenderingContext2D,

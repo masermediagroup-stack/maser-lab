@@ -2,7 +2,7 @@ import { IBM_Plex_Sans_Condensed } from "next/font/google";
 
 /**
  * Idle wallpaper type split (Figma `11:97`).
- * Headline + subline: Universal Sans on canvas (400 + 300).
+ * Headline + subline: Universal Sans HTML (400 + 300).
  * Demo chrome: IBM Plex Sans Condensed.
  */
 export const dallasPlexCondensed = IBM_Plex_Sans_Condensed({

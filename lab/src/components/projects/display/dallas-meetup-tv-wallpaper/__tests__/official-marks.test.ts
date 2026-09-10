@@ -24,6 +24,7 @@ describe("idle wallpaper logo assets", () => {
     expect(SPACEX_LOCKUP_SRC).toContain("spacexai-wordmark-light.svg");
     expect(CURSOR_LOCKUP_SRC).toContain("cursor-lockup-horizontal.svg");
     expect(wallpaperSrc).toContain("preloadLogoCarousel");
-    expect(wallpaperSrc).toContain("logoCarouselImages");
+    expect(wallpaperSrc).toContain("GROK_LOCKUP_SRC");
+    expect(wallpaperSrc).toContain("CURSOR_LOCKUP_SRC");
   });
 });

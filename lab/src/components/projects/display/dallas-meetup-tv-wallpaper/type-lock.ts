@@ -1,8 +1,8 @@
 /**
  * Mechanical type lock for the Dallas meetup TV wallpaper (idle redesign).
  *
- * Canvas product type is Figma-native 48/36 on the 1920×1080 frame
- * (no per-asset scale). Demo chrome uses Plex via --dallas-font-ui.
+ * Product type is Figma-native 48/36 HTML on the 1920×1080 frame
+ * (no CSS scale below 1). Demo chrome uses Plex via --dallas-font-ui.
  * `displayRenderedPx` maps CSS width for the Plex 40% cap only.
  */
 
@@ -74,9 +74,11 @@ export function publishDallasDisplayPx(root: ParentNode, canvasCssWidthPx: numbe
 
 export function runDallasTypeLock(root: ParentNode): DallasTypeLockResult {
   const violations: DallasTypeLockViolation[] = [];
-  const canvas = root.querySelector(".dallas-wallpaper-stack__fg, .dallas-wallpaper-canvas");
-  const canvasEl = canvas instanceof HTMLCanvasElement ? canvas : null;
-  const canvasCssWidth = canvasEl?.clientWidth ?? DALLAS_TYPE_DESIGN_WIDTH_PX;
+  const stage =
+    root.querySelector(".dallas-wallpaper-stack") ??
+    root.querySelector(".dallas-wallpaper-stack__fg, .dallas-wallpaper-canvas");
+  const stageEl = stage instanceof HTMLElement ? stage : null;
+  const canvasCssWidth = stageEl?.clientWidth ?? DALLAS_TYPE_DESIGN_WIDTH_PX;
   const displayPx = displayRenderedPx(canvasCssWidth);
   const maxPlex = plexMaxPx(displayPx);
 
@@ -84,7 +86,7 @@ export function runDallasTypeLock(root: ParentNode): DallasTypeLockResult {
   if (!displayMarker) {
     violations.push({
       rule: "display-once",
-      detail: "Missing canvas Universal Sans marker.",
+      detail: "Missing Universal Sans marker.",
     });
   }
 
