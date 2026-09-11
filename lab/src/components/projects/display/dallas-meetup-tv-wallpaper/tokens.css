@@ -1,0 +1,176 @@
+/*
+ * Dallas Meetup TV Wallpaper — product tokens (idle wallpaper 2026-09-09).
+ *
+ * True 1920×1080 stage. Live silk shader ground. DOM SVG marks + HTML Universal Sans TTF.
+ * Demo letterboxes the board with --dallas-fit-scale (uniform). Do not stretch marks or type.
+ * Lab demo chrome uses shared Geist roles from maser-lab-tokens — do not override
+ * `.demo-control-bar` here.
+ */
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src: url("/fonts/UniversalSansGrokTest-Display-400-Trial.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src: url("/fonts/UniversalSansGrokTest-Display-300-Trial.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial 400";
+  src: url("/fonts/UniversalSansGrokTest-Display-400-Trial.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+.dallas-demo,
+.dallas-demo.maser-lab {
+  --dallas-stage: #060606;
+  --dallas-text-on-dark: #ffffff;
+  --dallas-loop-seconds: 120s;
+
+  --dallas-font: "UniversalSansGrokTest Display Trial", "UniversalSansGrokTest Display Trial 400", ui-sans-serif, system-ui, sans-serif;
+  --dallas-font-ui: var(--font-ibm-plex-sans-condensed), "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", sans-serif;
+
+  --dallas-display-px: 48px;
+  --dallas-subline-px: 36px;
+
+  min-height: 100dvh;
+  background: var(--dallas-stage);
+  color: var(--dallas-text-on-dark);
+}
+
+.dallas-demo__stage {
+  --dallas-fit-scale: 1;
+  background: #000;
+  overflow: hidden;
+}
+
+.dallas-demo__fit {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.dallas-demo__fit > .dallas-wallpaper-stack {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1920px;
+  height: 1080px;
+  margin: 0;
+  transform: translate(-50%, -50%) scale(var(--dallas-fit-scale, 1));
+  transform-origin: center center;
+}
+
+.dallas-wallpaper-stack {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  isolation: isolate;
+  overflow: hidden;
+  contain: strict;
+}
+
+.dallas-wallpaper-stack__ground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--dallas-stage);
+}
+
+.dallas-wallpaper-ground-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 1920px;
+  height: 1080px;
+  display: block;
+  max-width: none;
+  max-height: none;
+  filter: none;
+  transform: none;
+}
+
+.dallas-wallpaper-stack__lockup {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+  isolation: isolate;
+  mix-blend-mode: normal;
+}
+
+.dallas-wallpaper-mark {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+  aspect-ratio: auto;
+  opacity: 0;
+  filter: none;
+  box-shadow: none;
+  text-shadow: none;
+  transform: none;
+  mix-blend-mode: normal;
+  image-rendering: auto;
+}
+
+.dallas-wallpaper-type {
+  position: absolute;
+  left: 72px;
+  top: 931px;
+  margin: 0;
+  padding: 0;
+  width: 1776px;
+  transform: none;
+  filter: none;
+  text-shadow: none;
+  mix-blend-mode: normal;
+}
+
+.dallas-wallpaper-type__headline,
+.dallas-wallpaper-type__subline {
+  margin: 0;
+  padding: 0;
+  color: var(--dallas-text-on-dark);
+  font-family: var(--dallas-font);
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 1;
+  white-space: nowrap;
+  transform: none;
+  filter: none;
+  text-shadow: none;
+  text-rendering: auto;
+}
+
+.dallas-wallpaper-type__headline {
+  font-size: 48px;
+  font-weight: 400;
+}
+
+.dallas-wallpaper-type__subline {
+  margin-top: 5.76px;
+  font-size: 36px;
+  font-weight: 300;
+}
