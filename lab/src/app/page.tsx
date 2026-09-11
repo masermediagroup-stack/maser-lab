@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { categoryById } from "@/lib/categories-registry";
 import { groupProjectsByCategory } from "@/lib/group-projects-by-category";
 import { projectsRegistry } from "@/lib/projects-registry";
@@ -17,10 +18,10 @@ export default function Home() {
           <Image
             src="/brand/masermedia-logo-bold-blue.png"
             alt="MaserMedia"
-            width={160}
-            height={36}
+            width={1024}
+            height={519}
             priority
-            className="h-9 w-auto"
+            className="h-9 w-fit max-w-none shrink-0 object-contain"
           />
           <div className="flex flex-col gap-3">
             <h1 className="lab-type-display text-[var(--lab-text-primary)]">
@@ -53,34 +54,42 @@ export default function Home() {
               </p>
             </div>
           ) : (
-            groups.map((group) => (
-              <div key={group.id} className="lab-index-group">
-                <h2 className="lab-index-cat lab-type-section text-[var(--lab-text-secondary)]">
-                  {group.label}
-                </h2>
-                <ul className="flex flex-col">
-                  {group.projects.map((project) => (
-                    <li key={project.slug}>
-                      <Link
-                        href={`/demos/${project.slug}`}
-                        className="lab-index-row"
-                      >
-                        <span className="lab-type-title text-[var(--lab-text-primary)]">
-                          {project.title}
-                        </span>
-                        {project.description ? (
-                          <span className="lab-type-body truncate text-[var(--lab-text-secondary)]">
-                            {project.description}
+            groups.map((group, index) => (
+              <Fragment key={group.id}>
+                {index > 0 ? (
+                  <hr
+                    className="border-0 border-t border-[var(--lab-border)]"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                <div className="lab-index-group">
+                  <h2 className="lab-index-cat lab-type-section text-[var(--lab-text-secondary)]">
+                    {group.label}
+                  </h2>
+                  <ul className="flex flex-col">
+                    {group.projects.map((project) => (
+                      <li key={project.slug}>
+                        <Link
+                          href={`/demos/${project.slug}`}
+                          className="lab-index-row"
+                        >
+                          <span className="lab-type-title text-[var(--lab-text-primary)]">
+                            {project.title}
                           </span>
-                        ) : null}
-                        <span className="lab-type-caption text-[var(--lab-text-muted)]">
-                          {project.status}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                          {project.description ? (
+                            <span className="lab-type-body truncate text-[var(--lab-text-secondary)]">
+                              {project.description}
+                            </span>
+                          ) : null}
+                          <span className="lab-type-caption text-[var(--lab-text-muted)]">
+                            {project.status}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Fragment>
             ))
           )}
         </section>
