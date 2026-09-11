@@ -17,10 +17,10 @@ export default function Home() {
           <Image
             src="/brand/masermedia-logo-bold-blue.png"
             alt="MaserMedia"
-            width={160}
-            height={36}
+            width={1024}
+            height={519}
             priority
-            className="h-9 w-auto"
+            className="h-9 w-fit max-w-none shrink-0 object-contain"
           />
           <div className="flex flex-col gap-3">
             <h1 className="lab-type-display text-[var(--lab-text-primary)]">
