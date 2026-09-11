@@ -4,8 +4,8 @@ export const GRADIENT_STAGE_H = 1080;
 /** Pin backing store to TV pixels so the canvas cannot overflow the stage. */
 export const GRADIENT_DPR = 1;
 export const GRADIENT_FALLBACK = "#060606";
-/** Ambient TV drift — folds travel in a few seconds, not a splash. */
-export const GRADIENT_MOTION = 1.15;
+/** Ambient TV drift — slow idle (matches demo Speed default 0.15×). */
+export const GRADIENT_MOTION = 0.15;
 export const GRADIENT_FLOOR = 10 / 255;
 
 export type GradientPausedRef = { current: boolean };

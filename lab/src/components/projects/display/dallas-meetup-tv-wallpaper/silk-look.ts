@@ -1,12 +1,10 @@
 /**
- * Live silk-ground knobs. Defaults match the locked GLSL look.
+ * Live silk-ground knobs. Defaults match the 2026-09-11 TV tune.
  * Demo writes this object every render; the rAF loop reads it — never remount GL.
  */
 
-import { GRADIENT_MOTION } from "./moving-gradient-config";
-
 export type SilkLook = {
-  /** Time multiplier (was GRADIENT_MOTION). */
+  /** Time multiplier (×). */
   speed: number;
   /** Uniform scale on fold frequency (1 = locked 0.58 × 0.46). */
   scale: number;
@@ -28,28 +26,34 @@ export type SilkLook = {
 
 export type SilkLookRef = { current: SilkLook };
 
+/** Screenshot-locked idle look (2026-09-11). */
 export const DEFAULT_SILK_LOOK: SilkLook = {
-  speed: GRADIENT_MOTION,
-  scale: 1,
-  warp: 2.15,
-  grey: 0.48,
-  white: 0.82,
-  ridge: 0.42,
-  rotate: 0.045,
+  speed: 0.15,
+  scale: 0.5,
+  warp: 0.55,
+  grey: 0.45,
+  white: 0.95,
+  ridge: 0.8,
+  rotate: 0.015,
   drift: 0.09,
-  grain: 0.22,
+  grain: 0.75,
 };
 
+/**
+ * Ranges sit around the defaults. Point sliders step by 0.05 so values
+ * like 0.71 never appear. Speed uses 0.05×. Rotate / drift stay on a
+ * coarser grid of their own scale (0.005 / 0.01).
+ */
 export const SILK_LOOK_RANGES = {
-  speed: { min: 0.15, max: 2.8, step: 0.05 },
-  scale: { min: 0.45, max: 2.2, step: 0.05 },
-  warp: { min: 0.4, max: 4, step: 0.05 },
-  grey: { min: 0.22, max: 0.72, step: 0.01 },
-  white: { min: 0.55, max: 0.95, step: 0.01 },
-  ridge: { min: 0.1, max: 0.85, step: 0.01 },
-  rotate: { min: 0, max: 0.18, step: 0.005 },
-  drift: { min: 0, max: 0.28, step: 0.005 },
-  grain: { min: 0, max: 1, step: 0.01 },
+  speed: { min: 0.05, max: 0.8, step: 0.05 },
+  scale: { min: 0.2, max: 1.2, step: 0.05 },
+  warp: { min: 0.15, max: 1.8, step: 0.05 },
+  grey: { min: 0.2, max: 0.75, step: 0.05 },
+  white: { min: 0.6, max: 1, step: 0.05 },
+  ridge: { min: 0.3, max: 1, step: 0.05 },
+  rotate: { min: 0, max: 0.06, step: 0.005 },
+  drift: { min: 0, max: 0.2, step: 0.01 },
+  grain: { min: 0, max: 1, step: 0.05 },
 } as const;
 
 export function clampSilkLook(look: SilkLook): SilkLook {

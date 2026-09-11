@@ -27,7 +27,7 @@ Requested look lock path `/workspace/dallas-meetup-tv/globe-look/LOOK.md` is not
 - Ground must not compete with the Grok and Cursor faces. Skyline stays off.
 - Do **not** call vgpu `init()` on this canvas. A successful WebGPU context owns the canvas and can leave a static black field; WebGL2 then cannot start.
 - If WebGL2 cannot compile: live **CPU shader** of the same field. Never a static wash, Unicorn SDK, circle glyphs, or the old 4-blob wash.
-- Lab demo **Silk ground** sliders write live uniforms (`speed`, fold scale, warp, grey, white, ridge, rotate, drift, grain). Pixel film grain sits on the silk; amount is `uGrain`. Defaults are this locked look. Do not remount the GL canvas when the dock opens or a slider moves.
+- Lab demo **Silk ground** sliders write live uniforms. Idle defaults (2026-09-11): speed `0.15×`, fold `0.50×`, warp `0.55`, grey `0.45`, white `0.95`, ridge `0.80`, rotate `0.015`, drift `0.09`, grain `0.75`. Point sliders step `0.05` (speed `0.05×`). Do not remount the GL canvas when the dock opens or a slider moves.
 
 ### Loop (keep)
 Sequential 3-logo fade Grok → SpaceX → Cursor over `loopSeconds` (default **120s**). Fade-out then fade-in; at most one logo visible. Idle carousel only.
