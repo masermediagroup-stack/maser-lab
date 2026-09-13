@@ -1,0 +1,19 @@
+.tv-frost-nav-demo__field {
+  overflow: visible;
+  background: #05070a;
+}
+
+.tv-frost-nav-demo__wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 36% at 50% 100%, rgba(90, 150, 210, 0.22), transparent 58%),
+    radial-gradient(circle at 18% 28%, rgba(255, 255, 255, 0.05), transparent 42%);
+}
+
+.tv-frost-nav-demo__copy {
+  position: relative;
+  z-index: 1;
+  padding: 5.5rem 1.5rem 1.5rem;
+}

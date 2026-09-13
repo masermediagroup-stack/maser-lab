@@ -1,0 +1,194 @@
+/* tyler-glass-nav product tokens — portable; no --lab-* */
+
+.tv-frost-nav {
+  --nav-frost-blur: 12px;
+  --nav-frost-saturate: 170%;
+  --nav-frost-fill-floor: rgba(12, 14, 18, 0.92);
+  --nav-outer-lift: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --nav-expand-duration: 220ms;
+  --nav-expand-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --nav-disc-size: 26.25rem;
+  --nav-peek-show: 18px;
+  --nav-expanded-show: 10.5rem;
+  --nav-frost-fill: rgba(255, 255, 255, 0.10);
+  --nav-rim-color: rgba(255, 255, 255, 0.16);
+  --nav-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  --nav-peek-glow: 0 0 0 rgba(0, 0, 0, 0);
+  --nav-disc-shadow: var(--nav-inset-highlight);
+  --nav-icon: rgba(255, 255, 255, 0.55);
+  --nav-slot-fill: rgba(255, 255, 255, 0.08);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.tv-frost-nav[data-shell="glowing-peek"] {
+  --nav-frost-fill: rgba(255, 255, 255, 0.14);
+  --nav-rim-color: rgba(255, 255, 255, 0.28);
+  --nav-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  --nav-peek-glow: 0 0 12px rgba(180, 210, 255, 0.12);
+  --nav-disc-shadow: var(--nav-inset-highlight), var(--nav-peek-glow);
+}
+
+.tv-frost-nav[data-shell="expanded-quiet"],
+.tv-frost-nav[data-shell="expanded-slot"] {
+  --nav-frost-fill: rgba(255, 255, 255, 0.14);
+  --nav-rim-color: rgba(255, 255, 255, 0.22);
+  --nav-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  --nav-peek-glow: 0 0 0 rgba(0, 0, 0, 0);
+  --nav-disc-shadow: var(--nav-inset-highlight), var(--nav-outer-lift);
+}
+
+.tv-frost-nav__lift {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: var(--nav-disc-size);
+  height: var(--nav-disc-size);
+  pointer-events: auto;
+  transform: translate3d(-50%, calc(100% - var(--nav-peek-show)), 0);
+  transition-property: transform;
+  transition-duration: var(--nav-expand-duration);
+  transition-timing-function: var(--nav-expand-ease);
+}
+
+.tv-frost-nav[data-open="true"] .tv-frost-nav__lift {
+  transform: translate3d(-50%, calc(100% - var(--nav-expanded-show)), 0);
+}
+
+.tv-frost-nav[data-instant="true"] .tv-frost-nav__lift {
+  transition-duration: 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-frost-nav .tv-frost-nav__lift {
+    transition-duration: 0ms;
+  }
+}
+
+.tv-frost-nav[data-reduced-motion="true"] .tv-frost-nav__lift {
+  transition-duration: 0ms;
+}
+
+.tv-frost-nav__frost {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--nav-frost-fill-floor);
+  border: 1px solid var(--nav-rim-color);
+  box-shadow: var(--nav-disc-shadow);
+  transform: translateZ(0);
+  -webkit-mask-image: radial-gradient(farthest-side, transparent 57.5%, #000 58%);
+  mask-image: radial-gradient(farthest-side, transparent 57.5%, #000 58%);
+  pointer-events: none;
+}
+
+@supports ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
+  .tv-frost-nav:not([data-reduced-transparency="true"]) .tv-frost-nav__frost {
+    background: var(--nav-frost-fill);
+    -webkit-backdrop-filter: blur(var(--nav-frost-blur)) saturate(var(--nav-frost-saturate));
+    backdrop-filter: blur(var(--nav-frost-blur)) saturate(var(--nav-frost-saturate));
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .tv-frost-nav .tv-frost-nav__frost {
+    background: var(--nav-frost-fill-floor);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.tv-frost-nav__inner-rim {
+  position: absolute;
+  inset: 21%;
+  border-radius: 50%;
+  border: 1px solid var(--nav-rim-color);
+  pointer-events: none;
+}
+
+.tv-frost-nav__peek {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 0;
+  z-index: 5;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tv-frost-nav[data-open="true"] .tv-frost-nav__peek {
+  pointer-events: none;
+}
+
+.tv-frost-nav__slot {
+  position: absolute;
+  inset: 0;
+  display: block;
+  color: var(--nav-icon);
+  background: transparent;
+  text-decoration: none;
+}
+
+.tv-frost-nav[data-open="true"] .tv-frost-nav__slot {
+  background: var(--nav-slot-fill);
+}
+
+.tv-frost-nav__slot[data-active="true"] {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+}
+
+.tv-frost-nav__slot[data-lit="true"] {
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  filter: drop-shadow(0 0 12px rgba(180, 210, 255, 0.12));
+  color: #ffffff;
+}
+
+.tv-frost-nav__slot:focus {
+  outline: none;
+}
+
+.tv-frost-nav__slot:focus-visible,
+.tv-frost-nav__peek:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.tv-frost-nav__mark {
+  position: absolute;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: -0.75rem 0 0 -0.75rem;
+  pointer-events: none;
+  color: inherit;
+}
+
+.tv-frost-nav__mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tv-frost-nav__divider {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 50%;
+  margin-left: -0.5px;
+  background: rgba(255, 255, 255, 0.22);
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+
+.tv-frost-nav[data-open="false"] .tv-frost-nav__slot,
+.tv-frost-nav[data-open="false"] .tv-frost-nav__divider {
+  visibility: hidden;
+}
