@@ -121,8 +121,10 @@
   cursor: pointer;
 }
 
-.tv-frost-nav[data-open="true"] .tv-frost-nav__peek {
-  pointer-events: none;
+@media (hover: hover) and (pointer: fine) {
+  .tv-frost-nav[data-open="true"] .tv-frost-nav__peek {
+    pointer-events: none;
+  }
 }
 
 .tv-frost-nav__slot {

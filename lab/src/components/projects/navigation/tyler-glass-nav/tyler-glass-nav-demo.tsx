@@ -111,7 +111,7 @@ function TylerGlassNavDemoInner() {
       </DemoControlMenu>
 
       <div className="tv-frost-nav-demo__field lab-demo-field">
-        <div className="tv-frost-nav-demo__wash" aria-hidden="true" />
+        <div className="tv-frost-nav-demo__ground" aria-hidden="true" />
         <div className="tv-frost-nav-demo__copy lab-demo-inset">
           <p className="lab-type-caption text-white/50">{copy.title}</p>
           <p className="lab-type-body mt-2 max-w-sm text-white/70">{copy.line}</p>

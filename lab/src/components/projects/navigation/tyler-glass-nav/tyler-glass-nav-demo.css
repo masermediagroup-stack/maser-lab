@@ -3,13 +3,12 @@
   background: #05070a;
 }
 
-.tv-frost-nav-demo__wash {
+/* Lab-only ground. Product export stays black / site ground. */
+.tv-frost-nav-demo__ground {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(ellipse 70% 36% at 50% 100%, rgba(90, 150, 210, 0.22), transparent 58%),
-    radial-gradient(circle at 18% 28%, rgba(255, 255, 255, 0.05), transparent 42%);
+  background: #05070a url("./demo/forest-ground.png") center / cover no-repeat;
 }
 
 .tv-frost-nav-demo__copy {

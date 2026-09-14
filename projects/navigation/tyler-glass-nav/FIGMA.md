@@ -9,7 +9,7 @@
 | --- | --- | --- |
 | Figma file | none | |
 | Elite Pixel Guy stills | attached to lab request | 1 dim peek · 2 glowing peek · 3 expanded quiet · 4 expanded + slot glow |
-| Other | none | First still’s extra icons are the icon set, not a lift-off animation |
+| Other | Lab demo forest still (`demo/forest-ground.png`) | Full-bleed behind the disc in the product stage only — not exported |
 
 ## Token map
 

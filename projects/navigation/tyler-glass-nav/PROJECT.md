@@ -46,7 +46,7 @@ Bloom soup, neon multi-layer rims, labels on glass, morphing peek→arc, ease-in
 | Scope | One disc, three slots |
 | Action | Hover/tap peek; activate a slot |
 | Consequence | Navigate; disc returns to peek on next load |
-| Reversibility | Leave hover (75ms) or tap outside / a link |
+| Reversibility | Fine-pointer leave (75ms). Coarse: tap peek again, tap outside, or a link |
 
 ## States
 
@@ -56,7 +56,7 @@ Bloom soup, neon multi-layer rims, labels on glass, morphing peek→arc, ease-in
 - [ ] Expanded + slot glow (hovered slot)
 - [ ] Active route, no hover (expanded quiet + brighter slot, no glow)
 - [ ] Desktop hover expand (`(hover: hover) and (pointer: fine)`)
-- [ ] Mobile tap to pin; tap outside or a link to close
+- [ ] Mobile tap peek to pin (220ms ease-out, stay open); tap peek again or outside to close; finger-up does not collapse; tap a slot navigates
 - [ ] Keyboard: peek focus snaps open at 0ms; Tab through Home, Work, Contact; focus-visible ring
 - [ ] prefers-reduced-motion (instant expand/collapse)
 - [ ] prefers-reduced-transparency (floor fill, no blur)
@@ -89,6 +89,7 @@ Static: `--nav-frost-blur: 12px`; `--nav-frost-saturate: 170%`; `--nav-frost-fil
 - No frost α slider (would interpolate locked fills)
 - Desktop: opaque left rail; product beside it
 - Mobile: product first screen; knobs under the fold
+- Lab-only full-bleed forest still on `.lab-demo-field` (`demo/forest-ground.png`); product barrel stays black / host ground
 
 ## Acceptance criteria
 

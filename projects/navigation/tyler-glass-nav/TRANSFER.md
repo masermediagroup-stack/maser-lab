@@ -28,11 +28,11 @@ import { TylerGlassNav } from "@/components/projects/navigation/tyler-glass-nav"
 
 ## Public assets
 
-- None
+- None in the product barrel. Lab demo only: `demo/forest-ground.png` (do not copy to tylervea.com).
 
 ## Porting steps
 
-1. Copy `lab/src/components/projects/navigation/tyler-glass-nav/` (exclude `*-demo.tsx`)
+1. Copy `lab/src/components/projects/navigation/tyler-glass-nav/` (exclude `*-demo.tsx`, `*-demo.css`, `demo/`)
 2. Import `./tokens.css` once
 3. Wire `pathname` from the portfolio router
 4. Keep product hrefs `/`, `/work`, `/contact`

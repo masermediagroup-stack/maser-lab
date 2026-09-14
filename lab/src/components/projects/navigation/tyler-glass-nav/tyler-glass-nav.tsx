@@ -21,7 +21,9 @@ import "./tokens.css";
 const FINE_HOVER = "(hover: hover) and (pointer: fine)";
 
 function useFineHover(): boolean {
-  const [fine, setFine] = useState(false);
+  const [fine, setFine] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia(FINE_HOVER).matches : false,
+  );
 
   useEffect(() => {
     const mq = window.matchMedia(FINE_HOVER);
@@ -81,6 +83,7 @@ export function TylerGlassNav({
   const [slotHover, setSlotHover] = useState<FrostNavId | null>(null);
   const [instant, setInstant] = useState(false);
   const leaveTimer = useRef<number | null>(null);
+  const peekPointerRef = useRef(false);
 
   const forcedOpen =
     forceExpanded ||
@@ -121,15 +124,17 @@ export function TylerGlassNav({
 
   const onPointerEnter = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
+      if (!fineHover) return;
       if (event.pointerType === "touch") return;
       clearLeave();
       setPointerHot(true);
       setInstant(reducedMotion);
     },
-    [clearLeave, reducedMotion],
+    [clearLeave, fineHover, reducedMotion],
   );
 
   const onPointerLeave = useCallback(() => {
+    if (!fineHover) return;
     clearLeave();
     leaveTimer.current = window.setTimeout(() => {
       setPointerHot(false);
@@ -137,7 +142,7 @@ export function TylerGlassNav({
       if (!forcedOpen) setPinned(false);
       leaveTimer.current = null;
     }, LEAVE_MS);
-  }, [clearLeave, forcedOpen]);
+  }, [clearLeave, fineHover, forcedOpen]);
 
   useEffect(() => {
     return () => clearLeave();
@@ -157,10 +162,17 @@ export function TylerGlassNav({
   }, [pinned, fineHover, reactId]);
 
   const onPeekActivate = useCallback(() => {
-    snapOpen();
-  }, [snapOpen]);
+    peekPointerRef.current = false;
+    if (fineHover) {
+      snapOpen();
+      return;
+    }
+    setInstant(reducedMotion);
+    setPinned((openNow) => !openNow);
+  }, [fineHover, reducedMotion, snapOpen]);
 
   const onPeekFocus = useCallback(() => {
+    if (peekPointerRef.current) return;
     snapOpen();
   }, [snapOpen]);
 
@@ -195,8 +207,11 @@ export function TylerGlassNav({
           className="tv-frost-nav__peek"
           aria-label="Open navigation"
           aria-expanded={open}
-          tabIndex={open ? -1 : 0}
+          tabIndex={open && fineHover ? -1 : 0}
           onClick={onPeekActivate}
+          onPointerDown={() => {
+            peekPointerRef.current = true;
+          }}
           onFocus={onPeekFocus}
         />
         {items.map((item) => {
@@ -216,8 +231,14 @@ export function TylerGlassNav({
               data-active={active && open && !lit ? "true" : undefined}
               data-lit={lit && open ? "true" : undefined}
               tabIndex={open ? 0 : -1}
-              onPointerEnter={() => setSlotHover(item.id)}
-              onPointerLeave={() => setSlotHover((id) => (id === item.id ? null : id))}
+              onPointerEnter={() => {
+                if (!fineHover) return;
+                setSlotHover(item.id);
+              }}
+              onPointerLeave={() => {
+                if (!fineHover) return;
+                setSlotHover((id) => (id === item.id ? null : id));
+              }}
               onFocus={() => {
                 snapOpen();
               }}
