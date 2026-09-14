@@ -205,7 +205,7 @@ export function TylerGlassNav({
         <button
           type="button"
           className="tv-frost-nav__peek"
-          aria-label="Open navigation"
+          aria-label={open ? "Close navigation" : "Open navigation"}
           aria-expanded={open}
           tabIndex={open && fineHover ? -1 : 0}
           onClick={onPeekActivate}

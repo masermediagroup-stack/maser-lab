@@ -56,7 +56,7 @@ Bloom soup, neon multi-layer rims, labels on glass, morphing peek→arc, ease-in
 - [ ] Expanded + slot glow (hovered slot)
 - [ ] Active route, no hover (expanded quiet + brighter slot, no glow)
 - [ ] Desktop hover expand (`(hover: hover) and (pointer: fine)`)
-- [ ] Mobile tap peek to pin (220ms ease-out, stay open); tap peek again or outside to close; finger-up does not collapse; tap a slot navigates
+- [ ] Mobile tap peek to pin (220ms ease-out, stay open); tap peek again or outside to close; finger-up does not collapse; tap a slot navigates; peek names Open/Close navigation + aria-expanded
 - [ ] Keyboard: peek focus snaps open at 0ms; Tab through Home, Work, Contact; focus-visible ring
 - [ ] prefers-reduced-motion (instant expand/collapse)
 - [ ] prefers-reduced-transparency (floor fill, no blur)
@@ -98,7 +98,7 @@ Static: `--nav-frost-blur: 12px`; `--nav-frost-saturate: 170%`; `--nav-frost-fil
 - [ ] `npm run lint` and `npm run build` pass in `lab/`
 - [ ] Product barrel has no demo-chrome
 - [ ] `prefers-reduced-motion` and `prefers-reduced-transparency` honored
-- [ ] aria-label exactly Home, Work, Contact; SVG `aria-hidden`
+- [ ] aria-label exactly Home, Work, Contact; peek `Open navigation` / `Close navigation`; SVG `aria-hidden`
 
 ## Open decisions
 
