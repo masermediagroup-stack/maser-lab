@@ -311,6 +311,33 @@ export function SurfaceCanvas({
     const ro = new ResizeObserver(resize);
     ro.observe(wrap);
 
+    let offscreen = false;
+    const syncPause = () => {
+      const hidden =
+        typeof document !== "undefined" && document.visibilityState === "hidden";
+      const shouldPause = offscreen || hidden;
+      if (shouldPause) engine.loop.stop();
+      else engine.loop.start();
+    };
+
+    const io =
+      typeof IntersectionObserver !== "undefined"
+        ? new IntersectionObserver(
+            (entries) => {
+              const entry = entries[0];
+              offscreen = !entry || !entry.isIntersecting || entry.intersectionRatio < 0.02;
+              syncPause();
+            },
+            { threshold: [0, 0.02, 0.1] },
+          )
+        : null;
+    io?.observe(wrap);
+
+    const onVisibility = () => {
+      syncPause();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     const readLocalPointer = (clientX: number, clientY: number) => {
       const rect = wrap.getBoundingClientRect();
       const x = Math.min(
@@ -369,12 +396,14 @@ export function SurfaceCanvas({
 
     return () => {
       window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("visibilitychange", onVisibility);
       wrap.removeEventListener("pointermove", onPointerMove);
       wrap.removeEventListener("pointerdown", onPointerDown);
       wrap.removeEventListener("pointerup", onPointerUp);
       wrap.removeEventListener("pointercancel", onPointerUp);
       wrap.removeEventListener("pointerleave", onPointerLeave);
       ro.disconnect();
+      io?.disconnect();
       engine.dispose();
       engineRef.current = null;
     };

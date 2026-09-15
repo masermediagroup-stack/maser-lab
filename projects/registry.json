@@ -76,7 +76,7 @@
       "title": "Maser Dither Engine",
       "status": "building",
       "category": "display",
-      "description": "Procedural dither material module — shared WebGL engine, component playgrounds, materials, presets, and docs"
+      "description": "Shared WebGL2 dither pipeline — Lab craft cut with dock knobs; studio authoring is lab-only"
     },
     {
       "slug": "pixel-info-card",

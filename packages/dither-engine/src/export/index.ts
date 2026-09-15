@@ -51,9 +51,13 @@ export {
   applyAssetStrategy,
   buildAssetManifest,
   estimateDataUrlBytes,
+  isAssetRef,
   isBlobUrl,
   isDataUrl,
+  isNonPortableUrl,
   sanitizeContentAssets,
+  sanitizeLabContentAssets,
+  sanitizeLabSourceUrl,
   sanitizeSourceUrl,
 } from "./assets";
 
