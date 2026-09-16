@@ -82,6 +82,7 @@ Emile: under 300ms on any UI chrome that animates; never animate keyboard; never
 
 - Opaque left rail desktop; product first on phone; knobs under the fold  
 - Knobs in `maser-dither-engine-demo.tsx` only — never leak into product barrel  
+- Craft-cut dock must expose **Animation preset** (default Wave) plus that mode’s sliders, **Material** plus its structure sliders, and dither grain / bloom / pattern scale — do not hide those behind Studio / Overview  
 - Studio (`DitherEngineApp` / `shell/`) behind dock **Open studio** — do not transfer `shell/`  
 - Reduced-motion dock control: `aria-label="Toggle reduced motion"`
 

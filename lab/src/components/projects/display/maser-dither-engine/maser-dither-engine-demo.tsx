@@ -18,15 +18,26 @@ import { DitherEngineApp } from "./shell/DitherEngineApp";
 import { MONOCHROME_DEFAULTS, DITHER_SIZES } from "./constants";
 import { applyPaletteToConfig } from "./engine/color";
 import { DEFAULT_COLOR_MATERIAL } from "./engine/color/types";
-import { DEFAULT_ANIMATION_CONFIG } from "./engine/animation";
+import {
+  ANIMATION_MODES,
+  DEFAULT_ANIMATION_CONFIG,
+  defaultModeParams,
+  getAnimationMode,
+  type AnimationModeId,
+} from "./engine/animation";
 import { DEFAULT_INTERACTION_CONFIG } from "./engine/interaction";
 import { DEFAULT_LIGHT_SHAPE } from "./engine/lighting";
 import { DITHER_ALGORITHMS, DEFAULT_DITHER_CONFIG, type DitherAlgorithmId } from "./engine/dither";
 import {
   createDefaultLayers,
   type EngineMaterialId,
+  type MaterialControlKey,
+  type MaterialSpecificParams,
 } from "./engine/material/types";
-import { applyMaterialDefaults } from "./engine/material/catalog";
+import {
+  applyMaterialDefaults,
+  getMaterialDefinition,
+} from "./engine/material/catalog";
 import { MaterialCatalog } from "./materials/catalog";
 import type { DitherSize } from "./types";
 import "./tokens.css";
@@ -62,13 +73,35 @@ function useOsReducedMotion(): boolean {
   return os;
 }
 
-function materialConfig(id: EngineMaterialId) {
+function materialConfig(id: EngineMaterialId, params: MaterialSpecificParams) {
   return {
     materialId: id,
-    params: applyMaterialDefaults(id),
+    params,
     layers: createDefaultLayers(id),
     lowQuality: false,
   };
+}
+
+function cutMaterialSliders(id: EngineMaterialId): MaterialControlKey[] {
+  const supported = getMaterialDefinition(id)?.supportedControls ?? [
+    "structureAmount",
+  ];
+  const specific = supported.filter(
+    (key) => key !== "structureAmount" && key !== "interactionResponse",
+  );
+  const keys: MaterialControlKey[] = [
+    "structureAmount",
+    ...specific.slice(0, 4),
+  ];
+  return keys.filter(
+    (key, index) => keys.indexOf(key) === index && supported.includes(key),
+  );
+}
+
+function humanizeControl(key: string): string {
+  return key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (char) => char.toUpperCase());
 }
 
 export function MaserDitherEngineDemo() {
@@ -85,6 +118,11 @@ export function MaserDitherEngineDemo() {
   const [grain, setGrain] = useState(MONOCHROME_DEFAULTS.grainAmount);
   const [bloom, setBloom] = useState(MONOCHROME_DEFAULTS.bloom);
   const [patternScale, setPatternScale] = useState(1);
+  const [animMode, setAnimMode] = useState<AnimationModeId>("wave");
+  const [modeParams, setModeParams] = useState(() => defaultModeParams("wave"));
+  const [materialParams, setMaterialParams] = useState(() =>
+    applyMaterialDefaults("paper"),
+  );
 
   const params = useMemo(
     () => ({
@@ -106,7 +144,10 @@ export function MaserDitherEngineDemo() {
     [algorithm, matrixSize, patternScale],
   );
 
-  const material = useMemo(() => materialConfig(materialId), [materialId]);
+  const material = useMemo(
+    () => materialConfig(materialId, materialParams),
+    [materialId, materialParams],
+  );
 
   const color = useMemo(
     () => applyPaletteToConfig(paletteId, DEFAULT_COLOR_MATERIAL),
@@ -116,10 +157,14 @@ export function MaserDitherEngineDemo() {
   const animation = useMemo(
     () => ({
       ...DEFAULT_ANIMATION_CONFIG,
-      modeId: "wave" as const,
+      modeId: animMode,
+      modeParams,
     }),
-    [],
+    [animMode, modeParams],
   );
+
+  const animModeDef = getAnimationMode(animMode);
+  const materialSliderKeys = cutMaterialSliders(materialId);
 
   const interaction = DEFAULT_INTERACTION_CONFIG;
   const light = DEFAULT_LIGHT_SHAPE;
@@ -135,6 +180,9 @@ export function MaserDitherEngineDemo() {
     setGrain(MONOCHROME_DEFAULTS.grainAmount);
     setBloom(MONOCHROME_DEFAULTS.bloom);
     setPatternScale(1);
+    setAnimMode("wave");
+    setModeParams(defaultModeParams("wave"));
+    setMaterialParams(applyMaterialDefaults("paper"));
     setWorkspace("cut");
   }, []);
 
@@ -158,8 +206,8 @@ export function MaserDitherEngineDemo() {
             Maser dither engine
           </p>
           <p className="lab-type-caption mt-1 text-[var(--lab-text-secondary)]">
-            Shared WebGL2 dither pipeline — not Three.js. Knobs stay in this
-            dock; the canvas is the product.
+            Shared WebGL2 dither pipeline — not Three.js. Animation preset,
+            material, and sliders are in this dock; the canvas is the product.
           </p>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -194,8 +242,27 @@ export function MaserDitherEngineDemo() {
             label="Material"
             value={materialId}
             options={materials.map((m) => ({ value: m.id, label: m.label }))}
-            onChange={(value) => setMaterialId(value as EngineMaterialId)}
+            onChange={(value) => {
+              const next = value as EngineMaterialId;
+              setMaterialId(next);
+              setMaterialParams(applyMaterialDefaults(next));
+            }}
           />
+          {materialSliderKeys.map((key) => (
+            <LabRange
+              key={key}
+              id={`mde-mat-${key}`}
+              label={humanizeControl(key)}
+              value={materialParams[key]}
+              min={0}
+              max={1}
+              step={0.01}
+              display={materialParams[key].toFixed(2)}
+              onChange={(next) =>
+                setMaterialParams((current) => ({ ...current, [key]: next }))
+              }
+            />
+          ))}
           <LabSelect
             id="mde-palette"
             label="Palette"
@@ -203,6 +270,47 @@ export function MaserDitherEngineDemo() {
             options={PALETTE_OPTIONS.map((p) => ({ ...p }))}
             onChange={setPaletteId}
           />
+        </LabControlGroup>
+        <LabControlGroup label="Animation">
+          <LabSelect
+            id="mde-animation-preset"
+            label="Animation preset"
+            value={animMode}
+            options={ANIMATION_MODES.map((mode) => ({
+              value: mode.id,
+              label: mode.label,
+            }))}
+            onChange={(value) => {
+              const next = value as AnimationModeId;
+              setAnimMode(next);
+              setModeParams(defaultModeParams(next));
+            }}
+          />
+          {animModeDef.controls.map((control) => {
+            const value = modeParams[control.key] ?? control.defaultValue;
+            return (
+              <LabRange
+                key={control.key}
+                id={`mde-anim-${control.key}`}
+                label={control.label}
+                value={value}
+                min={control.min}
+                max={control.max}
+                step={control.step}
+                display={
+                  Number.isInteger(control.step) && control.step >= 1
+                    ? String(Math.round(value))
+                    : value.toFixed(2)
+                }
+                onChange={(next) =>
+                  setModeParams((current) => ({
+                    ...current,
+                    [control.key]: next,
+                  }))
+                }
+              />
+            );
+          })}
         </LabControlGroup>
         <LabControlGroup label="Dither">
           <LabSelect
@@ -257,8 +365,9 @@ export function MaserDitherEngineDemo() {
           />
         </LabControlGroup>
         <p className="lab-type-caption text-[var(--lab-text-muted)]">
-          Engine {params.ditherSize} matrix · DPR capped at 2 · rAF pauses
-          offscreen. Studio is lab-only authoring, not the product barrel.
+          Engine {params.ditherSize} matrix · {animModeDef.label} preset · DPR
+          capped at 2 · rAF pauses offscreen. Studio is lab-only authoring, not
+          the product barrel.
         </p>
       </DemoControlMenu>
 

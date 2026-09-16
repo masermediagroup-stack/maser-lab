@@ -48,6 +48,8 @@ Shared engine/ (WebGL2 + Canvas2D) ← all adapters
 
 - [x] default (Lab craft cut — live dither field)
 - [x] adapters (field / card / button / badge via demo knobs)
+- [x] animation preset + mode sliders on craft-cut Lab dock (default Wave)
+- [x] material structure sliders on craft-cut Lab dock
 - [x] studio workspace (lab-only authoring shell)
 - [x] component playground (studio)
 - [x] materials / presets / docs views (studio)
