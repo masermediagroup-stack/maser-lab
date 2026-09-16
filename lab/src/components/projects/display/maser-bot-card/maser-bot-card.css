@@ -24,7 +24,7 @@
   --mbc-text: #ffffff;
   --mbc-radius: calc(80 / 1299 * 100%);
   --mbc-fit: 0.88;
-  --mbc-flip-safe: 1.42;
+  --mbc-flip-safe: 1.55;
   --shadow-x: 0px;
   position: relative;
   display: grid;
@@ -54,8 +54,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* Square plus Back / Front under the Figma type end (y 1204). */
-  width: min(90vw, calc(70dvh - 9rem));
+  /* FlipNoClip: stage smaller than the field so corners + extrusion
+     stay on the paper through Front↔Back. Tilt / fill / mark unchanged. */
+  width: min(
+    76vw,
+    calc(
+      (100dvh - var(--lab-control-dock-top, 0px) -
+        var(--lab-control-dock-bottom, 0px) - 12.5rem) / 1.32
+    )
+  );
   max-height: none;
   overflow: visible;
   container-type: inline-size;
@@ -74,7 +81,7 @@
 .maser-bot-card__object {
   position: absolute;
   /* FlipNoClip: WebGL viewport larger than the rest card. */
-  inset: calc((1 - var(--mbc-flip-safe, 1.42)) * 50%);
+  inset: calc((1 - var(--mbc-flip-safe, 1.55)) * 50%);
   z-index: 1;
   pointer-events: none;
   overflow: visible;

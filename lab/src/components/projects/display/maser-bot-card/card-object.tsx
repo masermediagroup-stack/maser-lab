@@ -46,12 +46,13 @@ const RADIUS_N = 80;
 /** Rest card vs CSS stack. Face overlay uses this; the WebGL viewport is larger. */
 export const CARD_FIT_STACK = 0.88;
 /**
- * Canvas vs stack. Y-flip perspective lengthens the near lid (~25% at 90°).
- * Expand the viewport so lids stay inside the bitmap — rest size stays CARD_FIT_STACK.
+ * Canvas vs stack. Y-flip perspective lengthens the near lid.
+ * Expand the viewport so lids + extrusion stay inside the bitmap.
+ * Rest size stays CARD_FIT_STACK. Do not recut tilt / fill / mark.
  */
-export const FLIP_SAFE = 1.42;
+export const FLIP_SAFE = 1.55;
 export const CARD_FIT = CARD_FIT_STACK / FLIP_SAFE;
-export const CARD_FOV = 26;
+export const CARD_FOV = 22;
 /** Thickness as a fraction of face width — weight on tilt/flip, not a slab. */
 const DEPTH_FIT = 0.05;
 const FLIP_MS = 520;
@@ -91,7 +92,7 @@ const CARD_CAMERA = {
   fov: CARD_FOV,
   near: 0.1,
   far: 40,
-  position: [0, 0, 4.6] as [number, number, number],
+  position: [0, 0, 5.4] as [number, number, number],
 };
 
 function lerp(current: number, target: number, amount: number) {

@@ -284,10 +284,31 @@ Talk: **card, face, fill, ground, bezel, type, mark.** Never plate.
 
 Talk: **card, face, fill, ground, bezel, type, mark.** Never plate.
 
-5. **FlipNoClip.** Front↔Back flip must not crop the card at the top or bottom. Expand the WebGL viewport / safe radius around the rest card so the full lids stay visible through the 180° turn. Tilt at rest already reads — do not recut tilt to “fix” flip crop. Bad: canvas tight to the rest square so perspective lengthens the near lid into a clip. Good: rest size held; bitmap around the card is large enough for the flip.
-6. **CleanSlateGround.** One ground: off-white `#F7F5F0`. No Stage-bg Calm / Interactive (or “can”) knobs. No intensity slider that does not change what you see. No vgpu field, TL grey wash, or pointer-cloud loop on this demo. Ground is CSS slate only. Fill stays `#000000`. Ground never paints fill, type, or mark.
+## FlipNoClip (locked 2026-09-16)
 
-Refuse: dead Stage-bg options, shader loops with no visible change, flip that shears the lids on the canvas edge.
+| Call | Lock |
+|---|---|
+| Decision | **FlipNoClip** — the full card stays visible through Front↔Back flip. No top or bottom crop. Expand stage / viewport / camera radius so the card can travel the flip without hitting the frame. |
+| Scope | Flip path only. Tilt is good — do not recut tilt, look, fill, ground, or mark. |
+| Evidence | Human: on flip the card clips at the top and/or bottom edge; stage/viewport/radius looks tight to the card outline. |
+| Exceptions | None on this cut. Reduced motion may swap without 3D turn, but if it still turns, same no-clip rule. |
+| Bad | Card outline cut off at the stage edge mid-flip. Tight letterbox that shaves the corners. |
+| Good | Whole card, including corners and extrusion, stays inside the stage for the full Front↔Back turn. |
+
+Do not rewrite the look.
+
+## CleanSlateGround (locked 2026-09-16)
+
+| Call | Lock |
+|---|---|
+| Decision | **CleanSlateGround** — one paper ground `#F7F5F0`. Kill dead Stage-bg can / Calm / Interactive options and leftover background shader/code that does nothing. |
+| Scope | Ground only. Card fill stays `#000000`. Type and mark unchanged. |
+| Evidence | Demo dock showed Stage-bg modes that did not change the background. |
+| Exceptions | A Background knob that only retints the same slate is optional. No fake modes. |
+| Bad | Knobs or shaders that claim a ground change and paint nothing. Multiple unused Stage-bg modes. |
+| Good | One CSS slate `#F7F5F0` behind the card. Fill still black. |
+
+Refuse: dead Stage-bg options, shader loops with no visible change, flip that shears the lids on the canvas edge. Merge 65/72 only after FlipNoClip **and** CleanSlateGround both clear on the current unique.
 
 ## Critique lock (2026-09-16 — shared tilt, one card, off-white ground)
 

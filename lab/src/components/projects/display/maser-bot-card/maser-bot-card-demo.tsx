@@ -140,7 +140,11 @@ export function MaserBotCardDemo() {
       )}
 
       <div
-        className={present ? "fixed inset-0 z-20" : "lab-demo-field"}
+        className={
+          present
+            ? "fixed inset-0 z-20 overflow-visible"
+            : "lab-demo-field overflow-visible"
+        }
         role={present ? "dialog" : undefined}
         aria-modal={present || undefined}
         aria-label={present ? "Maser bot card present" : undefined}
