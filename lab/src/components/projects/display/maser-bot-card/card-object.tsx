@@ -11,8 +11,6 @@ import {
   type RefObject,
 } from "react";
 import {
-  AdditiveBlending,
-  CanvasTexture,
   Color,
   ExtrudeGeometry,
   Group,
@@ -21,8 +19,6 @@ import {
   MeshPhongMaterial,
   NoToneMapping,
   Shape,
-  ShapeGeometry,
-  SRGBColorSpace,
   Vector2,
 } from "three";
 import {
@@ -137,6 +133,53 @@ function cardUVGenerator(outer: number) {
   };
 }
 
+function cloneCanvas(source: HTMLCanvasElement): HTMLCanvasElement {
+  const next = document.createElement("canvas");
+  next.width = source.width;
+  next.height = source.height;
+  const ctx = next.getContext("2d");
+  if (ctx) ctx.drawImage(source, 0, 0);
+  return next;
+}
+
+function blitCanvas(from: HTMLCanvasElement, to: HTMLCanvasElement) {
+  const ctx = to.getContext("2d");
+  if (!ctx) return;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = 1;
+  ctx.clearRect(0, 0, to.width, to.height);
+  ctx.drawImage(from, 0, 0);
+}
+
+/** Quiet pointer wash on the lid canvas — not a second rounded mesh. */
+function paintSheenOnLid(
+  ctx: CanvasRenderingContext2D,
+  shine: CardShine,
+  width: number,
+  height: number,
+) {
+  if (!shine.on || shine.amount <= 0.001) return;
+  const gx = shine.x * width;
+  const gy = shine.y * height;
+  const span = Math.max(width, height);
+  const wash = ctx.createRadialGradient(
+    gx,
+    gy,
+    0.03 * span,
+    gx,
+    gy,
+    0.82 * span,
+  );
+  wash.addColorStop(0, `rgba(255, 255, 255, ${shine.amount * 0.26})`);
+  wash.addColorStop(0.36, `rgba(255, 255, 255, ${shine.amount * 0.08})`);
+  wash.addColorStop(0.7, "rgba(255, 255, 255, 0)");
+  ctx.globalCompositeOperation = "lighter";
+  ctx.fillStyle = wash;
+  ctx.fillRect(0, 0, width, height);
+  ctx.globalCompositeOperation = "source-over";
+}
+
 /**
  * ExtrudeGeometry groups: 0 = both lids, 1 = sides.
  * Split the lids so front and back can carry different type maps.
@@ -174,251 +217,6 @@ function roundedRectShape(width: number, height: number, radius: number) {
   shape.lineTo(-hw, -hh + r);
   shape.absarc(-hw + r, -hh + r, r, Math.PI, (Math.PI * 3) / 2, false);
   return shape;
-}
-
-function CardMark({
-  outer,
-  halfZ,
-  reduced,
-  live,
-  lookPointerRef,
-  faceRef,
-}: {
-  outer: number;
-  halfZ: number;
-  reduced: boolean;
-  live: boolean;
-  lookPointerRef: RefObject<MarkLookPointer | null>;
-  faceRef: RefObject<HTMLElement | null>;
-}) {
-  const slotW = outer * (MARK_SLOT.w / MARK_SLOT.art);
-  const slotH = outer * (MARK_SLOT.h / MARK_SLOT.art);
-  const x = ((MARK_SLOT.x + MARK_SLOT.w / 2) / MARK_SLOT.art - 0.5) * outer;
-  const y = -((MARK_SLOT.y + MARK_SLOT.h / 2) / MARK_SLOT.art - 0.5) * outer;
-  const z = -halfZ - 0.004;
-  const engine = useMemo(() => makeEngine(), []);
-  const tickState = useMemo(() => createMarkTickState(), []);
-  const clockRef = useRef(0);
-  const lastRef = useRef(0);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const textureRef = useRef<CanvasTexture | null>(null);
-  const material = useMemo(() => {
-    const canvas = document.createElement("canvas");
-    canvas.width = MARK_SLOT.w * 2;
-    canvas.height = MARK_SLOT.h * 2;
-    const texture = new CanvasTexture(canvas);
-    texture.colorSpace = SRGBColorSpace;
-    texture.anisotropy = 8;
-    return new MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      depthWrite: false,
-      toneMapped: false,
-      polygonOffset: true,
-      polygonOffsetFactor: -1,
-      polygonOffsetUnits: -1,
-    });
-  }, []);
-
-  useLayoutEffect(() => {
-    const texture = material.map;
-    canvasRef.current =
-      texture instanceof CanvasTexture &&
-      texture.image instanceof HTMLCanvasElement
-        ? texture.image
-        : null;
-    textureRef.current = texture instanceof CanvasTexture ? texture : null;
-    return () => {
-      material.dispose();
-      if (texture instanceof CanvasTexture) texture.dispose();
-      canvasRef.current = null;
-      textureRef.current = null;
-    };
-  }, [material]);
-
-  useEffect(() => {
-    if (reduced) {
-      clockRef.current = 0;
-      lastRef.current = 0;
-      plantMark(engine, 0);
-      return;
-    }
-    if (clockRef.current < 0) clockRef.current = 0;
-  }, [engine, reduced]);
-
-  useFrame(() => {
-    const canvas = canvasRef.current;
-    const texture = textureRef.current;
-    if (!canvas || !texture) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    if (reduced) {
-      if (clockRef.current !== 0) return;
-      plantMark(engine, 0);
-      paintBotFrame(ctx, engine.sample(0), canvas.width, canvas.height);
-      texture.needsUpdate = true;
-      clockRef.current = -1;
-      return;
-    }
-    if (!live) {
-      lastRef.current = 0;
-      if (clockRef.current === 0) {
-        plantMark(engine, 0);
-        paintBotFrame(ctx, engine.sample(0), canvas.width, canvas.height);
-        texture.needsUpdate = true;
-        clockRef.current = 0.0001;
-      }
-      return;
-    }
-    const now = performance.now();
-    const dt = lastRef.current
-      ? Math.min((now - lastRef.current) / 1000, 0.064)
-      : 0;
-    lastRef.current = now;
-    clockRef.current = Math.max(clockRef.current, 0) + dt;
-    const pointer = lookPointerRef.current;
-    const faceBox = faceRef.current?.getBoundingClientRect() ?? null;
-    const look =
-      pointer?.tracking && faceBox
-        ? lookFromCardFace(pointer, faceBox)
-        : null;
-    const frame = tickBotMark(
-      engine,
-      clockRef.current,
-      tickState,
-      true,
-      look,
-    );
-    paintBotFrame(ctx, frame, canvas.width, canvas.height);
-    texture.needsUpdate = true;
-  });
-
-  if (outer < 0.05) return null;
-
-  return (
-    <mesh
-      position={[x, y, z]}
-      rotation={[0, Math.PI, 0]}
-      material={material}
-      renderOrder={2}
-    >
-      <planeGeometry args={[slotW, slotH]} />
-    </mesh>
-  );
-}
-
-function CardSheen({
-  outer,
-  radius,
-  halfZ,
-  shineRef,
-}: {
-  outer: number;
-  radius: number;
-  halfZ: number;
-  shineRef: RefObject<CardShine>;
-}) {
-  const geometry = useMemo(() => {
-    const geo = new ShapeGeometry(roundedRectShape(outer, outer, radius), 24);
-    geo.computeVertexNormals();
-    return geo;
-  }, [outer, radius]);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const textureRef = useRef<CanvasTexture | null>(null);
-  const materialRef = useRef<MeshBasicMaterial | null>(null);
-  const material = useMemo(
-    () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 256;
-      canvas.height = 256;
-      const texture = new CanvasTexture(canvas);
-      texture.colorSpace = SRGBColorSpace;
-      return new MeshBasicMaterial({
-        map: texture,
-        transparent: true,
-        depthWrite: false,
-        depthTest: true,
-        toneMapped: false,
-        blending: AdditiveBlending,
-        visible: false,
-        polygonOffset: true,
-        polygonOffsetFactor: -1,
-        polygonOffsetUnits: -1,
-      });
-    },
-    [],
-  );
-
-  useLayoutEffect(() => {
-    return () => {
-      geometry.dispose();
-    };
-  }, [geometry]);
-
-  useLayoutEffect(() => {
-    const texture = material.map;
-    canvasRef.current =
-      texture instanceof CanvasTexture && texture.image instanceof HTMLCanvasElement
-        ? texture.image
-        : null;
-    textureRef.current = texture instanceof CanvasTexture ? texture : null;
-    materialRef.current = material;
-    return () => {
-      material.dispose();
-      if (texture instanceof CanvasTexture) texture.dispose();
-      canvasRef.current = null;
-      textureRef.current = null;
-      materialRef.current = null;
-    };
-  }, [material]);
-
-  useFrame(() => {
-    const canvas = canvasRef.current;
-    const texture = textureRef.current;
-    const sheenMat = materialRef.current;
-    if (!canvas || !texture || !sheenMat) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const shine = shineRef.current;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, 256, 256);
-    if (!shine?.on || shine.amount <= 0.001) {
-      sheenMat.visible = false;
-      texture.needsUpdate = true;
-      return;
-    }
-    sheenMat.visible = true;
-    const gx = shine.x * 256;
-    const gy = shine.y * 256;
-    const wash = ctx.createRadialGradient(gx, gy, 8, gx, gy, 210);
-    wash.addColorStop(0, `rgba(255, 255, 255, ${shine.amount * 0.26})`);
-    wash.addColorStop(0.36, `rgba(255, 255, 255, ${shine.amount * 0.08})`);
-    wash.addColorStop(0.7, "rgba(255, 255, 255, 0)");
-    ctx.fillStyle = wash;
-    ctx.fillRect(0, 0, 256, 256);
-    texture.needsUpdate = true;
-  });
-
-  if (outer < 0.05) return null;
-  const lift = 0.003;
-
-  return (
-    <>
-      <mesh
-        geometry={geometry}
-        material={material}
-        position={[0, 0, halfZ + lift]}
-        renderOrder={1}
-      />
-      <mesh
-        geometry={geometry}
-        material={material}
-        position={[0, 0, -(halfZ + lift)]}
-        rotation={[0, Math.PI, 0]}
-        renderOrder={1}
-      />
-    </>
-  );
 }
 
 function CardMesh({
@@ -479,6 +277,23 @@ function CardMesh({
     () => [sideMaterial, frontMaterial, backMaterial],
     [sideMaterial, frontMaterial, backMaterial],
   );
+  const engine = useMemo(() => makeEngine(), []);
+  const tickState = useMemo(() => createMarkTickState(), []);
+  const markCanvas = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = MARK_SLOT.w * 2;
+    canvas.height = MARK_SLOT.h * 2;
+    return canvas;
+  }, []);
+  const mapsRef = useRef<CardFaceTextures | null>(null);
+  const frontTextureRef = useRef<CardFaceTextures["front"] | null>(null);
+  const backTextureRef = useRef<CardFaceTextures["back"] | null>(null);
+  const baseFrontRef = useRef<HTMLCanvasElement | null>(null);
+  const baseBackRef = useRef<HTMLCanvasElement | null>(null);
+  const liveFrontRef = useRef<HTMLCanvasElement | null>(null);
+  const liveBackRef = useRef<HTMLCanvasElement | null>(null);
+  const markClockRef = useRef(0);
+  const markLastRef = useRef(0);
   const { viewport } = useThree();
   const outer = Math.min(viewport.width, viewport.height) * CARD_FIT;
   const depth = Math.max(outer * DEPTH_FIT, 0.045);
@@ -515,6 +330,46 @@ function CardMesh({
       geometry?.dispose();
     };
   }, [geometry]);
+
+  useLayoutEffect(() => {
+    if (!maps) {
+      mapsRef.current = null;
+      frontTextureRef.current = null;
+      backTextureRef.current = null;
+      baseFrontRef.current = null;
+      baseBackRef.current = null;
+      liveFrontRef.current = null;
+      liveBackRef.current = null;
+      return;
+    }
+    const frontImg = maps.front.image;
+    const backImg = maps.back.image;
+    if (
+      !(frontImg instanceof HTMLCanvasElement) ||
+      !(backImg instanceof HTMLCanvasElement)
+    ) {
+      return;
+    }
+    if (mapsRef.current !== maps) {
+      baseFrontRef.current = cloneCanvas(frontImg);
+      baseBackRef.current = cloneCanvas(backImg);
+    }
+    mapsRef.current = maps;
+    frontTextureRef.current = maps.front;
+    backTextureRef.current = maps.back;
+    liveFrontRef.current = frontImg;
+    liveBackRef.current = backImg;
+  }, [maps]);
+
+  useEffect(() => {
+    if (reduced) {
+      markClockRef.current = 0;
+      markLastRef.current = 0;
+      plantMark(engine, 0);
+      return;
+    }
+    if (markClockRef.current < 0) markClockRef.current = 0;
+  }, [engine, reduced]);
 
   const yawRef = useRef(0);
   const pitchRef = useRef(0);
@@ -555,8 +410,7 @@ function CardMesh({
   useFrame(() => {
     const tilt = tiltRef.current;
     const pose = poseRef.current;
-    if (!tilt || !pose) return;
-
+    if (tilt && pose) {
     const rest = reduced || !pose.tracking;
     const amount = rest ? REST_LERP : TRACK_LERP;
     const yawTarget = reduced ? 0 : pose.yaw;
@@ -613,6 +467,98 @@ function CardMesh({
     if (shadow) {
       shadow.style.setProperty("--shadow-x", `${yawRef.current * 1.15}px`);
     }
+    }
+
+    const baseFront = baseFrontRef.current;
+    const baseBack = baseBackRef.current;
+    const liveFront = liveFrontRef.current;
+    const liveBack = liveBackRef.current;
+    const frontMap = frontTextureRef.current;
+    const backMap = backTextureRef.current;
+    if (!baseFront || !baseBack || !liveFront || !liveBack) return;
+
+    blitCanvas(baseFront, liveFront);
+    blitCanvas(baseBack, liveBack);
+
+    const markCtx = markCanvas.getContext("2d");
+    const backCtx = liveBack.getContext("2d");
+    const live = face === "back";
+    if (markCtx && backCtx) {
+      if (reduced) {
+        if (markClockRef.current === 0) {
+          plantMark(engine, 0);
+          paintBotFrame(
+            markCtx,
+            engine.sample(0),
+            markCanvas.width,
+            markCanvas.height,
+          );
+          markClockRef.current = -1;
+        } else if (markClockRef.current < 0) {
+          paintBotFrame(
+            markCtx,
+            engine.sample(0),
+            markCanvas.width,
+            markCanvas.height,
+          );
+        }
+      } else if (!live) {
+        markLastRef.current = 0;
+        if (markClockRef.current === 0) {
+          plantMark(engine, 0);
+          paintBotFrame(
+            markCtx,
+            engine.sample(0),
+            markCanvas.width,
+            markCanvas.height,
+          );
+          markClockRef.current = 0.0001;
+        }
+      } else {
+        const now = performance.now();
+        const dt = markLastRef.current
+          ? Math.min((now - markLastRef.current) / 1000, 0.064)
+          : 0;
+        markLastRef.current = now;
+        markClockRef.current = Math.max(markClockRef.current, 0) + dt;
+        const pointer = lookPointerRef.current;
+        const faceBox = faceRef.current?.getBoundingClientRect() ?? null;
+        const look =
+          pointer?.tracking && faceBox
+            ? lookFromCardFace(pointer, faceBox)
+            : null;
+        const frame = tickBotMark(
+          engine,
+          markClockRef.current,
+          tickState,
+          true,
+          look,
+        );
+        paintBotFrame(markCtx, frame, markCanvas.width, markCanvas.height);
+      }
+      const scale = liveBack.width / ART;
+      backCtx.setTransform(scale, 0, 0, scale, 0, 0);
+      backCtx.globalCompositeOperation = "source-over";
+      backCtx.drawImage(
+        markCanvas,
+        MARK_SLOT.x,
+        MARK_SLOT.y,
+        MARK_SLOT.w,
+        MARK_SLOT.h,
+      );
+      backCtx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+
+    const shine = shineRef.current;
+    const frontCtx = liveFront.getContext("2d");
+    if (frontCtx && !reduced) {
+      paintSheenOnLid(frontCtx, shine, liveFront.width, liveFront.height);
+    }
+    if (backCtx && !reduced) {
+      paintSheenOnLid(backCtx, shine, liveBack.width, liveBack.height);
+    }
+    if (frontMap) frontMap.needsUpdate = true;
+    if (backMap) backMap.needsUpdate = true;
   });
 
   if (!geometry || outer < 0.05) return null;
@@ -627,20 +573,6 @@ function CardMesh({
       <group ref={tiltRef}>
         <group ref={flipRef}>
           <mesh ref={meshRef} geometry={geometry} material={materials} />
-          <CardSheen
-            outer={outer}
-            radius={radius}
-            halfZ={halfZ}
-            shineRef={shineRef}
-          />
-          <CardMark
-            outer={outer}
-            halfZ={halfZ}
-            reduced={reduced}
-            live={face === "back"}
-            lookPointerRef={lookPointerRef}
-            faceRef={faceRef}
-          />
         </group>
       </group>
     </>
@@ -661,8 +593,8 @@ type CardObjectProps = {
 
 /**
  * Physical card body: thin rounded cuboid (ExtrudeGeometry, no bevel).
- * Type is painted on the lid maps (flat Display Trial). Pose + one-shot
- * flip are written here so the mark, sheen, and type stay on this card.
+ * Type, mark, and sheen are painted on the lid maps (flat Display Trial).
+ * Pose + one-shot flip live on this cuboid — no extra mark/sheen planes.
  * No Three.js GLSL — stage shaders stay vgpu.
  */
 export function CardObject({

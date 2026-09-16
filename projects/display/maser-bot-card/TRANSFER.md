@@ -27,7 +27,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 | `face` | `"front" \| "back"` | `"front"` | Controlled face |
 | `onFaceChange` | `(face) => void` | | Flip callback |
 | `bgMode` | `"calm" \| "interactive"` | `"interactive"` | Stage still vs pointer cloud |
-| `groundColor` | `string` | `"#F4F1EA"` | Stage ground only (demo **Background** knob). Never on the card fill, type, or mark. Default off-white. Face fill stays `#000`. |
+| `groundColor` | `string` | `"#F7F5F0"` | Stage ground only (demo **Background** knob). Never on the card fill, type, or mark. Default off-white. Face fill stays `#000`. |
 | `forceReducedMotion` | `boolean` | `false` | Demo toggle; also honors OS |
 
 ## Public assets
@@ -48,6 +48,6 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 ## Notes
 
 - Live URL: https://maser-ng8sb7qyv-masermediagroup.vercel.app/demos/maser-bot-card (`dpl_2s9LmAuPfVeGgzhBybPALtBHR1xy`, SHA `ff33d45`). Stale: `awwry24pa`, `pd4uggc30`, `4nvivik66`, `rk46m1hj1`, `knumwb5a9` and earlier. Do not hand the git-branch alias.
-- Card face is solid `#000`. Mark and sheen sit on the cuboid (same tilt). Overlay is hit-test only — no nested card. Stage is vgpu (ground default `#F4F1EA` + TL grey + pointer cloud), not on the card face. Front v1 wordmark. Back v1 capsule + typeset copy.
+- Card face is solid `#000`. Mark and sheen are painted onto the cuboid lid maps (same mesh as type). Overlay is hit-test only — no nested card, no extra planes. Stage is vgpu (ground default `#F7F5F0` + TL grey + pointer cloud), not on the card face. Front v1 wordmark. Back v1 capsule + typeset copy.
 - Product must not import lab demo chrome tokens as its look.
 - Mark: capsule + bleu `#3b93f0`. One curl per page load (`neutre` → `attentif` → `curieux` → `mefiant` → `thinking` → `fier` → `neutre`), then pointer gaze until refresh. Do not replay. Refuse `defaultCycle` montage.

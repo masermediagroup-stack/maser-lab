@@ -133,7 +133,7 @@ Back v1 (identity, `1:2`):
 Live behavior (after static):
 
 1. Tilt + quieter sheen on the **card face** only while the pointer is on the card. Card face stays the Figma square `#000`. No rest sheen, idle center light, parked highlight, or center bloom. Flip control sits **below** the card, bottom center, fully clear of the type: it sits below the Figma body box (x 97, y 692, w 840, h 512, type ends at y 1204). Do not overlap the last line. The text is the button (no outline, no chip). Label is **Back** on the wordmark face and **Front** on the identity face. Clicking it turns the card over as one object. Reduced motion swaps without the turn. Not “View back” / “View front”. Not hover-only. On leave, including a fast swipe off the card, the light dies clean. Reduced motion: planted, no sheen at all.
-2. Stage background **behind** the card, not on the card face, type, or mark: ground (demo knob, default off-white `#F4F1EA`) + small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave. Ground never paints the card fill.
+2. Stage background **behind** the card, not on the card face, type, or mark: ground (demo knob, default off-white `#F7F5F0`) + small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave. Ground never paints the card fill.
 3. Card face stays solid `#000000` so type and capsule read as the Figma file.
 4. One card face: type sits on the face. Tilt and quieter sheen on that face. No outline rim, no bevel, no chrome edge, no second plane around the type. Body holds Figma box x 97, y 692, w 840, h 512 — full paragraph visible, no clip, “moving.” does not wrap onto its own line.
 
@@ -276,8 +276,18 @@ Say **card face**, not plate.
 
 Talk: **card, face, fill, ground, bezel, type, mark.** Never plate.
 
-1. **Mark on the card.** The Back v1 mace logo lives in the main card layer (cuboid back face). Tilt shares that card’s perspective. Not a decoupled overlay.
+1. **Mark on the card.** The Back v1 mace logo lives in the **main card volume** — same 3D object as the face, bezel, and rim. Tilt shares that card’s perspective. Not a decoupled overlay. Not a separate plane.
 2. **No nested card.** Light is sheen on the face fill of one card. Kill inner-card / double-bezel reads. No second rounded fill around type or mark.
-3. **Ground default off-white.** Demo Background ground defaults to `#F4F1EA`. Face fill stays `#000000`. Ground never paints fill, type, or mark.
+3. **Ground default off-white.** Demo Background ground defaults to `#F7F5F0` (DesignEngLoop deck paper). Face fill stays `#000000`. Ground never paints fill, type, or mark. Override prior default ground `#000000` and `#F4F1EA`.
 4. **Mark motion.** One catalog curl per load, then pointer gaze. Do not replay the curl.
+
+## Critique lock (2026-09-16 — shared tilt, one card, off-white ground)
+
+Human: do not stop until all three clear. Encode here. Do not recut past these.
+
+1. **Mark in the card.** Back mace logo lives in the **main card layer** — same 3D object as the face, bezel, rim. Tilt shares perspective with the card. Bad: a 2D overlay / separate plane that slides against the card. Good: logo turns with the card.
+2. **One card, one light.** Kill nested-card / double-bezel. Light hit must not read as an inner card inside another black card. One face, one rim, sheen on that face. No second frame, no inner fill sitting in a well.
+3. **Default ground = off-white.** Not black. Card fill stays `#000000`. Background knob still changes the **ground** only. Override prior “default ground `#000000`.” Suggested ground: paper `#F7F5F0` (DesignEngLoop deck paper) unless Spark already has an off-white token on this demo.
+
+Refuse: stacked bevels, inner-card light, mark that does not share the card’s transform, black as the default ground.
 

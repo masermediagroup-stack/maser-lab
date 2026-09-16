@@ -21,7 +21,7 @@ export function MaserBotCardDemo() {
   const [face, setFace] = useState<MaserBotCardFace>("front");
   const [bgMode, setBgMode] = useState<MaserBotCardBgMode>("interactive");
   const [bgIntensity, setBgIntensity] = useState(0.35);
-  const [groundColor, setGroundColor] = useState("#F4F1EA");
+  const [groundColor, setGroundColor] = useState("#F7F5F0");
   const [reduced, setReduced] = useState(false);
   const [present, setPresent] = useState(false);
   const [replayKey, setReplayKey] = useState(0);

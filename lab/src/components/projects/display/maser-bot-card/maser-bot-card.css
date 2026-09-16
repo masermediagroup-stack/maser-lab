@@ -20,7 +20,7 @@
 .maser-bot-card {
   --mbc-art: 1299;
   --mbc-card-bg: #000000;
-  --mbc-ground: #f4f1ea;
+  --mbc-ground: #f7f5f0;
   --mbc-text: #ffffff;
   --mbc-radius: calc(80 / 1299 * 100%);
   --shadow-x: 0px;
@@ -42,7 +42,7 @@
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  background-color: var(--mbc-ground, #f4f1ea);
+  background-color: var(--mbc-ground, #f7f5f0);
 }
 
 .maser-bot-card__stage {
@@ -54,7 +54,7 @@
 }
 
 .maser-bot-card[data-gpu="pending"] .maser-bot-card__bg {
-  background-color: var(--mbc-ground, #f4f1ea);
+  background-color: var(--mbc-ground, #f7f5f0);
   background-image: radial-gradient(
     80% 70% at 0% 0%,
     rgb(42 42 42 / 0.85) 0%,
@@ -64,12 +64,12 @@
 
 .maser-bot-card[data-gpu="painting"] .maser-bot-card__bg {
   background-image: none;
-  background-color: var(--mbc-ground, #f4f1ea);
+  background-color: var(--mbc-ground, #f7f5f0);
 }
 
 .maser-bot-card[data-reduced="true"] .maser-bot-card__bg {
   background-image: none;
-  background-color: var(--mbc-ground, #f4f1ea);
+  background-color: var(--mbc-ground, #f7f5f0);
 }
 
 .maser-bot-card__scene {
@@ -209,8 +209,8 @@
   -webkit-backface-visibility: hidden;
 }
 
-/* Mesh fill + painted type. Overlay is hit-test only — no second card.
-   Mark and sheen live on the cuboid. Pose lives on the mesh, not here. */
+/* Mesh fill + painted type/mark/sheen. Overlay is hit-test only —
+   no nested card, no second bezel, no extra mark plane. */
 .maser-bot-card[data-gl="true"] .maser-bot-card__face-tilt,
 .maser-bot-card[data-gl="true"] .maser-bot-card__flip {
   transform: none;
@@ -231,8 +231,7 @@
   display: none;
 }
 
-.maser-bot-card[data-gl="true"]
-  .maser-bot-card__slot:not(.maser-bot-card__slot--mark) {
+.maser-bot-card[data-gl="true"] .maser-bot-card__slot {
   opacity: 0;
   visibility: hidden;
 }

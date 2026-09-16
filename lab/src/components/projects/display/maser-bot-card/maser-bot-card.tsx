@@ -35,7 +35,7 @@ const FIGMA_TYPE_END = 1072;
 const FIGMA_ART = 1299;
 /** Air under the last body line / Figma type end before Back / Front. */
 const FLIP_CLEAR_PX = 64;
-const DEFAULT_GROUND = "#F4F1EA";
+const DEFAULT_GROUND = "#F7F5F0";
 const EMPTY_SUBSCRIBE = () => () => {};
 
 function cssGround(hex: string): string {
@@ -86,9 +86,9 @@ const REST_STAGE: StageUniforms = {
   tracking: 0,
   intensity: 0.35,
   reduced: 1,
-  groundR: 244 / 255,
-  groundG: 241 / 255,
-  groundB: 234 / 255,
+  groundR: 247 / 255,
+  groundG: 245 / 255,
+  groundB: 240 / 255,
 };
 
 const REST_POSE: CardObjectPose = {
