@@ -1,6 +1,6 @@
 # Transfer: Tyler Vea Frost Disc Nav
 
-Fill when status → `ready` or `transferred`. Not ready — lab demo only. Do not mount on tylervea.com in this pass.
+Fill when status → `ready` or `transferred`. **Not finished:** lab demo incomplete; live tylervea.com ship is a later PR. Do not treat this merge as done.
 
 Universal checklist: `.agents/skills/maser-lab-web/references/project-lifecycle.md` → **Transfer checklist**.
 

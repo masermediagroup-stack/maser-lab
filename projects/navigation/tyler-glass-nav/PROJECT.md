@@ -1,5 +1,9 @@
 # Project: Tyler Vea Frost Disc Nav
 
+> **NOT FINISHED — do not treat this merge as done.**  
+> Lab demo is incomplete. Landing this on `main` parks the frost disc in maser-lab only.  
+> **Live tylervea.com ship is a later PR.** Do not mount, transfer, or mark `ready` from this merge.
+
 **Slug:** `tyler-glass-nav`  
 **Category:** navigation  
 **Status:** building  

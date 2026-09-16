@@ -1,5 +1,7 @@
 # Run locally
 
+**Not finished.** Lab demo incomplete; live tylervea.com ship is a later PR. Do not treat a `main` merge as done.
+
 This project is meant to be developed and previewed on your machine — not only in Cursor Cloud.
 
 ## Setup
