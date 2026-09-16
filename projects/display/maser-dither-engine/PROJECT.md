@@ -46,15 +46,20 @@ Shared engine/ (WebGL2 + Canvas2D) ← all adapters
 
 ## States
 
-- [x] default (overview)
-- [x] component playground
-- [x] materials / presets / docs views
-- [x] reduced motion
-- [x] favorites / recent (persisted)
+- [x] default (Lab craft cut — live dither field)
+- [x] adapters (field / card / button / badge via demo knobs)
+- [x] animation preset + mode sliders on craft-cut Lab dock (default Wave)
+- [x] material structure sliders on craft-cut Lab dock
+- [x] studio workspace (lab-only authoring shell)
+- [x] component playground (studio)
+- [x] materials / presets / docs views (studio)
+- [x] reduced motion (OS + Lab dock toggle)
+- [x] favorites / recent (persisted, studio)
 
 ## Acceptance criteria
 
-- [x] Demo route `/demos/maser-dither-engine` opens overview (not raw controls)
+- [x] Demo route `/demos/maser-dither-engine` opens a live non-black field in Lab chrome (knobs in `DemoControlMenu`, not the product barrel)
+- [x] Studio remains reachable from the dock; overview is studio-only, not the first Lab screen
 - [x] Left sidebar with search, favorites, recent, keyboard shortcuts 1–6
 - [x] 12 component playgrounds share one renderer API
 - [x] Grouped collapsible controls with persisted open state
@@ -71,6 +76,8 @@ Shared engine/ (WebGL2 + Canvas2D) ← all adapters
 - [x] Sprint 6 procedural materials (10 core + monochrome) with distinct structure
 - [x] Material browser + comparison + contextual controls + layer recipe
 - [x] `npm run lint` / `npm run build` pass
+- [x] SurfaceCanvas pauses rAF when offscreen or the document is hidden
+- [x] Lab reduced-motion toggle has accessible name `Toggle reduced motion`
 
 ## Sprint 1 — Procedural Animation Engine
 
