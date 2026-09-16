@@ -54,10 +54,17 @@ function useOsReducedMotion(): boolean {
 /**
  * Maser Dither Engine lab shell — creative-software navigation over a shared renderer.
  */
-export function DitherEngineApp() {
+export function DitherEngineApp({
+  forceReducedMotion = false,
+  embedded = false,
+}: {
+  forceReducedMotion?: boolean;
+  /** Nested in Lab DemoControlMenu — skip the duplicate Lab back link. */
+  embedded?: boolean;
+}) {
   const osReduced = useOsReducedMotion();
   const [forceReduced, setForceReduced] = useState(false);
-  const reducedMotion = osReduced || forceReduced;
+  const reducedMotion = osReduced || forceReduced || forceReducedMotion;
 
   const [route, setRoute] = useState<AppRoute>(() =>
     typeof window !== "undefined"
@@ -93,19 +100,8 @@ export function DitherEngineApp() {
     isCompactViewport &&
     (route.view === "component" || route.view === "playground");
 
-  useEffect(() => {
-    if (!isMobileEditor) return;
-    const html = document.documentElement;
-    const body = document.body;
-    const prevHtmlOverflow = html.style.overflow;
-    const prevBodyOverflow = body.style.overflow;
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-    return () => {
-      html.style.overflow = prevHtmlOverflow;
-      body.style.overflow = prevBodyOverflow;
-    };
-  }, [isMobileEditor]);
+  /* Lab chrome owns page scroll (product first / knobs under the fold).
+     Do not lock html/body — that trapped DemoControlMenu off-screen. */
 
   const navigate = useCallback((next: AppRoute) => {
     const hash = routeToHash(next);
@@ -382,7 +378,7 @@ export function DitherEngineApp() {
       className={cn("mde-app", isMobileEditor && "mde-app--mobile-editor")}
       aria-label="Maser Dither Engine"
     >
-      {!isMobileEditor ? (
+      {!isMobileEditor && !embedded ? (
         <div className="mde-app__chrome">
           <Link href="/" className="mde-app__back">
             ← Maser-Lab

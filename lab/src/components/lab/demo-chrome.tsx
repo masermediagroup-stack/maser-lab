@@ -63,9 +63,9 @@ export function DemoLabBrand({ className }: DemoLabBrandProps) {
       <Image
         src="/brand/masermedia-logo-bold-blue.png"
         alt="MaserMedia"
-        width={120}
-        height={28}
-        className="hidden h-7 w-auto sm:block"
+        width={1024}
+        height={519}
+        className="hidden h-7 w-fit max-w-none shrink-0 object-contain sm:block"
       />
     </div>
   );

@@ -124,7 +124,7 @@ export const DITHER_SIZES: DitherSize[] = [2, 4, 8, 32, 64];
 export const MAX_DPR = 2;
 
 export const STORAGE_KEYS = {
-  panels: "mde:panels:v2",
+  panels: "mde:panels:v3",
   favorites: "mde:favorites:v1",
   recent: "mde:recent:v1",
   density: "mde:density:v1",
@@ -132,4 +132,5 @@ export const STORAGE_KEYS = {
   materialFavorites: "mde:material-favorites:v1",
   controlFavorites: "mde:control-favorites:v1",
   exportHistory: "mde:export-history:v1",
+  assetsDb: "mde-assets-v1",
 } as const;

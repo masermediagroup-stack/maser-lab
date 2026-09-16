@@ -15,12 +15,47 @@ export function isBlobUrl(url: string | null | undefined): boolean {
   return Boolean(url && url.startsWith("blob:"));
 }
 
+export function isAssetRef(url: string | null | undefined): boolean {
+  return Boolean(url && url.startsWith("mde-asset:"));
+}
+
 export function isDataUrl(url: string | null | undefined): boolean {
   return Boolean(url && url.startsWith("data:"));
 }
 
-/** Drop blob URLs from content (CTA photo etc.). */
+/** Lab-only / non-portable refs that must not ship in production exports. */
+export function isNonPortableUrl(url: string | null | undefined): boolean {
+  return isBlobUrl(url) || isAssetRef(url);
+}
+
+/** Drop blob / lab asset refs from content (CTA photo etc.) — portable export. */
 export function sanitizeContentAssets(
+  content: ComponentContent,
+): ComponentContent {
+  const next = { ...content, navItems: [...content.navItems] };
+  if (isNonPortableUrl(next.cardCtaSourceUrl)) {
+    next.cardCtaSourceUrl = null;
+  }
+  return next;
+}
+
+/** Portable export: strip blob: and mde-asset: (lab-only). */
+export function sanitizeSourceUrl(url: string | null): string | null {
+  if (!url || isNonPortableUrl(url)) return null;
+  return url;
+}
+
+/**
+ * Lab project save: keep `mde-asset:` / data / http(s); drop live `blob:`
+ * (uploads should already be persisted via asset-store before snapshot).
+ */
+export function sanitizeLabSourceUrl(url: string | null): string | null {
+  if (!url) return null;
+  if (isBlobUrl(url)) return null;
+  return url;
+}
+
+export function sanitizeLabContentAssets(
   content: ComponentContent,
 ): ComponentContent {
   const next = { ...content, navItems: [...content.navItems] };
@@ -28,11 +63,6 @@ export function sanitizeContentAssets(
     next.cardCtaSourceUrl = null;
   }
   return next;
-}
-
-export function sanitizeSourceUrl(url: string | null): string | null {
-  if (!url || isBlobUrl(url)) return null;
-  return url;
 }
 
 export function buildAssetManifest(
