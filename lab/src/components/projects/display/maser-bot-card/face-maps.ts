@@ -90,8 +90,6 @@ function paintBack(canvas: HTMLCanvasElement) {
   ctx.fillText(PARKED_COPY.name, 969 + 231, 138, 231);
 
   ctx.font = `400 64px "${FONT}"`;
-  ctx.fillText(PARKED_COPY.role, 574 + 626, 253, 626);
-
   ctx.textAlign = "left";
   const bioWidth = 840;
   const lineHeight = 64 * 1.2;

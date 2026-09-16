@@ -30,7 +30,7 @@ Out: lab shell chrome (already locked on main). Stage script (Copy). Prompt-only
 | --- | --- |
 | Rest | Card planted. No tilt. No sheen. No idle center light. |
 | Front | Front v1 (`1:20`): white Grok Bot wordmark. No animated mark. |
-| Back | Back v1 (`1:2`): identity — live capsule + name, role, bio. |
+| Back | Back v1 (`1:2`): identity — live capsule + name, bio. No Producer line in the title area. |
 | Flip | Text-only Back / Front at the bottom of the card. Not hover-only. |
 | Pointer enter | Track pointer. Tilt + quieter sheen arm only while the pointer is on the card face. |
 | Pointer move | Tilt follows pointer (X/Y). Quiet sheen tracks the pointer on the card face. Stage cloud follows on the field. |
@@ -131,8 +131,8 @@ Back v1 (identity, `1:2`):
 
 Live behavior (after static):
 
-1. Tilt + quieter sheen on the **card face** only while the pointer is on the card. Card face stays the Figma square `#000`. No rest sheen, idle center light, parked highlight, or center bloom. Flip control sits **below** the card, bottom center, fully clear of the type: it sits below the Figma body box (x 97, y 692, w 840, h 512, type ends at y 1204). Do not overlap the last line. The text is the button (no outline, no chip). Label is **Back** on the wordmark face and **Front** on the identity face. Not “View back” / “View front”. Not hover-only. On leave, including a fast swipe off the card, the light dies clean. Reduced motion: planted, no sheen at all.
-2. Stage background **behind** the card, not on the card face and not the type: ground (demo knob, default off-white `#F7F5F0`) + small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave. Ground never paints the card fill.
+1. Tilt + quieter sheen on the **card face** only while the pointer is on the card. Card face stays the Figma square `#000`. No rest sheen, idle center light, parked highlight, or center bloom. Flip control sits **below** the card, bottom center, fully clear of the type: it sits below the Figma body box (x 97, y 692, w 840, h 512, type ends at y 1204). Do not overlap the last line. The text is the button (no outline, no chip). Label is **Back** on the wordmark face and **Front** on the identity face. Clicking it turns the card over as one object. Reduced motion swaps without the turn. Not “View back” / “View front”. Not hover-only. On leave, including a fast swipe off the card, the light dies clean. Reduced motion: planted, no sheen at all.
+2. Stage background **behind** the card, not on the card face, type, or mark: ground (demo knob, default off-white `#F7F5F0`) + small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave. Ground never paints the card fill.
 3. Card face stays solid `#000000` so type and capsule read as the Figma file.
 4. One card face: type sits on the face. Tilt and quieter sheen on that face. No outline rim, no bevel, no chrome edge, no second plane around the type. Body holds Figma box x 97, y 692, w 840, h 512 — full paragraph visible, no clip, “moving.” does not wrap onto its own line.
 
@@ -160,7 +160,7 @@ Two sides. Not a hover peek.
 | Front | Front v1 (`1:20`): white Grok Bot wordmark vector. No capsule. |
 | Back | Back v1 (`1:2`): live capsule + name, role, bio (Figma boxes). |
 
-Toggle with an explicit **Back / Front** text control at the bottom of the card (the label *is* the button). Do not use hover-only to reveal the other face. Focusable, keyboardable, reduced-motion safe (instant swap or opacity crossfade when motion is off).
+Toggle with an explicit **Back / Front** text control at the bottom of the card (the label *is* the button). Clicking it turns the card over as one object. Do not use hover-only to reveal the other face. Focusable, keyboardable. Reduced motion swaps without the turn.
 
 ## Light (steal from Zoah craft — structure only)
 
@@ -305,10 +305,21 @@ Do not rewrite the look.
 | Scope | Ground only. Card fill stays `#000000`. Type and mark unchanged. |
 | Evidence | Demo dock showed Stage-bg modes that did not change the background. |
 | Exceptions | A Background knob that only retints the same slate is optional. No fake modes. |
-| Bad | Knobs or shaders that claim a ground change and paint nothing. Multiple unused Stage-bg modes. |
 | Good | One CSS slate `#F7F5F0` behind the card. Fill still black. |
+| Bad | Knobs or shaders that claim a ground change and paint nothing. Multiple unused Stage-bg modes. |
 
-Refuse: dead Stage-bg options, shader loops with no visible change, flip that shears the lids on the canvas edge. Merge 65/72 only after FlipNoClip **and** CleanSlateGround both clear on the current unique.
+Refuse: dead Stage-bg options, shader loops with no visible change, flip that shears the lids on the canvas edge. FlipNoClip and CleanSlateGround are human-cleared. Do not reopen.
+
+## NoProducerLabel (locked 2026-09-16)
+
+| Call | Lock |
+|---|---|
+| Decision | **NoProducerLabel** — back title area (top-right, under the name) has no Producer line. |
+| Scope | Back identity title area only. Do not recut name, body, mark, tilt, fill, ground, or bezel. |
+| Evidence | Human: remove the word Producer under the title on the back. |
+| Exceptions | None. Parked role string in `copy.ts` stays verbatim and is not painted. |
+| Bad | “Producer” or “Chief of Staff/Producer” under mace in the top-right. |
+| Good | Top-right title is **mace** only. Body copy unchanged. |
 
 ## Preview (time this — 2026-09-16 PR 72)
 

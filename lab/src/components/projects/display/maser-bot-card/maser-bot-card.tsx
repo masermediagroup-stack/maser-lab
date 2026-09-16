@@ -401,9 +401,6 @@ export function MaserBotCard({
                     <p className="maser-bot-card__slot maser-bot-card__slot--name">
                       {PARKED_COPY.name}
                     </p>
-                    <p className="maser-bot-card__slot maser-bot-card__slot--role">
-                      {PARKED_COPY.role}
-                    </p>
                     <p
                       ref={bioRef}
                       className="maser-bot-card__slot maser-bot-card__slot--bio"

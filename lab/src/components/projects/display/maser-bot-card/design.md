@@ -30,7 +30,7 @@ Out: lab shell chrome (already locked on main). Stage script (Copy). Prompt-only
 | --- | --- |
 | Rest | Card planted. No tilt. No sheen. No idle center light. |
 | Front | Front v1 (`1:20`): white Grok Bot wordmark. No animated mark. |
-| Back | Back v1 (`1:2`): identity — live capsule + name, role, bio. |
+| Back | Back v1 (`1:2`): identity — live capsule + name, bio. No Producer line in the title area. |
 | Flip | Text-only Back / Front at the bottom of the card. Not hover-only. |
 | Pointer enter | Track pointer. Tilt + quieter sheen arm only while the pointer is on the card face. |
 | Pointer move | Tilt follows pointer (X/Y). Quiet sheen tracks the pointer on the card face. Stage cloud follows on the field. |
@@ -308,7 +308,18 @@ Do not rewrite the look.
 | Good | One CSS slate `#F7F5F0` behind the card. Fill still black. |
 | Bad | Knobs or shaders that claim a ground change and paint nothing. Multiple unused Stage-bg modes. |
 
-Refuse: dead Stage-bg options, shader loops with no visible change, flip that shears the lids on the canvas edge. Merge 65/72 only after FlipNoClip **and** CleanSlateGround both clear on the current unique.
+Refuse: dead Stage-bg options, shader loops with no visible change, flip that shears the lids on the canvas edge. FlipNoClip and CleanSlateGround are human-cleared. Do not reopen.
+
+## NoProducerLabel (locked 2026-09-16)
+
+| Call | Lock |
+|---|---|
+| Decision | **NoProducerLabel** — back title area (top-right, under the name) has no Producer line. |
+| Scope | Back identity title area only. Do not recut name, body, mark, tilt, fill, ground, or bezel. |
+| Evidence | Human: remove the word Producer under the title on the back. |
+| Exceptions | None. Parked role string in `copy.ts` stays verbatim and is not painted. |
+| Bad | “Producer” or “Chief of Staff/Producer” under mace in the top-right. |
+| Good | Top-right title is **mace** only. Body copy unchanged. |
 
 ## Preview (time this — 2026-09-16 PR 72)
 
