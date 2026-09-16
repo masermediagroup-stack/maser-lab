@@ -27,7 +27,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 | `face` | `"front" \| "back"` | `"front"` | Controlled face |
 | `onFaceChange` | `(face) => void` | | Flip callback |
 | `bgMode` | `"calm" \| "interactive"` | `"interactive"` | Stage still vs pointer cloud |
-| `groundColor` | `string` | `"#000000"` | Stage ground only (demo **Background** knob). Never on the card fill, type, or mark. |
+| `groundColor` | `string` | `"#F4F1EA"` | Stage ground only (demo **Background** knob). Never on the card fill, type, or mark. Default off-white. Face fill stays `#000`. |
 | `forceReducedMotion` | `boolean` | `false` | Demo toggle; also honors OS |
 
 ## Public assets
@@ -48,6 +48,6 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 ## Notes
 
 - Live URL: set after this recut’s unique preview. `pd4uggc30`, `4nvivik66`, `rk46m1hj1`, `knumwb5a9` and earlier hosts are stale. Do not hand the branch alias.
-- Card face is solid `#000`. Stage is vgpu (TL grey + pointer cloud), not on the card face. Front v1 wordmark. Back v1 capsule + typeset copy.
+- Card face is solid `#000`. Mark and sheen sit on the cuboid (same tilt). Overlay is hit-test only — no nested card. Stage is vgpu (ground default `#F4F1EA` + TL grey + pointer cloud), not on the card face. Front v1 wordmark. Back v1 capsule + typeset copy.
 - Product must not import lab demo chrome tokens as its look.
 - Mark: capsule + bleu `#3b93f0`. One curl per page load (`neutre` → `attentif` → `curieux` → `mefiant` → `thinking` → `fier` → `neutre`), then pointer gaze until refresh. Do not replay. Refuse `defaultCycle` montage.

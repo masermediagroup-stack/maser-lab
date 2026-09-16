@@ -11,6 +11,8 @@ import {
   type RefObject,
 } from "react";
 import {
+  AdditiveBlending,
+  CanvasTexture,
   Color,
   ExtrudeGeometry,
   Group,
@@ -19,6 +21,8 @@ import {
   MeshPhongMaterial,
   NoToneMapping,
   Shape,
+  ShapeGeometry,
+  SRGBColorSpace,
   Vector2,
 } from "three";
 import {
@@ -29,6 +33,16 @@ import {
   createCardFaceTextures,
   type CardFaceTextures,
 } from "./face-maps";
+import {
+  createMarkTickState,
+  lookFromCardFace,
+  makeEngine,
+  MARK_SLOT,
+  paintBotFrame,
+  plantMark,
+  tickBotMark,
+  type MarkLookPointer,
+} from "./grok-bot-mark";
 import type { MaserBotCardFace } from "./types";
 
 const ART = 1299;
@@ -48,6 +62,20 @@ export type CardObjectPose = {
   yaw: number;
   pitch: number;
   tracking: boolean;
+};
+
+export type CardShine = {
+  on: boolean;
+  x: number;
+  y: number;
+  amount: number;
+};
+
+export const REST_SHINE: CardShine = {
+  on: false,
+  x: 0.5,
+  y: 0.5,
+  amount: 0,
 };
 
 const CARD_GL = {
@@ -148,12 +176,260 @@ function roundedRectShape(width: number, height: number, radius: number) {
   return shape;
 }
 
+function CardMark({
+  outer,
+  halfZ,
+  reduced,
+  live,
+  lookPointerRef,
+  faceRef,
+}: {
+  outer: number;
+  halfZ: number;
+  reduced: boolean;
+  live: boolean;
+  lookPointerRef: RefObject<MarkLookPointer | null>;
+  faceRef: RefObject<HTMLElement | null>;
+}) {
+  const slotW = outer * (MARK_SLOT.w / MARK_SLOT.art);
+  const slotH = outer * (MARK_SLOT.h / MARK_SLOT.art);
+  const x = ((MARK_SLOT.x + MARK_SLOT.w / 2) / MARK_SLOT.art - 0.5) * outer;
+  const y = -((MARK_SLOT.y + MARK_SLOT.h / 2) / MARK_SLOT.art - 0.5) * outer;
+  const z = -halfZ - 0.004;
+  const engine = useMemo(() => makeEngine(), []);
+  const tickState = useMemo(() => createMarkTickState(), []);
+  const clockRef = useRef(0);
+  const lastRef = useRef(0);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const textureRef = useRef<CanvasTexture | null>(null);
+  const material = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = MARK_SLOT.w * 2;
+    canvas.height = MARK_SLOT.h * 2;
+    const texture = new CanvasTexture(canvas);
+    texture.colorSpace = SRGBColorSpace;
+    texture.anisotropy = 8;
+    return new MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    const texture = material.map;
+    canvasRef.current =
+      texture instanceof CanvasTexture &&
+      texture.image instanceof HTMLCanvasElement
+        ? texture.image
+        : null;
+    textureRef.current = texture instanceof CanvasTexture ? texture : null;
+    return () => {
+      material.dispose();
+      if (texture instanceof CanvasTexture) texture.dispose();
+      canvasRef.current = null;
+      textureRef.current = null;
+    };
+  }, [material]);
+
+  useEffect(() => {
+    if (reduced) {
+      clockRef.current = 0;
+      lastRef.current = 0;
+      plantMark(engine, 0);
+      return;
+    }
+    if (clockRef.current < 0) clockRef.current = 0;
+  }, [engine, reduced]);
+
+  useFrame(() => {
+    const canvas = canvasRef.current;
+    const texture = textureRef.current;
+    if (!canvas || !texture) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    if (reduced) {
+      if (clockRef.current !== 0) return;
+      plantMark(engine, 0);
+      paintBotFrame(ctx, engine.sample(0), canvas.width, canvas.height);
+      texture.needsUpdate = true;
+      clockRef.current = -1;
+      return;
+    }
+    if (!live) {
+      lastRef.current = 0;
+      if (clockRef.current === 0) {
+        plantMark(engine, 0);
+        paintBotFrame(ctx, engine.sample(0), canvas.width, canvas.height);
+        texture.needsUpdate = true;
+        clockRef.current = 0.0001;
+      }
+      return;
+    }
+    const now = performance.now();
+    const dt = lastRef.current
+      ? Math.min((now - lastRef.current) / 1000, 0.064)
+      : 0;
+    lastRef.current = now;
+    clockRef.current = Math.max(clockRef.current, 0) + dt;
+    const pointer = lookPointerRef.current;
+    const faceBox = faceRef.current?.getBoundingClientRect() ?? null;
+    const look =
+      pointer?.tracking && faceBox
+        ? lookFromCardFace(pointer, faceBox)
+        : null;
+    const frame = tickBotMark(
+      engine,
+      clockRef.current,
+      tickState,
+      true,
+      look,
+    );
+    paintBotFrame(ctx, frame, canvas.width, canvas.height);
+    texture.needsUpdate = true;
+  });
+
+  if (outer < 0.05) return null;
+
+  return (
+    <mesh
+      position={[x, y, z]}
+      rotation={[0, Math.PI, 0]}
+      material={material}
+      renderOrder={2}
+    >
+      <planeGeometry args={[slotW, slotH]} />
+    </mesh>
+  );
+}
+
+function CardSheen({
+  outer,
+  radius,
+  halfZ,
+  shineRef,
+}: {
+  outer: number;
+  radius: number;
+  halfZ: number;
+  shineRef: RefObject<CardShine>;
+}) {
+  const geometry = useMemo(() => {
+    const geo = new ShapeGeometry(roundedRectShape(outer, outer, radius), 24);
+    geo.computeVertexNormals();
+    return geo;
+  }, [outer, radius]);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const textureRef = useRef<CanvasTexture | null>(null);
+  const materialRef = useRef<MeshBasicMaterial | null>(null);
+  const material = useMemo(
+    () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 256;
+      canvas.height = 256;
+      const texture = new CanvasTexture(canvas);
+      texture.colorSpace = SRGBColorSpace;
+      return new MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        depthWrite: false,
+        depthTest: true,
+        toneMapped: false,
+        blending: AdditiveBlending,
+        visible: false,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1,
+      });
+    },
+    [],
+  );
+
+  useLayoutEffect(() => {
+    return () => {
+      geometry.dispose();
+    };
+  }, [geometry]);
+
+  useLayoutEffect(() => {
+    const texture = material.map;
+    canvasRef.current =
+      texture instanceof CanvasTexture && texture.image instanceof HTMLCanvasElement
+        ? texture.image
+        : null;
+    textureRef.current = texture instanceof CanvasTexture ? texture : null;
+    materialRef.current = material;
+    return () => {
+      material.dispose();
+      if (texture instanceof CanvasTexture) texture.dispose();
+      canvasRef.current = null;
+      textureRef.current = null;
+      materialRef.current = null;
+    };
+  }, [material]);
+
+  useFrame(() => {
+    const canvas = canvasRef.current;
+    const texture = textureRef.current;
+    const sheenMat = materialRef.current;
+    if (!canvas || !texture || !sheenMat) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const shine = shineRef.current;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, 256, 256);
+    if (!shine?.on || shine.amount <= 0.001) {
+      sheenMat.visible = false;
+      texture.needsUpdate = true;
+      return;
+    }
+    sheenMat.visible = true;
+    const gx = shine.x * 256;
+    const gy = shine.y * 256;
+    const wash = ctx.createRadialGradient(gx, gy, 8, gx, gy, 210);
+    wash.addColorStop(0, `rgba(255, 255, 255, ${shine.amount * 0.26})`);
+    wash.addColorStop(0.36, `rgba(255, 255, 255, ${shine.amount * 0.08})`);
+    wash.addColorStop(0.7, "rgba(255, 255, 255, 0)");
+    ctx.fillStyle = wash;
+    ctx.fillRect(0, 0, 256, 256);
+    texture.needsUpdate = true;
+  });
+
+  if (outer < 0.05) return null;
+  const lift = 0.003;
+
+  return (
+    <>
+      <mesh
+        geometry={geometry}
+        material={material}
+        position={[0, 0, halfZ + lift]}
+        renderOrder={1}
+      />
+      <mesh
+        geometry={geometry}
+        material={material}
+        position={[0, 0, -(halfZ + lift)]}
+        rotation={[0, Math.PI, 0]}
+        renderOrder={1}
+      />
+    </>
+  );
+}
+
 function CardMesh({
   poseRef,
   face,
   reduced,
   shadowRef,
   faceTiltRef,
+  faceRef,
+  lookPointerRef,
+  shineRef,
   maps,
 }: {
   poseRef: RefObject<CardObjectPose>;
@@ -161,6 +437,9 @@ function CardMesh({
   reduced: boolean;
   shadowRef: RefObject<HTMLElement | null>;
   faceTiltRef: RefObject<HTMLElement | null>;
+  faceRef: RefObject<HTMLElement | null>;
+  lookPointerRef: RefObject<MarkLookPointer | null>;
+  shineRef: RefObject<CardShine>;
   maps: CardFaceTextures | null;
 }) {
   const tiltRef = useRef<Group>(null);
@@ -348,6 +627,20 @@ function CardMesh({
       <group ref={tiltRef}>
         <group ref={flipRef}>
           <mesh ref={meshRef} geometry={geometry} material={materials} />
+          <CardSheen
+            outer={outer}
+            radius={radius}
+            halfZ={halfZ}
+            shineRef={shineRef}
+          />
+          <CardMark
+            outer={outer}
+            halfZ={halfZ}
+            reduced={reduced}
+            live={face === "back"}
+            lookPointerRef={lookPointerRef}
+            faceRef={faceRef}
+          />
         </group>
       </group>
     </>
@@ -360,13 +653,16 @@ type CardObjectProps = {
   reduced: boolean;
   shadowRef: RefObject<HTMLElement | null>;
   faceTiltRef: RefObject<HTMLElement | null>;
+  faceRef: RefObject<HTMLElement | null>;
+  lookPointerRef: RefObject<MarkLookPointer | null>;
+  shineRef: RefObject<CardShine>;
   onFaceMapsReady?: (ready: boolean) => void;
 };
 
 /**
  * Physical card body: thin rounded cuboid (ExtrudeGeometry, no bevel).
  * Type is painted on the lid maps (flat Display Trial). Pose + one-shot
- * flip are written here so the mesh and overlay stay on the same object.
+ * flip are written here so the mark, sheen, and type stay on this card.
  * No Three.js GLSL — stage shaders stay vgpu.
  */
 export function CardObject({
@@ -375,6 +671,9 @@ export function CardObject({
   reduced,
   shadowRef,
   faceTiltRef,
+  faceRef,
+  lookPointerRef,
+  shineRef,
   onFaceMapsReady,
 }: CardObjectProps) {
   const isClient = useSyncExternalStore(
@@ -443,6 +742,9 @@ export function CardObject({
           reduced={reduced}
           shadowRef={shadowRef}
           faceTiltRef={faceTiltRef}
+          faceRef={faceRef}
+          lookPointerRef={lookPointerRef}
+          shineRef={shineRef}
           maps={maps}
         />
       </Canvas>

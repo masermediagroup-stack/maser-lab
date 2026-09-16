@@ -21,7 +21,7 @@ Dallas meetup stage: pointer over a single 1299-square card; explicit Back / Fro
 Teaching prop for the Lab loop. Figma static reads first. Pointer adds restrained yaw/pitch + quieter sheen. Stage stays behind the card.
 
 ### Current behavior
-1299 square card, radius 80, fill `#000`. Thin Three.js cuboid (no bevel, ~5% of face width): the edge is the side of the cuboid, read on tilt and on the flip (satin catch on the side, not chrome). Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Identity body sits at Figma x 97, width 840, height 512, top raised to 560 so it stays clear of the swap; `room moving.` stays on one line. Keyboardable Back / Front text below the card, black type, no chip. Clicking Back / Front turns the cuboid once to the other face and settles (reduced: swap, no turn). Type sits on the card face (painted on the cuboid lids); tilt + quieter sheen on that face. No rim, no bevel. vgpu ground (demo **Background** knob, default `#000`) + TL grey + pointer cloud on the stage field. Background color does not paint the card face, type, or mark.
+1299 square card, radius 80, fill `#000`. Thin Three.js cuboid (no bevel, ~5% of face width): the edge is the side of the cuboid, read on tilt and on the flip (satin catch on the side, not chrome). Front v1 is the white Grok Bot wordmark. Back v1 typesets name/role/body and the live capsule. Identity body sits at Figma x 97, width 840, height 512, top raised to 560 so it stays clear of the swap; `room moving.` stays on one line. Keyboardable Back / Front text below the card, black type, no chip. Clicking Back / Front turns the cuboid once to the other face and settles (reduced: swap, no turn). Type sits on the card face (painted on the cuboid lids); tilt + quieter sheen on that face. No rim, no bevel. vgpu ground (demo **Background** knob, default `#F4F1EA`) + TL grey + pointer cloud on the stage field. Background color does not paint the card face, type, or mark.
 
 ### Desired outcome
 Match Figma boxes at `n / 1299`. Keep live tilt/sheen and stage field. Do not bake the stage shader into the card face.
@@ -53,7 +53,7 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 | Band | none | critique killed parked highlight / band. No lanyard. |
 | Card face | solid `#000` | Figma lock; no center bloom |
 | Bezel / rim | none | no chrome edge, no outline, no second plane around the type. Thickness is the cuboid side. |
-| Stage bg | vgpu ground (demo **Background** knob, default `#000`) + TL grey + quiet pointer cloud | behind the card; not on the card face, type, or mark |
+| Stage bg | vgpu ground (demo **Background** knob, default `#F4F1EA`) + TL grey + quiet pointer cloud | behind the card; not on the card face, type, or mark |
 | Flip | One 180° turn on the cuboid, then settle (520ms, product state). Reduced: swap, no turn | Back on the wordmark, Front on the identity face. Text is the button. Swap type is black. No extra spin, no loop, no fade. |
 | Mark | Bloub engine, capsule + bleu, **one curl per page load** then pointer gaze | Catalog once; do not replay; clamp gaze inside capsule |
 
@@ -64,9 +64,9 @@ Lab shell chrome. Stage script. Zoah landscape/skin. Dallas wallpaper morphs. Fu
 - [ ] Square 1299 (not landscape, not 3:4)
 - [ ] Locked copy typeset in Figma boxes, verbatim
 - [ ] Product does not import demo chrome or `--lab-*` as its look
-- [ ] Reduced motion: no tilt, no sheen, bg still (black + TL grey), mark planted `neutre`, no curl or pointer chase, face swap without 3D flip
+- [ ] Reduced motion: no tilt, no sheen, bg still (ground + TL grey), mark planted `neutre`, no curl or pointer chase, face swap without 3D flip
 - [ ] Card face is solid `#000`. Stage is vgpu (ground + TL grey + pointer cloud). Capsule bleu `#3b93f0` on **Back v1**. Wordmark on Front v1.
-- [ ] Ground / Background color is a demo knob (default `#000000`) and never sits on the card. Changing it does not tint the card fill, type, or mark.
+- [ ] Ground / Background color is a demo knob (default `#F4F1EA`) and never sits on the card. Changing it does not tint the card fill, type, or mark.
 - [ ] Front / Back turns the cuboid once to the other face and settles. Reduced motion swaps without the turn. Swap type is black.
 - [ ] Product type stack names UniversalSansGrokTest Display Trial (no Geist/Inter substitute; Display file only, not Text Trial)
 - [ ] Component exported from `lab/src/components/projects/display/maser-bot-card/index.ts`

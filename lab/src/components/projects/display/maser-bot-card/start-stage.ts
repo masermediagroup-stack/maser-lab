@@ -39,7 +39,7 @@ function stageSet(values: StageUniforms) {
   };
 }
 
-/** vgpu stage: black field + TL grey wash + quiet pointer cloud. Not the card face. */
+/** vgpu stage: ground (demo Background) + TL grey wash + quiet pointer cloud. Not the card face. */
 export function startStage({
   canvas,
   uniformsRef,

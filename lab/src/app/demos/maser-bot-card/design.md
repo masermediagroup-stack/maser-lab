@@ -133,7 +133,7 @@ Back v1 (identity, `1:2`):
 Live behavior (after static):
 
 1. Tilt + quieter sheen on the **card face** only while the pointer is on the card. Card face stays the Figma square `#000`. No rest sheen, idle center light, parked highlight, or center bloom. Flip control sits **below** the card, bottom center, fully clear of the type: it sits below the Figma body box (x 97, y 692, w 840, h 512, type ends at y 1204). Do not overlap the last line. The text is the button (no outline, no chip). Label is **Back** on the wordmark face and **Front** on the identity face. Not “View back” / “View front”. Not hover-only. On leave, including a fast swipe off the card, the light dies clean. Reduced motion: planted, no sheen at all.
-2. Stage background **behind** the card, not on the card face and not the type: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave.
+2. Stage background **behind** the card, not on the card face and not the type: ground (demo knob, default off-white `#F4F1EA`) + small grey gradient from the top-left, plus a small quiet cloud-type cursor shader that follows the pointer. Shader is **vgpu**. Not a new raw WebGL stack. Not the old dither wave. Ground never paints the card fill.
 3. Card face stays solid `#000000` so type and capsule read as the Figma file.
 4. One card face: type sits on the face. Tilt and quieter sheen on that face. No outline rim, no bevel, no chrome edge, no second plane around the type. Body holds Figma box x 97, y 692, w 840, h 512 — full paragraph visible, no clip, “moving.” does not wrap onto its own line.
 
@@ -271,4 +271,13 @@ Say **card face**, not plate.
 - Physical craft: one card face. Type sits on that face. Tilt and quieter sheen stay on that face. Kill the outline rim and the bevel. No chrome edge. No second plane around the type. Face stays black. Type stays flat Display Trial — not embossed, not metallic. Not landscape. Not purple. Not member chrome. Not Zoah dither on the card face.
 - Stage behind the card, not on the card face and not on the type: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor shader (vgpu). Not the old dither wave. Pointer moves the card, not a wallpaper.
 - Copy stays verbatim. Flip control sits **below** the card, bottom center, fully clear of the Figma body (type ends at y 1204): Back on the wordmark face, Front on the identity face. The text is the button. No outline, no chip.
+
+## Park locks (Pixel Pusher — 2026-09-16)
+
+Talk: **card, face, fill, ground, bezel, type, mark.** Never plate.
+
+1. **Mark on the card.** The Back v1 mace logo lives in the main card layer (cuboid back face). Tilt shares that card’s perspective. Not a decoupled overlay.
+2. **No nested card.** Light is sheen on the face fill of one card. Kill inner-card / double-bezel reads. No second rounded fill around type or mark.
+3. **Ground default off-white.** Demo Background ground defaults to `#F4F1EA`. Face fill stays `#000000`. Ground never paints fill, type, or mark.
+4. **Mark motion.** One catalog curl per load, then pointer gaze. Do not replay the curl.
 

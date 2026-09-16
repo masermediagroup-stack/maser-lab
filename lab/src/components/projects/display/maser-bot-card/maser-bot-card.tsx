@@ -13,7 +13,9 @@ import { isWebGLAvailable } from "@/three/utils/capabilities";
 import {
   CARD_FOV,
   CardObject,
+  REST_SHINE,
   type CardObjectPose,
+  type CardShine,
 } from "./card-object";
 import { PARKED_COPY } from "./copy";
 import { GrokBotMark, type MarkLookPointer } from "./grok-bot-mark";
@@ -33,7 +35,7 @@ const FIGMA_TYPE_END = 1072;
 const FIGMA_ART = 1299;
 /** Air under the last body line / Figma type end before Back / Front. */
 const FLIP_CLEAR_PX = 64;
-const DEFAULT_GROUND = "#000000";
+const DEFAULT_GROUND = "#F4F1EA";
 const EMPTY_SUBSCRIBE = () => () => {};
 
 function cssGround(hex: string): string {
@@ -84,9 +86,9 @@ const REST_STAGE: StageUniforms = {
   tracking: 0,
   intensity: 0.35,
   reduced: 1,
-  groundR: 0,
-  groundG: 0,
-  groundB: 0,
+  groundR: 244 / 255,
+  groundG: 241 / 255,
+  groundB: 234 / 255,
 };
 
 const REST_POSE: CardObjectPose = {
@@ -101,11 +103,13 @@ function lerp(current: number, target: number, amount: number) {
 
 function setCardFaceLight(
   face: HTMLElement,
+  shine: { current: CardShine },
   on: boolean,
   x: number,
   y: number,
   amount: number,
 ) {
+  shine.current = { on, x, y, amount: on ? amount : 0 };
   face.style.setProperty("--sheen-x", `${x * 100}%`);
   face.style.setProperty("--sheen-y", `${y * 100}%`);
   face.style.setProperty("--shine-a", on ? String(amount) : "0");
@@ -143,6 +147,7 @@ export function MaserBotCard({
   const stageRef = useRef<HTMLCanvasElement>(null);
   const stageUniformsRef = useRef<StageUniforms>(REST_STAGE);
   const poseRef = useRef<CardObjectPose>({ ...REST_POSE });
+  const shineRef = useRef<CardShine>({ ...REST_SHINE });
   const lookPointerRef = useRef<MarkLookPointer | null>(null);
   const reducedRef = useRef(false);
   const tiltOnRef = useRef(true);
@@ -183,7 +188,7 @@ export function MaserBotCard({
       poseRef.current = { ...REST_POSE };
       lookPointerRef.current = null;
       const faceEl = faceRef.current;
-      if (faceEl) setCardFaceLight(faceEl, false, 0.5, 0.5, 0);
+      if (faceEl) setCardFaceLight(faceEl, shineRef, false, 0.5, 0.5, 0);
     }
     stageUniformsRef.current = {
       ...stageUniformsRef.current,
@@ -324,7 +329,7 @@ export function MaserBotCard({
     poseRef.current.yaw = 0;
     poseRef.current.pitch = 0;
     const faceEl = faceRef.current;
-    if (faceEl) setCardFaceLight(faceEl, false, 0.5, 0.5, 0);
+    if (faceEl) setCardFaceLight(faceEl, shineRef, false, 0.5, 0.5, 0);
   }
 
   function pointerStillOnFace(event: PointerEvent<HTMLDivElement>) {
@@ -362,9 +367,9 @@ export function MaserBotCard({
       Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1)),
     );
     if (shineOnRef.current) {
-      setCardFaceLight(faceEl, true, nx, ny, intensityRef.current);
+      setCardFaceLight(faceEl, shineRef, true, nx, ny, intensityRef.current);
     } else {
-      setCardFaceLight(faceEl, false, nx, ny, 0);
+      setCardFaceLight(faceEl, shineRef, false, nx, ny, 0);
     }
     if (!tiltOnRef.current) {
       poseRef.current.yaw = 0;
@@ -456,6 +461,9 @@ export function MaserBotCard({
               reduced={reduced}
               shadowRef={sceneRef}
               faceTiltRef={faceTiltRef}
+              faceRef={faceRef}
+              lookPointerRef={lookPointerRef}
+              shineRef={shineRef}
               onFaceMapsReady={setFaceMapsReady}
             />
           ) : null}
@@ -477,14 +485,16 @@ export function MaserBotCard({
                     <div className="maser-bot-card__sheen" aria-hidden />
                   </div>
                   <div className="maser-bot-card__side maser-bot-card__side--back">
-                    <div className="maser-bot-card__slot maser-bot-card__slot--mark">
-                      <GrokBotMark
-                        reduced={reduced}
-                        followLook={!reduced}
-                        lookPointerRef={lookPointerRef}
-                        className="maser-bot-card__mark"
-                      />
-                    </div>
+                    {webgl ? null : (
+                      <div className="maser-bot-card__slot maser-bot-card__slot--mark">
+                        <GrokBotMark
+                          reduced={reduced}
+                          followLook={!reduced}
+                          lookPointerRef={lookPointerRef}
+                          className="maser-bot-card__mark"
+                        />
+                      </div>
+                    )}
                     <p className="maser-bot-card__slot maser-bot-card__slot--name">
                       {PARKED_COPY.name}
                     </p>
