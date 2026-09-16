@@ -310,6 +310,17 @@ Do not rewrite the look.
 
 Refuse: dead Stage-bg options, shader loops with no visible change, flip that shears the lids on the canvas edge. Merge 65/72 only after FlipNoClip **and** CleanSlateGround both clear on the current unique.
 
+## Preview (time this — 2026-09-16 PR 72)
+
+Unique: https://maser-eqhe0908s-masermediagroup.vercel.app/demos/maser-bot-card  
+SHA `e7946b4`. `dpl_HG6msJWkYcs6f6eWSmLFYr29Vobg`. Leave PR 72 and 65 open — do not merge until FlipNoClip and CleanSlateGround clear on this unique.
+
+Stale: a79mqto6l · qyv3ohfj8 · h91l7e7u0 · ng8sb7qyv · bmhb2w5e8 · git-branch alias.
+
+Spark claim (self-check vs this file):
+1. FlipNoClip: scene vs field shrunk; WebGL viewport FLIP_SAFE 1.55; camera fov 22 / z 5.4. Tilt / fill / mark not recut.
+2. CleanSlateGround: CSS slate `#F7F5F0`. No Stage-bg can/Calm/Interactive. Fill `#000000`.
+
 ## Critique lock (2026-09-16 — shared tilt, one card, off-white ground)
 
 Human: do not stop until all three clear. Encode here. Do not recut past these.
