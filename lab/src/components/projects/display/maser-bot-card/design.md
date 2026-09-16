@@ -323,10 +323,10 @@ Refuse: dead Stage-bg options, shader loops with no visible change, flip that sh
 
 ## Preview (time this — 2026-09-16 PR 72)
 
-Unique: https://maser-eqhe0908s-masermediagroup.vercel.app/demos/maser-bot-card  
-SHA `e7946b4`. `dpl_HG6msJWkYcs6f6eWSmLFYr29Vobg`. Leave PR 72 and 65 open — do not merge until FlipNoClip and CleanSlateGround clear on this unique.
+Unique: https://maser-e6u7od3pn-masermediagroup.vercel.app/demos/maser-bot-card  
+SHA `9575755`. `dpl_BQ2GdK2Mk9Nm4WAGaUiQgaGgzqQG`. NoProducerLabel. eqhe0908s is stale.
 
-Stale: a79mqto6l · qyv3ohfj8 · h91l7e7u0 · ng8sb7qyv · bmhb2w5e8 · git-branch alias.
+Stale: eqhe0908s · a79mqto6l · qyv3ohfj8 · h91l7e7u0 · ng8sb7qyv · bmhb2w5e8 · git-branch alias.
 
 Spark claim (self-check vs this file):
 1. FlipNoClip: scene vs field shrunk; WebGL viewport FLIP_SAFE 1.55; camera fov 22 / z 5.4. Tilt / fill / mark not recut.

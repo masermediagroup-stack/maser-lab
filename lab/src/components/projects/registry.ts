@@ -14,6 +14,8 @@ import { PixelInfoCardDemo } from "./display/pixel-info-card/pixel-info-card-dem
 import { TypeWorldDemo } from "./scroll/type-world/type-world-demo";
 import { LiquidMetalMeatballsDemo } from "./scroll/liquid-metal-meatballs/liquid-metal-meatballs-demo";
 import { CtaLogoGradientDemo } from "./marketing/cta-logo-gradient/cta-logo-gradient-demo";
+import { DallasMeetupTvWallpaperDemo } from "./display/dallas-meetup-tv-wallpaper/dallas-meetup-tv-wallpaper-demo";
+import { TylerGlassNavDemo } from "./navigation/tyler-glass-nav/tyler-glass-nav-demo";
 import { MaserBotCardDemo } from "./display/maser-bot-card/maser-bot-card-demo";
 
 export const demoRegistry: Record<string, ComponentType> = {
@@ -32,6 +34,8 @@ export const demoRegistry: Record<string, ComponentType> = {
   "type-world": TypeWorldDemo,
   "liquid-metal-meatballs": LiquidMetalMeatballsDemo,
   "cta-logo-gradient": CtaLogoGradientDemo,
+  "dallas-meetup-tv-wallpaper": DallasMeetupTvWallpaperDemo,
+  "tyler-glass-nav": TylerGlassNavDemo,
   "maser-bot-card": MaserBotCardDemo,
 };
 

@@ -107,6 +107,20 @@
       "description": "Homepage CtaLogoTilt replacement: four-blob wash + in-place ASCII tick (not the footer wave)"
     },
     {
+      "slug": "dallas-meetup-tv-wallpaper",
+      "title": "Dallas Meetup TV Wallpaper",
+      "status": "building",
+      "category": "display",
+      "description": "Pure-white TV wallpaper loop with Cursor cube + Grok face marks and deterministic 8-second export."
+    },
+    {
+      "slug": "tyler-glass-nav",
+      "title": "Tyler Vea Frost Disc Nav",
+      "status": "building",
+      "category": "navigation",
+      "description": "Icon-only frosted-glass navigation disc — peek rim, three slots, CSS backdrop-filter only"
+    },
+    {
       "slug": "maser-bot-card",
       "title": "Maser bot card",
       "status": "building",

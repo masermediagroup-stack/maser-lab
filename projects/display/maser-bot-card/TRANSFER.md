@@ -46,7 +46,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 
 ## Notes
 
-- Live URL: https://maser-eqhe0908s-masermediagroup.vercel.app/demos/maser-bot-card (`dpl_HG6msJWkYcs6f6eWSmLFYr29Vobg`, SHA `e7946b4`). Stale: `a79mqto6l` / `dpl_8P1uASYnZ21AzJsrAh4aRm2qcpZZ`, `qyv3ohfj8` / `dpl_7keJMWJWH7dBKmJurYRwNVNeojCQ`, `h91l7e7u0`, `ng8sb7qyv` / `dpl_2s9LmAuPfVeGgzhBybPALtBHR1xy`, `bmhb2w5e8`, `awwry24pa`, `pd4uggc30`, `4nvivik66`, `rk46m1hj1`, `knumwb5a9` and earlier. Do not hand the git-branch alias.
+- Live URL: https://maser-e6u7od3pn-masermediagroup.vercel.app/demos/maser-bot-card (`dpl_BQ2GdK2Mk9Nm4WAGaUiQgaGgzqQG`, SHA `9575755`). Stale: `eqhe0908s` / `dpl_HG6msJWkYcs6f6eWSmLFYr29Vobg`, `a79mqto6l` / `dpl_8P1uASYnZ21AzJsrAh4aRm2qcpZZ`, `qyv3ohfj8` / `dpl_7keJMWJWH7dBKmJurYRwNVNeojCQ`, `h91l7e7u0`, `ng8sb7qyv` / `dpl_2s9LmAuPfVeGgzhBybPALtBHR1xy`, `bmhb2w5e8`, `awwry24pa`, `pd4uggc30`, `4nvivik66`, `rk46m1hj1`, `knumwb5a9` and earlier. Do not hand the git-branch alias.
 - Card face is solid `#000`. Mark and sheen are painted onto the cuboid lid maps (same mesh as type). Overlay is hit-test only — no nested card, no extra planes. Ground is CSS slate `#F7F5F0` (CleanSlateGround). Stage / viewport / camera expanded (FlipNoClip). Front v1 wordmark. Back v1 capsule + typeset copy.
 - Product must not import lab demo chrome tokens as its look.
 - Mark: capsule + bleu `#3b93f0`. One curl per page load (`neutre` → `attentif` → `curieux` → `mefiant` → `thinking` → `fier` → `neutre`), then pointer gaze until refresh. Do not replay. Refuse `defaultCycle` montage.
