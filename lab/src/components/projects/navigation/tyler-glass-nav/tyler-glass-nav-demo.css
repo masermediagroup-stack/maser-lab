@@ -1,0 +1,18 @@
+.tv-frost-nav-demo__field {
+  overflow: visible;
+  background: #05070a;
+}
+
+/* Lab-only ground. Product export stays black / site ground. */
+.tv-frost-nav-demo__ground {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: #05070a url("./demo/forest-ground.png") center / cover no-repeat;
+}
+
+.tv-frost-nav-demo__copy {
+  position: relative;
+  z-index: 1;
+  padding: 5.5rem 1.5rem 1.5rem;
+}
