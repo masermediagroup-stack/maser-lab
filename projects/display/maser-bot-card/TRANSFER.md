@@ -47,7 +47,7 @@ import { MaserBotCard } from "@/components/projects/display/maser-bot-card";
 
 ## Notes
 
-- Live URL: set after this recut’s unique preview. `pd4uggc30`, `4nvivik66`, `rk46m1hj1`, `knumwb5a9` and earlier hosts are stale. Do not hand the branch alias.
+- Live URL: https://maser-ng8sb7qyv-masermediagroup.vercel.app/demos/maser-bot-card (`dpl_2s9LmAuPfVeGgzhBybPALtBHR1xy`, SHA `ff33d45`). Stale: `awwry24pa`, `pd4uggc30`, `4nvivik66`, `rk46m1hj1`, `knumwb5a9` and earlier. Do not hand the git-branch alias.
 - Card face is solid `#000`. Mark and sheen sit on the cuboid (same tilt). Overlay is hit-test only — no nested card. Stage is vgpu (ground default `#F4F1EA` + TL grey + pointer cloud), not on the card face. Front v1 wordmark. Back v1 capsule + typeset copy.
 - Product must not import lab demo chrome tokens as its look.
 - Mark: capsule + bleu `#3b93f0`. One curl per page load (`neutre` → `attentif` → `curieux` → `mefiant` → `thinking` → `fier` → `neutre`), then pointer gaze until refresh. Do not replay. Refuse `defaultCycle` montage.
