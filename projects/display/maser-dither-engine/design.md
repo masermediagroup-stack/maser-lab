@@ -6,7 +6,7 @@ No Figma. Package owns the look; Spark names the stack for this cut.
 
 ## Reader job
 
-Judge one live dither field in under a second: pattern reads, material has structure, motion is quiet and purposeful. Swap adapter / material / palette / algorithm without leaving the Lab dock. Studio stays behind Open studio for deep authoring.
+Judge one live dither field in under a second: pattern reads, material has structure, motion is quiet and purposeful. Swap adapter / material / palette / algorithm / **animation preset** / **sliders** without leaving the Lab dock. Studio stays behind Open studio for deep authoring.
 
 ## Kind + stack (locked 2026-09-15)
 
@@ -53,6 +53,7 @@ Cut adapters: Full field · Card · Button · Badge — **one** live `SurfaceCan
 5. **Grain** — film/print noise on the surface, not a second glow layer.
 6. **Bloom** — light-shape falloff; slight, not bloom soup.
 7. **Adapter swap** — card / button / badge crop the same material into UI shapes without a second GPU context.
+8. **Findable knobs** — animation preset + sliders on the craft-cut Lab dock; no Studio / Overview hunt.
 
 ## Motion
 
@@ -74,9 +75,11 @@ Emile: under 300ms on any UI chrome that animates; never animate keyboard; never
 4. Algorithm swap (engine set; Bayer is house for assessor)  
 5. Matrix size steps  
 6. Grain / bloom / pattern scale tuned  
-7. Reduced motion on  
-8. Reset → defaults above  
-9. Open studio (lab shell — not the assessor product)
+7. Animation preset swap + that mode’s sliders  
+8. Material structure sliders  
+9. Reduced motion on  
+10. Reset → defaults above  
+11. Open studio (lab shell — not the assessor product)
 
 ## Lab chrome
 
@@ -88,26 +91,43 @@ Emile: under 300ms on any UI chrome that animates; never animate keyboard; never
 
 ## Spark Verb+Noun (do)
 
-Keep SingleWebGL2Pipeline · Paint OneSurfaceCanvas · Swap Adapter InPlace · Honor BayerDefault · Pause Loop Offscreen · Freeze Field OnReducedMotion · Cap DPR AtTwo · Gate Studio BehindDock · Keep Knobs InDemo · Sync Portable Package
+Keep SingleWebGL2Pipeline · Paint OneSurfaceCanvas · Swap Adapter InPlace · Honor BayerDefault · Pause Loop Offscreen · Freeze Field OnReducedMotion · Cap DPR AtTwo · Gate Studio BehindDock · Keep Knobs InDemo · Surface AnimationPreset OnDock · Keep Sliders OnCraftCut · Sync Portable Package
 
 ## Refuse
 
-Three.js / vgpu on this cut · parallel dither renderer · black first paint · studio Overview as demo entry · grid of live thumbs · document scroll-lock fighting knobs-under-fold · bloom soup / neon house palette · shipping `shell/` · inventing a second engine · computerUse as the only QA gate
+Three.js / vgpu on this cut · parallel dither renderer · black first paint · studio Overview as demo entry · grid of live thumbs · document scroll-lock fighting knobs-under-fold · bloom soup / neon house palette · shipping `shell/` · inventing a second engine · computerUse as the only QA gate · animation preset / sliders only in studio
 
 ## Product vs lab
 
 **Portable:** `engine/`, `react/SurfaceCanvas`, adapters, export, `tokens.css` (see `TRANSFER.md`).  
 **Not portable:** demo CSS, `DemoControlMenu` knobs, studio shell.
 
+## Dock discoverability (locked 2026-09-16)
+
+Human: cannot find where to change **animation preset** and **slider options** in the engine. UX fail on the craft cut.
+
+| Call | Lock |
+|---|---|
+| Decision | Surface animation preset + slider options on the **craft-cut Lab dock**, visible without hunting or opening studio. |
+| Scope | Craft cut / Lab dock only. Product barrel stays knob-free. |
+| Evidence | Human cannot find animation preset + sliders. |
+| Exceptions | Deep authoring stays behind Open studio. |
+| Bad | Preset / sliders only in studio Overview, a buried menu, or a second route. |
+| Good | Assessor lands on the field and can change animation + sliders from the dock they already see. |
+
+Do not invent look. Tokens, field, defaults unchanged.
+
+Open fail (add): **findable knobs** — animation preset + sliders on the craft-cut dock. Time newest unique until canvas moves.
+
 ## Preview (time this)
 
-Unique: https://maser-orajrohfc-masermediagroup.vercel.app/demos/maser-dither-engine  
-PR 69. Branch alias goes stale on next push.  
-Agent: bc-9f45364b-407e-4456-b2dc-a9e70f1ad8d6
+Dock/canvas unique (time this until canvas moves): https://maser-5wo0byba3-masermediagroup.vercel.app/demos/maser-dither-engine  
+PR 69 merged as `e74824f`. Branch alias goes stale on next push.  
+Stale unique: https://maser-orajrohfc-masermediagroup.vercel.app/demos/maser-dither-engine
 
-## Eye pass (2026-09-15 — EP package park)
+## Eye pass (2026-09-16 — Pixel Pusher dock lock)
 
-No computerUse on this pass (standing). Package locked from live cut defaults + PR harden notes. Human / assessor confirms GPU non-black on the unique URL.
+No computerUse on this pass (standing). Package locked from live cut defaults + dock discoverability. Human / assessor confirms GPU non-black on the unique URL.
 
 | Beat | Pass if |
 |---|---|
@@ -115,6 +135,7 @@ No computerUse on this pass (standing). Package locked from live cut defaults + 
 | Default material | Paper + graphite Bayer 8 reads as quiet print |
 | Wave | Soft field motion; not thrash |
 | Knob swap | Adapter / palette / algorithm / matrix change the same surface |
+| Findable knobs | Animation preset + sliders on craft-cut dock; Open studio not required |
 | Reduced motion | Field freezes visible; no blank |
 | One context | Never more than one live WebGL canvas on the cut |
 | Chrome | Dock under fold on phone; left rail desktop; no eyebrow chrome |
@@ -122,6 +143,6 @@ No computerUse on this pass (standing). Package locked from live cut defaults + 
 ### Open fails (confirm on unique)
 
 1. **Non-black GPU** — confirm field is lit on mid-Android / desktop preview (finish agent did not pixel-check).  
-2. Encode this file over starter `projects/display/maser-dither-engine/design.md` in PR 69 (starter was engineer notes only).
+2. Encode this file over starter `projects/display/maser-dither-engine/design.md` — Pixel Pusher dock lock encoded 2026-09-16.
 
 Park corrections below when timed.
