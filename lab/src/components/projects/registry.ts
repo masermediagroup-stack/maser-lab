@@ -16,6 +16,7 @@ import { LiquidMetalMeatballsDemo } from "./scroll/liquid-metal-meatballs/liquid
 import { CtaLogoGradientDemo } from "./marketing/cta-logo-gradient/cta-logo-gradient-demo";
 import { DallasMeetupTvWallpaperDemo } from "./display/dallas-meetup-tv-wallpaper/dallas-meetup-tv-wallpaper-demo";
 import { TylerGlassNavDemo } from "./navigation/tyler-glass-nav/tyler-glass-nav-demo";
+import { MaserBotCardDemo } from "./display/maser-bot-card/maser-bot-card-demo";
 
 export const demoRegistry: Record<string, ComponentType> = {
   "liquid-monochrome": LiquidMonochromeDemo,
@@ -35,6 +36,7 @@ export const demoRegistry: Record<string, ComponentType> = {
   "cta-logo-gradient": CtaLogoGradientDemo,
   "dallas-meetup-tv-wallpaper": DallasMeetupTvWallpaperDemo,
   "tyler-glass-nav": TylerGlassNavDemo,
+  "maser-bot-card": MaserBotCardDemo,
 };
 
 export function registerDemo(slug: string, component: ComponentType) {

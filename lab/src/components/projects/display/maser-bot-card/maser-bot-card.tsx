@@ -1,0 +1,430 @@
+"use client";
+
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type PointerEvent,
+} from "react";
+import { isWebGLAvailable } from "@/three/utils/capabilities";
+import {
+  CARD_FOV,
+  CardObject,
+  REST_SHINE,
+  type CardObjectPose,
+  type CardShine,
+} from "./card-object";
+import { PARKED_COPY } from "./copy";
+import { GrokBotMark, type MarkLookPointer } from "./grok-bot-mark";
+import { GrokBotWordmark } from "./grok-bot-wordmark";
+import type { MaserBotCardFace, MaserBotCardProps } from "./types";
+import "./maser-bot-card.css";
+
+const YAW_DEG = 16;
+const PITCH_DEG = 10;
+const QUIET_SHEEN = 0.22;
+const TRACK_LERP = 0.18;
+const REST_LERP = 0.11;
+const BODY_WIDOW = "room moving.";
+/** Raised body box (top 560, height 512) ends at y 1072 on the 1299 artboard. */
+const FIGMA_TYPE_END = 1072;
+const FIGMA_ART = 1299;
+/** Air under the last body line / Figma type end before Back / Front. */
+const FLIP_CLEAR_PX = 64;
+const DEFAULT_GROUND = "#F7F5F0";
+const EMPTY_SUBSCRIBE = () => () => {};
+
+function cssGround(hex: string): string {
+  const raw = hex.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(raw)) return raw;
+  if (/^#[0-9a-fA-F]{3}$/.test(raw)) {
+    const h = raw.slice(1);
+    return `#${h[0]}${h[0]}${h[1]}${h[1]}${h[2]}${h[2]}`;
+  }
+  return DEFAULT_GROUND;
+}
+
+function syncFlipGap(
+  scene: HTMLElement | null,
+  stack: HTMLElement | null,
+  bio: HTMLElement | null,
+) {
+  if (!scene || !stack) return;
+  const stackBox = stack.getBoundingClientRect();
+  if (stackBox.height < 1) return;
+  const figmaEnd =
+    stackBox.top + (FIGMA_TYPE_END / FIGMA_ART) * stackBox.height;
+  let typeEnd = figmaEnd;
+  if (bio) {
+    const range = document.createRange();
+    range.selectNodeContents(bio);
+    const rects = range.getClientRects();
+    const last = rects[rects.length - 1];
+    if (last) typeEnd = Math.max(typeEnd, last.bottom);
+  }
+  const gap = Math.max(FLIP_CLEAR_PX, typeEnd + FLIP_CLEAR_PX - stackBox.bottom);
+  scene.style.setProperty("--flip-gap", `${Math.ceil(gap)}px`);
+}
+
+const REST_POSE: CardObjectPose = {
+  yaw: 0,
+  pitch: 0,
+  tracking: false,
+};
+
+function lerp(current: number, target: number, amount: number) {
+  return current + (target - current) * amount;
+}
+
+function setCardFaceLight(
+  face: HTMLElement,
+  shine: { current: CardShine },
+  on: boolean,
+  x: number,
+  y: number,
+  amount: number,
+) {
+  shine.current = { on, x, y, amount: on ? amount : 0 };
+  face.style.setProperty("--sheen-x", `${x * 100}%`);
+  face.style.setProperty("--sheen-y", `${y * 100}%`);
+  face.style.setProperty("--shine-a", on ? String(amount) : "0");
+  face.style.setProperty("--shine-on", on ? "1" : "0");
+}
+
+function CardFaceBody({ text }: { text: string }) {
+  if (!text.endsWith(BODY_WIDOW)) return text;
+  return (
+    <>
+      {text.slice(0, -BODY_WIDOW.length)}
+      <span className="maser-bot-card__body-end">{BODY_WIDOW}</span>
+    </>
+  );
+}
+
+export function MaserBotCard({
+  tiltEnabled = true,
+  maxAngleFeel = 1,
+  shineEnabled = true,
+  shineIntensity = QUIET_SHEEN,
+  face: faceProp,
+  onFaceChange,
+  groundColor = DEFAULT_GROUND,
+  forceReducedMotion = false,
+  className,
+}: MaserBotCardProps) {
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const stackRef = useRef<HTMLDivElement>(null);
+  const bioRef = useRef<HTMLParagraphElement>(null);
+  const faceRef = useRef<HTMLDivElement>(null);
+  const faceTiltRef = useRef<HTMLDivElement>(null);
+  const poseRef = useRef<CardObjectPose>({ ...REST_POSE });
+  const shineRef = useRef<CardShine>({ ...REST_SHINE });
+  const lookPointerRef = useRef<MarkLookPointer | null>(null);
+  const reducedRef = useRef(false);
+  const tiltOnRef = useRef(true);
+  const shineOnRef = useRef(true);
+  const feelRef = useRef(maxAngleFeel);
+  const intensityRef = useRef(shineIntensity);
+  const ground = cssGround(groundColor);
+
+  const [osReduced, setOsReduced] = useState(false);
+  const [faceMapsReady, setFaceMapsReady] = useState(false);
+  const [uncontrolledFace, setUncontrolledFace] =
+    useState<MaserBotCardFace>("front");
+  const webgl = useSyncExternalStore(
+    EMPTY_SUBSCRIBE,
+    isWebGLAvailable,
+    () => false,
+  );
+
+  const face = faceProp ?? uncontrolledFace;
+  const reduced = forceReducedMotion || osReduced;
+  const tiltOn = tiltEnabled && !reduced;
+  const shineOn = shineEnabled && !reduced;
+
+  useEffect(() => {
+    reducedRef.current = reduced;
+    tiltOnRef.current = tiltOn;
+    shineOnRef.current = shineOn;
+    feelRef.current = maxAngleFeel;
+    intensityRef.current = shineIntensity;
+    if (reduced) {
+      poseRef.current = { ...REST_POSE };
+      lookPointerRef.current = null;
+      const faceEl = faceRef.current;
+      if (faceEl) setCardFaceLight(faceEl, shineRef, false, 0.5, 0.5, 0);
+    }
+  }, [reduced, tiltOn, shineOn, maxAngleFeel, shineIntensity]);
+
+  useEffect(() => {
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => {
+      setOsReduced(motion.matches);
+    };
+    sync();
+    motion.addEventListener("change", sync);
+    return () => {
+      motion.removeEventListener("change", sync);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    const scene = sceneRef.current;
+    const stack = stackRef.current;
+    const bio = bioRef.current;
+    const apply = () => syncFlipGap(scene, stack, bio);
+    apply();
+    const ro = new ResizeObserver(apply);
+    if (stack) ro.observe(stack);
+    if (bio) ro.observe(bio);
+    void document.fonts?.ready.then(apply);
+    window.addEventListener("resize", apply);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", apply);
+    };
+  }, [face]);
+
+  useEffect(() => {
+    if (webgl) return;
+    let raf = 0;
+    let yaw = 0;
+    let pitch = 0;
+
+    const tick = () => {
+      const pose = poseRef.current;
+      const rest = reducedRef.current || !pose.tracking;
+      const amount = rest ? REST_LERP : TRACK_LERP;
+      const yawTarget = reducedRef.current || !tiltOnRef.current ? 0 : pose.yaw;
+      const pitchTarget =
+        reducedRef.current || !tiltOnRef.current ? 0 : pose.pitch;
+      yaw = lerp(yaw, yawTarget, amount);
+      pitch = lerp(pitch, pitchTarget, amount);
+
+      const faceTilt = faceTiltRef.current;
+      if (faceTilt) {
+        const layer = faceTilt.parentElement;
+        if (layer) {
+          const height = faceTilt.offsetHeight;
+          if (height > 0) {
+            const persp =
+              height / (2 * Math.tan(((CARD_FOV / 2) * Math.PI) / 180));
+            layer.style.perspective = `${persp}px`;
+          }
+        }
+        faceTilt.style.setProperty("--card-pitch", `${pitch}deg`);
+        faceTilt.style.setProperty("--card-yaw", `${yaw}deg`);
+      }
+
+      const scene = sceneRef.current;
+      if (scene) {
+        scene.style.setProperty("--shadow-x", `${yaw * 1.15}px`);
+      }
+
+      raf = window.requestAnimationFrame(tick);
+    };
+
+    raf = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(raf);
+  }, [webgl]);
+
+  useEffect(() => {
+    const onWinPointerMove = (event: globalThis.PointerEvent) => {
+      if (reducedRef.current) return;
+      lookPointerRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        tracking: true,
+      };
+      if (!poseRef.current.tracking) return;
+      const faceEl = faceRef.current;
+      if (!faceEl) return;
+      const rect = faceEl.getBoundingClientRect();
+      const pad = 8;
+      const inside =
+        event.clientX >= rect.left - pad &&
+        event.clientX <= rect.right + pad &&
+        event.clientY >= rect.top - pad &&
+        event.clientY <= rect.bottom + pad;
+      if (inside) return;
+      killCardLight();
+    };
+    window.addEventListener("pointermove", onWinPointerMove);
+    return () => window.removeEventListener("pointermove", onWinPointerMove);
+  }, []);
+
+  function setFace(next: MaserBotCardFace) {
+    if (faceProp === undefined) setUncontrolledFace(next);
+    onFaceChange?.(next);
+  }
+
+  function killCardLight() {
+    poseRef.current.tracking = false;
+    poseRef.current.yaw = 0;
+    poseRef.current.pitch = 0;
+    const faceEl = faceRef.current;
+    if (faceEl) setCardFaceLight(faceEl, shineRef, false, 0.5, 0.5, 0);
+  }
+
+  function pointerStillOnFace(event: PointerEvent<HTMLDivElement>) {
+    const faceEl = faceRef.current;
+    if (!faceEl) return false;
+    const related = event.relatedTarget;
+    if (related instanceof Node && faceEl.contains(related)) return true;
+    const rect = faceEl.getBoundingClientRect();
+    const pad = 8;
+    return (
+      event.clientX >= rect.left - pad &&
+      event.clientX <= rect.right + pad &&
+      event.clientY >= rect.top - pad &&
+      event.clientY <= rect.bottom + pad
+    );
+  }
+
+  function onCardEnter() {
+    if (reduced) return;
+    poseRef.current.tracking = true;
+  }
+
+  function onCardMove(event: PointerEvent<HTMLDivElement>) {
+    if (reduced) return;
+    poseRef.current.tracking = true;
+    const faceEl = faceRef.current;
+    if (!faceEl) return;
+    const rect = faceEl.getBoundingClientRect();
+    const nx = Math.min(
+      1,
+      Math.max(0, (event.clientX - rect.left) / Math.max(rect.width, 1)),
+    );
+    const ny = Math.min(
+      1,
+      Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1)),
+    );
+    if (shineOnRef.current) {
+      setCardFaceLight(faceEl, shineRef, true, nx, ny, intensityRef.current);
+    } else {
+      setCardFaceLight(faceEl, shineRef, false, nx, ny, 0);
+    }
+    if (!tiltOnRef.current) {
+      poseRef.current.yaw = 0;
+      poseRef.current.pitch = 0;
+      return;
+    }
+    const feel = feelRef.current;
+    poseRef.current.yaw = (nx - 0.5) * 2 * YAW_DEG * feel;
+    poseRef.current.pitch = (0.5 - ny) * 2 * PITCH_DEG * feel;
+  }
+
+  function onCardLeave(event: PointerEvent<HTMLDivElement>) {
+    if (pointerStillOnFace(event)) return;
+    killCardLight();
+  }
+
+  function onFieldMove(event: PointerEvent<HTMLElement>) {
+    if (reduced) return;
+    lookPointerRef.current = {
+      clientX: event.clientX,
+      clientY: event.clientY,
+      tracking: true,
+    };
+  }
+
+  function onFieldLeave() {
+    lookPointerRef.current = null;
+  }
+
+  const otherFace: MaserBotCardFace = face === "front" ? "back" : "front";
+  const flipLabel = face === "front" ? "Back" : "Front";
+
+  return (
+    <article
+      className={["maser-bot-card", className].filter(Boolean).join(" ")}
+      style={{ "--mbc-ground": ground } as CSSProperties}
+      aria-label="Maser bot card"
+      data-reduced={reduced ? "true" : "false"}
+      data-tilt={tiltOn ? "true" : "false"}
+      data-shine={shineOn ? "true" : "false"}
+      data-face={face}
+      data-gl={webgl ? "true" : "false"}
+      data-maps={faceMapsReady ? "ready" : "pending"}
+      onPointerMove={onFieldMove}
+      onPointerLeave={onFieldLeave}
+    >
+      <div className="maser-bot-card__bg" data-slot="ground" aria-hidden />
+      <div ref={sceneRef} className="maser-bot-card__scene">
+        <div ref={stackRef} className="maser-bot-card__card-stack">
+          <div className="maser-bot-card__shadow" aria-hidden />
+          {webgl ? (
+            <CardObject
+              poseRef={poseRef}
+              face={face}
+              reduced={reduced}
+              shadowRef={sceneRef}
+              faceTiltRef={faceTiltRef}
+              faceRef={faceRef}
+              lookPointerRef={lookPointerRef}
+              shineRef={shineRef}
+              onFaceMapsReady={setFaceMapsReady}
+            />
+          ) : null}
+          <div className="maser-bot-card__face-layer">
+            <div ref={faceTiltRef} className="maser-bot-card__face-tilt">
+              <div
+                ref={faceRef}
+                className="maser-bot-card__face"
+                onPointerEnter={onCardEnter}
+                onPointerMove={onCardMove}
+                onPointerLeave={onCardLeave}
+                onPointerCancel={killCardLight}
+              >
+                <div className="maser-bot-card__flip">
+                  <div className="maser-bot-card__side maser-bot-card__side--front">
+                    <div className="maser-bot-card__slot maser-bot-card__slot--wordmark">
+                      <GrokBotWordmark className="maser-bot-card__wordmark" />
+                    </div>
+                    <div className="maser-bot-card__sheen" aria-hidden />
+                  </div>
+                  <div className="maser-bot-card__side maser-bot-card__side--back">
+                    {webgl ? null : (
+                      <div className="maser-bot-card__slot maser-bot-card__slot--mark">
+                        <GrokBotMark
+                          reduced={reduced}
+                          followLook={!reduced}
+                          lookPointerRef={lookPointerRef}
+                          className="maser-bot-card__mark"
+                        />
+                      </div>
+                    )}
+                    <p className="maser-bot-card__slot maser-bot-card__slot--name">
+                      {PARKED_COPY.name}
+                    </p>
+                    <p
+                      ref={bioRef}
+                      className="maser-bot-card__slot maser-bot-card__slot--bio"
+                    >
+                      <CardFaceBody text={PARKED_COPY.body} />
+                    </p>
+                    <div className="maser-bot-card__sheen" aria-hidden />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="maser-bot-card__flip-control"
+          onClick={() => setFace(otherFace)}
+          aria-pressed={face === "back"}
+        >
+          {flipLabel}
+        </button>
+      </div>
+    </article>
+  );
+}
+
+export type { MaserBotCardFace, MaserBotCardProps } from "./types";

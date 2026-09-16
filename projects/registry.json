@@ -119,6 +119,13 @@
       "status": "building",
       "category": "navigation",
       "description": "Icon-only frosted-glass navigation disc — peek rim, three slots, CSS backdrop-filter only"
+    },
+    {
+      "slug": "maser-bot-card",
+      "title": "Maser bot card",
+      "status": "building",
+      "category": "display",
+      "description": "1299 square bot card — Figma static, front capsule, back wordmark, CSS tilt/sheen, vgpu stage dither."
     }
   ]
 }
