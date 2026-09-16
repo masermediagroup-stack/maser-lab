@@ -5,13 +5,12 @@ import {
   DemoBackButton,
   DemoControlMenu,
   LabButton,
-  LabColor,
   LabControlGroup,
   LabRange,
   ReducedMotionToggle,
 } from "@/components/lab/demo-chrome";
 import { MaserBotCard } from "./maser-bot-card";
-import type { MaserBotCardBgMode, MaserBotCardFace } from "./types";
+import type { MaserBotCardFace } from "./types";
 
 export function MaserBotCardDemo() {
   const [tiltEnabled, setTiltEnabled] = useState(true);
@@ -19,9 +18,6 @@ export function MaserBotCardDemo() {
   const [shineEnabled, setShineEnabled] = useState(true);
   const [shineIntensity, setShineIntensity] = useState(0.22);
   const [face, setFace] = useState<MaserBotCardFace>("front");
-  const [bgMode, setBgMode] = useState<MaserBotCardBgMode>("interactive");
-  const [bgIntensity, setBgIntensity] = useState(0.35);
-  const [groundColor, setGroundColor] = useState("#F7F5F0");
   const [reduced, setReduced] = useState(false);
   const [present, setPresent] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
@@ -57,9 +53,6 @@ export function MaserBotCardDemo() {
       shineIntensity={shineIntensity}
       face={face}
       onFaceChange={setFace}
-      bgMode={bgMode}
-      bgIntensity={bgIntensity}
-      groundColor={groundColor}
       forceReducedMotion={reduced}
     />
   );
@@ -141,48 +134,6 @@ export function MaserBotCardDemo() {
               value={shineIntensity}
               display={shineIntensity.toFixed(2)}
               onChange={setShineIntensity}
-            />
-          </LabControlGroup>
-          <LabControlGroup label="Stage bg">
-            <div
-              className="flex flex-wrap gap-1"
-              role="group"
-              aria-label="Stage background mode"
-            >
-              <LabButton
-                type="button"
-                variant={bgMode === "calm" ? "accent" : "ghost"}
-                aria-pressed={bgMode === "calm"}
-                onClick={() => setBgMode("calm")}
-              >
-                Calm
-              </LabButton>
-              <LabButton
-                type="button"
-                variant={bgMode === "interactive" ? "accent" : "ghost"}
-                aria-pressed={bgMode === "interactive"}
-                onClick={() => setBgMode("interactive")}
-              >
-                Interactive
-              </LabButton>
-            </div>
-            <LabRange
-              id="mbc-bg-intensity"
-              label="Intensity"
-              min={0}
-              max={1}
-              step={0.01}
-              value={bgIntensity}
-              display={bgIntensity.toFixed(2)}
-              onChange={setBgIntensity}
-            />
-          </LabControlGroup>
-          <LabControlGroup label="Background">
-            <LabColor
-              id="mbc-background"
-              label="Background"
-              value={groundColor}
-              onChange={setGroundColor}
             />
           </LabControlGroup>
         </DemoControlMenu>

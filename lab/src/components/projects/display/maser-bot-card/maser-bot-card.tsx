@@ -20,7 +20,6 @@ import {
 import { PARKED_COPY } from "./copy";
 import { GrokBotMark, type MarkLookPointer } from "./grok-bot-mark";
 import { GrokBotWordmark } from "./grok-bot-wordmark";
-import { startStage, type StageUniforms } from "./start-stage";
 import type { MaserBotCardFace, MaserBotCardProps } from "./types";
 import "./maser-bot-card.css";
 
@@ -48,15 +47,6 @@ function cssGround(hex: string): string {
   return DEFAULT_GROUND;
 }
 
-function hexToRgb01(hex: string): [number, number, number] {
-  const value = cssGround(hex).slice(1);
-  return [
-    Number.parseInt(value.slice(0, 2), 16) / 255,
-    Number.parseInt(value.slice(2, 4), 16) / 255,
-    Number.parseInt(value.slice(4, 6), 16) / 255,
-  ];
-}
-
 function syncFlipGap(
   scene: HTMLElement | null,
   stack: HTMLElement | null,
@@ -78,18 +68,6 @@ function syncFlipGap(
   const gap = Math.max(FLIP_CLEAR_PX, typeEnd + FLIP_CLEAR_PX - stackBox.bottom);
   scene.style.setProperty("--flip-gap", `${Math.ceil(gap)}px`);
 }
-
-const REST_STAGE: StageUniforms = {
-  time: 0,
-  pointerX: 0.22,
-  pointerY: 0.18,
-  tracking: 0,
-  intensity: 0.35,
-  reduced: 1,
-  groundR: 247 / 255,
-  groundG: 245 / 255,
-  groundB: 240 / 255,
-};
 
 const REST_POSE: CardObjectPose = {
   yaw: 0,
@@ -133,8 +111,6 @@ export function MaserBotCard({
   shineIntensity = QUIET_SHEEN,
   face: faceProp,
   onFaceChange,
-  bgMode = "interactive",
-  bgIntensity = 0.35,
   groundColor = DEFAULT_GROUND,
   forceReducedMotion = false,
   className,
@@ -144,8 +120,6 @@ export function MaserBotCard({
   const bioRef = useRef<HTMLParagraphElement>(null);
   const faceRef = useRef<HTMLDivElement>(null);
   const faceTiltRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLCanvasElement>(null);
-  const stageUniformsRef = useRef<StageUniforms>(REST_STAGE);
   const poseRef = useRef<CardObjectPose>({ ...REST_POSE });
   const shineRef = useRef<CardShine>({ ...REST_SHINE });
   const lookPointerRef = useRef<MarkLookPointer | null>(null);
@@ -154,13 +128,9 @@ export function MaserBotCard({
   const shineOnRef = useRef(true);
   const feelRef = useRef(maxAngleFeel);
   const intensityRef = useRef(shineIntensity);
-  const bgInteractiveRef = useRef(false);
-  const bgIntensityRef = useRef(bgIntensity);
   const ground = cssGround(groundColor);
-  const [groundR, groundG, groundB] = hexToRgb01(ground);
 
   const [osReduced, setOsReduced] = useState(false);
-  const [gpuPainted, setGpuPainted] = useState(false);
   const [faceMapsReady, setFaceMapsReady] = useState(false);
   const [uncontrolledFace, setUncontrolledFace] =
     useState<MaserBotCardFace>("front");
@@ -174,7 +144,6 @@ export function MaserBotCard({
   const reduced = forceReducedMotion || osReduced;
   const tiltOn = tiltEnabled && !reduced;
   const shineOn = shineEnabled && !reduced;
-  const bgInteractive = bgMode === "interactive" && !reduced;
 
   useEffect(() => {
     reducedRef.current = reduced;
@@ -182,35 +151,13 @@ export function MaserBotCard({
     shineOnRef.current = shineOn;
     feelRef.current = maxAngleFeel;
     intensityRef.current = shineIntensity;
-    bgInteractiveRef.current = bgInteractive;
-    bgIntensityRef.current = bgIntensity;
     if (reduced) {
       poseRef.current = { ...REST_POSE };
       lookPointerRef.current = null;
       const faceEl = faceRef.current;
       if (faceEl) setCardFaceLight(faceEl, shineRef, false, 0.5, 0.5, 0);
     }
-    stageUniformsRef.current = {
-      ...stageUniformsRef.current,
-      tracking: bgInteractive && !reduced ? stageUniformsRef.current.tracking : 0,
-      intensity: bgIntensity,
-      reduced: reduced || !bgInteractive ? 1 : 0,
-      groundR,
-      groundG,
-      groundB,
-    };
-  }, [
-    reduced,
-    tiltOn,
-    shineOn,
-    maxAngleFeel,
-    shineIntensity,
-    bgInteractive,
-    bgIntensity,
-    groundR,
-    groundG,
-    groundB,
-  ]);
+  }, [reduced, tiltOn, shineOn, maxAngleFeel, shineIntensity]);
 
   useEffect(() => {
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -240,16 +187,6 @@ export function MaserBotCard({
       window.removeEventListener("resize", apply);
     };
   }, [face]);
-
-  useEffect(() => {
-    const canvas = stageRef.current;
-    if (!canvas) return;
-    return startStage({
-      canvas,
-      uniformsRef: stageUniformsRef,
-      onPainted: () => setGpuPainted(true),
-    });
-  }, []);
 
   useEffect(() => {
     if (webgl) return;
@@ -386,41 +323,17 @@ export function MaserBotCard({
     killCardLight();
   }
 
-  function onStageMove(event: PointerEvent<HTMLElement>) {
+  function onFieldMove(event: PointerEvent<HTMLElement>) {
     if (reduced) return;
     lookPointerRef.current = {
       clientX: event.clientX,
       clientY: event.clientY,
       tracking: true,
     };
-    if (!bgInteractive) return;
-    const canvas = stageRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    stageUniformsRef.current = {
-      ...stageUniformsRef.current,
-      pointerX: Math.min(
-        1,
-        Math.max(0, (event.clientX - rect.left) / Math.max(rect.width, 1)),
-      ),
-      pointerY: Math.min(
-        1,
-        Math.max(0, (event.clientY - rect.top) / Math.max(rect.height, 1)),
-      ),
-      tracking: 1,
-      intensity: bgIntensityRef.current,
-      reduced: 0,
-    };
   }
 
-  function onStageLeave() {
+  function onFieldLeave() {
     lookPointerRef.current = null;
-    stageUniformsRef.current = {
-      ...stageUniformsRef.current,
-      tracking: 0,
-      reduced: reducedRef.current || !bgInteractiveRef.current ? 1 : 0,
-      intensity: bgIntensityRef.current,
-    };
   }
 
   const otherFace: MaserBotCardFace = face === "front" ? "back" : "front";
@@ -435,22 +348,12 @@ export function MaserBotCard({
       data-tilt={tiltOn ? "true" : "false"}
       data-shine={shineOn ? "true" : "false"}
       data-face={face}
-      data-bg={bgMode}
-      data-gpu={gpuPainted ? "painting" : "pending"}
       data-gl={webgl ? "true" : "false"}
       data-maps={faceMapsReady ? "ready" : "pending"}
-      onPointerMove={onStageMove}
-      onPointerLeave={onStageLeave}
+      onPointerMove={onFieldMove}
+      onPointerLeave={onFieldLeave}
     >
-      <div
-        className="maser-bot-card__bg"
-        data-mode={bgMode}
-        data-interactive={bgInteractive ? "true" : "false"}
-        data-slot="stage-bg"
-        aria-hidden
-      >
-        <canvas ref={stageRef} className="maser-bot-card__stage" />
-      </div>
+      <div className="maser-bot-card__bg" data-slot="ground" aria-hidden />
       <div ref={sceneRef} className="maser-bot-card__scene">
         <div ref={stackRef} className="maser-bot-card__card-stack">
           <div className="maser-bot-card__shadow" aria-hidden />
@@ -527,8 +430,4 @@ export function MaserBotCard({
   );
 }
 
-export type {
-  MaserBotCardBgMode,
-  MaserBotCardFace,
-  MaserBotCardProps,
-} from "./types";
+export type { MaserBotCardFace, MaserBotCardProps } from "./types";

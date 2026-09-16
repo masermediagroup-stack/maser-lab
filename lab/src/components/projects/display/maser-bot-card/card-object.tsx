@@ -43,8 +43,14 @@ import type { MaserBotCardFace } from "./types";
 
 const ART = 1299;
 const RADIUS_N = 80;
-/** Mesh and face overlay share this fraction of the square stack. */
-export const CARD_FIT = 0.88;
+/** Rest card vs CSS stack. Face overlay uses this; the WebGL viewport is larger. */
+export const CARD_FIT_STACK = 0.88;
+/**
+ * Canvas vs stack. Y-flip perspective lengthens the near lid (~25% at 90°).
+ * Expand the viewport so lids stay inside the bitmap — rest size stays CARD_FIT_STACK.
+ */
+export const FLIP_SAFE = 1.42;
+export const CARD_FIT = CARD_FIT_STACK / FLIP_SAFE;
 export const CARD_FOV = 26;
 /** Thickness as a fraction of face width — weight on tilt/flip, not a slab. */
 const DEPTH_FIT = 0.05;
@@ -595,7 +601,7 @@ type CardObjectProps = {
  * Physical card body: thin rounded cuboid (ExtrudeGeometry, no bevel).
  * Type, mark, and sheen are painted on the lid maps (flat Display Trial).
  * Pose + one-shot flip live on this cuboid — no extra mark/sheen planes.
- * No Three.js GLSL — stage shaders stay vgpu.
+ * No Three.js GLSL. Ground is CSS slate, not a stage shader.
  */
 export function CardObject({
   poseRef,

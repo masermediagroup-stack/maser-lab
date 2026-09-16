@@ -48,10 +48,9 @@ Until Figma locks values, Spark may scaffold knobs only:
 - **Tilt** — on/off, max angle feel (leave numbers to live timing)
 - **Shine** — on/off, quiet intensity (pointer-only; no rest sheen)
 - **Face** — front / back (same as the product flip control)
-- **Bg** — calm (black + TL grey, no cursor cloud) / interactive (quiet pointer cloud). vgpu stage only — not the card face.
 - **Replay / reduced motion** — shared lab row
 
-Look knobs live in the demo. The product card never imports demo chrome.
+Look knobs live in the demo. The product card never imports demo chrome. **Bg / Stage-bg knobs are refused** (CleanSlateGround).
 
 ## Observable decisions so far (Verb+Noun)
 
@@ -61,7 +60,7 @@ Look knobs live in the demo. The product card never imports demo chrome.
 - Wordmark on **Front v1** (`1:20`). Live capsule + identity type on **Back v1** (`1:2`). No capsule on front. No animated mark on front.
 - Card face stays solid `#000`. No idle center light, rest sheen, parked highlight, or center bloom. Tilt + quieter sheen only while the pointer is on the card. Leave (including a fast swipe) kills the light clean.
 - **One card face:** Type sits on the black face. Tilt and quieter sheen live on that face. No outline rim, no bevel, no chrome edge, no second plane around the type. Type stays flat Display Trial — not embossed, not metallic.
-- Stage bg is vgpu: black field, small grey gradient from the top-left, plus a small quiet cloud-type cursor following the pointer. Not the old Bayer/wave dither. Not on the card face or the type. Pointer moves the card, not a wallpaper. Do not boot a new raw WebGL stack for the stage.
+- Stage bg **superseded by CleanSlateGround (2026-09-16):** CSS slate `#F7F5F0` only. Historical vgpu (TL grey + pointer cloud) produced no visible change on the off-white ground — knobs and shader loop removed.
 - Lock Back v1 mark to Bloub engine, capsule, bleu `#3b93f0`. One catalog curl per page load on **Back v1 only**: neutre → attentif → curieux → mefiant → thinking → fier → neutre, then stop. Eyes follow the pointer after that until refresh. Do not replay the curl. Clamp gaze so the full eye stays inside the capsule, inset from the silhouette. Never clip or leave the face. Reduced motion plants `neutre`. Refuse `defaultCycle`, the old idle→thinking→wide curl, and Maser blue `#10A4FF`.
 - Typeset **only** Front v1 (`1:20`) and Back v1 (`1:2`) plus wordmark `1:22`. Every other frame in GrokBot-Loop-DemoCard (v2/v3, Assets, parked ideas) stays parked. Do not pull extra type, marks, or layouts from them.
 - One card as the hero. No collage of windows.
@@ -281,13 +280,22 @@ Talk: **card, face, fill, ground, bezel, type, mark.** Never plate.
 3. **Ground default off-white.** Demo Background ground defaults to `#F7F5F0` (DesignEngLoop deck paper). Face fill stays `#000000`. Ground never paints fill, type, or mark. Override prior default ground `#000000` and `#F4F1EA`.
 4. **Mark motion.** One catalog curl per load, then pointer gaze. Do not replay the curl.
 
+## Park locks (Pixel Pusher — 2026-09-16, FlipNoClip + CleanSlateGround)
+
+Talk: **card, face, fill, ground, bezel, type, mark.** Never plate.
+
+5. **FlipNoClip.** Front↔Back flip must not crop the card at the top or bottom. Expand the WebGL viewport / safe radius around the rest card so the full lids stay visible through the 180° turn. Tilt at rest already reads — do not recut tilt to “fix” flip crop. Bad: canvas tight to the rest square so perspective lengthens the near lid into a clip. Good: rest size held; bitmap around the card is large enough for the flip.
+6. **CleanSlateGround.** One ground: off-white `#F7F5F0`. No Stage-bg Calm / Interactive (or “can”) knobs. No intensity slider that does not change what you see. No vgpu field, TL grey wash, or pointer-cloud loop on this demo. Ground is CSS slate only. Fill stays `#000000`. Ground never paints fill, type, or mark.
+
+Refuse: dead Stage-bg options, shader loops with no visible change, flip that shears the lids on the canvas edge.
+
 ## Critique lock (2026-09-16 — shared tilt, one card, off-white ground)
 
 Human: do not stop until all three clear. Encode here. Do not recut past these.
 
 1. **Mark in the card.** Back mace logo lives in the **main card layer** — same 3D object as the face, bezel, rim. Tilt shares perspective with the card. Bad: a 2D overlay / separate plane that slides against the card. Good: logo turns with the card.
 2. **One card, one light.** Kill nested-card / double-bezel. Light hit must not read as an inner card inside another black card. One face, one rim, sheen on that face. No second frame, no inner fill sitting in a well.
-3. **Default ground = off-white.** Not black. Card fill stays `#000000`. Background knob still changes the **ground** only. Override prior “default ground `#000000`.” Suggested ground: paper `#F7F5F0` (DesignEngLoop deck paper) unless Spark already has an off-white token on this demo.
+3. **Default ground = off-white.** Not black. Card fill stays `#000000`. **CleanSlateGround** (same day): the ground is locked slate `#F7F5F0`. No Background / Stage-bg knobs. Override prior “default ground `#000000`” and “Background knob still changes the ground.”
 
 Refuse: stacked bevels, inner-card light, mark that does not share the card’s transform, black as the default ground.
 

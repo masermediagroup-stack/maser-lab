@@ -1,4 +1,3 @@
-export type MaserBotCardBgMode = "calm" | "interactive";
 export type MaserBotCardFace = "front" | "back";
 
 export type MaserBotCardProps = {
@@ -9,10 +8,7 @@ export type MaserBotCardProps = {
   shineIntensity?: number;
   face?: MaserBotCardFace;
   onFaceChange?: (face: MaserBotCardFace) => void;
-  /** Stage field (vgpu). Card face stays solid #000. */
-  bgMode?: MaserBotCardBgMode;
-  bgIntensity?: number;
-  /** Stage ground only (demo Background knob). Card fill stays #000. Default off-white `#F7F5F0`. */
+  /** Clean slate ground only. Card fill stays #000. Default off-white `#F7F5F0`. */
   groundColor?: string;
   forceReducedMotion?: boolean;
   className?: string;
