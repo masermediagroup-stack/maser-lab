@@ -274,7 +274,6 @@ export function startSilkWebgl(
     last = now;
     const look = lookRef.current;
     if (!pausedRef.current) hold += dt * look.speed;
-    pinGradientCanvas(canvas);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.useProgram(program);
     gl.bindVertexArray(vao);

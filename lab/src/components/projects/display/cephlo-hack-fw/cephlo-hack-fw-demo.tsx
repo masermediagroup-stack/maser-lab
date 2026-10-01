@@ -154,24 +154,15 @@ export function CephloHackFwDemo() {
   );
 
   const enterPresentation = useCallback(async () => {
-    const host = rootRef.current;
-    if (!host) return;
-    host.dataset.presenting = "true";
-    setIsPresentation(true);
     const stage = stageRef.current;
-    if (stage) {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const cover = coverScale(w, h);
-      stage.style.setProperty("--cephlo-fit-scale", String(cover));
-      stage.style.setProperty("--cephlo-cover-scale", String(cover));
-    }
+    if (!stage) return;
+    setIsPresentation(true);
     try {
       if (!document.fullscreenElement) {
-        await host.requestFullscreen();
+        await stage.requestFullscreen();
       }
     } catch {
-      /* CSS viewport cover stays on; Esc exits. */
+      setIsPresentation(false);
     }
   }, []);
 
