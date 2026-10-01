@@ -81,14 +81,23 @@ export function CephloHackFwDemo() {
     const fit = () => {
       const w = stage.clientWidth;
       const h = stage.clientHeight;
-      stage.style.setProperty("--cephlo-fit-scale", String(containScale(w, h)));
-      stage.style.setProperty("--cephlo-cover-scale", String(coverScale(w, h)));
+      const presenting = document.fullscreenElement === stage;
+      const cover = coverScale(w, h);
+      /* Preview: cover shader, contain lockup. Present: cover both (no letterbox). */
+      const lockup = presenting ? cover : containScale(w, h);
+      stage.style.setProperty("--cephlo-fit-scale", String(lockup));
+      stage.style.setProperty("--cephlo-cover-scale", String(cover));
+      stage.dataset.presentation = presenting ? "true" : "false";
     };
     fit();
     const observer = new ResizeObserver(fit);
     observer.observe(stage);
-    return () => observer.disconnect();
-  }, [isPresentation]);
+    document.addEventListener("fullscreenchange", fit);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("fullscreenchange", fit);
+    };
+  }, []);
 
   useEffect(() => {
     const root = rootRef.current;
