@@ -22,7 +22,7 @@ export type SilkLook = {
   drift: number;
   /** Film-grain / noise mix on top of the silk (0 = none). */
   grain: number;
-  /** Ordered-dither strength (0 = smooth gradient, 1 = coarse Bayer steps). */
+  /** Ordered-dither strength (0 = smooth; 1 = legacy max; up to 2.5 = coarser Bayer). */
   dither: number;
 };
 
@@ -39,7 +39,7 @@ export const DEFAULT_SILK_LOOK: SilkLook = {
   rotate: 0.015,
   drift: 0.09,
   grain: 0.75,
-  dither: 0.45,
+  dither: 1,
 };
 
 /**
@@ -57,7 +57,7 @@ export const SILK_LOOK_RANGES = {
   rotate: { min: 0, max: 0.06, step: 0.005 },
   drift: { min: 0, max: 0.2, step: 0.01 },
   grain: { min: 0, max: 1, step: 0.05 },
-  dither: { min: 0, max: 1, step: 0.05 },
+  dither: { min: 0, max: 2.5, step: 0.05 },
 } as const;
 
 export function clampSilkLook(look: SilkLook): SilkLook {

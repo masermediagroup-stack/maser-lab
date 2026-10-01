@@ -39,9 +39,9 @@ describe("Cephlo Hack FW", () => {
   });
 
   it("clamps dither onto the slider range", () => {
-    expect(DEFAULT_SILK_LOOK.dither).toBeGreaterThan(0);
-    expect(SILK_LOOK_RANGES.dither).toEqual({ min: 0, max: 1, step: 0.05 });
-    expect(clampSilkLook({ ...DEFAULT_SILK_LOOK, dither: 4 }).dither).toBe(1);
+    expect(DEFAULT_SILK_LOOK.dither).toBe(1);
+    expect(SILK_LOOK_RANGES.dither).toEqual({ min: 0, max: 2.5, step: 0.05 });
+    expect(clampSilkLook({ ...DEFAULT_SILK_LOOK, dither: 4 }).dither).toBe(2.5);
     expect(clampSilkLook({ ...DEFAULT_SILK_LOOK, dither: -1 }).dither).toBe(0);
   });
 });

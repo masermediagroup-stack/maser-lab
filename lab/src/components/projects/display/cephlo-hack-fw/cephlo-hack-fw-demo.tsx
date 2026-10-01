@@ -23,7 +23,7 @@ import {
   LOOP_DURATION_OPTIONS,
   LOOP_MAX_SECONDS,
 } from "./loop";
-import { containScale } from "./fit-stage";
+import { containScale, coverScale } from "./fit-stage";
 import { DEFAULT_SILK_LOOK, SILK_LOOK_RANGES, type SilkLook } from "./silk-look";
 import { runCephloTypeLock } from "./type-lock";
 import "./tokens.css";
@@ -79,10 +79,10 @@ export function CephloHackFwDemo() {
     const stage = stageRef.current;
     if (!stage) return;
     const fit = () => {
-      stage.style.setProperty(
-        "--cephlo-fit-scale",
-        String(containScale(stage.clientWidth, stage.clientHeight)),
-      );
+      const w = stage.clientWidth;
+      const h = stage.clientHeight;
+      stage.style.setProperty("--cephlo-fit-scale", String(containScale(w, h)));
+      stage.style.setProperty("--cephlo-cover-scale", String(coverScale(w, h)));
     };
     fit();
     const observer = new ResizeObserver(fit);
@@ -201,19 +201,17 @@ export function CephloHackFwDemo() {
         className="lab-demo-field cephlo-demo__stage"
         aria-label="Cephlo Hack FW wallpaper"
       >
-        <div className="cephlo-demo__fit">
-          <CephloHackFwWallpaper
-            reducedMotion={reducedMotion}
-            playing={playing}
-            timeSeconds={controlledTime}
-            onFrameTime={handleFrameTime}
-            loopSeconds={loopSeconds}
-            resetNonce={resetNonce}
-            headlineText={headlineText}
-            upNextText={upNextText}
-            silkLook={silkLook}
-          />
-        </div>
+        <CephloHackFwWallpaper
+          reducedMotion={reducedMotion}
+          playing={playing}
+          timeSeconds={controlledTime}
+          onFrameTime={handleFrameTime}
+          loopSeconds={loopSeconds}
+          resetNonce={resetNonce}
+          headlineText={headlineText}
+          upNextText={upNextText}
+          silkLook={silkLook}
+        />
       </section>
 
       {!isPresentation ? (

@@ -149,11 +149,16 @@ vec3 cephloBlue(float n, float crease, float ridgeAmt, float grain, float vert) 
 
 vec3 applyDither(vec3 col, float amount, vec2 frag) {
   if (amount <= 0.001) return col;
+  float strength = clamp(amount, 0.0, 2.5);
   float b = bayer8(frag);
-  float levels = mix(36.0, 5.0, amount);
+  float levels = mix(36.0, 5.0, min(strength, 1.0));
+  if (strength > 1.0) {
+    levels = mix(5.0, 2.0, (strength - 1.0) / 1.5);
+  }
   vec3 stepped = col + (b - 0.5) / levels;
   stepped = floor(stepped * levels + 0.5) / levels;
-  return clamp(mix(col, stepped, amount), 0.0, 1.0);
+  float mixAmt = min(strength, 1.0);
+  return clamp(mix(col, stepped, mixAmt), 0.0, 1.0);
 }
 
 void main() {
@@ -424,13 +429,18 @@ export function startSilkCpu(
           channel += (grain - 0.5) * noise;
           rgb[c] = Math.min(1, Math.max(0, channel));
         }
-        const dither = look.dither ?? DEFAULT_SILK_LOOK.dither;
+        const ditherRaw = look.dither ?? DEFAULT_SILK_LOOK.dither;
+        const dither = Math.min(2.5, Math.max(0, ditherRaw));
         if (dither > 0.001) {
           const b = bayer8Cpu(x, y);
-          const levels = 36 + (5 - 36) * dither;
+          let levels = 36 + (5 - 36) * Math.min(dither, 1);
+          if (dither > 1) {
+            levels = 5 + (2 - 5) * ((dither - 1) / 1.5);
+          }
+          const mixAmt = Math.min(dither, 1);
           for (let c = 0; c < 3; c += 1) {
             const stepped = Math.floor(((rgb[c] ?? 0) + (b - 0.5) / levels) * levels + 0.5) / levels;
-            const mixed = (rgb[c] ?? 0) * (1 - dither) + stepped * dither;
+            const mixed = (rgb[c] ?? 0) * (1 - mixAmt) + stepped * mixAmt;
             rgb[c] = Math.min(1, Math.max(0, mixed));
           }
         }

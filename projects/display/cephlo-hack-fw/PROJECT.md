@@ -35,7 +35,7 @@ Same stage behavior as the Dallas wallpaper, recolored and re-marked. Present is
 - No second logo carousel.
 
 ### Open decisions
-- Noise is the Dallas film-grain control, relabeled. Dither is a new uniform (`uDither`), default `0.45`.
+- Noise is the Dallas film-grain control, relabeled. Dither is a new uniform (`uDither`), default `1` (slider 0–2.5; values above 1 use coarser Bayer levels).
 - One static Cephlo lockup replaces the Grok / SpaceX / Cursor carousel.
 
 ## States
@@ -47,7 +47,7 @@ Same stage behavior as the Dallas wallpaper, recolored and re-marked. Present is
 - [x] frame-step and scrub
 - [x] presentation fullscreen
 - [x] export capture
-- [x] dither 0–1 above noise
+- [x] dither 0–2.5 above noise (default 1)
 
 ## Acceptance criteria
 

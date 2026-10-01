@@ -196,12 +196,8 @@ export function CephloHackFwWallpaper({
   }, [loopSeconds, onFrameTime, playing, reducedMotion, resetNonce, timeSeconds]);
 
   return (
-    <div
-      ref={stackRef}
-      className={`cephlo-wallpaper-stack ${className ?? ""}`.trim()}
-      aria-label="Cephlo Hack FW wallpaper"
-    >
-      <div className="cephlo-wallpaper-stack__ground" aria-hidden>
+    <>
+      <div className="cephlo-wallpaper-stack__ground cephlo-wallpaper-stack__ground--fill" aria-hidden>
         <canvas
           ref={groundCanvasRef}
           className="cephlo-wallpaper-ground-canvas"
@@ -209,6 +205,12 @@ export function CephloHackFwWallpaper({
           height={BASE_HEIGHT}
         />
       </div>
+      <div className="cephlo-demo__fit">
+        <div
+          ref={stackRef}
+          className={`cephlo-wallpaper-stack ${className ?? ""}`.trim()}
+          aria-label="Cephlo Hack FW wallpaper"
+        >
       <div className="cephlo-wallpaper-stack__lockup">
         {/* Native img keeps the lockup at its pixel size. Do not route it through Image. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -234,7 +236,9 @@ export function CephloHackFwWallpaper({
           ) : null}
         </div>
       </div>
-    </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -274,7 +278,7 @@ export async function exportCephloHackFwWallpaperLoop({
   if (!outCtx) throw new Error("Could not create a 2D canvas context.");
 
   const fontFamily = resolveFontFamily(document.querySelector(".cephlo-demo"));
-  const ground = snapshotGroundCanvas(document.querySelector(".cephlo-wallpaper-stack"));
+  const ground = snapshotGroundCanvas(document.querySelector(".cephlo-demo__stage"));
 
   const totalFrames = loopSeconds * FPS;
   const mp4Mime = "video/mp4;codecs=avc1.42E01E";
@@ -317,7 +321,7 @@ export async function exportCephloHackFwWallpaperLoop({
       outCtx.fillStyle = STAGE_FALLBACK;
       outCtx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
       const liveGround =
-        snapshotGroundCanvas(document.querySelector(".cephlo-wallpaper-stack")) ?? ground;
+        snapshotGroundCanvas(document.querySelector(".cephlo-demo__stage")) ?? ground;
       if (liveGround) {
         outCtx.drawImage(liveGround, 0, 0, BASE_WIDTH, BASE_HEIGHT);
       }

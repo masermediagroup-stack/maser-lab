@@ -52,14 +52,36 @@
 
 .cephlo-demo__stage {
   --cephlo-fit-scale: 1;
+  --cephlo-cover-scale: 1;
   background: linear-gradient(to bottom, var(--cephlo-blue-top), var(--cephlo-blue-bottom));
   overflow: hidden;
+}
+
+.cephlo-wallpaper-stack__ground--fill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--cephlo-blue-top), var(--cephlo-blue-bottom));
+}
+
+.cephlo-wallpaper-stack__ground--fill .cephlo-wallpaper-ground-canvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform: translate(-50%, -50%) scale(var(--cephlo-cover-scale, 1));
+  transform-origin: center center;
 }
 
 .cephlo-demo__fit {
   position: absolute;
   inset: 0;
+  z-index: 1;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .cephlo-demo__fit > .cephlo-wallpaper-stack {
@@ -175,4 +197,52 @@
   margin-top: 5.76px;
   font-size: 36px;
   font-weight: 300;
+}
+
+/* Demo dock — range thumbs on white; tracks darker grey; room for scrollbar. */
+.cephlo-demo .demo-control-bar.lab-dock-open {
+  padding-inline: 1rem 1.35rem;
+}
+
+.cephlo-demo .demo-control-bar.lab-dock-open > div:not(:first-child) {
+  scrollbar-gutter: stable;
+  padding-inline-end: 0.35rem;
+}
+
+.cephlo-demo .demo-control-bar .lab-range-input {
+  accent-color: #ffffff;
+  background: transparent;
+}
+
+.cephlo-demo .demo-control-bar .lab-range-input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #4a4a4a;
+}
+
+.cephlo-demo .demo-control-bar .lab-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border: none;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
+}
+
+.cephlo-demo .demo-control-bar .lab-range-input::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #4a4a4a;
+}
+
+.cephlo-demo .demo-control-bar .lab-range-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
 }

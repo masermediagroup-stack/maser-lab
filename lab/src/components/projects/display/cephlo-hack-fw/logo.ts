@@ -1,8 +1,9 @@
 /** Center Cephlo lockup. Native pixel size of the supplied mark. */
 
 export const CEPHLO_LOCKUP_SRC = "/assets/cephlo-hack-fw/cephlo-lockup.png";
-export const CEPHLO_LOCKUP_W = 779;
-export const CEPHLO_LOCKUP_H = 183;
+/** On-frame size (native asset 2393×561, same ~4.27 aspect). */
+export const CEPHLO_LOCKUP_W = 960;
+export const CEPHLO_LOCKUP_H = 225;
 
 export const FRAME_W = 1920;
 export const FRAME_H = 1080;
