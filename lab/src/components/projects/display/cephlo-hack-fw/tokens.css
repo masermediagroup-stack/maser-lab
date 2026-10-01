@@ -199,7 +199,7 @@
   font-weight: 300;
 }
 
-/* Demo dock — range thumbs on white; tracks darker grey; room for scrollbar. */
+/* Demo dock — Cephlo blue ranges; room for scrollbar. */
 .cephlo-demo .demo-control-bar.lab-dock-open {
   padding-inline: 1rem 1.35rem;
 }
@@ -210,14 +210,7 @@
 }
 
 .cephlo-demo .demo-control-bar .lab-range-input {
-  accent-color: #ffffff;
-  background: transparent;
-}
-
-.cephlo-demo .demo-control-bar .lab-range-input::-webkit-slider-runnable-track {
-  height: 4px;
-  border-radius: 999px;
-  background: #4a4a4a;
+  accent-color: var(--cephlo-blue-top);
 }
 
 .cephlo-demo .demo-control-bar .lab-range-input::-webkit-slider-thumb {
@@ -225,17 +218,10 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  margin-top: -6px;
   border: none;
   border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
-}
-
-.cephlo-demo .demo-control-bar .lab-range-input::-moz-range-track {
-  height: 4px;
-  border-radius: 999px;
-  background: #4a4a4a;
+  background: var(--cephlo-blue-top);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.28);
 }
 
 .cephlo-demo .demo-control-bar .lab-range-input::-moz-range-thumb {
@@ -243,6 +229,6 @@
   height: 16px;
   border: none;
   border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
+  background: var(--cephlo-blue-top);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.28);
 }
