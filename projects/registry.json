@@ -107,6 +107,13 @@
       "description": "Homepage CtaLogoTilt replacement: four-blob wash + in-place ASCII tick (not the footer wave)"
     },
     {
+      "slug": "cephlo-hack-fw",
+      "title": "Cephlo Hack FW",
+      "status": "building",
+      "category": "display",
+      "description": "TV wallpaper: Cephlo lockup on a blue moving gradient, with dither above the noise control."
+    },
+    {
       "slug": "dallas-meetup-tv-wallpaper",
       "title": "Dallas Meetup TV Wallpaper",
       "status": "building",

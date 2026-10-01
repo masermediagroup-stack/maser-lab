@@ -7,6 +7,7 @@ export default defineConfig({
     include: [
       "src/components/projects/display/maser-dither-engine/export/__tests__/**/*.test.ts",
       "src/components/projects/display/dallas-meetup-tv-wallpaper/__tests__/**/*.test.ts",
+      "src/components/projects/display/cephlo-hack-fw/__tests__/**/*.test.ts",
       "src/components/projects/scroll/type-world/__tests__/**/*.test.ts",
     ],
   },
