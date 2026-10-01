@@ -57,20 +57,40 @@
   overflow: hidden;
 }
 
-/* Present: stage is the fullscreen element — ignore dock insets and fill the display. */
-.cephlo-demo__stage:fullscreen {
-  position: fixed;
-  inset: 0;
+/* Present: cover the viewport even if the Fullscreen API is ignored. */
+.cephlo-demo[data-presenting="true"],
+.cephlo-demo:fullscreen,
+.cephlo-demo:-webkit-full-screen {
+  background: #2a10d6;
+}
+
+.cephlo-demo[data-presenting="true"] .cephlo-demo__stage,
+.cephlo-demo__stage:fullscreen,
+.cephlo-demo__stage:-webkit-full-screen {
+  position: fixed !important;
+  inset: 0 !important;
   left: 0 !important;
   top: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
+  width: 100vw !important;
+  height: 100dvh !important;
   max-width: none;
   max-height: none;
   margin: 0;
   padding: 0;
+  z-index: 60;
+}
+
+.cephlo-demo[data-presenting="true"] .cephlo-wallpaper-ground-canvas,
+.cephlo-demo__stage:fullscreen .cephlo-wallpaper-ground-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: none !important;
 }
 
 .cephlo-wallpaper-stack__ground--fill {

@@ -11,9 +11,18 @@ export const GRADIENT_FLOOR = 10 / 255;
 
 export type GradientPausedRef = { current: boolean };
 
+/** Drawing buffer tracks the stage. CSS fills the parent — never a fixed 1920×1080 box. */
 export function pinGradientCanvas(canvas: HTMLCanvasElement) {
-  canvas.width = GRADIENT_STAGE_W;
-  canvas.height = GRADIENT_STAGE_H;
-  canvas.style.width = `${GRADIENT_STAGE_W}px`;
-  canvas.style.height = `${GRADIENT_STAGE_H}px`;
+  const parent = canvas.parentElement;
+  const rect = parent?.getBoundingClientRect();
+  const cssW = Math.max(1, Math.round(rect?.width || window.innerWidth));
+  const cssH = Math.max(1, Math.round(rect?.height || window.innerHeight));
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const nextW = Math.max(1, Math.floor(cssW * dpr));
+  const nextH = Math.max(1, Math.floor(cssH * dpr));
+  if (canvas.style.width !== "100%") canvas.style.width = "100%";
+  if (canvas.style.height !== "100%") canvas.style.height = "100%";
+  if (canvas.style.transform !== "none") canvas.style.transform = "none";
+  if (canvas.width !== nextW) canvas.width = nextW;
+  if (canvas.height !== nextH) canvas.height = nextH;
 }

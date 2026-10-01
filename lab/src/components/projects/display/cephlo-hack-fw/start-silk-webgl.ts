@@ -2,6 +2,7 @@ import {
   GRADIENT_FALLBACK,
   GRADIENT_STAGE_H,
   GRADIENT_STAGE_W,
+  pinGradientCanvas,
   type GradientPausedRef,
 } from "./moving-gradient-config";
 import { DEFAULT_SILK_LOOK, type SilkLookRef } from "./silk-look";
@@ -253,10 +254,7 @@ export function startSilkWebgl(
     return null;
   }
 
-  canvas.width = GRADIENT_STAGE_W;
-  canvas.height = GRADIENT_STAGE_H;
-  canvas.style.width = `${GRADIENT_STAGE_W}px`;
-  canvas.style.height = `${GRADIENT_STAGE_H}px`;
+  pinGradientCanvas(canvas);
   canvas.dataset.cephloGround = "webgl2";
 
   gl.bindVertexArray(vao);
@@ -276,6 +274,7 @@ export function startSilkWebgl(
     last = now;
     const look = lookRef.current;
     if (!pausedRef.current) hold += dt * look.speed;
+    pinGradientCanvas(canvas);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.useProgram(program);
     gl.bindVertexArray(vao);
@@ -360,8 +359,11 @@ export function startSilkCpu(
   const h = 90;
   canvas.width = w;
   canvas.height = h;
-  canvas.style.width = `${GRADIENT_STAGE_W}px`;
-  canvas.style.height = `${GRADIENT_STAGE_H}px`;
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+  canvas.style.left = "0";
+  canvas.style.top = "0";
+  canvas.style.transform = "none";
   canvas.dataset.cephloGround = "cpu-shader";
 
   const ctx = canvas.getContext("2d", { alpha: false });

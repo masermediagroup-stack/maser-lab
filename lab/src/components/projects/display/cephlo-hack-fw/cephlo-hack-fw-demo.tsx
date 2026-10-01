@@ -68,11 +68,26 @@ export function CephloHackFwDemo() {
 
   useEffect(() => {
     const sync = () => {
-      setIsPresentation(!!document.fullscreenElement);
+      const host = rootRef.current;
+      const presenting = !!document.fullscreenElement;
+      if (!presenting && host) host.dataset.presenting = "false";
+      setIsPresentation(presenting || host?.dataset.presenting === "true");
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      const host = rootRef.current;
+      if (!host || host.dataset.presenting !== "true") return;
+      host.dataset.presenting = "false";
+      setIsPresentation(false);
+      if (document.fullscreenElement) void document.exitFullscreen();
     };
     document.addEventListener("fullscreenchange", sync);
+    document.addEventListener("keydown", onKey);
     sync();
-    return () => document.removeEventListener("fullscreenchange", sync);
+    return () => {
+      document.removeEventListener("fullscreenchange", sync);
+      document.removeEventListener("keydown", onKey);
+    };
   }, []);
 
   useEffect(() => {
@@ -81,7 +96,9 @@ export function CephloHackFwDemo() {
     const fit = () => {
       const w = stage.clientWidth;
       const h = stage.clientHeight;
-      const presenting = document.fullscreenElement === stage;
+      const presenting =
+        document.fullscreenElement != null ||
+        rootRef.current?.dataset.presenting === "true";
       const cover = coverScale(w, h);
       /* Preview: cover shader, contain lockup. Present: cover both (no letterbox). */
       const lockup = presenting ? cover : containScale(w, h);
@@ -137,18 +154,24 @@ export function CephloHackFwDemo() {
   );
 
   const enterPresentation = useCallback(async () => {
-    const root = stageRef.current;
-    if (!root) return;
+    const host = rootRef.current;
+    if (!host) return;
+    host.dataset.presenting = "true";
+    setIsPresentation(true);
+    const stage = stageRef.current;
+    if (stage) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const cover = coverScale(w, h);
+      stage.style.setProperty("--cephlo-fit-scale", String(cover));
+      stage.style.setProperty("--cephlo-cover-scale", String(cover));
+    }
     try {
       if (!document.fullscreenElement) {
-        await root.requestFullscreen();
-      }
-      await new Promise((r) => setTimeout(r, 50));
-      if (!document.fullscreenElement) {
-        setIsPresentation(false);
+        await host.requestFullscreen();
       }
     } catch {
-      setIsPresentation(false);
+      /* CSS viewport cover stays on; Esc exits. */
     }
   }, []);
 
