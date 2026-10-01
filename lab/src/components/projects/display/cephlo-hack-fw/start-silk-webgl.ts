@@ -1,6 +1,5 @@
 import {
   GRADIENT_FALLBACK,
-  GRADIENT_FLOOR,
   GRADIENT_STAGE_H,
   GRADIENT_STAGE_W,
   type GradientPausedRef,
@@ -135,14 +134,17 @@ float bayer8(vec2 fc) {
   return float(16 * q3 + 4 * q2 + q1) / 64.0;
 }
 
-vec3 cephloBlue(float shade, float vert, float ridgeAmt) {
-  vec3 topBlue = vec3(0.2000, 0.4118, 1.0);   /* #3369FF */
-  vec3 botBlue = vec3(0.1647, 0.0627, 0.8392); /* #2A10D6 */
-  vec3 deepBlue = vec3(0.0784, 0.0157, 0.3922);
-  vec3 ridgeBlue = vec3(0.7059, 0.8157, 1.0);
-  vec3 wash = mix(botBlue, topBlue, vert);
-  vec3 col = mix(deepBlue, wash, shade);
-  return mix(col, ridgeBlue, ridgeAmt);
+/* Reference wash: #3369FF at the top, #2A10D6 at the bottom. Folds stay inside that ramp. */
+vec3 cephloBlue(float n, float crease, float ridgeAmt, float grain, float vert) {
+  vec3 topBlue = vec3(0.2000, 0.4118, 1.0);
+  vec3 botBlue = vec3(0.1647, 0.0627, 0.8392);
+  vec3 wash = mix(botBlue, topBlue, clamp(vert, 0.0, 1.0));
+  float body = mix(0.72, 1.0, clamp(uGrey, 0.0, 1.0));
+  vec3 col = mix(wash * body, wash, 0.45 + 0.55 * n);
+  col = mix(col, botBlue * 0.8, crease * 0.22);
+  col = mix(col, mix(topBlue, vec3(0.82, 0.9, 1.0), clamp(uWhite, 0.0, 1.0)), ridgeAmt);
+  col += (grain - 0.5) * uGrain * 0.05;
+  return clamp(col, 0.0, 1.0);
 }
 
 vec3 applyDither(vec3 col, float amount, vec2 frag) {
@@ -171,16 +173,9 @@ void main() {
   float n = clamp(remap(-0.55, 0.55, 0.0, 1.0, field), 0.0, 1.0);
   float crease = pow(smoothstep(0.08, 0.62, length(r)), 1.15);
 
-  float g = mix(FLOOR, uGrey, n);
-  g = mix(g, FLOOR * 0.5, crease * 0.88);
   float ridge = smoothstep(0.58, 0.94, n) * (1.0 - crease);
-  g = mix(g, uWhite, ridge * uRidge);
   float grain = hash12(gl_FragCoord.xy + vec2(t * 61.0, t * 37.0));
-  g += (grain - 0.5) * uGrain * 0.18;
-  g = clamp(g, FLOOR * 0.45, 0.92);
-
-  float shade = clamp((g - FLOOR * 0.45) / (0.92 - FLOOR * 0.45), 0.0, 1.0);
-  vec3 col = cephloBlue(shade, vUv.y, ridge * uRidge * 0.62);
+  vec3 col = cephloBlue(n, crease, ridge * uRidge * 0.55, grain, vUv.y);
   col = applyDither(col, uDither, gl_FragCoord.xy);
   fragColor = vec4(col, 1.0);
 }
@@ -257,7 +252,7 @@ export function startSilkWebgl(
   canvas.height = GRADIENT_STAGE_H;
   canvas.style.width = `${GRADIENT_STAGE_W}px`;
   canvas.style.height = `${GRADIENT_STAGE_H}px`;
-  canvas.dataset.dallasGround = "webgl2";
+  canvas.dataset.cephloGround = "webgl2";
 
   gl.bindVertexArray(vao);
   gl.useProgram(program);
@@ -362,7 +357,7 @@ export function startSilkCpu(
   canvas.height = h;
   canvas.style.width = `${GRADIENT_STAGE_W}px`;
   canvas.style.height = `${GRADIENT_STAGE_H}px`;
-  canvas.dataset.dallasGround = "cpu-shader";
+  canvas.dataset.cephloGround = "cpu-shader";
 
   const ctx = canvas.getContext("2d", { alpha: false });
   if (!ctx) {
@@ -373,7 +368,6 @@ export function startSilkCpu(
   const image = ctx.createImageData(w, h);
   const data = image.data;
   const aspect = GRADIENT_STAGE_W / GRADIENT_STAGE_H;
-  const floor = GRADIENT_FLOOR;
 
   let raf = 0;
   let hold = 0;
@@ -413,27 +407,22 @@ export function startSilkCpu(
           Math.min(1, Math.max(0, (Math.hypot(r0, r1) - 0.12) / 0.6)),
           1.4,
         );
-        let g = floor + (look.grey - floor) * n;
-        g = g + (floor * 0.5 - g) * crease * 0.88;
         const ridge = Math.min(1, Math.max(0, (n - 0.58) / 0.36)) * (1 - crease);
-        g = g + (look.white - g) * ridge * look.ridge;
-        const grain = hash21(x + t * 61, y + t * 37) - 0.5;
-        g += grain * (look.grain ?? DEFAULT_SILK_LOOK.grain) * 0.18;
-        g = Math.min(0.92, Math.max(floor * 0.45, g));
-        const shade = (g - floor * 0.45) / (0.92 - floor * 0.45);
+        const grain = hash21(x + t * 61, y + t * 37);
         const vert = 1 - (y + 0.5) / h;
         const top = [0.2, 0.4118, 1];
         const bot = [0.1647, 0.0627, 0.8392];
-        const deep = [0.0784, 0.0157, 0.3922];
-        const ridgeCol = [0.7059, 0.8157, 1];
-        const s = Math.min(1, Math.max(0, shade));
-        const ridgeAmt = Math.min(1, Math.max(0, (n - 0.58) / 0.36)) * (1 - crease) * look.ridge * 0.62;
+        const ridgeCol = [0.72, 0.84, 1];
+        const ridgeAmt = ridge * look.ridge * 0.55;
+        const noise = (look.grain ?? DEFAULT_SILK_LOOK.grain) * 0.05;
         const rgb = [0, 0, 0];
         for (let c = 0; c < 3; c += 1) {
           const wash = bot[c]! * (1 - vert) + top[c]! * vert;
-          let channel = deep[c]! * (1 - s) + wash * s;
+          let channel = wash * 0.88 * (1 - (0.4 + 0.6 * n)) + wash * (0.4 + 0.6 * n);
+          channel = channel * (1 - crease * 0.22) + bot[c]! * 0.78 * crease * 0.22;
           channel = channel * (1 - ridgeAmt) + ridgeCol[c]! * ridgeAmt;
-          rgb[c] = channel;
+          channel += (grain - 0.5) * noise;
+          rgb[c] = Math.min(1, Math.max(0, channel));
         }
         const dither = look.dither ?? DEFAULT_SILK_LOOK.dither;
         if (dither > 0.001) {
