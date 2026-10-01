@@ -1,0 +1,234 @@
+/*
+ * Cephlo Hack FW — product tokens.
+ *
+ * True 1920×1080 stage. Blue moving gradient. Cephlo lockup + HTML Universal Sans TTF.
+ * Demo letterboxes the board with --cephlo-fit-scale (uniform). Do not stretch marks or type.
+ * Lab demo chrome uses shared Geist roles from maser-lab-tokens — do not override
+ * `.demo-control-bar` here.
+ */
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src: url("/fonts/UniversalSansGrokTest-Display-400-Trial.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial";
+  src: url("/fonts/UniversalSansGrokTest-Display-300-Trial.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "UniversalSansGrokTest Display Trial 400";
+  src: url("/fonts/UniversalSansGrokTest-Display-400-Trial.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+.cephlo-demo,
+.cephlo-demo.maser-lab {
+  --cephlo-stage: #2a10d6;
+  --cephlo-blue-top: #3369ff;
+  --cephlo-blue-bottom: #2a10d6;
+  --cephlo-text-on-dark: #ffffff;
+  --cephlo-loop-seconds: 120s;
+
+  --cephlo-font: "UniversalSansGrokTest Display Trial", "UniversalSansGrokTest Display Trial 400", ui-sans-serif, system-ui, sans-serif;
+  --cephlo-font-ui: var(--font-ibm-plex-sans-condensed), "IBM Plex Sans Condensed", "Arial Narrow", "Nimbus Sans Narrow", sans-serif;
+
+  --cephlo-display-px: 48px;
+  --cephlo-subline-px: 36px;
+
+  min-height: 100dvh;
+  background: var(--cephlo-stage);
+  color: var(--cephlo-text-on-dark);
+}
+
+.cephlo-demo__stage {
+  --cephlo-fit-scale: 1;
+  --cephlo-cover-scale: 1;
+  background: linear-gradient(to bottom, var(--cephlo-blue-top), var(--cephlo-blue-bottom));
+  overflow: hidden;
+}
+
+.cephlo-wallpaper-stack__ground--fill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--cephlo-blue-top), var(--cephlo-blue-bottom));
+}
+
+.cephlo-wallpaper-stack__ground--fill .cephlo-wallpaper-ground-canvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform: translate(-50%, -50%) scale(var(--cephlo-cover-scale, 1));
+  transform-origin: center center;
+}
+
+.cephlo-demo__fit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cephlo-demo__fit > .cephlo-wallpaper-stack {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1920px;
+  height: 1080px;
+  margin: 0;
+  transform: translate(-50%, -50%) scale(var(--cephlo-fit-scale, 1));
+  transform-origin: center center;
+}
+
+.cephlo-wallpaper-stack {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  isolation: isolate;
+  overflow: hidden;
+  contain: strict;
+}
+
+.cephlo-wallpaper-stack__ground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--cephlo-blue-top), var(--cephlo-blue-bottom));
+}
+
+.cephlo-wallpaper-ground-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 1920px;
+  height: 1080px;
+  display: block;
+  max-width: none;
+  max-height: none;
+  filter: none;
+  transform: none;
+}
+
+.cephlo-wallpaper-stack__lockup {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+  isolation: isolate;
+  mix-blend-mode: normal;
+}
+
+.cephlo-wallpaper-mark {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+  aspect-ratio: auto;
+  opacity: 1;
+  filter: none;
+  box-shadow: none;
+  text-shadow: none;
+  transform: none;
+  mix-blend-mode: normal;
+  image-rendering: auto;
+}
+
+.cephlo-wallpaper-type {
+  position: absolute;
+  left: 72px;
+  top: 931px;
+  margin: 0;
+  padding: 0;
+  width: 1776px;
+  transform: none;
+  filter: none;
+  text-shadow: none;
+  mix-blend-mode: normal;
+}
+
+.cephlo-wallpaper-type__headline,
+.cephlo-wallpaper-type__subline {
+  margin: 0;
+  padding: 0;
+  color: var(--cephlo-text-on-dark);
+  font-family: var(--cephlo-font);
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 1;
+  white-space: nowrap;
+  transform: none;
+  filter: none;
+  text-shadow: none;
+  text-rendering: auto;
+}
+
+.cephlo-wallpaper-type__headline {
+  font-size: 48px;
+  font-weight: 400;
+}
+
+.cephlo-wallpaper-type__subline {
+  margin-top: 5.76px;
+  font-size: 36px;
+  font-weight: 300;
+}
+
+/* Demo dock — Cephlo blue ranges; room for scrollbar. */
+.cephlo-demo .demo-control-bar.lab-dock-open {
+  padding-inline: 1rem 1.35rem;
+}
+
+.cephlo-demo .demo-control-bar.lab-dock-open > div:not(:first-child) {
+  scrollbar-gutter: stable;
+  padding-inline-end: 0.35rem;
+}
+
+.cephlo-demo .demo-control-bar .lab-range-input {
+  accent-color: var(--cephlo-blue-top);
+}
+
+.cephlo-demo .demo-control-bar .lab-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: var(--cephlo-blue-top);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.28);
+}
+
+.cephlo-demo .demo-control-bar .lab-range-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: var(--cephlo-blue-top);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.28);
+}
